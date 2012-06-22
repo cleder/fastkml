@@ -19,6 +19,7 @@ Create and read KML Files""",
       zip_safe=False,
       install_requires=[
           # -*- Extra requirements: -*-
+          'shapely',
       ],
       entry_points="""
       # -*- Entry points: -*-
