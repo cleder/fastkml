@@ -22,12 +22,13 @@ class BuildKmlTestCase(unittest.TestCase):
 
     def test_folder(self):
         """ KML file with folders """
+        ns = '{http://www.opengis.net/kml/2.2}'
         k = kml.KML()
-        f = kml.Folder('', 'id', 'name', 'description')
-        nf = kml.Folder('', 'nested-id', 'nested-name', 'nested-description')
+        f = kml.Folder(ns, 'id', 'name', 'description')
+        nf = kml.Folder(ns, 'nested-id', 'nested-name', 'nested-description')
         f.append(nf)
         k.append(f)
-        f2 = kml.Folder('', 'id2', 'name2', 'description2')
+        f2 = kml.Folder(ns, 'id2', 'name2', 'description2')
         k.append(f2)
         self.assertEqual(len(k.features()),2)
         self.assertEqual(len( k.features()[0].features()),1)
@@ -39,31 +40,33 @@ class BuildKmlTestCase(unittest.TestCase):
 
     def test_placemark(self):
         k = kml.KML()
-        p = kml.Placemark('', 'id', 'name', 'description')
+        ns = '{http://www.opengis.net/kml/2.2}'
+        p = kml.Placemark(ns, 'id', 'name', 'description')
         p.geometry = Point(0.0, 0.0)
-        p2 = kml.Placemark('', 'id2', 'name2', 'description2')
+        p2 = kml.Placemark(ns, 'id2', 'name2', 'description2')
         p2.geometry = LineString([(0, 0), (1, 1)])
         k.append(p)
         k.append(p2)
         self.assertEqual(len(k.features()),2)
         k2 = kml.KML()
         k2.from_string(k.to_string())
-        #self.assertEqual(k.to_string(), k2.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
         print k.to_string()
 
     def test_document(self):
         k = kml.KML()
-        d = kml.Document('', 'docid', 'doc name', 'doc description')
-        f = kml.Folder('', 'fid', 'f name', 'f description')
+        ns = '{http://www.opengis.net/kml/2.2}'
+        d = kml.Document(ns, 'docid', 'doc name', 'doc description')
+        f = kml.Folder(ns, 'fid', 'f name', 'f description')
         k.append(d)
         d.append(f)
-        nf = kml.Folder('', 'nested-fid', 'nested f name', 'nested f description')
+        nf = kml.Folder(ns, 'nested-fid', 'nested f name', 'nested f description')
         f.append(nf)
-        f2 = kml.Folder('', 'id2', 'name2', 'description2')
+        f2 = kml.Folder(ns, 'id2', 'name2', 'description2')
         d.append(f2)
-        p = kml.Placemark('', 'id', 'name', 'description')
+        p = kml.Placemark(ns, 'id', 'name', 'description')
         p.geometry =  Polygon([(0, 0), (1, 1), (1, 0)])
-        p2 = kml.Placemark('', 'id2', 'name2', 'description2')
+        p2 = kml.Placemark(ns, 'id2', 'name2', 'description2')
         #p2 does not have a geometry!
         f2.append(p)
         nf.append(p2)
@@ -71,7 +74,7 @@ class BuildKmlTestCase(unittest.TestCase):
         self.assertEqual(len(k.features()[0].features()),2)
         k2 = kml.KML()
         k2.from_string(k.to_string())
-        #self.assertEqual(k.to_string(), k2.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
         print k.to_string()
 
 
@@ -111,7 +114,7 @@ class KmlFromStringTestCase( unittest.TestCase ):
         self.assertEqual(len(k.features()[0].features()),2)
         k2 = kml.KML()
         k2.from_string(k.to_string())
-        #self.assertEqual(k.to_string(), k2.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
         print k.to_string()
 
 
@@ -162,7 +165,7 @@ class KmlFromStringTestCase( unittest.TestCase ):
         self.assertEqual(len(k.features()[0].features()),3)
         k2 = kml.KML()
         k2.from_string(k.to_string())
-        #self.assertEqual(k.to_string(), k2.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
         print k.to_string()
 
     def test_placemark(self):
@@ -183,7 +186,7 @@ class KmlFromStringTestCase( unittest.TestCase ):
         self.assertEqual(k.features()[0].name, "Simple placemark")
         k2 = kml.KML()
         k2.from_string(k.to_string())
-        #self.assertEqual(k.to_string(), k2.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
         print k.to_string()
 
 
@@ -201,7 +204,7 @@ class KmlFromStringTestCase( unittest.TestCase ):
                     k.features()[0].geometry, Polygon))
         k2 = kml.KML()
         k2.from_string(k.to_string())
-        #self.assertEqual(k.to_string(), k2.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
         print k.to_string()
 
     def test_multipoints(self):
@@ -247,210 +250,6 @@ class KmlFromStringTestCase( unittest.TestCase ):
                 <Point id="geom_18">
                     <coordinates>18,-29,0.0</coordinates>
                 </Point>
-                <Point id="geom_19">
-                    <coordinates>18,-27,0.0</coordinates>
-                </Point>
-                <Point id="geom_20">
-                    <coordinates>18,-25,0.0</coordinates>
-                </Point>
-                <Point id="geom_21">
-                    <coordinates>18,-23,0.0</coordinates>
-                </Point>
-                <Point id="geom_22">
-                    <coordinates>18,-21,0.0</coordinates>
-                </Point>
-                <Point id="geom_27">
-                    <coordinates>20,-35,0.0</coordinates>
-                </Point>
-                <Point id="geom_28">
-                    <coordinates>20,-33,0.0</coordinates>
-                </Point>
-                <Point id="geom_29">
-                    <coordinates>20,-31,0.0</coordinates>
-                </Point>
-                <Point id="geom_30">
-                    <coordinates>20,-29,0.0</coordinates>
-                </Point>
-                <Point id="geom_31">
-                    <coordinates>20,-27,0.0</coordinates>
-                </Point>
-                <Point id="geom_32">
-                    <coordinates>20,-25,0.0</coordinates>
-                </Point>
-                <Point id="geom_33">
-                    <coordinates>20,-23,0.0</coordinates>
-                </Point>
-                <Point id="geom_34">
-                    <coordinates>20,-21,0.0</coordinates>
-                </Point>
-                <Point id="geom_39">
-                    <coordinates>22,-35,0.0</coordinates>
-                </Point>
-                <Point id="geom_40">
-                    <coordinates>22,-33,0.0</coordinates>
-                </Point>
-                <Point id="geom_41">
-                    <coordinates>22,-31,0.0</coordinates>
-                </Point>
-                <Point id="geom_42">
-                    <coordinates>22,-29,0.0</coordinates>
-                </Point>
-                <Point id="geom_43">
-                    <coordinates>22,-27,0.0</coordinates>
-                </Point>
-                <Point id="geom_44">
-                    <coordinates>22,-25,0.0</coordinates>
-                </Point>
-                <Point id="geom_45">
-                    <coordinates>22,-23,0.0</coordinates>
-                </Point>
-                <Point id="geom_46">
-                    <coordinates>22,-21,0.0</coordinates>
-                </Point>
-                <Point id="geom_51">
-                    <coordinates>24,-35,0.0</coordinates>
-                </Point>
-                <Point id="geom_52">
-                    <coordinates>24,-33,0.0</coordinates>
-                </Point>
-                <Point id="geom_53">
-                    <coordinates>24,-31,0.0</coordinates>
-                </Point>
-                <Point id="geom_54">
-                    <coordinates>24,-29,0.0</coordinates>
-                </Point>
-                <Point id="geom_55">
-                    <coordinates>24,-27,0.0</coordinates>
-                </Point>
-                <Point id="geom_56">
-                    <coordinates>24,-25,0.0</coordinates>
-                </Point>
-                <Point id="geom_57">
-                    <coordinates>24,-23,0.0</coordinates>
-                </Point>
-                <Point id="geom_58">
-                    <coordinates>24,-21,0.0</coordinates>
-                </Point>
-                <Point id="geom_63">
-                    <coordinates>26,-35,0.0</coordinates>
-                </Point>
-                <Point id="geom_64">
-                    <coordinates>26,-33,0.0</coordinates>
-                </Point>
-                <Point id="geom_65">
-                    <coordinates>26,-31,0.0</coordinates>
-                </Point>
-                <Point id="geom_66">
-                    <coordinates>26,-29,0.0</coordinates>
-                </Point>
-                <Point id="geom_67">
-                    <coordinates>26,-27,0.0</coordinates>
-                </Point>
-                <Point id="geom_68">
-                    <coordinates>26,-25,0.0</coordinates>
-                </Point>
-                <Point id="geom_69">
-                    <coordinates>26,-23,0.0</coordinates>
-                </Point>
-                <Point id="geom_70">
-                    <coordinates>26,-21,0.0</coordinates>
-                </Point>
-                <Point id="geom_75">
-                    <coordinates>28,-35,0.0</coordinates>
-                </Point>
-                <Point id="geom_76">
-                    <coordinates>28,-33,0.0</coordinates>
-                </Point>
-                <Point id="geom_77">
-                    <coordinates>28,-31,0.0</coordinates>
-                </Point>
-                <Point id="geom_78">
-                    <coordinates>28,-29,0.0</coordinates>
-                </Point>
-                <Point id="geom_79">
-                    <coordinates>28,-27,0.0</coordinates>
-                </Point>
-                <Point id="geom_80">
-                    <coordinates>28,-25,0.0</coordinates>
-                </Point>
-                <Point id="geom_81">
-                    <coordinates>28,-23,0.0</coordinates>
-                </Point>
-                <Point id="geom_82">
-                    <coordinates>28,-21,0.0</coordinates>
-                </Point>
-                <Point id="geom_87">
-                    <coordinates>30,-35,0.0</coordinates>
-                </Point>
-                <Point id="geom_88">
-                    <coordinates>30,-33,0.0</coordinates>
-                </Point>
-                <Point id="geom_89">
-                    <coordinates>30,-31,0.0</coordinates>
-                </Point>
-                <Point id="geom_90">
-                    <coordinates>30,-29,0.0</coordinates>
-                </Point>
-                <Point id="geom_91">
-                    <coordinates>30,-27,0.0</coordinates>
-                </Point>
-                <Point id="geom_92">
-                    <coordinates>30,-25,0.0</coordinates>
-                </Point>
-                <Point id="geom_93">
-                    <coordinates>30,-23,0.0</coordinates>
-                </Point>
-                <Point id="geom_94">
-                    <coordinates>30,-21,0.0</coordinates>
-                </Point>
-                <Point id="geom_99">
-                    <coordinates>32,-35,0.0</coordinates>
-                </Point>
-                <Point id="geom_100">
-                    <coordinates>32,-33,0.0</coordinates>
-                </Point>
-                <Point id="geom_101">
-                    <coordinates>32,-31,0.0</coordinates>
-                </Point>
-                <Point id="geom_102">
-                    <coordinates>32,-29,0.0</coordinates>
-                </Point>
-                <Point id="geom_103">
-                    <coordinates>32,-27,0.0</coordinates>
-                </Point>
-                <Point id="geom_104">
-                    <coordinates>32,-25,0.0</coordinates>
-                </Point>
-                <Point id="geom_105">
-                    <coordinates>32,-23,0.0</coordinates>
-                </Point>
-                <Point id="geom_106">
-                    <coordinates>32,-21,0.0</coordinates>
-                </Point>
-                <Point id="geom_110">
-                    <coordinates>34,-35,0.0</coordinates>
-                </Point>
-                <Point id="geom_111">
-                    <coordinates>34,-33,0.0</coordinates>
-                </Point>
-                <Point id="geom_112">
-                    <coordinates>34,-31,0.0</coordinates>
-                </Point>
-                <Point id="geom_113">
-                    <coordinates>34,-29,0.0</coordinates>
-                </Point>
-                <Point id="geom_114">
-                    <coordinates>34,-27,0.0</coordinates>
-                </Point>
-                <Point id="geom_115">
-                    <coordinates>34,-25,0.0</coordinates>
-                </Point>
-                <Point id="geom_116">
-                    <coordinates>34,-23,0.0</coordinates>
-                </Point>
-                <Point id="geom_117">
-                    <coordinates>34,-21,0.0</coordinates>
-                </Point>
             </MultiGeometry>
         </Placemark></kml>"""
         k = kml.KML()
@@ -458,9 +257,10 @@ class KmlFromStringTestCase( unittest.TestCase ):
         self.assertEqual(len(k.features()),1)
         self.assertTrue(isinstance(
                     k.features()[0].geometry, MultiPoint))
+        self.assertEqual(len(k.features()[0].geometry.geoms), 12)
         k2 = kml.KML()
         k2.from_string(k.to_string())
-        #self.assertEqual(k.to_string(), k2.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
         print k.to_string()
 
 
@@ -469,16 +269,22 @@ class KmlFromStringTestCase( unittest.TestCase ):
         <kml xmlns="http://www.opengis.net/kml/2.2">
         <Placemark>
           <name>Dnipro (Dnieper)</name>
-          <MultiGeometry><LineString><coordinates>33.54,46.831,0 33.606,46.869,0 33.662,46.957,0 33.739,47.05,0 33.859,47.149,0 33.976,47.307,0 33.998,47.411,0 34.155,47.49,0 34.448,47.542,0 34.712,47.553,0 34.946,47.521,0 35.088,47.528,0 35.138,47.573,0 35.149,47.657,0 35.106,47.842,0 </coordinates></LineString><LineString><coordinates>33.194,49.094,0 32.884,49.225,0 32.603,49.302,0 31.886,49.555,0 </coordinates></LineString><LineString><coordinates>31.44,50,0 31.48,49.933,0 31.486,49.871,0 31.467,49.754,0 </coordinates></LineString><LineString><coordinates>30.508,51.217,0 30.478,50.904,0 30.479,50.749,0 30.515,50.597,0 </coordinates></LineString></MultiGeometry>
+          <MultiGeometry>
+          <LineString><coordinates>33.54,46.831,0 33.606,46.869,0 33.662,46.957,0 33.739,47.05,0 33.859,47.149,0 33.976,47.307,0 33.998,47.411,0 34.155,47.49,0 34.448,47.542,0 34.712,47.553,0 34.946,47.521,0 35.088,47.528,0 35.138,47.573,0 35.149,47.657,0 35.106,47.842,0 </coordinates></LineString>
+          <LineString><coordinates>33.194,49.094,0 32.884,49.225,0 32.603,49.302,0 31.886,49.555,0 </coordinates></LineString>
+          <LineString><coordinates>31.44,50,0 31.48,49.933,0 31.486,49.871,0 31.467,49.754,0 </coordinates></LineString>
+          <LineString><coordinates>30.508,51.217,0 30.478,50.904,0 30.479,50.749,0 30.515,50.597,0 </coordinates></LineString>
+          </MultiGeometry>
         </Placemark> </kml>"""
         k = kml.KML()
         k.from_string(doc)
         self.assertEqual(len(k.features()),1)
         self.assertTrue(isinstance(
                     k.features()[0].geometry, MultiLineString))
+        self.assertEqual(len(k.features()[0].geometry.geoms), 4)
         k2 = kml.KML()
         k2.from_string(k.to_string())
-        #self.assertEqual(k.to_string(), k2.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
         print k.to_string()
 
     def test_multipolygon(self):
@@ -495,7 +301,7 @@ class KmlFromStringTestCase( unittest.TestCase ):
                     k.features()[0].geometry, MultiPolygon))
         k2 = kml.KML()
         k2.from_string(k.to_string())
-        #self.assertEqual(k.to_string(), k2.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
         print k.to_string()
         print
 

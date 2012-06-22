@@ -23,13 +23,6 @@ class KML(object):
     def __init__(self):
         self._features =[]
 
-    def from_file(self, filename):
-        """ read a KML File and parse into a KML Object"""
-        f = open(filename, 'r')
-        self.from_string(f.read())
-        f.close()
-
-
     def from_string(self, xml_string):
         """ create a KML object from a xml string"""
         element = etree.XML(xml_string)
@@ -120,18 +113,18 @@ class _Feature(object):
 
     def etree_element(self):
         if self.__name__:
-            element = etree.Element(self.__name__)
+            element = etree.Element(self.ns + self.__name__)
             if self.id:
                 element.set('id', self.id)
             if self.name:
-                name = etree.SubElement(element, "name")
+                name = etree.SubElement(element, "%sname" %self.ns)
                 name.text = self.name
             if self.description:
-                description =etree.SubElement(element, "description")
+                description =etree.SubElement(element, "%sdescription" %self.ns)
                 description.text = self.description
-            visibility = etree.SubElement(element, "visibility")
+            visibility = etree.SubElement(element, "%svisibility" %self.ns)
             visibility.text = str(self.visibility)
-            isopen = etree.SubElement(element, "open")
+            isopen = etree.SubElement(element, "%sopen" %self.ns)
             isopen.text = str(self.isopen)
         else:
             raise NotImplementedError
@@ -326,7 +319,7 @@ class Placemark(_Feature):
 
 
     def _etree_coordinates(self, coordinates):
-        element = etree.Element("coordinates")
+        element = etree.Element("%scoordinates" %self.ns)
         if len(coordinates[0]) == 2:
             tuples = ('%f,%f,0.0' % tuple(c) for c in coordinates)
         elif len(coordinates[0]) == 3:
@@ -337,46 +330,46 @@ class Placemark(_Feature):
         return element
 
     def _etree_point(self, point):
-        element = etree.Element("Point")
+        element = etree.Element("%sPoint" %self.ns)
         coords = list(point.coords)
         element.append(self._etree_coordinates(coords))
         return element
 
     def _etree_linestring(self, linestring):
-        element = etree.Element("LineString")
+        element = etree.Element("%sLineString" %self.ns)
         coords = list(linestring.coords)
         element.append(self._etree_coordinates(coords))
         return element
 
     def _etree_linearring(self, linearring):
-        element = etree.Element("LinearRing")
+        element = etree.Element("%sLinearRing" %self.ns)
         coords = list(linearring.coords)
         element.append(self._etree_coordinates(coords))
         return element
 
     def _etree_polygon(self, polygon):
-        element = etree.Element("Polygon")
-        outer_boundary = etree.SubElement(element, "outerBoundaryIs")
+        element = etree.Element("%sPolygon" %self.ns)
+        outer_boundary = etree.SubElement(element, "%souterBoundaryIs" %self.ns)
         outer_boundary.append(self._etree_linearring(polygon.exterior))
         for ib in polygon.interiors:
-            inner_boundary = etree.SubElement(element, "innerBoundaryIs")
+            inner_boundary = etree.SubElement(element, "%sinnerBoundaryIs" %self.ns)
             inner_boundary.append(self._etree_linearring(ib))
         return element
 
     def _etree_multipoint(self, points):
-        element = etree.Element("MultiGeometry")
+        element = etree.Element("%sMultiGeometry" %self.ns)
         for point in points.geoms:
             element.append(self._etree_point(point))
         return element
 
     def _etree_multilinestring(self, linestrings):
-        element = etree.Element("MultiGeometry")
+        element = etree.Element("%sMultiGeometry" %self.ns)
         for linestring in linestrings.geoms:
             element.append(self._etree_linestring(linestring))
         return element
 
     def _etree_multipolygon(self, polygons):
-        element = etree.Element("MultiGeometry")
+        element = etree.Element("%sMultiGeometry" %self.ns)
         for polygon in polygons.geoms:
             element.append(self._etree_polygon(polygon))
         return element
