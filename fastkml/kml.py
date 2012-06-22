@@ -291,7 +291,7 @@ class Placemark(_Feature):
             points = multigeometry.findall('%sPoint' % self.ns)
             if points:
                 for point in points:
-                    geoms.append(Point(self._get_coordinates(point)))
+                    geoms.append(Point(self._get_coordinates(point)[0]))
                 return MultiPoint(geoms)
             linestrings = multigeometry.findall('%sLineString' % self.ns)
             if linestrings:

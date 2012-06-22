@@ -205,7 +205,264 @@ class KmlFromStringTestCase( unittest.TestCase ):
         print k.to_string()
 
     def test_multipoints(self):
-        pass
+        doc="""<?xml version="1.0" encoding="UTF-8"?>
+        <kml xmlns="http://www.opengis.net/kml/2.2">
+        <Placemark id="feat_2">
+            <name>MultiPoint</name>
+            <styleUrl>#stylesel_9</styleUrl>
+            <MultiGeometry id="geom_0">
+                <Point id="geom_5">
+                    <coordinates>16,-35,0.0</coordinates>
+                </Point>
+                <Point id="geom_6">
+                    <coordinates>16,-33,0.0</coordinates>
+                </Point>
+                <Point id="geom_7">
+                    <coordinates>16,-31,0.0</coordinates>
+                </Point>
+                <Point id="geom_8">
+                    <coordinates>16,-29,0.0</coordinates>
+                </Point>
+                <Point id="geom_9">
+                    <coordinates>16,-27,0.0</coordinates>
+                </Point>
+                <Point id="geom_10">
+                    <coordinates>16,-25,0.0</coordinates>
+                </Point>
+                <Point id="geom_11">
+                    <coordinates>16,-23,0.0</coordinates>
+                </Point>
+                <Point id="geom_12">
+                    <coordinates>16,-21,0.0</coordinates>
+                </Point>
+                <Point id="geom_15">
+                    <coordinates>18,-35,0.0</coordinates>
+                </Point>
+                <Point id="geom_16">
+                    <coordinates>18,-33,0.0</coordinates>
+                </Point>
+                <Point id="geom_17">
+                    <coordinates>18,-31,0.0</coordinates>
+                </Point>
+                <Point id="geom_18">
+                    <coordinates>18,-29,0.0</coordinates>
+                </Point>
+                <Point id="geom_19">
+                    <coordinates>18,-27,0.0</coordinates>
+                </Point>
+                <Point id="geom_20">
+                    <coordinates>18,-25,0.0</coordinates>
+                </Point>
+                <Point id="geom_21">
+                    <coordinates>18,-23,0.0</coordinates>
+                </Point>
+                <Point id="geom_22">
+                    <coordinates>18,-21,0.0</coordinates>
+                </Point>
+                <Point id="geom_27">
+                    <coordinates>20,-35,0.0</coordinates>
+                </Point>
+                <Point id="geom_28">
+                    <coordinates>20,-33,0.0</coordinates>
+                </Point>
+                <Point id="geom_29">
+                    <coordinates>20,-31,0.0</coordinates>
+                </Point>
+                <Point id="geom_30">
+                    <coordinates>20,-29,0.0</coordinates>
+                </Point>
+                <Point id="geom_31">
+                    <coordinates>20,-27,0.0</coordinates>
+                </Point>
+                <Point id="geom_32">
+                    <coordinates>20,-25,0.0</coordinates>
+                </Point>
+                <Point id="geom_33">
+                    <coordinates>20,-23,0.0</coordinates>
+                </Point>
+                <Point id="geom_34">
+                    <coordinates>20,-21,0.0</coordinates>
+                </Point>
+                <Point id="geom_39">
+                    <coordinates>22,-35,0.0</coordinates>
+                </Point>
+                <Point id="geom_40">
+                    <coordinates>22,-33,0.0</coordinates>
+                </Point>
+                <Point id="geom_41">
+                    <coordinates>22,-31,0.0</coordinates>
+                </Point>
+                <Point id="geom_42">
+                    <coordinates>22,-29,0.0</coordinates>
+                </Point>
+                <Point id="geom_43">
+                    <coordinates>22,-27,0.0</coordinates>
+                </Point>
+                <Point id="geom_44">
+                    <coordinates>22,-25,0.0</coordinates>
+                </Point>
+                <Point id="geom_45">
+                    <coordinates>22,-23,0.0</coordinates>
+                </Point>
+                <Point id="geom_46">
+                    <coordinates>22,-21,0.0</coordinates>
+                </Point>
+                <Point id="geom_51">
+                    <coordinates>24,-35,0.0</coordinates>
+                </Point>
+                <Point id="geom_52">
+                    <coordinates>24,-33,0.0</coordinates>
+                </Point>
+                <Point id="geom_53">
+                    <coordinates>24,-31,0.0</coordinates>
+                </Point>
+                <Point id="geom_54">
+                    <coordinates>24,-29,0.0</coordinates>
+                </Point>
+                <Point id="geom_55">
+                    <coordinates>24,-27,0.0</coordinates>
+                </Point>
+                <Point id="geom_56">
+                    <coordinates>24,-25,0.0</coordinates>
+                </Point>
+                <Point id="geom_57">
+                    <coordinates>24,-23,0.0</coordinates>
+                </Point>
+                <Point id="geom_58">
+                    <coordinates>24,-21,0.0</coordinates>
+                </Point>
+                <Point id="geom_63">
+                    <coordinates>26,-35,0.0</coordinates>
+                </Point>
+                <Point id="geom_64">
+                    <coordinates>26,-33,0.0</coordinates>
+                </Point>
+                <Point id="geom_65">
+                    <coordinates>26,-31,0.0</coordinates>
+                </Point>
+                <Point id="geom_66">
+                    <coordinates>26,-29,0.0</coordinates>
+                </Point>
+                <Point id="geom_67">
+                    <coordinates>26,-27,0.0</coordinates>
+                </Point>
+                <Point id="geom_68">
+                    <coordinates>26,-25,0.0</coordinates>
+                </Point>
+                <Point id="geom_69">
+                    <coordinates>26,-23,0.0</coordinates>
+                </Point>
+                <Point id="geom_70">
+                    <coordinates>26,-21,0.0</coordinates>
+                </Point>
+                <Point id="geom_75">
+                    <coordinates>28,-35,0.0</coordinates>
+                </Point>
+                <Point id="geom_76">
+                    <coordinates>28,-33,0.0</coordinates>
+                </Point>
+                <Point id="geom_77">
+                    <coordinates>28,-31,0.0</coordinates>
+                </Point>
+                <Point id="geom_78">
+                    <coordinates>28,-29,0.0</coordinates>
+                </Point>
+                <Point id="geom_79">
+                    <coordinates>28,-27,0.0</coordinates>
+                </Point>
+                <Point id="geom_80">
+                    <coordinates>28,-25,0.0</coordinates>
+                </Point>
+                <Point id="geom_81">
+                    <coordinates>28,-23,0.0</coordinates>
+                </Point>
+                <Point id="geom_82">
+                    <coordinates>28,-21,0.0</coordinates>
+                </Point>
+                <Point id="geom_87">
+                    <coordinates>30,-35,0.0</coordinates>
+                </Point>
+                <Point id="geom_88">
+                    <coordinates>30,-33,0.0</coordinates>
+                </Point>
+                <Point id="geom_89">
+                    <coordinates>30,-31,0.0</coordinates>
+                </Point>
+                <Point id="geom_90">
+                    <coordinates>30,-29,0.0</coordinates>
+                </Point>
+                <Point id="geom_91">
+                    <coordinates>30,-27,0.0</coordinates>
+                </Point>
+                <Point id="geom_92">
+                    <coordinates>30,-25,0.0</coordinates>
+                </Point>
+                <Point id="geom_93">
+                    <coordinates>30,-23,0.0</coordinates>
+                </Point>
+                <Point id="geom_94">
+                    <coordinates>30,-21,0.0</coordinates>
+                </Point>
+                <Point id="geom_99">
+                    <coordinates>32,-35,0.0</coordinates>
+                </Point>
+                <Point id="geom_100">
+                    <coordinates>32,-33,0.0</coordinates>
+                </Point>
+                <Point id="geom_101">
+                    <coordinates>32,-31,0.0</coordinates>
+                </Point>
+                <Point id="geom_102">
+                    <coordinates>32,-29,0.0</coordinates>
+                </Point>
+                <Point id="geom_103">
+                    <coordinates>32,-27,0.0</coordinates>
+                </Point>
+                <Point id="geom_104">
+                    <coordinates>32,-25,0.0</coordinates>
+                </Point>
+                <Point id="geom_105">
+                    <coordinates>32,-23,0.0</coordinates>
+                </Point>
+                <Point id="geom_106">
+                    <coordinates>32,-21,0.0</coordinates>
+                </Point>
+                <Point id="geom_110">
+                    <coordinates>34,-35,0.0</coordinates>
+                </Point>
+                <Point id="geom_111">
+                    <coordinates>34,-33,0.0</coordinates>
+                </Point>
+                <Point id="geom_112">
+                    <coordinates>34,-31,0.0</coordinates>
+                </Point>
+                <Point id="geom_113">
+                    <coordinates>34,-29,0.0</coordinates>
+                </Point>
+                <Point id="geom_114">
+                    <coordinates>34,-27,0.0</coordinates>
+                </Point>
+                <Point id="geom_115">
+                    <coordinates>34,-25,0.0</coordinates>
+                </Point>
+                <Point id="geom_116">
+                    <coordinates>34,-23,0.0</coordinates>
+                </Point>
+                <Point id="geom_117">
+                    <coordinates>34,-21,0.0</coordinates>
+                </Point>
+            </MultiGeometry>
+        </Placemark></kml>"""
+        k = kml.KML()
+        k.from_string(doc)
+        self.assertEqual(len(k.features()),1)
+        self.assertTrue(isinstance(
+                    k.features()[0].geometry, MultiPoint))
+        k2 = kml.KML()
+        k2.from_string(k.to_string())
+        #self.assertEqual(k.to_string(), k2.to_string())
+        print k.to_string()
+
 
     def test_multilinestrings(self):
         doc="""<?xml version="1.0" encoding="UTF-8"?>
