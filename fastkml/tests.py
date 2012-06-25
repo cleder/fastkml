@@ -42,9 +42,9 @@ class BuildKmlTestCase(unittest.TestCase):
         k = kml.KML()
         ns = '{http://www.opengis.net/kml/2.2}'
         p = kml.Placemark(ns, 'id', 'name', 'description')
-        p.geometry = Point(0.0, 0.0)
+        p.geometry = Point(0.0, 0.0, 0.0)
         p2 = kml.Placemark(ns, 'id2', 'name2', 'description2')
-        p2.geometry = LineString([(0, 0), (1, 1)])
+        p2.geometry = LineString([(0, 0, 0), (1, 1, 1)])
         k.append(p)
         k.append(p2)
         self.assertEqual(len(k.features()),2)
@@ -65,7 +65,7 @@ class BuildKmlTestCase(unittest.TestCase):
         f2 = kml.Folder(ns, 'id2', 'name2', 'description2')
         d.append(f2)
         p = kml.Placemark(ns, 'id', 'name', 'description')
-        p.geometry =  Polygon([(0, 0), (1, 1), (1, 0)])
+        p.geometry =  Polygon([(0, 0, 0), (1, 1, 0), (1, 0, 1)])
         p2 = kml.Placemark(ns, 'id2', 'name2', 'description2')
         #p2 does not have a geometry!
         f2.append(p)
@@ -302,8 +302,7 @@ class KmlFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
-        print k.to_string()
-        print
+
 
 def test_suite():
     suite = unittest.TestSuite()

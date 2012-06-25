@@ -1,10 +1,21 @@
 # -*- coding: utf-8 -*-
+"""
+KML is an open standard officially named the OpenGIS KML Encoding Standard
+(OGC KML). It is maintained by the Open Geospatial Consortium, Inc. (OGC).
+The complete specification for OGC KML can be found at
+http://www.opengeospatial.org/standards/kml/.
+
+The complete XML schema for KML is located at
+http://schemas.opengis.net/kml/.
+
+"""
+
 from shapely.geometry import Point, LineString, Polygon
 from shapely.geometry import MultiPoint, MultiLineString, MultiPolygon
 from shapely.geometry.polygon import LinearRing
 
 import logging
-logger = logging.getLogger('fastkml')
+logger = logging.getLogger('fastkml.kml')
 
 
 try:
@@ -14,14 +25,24 @@ except ImportError:
     import xml.etree.ElementTree as etree
     LXML = False
 
+from styles import StyleUrl, Style, StyleMap, _StyleSelector
+
+import atom
+import gx
+
 
 class KML(object):
     """ represents a KML File """
 
     _features = []
+    ns = None
 
-    def __init__(self):
+    def __init__(self, ns=None):
         self._features =[]
+        if ns == None:
+            self.ns = '{http://www.opengis.net/kml/2.2}'
+        else:
+            self.ns = ns
 
     def from_string(self, xml_string):
         """ create a KML object from a xml string"""
@@ -47,7 +68,7 @@ class KML(object):
             raise TypeError
 
     def etree_element(self):
-        root = etree.Element('{http://www.opengis.net/kml/2.2}kml')
+        root = etree.Element('%skml' % self.ns)
         for feature in self.features():
             root.append(feature.etree_element())
         return root
@@ -59,13 +80,15 @@ class KML(object):
 
     def features(self):
         """ return a list of features """
+        #XXX yield feature, test if they are valid features
         return self._features
 
     def append(self, kmlobj):
         """ append a feature """
         if isinstance(kmlobj, (Document, Folder, Placemark)):
             self._features.append(kmlobj)
-
+        else:
+            raise TypeError
 
 class _Feature(object):
     """
@@ -78,7 +101,7 @@ class _Feature(object):
     #PhotoOverlay,
     #ScreenOverlay
     """
-
+    ns = None
     id = None
     name = None
     #User-defined text displayed in the 3D viewer as the label for the
@@ -99,17 +122,41 @@ class _Feature(object):
     #If the style is in the same file, use a # reference.
     #If the style is defined in an external file, use a full URL
     #along with # referencing.
+    _styles = None
 
-    #atom_author = None
-    #atom_link = None
+    #XXX atom_author = None
+    #XXX atom_link = None
 
-
-
-    def __init__(self, ns, id=None, name=None, description=None):
+    def __init__(self, ns=None, id=None, name=None, description=None,
+                styles=None, styleUrl=None):
         self.id = id
         self.name=name
         self.description=description
-        self.ns = ns
+        self.styleUrl = styleUrl
+        self._styles = []
+        if styles:
+            for style in styles:
+                self.append_style(style)
+        if ns == None:
+            self.ns = '{http://www.opengis.net/kml/2.2}'
+        else:
+            self.ns = ns
+
+    def append_style(self, style):
+        """ append a style to the feature """
+        if isinstance(style, _StyleSelector):
+            self._styles.append(style)
+        else:
+            raise TypeError
+
+    def styles(self):
+        """ iterate over the styles of this feature """
+        for style in self._styles:
+            if isinstance(style, _StyleSelector):
+                yield style
+            else:
+                raise TypeError
+
 
     def etree_element(self):
         if self.__name__:
@@ -126,6 +173,11 @@ class _Feature(object):
             visibility.text = str(self.visibility)
             isopen = etree.SubElement(element, "%sopen" %self.ns)
             isopen.text = str(self.isopen)
+            if self.styleUrl:
+                styleUrl = StyleUrl( self.ns, self.styleUrl)
+                element.append(styleUrl.etree_element())
+            for style in self.styles():
+                element.append(style.etree_element())
         else:
             raise NotImplementedError
         return element
@@ -148,10 +200,22 @@ class _Feature(object):
                 self.description = description.text
             visibility = element.find('%svisibility' %self.ns)
             if visibility is not None:
-                self.visibility = visibility.text
+                self.visibility = int(visibility.text)
             isopen = element.find('%sopen' %self.ns)
             if isopen is not None:
-                self.isopen = isopen.text
+                self.isopen = int(isopen.text)
+            styles = element.findall('%sStyle' % self.ns)
+            for style in styles:
+                s = Style(self.ns)
+                s.from_element(style)
+                self.append_style(s)
+            styles = element.findall('%sStyleMap' % self.ns)
+            for style in styles:
+                s = StyleMap(self.ns)
+                s.from_element(style)
+                self.append_style(s)
+
+
 
 class _Container(_Feature):
     """
@@ -165,9 +229,13 @@ class _Container(_Feature):
 
     _features = []
 
-    def __init__(self, ns, id=None, name=None, description=None):
+    def __init__(self, ns=None, id=None, name=None, description=None):
         super(_Container, self).__init__(ns, id, name, description)
         self._features =[]
+        if ns == None:
+            self.ns = '{http://www.opengis.net/kml/2.2}'
+        else:
+            self.ns = ns
 
     def features(self):
         """ return a list of features """
@@ -230,6 +298,12 @@ class Folder(_Container):
             self.append(feature)
 
 class Placemark(_Feature):
+    """
+    A Placemark is a Feature with associated Geometry.
+    In Google Earth, a Placemark appears as a list item in the Places
+    panel. A Placemark with a Point has an icon associated with it that
+    marks a point on the Earth in the 3D viewer.
+    """
 
     __name__ = "Placemark"
     geometry = None
@@ -398,7 +472,6 @@ class Placemark(_Feature):
         else:
             logger.warn('Object does not have a geometry')
         return element
-
 
 
 
