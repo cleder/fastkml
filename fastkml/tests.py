@@ -327,6 +327,7 @@ class StyleFromStringTestCase( unittest.TestCase ):
         style = list(list(k.features()[0].styles())[0].styles())[0]
         self.assertTrue(isinstance(style, styles.LabelStyle))
         self.assertEqual(style.color, 'ff0000cc')
+        self.assertEqual(style.colorMode, None)
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -443,19 +444,6 @@ class StyleFromStringTestCase( unittest.TestCase ):
             </PolyStyle>
           </Style>
           <!-- End Style Definitions -->
-          <!-- Placemark #1 -->
-          <Placemark>
-            <name>Google Earth - New Polygon</name>
-            <description>Here is some descriptive text</description>
-            <styleUrl>#myDefaultStyles</styleUrl>
-            . . .
-          </Placemark>
-          <!-- Placemark #2 -->
-          <Placemark>
-            <name>Google Earth - New Path</name>
-            <styleUrl>#myDefaultStyles</styleUrl>
-              . . . .
-          </Placemark>
         </Document>
         </kml>"""
         k = kml.KML()
