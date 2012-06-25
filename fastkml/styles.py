@@ -1,0 +1,385 @@
+# -*- coding: utf-8 -*-
+"""
+Once you've created features within Google Earth and examined the KML
+code Google Earth generates, you'll notice how styles are an important
+part of how your data is displayed.
+"""
+
+import logging
+logger = logging.getLogger('fastkml.styles')
+
+
+try:
+    from lxml import etree
+    LXML = True
+except ImportError:
+    import xml.etree.ElementTree as etree
+    LXML = False
+
+
+class StyleUrl(object):
+    """
+    URL of a <Style> or <StyleMap> defined in a Document. If the style
+    is in the same file, use a # reference. If the style is defined in
+    an external file, use a full URL along with # referencing.
+    """
+    url = None
+
+    def __init__(self, ns=None, url=None):
+        self.url = url
+        if ns == None:
+            self.ns = '{http://www.opengis.net/kml/2.2}'
+        else:
+            self.ns = ns
+
+    def etree_element(self):
+        if self.url:
+            element = etree.Element(self.ns + "styleUrl")
+            element.text = self.url
+            return element
+        else:
+            logger.critical('No url given for styleUrl')
+            raise ValueError
+
+    def from_string(self, xml_string):
+        self.from_element(etree.XML(xml_string))
+
+    def from_element(self, element):
+        if self.ns + "styleUrl" != element.tag:
+            raise TypeError
+        else:
+            self.url = element.text
+
+
+
+
+class _StyleSelector(object):
+    """
+    This is an abstract element and cannot be used directly in a KML file.
+    It is the base type for the <Style> and <StyleMap> elements. The
+    StyleMap element selects a style based on the current mode of the
+    Placemark. An element derived from StyleSelector is uniquely identified
+    by its id and its url.
+    """
+    id = None
+    ns = None
+
+    def __init__(self, ns=None, id=None):
+        self.id = id
+        if ns == None:
+            self.ns = '{http://www.opengis.net/kml/2.2}'
+        else:
+            self.ns = ns
+
+    def etree_element(self):
+        element = etree.Element(self.ns + self.__name__)
+        if self.id:
+            element.set('id', self.id)
+        return element
+
+    def from_string(self, xml_string):
+        self.from_element(etree.XML(xml_string))
+
+    def from_element(self, element):
+        if self.ns + self.__name__ != element.tag:
+            raise TypeError
+        else:
+            if element.get('id'):
+                self.id = element.get('id')
+
+class Style(_StyleSelector):
+    """
+    A Style defines an addressable style group that can be referenced
+    by StyleMaps and Features. Styles affect how Geometry is presented
+    in the 3D viewer and how Features appear in the Places panel of the
+    List view. Shared styles are collected in a <Document> and must have
+    an id defined for them so that they can be referenced by the
+    individual Features that use them.
+    """
+    __name__ = "Style"
+    _styles = None
+
+    def __init__(self, ns=None, id=None, styles = None):
+        super(Style, self).__init__(ns, id)
+        self._styles = []
+        if styles:
+            for style in styles:
+                self.append_style(style)
+
+    def append_style(self, style):
+        if isinstance(style, _ColorStyle):
+            self._styles.append(style)
+        else:
+            raise TypeError
+
+    def styles(self):
+        for style in self._styles:
+            if isinstance(style, _ColorStyle):
+                yield style
+            else:
+                raise TypeError
+
+    def from_element(self, element):
+        super(Style, self).from_element(element)
+        style = element.find('%sIconStyle' %self.ns)
+        if style is not None:
+            thestyle = IconStyle(self.ns)
+            thestyle.from_element(style)
+            self.append_style(thestyle)
+        style = element.find('%sLineStyle' %self.ns)
+        if style is not None:
+            thestyle = LineStyle(self.ns)
+            thestyle.from_element(style)
+            self.append_style(thestyle)
+        style = element.find('%sPolyStyle' %self.ns)
+        if style is not None:
+            thestyle = PolyStyle(self.ns)
+            thestyle.from_element(style)
+            self.append_style(thestyle)
+        style = element.find('%sLabelStyle' %self.ns)
+        if style is not None:
+            thestyle = LabelStyle(self.ns)
+            thestyle.from_element(style)
+            self.append_style(thestyle)
+
+    def etree_element(self):
+        element = super(Style, self).etree_element()
+        for style in self.styles():
+            element.append(style.etree_element())
+        return element
+
+
+class StyleMap(_StyleSelector):
+    """
+    A <StyleMap> maps between two different Styles. Typically a
+    <StyleMap> element is used to provide separate normal and highlighted
+    styles for a placemark, so that the highlighted version appears when
+    the user mouses over the icon in Google Earth.
+    """
+    __name__ = "StyleMap"
+    normal = None
+    highlight = None
+
+    def __init__(self, ns=None, id=None, normal=None, highlight=None):
+        super(StyleMap, self).__init__(ns, id)
+        pass
+
+    def etree_element(self):
+        element = super(Style, self).etree_element()
+        if self.normal:
+            if isinstance(self.normal, (Style, StyleUrl)):
+                pair = etree.SubElement(element, "%sPair" %self.ns)
+                key = etree.SubElement(pair, "%skey" %self.ns)
+                key.text = 'normal'
+                pair.append(self.normal.etree_element())
+        if self.highlight:
+            if isinstance(self.highlight, (Style, StyleUrl)):
+                pair = etree.SubElement(element, "%sPair" %self.ns)
+                key = etree.SubElement(pair, "%skey" %self.ns)
+                key.text = 'highlight'
+                pair.append(self.normal.etree_element())
+        return element
+
+
+class _ColorStyle(object):
+    """
+    abstract element; do not create.
+    This is an abstract element and cannot be used directly in a KML file.
+    It provides elements for specifying the color and color mode of
+    extended style types.
+    subclasses are: IconStyle, LabelStyle, LineStyle, PolyStyle
+    """
+    id = None
+    ns = None
+    color = None
+    # Color and opacity (alpha) values are expressed in hexadecimal notation.
+    # The range of values for any one color is 0 to 255 (00 to ff).
+    # For alpha, 00 is fully transparent and ff is fully opaque.
+    # The order of expression is aabbggrr, where aa=alpha (00 to ff);
+    # bb=blue (00 to ff); gg=green (00 to ff); rr=red (00 to ff).
+
+    colorMode = None
+    # Values for <colorMode> are normal (no effect) and random.
+    # A value of random applies a random linear scale to the base <color>
+
+    def __init__(self, ns=None, id=None, color=None, colorMode=None):
+        self.id = id
+        if ns == None:
+            self.ns = '{http://www.opengis.net/kml/2.2}'
+        else:
+            self.ns = ns
+        self.color = color
+        self.colorMode = colorMode
+
+
+    def etree_element(self):
+        element = etree.Element(self.ns + self.__name__)
+        if self.id:
+            element.set('id', self.id)
+        if self.color:
+            color = etree.SubElement(element, "%scolor" %self.ns)
+            color.text = self.color
+        if self.colorMode:
+            colorMode = etree.SubElement(element, "%scolorMode" %self.ns)
+            colorMode.text = self.colorMode
+        return element
+
+    def from_string(self, xml_string):
+        self.from_element(etree.XML(xml_string))
+
+    def from_element(self, element):
+        if self.ns + self.__name__ != element.tag:
+            raise TypeError
+        else:
+            if element.get('id'):
+                self.id = element.get('id')
+            colorMode = element.find('%scolorMode' %self.ns)
+            if colorMode is not None:
+                self.colorMode = colorMode.text
+            color = element.find('%scolor' %self.ns)
+            if color is not None:
+                self.color = color.text
+
+class IconStyle(_ColorStyle):
+    """ Specifies how icons for point Placemarks are drawn """
+    __name__ = "IconStyle"
+    scale = 1.0
+    # Resizes the icon. (float)
+    heading = 0.0
+    # Direction (that is, North, South, East, West), in degrees.
+    # Default=0 (North).
+    icon_href = None
+    # An HTTP address or a local file specification used to load an icon.
+
+    def __init__(self, ns=None, id=None, color=None, colorMode=None,
+                scale=1.0, heading=0.0, icon_href=None):
+        super(IconStyle, self).__init__(ns, id, color, colorMode)
+        self.scale = scale
+        self.heading = heading
+        self.icon_href = icon_href
+
+    def etree_element(self):
+        element = super(IconStyle, self).etree_element()
+        if self.scale is not None:
+            scale = etree.SubElement(element, "%sscale" %self.ns)
+            scale.text = str(self.scale)
+        if self.heading:
+            heading = etree.SubElement(element, "%sheading" %self.ns)
+            heading.text = str(self.heading)
+        if self.icon_href:
+            icon = etree.SubElement(element, "%sIcon" %self.ns)
+            href = etree.SubElement(icon, "%shref" %self.ns)
+            href.text = self.icon_href
+        return element
+
+    def from_element(self, element):
+        super(IconStyle, self).from_element(element)
+        scale = element.find('%sscale' %self.ns)
+        if scale is not None:
+            self.scale = float(scale.text)
+        heading = element.find('%sheading' %self.ns)
+        if heading is not None:
+            self.heading = float(heading.text)
+        icon = element.find('%sIcon' %self.ns)
+        if icon is not None:
+            href = element.find('%shref' %self.ns)
+            if href is not None:
+                self.icon_href = href.text
+
+
+
+class LineStyle(_ColorStyle):
+    """
+    Specifies the drawing style (color, color mode, and line width)
+    for all line geometry. Line geometry includes the outlines of
+    outlined polygons and the extruded "tether" of Placemark icons
+    (if extrusion is enabled).
+    """
+    __name__ = "LineStyle"
+    width = 1
+    # Width of the line, in pixels.
+
+    def __init__(self, ns=None, id=None, color=None, colorMode=None,
+                width=1):
+        super(LineStyle, self).__init__(ns, id, color, colorMode)
+        self.width = width
+
+    def etree_element(self):
+        element = super(LineStyle, self).etree_element()
+        if self.width is not None:
+            width = etree.SubElement(element, "%swidth" %self.ns)
+            width.text = str(self.width)
+        return element
+
+    def from_element(self, element):
+        super(LineStyle, self).from_element(element)
+        width = element.find('%swidth' %self.ns)
+        if width is not None:
+            self.width = int(width.text)
+
+class PolyStyle(_ColorStyle):
+    """
+    Specifies the drawing style for all polygons, including polygon
+    extrusions (which look like the walls of buildings) and line
+    extrusions (which look like solid fences).
+    """
+    fill = 1
+    # Boolean value. Specifies whether to fill the polygon.
+    outline = 1
+    # Boolean value. Specifies whether to outline the polygon.
+    # Polygon outlines use the current LineStyle.
+
+    def __init__(self, ns=None, id=None, color=None, colorMode=None,
+                fill=1, outline=1):
+        super(PolyStyle, self).__init__(ns, id, color, colorMode)
+        self.fill = fill
+        self.outline = outline
+
+    def etree_element(self):
+        element = super(PolyStyle, self).etree_element()
+        if self.fill is not None:
+            fill = etree.SubElement(element, "%sfill" %self.ns)
+            fill.text = str(self.fill)
+        if self.outline is not None:
+            outline = etree.SubElement(element, "%soutline" %self.ns)
+            outline.text = str(self.outline)
+        return element
+
+    def from_element(self, element):
+        super(PolyStyle, self).from_element(element)
+        fill = element.find('%sfill' %self.ns)
+        if fill is not None:
+            self.fill = int(fill.text)
+        outline = element.find('%soutline' %self.ns)
+        if outline is not None:
+            self.outline = int(outline.text)
+
+
+class LabelStyle(_ColorStyle):
+    """
+    Specifies how the <name> of a Feature is drawn in the 3D viewer
+    """
+    __name__ = "LabelStyle"
+    scale = 1.0
+    # Resizes the label.
+
+    def __init__(self, ns=None, id=None, color=None, colorMode=None,
+                scale=1.0):
+        super(LabelStyle, self).__init__(ns, id, color, colorMode)
+        self.scale = scale
+
+    def etree_element(self):
+        element = super(LabelStyle, self).etree_element()
+        if self.scale is not None:
+            scale = etree.SubElement(element, "%sscale" %self.ns)
+            scale.text = str(self.scale)
+        return element
+
+    def from_element(self, element):
+        super(LabelStyle, self).from_element(element)
+        scale = element.find('%sscale' %self.ns)
+        if scale is not None:
+            self.scale = float(scale.text)
+
+def BalloonStyle(object):
+    pass
