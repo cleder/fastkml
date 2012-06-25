@@ -2,6 +2,7 @@
 import unittest
 
 from fastkml import kml
+from fastkml import styles
 import xml.etree.ElementTree as etree
 from shapely.geometry import Point, LineString, Polygon
 from shapely.geometry import MultiPoint, MultiLineString, MultiPolygon
@@ -303,11 +304,176 @@ class KmlFromStringTestCase( unittest.TestCase ):
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
 
+class StyleFromStringTestCase( unittest.TestCase ):
+
+    def test_labelstyle(self):
+        doc = """<?xml version="1.0" encoding="UTF-8"?>
+        <kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+          <name>Document.kml</name>
+          <open>1</open>
+          <Style id="exampleStyleDocument">
+            <LabelStyle>
+              <color>ff0000cc</color>
+            </LabelStyle>
+          </Style>
+        </Document>
+        </kml>"""
+        k = kml.KML()
+        k.from_string(doc)
+        self.assertEqual(len(k.features()),1)
+        self.assertTrue(isinstance(
+                    list(k.features()[0].styles())[0], styles.Style))
+        style = list(list(k.features()[0].styles())[0].styles())[0]
+        self.assertTrue(isinstance(style, styles.LabelStyle))
+        self.assertEqual(style.color, 'ff0000cc')
+        k2 = kml.KML()
+        k2.from_string(k.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
+
+    def test_iconstyle(self):
+        doc = """<?xml version="1.0" encoding="UTF-8"?>
+        <kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+           <Style id="randomColorIcon">
+              <IconStyle>
+                 <color>ff00ff00</color>
+                 <colorMode>random</colorMode>
+                 <scale>1.1</scale>
+                 <Icon>
+                    <href>http://maps.google.com/icon21.png</href>
+                 </Icon>
+              </IconStyle>
+           </Style>
+        </Document>
+        </kml>"""
+        k = kml.KML()
+        k.from_string(doc)
+        self.assertEqual(len(k.features()),1)
+        self.assertTrue(isinstance(
+                    list(k.features()[0].styles())[0], styles.Style))
+        style = list(list(k.features()[0].styles())[0].styles())[0]
+        self.assertTrue(isinstance(style, styles.IconStyle))
+        self.assertEqual(style.color, 'ff00ff00')
+        self.assertEqual(style.scale, 1.1)
+        self.assertEqual(style.colorMode, 'random')
+        self.assertEqual(style.icon_href, 'http://maps.google.com/icon21.png')
+        k2 = kml.KML()
+        k2.from_string(k.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
+
+    def test_linestyle(self):
+        doc="""<?xml version="1.0" encoding="UTF-8"?>
+        <kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+          <name>LineStyle.kml</name>
+          <open>1</open>
+          <Style id="linestyleExample">
+            <LineStyle>
+              <color>7f0000ff</color>
+              <width>4</width>
+            </LineStyle>
+          </Style>
+        </Document>
+        </kml>"""
+        k = kml.KML()
+        k.from_string(doc)
+        self.assertEqual(len(k.features()),1)
+        self.assertTrue(isinstance(
+                    list(k.features()[0].styles())[0], styles.Style))
+        style = list(list(k.features()[0].styles())[0].styles())[0]
+        self.assertTrue(isinstance(style, styles.LineStyle))
+        self.assertEqual(style.color, '7f0000ff')
+        self.assertEqual(style.width, 4)
+        k2 = kml.KML()
+        k2.from_string(k.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
+
+    def test_polystyle(self):
+        doc="""<?xml version="1.0" encoding="UTF-8"?>
+        <kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+          <name>PolygonStyle.kml</name>
+          <open>1</open>
+          <Style id="examplePolyStyle">
+            <PolyStyle>
+              <color>ff0000cc</color>
+              <colorMode>random</colorMode>
+            </PolyStyle>
+          </Style>
+        </Document>
+        </kml>"""
+        k = kml.KML()
+        k.from_string(doc)
+        self.assertEqual(len(k.features()),1)
+        self.assertTrue(isinstance(
+                    list(k.features()[0].styles())[0], styles.Style))
+        style = list(list(k.features()[0].styles())[0].styles())[0]
+        self.assertTrue(isinstance(style, styles.PolyStyle))
+        self.assertEqual(style.color, 'ff0000cc')
+        self.assertEqual(style.colorMode, 'random')
+        k2 = kml.KML()
+        k2.from_string(k.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
+
+    def test_styles(self):
+        doc="""<?xml version="1.0" encoding="UTF-8"?>
+        <kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+          <!-- Begin Style Definitions -->
+          <Style id="myDefaultStyles">
+            <IconStyle>
+              <color>a1ff00ff</color>
+              <scale>1.399999976158142</scale>
+              <Icon>
+                <href>http://myserver.com/icon.jpg</href>
+              </Icon>
+            </IconStyle>
+            <LabelStyle>
+              <color>7fffaaff</color>
+              <scale>1.5</scale>
+            </LabelStyle>
+            <LineStyle>
+              <color>ff0000ff</color>
+              <width>15</width>
+            </LineStyle>
+            <PolyStyle>
+              <color>7f7faaaa</color>
+              <colorMode>random</colorMode>
+            </PolyStyle>
+          </Style>
+          <!-- End Style Definitions -->
+          <!-- Placemark #1 -->
+          <Placemark>
+            <name>Google Earth - New Polygon</name>
+            <description>Here is some descriptive text</description>
+            <styleUrl>#myDefaultStyles</styleUrl>
+            . . .
+          </Placemark>
+          <!-- Placemark #2 -->
+          <Placemark>
+            <name>Google Earth - New Path</name>
+            <styleUrl>#myDefaultStyles</styleUrl>
+              . . . .
+          </Placemark>
+        </Document>
+        </kml>"""
+        k = kml.KML()
+        k.from_string(doc)
+        self.assertEqual(len(k.features()),1)
+        self.assertTrue(isinstance(
+                    list(k.features()[0].styles())[0], styles.Style))
+        style = list(list(k.features()[0].styles())[0].styles())
+        self.assertEqual(len(style), 4)
+        k2 = kml.KML()
+        k2.from_string(k.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
 
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite( KmlFromStringTestCase ))
     suite.addTest(unittest.makeSuite( BuildKmlTestCase ))
+    suite.addTest(unittest.makeSuite( StyleFromStringTestCase ))
     return suite
 
 if __name__ == '__main__':

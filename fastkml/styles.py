@@ -245,14 +245,14 @@ class IconStyle(_ColorStyle):
     __name__ = "IconStyle"
     scale = 1.0
     # Resizes the icon. (float)
-    heading = 0.0
+    heading = None
     # Direction (that is, North, South, East, West), in degrees.
     # Default=0 (North).
     icon_href = None
     # An HTTP address or a local file specification used to load an icon.
 
     def __init__(self, ns=None, id=None, color=None, colorMode=None,
-                scale=1.0, heading=0.0, icon_href=None):
+                scale=1.0, heading=None, icon_href=None):
         super(IconStyle, self).__init__(ns, id, color, colorMode)
         self.scale = scale
         self.heading = heading
@@ -282,7 +282,7 @@ class IconStyle(_ColorStyle):
             self.heading = float(heading.text)
         icon = element.find('%sIcon' %self.ns)
         if icon is not None:
-            href = element.find('%shref' %self.ns)
+            href = icon.find('%shref' %self.ns)
             if href is not None:
                 self.icon_href = href.text
 
@@ -323,6 +323,7 @@ class PolyStyle(_ColorStyle):
     extrusions (which look like the walls of buildings) and line
     extrusions (which look like solid fences).
     """
+    __name__ = "PolyStyle"
     fill = 1
     # Boolean value. Specifies whether to fill the polygon.
     outline = 1
