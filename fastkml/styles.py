@@ -164,8 +164,42 @@ class StyleMap(_StyleSelector):
         super(StyleMap, self).__init__(ns, id)
         pass
 
+
+    def from_element(self, element):
+        super(StyleMap, self).from_element(element)
+        pairs = element.findall('%sPair' %self.ns)
+        for pair in pairs:
+            key = pair.find('%skey' %self.ns)
+            style = pair.find('%sStyle' %self.ns)
+            style_url = pair.find('%sstyleUrl' %self.ns)
+            if key.text == "highlight":
+                if style is not None:
+                    highlight = Style(self.ns)
+                    highlight.from_element(style)
+                elif style_url is not None:
+                    highlight = StyleUrl(self.ns)
+                    highlight.from_element(style_url)
+                else:
+                    raise ValueError
+                self.highlight = highlight
+            elif key.text == "normal":
+                if style is not None:
+                    normal = Style(self.ns)
+                    normal.from_element(style)
+                elif style_url is not None:
+                    normal = StyleUrl(self.ns)
+                    normal.from_element(style_url)
+                else:
+                    import ipdb; ipdb.set_trace()
+                    raise ValueError
+                self.normal = normal
+            else:
+                raise ValueError
+
+
+
     def etree_element(self):
-        element = super(Style, self).etree_element()
+        element = super(StyleMap, self).etree_element()
         if self.normal:
             if isinstance(self.normal, (Style, StyleUrl)):
                 pair = etree.SubElement(element, "%sPair" %self.ns)

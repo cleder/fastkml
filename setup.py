@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.0'
+version = '0.1'
 
 setup(name='fastkml',
       version=version,
@@ -14,7 +14,7 @@ setup(name='fastkml',
         "Programming Language :: Python",
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU General Public License (GPL)',
-        'Development Status :: 4 - Beta',
+        'Development Status :: 3 - Alpha',
         'Operating System :: OS Independent',
       ], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
       keywords='GIS KML Google Maps OpenLayers',

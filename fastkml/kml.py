@@ -214,6 +214,11 @@ class _Feature(object):
                 s = StyleMap(self.ns)
                 s.from_element(style)
                 self.append_style(s)
+            style_url = element.find('%sstyleUrl' % self.ns)
+            if style_url:
+                s = StyleUrl(self.ns)
+                s.from_element(style_url)
+                self.styleUrl = s.url
 
 
 
@@ -470,7 +475,7 @@ class Placemark(_Feature):
         if self.geometry is not None:
             element.append(self._etree_geometry())
         else:
-            logger.warn('Object does not have a geometry')
+            logger.error('Object does not have a geometry')
         return element
 
 

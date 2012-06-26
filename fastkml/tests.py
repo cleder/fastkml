@@ -8,6 +8,7 @@ from shapely.geometry import Point, LineString, Polygon
 from shapely.geometry import MultiPoint, MultiLineString, MultiPolygon
 from shapely.geometry.polygon import LinearRing
 
+
 class BuildKmlTestCase(unittest.TestCase):
     """ Build a simple KML File """
     def test_kml(self):
@@ -331,6 +332,7 @@ class StyleFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
+        print k.to_string()
 
     def test_iconstyle(self):
         doc = """<?xml version="1.0" encoding="UTF-8"?>
@@ -362,6 +364,7 @@ class StyleFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
+        print k.to_string()
 
     def test_linestyle(self):
         doc="""<?xml version="1.0" encoding="UTF-8"?>
@@ -389,6 +392,7 @@ class StyleFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
+        print k.to_string()
 
     def test_polystyle(self):
         doc="""<?xml version="1.0" encoding="UTF-8"?>
@@ -416,6 +420,7 @@ class StyleFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
+        print k.to_string()
 
     def test_styles(self):
         doc="""<?xml version="1.0" encoding="UTF-8"?>
@@ -456,6 +461,84 @@ class StyleFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
+        print k.to_string()
+
+    def test_stylemapurl(self):
+        doc= """<?xml version="1.0" encoding="UTF-8"?>
+        <kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+          <StyleMap id="styleMapExample">
+            <Pair>
+              <key>normal</key>
+              <styleUrl>#normalState</styleUrl>
+            </Pair>
+            <Pair>
+              <key>highlight</key>
+              <styleUrl>#highlightState</styleUrl>
+            </Pair>
+          </StyleMap>
+          </Document>
+        </kml>"""
+        k = kml.KML()
+        k.from_string(doc)
+        self.assertEqual(len(k.features()),1)
+        self.assertTrue(isinstance(
+                    list(k.features()[0].styles())[0], styles.StyleMap))
+        sm = list(list(k.features()[0].styles()))[0]
+        self.assertTrue(isinstance(sm.normal, styles.StyleUrl))
+        self.assertEqual(sm.normal.url, '#normalState')
+        self.assertTrue(isinstance(sm.highlight, styles.StyleUrl))
+        self.assertEqual(sm.highlight.url, '#highlightState')
+        k2 = kml.KML()
+        k2.from_string(k.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
+
+    def test_stylemapstyles(self):
+        doc= """<?xml version="1.0" encoding="UTF-8"?>
+        <kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+          <StyleMap id="styleMapExample">
+            <Pair>
+              <key>normal</key>
+              <Style id="exampleStyleDocument">
+                <LabelStyle>
+                  <color>ff0000cc</color>
+                </LabelStyle>
+              </Style>
+            </Pair>
+            <Pair>
+              <key>highlight</key>
+              <Style id="examplePolyStyle">
+                <PolyStyle>
+                  <color>ff0000cc</color>
+                  <colorMode>random</colorMode>
+                </PolyStyle>
+                <LineStyle>
+                  <color>ff0000ff</color>
+                  <width>15</width>
+                </LineStyle>
+              </Style>
+            </Pair>
+          </StyleMap>
+          </Document>
+        </kml>"""
+        k = kml.KML()
+        k.from_string(doc)
+        self.assertEqual(len(k.features()),1)
+        self.assertTrue(isinstance(
+                    list(k.features()[0].styles())[0], styles.StyleMap))
+        sm = list(list(k.features()[0].styles()))[0]
+        self.assertTrue(isinstance(sm.normal, styles.Style))
+        self.assertEqual(len(list(sm.normal.styles())), 1)
+        self.assertTrue(isinstance(list(sm.normal.styles())[0], styles.LabelStyle))
+        self.assertTrue(isinstance(sm.highlight, styles.Style))
+        self.assertTrue(isinstance(sm.highlight, styles.Style))
+        self.assertEqual(len(list(sm.highlight.styles())), 2)
+        self.assertTrue(isinstance(list(sm.highlight.styles())[0], styles.LineStyle))
+        self.assertTrue(isinstance(list(sm.highlight.styles())[1], styles.PolyStyle))
+        k2 = kml.KML()
+        k2.from_string(k.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
 
 def test_suite():
     suite = unittest.TestSuite()
@@ -466,3 +549,4 @@ def test_suite():
 
 if __name__ == '__main__':
     unittest.main()
+

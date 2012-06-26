@@ -13,6 +13,8 @@ href attribute - URL of the web page containing the KML/KMZ file
 
 These elements are defined in the Atom Syndication Format. The complete
 specification is found at http://atompub.org.
+
+This library only  implements a subset of Atom that is useful with KML
 """
 import logging
 logger = logging.getLogger('fastkml.atom')
