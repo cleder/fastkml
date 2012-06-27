@@ -30,9 +30,10 @@ You can find more examples in the included tests.py file, here is a
 quick overview:
 
 
-Build a KML from scatch:
-------------------------
+Build a KML from scratch:
+--------------------------
 
+Example how to build a simple KML file:
 ::
     >>> from fastkml import kml
     >>> from shapely.geometry import Point, LineString, Polygon
@@ -93,6 +94,7 @@ Build a KML from scatch:
         </ns0:Folder>
       </ns0:Document>
     </ns0:kml>'
+
 
 
 Read a KML file
