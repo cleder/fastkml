@@ -76,7 +76,11 @@ class KML(object):
 
     def to_string(self, prettyprint=False):
         """ Returm the KML Object as xml """
-        return etree.tostring(self.etree_element(), encoding='utf-8')
+        if LXML and prettyprint:
+            return etree.tostring(self.etree_element(), encoding='utf-8',
+                                    pretty_print=True)
+        else:
+            return etree.tostring(self.etree_element(), encoding='utf-8')
 
     def features(self):
         """ return a list of features """

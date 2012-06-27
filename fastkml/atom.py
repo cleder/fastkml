@@ -27,6 +27,10 @@ except ImportError:
     import xml.etree.ElementTree as etree
     LXML = False
 
+import re
+regex = r"^[a-zA-Z0-9._%-]+@([a-zA-Z0-9-]+\.)*[a-zA-Z]{2,4}$"
+check_email = re.compile(regex).match
+
 
 class Link(object):
     """
@@ -159,9 +163,9 @@ class _Person(object):
             uri = etree.SubElement(element, "%suri" %self.ns)
             uri.text = self.uri
         if self.email:
-            #XXX validate email
             email = etree.SubElement(element, "%semail" %self.ns)
-            email.text = self.email
+            if check_email(self.email):
+                email.text = self.email
 
 
 
@@ -180,7 +184,8 @@ class _Person(object):
                 self.uri = uri.text
             email = element.find('%semail' %self.ns)
             if email is not None:
-                self.email = email.text
+                if check_email(email):
+                    self.email = email.text
 
 
 class Author(_Person):

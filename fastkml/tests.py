@@ -408,6 +408,7 @@ class StyleFromStringTestCase( unittest.TestCase ):
           </Style>
         </Document>
         </kml>"""
+        #XXX fil and outline
         k = kml.KML()
         k.from_string(doc)
         self.assertEqual(len(k.features()),1)
