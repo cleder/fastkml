@@ -8,6 +8,7 @@ part of how your data is displayed.
 import logging
 logger = logging.getLogger('fastkml.styles')
 
+import config
 
 try:
     from lxml import etree
@@ -28,7 +29,7 @@ class StyleUrl(object):
     def __init__(self, ns=None, url=None):
         self.url = url
         if ns == None:
-            self.ns = '{http://www.opengis.net/kml/2.2}'
+            self.ns = config.NS
         else:
             self.ns = ns
 
@@ -67,7 +68,7 @@ class _StyleSelector(object):
     def __init__(self, ns=None, id=None):
         self.id = id
         if ns == None:
-            self.ns = '{http://www.opengis.net/kml/2.2}'
+            self.ns = config.NS
         else:
             self.ns = ns
 
@@ -239,7 +240,7 @@ class _ColorStyle(object):
     def __init__(self, ns=None, id=None, color=None, colorMode=None):
         self.id = id
         if ns == None:
-            self.ns = '{http://www.opengis.net/kml/2.2}'
+            self.ns = config.NS
         else:
             self.ns = ns
         self.color = color

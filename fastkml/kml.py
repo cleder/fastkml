@@ -13,7 +13,7 @@ http://schemas.opengis.net/kml/.
 from shapely.geometry import Point, LineString, Polygon
 from shapely.geometry import MultiPoint, MultiLineString, MultiPolygon
 from shapely.geometry.polygon import LinearRing
-
+import config
 import logging
 logger = logging.getLogger('fastkml.kml')
 
@@ -40,7 +40,7 @@ class KML(object):
     def __init__(self, ns=None):
         self._features =[]
         if ns == None:
-            self.ns = '{http://www.opengis.net/kml/2.2}'
+            self.ns = config.NS
         else:
             self.ns = ns
 
@@ -142,7 +142,7 @@ class _Feature(object):
             for style in styles:
                 self.append_style(style)
         if ns == None:
-            self.ns = '{http://www.opengis.net/kml/2.2}'
+            self.ns = config.NS
         else:
             self.ns = ns
 
@@ -242,7 +242,7 @@ class _Container(_Feature):
         super(_Container, self).__init__(ns, id, name, description)
         self._features =[]
         if ns == None:
-            self.ns = '{http://www.opengis.net/kml/2.2}'
+            self.ns = config.NS
         else:
             self.ns = ns
 
