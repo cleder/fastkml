@@ -8,6 +8,30 @@ from shapely.geometry import Point, LineString, Polygon
 from shapely.geometry import MultiPoint, MultiLineString, MultiPolygon
 from shapely.geometry.polygon import LinearRing
 
+class BaseClassesTestCase(unittest.TestCase):
+    """ BaseClasses  must raise a NotImplementedError on etree_element
+    and a TypeError on from_element """
+
+    def test_BaseObject(self):
+        pass
+
+    def test_Feature(self):
+        pass
+
+    def test_Container(self):
+        pass
+
+    def test_TimePrimitive(self):
+        pass
+
+    def test_StyleSelector(self):
+        pass
+
+    def test_ColorStyle(self):
+        pass
+
+    def test_Person(self):
+        pass
 
 class BuildKmlTestCase(unittest.TestCase):
     """ Build a simple KML File """
