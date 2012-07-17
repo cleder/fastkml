@@ -10,13 +10,15 @@ http://schemas.opengis.net/kml/.
 
 """
 
-from shapely.geometry import Point, LineString, Polygon
-from shapely.geometry import MultiPoint, MultiLineString, MultiPolygon
-from shapely.geometry.polygon import LinearRing
-import config
+from geometry import Point, LineString, Polygon
+from geometry import MultiPoint, MultiLineString, MultiPolygon
+from geometry import LinearRing
+
+from datetime import datetime, date
+import dateutil.parser
+
 import logging
 logger = logging.getLogger('fastkml.kml')
-
 
 try:
     from lxml import etree
@@ -25,10 +27,13 @@ except ImportError:
     import xml.etree.ElementTree as etree
     LXML = False
 
-from styles import StyleUrl, Style, StyleMap, _StyleSelector
+import config
+from base import _BaseObject
 
+from styles import StyleUrl, Style, StyleMap, _StyleSelector
 import atom
 import gx
+
 
 
 class KML(object):
@@ -94,7 +99,7 @@ class KML(object):
         else:
             raise TypeError
 
-class _Feature(object):
+class _Feature(_BaseObject):
     """
     abstract element; do not create
     subclasses are:
@@ -105,9 +110,6 @@ class _Feature(object):
     #PhotoOverlay,
     #ScreenOverlay
     """
-    ns = None
-    id = None
-    name = None
     #User-defined text displayed in the 3D viewer as the label for the
     #object (for example, for a Placemark, Folder, or NetworkLink).
     description = None
@@ -127,6 +129,8 @@ class _Feature(object):
     #If the style is defined in an external file, use a full URL
     #along with # referencing.
     _styles = None
+    _time_span = None
+    _time_stamp = None
 
     #XXX atom_author = None
     #XXX atom_link = None
@@ -182,13 +186,16 @@ class _Feature(object):
                 element.append(styleUrl.etree_element())
             for style in self.styles():
                 element.append(style.etree_element())
+            if (self._time_span is not None) and (self._time_stamp is not None):
+                raise ValueError
+            #elif self._time_span:
+            #    timespan = TimeStamp(self.ns, begin=self._time_span[0][0],
+            #                        begin_res=self._time_span[0][1])
+
         else:
             raise NotImplementedError
         return element
 
-
-    def from_string(self, xml_string):
-        self.from_element(etree.XML(xml_string))
 
     def from_element(self, element):
         if self.ns + self.__name__ != element.tag:
@@ -482,5 +489,131 @@ class Placemark(_Feature):
             logger.error('Object does not have a geometry')
         return element
 
+class _TimePrimitive(_BaseObject):
+    """ The dateTime is defined according to XML Schema time.
+    The value can be expressed as yyyy-mm-ddThh:mm:sszzzzzz, where T is
+    the separator between the date and the time, and the time zone is
+    either Z (for UTC) or zzzzzz, which represents ±hh:mm in relation to
+    UTC. Additionally, the value can be expressed as a date only.
+
+    The precision of the dateTime is dictated by the dateTime value
+    which can be one of the following:
+
+    - dateTime gives second resolution
+    - date gives day resolution
+    - gYearMonth gives month resolution
+    - gYear gives year resolution
+    """
+
+    RESOLUTIONS = ['gYear', 'gYearMonth', 'date', 'dateTime']
+
+    def parse_str(self, datestr):
+        resolution = 'dateTime'
+        year = 1900
+        month = 1
+        day = 1
+        if len(datestr) == 4:
+            resolution = 'gYear'
+            year = int(datestr)
+            dt = datetime(year, month, day)
+        elif len(datestr) == 6:
+            resolution = 'gYearMonth'
+            year = int(datestr[:4])
+            month = int(datestr[-2:])
+            dt = datetime(year, month, day)
+        elif len(datestr) == 7:
+            resolution = 'gYearMonth'
+            year = int(datestr.split('-')[0])
+            month = int(datestr.split('-')[1])
+            dt = datetime(year, month, day)
+        elif len(datestr) == 8 or len(datestr) == 10:
+            resolution = 'date'
+            dt = dateutil.parser.parse(datestr)
+        elif len(datestr) > 10:
+            resolution = 'dateTime'
+            dt = dateutil.parser.parse(datestr)
+        else:
+            raise ValueError
+        return dt, resolution
 
 
+    def date_to_string(self, dt, resolution=None):
+        if resolution:
+            if resolution not in self.RESOLUTIONS:
+                raise ValueError
+        else:
+            if isinstance(dt, datetime):
+                resolution = 'dateTime'
+            elif isinstance(dt, date):
+                resolution = 'date'
+            else:
+                raise ValueError
+        if resolution == 'gYear':
+            return dt.strftime('%Y')
+        elif resolution == 'gYearMonth':
+            return dt.strftime('%Y-%m')
+        elif resolution == 'date':
+            if isinstance(dt, datetime):
+                return dt.date().isoformat()
+            else:
+                dt.isoformat()
+        elif resolution == 'dateTime':
+            return dt.isoformat()
+
+
+class TimeStamp(_TimePrimitive):
+    """ Represents a single moment in time. """
+    __name__ = 'TimeStamp'
+    timestamp = None
+
+    def __init__(self, ns=None, id=None, timestamp=None, resolution='dateTime'):
+         super(TimeStamp, self).__init__(ns, id)
+         if timestamp:
+            self.timestamp = (timestamp, resolution)
+
+    def etree_element(self):
+        element = super(TimeStamp, self).etree_element()
+        when = etree.SubElement(element, "%swhen" %self.ns)
+        when.text = self.date_to_string(*self.timestamp)
+        return element
+
+    def from_element(self, element):
+        super(TimeStamp, self).from_element(element)
+        when = element.find('%swhen' %self.ns)
+        if when is not None:
+            self.timestamp = self.parse_str(when.text)
+
+
+
+class TimeSpan(_TimePrimitive):
+    """ Represents an extent in time bounded by begin and end dateTimes.
+    """
+    __name__ = 'TimeSpan'
+    begin = None
+    end = None
+
+    def __init__(self, ns=None, id=None, begin=None, begin_res='dateTime',
+                    end=None, end_res='dateTime'):
+        super(TimeStamp, self).__init__(ns, id)
+        if begin:
+            self.begin = (begin, begin_res)
+        if end:
+            self.end = (end, end_res)
+
+    def from_element(self, element):
+        super(TimeSpan, self).from_element(element)
+        begin = element.find('%sbegin' %self.ns)
+        if begin is not None:
+            self.begin = self.parse_str(begin.text)
+        end = element.find('%send' %self.ns)
+        if end is not None:
+            self.end = self.parse_str(end.text)
+
+    def etree_element(self):
+        element = super(TimeSpan, self).etree_element()
+        if self.begin is not None:
+            begin = etree.SubElement(element, "%sbegin" %self.ns)
+            begin.text = self.date_to_string(*self.begin)
+        if self.end is not None:
+            end = etree.SubElement(element, "%send" %self.ns)
+            end.text = self.date_to_string(*self.end)

@@ -9,6 +9,7 @@ import logging
 logger = logging.getLogger('fastkml.styles')
 
 import config
+from base import _BaseObject
 
 try:
     from lxml import etree
@@ -18,7 +19,7 @@ except ImportError:
     LXML = False
 
 
-class StyleUrl(object):
+class StyleUrl(_BaseObject):
     """
     URL of a <Style> or <StyleMap> defined in a Document. If the style
     is in the same file, use a # reference. If the style is defined in
@@ -42,8 +43,6 @@ class StyleUrl(object):
             logger.critical('No url given for styleUrl')
             raise ValueError
 
-    def from_string(self, xml_string):
-        self.from_element(etree.XML(xml_string))
 
     def from_element(self, element):
         if self.ns + "styleUrl" != element.tag:
@@ -54,7 +53,7 @@ class StyleUrl(object):
 
 
 
-class _StyleSelector(object):
+class _StyleSelector(_BaseObject):
     """
     This is an abstract element and cannot be used directly in a KML file.
     It is the base type for the <Style> and <StyleMap> elements. The
@@ -62,15 +61,6 @@ class _StyleSelector(object):
     Placemark. An element derived from StyleSelector is uniquely identified
     by its id and its url.
     """
-    id = None
-    ns = None
-
-    def __init__(self, ns=None, id=None):
-        self.id = id
-        if ns == None:
-            self.ns = config.NS
-        else:
-            self.ns = ns
 
     def etree_element(self):
         element = etree.Element(self.ns + self.__name__)
@@ -78,8 +68,6 @@ class _StyleSelector(object):
             element.set('id', self.id)
         return element
 
-    def from_string(self, xml_string):
-        self.from_element(etree.XML(xml_string))
 
     def from_element(self, element):
         if self.ns + self.__name__ != element.tag:
@@ -216,7 +204,7 @@ class StyleMap(_StyleSelector):
         return element
 
 
-class _ColorStyle(object):
+class _ColorStyle(_BaseObject):
     """
     abstract element; do not create.
     This is an abstract element and cannot be used directly in a KML file.
@@ -259,8 +247,6 @@ class _ColorStyle(object):
             colorMode.text = self.colorMode
         return element
 
-    def from_string(self, xml_string):
-        self.from_element(etree.XML(xml_string))
 
     def from_element(self, element):
         if self.ns + self.__name__ != element.tag:
@@ -417,5 +403,5 @@ class LabelStyle(_ColorStyle):
         if scale is not None:
             self.scale = float(scale.text)
 
-def BalloonStyle(object):
+class BalloonStyle(_BaseObject):
     pass

@@ -28,6 +28,7 @@ setup(name='fastkml',
       install_requires=[
           # -*- Extra requirements: -*-
           'shapely',
+          'python-dateutil',
       ],
       entry_points="""
       # -*- Entry points: -*-
