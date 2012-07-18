@@ -5,6 +5,7 @@ from fastkml import kml
 from fastkml import styles
 from fastkml import base
 from fastkml import config
+import datetime
 import xml.etree.ElementTree as etree
 from shapely.geometry import Point, LineString, Polygon
 from shapely.geometry import MultiPoint, MultiLineString, MultiPolygon
@@ -43,8 +44,28 @@ class BaseClassesTestCase(unittest.TestCase):
 
     def test_Feature(self):
         f = kml._Feature(name='A Feature')
+        self.assertRaises(NotImplementedError, f.etree_element)
+        self.assertEqual(f.name, 'A Feature')
+        self.assertEqual(f.visibility, 1)
+        self.assertEqual(f.isopen, 0)
+        #self.assertEqual(f.atom_author, None)
+        #self.assertEqual(f.atom_link, None)
+        #self.assertEqual(f.address, None)
+        #self.assertEqual(f.phoneNumber, None)
+        self.assertEqual(f._snippet, None)
+        self.assertEqual(f.description, None)
+        self.assertEqual(f._styleUrl, None)
+        self.assertEqual(f._styles, [])
+        self.assertEqual(f._time_span, None)
+        self.assertEqual(f._time_stamp, None)
+        #self.assertEqual(f.region, None)
+        #self.assertEqual(f.extended_data, None)
+
+        f.__name__ = 'Feature'
         f.styleUrl = '#default'
-        pass
+        self.assertTrue('Feature>' in f.to_string())
+        self.assertTrue('#default' in f.to_string())
+
 
     def test_Container(self):
         pass
@@ -68,7 +89,7 @@ class BuildKmlTestCase(unittest.TestCase):
         k = kml.KML()
         self.assertEqual(len( list(k.features())),0)
         self.assertEqual( k.to_string(),
-        '<ns0:kml xmlns:ns0="http://www.opengis.net/kml/2.2"/>')
+            '<ns0:kml xmlns:ns0="http://www.opengis.net/kml/2.2"/>')
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -631,12 +652,122 @@ class StyleFromStringTestCase( unittest.TestCase ):
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
 
+class DateTimeTestCase( unittest.TestCase ):
+
+    def test_timestamp(self):
+        now = datetime.datetime.now()
+        ts = kml.TimeStamp(timestamp=now)
+        self.assertEqual(ts.timestamp, [now, 'dateTime'])
+        self.assertTrue('TimeStamp>' in ts.to_string())
+        self.assertTrue('when>' in ts.to_string())
+        self.assertTrue(now.isoformat() in ts.to_string())
+        y2k = datetime.date(2000,1,1)
+        ts = kml.TimeStamp(timestamp=y2k)
+        self.assertEqual(ts.timestamp, [y2k, 'date'])
+        self.assertTrue('2000-01-01' in ts.to_string())
+
+
+    def test_timestamp_resolution(self):
+        now = datetime.datetime.now()
+        ts = kml.TimeStamp(timestamp=now)
+        self.assertTrue(now.isoformat() in ts.to_string())
+        ts.timestamp[1] = 'date'
+        self.assertTrue(now.date().isoformat() in ts.to_string())
+        self.assertFalse(now.isoformat() in ts.to_string())
+        year = str(now.year)
+        ym = now.strftime('%Y-%m')
+        ts.timestamp[1] = 'gYearMonth'
+        self.assertTrue(ym in ts.to_string())
+        self.assertFalse(now.date().isoformat() in ts.to_string())
+        ts.timestamp[1] = 'gYear'
+        self.assertTrue(year in ts.to_string())
+        self.assertFalse(ym in ts.to_string())
+        ts.timestamp = None
+        self.assertRaises(TypeError, ts.to_string)
+
+
+    def test_timespan(self):
+        now = datetime.datetime.now()
+        y2k = datetime.datetime(2000,1,1)
+        ts = kml.TimeSpan(end=now, begin=y2k)
+        self.assertEqual(ts.end, [now, 'dateTime'])
+        self.assertEqual(ts.begin, [y2k, 'dateTime'])
+        self.assertTrue('TimeSpan>' in ts.to_string())
+        self.assertTrue('begin>' in ts.to_string())
+        self.assertTrue('end>' in ts.to_string())
+        self.assertTrue(now.isoformat() in ts.to_string())
+        self.assertTrue(y2k.isoformat() in ts.to_string())
+        ts.end = None
+        self.assertFalse(now.isoformat() in ts.to_string())
+        self.assertTrue(y2k.isoformat() in ts.to_string())
+        ts.begin = None
+        self.assertRaises(ValueError, ts.to_string)
+
+
+    def test_feature_timestamp(self):
+        now = datetime.datetime.now()
+        f = kml.Document()
+        f.timeStamp = now
+        self.assertTrue(now.isoformat() in f.to_string())
+        self.assertTrue('TimeStamp>' in f.to_string())
+        self.assertTrue('when>' in f.to_string())
+        f.timeStamp = now.date()
+        self.assertTrue(now.date().isoformat() in f.to_string())
+        self.assertFalse(now.isoformat() in f.to_string())
+        f.timeStamp = None
+        self.assertFalse('TimeStamp>' in f.to_string())
+
+    def test_feature_timespan(self):
+        now = datetime.datetime.now()
+        y2k = datetime.date(2000,1,1)
+        f = kml.Document()
+        f.begin = y2k
+        f.end = now
+        self.assertTrue(now.isoformat() in f.to_string())
+        self.assertTrue('2000-01-01' in f.to_string())
+        self.assertTrue('TimeSpan>' in f.to_string())
+        self.assertTrue('begin>' in f.to_string())
+        self.assertTrue('end>' in f.to_string())
+        f.end = None
+        self.assertFalse(now.isoformat() in f.to_string())
+        self.assertTrue('2000-01-01' in f.to_string())
+        self.assertTrue('TimeSpan>' in f.to_string())
+        self.assertTrue('begin>' in f.to_string())
+        self.assertFalse('end>' in f.to_string())
+        f.begin = None
+        self.assertFalse('TimeSpan>' in f.to_string())
+
+    def test_feature_timespan_stamp(self):
+        now = datetime.datetime.now()
+        y2k = datetime.date(2000,1,1)
+        f = kml.Document()
+        f.begin = y2k
+        f.end = now
+        self.assertTrue(now.isoformat() in f.to_string())
+        self.assertTrue('2000-01-01' in f.to_string())
+        self.assertTrue('TimeSpan>' in f.to_string())
+        self.assertTrue('begin>' in f.to_string())
+        self.assertTrue('end>' in f.to_string())
+        self.assertFalse('TimeStamp>' in f.to_string())
+        self.assertFalse('when>' in f.to_string())
+        f.timeStamp = now
+        self.assertTrue(now.isoformat() in f.to_string())
+        self.assertTrue('TimeStamp>' in f.to_string())
+        self.assertTrue('when>' in f.to_string())
+        self.assertFalse('2000-01-01' in f.to_string())
+        self.assertFalse('TimeSpan>' in f.to_string())
+        self.assertFalse('begin>' in f.to_string())
+        self.assertFalse('end>' in f.to_string())
+
+
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite( KmlFromStringTestCase ))
     suite.addTest(unittest.makeSuite( BuildKmlTestCase ))
     suite.addTest(unittest.makeSuite( StyleFromStringTestCase ))
     suite.addTest(unittest.makeSuite(BaseClassesTestCase))
+    suite.addTest(unittest.makeSuite(DateTimeTestCase))
     return suite
 
 if __name__ == '__main__':

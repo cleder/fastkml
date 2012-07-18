@@ -116,38 +116,101 @@ class _Feature(_BaseObject):
     #ScreenOverlay
     """
     name = None
-    #User-defined text displayed in the 3D viewer as the label for the
-    #object (for example, for a Placemark, Folder, or NetworkLink).
+    # User-defined text displayed in the 3D viewer as the label for the
+    # object (for example, for a Placemark, Folder, or NetworkLink).
+
+    visibility = 1
+    # Boolean value. Specifies whether the feature is drawn in the 3D
+    # viewer when it is initially loaded. In order for a feature to be
+    # visible, the <visibility> tag of all its ancestors must also be
+    # set to 1.
+
+    isopen = 0
+    # Boolean value. Specifies whether a Document or Folder appears
+    # closed or open when first loaded into the Places panel.
+    # 0=collapsed (the default), 1=expanded.
+
+    #TODO atom_author = None
+    # KML 2.2 supports new elements for including data about the author
+    # and related website in your KML file. This information is displayed
+    # in geo search results, both in Earth browsers such as Google Earth,
+    # and in other applications such as Google Maps.
+
+    #TODO atom_link = None
+    # Specifies the URL of the website containing this KML or KMZ file.
+
+    #TODO address = None
+    # A string value representing an unstructured address written as a
+    # standard street, city, state address, and/or as a postal code.
+    # You can use the <address> tag to specify the location of a point
+    # instead of using latitude and longitude coordinates.
+
+    #TODO phoneNumber = None
+    # A string value representing a telephone number.
+    # This element is used by Google Maps Mobile only.
+
+    _snippet = None    #XXX
+    # _snippet is eiter a tuple of a string Snippet.text and an integer
+    # Snippet.maxLines or a string
+    #
+    # A short description of the feature. In Google Earth, this
+    # description is displayed in the Places panel under the name of the
+    # feature. If a Snippet is not supplied, the first two lines of
+    # the <description> are used. In Google Earth, if a Placemark
+    # contains both a description and a Snippet, the <Snippet> appears
+    # beneath the Placemark in the Places panel, and the <description>
+    # appears in the Placemark's description balloon. This tag does not
+    # support HTML markup. <Snippet> has a maxLines attribute, an integer
+    # that specifies the maximum number of lines to display.
+
     description = None
     #User-supplied content that appears in the description balloon.
-    visibility = 1
-    #Boolean value. Specifies whether the feature is drawn in the 3D
-    #viewer when it is initially loaded. In order for a feature to be
-    #visible, the <visibility> tag of all its ancestors must also be
-    #set to 1.
-    isopen = 0
-    #Boolean value. Specifies whether a Document or Folder appears
-    #closed or open when first loaded into the Places panel.
-    #0=collapsed (the default), 1=expanded.
-    _styleUrl = None
-    #URL of a <Style> or <StyleMap> defined in a Document.
-    #If the style is in the same file, use a # reference.
-    #If the style is defined in an external file, use a full URL
-    #along with # referencing.
-    _styles = None
-    _time_span = None
-    _time_stamp = None
 
-    #XXX atom_author = None
-    #XXX atom_link = None
+    _styleUrl = None
+    # URL of a <Style> or <StyleMap> defined in a Document.
+    # If the style is in the same file, use a # reference.
+    # If the style is defined in an external file, use a full URL
+    # along with # referencing.
+
+    _styles = None
+    # One or more Styles and StyleMaps can be defined to customize the
+    # appearance of any element derived from Feature or of the Geometry
+    # in a Placemark.
+    # A style defined within a Feature is called an "inline style" and
+    # applies only to the Feature that contains it. A style defined as
+    # the child of a <Document> is called a "shared style." A shared
+    # style must have an id defined for it. This id is referenced by one
+    # or more Features within the <Document>. In cases where a style
+    # element is defined both in a shared style and in an inline style
+    # for a Feature—that is, a Folder, GroundOverlay, NetworkLink,
+    # Placemark, or ScreenOverlay—the value for the Feature's inline
+    # style takes precedence over the value for the shared style.
+
+    _time_span = None #XXX
+    # Associates this Feature with a period of time.
+    _time_stamp = None #XXX
+    # Associates this Feature with a point in time.
+
+    #TODO Region = None
+    # Features and geometry associated with a Region are drawn only when
+    # the Region is active.
+
+    #TODO ExtendedData = None
+    # Allows you to add custom data to a KML file. This data can be
+    # (1) data that references an external XML schema,
+    # (2) untyped data/value pairs, or
+    # (3) typed data.
+    # A given KML Feature can contain a combination of these types of
+    # custom data.
+    #
+    # <Metadata> (deprecated in KML 2.2; use <ExtendedData> instead)
 
     def __init__(self, ns=None, id=None, name=None, description=None,
                 styles=None, styleUrl=None):
         super(_Feature, self).__init__(ns, id)
         self.name=name
         self.description=description
-        if styleUrl is not None:
-            self.styleUrl = styleUrl
+        self.styleUrl = styleUrl
         self._styles = []
         if styles:
             for style in styles:
@@ -156,7 +219,7 @@ class _Feature(_BaseObject):
     @property
     def styleUrl(self):
         """ Returns the url only, not a full StyleUrl object.
-        if you need the full StyleUrl use _styleUrl """
+            if you need the full StyleUrl object use _styleUrl """
         if isinstance(self._styleUrl, StyleUrl):
             return self._styleUrl.url
 
@@ -173,7 +236,57 @@ class _Feature(_BaseObject):
         else:
             raise ValueError
 
+    @property
+    def timeStamp(self):
+        """ This just returns the datetime portion of the timestamp"""
+        if self._time_stamp is not None:
+            return self._time_stamp.timestamp[0]
 
+    @timeStamp.setter
+    def timeStamp(self, dt):
+        if dt == None:
+            self._time_stamp = None
+        else:
+            self._time_stamp = TimeStamp(timestamp=dt)
+        if self._time_span is not None:
+            logger.warn('Setting a TimeStamp, TimeSpan deleted')
+            self._time_span = None
+
+    @property
+    def begin(self):
+        if self._time_span is not None:
+            return self._time_span.begin[0]
+
+    @begin.setter
+    def begin(self, dt):
+        if self._time_span is None:
+            self._time_span = TimeSpan(begin=dt)
+        else:
+            if self._time_span.begin is None:
+                self._time_span.begin = [dt, None]
+            else:
+                self._time_span.begin[0] = dt
+        if self._time_stamp is not None:
+            logger.warn('Setting a TimeSpan, TimeStamp deleted')
+            self._time_stamp = None
+
+    @property
+    def end(self):
+        if self._time_span is not None:
+            return self._time_span.end[0]
+
+    @end.setter
+    def end(self, dt):
+        if self._time_span is None:
+            self._time_span = TimeStamp(end=dt)
+        else:
+            if self._time_span.end is None:
+                self._time_span.end = [dt, None]
+            else:
+                self._time_span.end[0] = dt
+        if self._time_stamp is not None:
+            logger.warn('Setting a TimeSpan, TimeStamp deleted')
+            self._time_stamp = None
 
     def append_style(self, style):
         """ append a style to the feature """
@@ -201,17 +314,28 @@ class _Feature(_BaseObject):
             description.text = self.description
         visibility = etree.SubElement(element, "%svisibility" %self.ns)
         visibility.text = str(self.visibility)
-        isopen = etree.SubElement(element, "%sopen" %self.ns)
-        isopen.text = str(self.isopen)
+        if self.isopen:
+            isopen = etree.SubElement(element, "%sopen" %self.ns)
+            isopen.text = str(self.isopen)
         if self._styleUrl is not None:
             element.append(self._styleUrl.etree_element())
         for style in self.styles():
             element.append(style.etree_element())
+        if self._snippet:
+            snippet = etree.SubElement(element, "%sSnippet" %self.ns)
+            if isinstance(self._snippet, basestring):
+                snippet.text = self._snippet
+            else:
+                assert (isinstance(self._snippet[0], basestring))
+                snippet.text = self._snippet[0]
+                if self._snippet[1]:
+                    snippet.set('maxLines', str(self._snippet[1]))
         if (self._time_span is not None) and (self._time_stamp is not None):
-            raise ValueError
-        #elif self._time_span:
-        #    timespan = TimeStamp(self.ns, begin=self._time_span[0][0],
-        #                        begin_res=self._time_span[0][1])
+            raise ValueError('Either Timestamp or Timespan can be defined, not both')
+        elif self._time_span:
+            element.append(self._time_span.etree_element())
+        elif self._time_stamp:
+            element.append(self._time_stamp.etree_element())
 
 
         return element
@@ -250,7 +374,23 @@ class _Feature(_BaseObject):
                 s = StyleUrl(self.ns)
                 s.from_element(style_url)
                 self._styleUrl = s
-            #XXX Timespan/stamp
+            snippet = element.find('%sSnippet' % self.ns)
+            if snippet is not None:
+                self._snippet = ('',0)
+                self._snippet[0] = snippet.text
+                if snippet.get('maxLines'):
+                    self._snippet[1] = int(snippet.get('maxLines'))
+            timespan = element.find('%sTimeSpan' % self.ns)
+            if timespan is not None:
+                s = TimeSpan()
+                s.from_element(timespan)
+                self._time_span = s
+            timestamp = element.find('%sTimeStamp' % self.ns)
+            if timestamp is not None:
+                s = TimeStamp()
+                s.from_element(timestamp)
+                self._time_stamp = s
+
 
 
 
@@ -529,9 +669,25 @@ class _TimePrimitive(_BaseObject):
 
     RESOLUTIONS = ['gYear', 'gYearMonth', 'date', 'dateTime']
 
+    def get_resolution(self, dt, resolution):
+        if resolution:
+            if resolution not in self.RESOLUTIONS:
+                raise ValueError
+            else:
+                return resolution
+        else:
+            if isinstance(dt, datetime):
+                resolution = 'dateTime'
+            elif isinstance(dt, date):
+                resolution = 'date'
+            else:
+                resolution = None
+        return resolution
+
+
     def parse_str(self, datestr):
         resolution = 'dateTime'
-        year = 1900
+        year = 0
         month = 1
         day = 1
         if len(datestr) == 4:
@@ -556,31 +712,23 @@ class _TimePrimitive(_BaseObject):
             dt = dateutil.parser.parse(datestr)
         else:
             raise ValueError
-        return dt, resolution
+        return [dt, resolution]
 
 
     def date_to_string(self, dt, resolution=None):
-        if resolution:
-            if resolution not in self.RESOLUTIONS:
-                raise ValueError
-        else:
-            if isinstance(dt, datetime):
-                resolution = 'dateTime'
-            elif isinstance(dt, date):
-                resolution = 'date'
-            else:
-                raise ValueError
-        if resolution == 'gYear':
-            return dt.strftime('%Y')
-        elif resolution == 'gYearMonth':
-            return dt.strftime('%Y-%m')
-        elif resolution == 'date':
-            if isinstance(dt, datetime):
-                return dt.date().isoformat()
-            else:
-                dt.isoformat()
-        elif resolution == 'dateTime':
-            return dt.isoformat()
+        if isinstance(dt, (date, datetime)):
+            resolution = self.get_resolution(dt, resolution)
+            if resolution == 'gYear':
+                return dt.strftime('%Y')
+            elif resolution == 'gYearMonth':
+                return dt.strftime('%Y-%m')
+            elif resolution == 'date':
+                if isinstance(dt, datetime):
+                    return dt.date().isoformat()
+                else:
+                    return dt.isoformat()
+            elif resolution == 'dateTime':
+                return dt.isoformat()
 
 
 class TimeStamp(_TimePrimitive):
@@ -588,10 +736,10 @@ class TimeStamp(_TimePrimitive):
     __name__ = 'TimeStamp'
     timestamp = None
 
-    def __init__(self, ns=None, id=None, timestamp=None, resolution='dateTime'):
-         super(TimeStamp, self).__init__(ns, id)
-         if timestamp:
-            self.timestamp = (timestamp, resolution)
+    def __init__(self, ns=None, id=None, timestamp=None, resolution=None):
+        super(TimeStamp, self).__init__(ns, id)
+        resolution = self.get_resolution(timestamp, resolution)
+        self.timestamp = [timestamp, resolution]
 
     def etree_element(self):
         element = super(TimeStamp, self).etree_element()
@@ -614,13 +762,15 @@ class TimeSpan(_TimePrimitive):
     begin = None
     end = None
 
-    def __init__(self, ns=None, id=None, begin=None, begin_res='dateTime',
-                    end=None, end_res='dateTime'):
-        super(TimeStamp, self).__init__(ns, id)
+    def __init__(self, ns=None, id=None, begin=None, begin_res=None,
+                    end=None, end_res=None):
+        super(TimeSpan, self).__init__(ns, id)
         if begin:
-            self.begin = (begin, begin_res)
+            resolution = self.get_resolution(begin, begin_res)
+            self.begin = [begin, resolution]
         if end:
-            self.end = (end, end_res)
+            resolution = self.get_resolution(end, end_res)
+            self.end = [end, resolution]
 
     def from_element(self, element):
         super(TimeSpan, self).from_element(element)
@@ -634,8 +784,16 @@ class TimeSpan(_TimePrimitive):
     def etree_element(self):
         element = super(TimeSpan, self).etree_element()
         if self.begin is not None:
-            begin = etree.SubElement(element, "%sbegin" %self.ns)
-            begin.text = self.date_to_string(*self.begin)
+            text = self.date_to_string(*self.begin)
+            if text:
+                begin = etree.SubElement(element, "%sbegin" %self.ns)
+                begin.text = text
         if self.end is not None:
-            end = etree.SubElement(element, "%send" %self.ns)
-            end.text = self.date_to_string(*self.end)
+            text = self.date_to_string(*self.end)
+            if text:
+                end = etree.SubElement(element, "%send" %self.ns)
+                end.text = text
+        if self.begin == self.end == None:
+            raise ValueError("Either begin, end or both must be set")
+        #TODO test if end > begin
+        return element

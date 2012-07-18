@@ -34,8 +34,7 @@ class StyleUrl(_BaseObject):
             element.text = self.url
             return element
         else:
-            logger.critical('No url given for styleUrl')
-            raise ValueError
+            raise ValueError('No url given for styleUrl')
 
     def from_element(self, element):
         super(StyleUrl, self).from_element(element)
@@ -79,7 +78,7 @@ class Style(_StyleSelector):
 
     def styles(self):
         for style in self._styles:
-            if isinstance(style, _ColorStyle):
+            if isinstance(style, (_ColorStyle, BalloonStyle)):
                 yield style
             else:
                 raise TypeError
@@ -106,6 +105,7 @@ class Style(_StyleSelector):
             thestyle = LabelStyle(self.ns)
             thestyle.from_element(style)
             self.append_style(thestyle)
+        #XXX BalloonStyle
 
     def etree_element(self):
         element = super(Style, self).etree_element()
@@ -373,4 +373,7 @@ class LabelStyle(_ColorStyle):
             self.scale = float(scale.text)
 
 class BalloonStyle(_BaseObject):
+    """ Specifies how the description balloon for placemarks is drawn.
+        The <bgColor>, if specified, is used as the background color of
+        the balloon."""
     pass
