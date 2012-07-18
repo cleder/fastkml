@@ -19,13 +19,9 @@ This library only  implements a subset of Atom that is useful with KML
 import logging
 logger = logging.getLogger('fastkml.atom')
 
+from config import etree
 
-try:
-    from lxml import etree
-    LXML = True
-except ImportError:
-    import xml.etree.ElementTree as etree
-    LXML = False
+NS = '{http://www.w3.org/2005/Atom}'
 
 import re
 regex = r"^[a-zA-Z0-9._%-]+@([a-zA-Z0-9-]+\.)*[a-zA-Z]{2,4}$"
@@ -75,7 +71,7 @@ class Link(object):
     def __init__(self, ns=None, href=None, rel=None, type=None,
                 hreflang=None, title=None, lenght=None):
         if ns == None:
-            self.ns = '{http://www.w3.org/2005/Atom}'
+            self.ns = NS
         else:
             self.ns = ns
         self.href = href
@@ -129,6 +125,7 @@ class _Person(object):
     entity. It has one required element, name, and two optional elements:
     uri, email.
     """
+    __name__ = None
     ns = None
 
     name = None
@@ -142,7 +139,7 @@ class _Person(object):
 
     def __init__(self, ns=None, name=None, uri=None, email=None):
         if ns == None:
-            self.ns = '{http://www.w3.org/2005/Atom}'
+            self.ns = NS
         else:
             self.ns = ns
         self.name = name

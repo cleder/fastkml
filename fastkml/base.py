@@ -35,7 +35,7 @@ class _BaseObject(object):
             if self.targetId:
                 element.set('targetId', self.targetId)
         else:
-            raise NotImplementedError
+            raise NotImplementedError("Call of abstract base class, subclasses implement this!")
         return element
 
 
@@ -44,9 +44,17 @@ class _BaseObject(object):
 
     def from_element(self, element):
         if self.ns + self.__name__ != element.tag:
-            raise TypeError
+            raise TypeError("Call of abstract base class, subclasses implement this!")
         else:
             if element.get('id'):
                 self.id = element.get('id')
             if element.get('targetId'):
                 self.targetId = element.get('targetId')
+
+    def to_string(self, prettyprint=True):
+        """ Return the KML Object as serialized xml """
+        if config.LXML and prettyprint:
+            return etree.tostring(self.etree_element(), encoding='utf-8',
+                                    pretty_print=True)
+        else:
+            return etree.tostring(self.etree_element(), encoding='utf-8')

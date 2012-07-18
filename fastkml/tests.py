@@ -3,6 +3,8 @@ import unittest
 
 from fastkml import kml
 from fastkml import styles
+from fastkml import base
+from fastkml import config
 import xml.etree.ElementTree as etree
 from shapely.geometry import Point, LineString, Polygon
 from shapely.geometry import MultiPoint, MultiLineString, MultiPolygon
@@ -13,9 +15,35 @@ class BaseClassesTestCase(unittest.TestCase):
     and a TypeError on from_element """
 
     def test_BaseObject(self):
-        pass
+        bo = base._BaseObject(id='id0')
+        self.assertEqual(bo.id, 'id0')
+        self.assertEqual(bo.ns, config.NS)
+        self.assertEqual(bo.targetId, None)
+        self.assertEqual(bo.__name__, None)
+        bo.targetId = 'target'
+        self.assertEqual(bo.targetId, 'target')
+        bo.ns =''
+        bo.id =None
+        self.assertEqual(bo.id, None)
+        self.assertEqual(bo.ns, '')
+        self.assertRaises(NotImplementedError, bo.etree_element)
+        element = etree.Element(config.NS + 'Base')
+        self.assertRaises(TypeError, bo.from_element)
+        self.assertRaises(TypeError, bo.from_element, element)
+        bo.__name__ = 'NotABaseObject'
+        self.assertRaises(TypeError, bo.from_element, element)
+        #Note that we can coax baseclasses not to throw errors
+        bo.__name__ = 'Base'
+        bo.ns = config.NS
+        bo.from_element(element)
+        self.assertEqual(bo.id, None)
+        self.assertEqual(bo.ns, config.NS)
+        self.assertFalse(bo.etree_element(), None)
+        self.assertTrue(len(bo.to_string()) > 1)
 
     def test_Feature(self):
+        f = kml._Feature(name='A Feature')
+        f.styleUrl = '#default'
         pass
 
     def test_Container(self):
@@ -38,7 +66,7 @@ class BuildKmlTestCase(unittest.TestCase):
     def test_kml(self):
         """ kml file without contents """
         k = kml.KML()
-        self.assertEqual(len(k.features()),0)
+        self.assertEqual(len( list(k.features())),0)
         self.assertEqual( k.to_string(),
         '<ns0:kml xmlns:ns0="http://www.opengis.net/kml/2.2"/>')
         k2 = kml.KML()
@@ -56,8 +84,8 @@ class BuildKmlTestCase(unittest.TestCase):
         k.append(f)
         f2 = kml.Folder(ns, 'id2', 'name2', 'description2')
         k.append(f2)
-        self.assertEqual(len(k.features()),2)
-        self.assertEqual(len( k.features()[0].features()),1)
+        self.assertEqual(len(list(k.features())),2)
+        self.assertEqual(len( list( list(k.features())[0].features())),1)
         k2 = kml.KML()
         s = k.to_string()
         k2.from_string(s)
@@ -73,7 +101,7 @@ class BuildKmlTestCase(unittest.TestCase):
         p2.geometry = LineString([(0, 0, 0), (1, 1, 1)])
         k.append(p)
         k.append(p2)
-        self.assertEqual(len(k.features()),2)
+        self.assertEqual(len(list(k.features())),2)
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -96,8 +124,8 @@ class BuildKmlTestCase(unittest.TestCase):
         #p2 does not have a geometry!
         f2.append(p)
         nf.append(p2)
-        self.assertEqual(len(k.features()),1)
-        self.assertEqual(len(k.features()[0].features()),2)
+        self.assertEqual(len(list(k.features())),1)
+        self.assertEqual(len(list((list(k.features())[0].features()))),2)
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -136,8 +164,8 @@ class KmlFromStringTestCase( unittest.TestCase ):
         </kml>"""
         k = kml.KML()
         k.from_string(doc)
-        self.assertEqual(len(k.features()),1)
-        self.assertEqual(len(k.features()[0].features()),2)
+        self.assertEqual(len(list(k.features())),1)
+        self.assertEqual(len(list(list(k.features())[0].features())),2)
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -187,8 +215,8 @@ class KmlFromStringTestCase( unittest.TestCase ):
         </kml>"""
         k = kml.KML()
         k.from_string(doc)
-        self.assertEqual(len(k.features()),1)
-        self.assertEqual(len(k.features()[0].features()),3)
+        self.assertEqual(len(list(k.features())),1)
+        self.assertEqual(len(list(list(k.features())[0].features())),3)
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -208,8 +236,8 @@ class KmlFromStringTestCase( unittest.TestCase ):
         </kml>"""
         k = kml.KML()
         k.from_string(doc)
-        self.assertEqual(len(k.features()),1)
-        self.assertEqual(k.features()[0].name, "Simple placemark")
+        self.assertEqual(len(list(k.features())),1)
+        self.assertEqual(list(k.features())[0].name, "Simple placemark")
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -225,9 +253,9 @@ class KmlFromStringTestCase( unittest.TestCase ):
         </Placemark> </kml>"""
         k = kml.KML()
         k.from_string(doc)
-        self.assertEqual(len(k.features()),1)
+        self.assertEqual(len(list(k.features())),1)
         self.assertTrue(isinstance(
-                    k.features()[0].geometry, Polygon))
+                    list(k.features())[0].geometry, Polygon))
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -280,10 +308,10 @@ class KmlFromStringTestCase( unittest.TestCase ):
         </Placemark></kml>"""
         k = kml.KML()
         k.from_string(doc)
-        self.assertEqual(len(k.features()),1)
+        self.assertEqual(len(list(k.features())),1)
         self.assertTrue(isinstance(
-                    k.features()[0].geometry, MultiPoint))
-        self.assertEqual(len(k.features()[0].geometry.geoms), 12)
+                    list(k.features())[0].geometry, MultiPoint))
+        self.assertEqual(len(list(k.features())[0].geometry.geoms), 12)
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -304,10 +332,10 @@ class KmlFromStringTestCase( unittest.TestCase ):
         </Placemark> </kml>"""
         k = kml.KML()
         k.from_string(doc)
-        self.assertEqual(len(k.features()),1)
+        self.assertEqual(len(list(k.features())),1)
         self.assertTrue(isinstance(
-                    k.features()[0].geometry, MultiLineString))
-        self.assertEqual(len(k.features()[0].geometry.geoms), 4)
+                    list(k.features())[0].geometry, MultiLineString))
+        self.assertEqual(len(list(k.features())[0].geometry.geoms), 4)
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -322,14 +350,51 @@ class KmlFromStringTestCase( unittest.TestCase ):
         </Placemark> </kml>"""
         k = kml.KML()
         k.from_string(doc)
-        self.assertEqual(len(k.features()),1)
+        self.assertEqual(len(list(k.features())),1)
         self.assertTrue(isinstance(
-                    k.features()[0].geometry, MultiPolygon))
+                    list(k.features())[0].geometry, MultiPolygon))
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
 
+class StyleTestCase( unittest.TestCase ):
+
+    def test_styleurl(self):
+        f = kml.Document()
+        f.styleUrl = '#somestyle'
+        self.assertEqual(f.styleUrl, '#somestyle')
+        self.assertTrue(isinstance(f._styleUrl, styles.StyleUrl))
+        s = styles.StyleUrl(config.NS, url='#otherstyle')
+        f.styleUrl = s
+        self.assertTrue(isinstance(f._styleUrl, styles.StyleUrl))
+        self.assertEqual(f.styleUrl, '#otherstyle')
+
+
+
+
+
 class StyleFromStringTestCase( unittest.TestCase ):
+
+    def test_styleurl(self):
+        doc = """<?xml version="1.0" encoding="UTF-8"?>
+        <kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+          <name>Document.kml</name>
+          <open>1</open>
+          <styleUrl>#default</styleUrl>
+        </Document>
+        </kml>"""
+        k = kml.KML()
+        k.from_string(doc)
+        self.assertEqual(len(list(k.features())),1)
+        self.assertEqual(list(k.features())[0].styleUrl, '#default')
+        k2 = kml.KML()
+        k2.from_string(k.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
+
+
+    def test_balloonstyle(self):
+        pass
 
     def test_labelstyle(self):
         doc = """<?xml version="1.0" encoding="UTF-8"?>
@@ -346,10 +411,10 @@ class StyleFromStringTestCase( unittest.TestCase ):
         </kml>"""
         k = kml.KML()
         k.from_string(doc)
-        self.assertEqual(len(k.features()),1)
+        self.assertEqual(len(list(k.features())),1)
         self.assertTrue(isinstance(
-                    list(k.features()[0].styles())[0], styles.Style))
-        style = list(list(k.features()[0].styles())[0].styles())[0]
+                    list(list(k.features())[0].styles())[0], styles.Style))
+        style = list(list(list(k.features())[0].styles())[0].styles())[0]
         self.assertTrue(isinstance(style, styles.LabelStyle))
         self.assertEqual(style.color, 'ff0000cc')
         self.assertEqual(style.colorMode, None)
@@ -376,10 +441,10 @@ class StyleFromStringTestCase( unittest.TestCase ):
         </kml>"""
         k = kml.KML()
         k.from_string(doc)
-        self.assertEqual(len(k.features()),1)
+        self.assertEqual(len(list((k.features()))),1)
         self.assertTrue(isinstance(
-                    list(k.features()[0].styles())[0], styles.Style))
-        style = list(list(k.features()[0].styles())[0].styles())[0]
+                    list(list(k.features())[0].styles())[0], styles.Style))
+        style = list(list(list(k.features())[0].styles())[0].styles())[0]
         self.assertTrue(isinstance(style, styles.IconStyle))
         self.assertEqual(style.color, 'ff00ff00')
         self.assertEqual(style.scale, 1.1)
@@ -406,10 +471,10 @@ class StyleFromStringTestCase( unittest.TestCase ):
         </kml>"""
         k = kml.KML()
         k.from_string(doc)
-        self.assertEqual(len(k.features()),1)
+        self.assertEqual(len(list(k.features())),1)
         self.assertTrue(isinstance(
-                    list(k.features()[0].styles())[0], styles.Style))
-        style = list(list(k.features()[0].styles())[0].styles())[0]
+                    list(list(k.features())[0].styles())[0], styles.Style))
+        style = list(list(list(k.features())[0].styles())[0].styles())[0]
         self.assertTrue(isinstance(style, styles.LineStyle))
         self.assertEqual(style.color, '7f0000ff')
         self.assertEqual(style.width, 4)
@@ -432,13 +497,13 @@ class StyleFromStringTestCase( unittest.TestCase ):
           </Style>
         </Document>
         </kml>"""
-        #XXX fil and outline
+        #XXX fill and outline
         k = kml.KML()
         k.from_string(doc)
-        self.assertEqual(len(k.features()),1)
+        self.assertEqual(len(list(k.features())),1)
         self.assertTrue(isinstance(
-                    list(k.features()[0].styles())[0], styles.Style))
-        style = list(list(k.features()[0].styles())[0].styles())[0]
+                    list(list(k.features())[0].styles())[0], styles.Style))
+        style = list(list(list(k.features())[0].styles())[0].styles())[0]
         self.assertTrue(isinstance(style, styles.PolyStyle))
         self.assertEqual(style.color, 'ff0000cc')
         self.assertEqual(style.colorMode, 'random')
@@ -478,10 +543,10 @@ class StyleFromStringTestCase( unittest.TestCase ):
         </kml>"""
         k = kml.KML()
         k.from_string(doc)
-        self.assertEqual(len(k.features()),1)
+        self.assertEqual(len(list(k.features())),1)
         self.assertTrue(isinstance(
-                    list(k.features()[0].styles())[0], styles.Style))
-        style = list(list(k.features()[0].styles())[0].styles())
+                    list(list(k.features())[0].styles())[0], styles.Style))
+        style = list(list(list(k.features())[0].styles())[0].styles())
         self.assertEqual(len(style), 4)
         k2 = kml.KML()
         k2.from_string(k.to_string())
@@ -506,15 +571,16 @@ class StyleFromStringTestCase( unittest.TestCase ):
         </kml>"""
         k = kml.KML()
         k.from_string(doc)
-        self.assertEqual(len(k.features()),1)
+        self.assertEqual(len(list(k.features())),1)
         self.assertTrue(isinstance(
-                    list(k.features()[0].styles())[0], styles.StyleMap))
-        sm = list(list(k.features()[0].styles()))[0]
+                    list(list(k.features())[0].styles())[0], styles.StyleMap))
+        sm = list(list(list(k.features())[0].styles()))[0]
         self.assertTrue(isinstance(sm.normal, styles.StyleUrl))
         self.assertEqual(sm.normal.url, '#normalState')
         self.assertTrue(isinstance(sm.highlight, styles.StyleUrl))
         self.assertEqual(sm.highlight.url, '#highlightState')
         k2 = kml.KML()
+        ks = k.to_string()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
 
@@ -549,10 +615,10 @@ class StyleFromStringTestCase( unittest.TestCase ):
         </kml>"""
         k = kml.KML()
         k.from_string(doc)
-        self.assertEqual(len(k.features()),1)
+        self.assertEqual(len(list(k.features())),1)
         self.assertTrue(isinstance(
-                    list(k.features()[0].styles())[0], styles.StyleMap))
-        sm = list(list(k.features()[0].styles()))[0]
+                    list(list(k.features())[0].styles())[0], styles.StyleMap))
+        sm = list(list(list(k.features())[0].styles()))[0]
         self.assertTrue(isinstance(sm.normal, styles.Style))
         self.assertEqual(len(list(sm.normal.styles())), 1)
         self.assertTrue(isinstance(list(sm.normal.styles())[0], styles.LabelStyle))
@@ -570,6 +636,7 @@ def test_suite():
     suite.addTest(unittest.makeSuite( KmlFromStringTestCase ))
     suite.addTest(unittest.makeSuite( BuildKmlTestCase ))
     suite.addTest(unittest.makeSuite( StyleFromStringTestCase ))
+    suite.addTest(unittest.makeSuite(BaseClassesTestCase))
     return suite
 
 if __name__ == '__main__':

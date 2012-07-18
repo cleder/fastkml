@@ -9,14 +9,10 @@ import logging
 logger = logging.getLogger('fastkml.styles')
 
 import config
+from config import etree
 from base import _BaseObject
 
-try:
-    from lxml import etree
-    LXML = True
-except ImportError:
-    import xml.etree.ElementTree as etree
-    LXML = False
+
 
 
 class StyleUrl(_BaseObject):
@@ -25,32 +21,25 @@ class StyleUrl(_BaseObject):
     is in the same file, use a # reference. If the style is defined in
     an external file, use a full URL along with # referencing.
     """
+    __name__ = 'styleUrl'
     url = None
 
-    def __init__(self, ns=None, url=None):
+    def __init__(self, ns=None, id=None, url=None):
+        super(StyleUrl, self).__init__(ns, id)
         self.url = url
-        if ns == None:
-            self.ns = config.NS
-        else:
-            self.ns = ns
 
     def etree_element(self):
         if self.url:
-            element = etree.Element(self.ns + "styleUrl")
+            element = super(StyleUrl, self).etree_element()
             element.text = self.url
             return element
         else:
             logger.critical('No url given for styleUrl')
             raise ValueError
 
-
     def from_element(self, element):
-        if self.ns + "styleUrl" != element.tag:
-            raise TypeError
-        else:
-            self.url = element.text
-
-
+        super(StyleUrl, self).from_element(element)
+        self.url = element.text
 
 
 class _StyleSelector(_BaseObject):
@@ -62,19 +51,6 @@ class _StyleSelector(_BaseObject):
     by its id and its url.
     """
 
-    def etree_element(self):
-        element = etree.Element(self.ns + self.__name__)
-        if self.id:
-            element.set('id', self.id)
-        return element
-
-
-    def from_element(self, element):
-        if self.ns + self.__name__ != element.tag:
-            raise TypeError
-        else:
-            if element.get('id'):
-                self.id = element.get('id')
 
 class Style(_StyleSelector):
     """
@@ -179,7 +155,6 @@ class StyleMap(_StyleSelector):
                     normal = StyleUrl(self.ns)
                     normal.from_element(style_url)
                 else:
-                    import ipdb; ipdb.set_trace()
                     raise ValueError
                 self.normal = normal
             else:
@@ -226,19 +201,13 @@ class _ColorStyle(_BaseObject):
     # A value of random applies a random linear scale to the base <color>
 
     def __init__(self, ns=None, id=None, color=None, colorMode=None):
-        self.id = id
-        if ns == None:
-            self.ns = config.NS
-        else:
-            self.ns = ns
+        super(_ColorStyle, self).__init__(ns, id)
         self.color = color
         self.colorMode = colorMode
 
 
     def etree_element(self):
-        element = etree.Element(self.ns + self.__name__)
-        if self.id:
-            element.set('id', self.id)
+        element = super(_ColorStyle, self).etree_element()
         if self.color:
             color = etree.SubElement(element, "%scolor" %self.ns)
             color.text = self.color

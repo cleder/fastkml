@@ -15,19 +15,19 @@ from geometry import MultiPoint, MultiLineString, MultiPolygon
 from geometry import LinearRing
 
 from datetime import datetime, date
+
+# note that there are some ISO 8601 timeparsers at pypi
+# but in my tests all of them had some errors so we rely on the
+# tried and tested dateutil here which is more stable. As a side effect
+# we can also parse non ISO compliant dateTimes
 import dateutil.parser
 
 import logging
 logger = logging.getLogger('fastkml.kml')
 
-try:
-    from lxml import etree
-    LXML = True
-except ImportError:
-    import xml.etree.ElementTree as etree
-    LXML = False
-
 import config
+from config import etree
+
 from base import _BaseObject
 
 from styles import StyleUrl, Style, StyleMap, _StyleSelector
@@ -80,24 +80,29 @@ class KML(object):
 
 
     def to_string(self, prettyprint=False):
-        """ Returm the KML Object as xml """
-        if LXML and prettyprint:
+        """ Return the KML Object as serialized xml """
+        if config.LXML and prettyprint:
             return etree.tostring(self.etree_element(), encoding='utf-8',
                                     pretty_print=True)
         else:
             return etree.tostring(self.etree_element(), encoding='utf-8')
 
     def features(self):
-        """ return a list of features """
-        #XXX yield feature, test if they are valid features
-        return self._features
+        """ iterate over features """
+        for feature in self._features:
+            if isinstance(feature, (Document, Folder, Placemark)):
+                yield feature
+            else:
+                raise TypeError(
+                    "Features must be instances of (Document, Folder, Placemark)")
 
     def append(self, kmlobj):
         """ append a feature """
         if isinstance(kmlobj, (Document, Folder, Placemark)):
             self._features.append(kmlobj)
         else:
-            raise TypeError
+            raise TypeError(
+            "Features must be instances of (Document, Folder, Placemark)")
 
 class _Feature(_BaseObject):
     """
@@ -110,6 +115,7 @@ class _Feature(_BaseObject):
     #PhotoOverlay,
     #ScreenOverlay
     """
+    name = None
     #User-defined text displayed in the 3D viewer as the label for the
     #object (for example, for a Placemark, Folder, or NetworkLink).
     description = None
@@ -123,7 +129,7 @@ class _Feature(_BaseObject):
     #Boolean value. Specifies whether a Document or Folder appears
     #closed or open when first loaded into the Places panel.
     #0=collapsed (the default), 1=expanded.
-    styleUrl = None
+    _styleUrl = None
     #URL of a <Style> or <StyleMap> defined in a Document.
     #If the style is in the same file, use a # reference.
     #If the style is defined in an external file, use a full URL
@@ -137,18 +143,37 @@ class _Feature(_BaseObject):
 
     def __init__(self, ns=None, id=None, name=None, description=None,
                 styles=None, styleUrl=None):
-        self.id = id
+        super(_Feature, self).__init__(ns, id)
         self.name=name
         self.description=description
-        self.styleUrl = styleUrl
+        if styleUrl is not None:
+            self.styleUrl = styleUrl
         self._styles = []
         if styles:
             for style in styles:
                 self.append_style(style)
-        if ns == None:
-            self.ns = config.NS
+
+    @property
+    def styleUrl(self):
+        """ Returns the url only, not a full StyleUrl object.
+        if you need the full StyleUrl use _styleUrl """
+        if isinstance(self._styleUrl, StyleUrl):
+            return self._styleUrl.url
+
+    @styleUrl.setter
+    def styleUrl(self, styleurl):
+        """ you may pass a StyleUrl Object, a string or None """
+        if isinstance(styleurl, StyleUrl):
+            self._styleUrl = styleurl
+        elif isinstance(styleurl, basestring):
+            s = StyleUrl(self.ns, url=styleurl)
+            self._styleUrl = s
+        elif styleurl is None:
+            self._styleUrl = None
         else:
-            self.ns = ns
+            raise ValueError
+
+
 
     def append_style(self, style):
         """ append a style to the feature """
@@ -167,33 +192,28 @@ class _Feature(_BaseObject):
 
 
     def etree_element(self):
-        if self.__name__:
-            element = etree.Element(self.ns + self.__name__)
-            if self.id:
-                element.set('id', self.id)
-            if self.name:
-                name = etree.SubElement(element, "%sname" %self.ns)
-                name.text = self.name
-            if self.description:
-                description =etree.SubElement(element, "%sdescription" %self.ns)
-                description.text = self.description
-            visibility = etree.SubElement(element, "%svisibility" %self.ns)
-            visibility.text = str(self.visibility)
-            isopen = etree.SubElement(element, "%sopen" %self.ns)
-            isopen.text = str(self.isopen)
-            if self.styleUrl:
-                styleUrl = StyleUrl( self.ns, self.styleUrl)
-                element.append(styleUrl.etree_element())
-            for style in self.styles():
-                element.append(style.etree_element())
-            if (self._time_span is not None) and (self._time_stamp is not None):
-                raise ValueError
-            #elif self._time_span:
-            #    timespan = TimeStamp(self.ns, begin=self._time_span[0][0],
-            #                        begin_res=self._time_span[0][1])
+        element = super(_Feature, self).etree_element()
+        if self.name:
+            name = etree.SubElement(element, "%sname" %self.ns)
+            name.text = self.name
+        if self.description:
+            description =etree.SubElement(element, "%sdescription" %self.ns)
+            description.text = self.description
+        visibility = etree.SubElement(element, "%svisibility" %self.ns)
+        visibility.text = str(self.visibility)
+        isopen = etree.SubElement(element, "%sopen" %self.ns)
+        isopen.text = str(self.isopen)
+        if self._styleUrl is not None:
+            element.append(self._styleUrl.etree_element())
+        for style in self.styles():
+            element.append(style.etree_element())
+        if (self._time_span is not None) and (self._time_stamp is not None):
+            raise ValueError
+        #elif self._time_span:
+        #    timespan = TimeStamp(self.ns, begin=self._time_span[0][0],
+        #                        begin_res=self._time_span[0][1])
 
-        else:
-            raise NotImplementedError
+
         return element
 
 
@@ -226,10 +246,11 @@ class _Feature(_BaseObject):
                 s.from_element(style)
                 self.append_style(s)
             style_url = element.find('%sstyleUrl' % self.ns)
-            if style_url:
+            if style_url is not None:
                 s = StyleUrl(self.ns)
                 s.from_element(style_url)
-                self.styleUrl = s.url
+                self._styleUrl = s
+            #XXX Timespan/stamp
 
 
 
@@ -248,14 +269,15 @@ class _Container(_Feature):
     def __init__(self, ns=None, id=None, name=None, description=None):
         super(_Container, self).__init__(ns, id, name, description)
         self._features =[]
-        if ns == None:
-            self.ns = config.NS
-        else:
-            self.ns = ns
 
     def features(self):
-        """ return a list of features """
-        return self._features
+        """ iterate over features """
+        for feature in self._features:
+            if isinstance(feature, (Folder, Placemark)):
+                yield feature
+            else:
+                raise TypeError(
+                    "Features must be instances of (Folder, Placemark)")
 
     def etree_element(self):
         element = super(_Container, self).etree_element()
