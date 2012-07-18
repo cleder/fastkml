@@ -186,9 +186,9 @@ class _Feature(_BaseObject):
     # Placemark, or ScreenOverlay—the value for the Feature's inline
     # style takes precedence over the value for the shared style.
 
-    _time_span = None #XXX
+    _time_span = None
     # Associates this Feature with a period of time.
-    _time_stamp = None #XXX
+    _time_stamp = None
     # Associates this Feature with a point in time.
 
     #TODO Region = None
@@ -278,7 +278,7 @@ class _Feature(_BaseObject):
     @end.setter
     def end(self, dt):
         if self._time_span is None:
-            self._time_span = TimeStamp(end=dt)
+            self._time_span = TimeSpan(end=dt)
         else:
             if self._time_span.end is None:
                 self._time_span.end = [dt, None]

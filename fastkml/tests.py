@@ -750,6 +750,7 @@ class DateTimeTestCase( unittest.TestCase ):
         self.assertTrue('end>' in f.to_string())
         self.assertFalse('TimeStamp>' in f.to_string())
         self.assertFalse('when>' in f.to_string())
+        # when we set a timestamp an existing timespan will be deleted
         f.timeStamp = now
         self.assertTrue(now.isoformat() in f.to_string())
         self.assertTrue('TimeStamp>' in f.to_string())
@@ -758,6 +759,21 @@ class DateTimeTestCase( unittest.TestCase ):
         self.assertFalse('TimeSpan>' in f.to_string())
         self.assertFalse('begin>' in f.to_string())
         self.assertFalse('end>' in f.to_string())
+        # when we set a timespan an existing timestamp will be deleted
+        f.end = y2k
+        self.assertFalse(now.isoformat() in f.to_string())
+        self.assertTrue('2000-01-01' in f.to_string())
+        self.assertTrue('TimeSpan>' in f.to_string())
+        self.assertFalse('begin>' in f.to_string())
+        self.assertTrue('end>' in f.to_string())
+        self.assertFalse('TimeStamp>' in f.to_string())
+        self.assertFalse('when>' in f.to_string())
+        #We manipulate our Feature so it has timespan and stamp
+        ts = kml.TimeStamp(timestamp=now)
+        f._time_stamp = ts
+        self.assertRaises(ValueError, f.to_string)
+
+
 
 
 
