@@ -1,4 +1,19 @@
 # -*- coding: utf-8 -*-
+#       This program is free software; you can redistribute it and/or modify
+#       it under the terms of the GNU General Public License as published by
+#       the Free Software Foundation; either version 2 of the License, or
+#       (at your option) any later version.
+#
+#       This program is distributed in the hope that it will be useful,
+#       but WITHOUT ANY WARRANTY; without even the implied warranty of
+#       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#       GNU General Public License for more details.
+#
+#       You should have received a copy of the GNU General Public License
+#       along with this program; if not, write to the Free Software
+#       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#       MA 02110-1301, USA.
+
 """
 KML is an open standard officially named the OpenGIS KML Encoding Standard
 (OGC KML). It is maintained by the Open Geospatial Consortium, Inc. (OGC).
@@ -130,13 +145,13 @@ class _Feature(_BaseObject):
     # closed or open when first loaded into the Places panel.
     # 0=collapsed (the default), 1=expanded.
 
-    #TODO atom_author = None
+    _atom_author = None
     # KML 2.2 supports new elements for including data about the author
     # and related website in your KML file. This information is displayed
     # in geo search results, both in Earth browsers such as Google Earth,
     # and in other applications such as Google Maps.
 
-    #TODO atom_link = None
+    _atom_link = None
     # Specifies the URL of the website containing this KML or KMZ file.
 
     #TODO address = None
@@ -288,6 +303,41 @@ class _Feature(_BaseObject):
             logger.warn('Setting a TimeSpan, TimeStamp deleted')
             self._time_stamp = None
 
+    @property
+    def link(self):
+        return self._atom_link.href
+
+    @link.setter
+    def link(self, url):
+        if isinstance(url, basestring):
+            self._atom_link = atom.Link(href=url)
+        elif isinstance(url, atom.Link):
+            self._atom_link = url
+        elif url is None:
+            self._atom_link = None
+        else:
+            raise TypeError
+
+    @property
+    def author(self):
+        if self._atom_author:
+            return self._atom_author.name
+
+    @author.setter
+    def author(self, name):
+        if isinstance(name, atom.Author):
+            self._atom_author = name
+        elif isinstance(name, basestring):
+            if self._atom_author is None:
+                self._atom_author = atom.Author(name=name)
+            else:
+                self._atom_author.name = name
+        elif name == None:
+            self._atom_author = None
+        else:
+            raise TypeError
+
+
     def append_style(self, style):
         """ append a style to the feature """
         if isinstance(style, _StyleSelector):
@@ -332,12 +382,14 @@ class _Feature(_BaseObject):
                     snippet.set('maxLines', str(self._snippet[1]))
         if (self._time_span is not None) and (self._time_stamp is not None):
             raise ValueError('Either Timestamp or Timespan can be defined, not both')
-        elif self._time_span:
+        elif self._time_span is not None:
             element.append(self._time_span.etree_element())
-        elif self._time_stamp:
+        elif self._time_stamp is not None:
             element.append(self._time_stamp.etree_element())
-
-
+        if self._atom_link is not None:
+            element.append(self._atom_link.etree_element())
+        if self._atom_author is not None:
+            element.append(self._atom_author.etree_element())
         return element
 
 
@@ -390,6 +442,16 @@ class _Feature(_BaseObject):
                 s = TimeStamp()
                 s.from_element(timestamp)
                 self._time_stamp = s
+            atom_link = element.find('%slink' % atom.NS)
+            if atom_link is not None:
+                s = atom.Link()
+                s.from_element(atom_link)
+                self._atom_link = s
+            atom_author = element.find('%sauthor' % atom.NS)
+            if atom_author is not None:
+                s = atom.Author()
+                s.from_element(atom_author)
+                self._atom_author = s
 
 
 
@@ -428,8 +490,11 @@ class _Container(_Feature):
 
     def append(self, kmlobj):
         """ append a feature """
-        if isinstance(kmlobj, _Feature):
+        if isinstance(kmlobj, (Folder, Placemark)):
             self._features.append(kmlobj)
+        else:
+            raise TypeError(
+                    "Features must be instances of (Folder, Placemark)")
         assert(kmlobj != self)
 
 

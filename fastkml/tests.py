@@ -1,9 +1,25 @@
 # -*- coding: utf-8 -*-
+#       This program is free software; you can redistribute it and/or modify
+#       it under the terms of the GNU General Public License as published by
+#       the Free Software Foundation; either version 2 of the License, or
+#       (at your option) any later version.
+#
+#       This program is distributed in the hope that it will be useful,
+#       but WITHOUT ANY WARRANTY; without even the implied warranty of
+#       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#       GNU General Public License for more details.
+#
+#       You should have received a copy of the GNU General Public License
+#       along with this program; if not, write to the Free Software
+#       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#       MA 02110-1301, USA.
+
 import unittest
 
 from fastkml import kml
 from fastkml import styles
 from fastkml import base
+from fastkml import atom
 from fastkml import config
 import datetime
 import xml.etree.ElementTree as etree
@@ -48,8 +64,8 @@ class BaseClassesTestCase(unittest.TestCase):
         self.assertEqual(f.name, 'A Feature')
         self.assertEqual(f.visibility, 1)
         self.assertEqual(f.isopen, 0)
-        #self.assertEqual(f.atom_author, None)
-        #self.assertEqual(f.atom_link, None)
+        self.assertEqual(f._atom_author, None)
+        self.assertEqual(f._atom_link, None)
         #self.assertEqual(f.address, None)
         #self.assertEqual(f.phoneNumber, None)
         self.assertEqual(f._snippet, None)
@@ -68,7 +84,13 @@ class BaseClassesTestCase(unittest.TestCase):
 
 
     def test_Container(self):
-        pass
+        f = kml._Container(name='A Container')
+        d = kml.Document()
+        self.assertRaises(TypeError, f.append, d)
+        p = kml.Placemark()
+        f.append(p)
+        self.assertRaises(NotImplementedError, f.etree_element)
+
 
     def test_TimePrimitive(self):
         pass
@@ -153,6 +175,33 @@ class BuildKmlTestCase(unittest.TestCase):
         print k.to_string()
 
 
+    def test_author(self):
+        k = kml.KML()
+        d = kml.Document()
+        d.author = 'Christian Ledermann'
+        self.assertTrue('Christian Ledermann' in d.to_string())
+        a = atom.Author(name='Nobody', uri='http://localhost', email='cl@donotreply.com')
+        d.author = a
+        self.assertFalse('Christian Ledermann' in d.to_string())
+        self.assertTrue('Nobody' in d.to_string())
+        self.assertTrue('http://localhos' in d.to_string())
+        self.assertTrue('cl@donotreply.com' in d.to_string())
+        d2 = kml.Document()
+        d2.from_string(d.to_string())
+        self.assertEqual(d.to_string(), d2.to_string())
+
+
+    def test_link(self):
+        d = kml.Document()
+        d.link = 'http://localhost'
+        self.assertTrue('http://localhost' in d.to_string())
+        l = atom.Link(href='#here')
+        d.link = l
+        self.assertTrue('#here' in d.to_string())
+        self.assertRaises(TypeError, d.link, object)
+        d2 = kml.Document()
+        d2.from_string(d.to_string())
+        self.assertEqual(d.to_string(), d2.to_string())
 
 class KmlFromStringTestCase( unittest.TestCase ):
 
@@ -771,7 +820,49 @@ class DateTimeTestCase( unittest.TestCase ):
         #We manipulate our Feature so it has timespan and stamp
         ts = kml.TimeStamp(timestamp=now)
         f._time_stamp = ts
+        # this raises an exception as only either timespan or timestamp
+        # are allowed not both
         self.assertRaises(ValueError, f.to_string)
+
+class AtomTestCase( unittest.TestCase ):
+
+    def test_author(self):
+        a = atom.Author(name="Christian Ledermann")
+        self.assertEqual(a.name, "Christian Ledermann")
+        a.uri = 'http://iwlearn.net'
+        a.email = 'christian@gmail.com'
+        self.assertTrue("Christian Ledermann" in a.to_string())
+        self.assertTrue('http://iwlearn.net' in a.to_string())
+        self.assertTrue('christian@gmail.com' in a.to_string())
+        self.assertTrue('name>' in a.to_string())
+        self.assertTrue('uri>' in a.to_string())
+        self.assertTrue('email>' in a.to_string())
+        a.email = 'christian'
+        self.assertFalse('email>' in a.to_string())
+
+
+    def test_link(self):
+        l = atom.Link(href="http://localhost/", rel="alternate")
+        self.assertEqual(l.href, "http://localhost/")
+        self.assertEqual(l.rel, "alternate")
+        l.title=u"Title"
+        l.type="text/html"
+        l.hreflang ='en'
+        l.lenght="4096"
+        self.assertTrue('href="http://localhost/"' in l.to_string())
+        self.assertTrue('rel="alternate"' in l.to_string())
+        self.assertTrue(u'title="Title"' in l.to_string())
+        self.assertTrue('hreflang="en"' in l.to_string())
+        self.assertTrue('type="text/html"' in l.to_string())
+        self.assertTrue('lenght="4096"' in l.to_string())
+        self.assertTrue('link' in l.to_string())
+        self.assertTrue('="http://www.w3.org/2005/Atom"' in l.to_string())
+        l.href = None
+        self.assertRaises(ValueError, l.to_string)
+
+
+
+
 
 
 
@@ -779,11 +870,12 @@ class DateTimeTestCase( unittest.TestCase ):
 
 def test_suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite( KmlFromStringTestCase ))
-    suite.addTest(unittest.makeSuite( BuildKmlTestCase ))
-    suite.addTest(unittest.makeSuite( StyleFromStringTestCase ))
+    suite.addTest(unittest.makeSuite(KmlFromStringTestCase))
+    suite.addTest(unittest.makeSuite(BuildKmlTestCase))
+    suite.addTest(unittest.makeSuite(StyleFromStringTestCase))
     suite.addTest(unittest.makeSuite(BaseClassesTestCase))
     suite.addTest(unittest.makeSuite(DateTimeTestCase))
+    suite.addTest(unittest.makeSuite(AtomTestCase))
     return suite
 
 if __name__ == '__main__':
