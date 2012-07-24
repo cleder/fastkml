@@ -23,9 +23,9 @@ from fastkml import atom
 from fastkml import config
 import datetime
 import xml.etree.ElementTree as etree
-from shapely.geometry import Point, LineString, Polygon
-from shapely.geometry import MultiPoint, MultiLineString, MultiPolygon
-from shapely.geometry.polygon import LinearRing
+from fastkml.geometry import Point, LineString, Polygon
+from fastkml.geometry import MultiPoint, MultiLineString, MultiPolygon
+from fastkml.geometry import LinearRing
 
 class BaseClassesTestCase(unittest.TestCase):
     """ BaseClasses  must raise a NotImplementedError on etree_element
@@ -427,6 +427,9 @@ class KmlFromStringTestCase( unittest.TestCase ):
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
 
+    def test_atom(self):
+        pass
+
 class StyleTestCase( unittest.TestCase ):
 
     def test_styleurl(self):
@@ -438,6 +441,9 @@ class StyleTestCase( unittest.TestCase ):
         f.styleUrl = s
         self.assertTrue(isinstance(f._styleUrl, styles.StyleUrl))
         self.assertEqual(f.styleUrl, '#otherstyle')
+        f2 = kml.Document()
+        f2.from_string(f.to_string())
+        self.assertEqual(f.to_string(), f2.to_string())
 
 
 

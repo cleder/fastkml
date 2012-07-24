@@ -27,7 +27,7 @@ setup(name='fastkml',
       zip_safe=False,
       install_requires=[
           # -*- Extra requirements: -*-
-          'shapely',
+          'pygeoif',
           'python-dateutil',
       ],
       entry_points="""

@@ -24,7 +24,12 @@ I wonder if the "geojson" package fits
 the purpose or it's rather better to implement to protocol from scratch.
 
 """
-from shapely.geometry import Point, LineString, Polygon
-from shapely.geometry import MultiPoint, MultiLineString, MultiPolygon
-from shapely.geometry.polygon import LinearRing
+try:
+    from shapely.geometry import Point, LineString, Polygon
+    from shapely.geometry import MultiPoint, MultiLineString, MultiPolygon
+    from shapely.geometry.polygon import LinearRing
 
+except ImportError:
+    from pygeoif.geometry import Point, LineString, Polygon
+    from pygeoif.geometry import MultiPoint, MultiLineString, MultiPolygon
+    from pygeoif.geometry import LinearRing
