@@ -9,9 +9,8 @@ a subset of KML and is aimed at documents that can be read from multiple
 clients such as openlayers and google maps rather than to give you all
 functionality that KML on google earth provides.
 
-Geometries are handled as shapely objects. This is a restriction that I
-can live with and you will seldom find KML files that implement more
-complex geometries.
+Geometries are handled as pygeoif or shapely (if installed) objects.
+
 
 
 Limitations
@@ -21,7 +20,9 @@ Geometries are limited to the geometry and multigeometry types shapely
 provides (Point, LineString, Polygon, MultiPoint, MultiLineString,
 MultiPolygon and LinearRing). While KML allows for more abstract
 MultiGeometries consisting of a combination of Points, LineStrings
-and LinearRings, this is not supported in fastkml
+and LinearRings, this is not supported in fastkml.
+This is a restriction that I can live with and you will rarely find KML
+files that implement more complex geometries.
 
 Usage
 =====
@@ -33,8 +34,8 @@ quick overview:
 Build a KML from scratch:
 --------------------------
 
-Example how to build a simple KML file:
-::
+Example how to build a simple KML file
+
     >>> from fastkml import kml
     >>> from shapely.geometry import Point, LineString, Polygon
     >>> k = kml.KML()
@@ -100,8 +101,8 @@ Example how to build a simple KML file:
 Read a KML file
 ----------------
 
-You can create a KML object by reading a KML file:
-::
+You can create a KML object by reading a KML file
+
     >>> from fastkml import kml
     >>> doc = """<?xml version="1.0" encoding="UTF-8"?>
     ... <kml xmlns="http://www.opengis.net/kml/2.2">
