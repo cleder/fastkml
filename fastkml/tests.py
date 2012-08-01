@@ -16,17 +16,29 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 import unittest
+try:
+    from fastkml import kml
+    from fastkml import styles
+    from fastkml import base
+    from fastkml import atom
+    from fastkml import config
+except ImportError:
+    import kml
+    import styles
+    import base
+    import atom
+    import config
 
-from fastkml import kml
-from fastkml import styles
-from fastkml import base
-from fastkml import atom
-from fastkml import config
 import datetime
 import xml.etree.ElementTree as etree
-from fastkml.geometry import Point, LineString, Polygon
-from fastkml.geometry import MultiPoint, MultiLineString, MultiPolygon
-from fastkml.geometry import LinearRing
+try:
+    from fastkml.geometry import Point, LineString, Polygon
+    from fastkml.geometry import MultiPoint, MultiLineString, MultiPolygon
+    from fastkml.geometry import LinearRing
+except ImportError:
+    from geometry import Point, LineString, Polygon
+    from geometry import MultiPoint, MultiLineString, MultiPolygon
+    from geometry import LinearRing
 
 class BaseClassesTestCase(unittest.TestCase):
     """ BaseClasses  must raise a NotImplementedError on etree_element
@@ -116,7 +128,6 @@ class BuildKmlTestCase(unittest.TestCase):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
-        print k.to_string()
 
     def test_folder(self):
         """ KML file with folders """
@@ -134,7 +145,7 @@ class BuildKmlTestCase(unittest.TestCase):
         s = k.to_string()
         k2.from_string(s)
         self.assertEqual(s, k2.to_string())
-        print s
+
 
     def test_placemark(self):
         k = kml.KML()
@@ -149,7 +160,7 @@ class BuildKmlTestCase(unittest.TestCase):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
-        print k.to_string()
+
 
     def test_document(self):
         k = kml.KML()
@@ -173,7 +184,7 @@ class BuildKmlTestCase(unittest.TestCase):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
-        print k.to_string()
+
 
 
     def test_author(self):
@@ -240,7 +251,7 @@ class KmlFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
-        print k.to_string()
+
 
 
     def test_folders(self):
@@ -291,7 +302,7 @@ class KmlFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
-        print k.to_string()
+
 
     def test_placemark(self):
         doc="""<?xml version="1.0" encoding="UTF-8"?>
@@ -312,7 +323,7 @@ class KmlFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
-        print k.to_string()
+
 
 
     def test_polygon(self):
@@ -330,7 +341,7 @@ class KmlFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
-        print k.to_string()
+
 
     def test_multipoints(self):
         doc="""<?xml version="1.0" encoding="UTF-8"?>
@@ -386,7 +397,7 @@ class KmlFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
-        print k.to_string()
+
 
 
     def test_multilinestrings(self):
@@ -410,7 +421,7 @@ class KmlFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
-        print k.to_string()
+
 
     def test_multipolygon(self):
         doc = """<?xml version="1.0" encoding="UTF-8"?>
@@ -498,7 +509,7 @@ class StyleFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
-        print k.to_string()
+
 
     def test_iconstyle(self):
         doc = """<?xml version="1.0" encoding="UTF-8"?>
@@ -530,7 +541,7 @@ class StyleFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
-        print k.to_string()
+
 
     def test_linestyle(self):
         doc="""<?xml version="1.0" encoding="UTF-8"?>
@@ -558,7 +569,7 @@ class StyleFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
-        print k.to_string()
+
 
     def test_polystyle(self):
         doc="""<?xml version="1.0" encoding="UTF-8"?>
@@ -587,7 +598,7 @@ class StyleFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
-        print k.to_string()
+
 
     def test_styles(self):
         doc="""<?xml version="1.0" encoding="UTF-8"?>
@@ -628,7 +639,6 @@ class StyleFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
-        print k.to_string()
 
     def test_stylemapurl(self):
         doc= """<?xml version="1.0" encoding="UTF-8"?>
@@ -852,13 +862,13 @@ class AtomTestCase( unittest.TestCase ):
         l = atom.Link(href="http://localhost/", rel="alternate")
         self.assertEqual(l.href, "http://localhost/")
         self.assertEqual(l.rel, "alternate")
-        l.title=u"Title"
+        l.title="Title"
         l.type="text/html"
         l.hreflang ='en'
         l.lenght="4096"
         self.assertTrue('href="http://localhost/"' in l.to_string())
         self.assertTrue('rel="alternate"' in l.to_string())
-        self.assertTrue(u'title="Title"' in l.to_string())
+        self.assertTrue('title="Title"' in l.to_string())
         self.assertTrue('hreflang="en"' in l.to_string())
         self.assertTrue('type="text/html"' in l.to_string())
         self.assertTrue('lenght="4096"' in l.to_string())
