@@ -97,8 +97,8 @@ class BaseClassesTestCase(unittest.TestCase):
 
         f.__name__ = 'Feature'
         f.styleUrl = '#default'
-        self.assertTrue('Feature>' in f.to_string())
-        self.assertTrue('#default' in f.to_string())
+        self.assertTrue('Feature>' in str(f.to_string()))
+        self.assertTrue('#default' in str(f.to_string()))
 
 
     def test_Container(self):
@@ -129,11 +129,11 @@ class BuildKmlTestCase(unittest.TestCase):
         k = kml.KML()
         self.assertEqual(len( list(k.features())),0)
         if hasattr(etree, 'register_namespace'):
-            self.assertEqual( k.to_string(),
-            '<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2"/>')
+            self.assertEqual( str(k.to_string()),
+            '<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2" />')
         else:
-            self.assertEqual(k.to_string(),
-            '<ns0:kml xmlns:ns0="http://www.opengis.net/kml/2.2"/>')
+            self.assertEqual(str(k.to_string()),
+            '<ns0:kml xmlns:ns0="http://www.opengis.net/kml/2.2" />')
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -200,13 +200,13 @@ class BuildKmlTestCase(unittest.TestCase):
         k = kml.KML()
         d = kml.Document()
         d.author = 'Christian Ledermann'
-        self.assertTrue('Christian Ledermann' in d.to_string())
+        self.assertTrue('Christian Ledermann' in str(d.to_string()))
         a = atom.Author(name='Nobody', uri='http://localhost', email='cl@donotreply.com')
         d.author = a
-        self.assertFalse('Christian Ledermann' in d.to_string())
-        self.assertTrue('Nobody' in d.to_string())
-        self.assertTrue('http://localhos' in d.to_string())
-        self.assertTrue('cl@donotreply.com' in d.to_string())
+        self.assertFalse('Christian Ledermann' in str(d.to_string()))
+        self.assertTrue('Nobody' in str(d.to_string()))
+        self.assertTrue('http://localhost' in str(d.to_string()))
+        self.assertTrue('cl@donotreply.com' in str(d.to_string()))
         d2 = kml.Document()
         d2.from_string(d.to_string())
         self.assertEqual(d.to_string(), d2.to_string())
@@ -216,10 +216,10 @@ class BuildKmlTestCase(unittest.TestCase):
     def test_link(self):
         d = kml.Document()
         d.link = 'http://localhost'
-        self.assertTrue('http://localhost' in d.to_string())
+        self.assertTrue('http://localhost' in str(d.to_string()))
         l = atom.Link(href='#here')
         d.link = l
-        self.assertTrue('#here' in d.to_string())
+        self.assertTrue('#here' in str(d.to_string()))
         self.assertRaises(TypeError, d.link, object)
         d2 = kml.Document()
         d2.from_string(d.to_string())
@@ -735,30 +735,30 @@ class DateTimeTestCase( unittest.TestCase ):
         now = datetime.datetime.now()
         ts = kml.TimeStamp(timestamp=now)
         self.assertEqual(ts.timestamp, [now, 'dateTime'])
-        self.assertTrue('TimeStamp>' in ts.to_string())
-        self.assertTrue('when>' in ts.to_string())
-        self.assertTrue(now.isoformat() in ts.to_string())
+        self.assertTrue('TimeStamp>' in str(ts.to_string()))
+        self.assertTrue('when>' in str(ts.to_string()))
+        self.assertTrue(now.isoformat() in str(ts.to_string()))
         y2k = datetime.date(2000,1,1)
         ts = kml.TimeStamp(timestamp=y2k)
         self.assertEqual(ts.timestamp, [y2k, 'date'])
-        self.assertTrue('2000-01-01' in ts.to_string())
+        self.assertTrue('2000-01-01' in str(ts.to_string()))
 
 
     def test_timestamp_resolution(self):
         now = datetime.datetime.now()
         ts = kml.TimeStamp(timestamp=now)
-        self.assertTrue(now.isoformat() in ts.to_string())
+        self.assertTrue(now.isoformat() in str(ts.to_string()))
         ts.timestamp[1] = 'date'
-        self.assertTrue(now.date().isoformat() in ts.to_string())
-        self.assertFalse(now.isoformat() in ts.to_string())
+        self.assertTrue(now.date().isoformat() in str(ts.to_string()))
+        self.assertFalse(now.isoformat() in str(ts.to_string()))
         year = str(now.year)
         ym = now.strftime('%Y-%m')
         ts.timestamp[1] = 'gYearMonth'
-        self.assertTrue(ym in ts.to_string())
-        self.assertFalse(now.date().isoformat() in ts.to_string())
+        self.assertTrue(ym in str(ts.to_string()))
+        self.assertFalse(now.date().isoformat() in str(ts.to_string()))
         ts.timestamp[1] = 'gYear'
-        self.assertTrue(year in ts.to_string())
-        self.assertFalse(ym in ts.to_string())
+        self.assertTrue(year in str(ts.to_string()))
+        self.assertFalse(ym in str(ts.to_string()))
         ts.timestamp = None
         self.assertRaises(TypeError, ts.to_string)
 
@@ -769,14 +769,14 @@ class DateTimeTestCase( unittest.TestCase ):
         ts = kml.TimeSpan(end=now, begin=y2k)
         self.assertEqual(ts.end, [now, 'dateTime'])
         self.assertEqual(ts.begin, [y2k, 'dateTime'])
-        self.assertTrue('TimeSpan>' in ts.to_string())
-        self.assertTrue('begin>' in ts.to_string())
-        self.assertTrue('end>' in ts.to_string())
-        self.assertTrue(now.isoformat() in ts.to_string())
-        self.assertTrue(y2k.isoformat() in ts.to_string())
+        self.assertTrue('TimeSpan>' in str(ts.to_string()))
+        self.assertTrue('begin>' in str(ts.to_string()))
+        self.assertTrue('end>' in str(ts.to_string()))
+        self.assertTrue(now.isoformat() in str(ts.to_string()))
+        self.assertTrue(y2k.isoformat() in str(ts.to_string()))
         ts.end = None
-        self.assertFalse(now.isoformat() in ts.to_string())
-        self.assertTrue(y2k.isoformat() in ts.to_string())
+        self.assertFalse(now.isoformat() in str(ts.to_string()))
+        self.assertTrue(y2k.isoformat() in str(ts.to_string()))
         ts.begin = None
         self.assertRaises(ValueError, ts.to_string)
 
@@ -785,14 +785,14 @@ class DateTimeTestCase( unittest.TestCase ):
         now = datetime.datetime.now()
         f = kml.Document()
         f.timeStamp = now
-        self.assertTrue(now.isoformat() in f.to_string())
-        self.assertTrue('TimeStamp>' in f.to_string())
-        self.assertTrue('when>' in f.to_string())
+        self.assertTrue(now.isoformat() in str(f.to_string()))
+        self.assertTrue('TimeStamp>' in str(f.to_string()))
+        self.assertTrue('when>' in str(f.to_string()))
         f.timeStamp = now.date()
-        self.assertTrue(now.date().isoformat() in f.to_string())
-        self.assertFalse(now.isoformat() in f.to_string())
+        self.assertTrue(now.date().isoformat() in str(f.to_string()))
+        self.assertFalse(now.isoformat() in str(f.to_string()))
         f.timeStamp = None
-        self.assertFalse('TimeStamp>' in f.to_string())
+        self.assertFalse('TimeStamp>' in str(f.to_string()))
 
     def test_feature_timespan(self):
         now = datetime.datetime.now()
@@ -800,19 +800,19 @@ class DateTimeTestCase( unittest.TestCase ):
         f = kml.Document()
         f.begin = y2k
         f.end = now
-        self.assertTrue(now.isoformat() in f.to_string())
-        self.assertTrue('2000-01-01' in f.to_string())
-        self.assertTrue('TimeSpan>' in f.to_string())
-        self.assertTrue('begin>' in f.to_string())
-        self.assertTrue('end>' in f.to_string())
+        self.assertTrue(now.isoformat() in str(f.to_string()))
+        self.assertTrue('2000-01-01' in str(f.to_string()))
+        self.assertTrue('TimeSpan>' in str(f.to_string()))
+        self.assertTrue('begin>' in str(f.to_string()))
+        self.assertTrue('end>' in str(f.to_string()))
         f.end = None
-        self.assertFalse(now.isoformat() in f.to_string())
-        self.assertTrue('2000-01-01' in f.to_string())
-        self.assertTrue('TimeSpan>' in f.to_string())
-        self.assertTrue('begin>' in f.to_string())
-        self.assertFalse('end>' in f.to_string())
+        self.assertFalse(now.isoformat() in str(f.to_string()))
+        self.assertTrue('2000-01-01' in str(f.to_string()))
+        self.assertTrue('TimeSpan>' in str(f.to_string()))
+        self.assertTrue('begin>' in str(f.to_string()))
+        self.assertFalse('end>' in str(f.to_string()))
         f.begin = None
-        self.assertFalse('TimeSpan>' in f.to_string())
+        self.assertFalse('TimeSpan>' in str(f.to_string()))
 
     def test_feature_timespan_stamp(self):
         now = datetime.datetime.now()
@@ -820,31 +820,31 @@ class DateTimeTestCase( unittest.TestCase ):
         f = kml.Document()
         f.begin = y2k
         f.end = now
-        self.assertTrue(now.isoformat() in f.to_string())
-        self.assertTrue('2000-01-01' in f.to_string())
-        self.assertTrue('TimeSpan>' in f.to_string())
-        self.assertTrue('begin>' in f.to_string())
-        self.assertTrue('end>' in f.to_string())
-        self.assertFalse('TimeStamp>' in f.to_string())
-        self.assertFalse('when>' in f.to_string())
+        self.assertTrue(now.isoformat() in str(f.to_string()))
+        self.assertTrue('2000-01-01' in str(f.to_string()))
+        self.assertTrue('TimeSpan>' in str(f.to_string()))
+        self.assertTrue('begin>' in str(f.to_string()))
+        self.assertTrue('end>' in str(f.to_string()))
+        self.assertFalse('TimeStamp>' in str(f.to_string()))
+        self.assertFalse('when>' in str(f.to_string()))
         # when we set a timestamp an existing timespan will be deleted
         f.timeStamp = now
-        self.assertTrue(now.isoformat() in f.to_string())
-        self.assertTrue('TimeStamp>' in f.to_string())
-        self.assertTrue('when>' in f.to_string())
-        self.assertFalse('2000-01-01' in f.to_string())
-        self.assertFalse('TimeSpan>' in f.to_string())
-        self.assertFalse('begin>' in f.to_string())
-        self.assertFalse('end>' in f.to_string())
+        self.assertTrue(now.isoformat() in str(f.to_string()))
+        self.assertTrue('TimeStamp>' in str(f.to_string()))
+        self.assertTrue('when>' in str(f.to_string()))
+        self.assertFalse('2000-01-01' in str(f.to_string()))
+        self.assertFalse('TimeSpan>' in str(f.to_string()))
+        self.assertFalse('begin>' in str(f.to_string()))
+        self.assertFalse('end>' in str(f.to_string()))
         # when we set a timespan an existing timestamp will be deleted
         f.end = y2k
-        self.assertFalse(now.isoformat() in f.to_string())
-        self.assertTrue('2000-01-01' in f.to_string())
-        self.assertTrue('TimeSpan>' in f.to_string())
-        self.assertFalse('begin>' in f.to_string())
-        self.assertTrue('end>' in f.to_string())
-        self.assertFalse('TimeStamp>' in f.to_string())
-        self.assertFalse('when>' in f.to_string())
+        self.assertFalse(now.isoformat() in str(f.to_string()))
+        self.assertTrue('2000-01-01' in str(f.to_string()))
+        self.assertTrue('TimeSpan>' in str(f.to_string()))
+        self.assertFalse('begin>' in str(f.to_string()))
+        self.assertTrue('end>' in str(f.to_string()))
+        self.assertFalse('TimeStamp>' in str(f.to_string()))
+        self.assertFalse('when>' in str(f.to_string()))
         #We manipulate our Feature so it has timespan and stamp
         ts = kml.TimeStamp(timestamp=now)
         f._time_stamp = ts
@@ -859,15 +859,15 @@ class AtomTestCase( unittest.TestCase ):
         self.assertEqual(a.name, "Christian Ledermann")
         a.uri = 'http://iwlearn.net'
         a.email = 'christian@gmail.com'
-        self.assertTrue("Christian Ledermann" in a.to_string())
-        self.assertTrue('http://iwlearn.net' in a.to_string())
-        self.assertTrue('christian@gmail.com' in a.to_string())
-        self.assertTrue('name>' in a.to_string())
-        self.assertTrue('uri>' in a.to_string())
-        self.assertTrue('email>' in a.to_string())
+        self.assertTrue("Christian Ledermann" in str(a.to_string()))
+        self.assertTrue('http://iwlearn.net' in str(a.to_string()))
+        self.assertTrue('christian@gmail.com' in str(a.to_string()))
+        self.assertTrue('name>' in str(a.to_string()))
+        self.assertTrue('uri>' in str(a.to_string()))
+        self.assertTrue('email>' in str(a.to_string()))
         #print (a.to_string())
         a.email = 'christian'
-        self.assertFalse('email>' in a.to_string())
+        self.assertFalse('email>' in str(a.to_string()))
 
 
     def test_link(self):
@@ -878,15 +878,15 @@ class AtomTestCase( unittest.TestCase ):
         l.type="text/html"
         l.hreflang ='en'
         l.lenght="4096"
-        self.assertTrue('href="http://localhost/"' in l.to_string())
-        self.assertTrue('rel="alternate"' in l.to_string())
-        self.assertTrue('title="Title"' in l.to_string())
-        self.assertTrue('hreflang="en"' in l.to_string())
-        self.assertTrue('type="text/html"' in l.to_string())
-        self.assertTrue('lenght="4096"' in l.to_string())
-        self.assertTrue('link' in l.to_string())
-        self.assertTrue('="http://www.w3.org/2005/Atom"' in l.to_string())
-        #print (l.to_string())
+        self.assertTrue('href="http://localhost/"' in str(l.to_string()))
+        self.assertTrue('rel="alternate"' in str(l.to_string()))
+        self.assertTrue('title="Title"' in str(l.to_string()))
+        self.assertTrue('hreflang="en"' in str(l.to_string()))
+        self.assertTrue('type="text/html"' in str(l.to_string()))
+        self.assertTrue('lenght="4096"' in str(l.to_string()))
+        self.assertTrue('link' in str(l.to_string()))
+        self.assertTrue('="http://www.w3.org/2005/Atom"' in str(l.to_string()))
+        #print (str(l.to_string()))
         l.href = None
         self.assertRaises(ValueError, l.to_string)
 
