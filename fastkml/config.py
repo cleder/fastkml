@@ -26,3 +26,7 @@ except ImportError:
 
 NS = '{http://www.opengis.net/kml/2.2}'
 ATOMNS = '{http://www.w3.org/2005/Atom}'
+
+if hasattr(etree, 'register_namespace'):
+    etree.register_namespace('kml', NS[1:-1])
+    etree.register_namespace('atom', ATOMNS[1:-1])

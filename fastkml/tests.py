@@ -30,7 +30,12 @@ except ImportError:
     import config
 
 import datetime
-import xml.etree.ElementTree as etree
+
+try:
+    from fastkml.config import etree
+except ImportError:
+    from config import etree
+
 try:
     from fastkml.geometry import Point, LineString, Polygon
     from fastkml.geometry import MultiPoint, MultiLineString, MultiPolygon
@@ -123,7 +128,11 @@ class BuildKmlTestCase(unittest.TestCase):
         """ kml file without contents """
         k = kml.KML()
         self.assertEqual(len( list(k.features())),0)
-        self.assertEqual( k.to_string(),
+        if hasattr(etree, 'register_namespace'):
+            self.assertEqual( k.to_string(),
+            '<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2"/>')
+        else:
+            self.assertEqual(k.to_string(),
             '<ns0:kml xmlns:ns0="http://www.opengis.net/kml/2.2"/>')
         k2 = kml.KML()
         k2.from_string(k.to_string())
@@ -201,6 +210,7 @@ class BuildKmlTestCase(unittest.TestCase):
         d2 = kml.Document()
         d2.from_string(d.to_string())
         self.assertEqual(d.to_string(), d2.to_string())
+        #print (d.to_string())
 
 
     def test_link(self):
@@ -251,6 +261,7 @@ class KmlFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
+        #print (k.to_string())
 
 
 
@@ -854,6 +865,7 @@ class AtomTestCase( unittest.TestCase ):
         self.assertTrue('name>' in a.to_string())
         self.assertTrue('uri>' in a.to_string())
         self.assertTrue('email>' in a.to_string())
+        #print (a.to_string())
         a.email = 'christian'
         self.assertFalse('email>' in a.to_string())
 
@@ -874,6 +886,7 @@ class AtomTestCase( unittest.TestCase ):
         self.assertTrue('lenght="4096"' in l.to_string())
         self.assertTrue('link' in l.to_string())
         self.assertTrue('="http://www.w3.org/2005/Atom"' in l.to_string())
+        #print (l.to_string())
         l.href = None
         self.assertRaises(ValueError, l.to_string)
 

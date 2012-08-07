@@ -17,12 +17,11 @@
 
 """ abstract base classes"""
 
-try:
-    from lxml import etree
-except ImportError:
-    import xml.etree.ElementTree as etree
 
 import config
+from config import etree
+
+
 
 class _BaseObject(object):
     """ This is an abstract base class and cannot be used directly in a
