@@ -2,6 +2,14 @@
 Changelog
 =========
 
+0.3 (unreleased)
+-----------------
+
+- python 3 compatible
+- fix test for python 3
+- change license to LGPL
+- register namespaces for a more pleasant, human readable xml output
+
 0.2 (2012/07/27)
 -----------------
 

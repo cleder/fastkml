@@ -12,6 +12,8 @@ setup(name='fastkml',
       classifiers=[
         "Topic :: Scientific/Engineering :: GIS",
         "Programming Language :: Python",
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
         'Development Status :: 4 - Beta',
