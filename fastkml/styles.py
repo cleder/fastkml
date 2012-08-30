@@ -301,7 +301,7 @@ class LineStyle(_ColorStyle):
     (if extrusion is enabled).
     """
     __name__ = "LineStyle"
-    width = 1
+    width = 1.0
     # Width of the line, in pixels.
 
     def __init__(self, ns=None, id=None, color=None, colorMode=None,
@@ -320,7 +320,7 @@ class LineStyle(_ColorStyle):
         super(LineStyle, self).from_element(element)
         width = element.find('%swidth' %self.ns)
         if width is not None:
-            self.width = int(width.text)
+            self.width = float(width.text)
 
 class PolyStyle(_ColorStyle):
     """
