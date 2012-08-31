@@ -893,7 +893,18 @@ class AtomTestCase( unittest.TestCase ):
 
 
 
+class Force3DTestCase( unittest.TestCase ):
 
+    def test3d(self):
+        ns =''
+        p2 = kml.Placemark(ns, 'id', 'name', 'description')
+        p2.geometry =  Polygon([(0, 0), (1, 1), (1, 0)])
+        p3 = kml.Placemark(ns, 'id', 'name', 'description')
+        p3.geometry =  Polygon([(0, 0, 0), (1, 1, 0), (1, 0, 0)])
+        config.FORCE3D = False
+        self.assertNotEqual(p2.to_string(), p3.to_string())
+        config.FORCE3D = True
+        self.assertEqual(p2.to_string(), p3.to_string())
 
 
 
@@ -906,6 +917,7 @@ def test_suite():
     suite.addTest(unittest.makeSuite(BaseClassesTestCase))
     suite.addTest(unittest.makeSuite(DateTimeTestCase))
     suite.addTest(unittest.makeSuite(AtomTestCase))
+    suite.addTest(unittest.makeSuite(Force3DTestCase))
     return suite
 
 if __name__ == '__main__':
