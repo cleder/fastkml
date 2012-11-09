@@ -625,7 +625,7 @@ class Placemark(_Feature):
                         ibs.append(self._get_linear_ring(inner_boundary))
                     geoms.append(Polygon(ob, ibs))
                 return MultiPolygon(geoms)
-
+            #XXX GeometryCollection
 
 
 
@@ -647,7 +647,7 @@ class Placemark(_Feature):
             if config.FORCE3D:
                 tuples = ('%f,%f,0.000000' % tuple(c) for c in coordinates)
             else:
-                tuples = ('%F,%F' % tuple(c) for c in coordinates)
+                tuples = ('%f,%f' % tuple(c) for c in coordinates)
         elif len(coordinates[0]) == 3:
             tuples = ('%f,%f,%f' % tuple(c) for c in coordinates)
         else:

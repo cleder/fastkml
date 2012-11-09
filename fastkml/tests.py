@@ -39,11 +39,13 @@ except ImportError:
 try:
     from fastkml.geometry import Point, LineString, Polygon
     from fastkml.geometry import MultiPoint, MultiLineString, MultiPolygon
-    from fastkml.geometry import LinearRing
+    from fastkml.geometry import LinearRing, GeometryCollection
+    from fastkml.geometry import Geometry
 except ImportError:
     from geometry import Point, LineString, Polygon
     from geometry import MultiPoint, MultiLineString, MultiPolygon
-    from geometry import LinearRing
+    from geometry import LinearRing, GeometryCollection
+    from geometry import Geometry
 
 class BaseClassesTestCase(unittest.TestCase):
     """ BaseClasses  must raise a NotImplementedError on etree_element
@@ -886,16 +888,35 @@ class AtomTestCase( unittest.TestCase ):
         self.assertTrue('lenght="4096"' in str(l.to_string()))
         self.assertTrue('link' in str(l.to_string()))
         self.assertTrue('="http://www.w3.org/2005/Atom"' in str(l.to_string()))
-        #print (str(l.to_string()))
         l.href = None
         self.assertRaises(ValueError, l.to_string)
 
+class GeometryTestCase( unittest.TestCase ):
+
+    def testPoint(self):
+        pass
+    def testLineString(self):
+        pass
+    def testLinearRing(self):
+        pass
+    def testPolygon(self):
+        pass
+
+    def testMultiPoint(self):
+        pass
+    def testMultiLineString(self):
+        pass
+    def testMultiPolygon(self):
+        pass
+    def testGeometryCollection(self):
+        pass
 
 
 
 class Force3DTestCase( unittest.TestCase ):
 
     def test3d(self):
+        #altitudeMode clampToGround indicates to ignore an altitude specification.
         ns =''
         p2 = kml.Placemark(ns, 'id', 'name', 'description')
         p2.geometry =  Polygon([(0, 0), (1, 1), (1, 0)])
@@ -907,8 +928,6 @@ class Force3DTestCase( unittest.TestCase ):
         self.assertEqual(p2.to_string(), p3.to_string())
 
 
-
-
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(KmlFromStringTestCase))
@@ -917,6 +936,7 @@ def test_suite():
     suite.addTest(unittest.makeSuite(BaseClassesTestCase))
     suite.addTest(unittest.makeSuite(DateTimeTestCase))
     suite.addTest(unittest.makeSuite(AtomTestCase))
+    suite.addTest(unittest.makeSuite(GeometryTestCase))
     suite.addTest(unittest.makeSuite(Force3DTestCase))
     return suite
 
