@@ -640,7 +640,7 @@ class Placemark(_Feature):
         else:
             logger.warn('No geometries found')
 
-
+    #XXX move to geometry.Geometry
     def _etree_coordinates(self, coordinates):
         element = etree.Element("%scoordinates" %self.ns)
         if len(coordinates[0]) == 2:

@@ -54,7 +54,7 @@ class Geometry(_BaseObject):
         geometry: a geometry that implements the __geo_interface__ convention
 
         extrude: boolean --> Specifies whether to connect the feature to
-            the ground with a line. To extrude a Point, the value for
+            the ground with a line. To extrude a Feature, the value for
             'altitudeMode' must be either relativeToGround, relativeToSeaFloor,
             or absolute. The feature is extruded toward the center of the
             Earth's sphere.
@@ -107,6 +107,21 @@ class Geometry(_BaseObject):
                 self.geometry = asShape(geometry)
 
 
+    def _set_altitude_mode(self, element):
+        if self.altitude_mode:
+            assert(self.altitude_mode in ['clampToGround',
+                #'relativeToSeaFloor', 'clampToSeaFloor',
+                'relativeToGround', 'absolute'])
+            if self.altitude_mode != 'clampToGround':
+                element.set('altitudeMode', self.altitude_mode)
+
+
+    def _set_extrude(self, element):
+        if self.extrude and self.altitude_mode in ['relativeToGround',
+                    #'relativeToSeaFloor',
+                    'absolute']:
+            element.set('extrude', '1')
+
     def _etree_coordinates(self, coordinates):
         clampToGround = (self.altitude_mode == 'clampToGround') or (self.altitude_mode == None)
         element = etree.Element("%scoordinates" %self.ns)
@@ -129,24 +144,40 @@ class Geometry(_BaseObject):
 
     def _etree_point(self, point):
         element = etree.Element("%sPoint" %self.ns)
+        self._set_extrude(element)
+        self._set_altitude_mode(element)
         coords = list(point.coords)
         element.append(self._etree_coordinates(coords))
         return element
 
     def _etree_linestring(self, linestring):
         element = etree.Element("%sLineString" %self.ns)
+        self._set_extrude(element)
+        self._set_altitude_mode(element)
+        if self.tessellate and self.altitude_mode in ['clampToGround',
+                'clampToSeaFloor']:
+            element.set('tessellate', '1')
         coords = list(linestring.coords)
         element.append(self._etree_coordinates(coords))
         return element
 
     def _etree_linearring(self, linearring):
         element = etree.Element("%sLinearRing" %self.ns)
+        self._set_extrude(element)
+        self._set_altitude_mode(element)
+        # tesseleation is ignored by polygon and tesselation together with
+        # LinearRing without a polygon very rare Edgecase -> ignore for now
+        #if self.tessellate and self.altitude_mode in ['clampToGround',
+        #        'clampToSeaFloor']:
+        #    element.set('tessellate', '1')
         coords = list(linearring.coords)
         element.append(self._etree_coordinates(coords))
         return element
 
     def _etree_polygon(self, polygon):
         element = etree.Element("%sPolygon" %self.ns)
+        self._set_extrude(element)
+        self._set_altitude_mode(element)
         outer_boundary = etree.SubElement(element, "%souterBoundaryIs" %self.ns)
         outer_boundary.append(self._etree_linearring(polygon.exterior))
         for ib in polygon.interiors:
@@ -177,10 +208,10 @@ class Geometry(_BaseObject):
         for feature in features.geoms:
             if isinstance(feature, Point):
                 element.append(self._etree_point(feature))
-            elif isinstance(feature, LineString):
-                element.append(self._etree_linestring(feature))
             elif isinstance(feature, LinearRing):
                 element.append(self._etree_linearring(feature))
+            elif isinstance(feature, LineString):
+                element.append(self._etree_linestring(feature))
             elif isinstance(feature, Polygon):
                 element.append(self._etree_polygon(feature))
             else:
@@ -190,10 +221,10 @@ class Geometry(_BaseObject):
     def etree_element(self):
         if isinstance(self.geometry, Point):
             return self._etree_point(self.geometry)
-        elif isinstance(self.geometry, LineString):
-            return self._etree_linestring(self.geometry)
         elif isinstance(self.geometry, LinearRing):
             return self._etree_linearring(self.geometry)
+        elif isinstance(self.geometry, LineString):
+            return self._etree_linestring(self.geometry)
         elif isinstance(self.geometry, Polygon):
             return self._etree_polygon(self.geometry)
         elif isinstance(self.geometry, MultiPoint):
