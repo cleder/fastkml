@@ -22,7 +22,8 @@ try:
     from shapely.geometry import Point, LineString, Polygon
     from shapely.geometry import MultiPoint, MultiLineString, MultiPolygon
     from shapely.geometry.polygon import LinearRing
-    from shapely.geometry import GeometryCollection
+    #from shapely.geometry import GeometryCollection
+    from pygeoif.geometry import GeometryCollection
     from shapely.geometry import asShape
 
 except ImportError:
@@ -211,13 +212,13 @@ class Geometry(_BaseObject):
     def _etree_collection(self, features):
         element = etree.Element("%sMultiGeometry" %self.ns)
         for feature in features.geoms:
-            if isinstance(feature, Point):
+            if feature.geom_type == "Point":
                 element.append(self._etree_point(feature))
-            elif isinstance(feature, LinearRing):
+            elif feature.geom_type == "LinearRing":
                 element.append(self._etree_linearring(feature))
-            elif isinstance(feature, LineString):
+            elif feature.geom_type == "LineString":
                 element.append(self._etree_linestring(feature))
-            elif isinstance(feature, Polygon):
+            elif feature.geom_type == "Polygon":
                 element.append(self._etree_polygon(feature))
             else:
                 raise ValueError("Illegal geometry type.")
