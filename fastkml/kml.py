@@ -29,6 +29,7 @@ http://schemas.opengis.net/kml/.
 from geometry import Point, LineString, Polygon
 from geometry import MultiPoint, MultiLineString, MultiPolygon
 from geometry import LinearRing
+from geometry import Geometry
 
 from datetime import datetime, date
 
@@ -555,172 +556,57 @@ class Placemark(_Feature):
     """
 
     __name__ = "Placemark"
-    geometry = None
+    _geometry = None
 
+    @property
+    def geometry(self):
+        return self._geometry.geometry
 
-
-    def _get_coordinates(self, element):
-        coordinates = element.find('%scoordinates' % self.ns)
-        if coordinates is not None:
-            latlons = coordinates.text.strip().split()
-            coords = []
-            for latlon in latlons:
-                coords.append([float(c) for c in latlon.split(',')])
-            return coords
-
-    def _get_linear_ring(self, element):
-        # LinearRing
-        lr = element.find('%sLinearRing' % self.ns)
-        if lr is not None:
-            coords = self._get_coordinates(lr)
-            return LinearRing(coords)
-
-    def _get_geometry(self, element):
-        # Point, LineString,
-        # Polygon,
-        point = element.find('%sPoint' % self.ns)
-        if point is not None:
-            coords = self._get_coordinates(point)
-            return Point(coords[0])
-        line = element.find('%sLineString' % self.ns)
-        if line is not None:
-            coords = self._get_coordinates(line)
-            return LineString(coords)
-        polygon = element.find('%sPolygon' % self.ns)
-        if polygon is not None:
-            outer_boundary = polygon.find('%souterBoundaryIs' %self.ns)
-            ob = self._get_linear_ring(outer_boundary)
-            inner_boundaries = polygon.findall('%sinnerBoundaryIs' %self.ns)
-            ibs = []
-            for inner_boundary in inner_boundaries:
-                ibs.append(self._get_linear_ring(inner_boundary))
-            return Polygon(ob, ibs)
-        return self._get_linear_ring(element)
-
-
-
-    def _get_multigeometry(self, element):
-        # MultiGeometry
-        multigeometry = element.find('%sMultiGeometry' % self.ns)
-        geoms = []
-        if multigeometry is not None:
-            points = multigeometry.findall('%sPoint' % self.ns)
-            if points:
-                for point in points:
-                    geoms.append(Point(self._get_coordinates(point)[0]))
-                return MultiPoint(geoms)
-            linestrings = multigeometry.findall('%sLineString' % self.ns)
-            if linestrings:
-                for ls in linestrings:
-                    geoms.append(LineString(self._get_coordinates(ls)))
-                return MultiLineString(geoms)
-            polygons = multigeometry.findall('%sPolygon' % self.ns)
-            if polygons:
-                for polygon in polygons:
-                    outer_boundary = polygon.find('%souterBoundaryIs' %self.ns)
-                    ob = self._get_linear_ring(outer_boundary)
-                    inner_boundaries = polygon.findall('%sinnerBoundaryIs' %self.ns)
-                    ibs = []
-                    for inner_boundary in inner_boundaries:
-                        ibs.append(self._get_linear_ring(inner_boundary))
-                    geoms.append(Polygon(ob, ibs))
-                return MultiPolygon(geoms)
-            #XXX GeometryCollection
-
-
+    @geometry.setter
+    def geometry(self, geometry):
+        if isinstance(geometry, Geometry):
+            self._geometry = geometry
+        else:
+            self._geometry = Geometry(ns=self.ns, geometry=geometry)
 
     def from_element(self, element):
         super(Placemark, self).from_element(element)
-        mgeom = self._get_multigeometry(element)
-        geom = self._get_geometry(element)
-        if mgeom is not None:
-            self.geometry = mgeom
-        elif geom is not None:
-            self.geometry = geom
-        else:
-            logger.warn('No geometries found')
-
-    #XXX move to geometry.Geometry
-    def _etree_coordinates(self, coordinates):
-        element = etree.Element("%scoordinates" %self.ns)
-        if len(coordinates[0]) == 2:
-            if config.FORCE3D:
-                tuples = ('%f,%f,0.000000' % tuple(c) for c in coordinates)
-            else:
-                tuples = ('%f,%f' % tuple(c) for c in coordinates)
-        elif len(coordinates[0]) == 3:
-            tuples = ('%f,%f,%f' % tuple(c) for c in coordinates)
-        else:
-            raise ValueError("Invalid dimensions")
-        element.text = ' '.join(tuples)
-        return element
-
-    def _etree_point(self, point):
-        element = etree.Element("%sPoint" %self.ns)
-        coords = list(point.coords)
-        element.append(self._etree_coordinates(coords))
-        return element
-
-    def _etree_linestring(self, linestring):
-        element = etree.Element("%sLineString" %self.ns)
-        coords = list(linestring.coords)
-        element.append(self._etree_coordinates(coords))
-        return element
-
-    def _etree_linearring(self, linearring):
-        element = etree.Element("%sLinearRing" %self.ns)
-        coords = list(linearring.coords)
-        element.append(self._etree_coordinates(coords))
-        return element
-
-    def _etree_polygon(self, polygon):
-        element = etree.Element("%sPolygon" %self.ns)
-        outer_boundary = etree.SubElement(element, "%souterBoundaryIs" %self.ns)
-        outer_boundary.append(self._etree_linearring(polygon.exterior))
-        for ib in polygon.interiors:
-            inner_boundary = etree.SubElement(element, "%sinnerBoundaryIs" %self.ns)
-            inner_boundary.append(self._etree_linearring(ib))
-        return element
-
-    def _etree_multipoint(self, points):
-        element = etree.Element("%sMultiGeometry" %self.ns)
-        for point in points.geoms:
-            element.append(self._etree_point(point))
-        return element
-
-    def _etree_multilinestring(self, linestrings):
-        element = etree.Element("%sMultiGeometry" %self.ns)
-        for linestring in linestrings.geoms:
-            element.append(self._etree_linestring(linestring))
-        return element
-
-    def _etree_multipolygon(self, polygons):
-        element = etree.Element("%sMultiGeometry" %self.ns)
-        for polygon in polygons.geoms:
-            element.append(self._etree_polygon(polygon))
-        return element
-
-    def _etree_geometry(self):
-        if isinstance(self.geometry, Point):
-            return self._etree_point(self.geometry)
-        elif isinstance(self.geometry, LineString):
-            return self._etree_linestring(self.geometry)
-        elif isinstance(self.geometry, LinearRing):
-            return self._etree_linearring(self.geometry)
-        elif isinstance(self.geometry, Polygon):
-            return self._etree_polygon(self.geometry)
-        elif isinstance(self.geometry, MultiPoint):
-            return self._etree_multipoint(self.geometry)
-        elif isinstance(self.geometry, MultiLineString):
-            return self._etree_multilinestring(self.geometry)
-        elif isinstance(self.geometry, MultiPolygon):
-            return self._etree_multipolygon(self.geometry)
-
+        point = element.find('%sPoint' % self.ns)
+        if point is not None:
+            geom = Geometry(ns=self.ns)
+            geom.from_element(point)
+            self._geometry = geom
+            return
+        line = element.find('%sLineString' % self.ns)
+        if line is not None:
+            geom = Geometry(ns=self.ns)
+            geom.from_element(line)
+            self._geometry = geom
+            return
+        polygon = element.find('%sPolygon' % self.ns)
+        if polygon is not None:
+            geom = Geometry(ns=self.ns)
+            geom.from_element(polygon)
+            self._geometry = geom
+            return
+        linearring = element.find('%sLinearRing' % self.ns)
+        if linearring is not None:
+            geom = Geometry(ns=self.ns)
+            geom.from_element(linearring)
+            self._geometry = geom
+            return
+        multigeometry = element.find('%sMultiGeometry' % self.ns)
+        if multigeometry is not None:
+            geom = Geometry(ns=self.ns)
+            geom.from_element(multigeometry)
+            self._geometry = geom
+            return
+        logger.warn('No geometries found')
 
     def etree_element(self):
         element = super(Placemark, self).etree_element()
-        if self.geometry is not None:
-            element.append(self._etree_geometry())
+        if self._geometry is not None:
+            element.append(self._geometry.etree_element())
         else:
             logger.error('Object does not have a geometry')
         return element

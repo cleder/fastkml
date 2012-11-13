@@ -41,11 +41,13 @@ try:
     from fastkml.geometry import MultiPoint, MultiLineString, MultiPolygon
     from fastkml.geometry import LinearRing, GeometryCollection
     from fastkml.geometry import Geometry
+    from fastkml.geometry import asShape
 except ImportError:
     from geometry import Point, LineString, Polygon
     from geometry import MultiPoint, MultiLineString, MultiPolygon
     from geometry import LinearRing, GeometryCollection
     from geometry import Geometry
+    from geometry import asShape
 
 class BaseClassesTestCase(unittest.TestCase):
     """ BaseClasses  must raise a NotImplementedError on etree_element
@@ -871,7 +873,6 @@ class AtomTestCase( unittest.TestCase ):
         a.email = 'christian'
         self.assertFalse('email>' in str(a.to_string()))
 
-
     def test_link(self):
         l = atom.Link(href="http://localhost/", rel="alternate")
         self.assertEqual(l.href, "http://localhost/")
@@ -948,6 +949,8 @@ class SetGeometryTestCase( unittest.TestCase ):
         #for geometries != LineString tesselate is ignored
         geom.geometry = Point(0,1)
         self.assertFalse('tessellate' in geom.to_string())
+        geom.geometry = Polygon([(0,0), (1,0), (1,1), (0,0)])
+        self.assertFalse('tessellate' in geom.to_string())
 
     def testPoint(self):
         p = Point(0,1)
@@ -1002,38 +1005,240 @@ class SetGeometryTestCase( unittest.TestCase ):
             in g.to_string())
 
     def testMultiPoint(self):
-        pass
+        p0 = Point(0,1)
+        p1 = Point(1,1)
+        g = Geometry(geometry=MultiPoint([p0,p1]))
+        self.assertTrue('MultiGeometry' in g.to_string())
+        self.assertTrue('Point' in g.to_string())
+        self.assertTrue('coordinates>0.000000,1.000000</' in g.to_string())
+        self.assertTrue('coordinates>1.000000,1.000000</' in g.to_string())
 
     def testMultiLineString(self):
-        pass
+        l0 = LineString([(0,0), (1,0)])
+        l1 = LineString([(0,1), (1,1)])
+        g = Geometry(geometry=MultiLineString([l0,l1]))
+        self.assertTrue('MultiGeometry' in g.to_string())
+        self.assertTrue('LineString' in g.to_string())
+        self.assertTrue('coordinates>0.000000,0.000000 1.000000,0.000000</' in g.to_string())
+        self.assertTrue('coordinates>0.000000,1.000000 1.000000,1.000000</' in g.to_string())
 
     def testMultiPolygon(self):
-        pass
+        #with holes
+        p0 = Polygon([(-1,-1), (2,-1), (2,2), (-1,-1)],[[(0,0), (1,0), (1,1), (0,0)]])
+        #without holes
+        p1 = Polygon([(3,0), (4,0), (4,1), (3,0)])
+        g = Geometry(geometry=MultiPolygon([p0,p1]))
+        self.assertTrue('MultiGeometry' in g.to_string())
+        self.assertTrue('Polygon' in g.to_string())
+        self.assertTrue('outerBoundaryIs' in g.to_string())
+        self.assertTrue('innerBoundaryIs' in g.to_string())
+        self.assertTrue('LinearRing' in g.to_string())
+        self.assertTrue(
+            'coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</'
+            in g.to_string())
+        self.assertTrue(
+            'coordinates>-1.000000,-1.000000 2.000000,-1.000000 2.000000,2.000000 -1.000000,-1.000000</'
+            in g.to_string())
+        self.assertTrue(
+            'coordinates>3.000000,0.000000 4.000000,0.000000 4.000000,1.000000 3.000000,0.000000</'
+            in g.to_string())
 
     def testGeometryCollection(self):
-        pass
-
+        po = Polygon([(3,0), (4,0), (4,1), (3,0)])
+        l = LineString([(0,0), (1,1)])
+        p = Point(0,1)
+        geo_if = {'type': 'GeometryCollection', 'geometries': [
+            po.__geo_interface__, l.__geo_interface__,
+            p.__geo_interface__ ]}
+        g = Geometry(geometry=GeometryCollection([po,p,l]))
+        #g = Geometry(geometry=asShape(geo_if))
+        self.assertTrue('MultiGeometry' in g.to_string())
+        self.assertTrue('Polygon' in g.to_string())
+        self.assertTrue('outerBoundaryIs' in g.to_string())
+        self.assertFalse('innerBoundaryIs' in g.to_string())
+        self.assertTrue('LinearRing' in g.to_string())
+        self.assertTrue(
+            'coordinates>3.000000,0.000000 4.000000,0.000000 4.000000,1.000000 3.000000,0.000000</'
+            in g.to_string())
+        self.assertTrue('LineString' in g.to_string())
+        self.assertTrue('coordinates>0.000000,0.000000 1.000000,1.000000</' in g.to_string())
+        self.assertTrue('Point' in g.to_string())
+        self.assertTrue('coordinates>0.000000,1.000000</' in g.to_string())
 
 class GetGeometryTestCase( unittest.TestCase ):
 
+    def test_altitude_mode(self):
+        doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:coordinates>0.000000,1.000000</kml:coordinates>
+          <kml:altitudeMode>clampToGround</kml:altitudeMode>
+        </kml:Point>"""
+        g = Geometry()
+        self.assertEqual(g.altitude_mode, None)
+        g.from_string(doc)
+        self.assertEqual(g.altitude_mode, 'clampToGround')
+
+    def test_extrude(self):
+        doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:coordinates>0.000000,1.000000</kml:coordinates>
+          <kml:extrude>1</kml:extrude>
+        </kml:Point>"""
+        g = Geometry()
+        self.assertEqual(g.extrude, False)
+        g.from_string(doc)
+        self.assertEqual(g.extrude, True)
+
+    def test_tesselate(self):
+        doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:coordinates>0.000000,1.000000</kml:coordinates>
+          <kml:tessellate>1</kml:tessellate>
+        </kml:Point>"""
+        g = Geometry()
+        self.assertEqual(g.tessellate, False)
+        g.from_string(doc)
+        self.assertEqual(g.tessellate, True)
+
     def testPoint(self):
-        pass
+        doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:coordinates>0.000000,1.000000</kml:coordinates>
+        </kml:Point>"""
+        g = Geometry()
+        g.from_string(doc)
+        self.assertEqual(g.geometry.__geo_interface__,
+            {'type': 'Point', 'coordinates': (0.0, 1.0)})
+
     def testLineString(self):
-        pass
+        doc = """<kml:LineString xmlns:kml="http://www.opengis.net/kml/2.2">
+            <kml:coordinates>0.000000,0.000000 1.000000,1.000000</kml:coordinates>
+        </kml:LineString>"""
+        g = Geometry()
+        g.from_string(doc)
+        self.assertEqual(g.geometry.__geo_interface__,
+            {'type': 'LineString', 'coordinates': ((0.0, 0.0), (1.0, 1.0))})
+
     def testLinearRing(self):
-        pass
+        doc = """<kml:LinearRing xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</kml:coordinates>
+        </kml:LinearRing>
+        """
+        g = Geometry()
+        g.from_string(doc)
+        self.assertEqual(g.geometry.__geo_interface__,
+            {'type': 'LinearRing', 'coordinates': ((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0))})
     def testPolygon(self):
-        pass
+        doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:outerBoundaryIs>
+            <kml:LinearRing>
+              <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</kml:coordinates>
+            </kml:LinearRing>
+          </kml:outerBoundaryIs>
+        </kml:Polygon>
+        """
+        g = Geometry()
+        g.from_string(doc)
+        self.assertEqual(g.geometry.__geo_interface__,
+            {'type': 'Polygon', 'coordinates':
+                (((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0)),)}
+            )
+        doc ="""<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:outerBoundaryIs>
+            <kml:LinearRing>
+              <kml:coordinates>-1.000000,-1.000000 2.000000,-1.000000 2.000000,2.000000 -1.000000,-1.000000</kml:coordinates>
+            </kml:LinearRing>
+          </kml:outerBoundaryIs>
+          <kml:innerBoundaryIs>
+            <kml:LinearRing>
+              <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</kml:coordinates>
+            </kml:LinearRing>
+          </kml:innerBoundaryIs>
+        </kml:Polygon>
+        """
+        g.from_string(doc)
+        self.assertEqual(g.geometry.__geo_interface__,
+            {'type': 'Polygon', 'coordinates':
+            (((-1.0, -1.0), (2.0, -1.0), (2.0, 2.0), (-1.0, -1.0)),
+            ((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0)))}
+            )
+
     def testMultiPoint(self):
-        pass
+        doc = """
+        <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:Point>
+            <kml:coordinates>0.000000,1.000000</kml:coordinates>
+          </kml:Point>
+          <kml:Point>
+            <kml:coordinates>1.000000,1.000000</kml:coordinates>
+          </kml:Point>
+        </kml:MultiGeometry>
+        """
+        g = Geometry()
+        g.from_string(doc)
+        self.assertEqual(len(g.geometry), 2)
+
+
     def testMultiLineString(self):
-        pass
+        doc = """
+        <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:LineString>
+            <kml:coordinates>0.000000,0.000000 1.000000,0.000000</kml:coordinates>
+          </kml:LineString>
+          <kml:LineString>
+            <kml:coordinates>0.000000,1.000000 1.000000,1.000000</kml:coordinates>
+          </kml:LineString>
+        </kml:MultiGeometry>
+        """
+        g = Geometry()
+        g.from_string(doc)
+        self.assertEqual(len(g.geometry), 2)
+
     def testMultiPolygon(self):
-        pass
+        doc = """
+        <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:Polygon>
+            <kml:outerBoundaryIs>
+              <kml:LinearRing>
+                <kml:coordinates>-1.000000,-1.000000 2.000000,-1.000000 2.000000,2.000000 -1.000000,-1.000000</kml:coordinates>
+              </kml:LinearRing>
+            </kml:outerBoundaryIs>
+            <kml:innerBoundaryIs>
+              <kml:LinearRing>
+                <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</kml:coordinates>
+              </kml:LinearRing>
+            </kml:innerBoundaryIs>
+          </kml:Polygon>
+          <kml:Polygon>
+            <kml:outerBoundaryIs>
+              <kml:LinearRing>
+                <kml:coordinates>3.000000,0.000000 4.000000,0.000000 4.000000,1.000000 3.000000,0.000000</kml:coordinates>
+              </kml:LinearRing>
+            </kml:outerBoundaryIs>
+          </kml:Polygon>
+        </kml:MultiGeometry>
+        """
+        g = Geometry()
+        g.from_string(doc)
+        self.assertEqual(len(g.geometry), 2)
+
     def testGeometryCollection(self):
-        pass
-
-
+        doc = """
+        <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:Polygon>
+            <kml:outerBoundaryIs>
+              <kml:LinearRing>
+                <kml:coordinates>3.000000,0.000000 4.000000,0.000000 4.000000,1.000000 3.000000,0.000000</kml:coordinates>
+              </kml:LinearRing>
+            </kml:outerBoundaryIs>
+          </kml:Polygon>
+          <kml:Point>
+            <kml:coordinates>0.000000,1.000000</kml:coordinates>
+          </kml:Point>
+          <kml:LineString>
+            <kml:coordinates>0.000000,0.000000 1.000000,1.000000</kml:coordinates>
+          </kml:LineString>
+        </kml:MultiGeometry>
+        """
+        g = Geometry()
+        g.from_string(doc)
+        self.assertEqual(len(g.geometry), 3)
 
 class Force3DTestCase( unittest.TestCase ):
 
@@ -1044,15 +1249,18 @@ class Force3DTestCase( unittest.TestCase ):
         p3 = kml.Placemark(ns, 'id', 'name', 'description')
         p3.geometry =  Polygon([(0, 0, 0), (1, 1, 0), (1, 0, 0)])
         config.FORCE3D = False
+        #p3.altitudeMode = 'absolute'
         self.assertNotEqual(p2.to_string(), p3.to_string())
         config.FORCE3D = True
         self.assertEqual(p2.to_string(), p3.to_string())
-        #XXX
         #altitudeMode clampToGround indicates to ignore an altitude specification.
         #p3.altitudeMode = 'clampToGround'
         #self.assertEqual(p2.to_string(), p3.to_string())
         #config.FORCE3D = False
-        #self.assertEqual(p2.to_string(), p3.to_string())
+        #self.assertNotEqual(p2.to_string(), p3.to_string())
+
+        #Important: Set FORCE3D back to False!
+        config.FORCE3D = False
 
 def test_suite():
     suite = unittest.TestSuite()
