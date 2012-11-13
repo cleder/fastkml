@@ -5,6 +5,8 @@ Changelog
 0.3 (unreleased)
 -----------------
 
+- move implementation of geometry from kml.Placemark to geometry.Geometry
+- add support for heterogenous GeometryCollection
 - python 3 compatible
 - fix test for python 3
 - change license to LGPL
