@@ -105,9 +105,10 @@ class KML(object):
         """ Return the KML Object as serialized xml """
         if config.LXML and prettyprint:
             return etree.tostring(self.etree_element(), encoding='utf-8',
-                                    pretty_print=True)
+                                    pretty_print=True).decode('UTF-8')
         else:
-            return etree.tostring(self.etree_element(), encoding='utf-8')
+            return etree.tostring(self.etree_element(),
+                    encoding='utf-8').decode('UTF-8')
 
     def features(self):
         """ iterate over features """
