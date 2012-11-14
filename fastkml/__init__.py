@@ -15,11 +15,11 @@
 #    License along with this library; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-from kml import KML, Document, Folder, Placemark
-from kml import TimeSpan, TimeStamp
+from .kml import KML, Document, Folder, Placemark
+from .kml import TimeSpan, TimeStamp
 
-from styles import StyleUrl, Style, StyleMap
-from styles import IconStyle, LineStyle, PolyStyle
-from styles import LabelStyle #, BalloonStyle
+from .styles import StyleUrl, Style, StyleMap
+from .styles import IconStyle, LineStyle, PolyStyle
+from .styles import LabelStyle #, BalloonStyle
 
-from atom import Link, Author, Contributor
+from .atom import Link, Author, Contributor

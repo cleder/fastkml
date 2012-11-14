@@ -23,6 +23,13 @@ try:
     from shapely.geometry import MultiPoint, MultiLineString, MultiPolygon
     from shapely.geometry.polygon import LinearRing
     #from shapely.geometry import GeometryCollection
+    # Sean Gillies:
+    # I deliberately omitted a geometry collection constructor because
+    # there was almost no support in GEOS for operations on them. You
+    # couldn't buffer a collection, for example, or find its difference
+    # to another geometry. I've seen some signs of this changing in GEOS,
+    # but until it does I don't think there's any point to the class.
+    # It wouldn't be much more than a list of geometries.
     from pygeoif.geometry import GeometryCollection
     from shapely.geometry import asShape
 
@@ -119,14 +126,16 @@ class Geometry(_BaseObject):
                 #'relativeToSeaFloor', 'clampToSeaFloor',
                 'relativeToGround', 'absolute'])
             if self.altitude_mode != 'clampToGround':
-                element.set('altitudeMode', self.altitude_mode)
+                am_element = etree.SubElement(element, "%saltitudeMode" %self.ns)
+                am_element.text = self.altitude_mode
 
 
     def _set_extrude(self, element):
         if self.extrude and self.altitude_mode in ['relativeToGround',
                     #'relativeToSeaFloor',
                     'absolute']:
-            element.set('extrude', '1')
+            et_element = etree.SubElement(element, "%sextrude" %self.ns)
+            et_element.text = '1'
 
     def _etree_coordinates(self, coordinates):
         clampToGround = (self.altitude_mode == 'clampToGround') or (self.altitude_mode == None)
@@ -162,7 +171,8 @@ class Geometry(_BaseObject):
         self._set_altitude_mode(element)
         if self.tessellate and self.altitude_mode in ['clampToGround',
                 'clampToSeaFloor']:
-            element.set('tessellate', '1')
+            ts_element = etree.SubElement(element, "%stessellate" %self.ns)
+            ts_element.text = '1'
         coords = list(linestring.coords)
         element.append(self._etree_coordinates(coords))
         return element

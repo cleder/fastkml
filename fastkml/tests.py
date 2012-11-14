@@ -898,7 +898,7 @@ class SetGeometryTestCase( unittest.TestCase ):
         geom=Geometry()
         geom.geometry = Point(0,1)
         self.assertEqual(geom.altitude_mode , None)
-        self.assertFalse('altitudeMode' in geom.to_string())
+        self.assertFalse('altitudeMode' in str(geom.to_string()))
         geom.altitude_mode = 'unknown'
         self.assertRaises(AssertionError, geom.to_string)
         geom.altitude_mode = 'clampToSeaFloor'
@@ -906,51 +906,51 @@ class SetGeometryTestCase( unittest.TestCase ):
         geom.altitude_mode = 'relativeToSeaFloor'
         self.assertRaises(AssertionError, geom.to_string)
         geom.altitude_mode = 'clampToGround'
-        self.assertFalse('altitudeMode' in geom.to_string())
+        self.assertFalse('altitudeMode' in str(geom.to_string()))
         geom.altitude_mode = 'relativeToGround'
-        self.assertTrue('altitudeMode="relativeToGround"' in geom.to_string())
+        self.assertTrue('altitudeMode>relativeToGround</' in str(geom.to_string()))
         geom.altitude_mode = 'absolute'
-        self.assertTrue('altitudeMode="absolute"' in geom.to_string())
+        self.assertTrue('altitudeMode>absolute</' in str(geom.to_string()))
 
     def test_extrude(self):
         geom=Geometry()
         self.assertEqual(geom.extrude , False)
         geom.geometry = Point(0,1)
         geom.extrude=False
-        self.assertFalse('extrude' in geom.to_string())
+        self.assertFalse('extrude' in str(geom.to_string()))
         geom.extrude=True
         geom.altitude_mode = 'clampToGround'
-        self.assertFalse('extrude' in geom.to_string())
+        self.assertFalse('extrude' in str(geom.to_string()))
         geom.altitude_mode = 'relativeToGround'
-        self.assertTrue('extrude="1"' in geom.to_string())
+        self.assertTrue('extrude>1</' in str(geom.to_string()))
         geom.altitude_mode = 'absolute'
-        self.assertTrue('extrude="1"' in geom.to_string())
+        self.assertTrue('extrude>1</' in str(geom.to_string()))
 
     def test_tesselate(self):
         geom=Geometry()
         self.assertEqual(geom.tessellate , False)
         geom.geometry = LineString([(0,0), (1,1)])
-        self.assertFalse('tessellate' in geom.to_string())
+        self.assertFalse('tessellate' in str(geom.to_string()))
         geom.altitude_mode = 'clampToGround'
-        self.assertFalse('tessellate' in geom.to_string())
+        self.assertFalse('tessellate' in str(geom.to_string()))
         geom.altitude_mode = 'relativeToGround'
-        self.assertFalse('tessellate' in geom.to_string())
+        self.assertFalse('tessellate' in str(geom.to_string()))
         geom.altitude_mode = 'absolute'
-        self.assertFalse('tessellate' in geom.to_string())
+        self.assertFalse('tessellate' in str(geom.to_string()))
         geom.tessellate = True
         geom.altitude_mode = None
-        self.assertFalse('tessellate' in geom.to_string())
+        self.assertFalse('tessellate' in str(geom.to_string()))
         geom.altitude_mode = 'relativeToGround'
-        self.assertFalse('tessellate' in geom.to_string())
+        self.assertFalse('tessellate' in str(geom.to_string()))
         geom.altitude_mode = 'absolute'
-        self.assertFalse('tessellate' in geom.to_string())
+        self.assertFalse('tessellate' in str(geom.to_string()))
         geom.altitude_mode = 'clampToGround'
-        self.assertTrue('tessellate="1"' in geom.to_string())
+        self.assertTrue('tessellate>1</' in str(geom.to_string()))
         #for geometries != LineString tesselate is ignored
         geom.geometry = Point(0,1)
-        self.assertFalse('tessellate' in geom.to_string())
+        self.assertFalse('tessellate' in str(geom.to_string()))
         geom.geometry = Polygon([(0,0), (1,0), (1,1), (0,0)])
-        self.assertFalse('tessellate' in geom.to_string())
+        self.assertFalse('tessellate' in str(geom.to_string()))
 
     def testPoint(self):
         p = Point(0,1)
@@ -958,69 +958,69 @@ class SetGeometryTestCase( unittest.TestCase ):
         self.assertEqual(g.geometry, p)
         g = Geometry(geometry=p.__geo_interface__)
         self.assertEqual(g.geometry.__geo_interface__, p.__geo_interface__)
-        self.assertTrue('Point' in g.to_string())
-        self.assertTrue('coordinates>0.000000,1.000000</' in g.to_string())
+        self.assertTrue('Point' in str(g.to_string()))
+        self.assertTrue('coordinates>0.000000,1.000000</' in str(g.to_string()))
 
     def testLineString(self):
         l = LineString([(0,0), (1,1)])
         g = Geometry(geometry=l)
         self.assertEqual(g.geometry, l)
-        self.assertTrue('LineString' in g.to_string())
-        self.assertTrue('coordinates>0.000000,0.000000 1.000000,1.000000</' in g.to_string())
+        self.assertTrue('LineString' in str(g.to_string()))
+        self.assertTrue('coordinates>0.000000,0.000000 1.000000,1.000000</' in str(g.to_string()))
 
     def testLinearRing(self):
         l = LinearRing([(0,0), (1,0), (1,1), (0,0)])
         g = Geometry(geometry=l)
         self.assertEqual(g.geometry, l)
-        self.assertTrue('LinearRing' in g.to_string())
+        self.assertTrue('LinearRing' in str(g.to_string()))
         self.assertTrue(
             'coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</'
-            in g.to_string())
+            in str(g.to_string()))
 
     def testPolygon(self):
         #without holes
         l = Polygon([(0,0), (1,0), (1,1), (0,0)])
         g = Geometry(geometry=l)
         self.assertEqual(g.geometry, l)
-        self.assertTrue('Polygon' in g.to_string())
-        self.assertTrue('outerBoundaryIs' in g.to_string())
-        self.assertFalse('innerBoundaryIs' in g.to_string())
-        self.assertTrue('LinearRing' in g.to_string())
+        self.assertTrue('Polygon' in str(g.to_string()))
+        self.assertTrue('outerBoundaryIs' in str(g.to_string()))
+        self.assertFalse('innerBoundaryIs' in str(g.to_string()))
+        self.assertTrue('LinearRing' in str(g.to_string()))
         self.assertTrue(
             'coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</'
-            in g.to_string())
+            in str(g.to_string()))
         #with holes
         p = Polygon([(-1,-1), (2,-1), (2,2), (-1,-1)],[[(0,0), (1,0), (1,1), (0,0)]])
         g = Geometry(geometry=p)
         self.assertEqual(g.geometry, p)
-        self.assertTrue('Polygon' in g.to_string())
-        self.assertTrue('outerBoundaryIs' in g.to_string())
-        self.assertTrue('innerBoundaryIs' in g.to_string())
-        self.assertTrue('LinearRing' in g.to_string())
+        self.assertTrue('Polygon' in str(g.to_string()))
+        self.assertTrue('outerBoundaryIs' in str(g.to_string()))
+        self.assertTrue('innerBoundaryIs' in str(g.to_string()))
+        self.assertTrue('LinearRing' in str(g.to_string()))
         self.assertTrue(
             'coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</'
-            in g.to_string())
+            in str(g.to_string()))
         self.assertTrue(
             'coordinates>-1.000000,-1.000000 2.000000,-1.000000 2.000000,2.000000 -1.000000,-1.000000</'
-            in g.to_string())
+            in str(g.to_string()))
 
     def testMultiPoint(self):
         p0 = Point(0,1)
         p1 = Point(1,1)
         g = Geometry(geometry=MultiPoint([p0,p1]))
-        self.assertTrue('MultiGeometry' in g.to_string())
-        self.assertTrue('Point' in g.to_string())
-        self.assertTrue('coordinates>0.000000,1.000000</' in g.to_string())
-        self.assertTrue('coordinates>1.000000,1.000000</' in g.to_string())
+        self.assertTrue('MultiGeometry' in str(g.to_string()))
+        self.assertTrue('Point' in str(g.to_string()))
+        self.assertTrue('coordinates>0.000000,1.000000</' in str(g.to_string()))
+        self.assertTrue('coordinates>1.000000,1.000000</' in str(g.to_string()))
 
     def testMultiLineString(self):
         l0 = LineString([(0,0), (1,0)])
         l1 = LineString([(0,1), (1,1)])
         g = Geometry(geometry=MultiLineString([l0,l1]))
-        self.assertTrue('MultiGeometry' in g.to_string())
-        self.assertTrue('LineString' in g.to_string())
-        self.assertTrue('coordinates>0.000000,0.000000 1.000000,0.000000</' in g.to_string())
-        self.assertTrue('coordinates>0.000000,1.000000 1.000000,1.000000</' in g.to_string())
+        self.assertTrue('MultiGeometry' in str(g.to_string()))
+        self.assertTrue('LineString' in str(g.to_string()))
+        self.assertTrue('coordinates>0.000000,0.000000 1.000000,0.000000</' in str(g.to_string()))
+        self.assertTrue('coordinates>0.000000,1.000000 1.000000,1.000000</' in str(g.to_string()))
 
     def testMultiPolygon(self):
         #with holes
@@ -1028,20 +1028,20 @@ class SetGeometryTestCase( unittest.TestCase ):
         #without holes
         p1 = Polygon([(3,0), (4,0), (4,1), (3,0)])
         g = Geometry(geometry=MultiPolygon([p0,p1]))
-        self.assertTrue('MultiGeometry' in g.to_string())
-        self.assertTrue('Polygon' in g.to_string())
-        self.assertTrue('outerBoundaryIs' in g.to_string())
-        self.assertTrue('innerBoundaryIs' in g.to_string())
-        self.assertTrue('LinearRing' in g.to_string())
+        self.assertTrue('MultiGeometry' in str(g.to_string()))
+        self.assertTrue('Polygon' in str(g.to_string()))
+        self.assertTrue('outerBoundaryIs' in str(g.to_string()))
+        self.assertTrue('innerBoundaryIs' in str(g.to_string()))
+        self.assertTrue('LinearRing' in str(g.to_string()))
         self.assertTrue(
             'coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</'
-            in g.to_string())
+            in str(g.to_string()))
         self.assertTrue(
             'coordinates>-1.000000,-1.000000 2.000000,-1.000000 2.000000,2.000000 -1.000000,-1.000000</'
-            in g.to_string())
+            in str(g.to_string()))
         self.assertTrue(
             'coordinates>3.000000,0.000000 4.000000,0.000000 4.000000,1.000000 3.000000,0.000000</'
-            in g.to_string())
+            in str(g.to_string()))
 
     def testGeometryCollection(self):
         po = Polygon([(3,0), (4,0), (4,1), (3,0)])
@@ -1052,18 +1052,18 @@ class SetGeometryTestCase( unittest.TestCase ):
             p.__geo_interface__ ]}
         g = Geometry(geometry=GeometryCollection([po,p,l]))
         #g = Geometry(geometry=asShape(geo_if))
-        self.assertTrue('MultiGeometry' in g.to_string())
-        self.assertTrue('Polygon' in g.to_string())
-        self.assertTrue('outerBoundaryIs' in g.to_string())
-        self.assertFalse('innerBoundaryIs' in g.to_string())
-        self.assertTrue('LinearRing' in g.to_string())
+        self.assertTrue('MultiGeometry' in str(g.to_string()))
+        self.assertTrue('Polygon' in str(g.to_string()))
+        self.assertTrue('outerBoundaryIs' in str(g.to_string()))
+        self.assertFalse('innerBoundaryIs' in str(g.to_string()))
+        self.assertTrue('LinearRing' in str(g.to_string()))
         self.assertTrue(
             'coordinates>3.000000,0.000000 4.000000,0.000000 4.000000,1.000000 3.000000,0.000000</'
-            in g.to_string())
-        self.assertTrue('LineString' in g.to_string())
-        self.assertTrue('coordinates>0.000000,0.000000 1.000000,1.000000</' in g.to_string())
-        self.assertTrue('Point' in g.to_string())
-        self.assertTrue('coordinates>0.000000,1.000000</' in g.to_string())
+            in str(g.to_string()))
+        self.assertTrue('LineString' in str(g.to_string()))
+        self.assertTrue('coordinates>0.000000,0.000000 1.000000,1.000000</' in str(g.to_string()))
+        self.assertTrue('Point' in str(g.to_string()))
+        self.assertTrue('coordinates>0.000000,1.000000</' in str(g.to_string()))
 
 class GetGeometryTestCase( unittest.TestCase ):
 
