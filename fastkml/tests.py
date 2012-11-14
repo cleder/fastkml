@@ -30,6 +30,7 @@ except ImportError:
     import config
 
 import datetime
+from dateutil.tz import tzutc, tzoffset
 
 try:
     from fastkml.config import etree
@@ -789,6 +790,7 @@ class DateTimeTestCase( unittest.TestCase ):
         now = datetime.datetime.now()
         f = kml.Document()
         f.timeStamp = now
+        self.assertEqual(f.timeStamp, now)
         self.assertTrue(now.isoformat() in str(f.to_string()))
         self.assertTrue('TimeStamp>' in str(f.to_string()))
         self.assertTrue('when>' in str(f.to_string()))
@@ -804,6 +806,8 @@ class DateTimeTestCase( unittest.TestCase ):
         f = kml.Document()
         f.begin = y2k
         f.end = now
+        self.assertEqual(f.begin, y2k)
+        self.assertEqual(f.end, now)
         self.assertTrue(now.isoformat() in str(f.to_string()))
         self.assertTrue('2000-01-01' in str(f.to_string()))
         self.assertTrue('TimeSpan>' in str(f.to_string()))
@@ -855,6 +859,75 @@ class DateTimeTestCase( unittest.TestCase ):
         # this raises an exception as only either timespan or timestamp
         # are allowed not both
         self.assertRaises(ValueError, f.to_string)
+
+    def test_read_timestamp(self):
+        ts = kml.TimeStamp(ns='')
+        doc ="""
+        <TimeStamp>
+          <when>1997</when>
+        </TimeStamp>
+        """
+        ts.from_string(doc)
+        self.assertEqual(ts.timestamp[1],  'gYear')
+        self.assertEqual(ts.timestamp[0], datetime.datetime(1997, 1, 1, 0, 0))
+        doc ="""
+        <TimeStamp>
+          <when>1997-07</when>
+        </TimeStamp>
+        """
+        ts.from_string(doc)
+        self.assertEqual(ts.timestamp[1],  'gYearMonth')
+        self.assertEqual(ts.timestamp[0], datetime.datetime(1997, 7, 1, 0, 0))
+        doc ="""
+        <TimeStamp>
+          <when>199808</when>
+        </TimeStamp>
+        """
+        ts.from_string(doc)
+        self.assertEqual(ts.timestamp[1],  'gYearMonth')
+        self.assertEqual(ts.timestamp[0], datetime.datetime(1998, 8, 1, 0, 0))
+        doc ="""
+        <TimeStamp>
+          <when>1997-07-16</when>
+        </TimeStamp>
+        """
+        ts.from_string(doc)
+        self.assertEqual(ts.timestamp[1],  'date')
+        self.assertEqual(ts.timestamp[0], datetime.datetime(1997, 7, 16, 0, 0))
+        #dateTime (YYYY-MM-DDThh:mm:ssZ)
+        #Here, T is the separator between the calendar and the hourly notation of time, and Z indicates UTC. (Seconds are required.)
+        doc ="""
+        <TimeStamp>
+          <when>1997-07-16T07:30:15Z</when>
+        </TimeStamp>
+        """
+        ts.from_string(doc)
+        self.assertEqual(ts.timestamp[1],  'dateTime')
+        self.assertEqual(ts.timestamp[0], datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc()))
+        doc ="""
+        <TimeStamp>
+          <when>1997-07-16T10:30:15+03:00</when>
+        </TimeStamp>
+        """
+        ts.from_string(doc)
+        self.assertEqual(ts.timestamp[1],  'dateTime')
+        self.assertEqual(ts.timestamp[0], datetime.datetime(1997, 7, 16, 10, 30, 15, tzinfo=tzoffset(None, 10800)))
+
+    def test_read_timespan(self):
+        ts = kml.TimeSpan(ns='')
+        doc = """
+        <TimeSpan>
+            <begin>1876-08-01</begin>
+            <end>1997-07-16T07:30:15Z</end>
+        </TimeSpan>
+        """
+        ts.from_string(doc)
+        self.assertEqual(ts.begin[1],  'date')
+        self.assertEqual(ts.begin[0], datetime.datetime(1876, 8, 1, 0, 0))
+        self.assertEqual(ts.end[1],  'dateTime')
+        self.assertEqual(ts.end[0], datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc()))
+
+
 
 class AtomTestCase( unittest.TestCase ):
 
@@ -1045,13 +1118,15 @@ class SetGeometryTestCase( unittest.TestCase ):
 
     def testGeometryCollection(self):
         po = Polygon([(3,0), (4,0), (4,1), (3,0)])
-        l = LineString([(0,0), (1,1)])
+        lr = LinearRing([(0,-1), (1,-1), (1,1), (0,-1)])
+        ls = LineString([(0,0), (1,1)])
         p = Point(0,1)
         geo_if = {'type': 'GeometryCollection', 'geometries': [
-            po.__geo_interface__, l.__geo_interface__,
-            p.__geo_interface__ ]}
-        g = Geometry(geometry=GeometryCollection([po,p,l]))
-        #g = Geometry(geometry=asShape(geo_if))
+            po.__geo_interface__, p.__geo_interface__,
+            ls.__geo_interface__, lr.__geo_interface__ ]}
+        g = Geometry(geometry=GeometryCollection([po,p,ls,lr]))
+        #g1 = Geometry(geometry=as_shape(geo_if))
+        #self.assertEqual(g1.__geo_interface__, g.__geo_interface__)
         self.assertTrue('MultiGeometry' in str(g.to_string()))
         self.assertTrue('Polygon' in str(g.to_string()))
         self.assertTrue('outerBoundaryIs' in str(g.to_string()))
@@ -1224,7 +1299,7 @@ class GetGeometryTestCase( unittest.TestCase ):
           <kml:Polygon>
             <kml:outerBoundaryIs>
               <kml:LinearRing>
-                <kml:coordinates>3.000000,0.000000 4.000000,0.000000 4.000000,1.000000 3.000000,0.000000</kml:coordinates>
+                <kml:coordinates>3,0 4,0 4,1 3,0</kml:coordinates>
               </kml:LinearRing>
             </kml:outerBoundaryIs>
           </kml:Polygon>
@@ -1234,11 +1309,29 @@ class GetGeometryTestCase( unittest.TestCase ):
           <kml:LineString>
             <kml:coordinates>0.000000,0.000000 1.000000,1.000000</kml:coordinates>
           </kml:LineString>
+          <kml:LinearRing>
+            <kml:coordinates>0.0,0.0 1.0,0.0 1.0,1.0 0.0,1.0 0.0,0.0</kml:coordinates>
+          </kml:LinearRing>
         </kml:MultiGeometry>
         """
         g = Geometry()
         g.from_string(doc)
-        self.assertEqual(len(g.geometry), 3)
+        self.assertEqual(len(g.geometry), 4)
+        doc = """
+        <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:LinearRing>
+            <kml:coordinates>3.0,0.0 4.0,0.0 4.0,1.0 3.0,0.0</kml:coordinates>
+          </kml:LinearRing>
+          <kml:LinearRing>
+            <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</kml:coordinates>
+          </kml:LinearRing>
+        </kml:MultiGeometry>
+        """
+        g = Geometry()
+        g.from_string(doc)
+        self.assertEqual(len(g.geometry), 2)
+        self.assertEqual(g.geometry.geom_type, 'GeometryCollection')
+
 
 class Force3DTestCase( unittest.TestCase ):
 
