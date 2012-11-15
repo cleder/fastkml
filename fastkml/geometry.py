@@ -40,10 +40,14 @@ except ImportError:
     from pygeoif.geometry import GeometryCollection
     from pygeoif.geometry import as_shape as asShape
 
-import config
-from config import etree
+try:
+   import fastkml.config as config
+except ImportError:
+    import config
 
-from base import _BaseObject
+from .config import etree
+
+from .base import _BaseObject
 
 import logging
 logger = logging.getLogger('fastkml.geometry')

@@ -76,9 +76,9 @@ located at http://developers.google.com/kml/schema/kml22gx.xsd.
 import logging
 logger = logging.getLogger('fastkml.gx')
 
-from config import etree
-from config import GXNS as NS
-from config import LXML
+from .config import etree
+from .config import GXNS as NS
+from .config import LXML
 
 
 

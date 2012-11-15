@@ -18,8 +18,12 @@
 """ abstract base classes"""
 
 
-import config
-from config import etree
+try:
+    import fastkml.config as config
+except  ImportError:
+    import config
+
+from .config import etree
 
 
 

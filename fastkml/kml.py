@@ -50,13 +50,13 @@ from .base import _BaseObject
 from .styles import StyleUrl, Style, StyleMap, _StyleSelector
 
 try:
-    import atom
-    import gx
-    import config
-except  ImportError:
     import fastkml.atom as atom
     import fastkml.gx as gx
     import fastkml.config as config
+except  ImportError:
+    import atom
+    import gx
+    import config
 
 try:
     unicode
