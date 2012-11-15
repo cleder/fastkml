@@ -15,6 +15,12 @@ Geometries are handled as pygeoif_ or shapely_ (if installed) objects.
 .. _shapely: http://pypi.python.org/pypi/Shapely
 .. _collective.geo.fastkml: http://pypi.python.org/pypi/collective.geo.fastkml
 
+
+fastkml is continually tested with *Travis CI*
+
+.. image:: https://api.travis-ci.org/cleder/fastkml.png
+
+
 Limitations
 ===========
 
