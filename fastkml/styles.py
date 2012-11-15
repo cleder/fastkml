@@ -23,7 +23,11 @@ part of how your data is displayed.
 import logging
 logger = logging.getLogger('fastkml.styles')
 
-import config
+try:
+    import fastkml.config as config
+except  ImportError:
+    import config
+
 from config import etree
 from base import _BaseObject
 
