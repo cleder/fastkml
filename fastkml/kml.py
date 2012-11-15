@@ -42,14 +42,21 @@ import dateutil.parser
 import logging
 logger = logging.getLogger('fastkml.kml')
 
-import config
+
 from .config import etree
 
 from .base import _BaseObject
 
 from .styles import StyleUrl, Style, StyleMap, _StyleSelector
-import atom
-import gx
+
+try:
+    import atom
+    import gx
+    import config
+except  ImportError:
+    import fastkml.atom as atom
+    import fastkml.gx as gx
+    import fastkml.config as config
 
 try:
     unicode
