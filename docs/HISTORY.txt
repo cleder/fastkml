@@ -2,9 +2,10 @@
 Changelog
 =========
 
-0.3 (unreleased)
+0.3 (2012/11/15)
 -----------------
 
+- specify minor python versions tested with Travis CI
 - add support for tesselation, altitudeMode and extrude to Geometries
 - move implementation of geometry from kml.Placemark to geometry.Geometry
 - add support for heterogenous GeometryCollection
