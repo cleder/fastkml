@@ -28,8 +28,8 @@ try:
 except  ImportError:
     import config
 
-from config import etree
-from base import _BaseObject
+from .config import etree
+from .base import _BaseObject
 
 
 
