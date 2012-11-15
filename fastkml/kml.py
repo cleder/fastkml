@@ -26,10 +26,10 @@ http://schemas.opengis.net/kml/.
 
 """
 
-from geometry import Point, LineString, Polygon
-from geometry import MultiPoint, MultiLineString, MultiPolygon
-from geometry import LinearRing
-from geometry import Geometry
+from .geometry import Point, LineString, Polygon
+from .geometry import MultiPoint, MultiLineString, MultiPolygon
+from .geometry import LinearRing
+from .geometry import Geometry
 
 from datetime import datetime, date
 
@@ -43,11 +43,11 @@ import logging
 logger = logging.getLogger('fastkml.kml')
 
 import config
-from config import etree
+from .config import etree
 
-from base import _BaseObject
+from .base import _BaseObject
 
-from styles import StyleUrl, Style, StyleMap, _StyleSelector
+from .styles import StyleUrl, Style, StyleMap, _StyleSelector
 import atom
 import gx
 
