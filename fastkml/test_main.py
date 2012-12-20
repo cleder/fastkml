@@ -771,6 +771,48 @@ class StyleFromStringTestCase( unittest.TestCase ):
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
 
+    def test_get_style_by_url(self):
+        doc = """<?xml version="1.0" encoding="UTF-8"?>
+        <kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+          <name>Document.kml</name>
+          <open>1</open>
+          <Style id="exampleStyleDocument">
+            <LabelStyle>
+              <color>ff0000cc</color>
+            </LabelStyle>
+          </Style>
+          <StyleMap id="styleMapExample">
+            <Pair>
+              <key>normal</key>
+              <styleUrl>#normalState</styleUrl>
+            </Pair>
+            <Pair>
+              <key>highlight</key>
+              <styleUrl>#highlightState</styleUrl>
+            </Pair>
+          </StyleMap>
+          <Style id="linestyleExample">
+            <LineStyle>
+              <color>7f0000ff</color>
+              <width>4</width>
+            </LineStyle>
+          </Style>
+        </Document>
+        </kml>"""
+        k = kml.KML()
+        k.from_string(doc)
+        self.assertEqual(len(list(k.features())),1)
+        document = list(k.features())[0]
+        style = document.get_style_by_url('http://localhost:8080/somepath#exampleStyleDocument')
+        self.assertTrue(isinstance(list(style.styles())[0], styles.LabelStyle))
+        style = document.get_style_by_url('somepath#linestyleExample')
+        self.assertTrue(isinstance(list(style.styles())[0], styles.LineStyle))
+        style = document.get_style_by_url('#styleMapExample')
+        self.assertTrue(isinstance(style, styles.StyleMap))
+
+
+
 class DateTimeTestCase( unittest.TestCase ):
 
     def test_timestamp(self):

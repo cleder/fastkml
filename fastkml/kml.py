@@ -26,6 +26,8 @@ http://schemas.opengis.net/kml/.
 
 """
 
+import urlparse
+
 from .geometry import Point, LineString, Polygon
 from .geometry import MultiPoint, MultiLineString, MultiPolygon
 from .geometry import LinearRing
@@ -533,6 +535,12 @@ class Document(_Container):
             feature = Placemark(self.ns)
             feature.from_element(placemark)
             self.append(feature)
+
+    def get_style_by_url(self, styleUrl):
+        id = urlparse.urlparse(styleUrl).fragment
+        for style in self.styles():
+            if style.id == id:
+                return style
 
 
 class Folder(_Container):
