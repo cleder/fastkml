@@ -1436,10 +1436,11 @@ class Force3DTestCase( unittest.TestCase ):
 
 def test_suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(KmlFromStringTestCase))
-    suite.addTest(unittest.makeSuite(BuildKmlTestCase))
-    suite.addTest(unittest.makeSuite(StyleFromStringTestCase))
     suite.addTest(unittest.makeSuite(BaseClassesTestCase))
+    suite.addTest(unittest.makeSuite(BuildKmlTestCase))
+    suite.addTest(unittest.makeSuite(KmlFromStringTestCase))
+    suite.addTest(unittest.makeSuite(StyleTestCase))
+    suite.addTest(unittest.makeSuite(StyleFromStringTestCase))
     suite.addTest(unittest.makeSuite(DateTimeTestCase))
     suite.addTest(unittest.makeSuite(AtomTestCase))
     suite.addTest(unittest.makeSuite(SetGeometryTestCase))
