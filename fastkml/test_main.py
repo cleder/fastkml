@@ -498,7 +498,44 @@ class StyleFromStringTestCase( unittest.TestCase ):
 
 
     def test_balloonstyle(self):
-        pass
+        doc = """<?xml version="1.0" encoding="UTF-8"?>
+        <kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+          <name>Document.kml</name>
+          <Style id="exampleBalloonStyle">
+            <BalloonStyle>
+              <!-- a background color for the balloon -->
+              <bgColor>ffffffbb</bgColor>
+              <!-- styling of the balloon text -->
+              <textColor>ff000000</textColor>
+              <text><![CDATA[
+              <b><font color="#CC0000" size="+3">$[name]</font></b>
+              <br/><br/>
+              <font face="Courier">$[description]</font>
+              <br/><br/>
+              Extra text that will appear in the description balloon
+              <br/><br/>
+              <!-- insert the to/from hyperlinks -->
+              $[geDirections]
+              ]]></text>
+              <!-- kml:displayModeEnum -->
+              <displayMode>default</displayMode>
+            </BalloonStyle>
+          </Style>
+        </Document>
+        </kml>"""
+        k = kml.KML()
+        k.from_string(doc)
+        self.assertEqual(len(list(k.features())),1)
+        self.assertTrue(isinstance(
+                    list(list(k.features())[0].styles())[0], styles.Style))
+        style = list(list(list(k.features())[0].styles())[0].styles())[0]
+        self.assertTrue(isinstance(style, styles.BalloonStyle))
+        self.assertEqual(style.bgColor, 'ffffffbb')
+        self.assertEqual(style.textColor, 'ff000000')
+        self.assertEqual(style.displayMode, 'default')
+        self.assertTrue('$[geDirections]' in style.text)
+        self.assertTrue('$[description]' in style.text)
 
     def test_labelstyle(self):
         doc = """<?xml version="1.0" encoding="UTF-8"?>

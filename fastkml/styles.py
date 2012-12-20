@@ -90,7 +90,7 @@ class Style(_StyleSelector):
                 self.append_style(style)
 
     def append_style(self, style):
-        if isinstance(style, _ColorStyle):
+        if isinstance(style, (_ColorStyle, BalloonStyle)):
             self._styles.append(style)
         else:
             raise TypeError
@@ -124,7 +124,11 @@ class Style(_StyleSelector):
             thestyle = LabelStyle(self.ns)
             thestyle.from_element(style)
             self.append_style(thestyle)
-        #XXX BalloonStyle
+        style = element.find('%sBalloonStyle' %self.ns)
+        if style is not None:
+            thestyle = BalloonStyle(self.ns)
+            thestyle.from_element(style)
+            self.append_style(thestyle)
 
     def etree_element(self):
         element = super(Style, self).etree_element()
@@ -395,4 +399,87 @@ class BalloonStyle(_BaseObject):
     """ Specifies how the description balloon for placemarks is drawn.
         The <bgColor>, if specified, is used as the background color of
         the balloon."""
-    pass
+
+    __name__ = "BalloonStyle"
+
+    bgColor = None
+    #Background color of the balloon (optional). Color and opacity (alpha)
+    #values are expressed in hexadecimal notation. The range of values for
+    #any one color is 0 to 255 (00 to ff). The order of expression is
+    # aabbggrr, where aa=alpha (00 to ff); bb=blue (00 to ff);
+    # gg=green (00 to ff); rr=red (00 to ff).
+    # For alpha, 00 is fully transparent and ff is fully opaque.
+    # For example, if you want to apply a blue color with 50 percent
+    # opacity to an overlay, you would specify the following:
+    #<bgColor>7fff0000</bgColor>, where alpha=0x7f, blue=0xff, green=0x00,
+    # and red=0x00. The default is opaque white (ffffffff).
+    # Note: The use of the <color> element within <BalloonStyle> has been
+    # deprecated. Use <bgColor> instead.
+
+    textColor = None
+    # Foreground color for text. The default is black (ff000000).
+
+    text = None
+    #Text displayed in the balloon. If no text is specified, Google Earth
+    #draws the default balloon (with the Feature <name> in boldface,
+    #the Feature <description>, links for driving directions, a white
+    #background, and a tail that is attached to the point coordinates of
+    #the Feature, if specified).
+    #You can add entities to the <text> tag using the following format to
+    #refer to a child element of Feature: $[name], $[description], $[address],
+    #$[id], $[Snippet]. Google Earth looks in the current Feature for the
+    #corresponding string entity and substitutes that information in the balloon.
+    #To include To here - From here driving directions in the balloon,
+    #use the $[geDirections] tag. To prevent the driving directions links
+    #from appearing in a balloon, include the <text> element with some content,
+    #or with $[description] to substitute the basic Feature <description>.
+    #For example, in the following KML excerpt, $[name] and $[description]
+    #fields will be replaced by the <name> and <description> fields found
+    #in the Feature elements that use this BalloonStyle:
+    #<text>This is $[name], whose description is:<br/>$[description]</text>
+
+    displayMode = None
+    #If <displayMode> is default, Google Earth uses the information supplied
+    #in <text> to create a balloon . If <displayMode> is hide, Google Earth
+    #does not display the balloon. In Google Earth, clicking the List View
+    #icon for a Placemark whose balloon's <displayMode> is hide causes
+    #Google Earth to fly to the Placemark.
+
+    def __init__(self, ns=None, id=None, bgColor=None, textColor=None,
+                text=None, displayMode=None):
+        super(BalloonStyle, self).__init__(ns, id)
+        self.bgColor = bgColor
+        self.textColor = textColor
+        self.text = text
+        self.displayMode = displayMode
+
+    def from_element(self, element):
+        super(BalloonStyle, self).from_element(element)
+        bgColor = element.find('%sbgColor' %self.ns)
+        if bgColor is not None:
+            self.bgColor = bgColor.text
+        textColor = element.find('%stextColor' %self.ns)
+        if textColor is not None:
+            self.textColor = textColor.text
+        text = element.find('%stext' %self.ns)
+        if text is not None:
+            self.text = text.text
+        displayMode = element.find('%sdisplayMode' %self.ns)
+        if displayMode is not None:
+            self.displayMode = displayMode.text
+
+    def etree_element(self):
+        element = super(BalloonStyle, self).etree_element()
+        if self.bgColor is not None:
+            elem = etree.SubElement(element, "%sbgColor" %self.ns)
+            elem.text = self.bgColor
+        if self.textColor is not None:
+            elem = etree.SubElement(element, "%stextColor" %self.ns)
+            elem.text = self.textColor
+        if self.text is not None:
+            elem = etree.SubElement(element, "%stext" %self.ns)
+            elem.text = self.text
+        if self.displayMode is not None:
+            elem = etree.SubElement(element, "%sdisplayMode" %self.ns)
+            elem.text = self.displayMode
+        return element
