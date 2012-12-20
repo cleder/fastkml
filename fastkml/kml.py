@@ -25,8 +25,10 @@ The complete XML schema for KML is located at
 http://schemas.opengis.net/kml/.
 
 """
-
-import urlparse
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse
 
 from .geometry import Point, LineString, Polygon
 from .geometry import MultiPoint, MultiLineString, MultiPolygon
