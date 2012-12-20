@@ -458,6 +458,10 @@ class BalloonStyle(_BaseObject):
         bgColor = element.find('%sbgColor' %self.ns)
         if bgColor is not None:
             self.bgColor = bgColor.text
+        else:
+            bgColor = element.find('%scolor' %self.ns)
+            if bgColor is not None:
+                self.bgColor = bgColor.text
         textColor = element.find('%stextColor' %self.ns)
         if textColor is not None:
             self.textColor = textColor.text
