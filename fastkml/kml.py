@@ -447,10 +447,11 @@ class _Feature(_BaseObject):
                 self._styleUrl = s
             snippet = element.find('%sSnippet' % self.ns)
             if snippet is not None:
-                self._snippet = ('',0)
-                self._snippet[0] = snippet.text
+                self._snippet = (snippet.text,)
                 if snippet.get('maxLines'):
-                    self._snippet[1] = int(snippet.get('maxLines'))
+                    self._snippet += (int(snippet.get('maxLines')),)
+                else:
+                    self._snippet += (0,)
             timespan = element.find('%sTimeSpan' % self.ns)
             if timespan is not None:
                 s = TimeSpan()
