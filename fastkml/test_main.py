@@ -462,12 +462,21 @@ class KmlFromStringTestCase( unittest.TestCase ):
         doc = """<?xml version="1.0" encoding="UTF-8"?>
         <kml xmlns="http://www.opengis.net/kml/2.2">
         <Placemark>
-        <Snippet maxLines="2" >
-        </Snippet>
+        <Snippet maxLines="2" >Short Desc</Snippet>
         </Placemark> </kml>"""
         k = kml.KML()
         k.from_string(doc)
-
+        self.assertEqual(list(k.features())[0]._snippet['text'], 'Short Desc')
+        self.assertEqual(list(k.features())[0]._snippet['maxLines'], 2)
+        list(k.features())[0]._snippet['maxLines'] = 3
+        self.assertEqual(list(k.features())[0]._snippet['maxLines'], 3)
+        self.assertTrue('maxLines="3"' in k.to_string())
+        list(k.features())[0]._snippet = {'text': 'Annother Snippet'}
+        self.assertFalse('maxLines' in k.to_string())
+        self.assertTrue('Annother Snippet' in k.to_string())
+        list(k.features())[0]._snippet = 'Diffrent Snippet'
+        self.assertFalse('maxLines' in k.to_string())
+        self.assertTrue('Diffrent Snippet' in k.to_string())
 
 
 

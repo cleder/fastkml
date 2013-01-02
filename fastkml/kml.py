@@ -395,10 +395,10 @@ class _Feature(_BaseObject):
             if isinstance(self._snippet, basestring):
                 snippet.text = self._snippet
             else:
-                assert (isinstance(self._snippet[0], basestring))
-                snippet.text = self._snippet[0]
-                if self._snippet[1]:
-                    snippet.set('maxLines', str(self._snippet[1]))
+                assert (isinstance(self._snippet['text'], basestring))
+                snippet.text = self._snippet['text']
+                if self._snippet.get('maxLines'):
+                    snippet.set('maxLines', str(self._snippet['maxLines']))
         if (self._time_span is not None) and (self._time_stamp is not None):
             raise ValueError('Either Timestamp or Timespan can be defined, not both')
         elif self._time_span is not None:
@@ -447,11 +447,9 @@ class _Feature(_BaseObject):
                 self._styleUrl = s
             snippet = element.find('%sSnippet' % self.ns)
             if snippet is not None:
-                self._snippet = (snippet.text,)
+                self._snippet = {'text': snippet.text}
                 if snippet.get('maxLines'):
-                    self._snippet += (int(snippet.get('maxLines')),)
-                else:
-                    self._snippet += (0,)
+                    self._snippet['maxLines'] = int(snippet.get('maxLines'))
             timespan = element.find('%sTimeSpan' % self.ns)
             if timespan is not None:
                 s = TimeSpan()
