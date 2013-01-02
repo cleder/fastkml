@@ -458,6 +458,19 @@ class KmlFromStringTestCase( unittest.TestCase ):
     def test_atom(self):
         pass
 
+    def test_snippet(self):
+        doc = """<?xml version="1.0" encoding="UTF-8"?>
+        <kml xmlns="http://www.opengis.net/kml/2.2">
+        <Placemark>
+        <Snippet maxLines="2" >
+        </Snippet>
+        </Placemark> </kml>"""
+        k = kml.KML()
+        k.from_string(doc)
+
+
+
+
 class StyleTestCase( unittest.TestCase ):
 
     def test_styleurl(self):
