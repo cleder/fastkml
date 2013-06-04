@@ -19,7 +19,10 @@ Geometries are handled as pygeoif_ or shapely_ (if installed) objects.
 fastkml is continually tested with *Travis CI*
 
 .. image:: https://api.travis-ci.org/cleder/fastkml.png
+    :target: https://travis-ci.org/cleder/fastkml
 
+.. image:: https://coveralls.io/repos/cleder/fastkml/badge.png?branch=master
+    :target: https://coveralls.io/r/cleder/fastkml?branch=master
 
 Limitations
 ===========
