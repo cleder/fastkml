@@ -162,8 +162,8 @@ class BuildKmlTestCase(unittest.TestCase):
 
 
     def test_placemark(self):
-        k = kml.KML()
         ns = '{http://www.opengis.net/kml/2.2}'
+        k = kml.KML(ns=ns)
         p = kml.Placemark(ns, 'id', 'name', 'description')
         p.geometry = Point(0.0, 0.0, 0.0)
         p2 = kml.Placemark(ns, 'id2', 'name2', 'description2')
@@ -172,7 +172,7 @@ class BuildKmlTestCase(unittest.TestCase):
         k.append(p2)
         self.assertEqual(len(list(k.features())),2)
         k2 = kml.KML()
-        k2.from_string(k.to_string())
+        k2.from_string(k.to_string(prettyprint=True))
         self.assertEqual(k.to_string(), k2.to_string())
 
 
@@ -208,6 +208,7 @@ class BuildKmlTestCase(unittest.TestCase):
         self.assertTrue('Christian Ledermann' in str(d.to_string()))
         a = atom.Author(name='Nobody', uri='http://localhost', email='cl@donotreply.com')
         d.author = a
+        self.assertEqual(d.author, 'Nobody')
         self.assertFalse('Christian Ledermann' in str(d.to_string()))
         self.assertTrue('Nobody' in str(d.to_string()))
         self.assertTrue('http://localhost' in str(d.to_string()))
@@ -215,6 +216,7 @@ class BuildKmlTestCase(unittest.TestCase):
         d2 = kml.Document()
         d2.from_string(d.to_string())
         self.assertEqual(d.to_string(), d2.to_string())
+        d.author = None
         #print (d.to_string())
 
 
@@ -229,12 +231,13 @@ class BuildKmlTestCase(unittest.TestCase):
         d2 = kml.Document()
         d2.from_string(d.to_string())
         self.assertEqual(d.to_string(), d2.to_string())
+        d.link = None
 
 class KmlFromStringTestCase( unittest.TestCase ):
 
     def test_document(self):
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
-        <Document>
+        <Document targetId="someTargetId">
           <name>Document.kml</name>
           <open>1</open>
           <Style id="exampleStyleDocument">
@@ -249,7 +252,7 @@ class KmlFromStringTestCase( unittest.TestCase ):
               <coordinates>-122.371,37.816,0</coordinates>
             </Point>
           </Placemark>
-          <Placemark>
+          <Placemark targetId="someTargetId">
             <name>Document Feature 2</name>
             <styleUrl>#exampleStyleDocument</styleUrl>
             <Point>
@@ -265,7 +268,6 @@ class KmlFromStringTestCase( unittest.TestCase ):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
-        #print (k.to_string())
 
 
 
@@ -487,6 +489,14 @@ class StyleTestCase( unittest.TestCase ):
         f2.from_string(f.to_string())
         self.assertEqual(f.to_string(), f2.to_string())
 
+    def test_style(self):
+        lstyle = styles.LineStyle(color='red', width=2.0)
+        style = styles.Style(styles = [lstyle])
+        f = kml.Document(styles = [style])
+        f2 = kml.Document()
+        f2.from_string(f.to_string(prettyprint=True))
+        self.assertEqual(f.to_string(), f2.to_string())
+
 
 
 
@@ -548,6 +558,9 @@ class StyleFromStringTestCase( unittest.TestCase ):
         self.assertEqual(style.displayMode, 'default')
         self.assertTrue('$[geDirections]' in style.text)
         self.assertTrue('$[description]' in style.text)
+        k2 = kml.KML()
+        k2.from_string(k.to_string())
+        self.assertEqual(k2.to_string(), k.to_string())
 
     def test_labelstyle(self):
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
@@ -583,6 +596,7 @@ class StyleFromStringTestCase( unittest.TestCase ):
                  <color>ff00ff00</color>
                  <colorMode>random</colorMode>
                  <scale>1.1</scale>
+                 <heading>0</heading>
                  <Icon>
                     <href>http://maps.google.com/icon21.png</href>
                  </Icon>
@@ -1010,6 +1024,21 @@ class DateTimeTestCase( unittest.TestCase ):
         self.assertEqual(ts.end[1],  'dateTime')
         self.assertEqual(ts.end[0], datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc()))
 
+    def test_featurefromstring(self):
+        d=kml.Document(ns='')
+        doc="""<Document>
+          <name>Document.kml</name>
+          <open>1</open>
+          <TimeStamp>
+            <when>1997-07-16T10:30:15+03:00</when>
+          </TimeStamp>
+          <TimeSpan>
+            <begin>1876-08-01</begin>
+            <end>1997-07-16T07:30:15Z</end>
+          </TimeSpan>
+        </Document>"""
+        d.from_string(doc)
+
 
 
 class AtomTestCase( unittest.TestCase ):
@@ -1028,6 +1057,9 @@ class AtomTestCase( unittest.TestCase ):
         #print (a.to_string())
         a.email = 'christian'
         self.assertFalse('email>' in str(a.to_string()))
+        a2 = atom.Author()
+        a2.from_string(a.to_string())
+        self.assertEqual(a.to_string(), a2.to_string())
 
     def test_link(self):
         l = atom.Link(href="http://localhost/", rel="alternate")
@@ -1045,6 +1077,9 @@ class AtomTestCase( unittest.TestCase ):
         self.assertTrue('lenght="4096"' in str(l.to_string()))
         self.assertTrue('link' in str(l.to_string()))
         self.assertTrue('="http://www.w3.org/2005/Atom"' in str(l.to_string()))
+        l2 = atom.Link()
+        l2.from_string(l.to_string())
+        self.assertEqual(l.to_string(), l2.to_string())
         l.href = None
         self.assertRaises(ValueError, l.to_string)
 
@@ -1123,6 +1158,9 @@ class SetGeometryTestCase( unittest.TestCase ):
         self.assertEqual(g.geometry, l)
         self.assertTrue('LineString' in str(g.to_string()))
         self.assertTrue('coordinates>0.000000,0.000000 1.000000,1.000000</' in str(g.to_string()))
+        g2 = Geometry()
+        g2.from_string(g.to_string())
+        self.assertEqual(g.to_string(), g2.to_string())
 
     def testLinearRing(self):
         l = LinearRing([(0,0), (1,0), (1,1), (0,0)])

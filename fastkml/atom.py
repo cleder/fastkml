@@ -118,7 +118,7 @@ class Link(object):
             if element.get('title'):
                 self.title = element.get('title')
             if element.get('lenght'):
-                self.rel = element.get('lenght')
+                self.lenght = element.get('lenght')
 
 
     def etree_element(self):

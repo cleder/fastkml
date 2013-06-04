@@ -413,63 +413,59 @@ class _Feature(_BaseObject):
 
 
     def from_element(self, element):
-        if self.ns + self.__name__ != element.tag:
-            raise TypeError
-        else:
-            if element.get('id'):
-                self.id = element.get('id')
-            name = element.find('%sname' %self.ns)
-            if name is not None:
-                self.name = name.text
-            description = element.find('%sdescription' %self.ns)
-            if description is not None:
-                self.description = description.text
-            visibility = element.find('%svisibility' %self.ns)
-            if visibility is not None:
-                self.visibility = int(visibility.text)
-            isopen = element.find('%sopen' %self.ns)
-            if isopen is not None:
-                self.isopen = int(isopen.text)
-            styles = element.findall('%sStyle' % self.ns)
-            for style in styles:
-                s = Style(self.ns)
-                s.from_element(style)
-                self.append_style(s)
-            styles = element.findall('%sStyleMap' % self.ns)
-            for style in styles:
-                s = StyleMap(self.ns)
-                s.from_element(style)
-                self.append_style(s)
-            style_url = element.find('%sstyleUrl' % self.ns)
-            if style_url is not None:
-                s = StyleUrl(self.ns)
-                s.from_element(style_url)
-                self._styleUrl = s
-            snippet = element.find('%sSnippet' % self.ns)
-            if snippet is not None:
-                self._snippet = {'text': snippet.text}
-                if snippet.get('maxLines'):
-                    self._snippet['maxLines'] = int(snippet.get('maxLines'))
-            timespan = element.find('%sTimeSpan' % self.ns)
-            if timespan is not None:
-                s = TimeSpan()
-                s.from_element(timespan)
-                self._time_span = s
-            timestamp = element.find('%sTimeStamp' % self.ns)
-            if timestamp is not None:
-                s = TimeStamp()
-                s.from_element(timestamp)
-                self._time_stamp = s
-            atom_link = element.find('%slink' % atom.NS)
-            if atom_link is not None:
-                s = atom.Link()
-                s.from_element(atom_link)
-                self._atom_link = s
-            atom_author = element.find('%sauthor' % atom.NS)
-            if atom_author is not None:
-                s = atom.Author()
-                s.from_element(atom_author)
-                self._atom_author = s
+        super(_Feature, self).from_element(element)
+        name = element.find('%sname' %self.ns)
+        if name is not None:
+            self.name = name.text
+        description = element.find('%sdescription' %self.ns)
+        if description is not None:
+            self.description = description.text
+        visibility = element.find('%svisibility' %self.ns)
+        if visibility is not None:
+            self.visibility = int(visibility.text)
+        isopen = element.find('%sopen' %self.ns)
+        if isopen is not None:
+            self.isopen = int(isopen.text)
+        styles = element.findall('%sStyle' % self.ns)
+        for style in styles:
+            s = Style(self.ns)
+            s.from_element(style)
+            self.append_style(s)
+        styles = element.findall('%sStyleMap' % self.ns)
+        for style in styles:
+            s = StyleMap(self.ns)
+            s.from_element(style)
+            self.append_style(s)
+        style_url = element.find('%sstyleUrl' % self.ns)
+        if style_url is not None:
+            s = StyleUrl(self.ns)
+            s.from_element(style_url)
+            self._styleUrl = s
+        snippet = element.find('%sSnippet' % self.ns)
+        if snippet is not None:
+            self._snippet = {'text': snippet.text}
+            if snippet.get('maxLines'):
+                self._snippet['maxLines'] = int(snippet.get('maxLines'))
+        timespan = element.find('%sTimeSpan' % self.ns)
+        if timespan is not None:
+            s = TimeSpan(self.ns)
+            s.from_element(timespan)
+            self._time_span = s
+        timestamp = element.find('%sTimeStamp' % self.ns)
+        if timestamp is not None:
+            s = TimeStamp(self.ns)
+            s.from_element(timestamp)
+            self._time_stamp = s
+        atom_link = element.find('%slink' % atom.NS)
+        if atom_link is not None:
+            s = atom.Link()
+            s.from_element(atom_link)
+            self._atom_link = s
+        atom_author = element.find('%sauthor' % atom.NS)
+        if atom_author is not None:
+            s = atom.Author()
+            s.from_element(atom_author)
+            self._atom_author = s
 
 
 
@@ -486,8 +482,9 @@ class _Container(_Feature):
 
     _features = []
 
-    def __init__(self, ns=None, id=None, name=None, description=None):
-        super(_Container, self).__init__(ns, id, name, description)
+    def __init__(self, ns=None, id=None, name=None, description=None,
+                styles=None, styleUrl=None):
+        super(_Container, self).__init__(ns, id, name, description, styles, styleUrl)
         self._features =[]
 
     def features(self):
