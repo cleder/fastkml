@@ -14,6 +14,9 @@ install:
 script:
     coverage run --source=fastkml setup.py test
 
+after_success:
+    coveralls
+
 notifications:
   email:
     - christian.ledermann@gmail.com
