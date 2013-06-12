@@ -17,15 +17,8 @@
 
 """ abstract base classes"""
 
-
-try:
-    import fastkml.config as config
-except  ImportError:
-    import config
-
-from .config import etree
-
-
+import fastkml.config as config
+from fastkml.config import etree
 
 class _BaseObject(object):
     """ This is an abstract base class and cannot be used directly in a

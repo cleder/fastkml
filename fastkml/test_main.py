@@ -16,39 +16,25 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 import unittest
-try:
-    from fastkml import kml
-    from fastkml import styles
-    from fastkml import base
-    from fastkml import atom
-    from fastkml import config
-except ImportError:
-    import kml
-    import styles
-    import base
-    import atom
-    import config
+
+from fastkml import kml
+from fastkml import styles
+from fastkml import base
+from fastkml import atom
+from fastkml import config
+
 
 import datetime
 from dateutil.tz import tzutc, tzoffset
 
-try:
-    from fastkml.config import etree
-except ImportError:
-    from config import etree
+from fastkml.config import etree
 
-try:
-    from fastkml.geometry import Point, LineString, Polygon
-    from fastkml.geometry import MultiPoint, MultiLineString, MultiPolygon
-    from fastkml.geometry import LinearRing, GeometryCollection
-    from fastkml.geometry import Geometry
-    from fastkml.geometry import asShape
-except ImportError:
-    from geometry import Point, LineString, Polygon
-    from geometry import MultiPoint, MultiLineString, MultiPolygon
-    from geometry import LinearRing, GeometryCollection
-    from geometry import Geometry
-    from geometry import asShape
+from fastkml.geometry import Point, LineString, Polygon
+from fastkml.geometry import MultiPoint, MultiLineString, MultiPolygon
+from fastkml.geometry import LinearRing, GeometryCollection
+from fastkml.geometry import Geometry
+from fastkml.geometry import asShape
+
 
 class BaseClassesTestCase(unittest.TestCase):
     """ BaseClasses  must raise a NotImplementedError on etree_element
@@ -614,6 +600,7 @@ class StyleFromStringTestCase( unittest.TestCase ):
         self.assertEqual(style.color, 'ff00ff00')
         self.assertEqual(style.scale, 1.1)
         self.assertEqual(style.colorMode, 'random')
+        self.assertEqual(style.heading, 0.0)
         self.assertEqual(style.icon_href, 'http://maps.google.com/icon21.png')
         k2 = kml.KML()
         k2.from_string(k.to_string())

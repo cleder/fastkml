@@ -23,13 +23,9 @@ part of how your data is displayed.
 import logging
 logger = logging.getLogger('fastkml.styles')
 
-try:
-    import fastkml.config as config
-except  ImportError:
-    import config
-
-from .config import etree
-from .base import _BaseObject
+import fastkml.config as config
+from fastkml.config import etree
+from fastkml.base import _BaseObject
 
 
 
@@ -241,17 +237,13 @@ class _ColorStyle(_BaseObject):
 
 
     def from_element(self, element):
-        if self.ns + self.__name__ != element.tag:
-            raise TypeError
-        else:
-            if element.get('id'):
-                self.id = element.get('id')
-            colorMode = element.find('%scolorMode' %self.ns)
-            if colorMode is not None:
-                self.colorMode = colorMode.text
-            color = element.find('%scolor' %self.ns)
-            if color is not None:
-                self.color = color.text
+        super(_ColorStyle, self).from_element(element)
+        colorMode = element.find('%scolorMode' %self.ns)
+        if colorMode is not None:
+            self.colorMode = colorMode.text
+        color = element.find('%scolor' %self.ns)
+        if color is not None:
+            self.color = color.text
 
 class IconStyle(_ColorStyle):
     """ Specifies how icons for point Placemarks are drawn """
