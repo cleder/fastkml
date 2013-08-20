@@ -182,3 +182,9 @@ You can create a KML object by reading a KML file
       </kml:Document>
     </kml:kml>
 
+Contributors
+=============
+
+- Jeremy Blalock
+- Denis Krienbühl
+
