@@ -231,10 +231,13 @@ class _Feature(_BaseObject):
     # A given KML Feature can contain a combination of these types of
     # custom data.
     #
+    # (2) is already implemented, see UntypedExtendedData
+    #
     # <Metadata> (deprecated in KML 2.2; use <ExtendedData> instead)
+    extended_data = None
 
     def __init__(self, ns=None, id=None, name=None, description=None,
-                styles=None, styleUrl=None):
+                styles=None, styleUrl=None, extended_data=None):
         super(_Feature, self).__init__(ns, id)
         self.name=name
         self.description=description
@@ -243,6 +246,7 @@ class _Feature(_BaseObject):
         if styles:
             for style in styles:
                 self.append_style(style)
+        self.extended_data = extended_data
 
     @property
     def styleUrl(self):
@@ -366,7 +370,6 @@ class _Feature(_BaseObject):
             else:
                 raise TypeError
 
-
     def etree_element(self):
         element = super(_Feature, self).etree_element()
         if self.name:
@@ -403,6 +406,8 @@ class _Feature(_BaseObject):
             element.append(self._atom_link.etree_element())
         if self._atom_author is not None:
             element.append(self._atom_author.etree_element())
+        if self.extended_data is not None:
+            element.append(self.extended_data.etree_element())
         return element
 
 
@@ -460,6 +465,16 @@ class _Feature(_BaseObject):
             s = atom.Author()
             s.from_element(atom_author)
             self._atom_author = s
+        extended_data = element.find('%sExtendedData' % self.ns)
+        if extended_data is not None:
+            if extended_data.find('%sData' % self.ns):
+                x = UntypedExtendedData(self.ns)
+                x.from_element(extended_data)
+                self.extended_data = x
+            else:
+                logger.warn(
+                    'arbitrary or typed extended data is not yet supported'
+                )
 
 
 
@@ -765,3 +780,72 @@ class TimeSpan(_TimePrimitive):
             raise ValueError("Either begin, end or both must be set")
         #TODO test if end > begin
         return element
+
+
+class UntypedExtendedData(_BaseObject):
+    """ Represents a list of untyped name/value pairs. See docs:
+
+    -> 'Adding Untyped Name/Value Pairs'
+       https://developers.google.com/kml/documentation/extendeddata
+
+    """
+    __name__ = 'ExtendedData'
+
+    def __init__(self, ns=None, id=None, elements=None):
+        super(UntypedExtendedData, self).__init__(ns, id)
+        self.elements = elements or []
+
+    def etree_element(self):
+        element = super(UntypedExtendedData, self).etree_element()
+        
+        for subelement in self.elements:
+            element.append(subelement.etree_element())
+
+        return element
+
+    def from_element(self, element):
+        super(UntypedExtendedData, self).from_element(element)
+        self.elements = []
+        
+        for subelement in element:
+            el = UntypedExtendedDataElement(self.ns)
+            el.from_element(subelement)
+
+            self.elements.append(el)
+
+
+class UntypedExtendedDataElement(_BaseObject):
+    """ Represents an untyped name/value pair with optional display name. """
+
+    __name__ = 'Data'
+
+    def __init__(self, ns=None, id=None, name=None, value=None, display_name=None):
+        super(UntypedExtendedDataElement, self).__init__(ns, id)
+
+        self.name = name
+        self.value = value
+        self.display_name = display_name
+
+    def etree_element(self):
+        element = super(UntypedExtendedDataElement, self).etree_element()
+
+        element.set('name', self.name)
+
+        value = etree.SubElement(element, "%svalue" % self.ns)
+        value.text = self.value
+
+        if self.display_name:
+            display_name = etree.SubElement(element, "%sdisplayName" % self.ns)
+            display_name.text = self.display_name
+
+        return element
+
+    def from_element(self, element):
+        super(UntypedExtendedDataElement, self).from_element(element)
+
+        self.name = element.get('name')
+        self.value = element.find('%svalue' % self.ns).text
+
+        display_name = element.find('%sdisplayName' % self.ns)
+        if display_name is not None:
+            self.display_name = display_name.text
