@@ -162,6 +162,69 @@ class BuildKmlTestCase(unittest.TestCase):
         self.assertEqual(k.to_string(), k2.to_string())
 
 
+    def test_untyped_extended_data(self):
+        ns = '{http://www.opengis.net/kml/2.2}'
+        k = kml.KML(ns=ns)
+
+        p = kml.Placemark(ns, 'id', 'name', 'description')
+        p.geometry = Point(0.0, 0.0, 0.0)
+        p.extended_data = kml.UntypedExtendedData(elements=[
+            kml.UntypedExtendedDataElement(
+                name='info', value='so much to see'
+            ),
+            kml.UntypedExtendedDataElement(
+                name='weather', display_name='Weather', value='blue skies'
+            )
+        ])
+
+        self.assertEqual(len(p.extended_data.elements), 2)
+        k.append(p)
+
+        k2 = kml.KML()
+        k2.from_string(k.to_string(prettyprint=True))
+        k.to_string()
+
+        extended_data = list(k2.features())[0].extended_data
+        self.assertTrue(extended_data is not None)
+        self.assertTrue(len(extended_data.elements), 2)
+        self.assertEqual(extended_data.elements[0].name, 'info')
+        self.assertEqual(extended_data.elements[0].value, 'so much to see')
+        self.assertEqual(extended_data.elements[0].display_name, None)
+        self.assertEqual(extended_data.elements[1].name, 'weather')
+        self.assertEqual(extended_data.elements[1].value, 'blue skies')
+        self.assertEqual(extended_data.elements[1].display_name, 'Weather')
+
+
+    def test_untyped_extended_data_nested(self):
+        ns = '{http://www.opengis.net/kml/2.2}'
+        k = kml.KML(ns=ns)
+
+        d = kml.Document(ns, 'docid', 'doc name', 'doc description')
+        d.extended_data = kml.UntypedExtendedData(elements=[
+            kml.UntypedExtendedDataElement(name='type', value='Document')
+        ])
+
+        f = kml.Folder(ns, 'fid', 'f name', 'f description')
+        f.extended_data = kml.UntypedExtendedData(elements=[
+            kml.UntypedExtendedDataElement(name='type', value='Folder')
+        ])
+
+        k.append(d)
+        d.append(f)
+
+        k2 = kml.KML()
+        k2.from_string(k.to_string())
+
+        document_data = list(k2.features())[0].extended_data
+        folder_data = list(list(k2.features())[0].features())[0].extended_data
+
+        self.assertEqual(document_data.elements[0].name, 'type')
+        self.assertEqual(document_data.elements[0].value, 'Document')
+
+        self.assertEqual(folder_data.elements[0].name, 'type')
+        self.assertEqual(folder_data.elements[0].value, 'Folder')
+
+
     def test_document(self):
         k = kml.KML()
         ns = '{http://www.opengis.net/kml/2.2}'
@@ -325,6 +388,47 @@ class KmlFromStringTestCase( unittest.TestCase ):
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
 
+
+    def test_extended_data(self):
+        doc="""<kml xmlns="http://www.opengis.net/kml/2.2">
+          <Placemark>
+            <name>Simple placemark</name>
+            <description></description>
+            <Point>
+              <coordinates>-122.0822035425683,37.42228990140251,0</coordinates>
+            </Point>
+            <ExtendedData>
+              <Data name="holeNumber">
+                <displayName><![CDATA[
+                    <b>This is hole </b>
+                ]]></displayName>
+                <value>1</value>
+              </Data>
+              <Data name="holePar">
+                <displayName><![CDATA[
+                  <i>The par for this hole is </i>
+                ]]></displayName>
+                <value>4</value>
+              </Data>
+            </ExtendedData>
+          </Placemark>
+        </kml>"""
+        k = kml.KML()
+        k.from_string(doc)
+
+        extended_data = list(k.features())[0].extended_data
+
+        self.assertEqual(extended_data.elements[0].name, 'holeNumber')
+        self.assertEqual(extended_data.elements[0].value, '1')
+        self.assertTrue(
+            '<b>This is hole </b>' in extended_data.elements[0].display_name
+        )
+
+        self.assertEqual(extended_data.elements[1].name, 'holePar')
+        self.assertEqual(extended_data.elements[1].value, '4')
+        self.assertTrue(
+            '<i>The par for this hole is </i>' in extended_data.elements[1].display_name
+        )
 
 
     def test_polygon(self):
