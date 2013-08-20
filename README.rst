@@ -24,6 +24,10 @@ fastkml is continually tested with *Travis CI*
 .. image:: https://coveralls.io/repos/cleder/fastkml/badge.png?branch=master
     :target: https://coveralls.io/r/cleder/fastkml?branch=master
 
+.. image:: https://www.ohloh.net/p/fastkml/widgets/project_thin_badge.gif
+    :target: https://www.ohloh.net/p/fastkml
+
+
 Limitations
 ===========
 
