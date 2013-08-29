@@ -112,7 +112,7 @@ class KML(object):
         # However, in this case the xlmns should still be mentioned on the kml
         # element, just without prefix.
         if not self.ns:
-            root.set('xlmns', config.NS[1:-1])
+            root.set('xmlns', config.NS[1:-1])
 
         for feature in self.features():
             root.append(feature.etree_element())
