@@ -70,8 +70,14 @@ class KML(object):
     ns = None
 
     def __init__(self, ns=None):
+        """ The namespace (ns) may be empty ('') if the 'kml:' prefix is
+        undesired. Note that all child elements like Document or Placemark need
+        to be initialized with empty namespace as well in this case.
+
+        """
         self._features =[]
-        if ns == None:
+
+        if ns is None:
             self.ns = config.NS
         else:
             self.ns = ns
@@ -101,6 +107,13 @@ class KML(object):
 
     def etree_element(self):
         root = etree.Element('%skml' % self.ns)
+
+        # self.ns may be empty, which leads to unprefixed kml elements.
+        # However, in this case the xlmns should still be mentioned on the kml
+        # element, just without prefix.
+        if not self.ns:
+            root.set('xlmns', config.NS[1:-1])
+
         for feature in self.features():
             root.append(feature.etree_element())
         return root
@@ -797,7 +810,7 @@ class UntypedExtendedData(_BaseObject):
 
     def etree_element(self):
         element = super(UntypedExtendedData, self).etree_element()
-        
+
         for subelement in self.elements:
             element.append(subelement.etree_element())
 
@@ -806,7 +819,7 @@ class UntypedExtendedData(_BaseObject):
     def from_element(self, element):
         super(UntypedExtendedData, self).from_element(element)
         self.elements = []
-        
+
         for subelement in element:
             el = UntypedExtendedDataElement(self.ns)
             el.from_element(subelement)
