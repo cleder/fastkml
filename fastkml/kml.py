@@ -84,7 +84,7 @@ class KML(object):
 
     def from_string(self, xml_string):
         """ create a KML object from a xml string"""
-        element = etree.XML(xml_string)
+        element = etree.fromstring(xml_string, parser=etree.XMLParser(huge_tree=True))
         if element.tag.endswith('kml'):
             ns = element.tag.rstrip('kml')
             documents = element.findall('%sDocument' % ns)
