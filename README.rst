@@ -191,4 +191,6 @@ Contributors
 
 - Jeremy Blalock
 - Denis Krienbühl
+- Egil Möller
+
 
