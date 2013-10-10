@@ -194,7 +194,7 @@ class StyleMap(_StyleSelector):
                 pair = etree.SubElement(element, "%sPair" %self.ns)
                 key = etree.SubElement(pair, "%skey" %self.ns)
                 key.text = 'highlight'
-                pair.append(self.normal.etree_element())
+                pair.append(self.highlight.etree_element())
         return element
 
 
