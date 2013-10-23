@@ -2,6 +2,13 @@
 Changelog
 =========
 
+0.5 (2013/10/23)
+-----------------
+
+- handle big files with huge_tree for lxml [Egil Moeller]
+- bugfixes
+
+
 0.4 (2013/09/05)
 -----------------
 
