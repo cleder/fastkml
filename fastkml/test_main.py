@@ -166,6 +166,32 @@ class BuildKmlTestCase(unittest.TestCase):
         k2.from_string(k.to_string(prettyprint=True))
         self.assertEqual(k.to_string(), k2.to_string())
 
+    def test_schema(self):
+        ns = '{http://www.opengis.net/kml/2.2}'
+        self.assertRaises(ValueError, kml.Schema, ns)
+        s = kml.Schema(ns, 'some_id')
+        self.assertEqual(len(list(s.simple_fields)),0)
+        s.append('int', 'Integer', 'An Integer')
+        self.assertEqual(list(s.simple_fields)[0]['type'], 'int')
+        self.assertEqual(list(s.simple_fields)[0]['name'], 'Integer')
+        self.assertEqual(list(s.simple_fields)[0]['displayName'], 'An Integer')
+        s.simple_fields = None
+        self.assertEqual(len(list(s.simple_fields)),0)
+        self.assertRaises(TypeError, s.append, ('none', 'Integer', 'An Integer'))
+        self.assertRaises(TypeError, s.simple_fields, [('none', 'Integer', 'An Integer'),])
+        self.assertRaises(TypeError, s.simple_fields, ('int', 'Integer', 'An Integer'))
+        fields = {'type': 'int', 'name': 'Integer', 'displayName': 'An Integer'}
+        s.simple_fields = fields
+        self.assertEqual(list(s.simple_fields)[0]['type'], 'int')
+        self.assertEqual(list(s.simple_fields)[0]['name'], 'Integer')
+        self.assertEqual(list(s.simple_fields)[0]['displayName'], 'An Integer')
+        s.simple_fields = [['float', 'Float'], fields]
+        self.assertEqual(list(s.simple_fields)[0]['type'], 'float')
+        self.assertEqual(list(s.simple_fields)[0]['name'], 'Float')
+        self.assertEqual(list(s.simple_fields)[0]['displayName'], None)
+        self.assertEqual(list(s.simple_fields)[1]['type'], 'int')
+        self.assertEqual(list(s.simple_fields)[1]['name'], 'Integer')
+        self.assertEqual(list(s.simple_fields)[1]['displayName'], 'An Integer')
 
     def test_untyped_extended_data(self):
         ns = '{http://www.opengis.net/kml/2.2}'
@@ -548,6 +574,53 @@ class KmlFromStringTestCase( unittest.TestCase ):
     def test_atom(self):
         pass
 
+    def test_schema(self):
+        doc = """<Schema name="TrailHeadType" id="TrailHeadTypeId">
+            <SimpleField type="string" name="TrailHeadName">
+              <displayName><![CDATA[<b>Trail Head Name</b>]]></displayName>
+            </SimpleField>
+            <SimpleField type="double" name="TrailLength">
+              <displayName><![CDATA[<i>The length in miles</i>]]></displayName>
+            </SimpleField>
+            <SimpleField type="int" name="ElevationGain">
+              <displayName><![CDATA[<i>change in altitude</i>]]></displayName>
+            </SimpleField>
+          </Schema> """
+        s = kml.Schema(ns='', id='default')
+        s.from_string(doc)
+        self.assertEqual(len(list(s.simple_fields)), 3)
+        self.assertEqual(list(s.simple_fields)[0]['type'], 'string')
+        self.assertEqual(list(s.simple_fields)[1]['type'], 'double')
+        self.assertEqual(list(s.simple_fields)[2]['type'], 'int')
+        self.assertEqual(list(s.simple_fields)[0]['name'], 'TrailHeadName')
+        self.assertEqual(list(s.simple_fields)[1]['name'], 'TrailLength')
+        self.assertEqual(list(s.simple_fields)[2]['name'], 'ElevationGain')
+        self.assertEqual(list(s.simple_fields)[0]['displayName'], '<b>Trail Head Name</b>')
+        self.assertEqual(list(s.simple_fields)[1]['displayName'], '<i>The length in miles</i>')
+        self.assertEqual(list(s.simple_fields)[2]['displayName'], '<i>change in altitude</i>')
+        s1 = kml.Schema(ns='', id='default')
+        s1.from_string(s.to_string())
+        self.assertEqual(len(list(s1.simple_fields)), 3)
+        self.assertEqual(list(s1.simple_fields)[0]['type'], 'string')
+        self.assertEqual(list(s1.simple_fields)[1]['name'], 'TrailLength')
+        self.assertEqual(list(s1.simple_fields)[2]['displayName'], '<i>change in altitude</i>')
+        self.assertEqual(s.to_string(), s1.to_string())
+        doc1 = """<kml xmlns="http://www.opengis.net/kml/2.2">
+            <Document>
+            %s
+        </Document>
+        </kml>""" % doc
+        k = kml.KML()
+        k.from_string(doc1)
+        d = list(k.features())[0]
+        s2 = list(d.schemata())[0]
+        s.ns = config.NS
+        self.assertEqual(s.to_string(), s2.to_string())
+        k1 = kml.KML()
+        k1.from_string(k.to_string())
+        self.assertEqual(k1.to_string(), k.to_string())
+
+
     def test_snippet(self):
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Placemark>
@@ -555,15 +628,15 @@ class KmlFromStringTestCase( unittest.TestCase ):
         </Placemark> </kml>"""
         k = kml.KML()
         k.from_string(doc)
-        self.assertEqual(list(k.features())[0]._snippet['text'], 'Short Desc')
-        self.assertEqual(list(k.features())[0]._snippet['maxLines'], 2)
+        self.assertEqual(list(k.features())[0].snippet['text'], 'Short Desc')
+        self.assertEqual(list(k.features())[0].snippet['maxLines'], 2)
         list(k.features())[0]._snippet['maxLines'] = 3
-        self.assertEqual(list(k.features())[0]._snippet['maxLines'], 3)
+        self.assertEqual(list(k.features())[0].snippet['maxLines'], 3)
         self.assertTrue('maxLines="3"' in k.to_string())
-        list(k.features())[0]._snippet = {'text': 'Annother Snippet'}
+        list(k.features())[0].snippet = {'text': 'Annother Snippet'}
         self.assertFalse('maxLines' in k.to_string())
         self.assertTrue('Annother Snippet' in k.to_string())
-        list(k.features())[0]._snippet = 'Diffrent Snippet'
+        list(k.features())[0].snippet = 'Diffrent Snippet'
         self.assertFalse('maxLines' in k.to_string())
         self.assertTrue('Diffrent Snippet' in k.to_string())
 

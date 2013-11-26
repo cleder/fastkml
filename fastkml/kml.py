@@ -412,10 +412,12 @@ class _Feature(_BaseObject):
         self._snippet = {}
         if isinstance(snip, dict):
             self._snippet['text'] = snip.get('text')
-            self._snippet['maxLines'] = int(snip.get('maxLines',0))
-        elif isinstance(text,basestring):
+            max_lines = snip.get('maxLines')
+            if max_lines is not None:
+                self._snippet['maxLines'] = int(snip['maxLines'])
+        elif isinstance(snip, basestring):
             self._snippet['text'] = snip
-        elif text is None:
+        elif snip is None:
             self._snippet = None
         else:
             raise ValueError("Snippet must be dict of {'text':t, 'maxLines':i} or string")
@@ -577,9 +579,25 @@ class _Container(_Feature):
 class Document(_Container):
     """
     A Document is a container for features and styles. This element is
-    required if your KML file uses shared styles
+    required if your KML file uses shared styles or schemata for typed
+    extended data
     """
     __name__ = "Document"
+    _schemata = None
+
+    def schemata(self):
+        if self._schemata:
+            for schema in self._schemata:
+                yield schema
+
+    def append_schema(self, schema):
+        if self._schemata is None:
+            self._schemata = []
+        if isinstance(schema, Schema):
+            self._schemata.append(schema)
+        else:
+            s = Schema(schema)
+            self._schemata.append(s)
 
     def from_element(self, element):
         super(Document, self).from_element(element)
@@ -593,6 +611,18 @@ class Document(_Container):
             feature = Placemark(self.ns)
             feature.from_element(placemark)
             self.append(feature)
+        schemata = element.findall('%sSchema' % self.ns)
+        for schema in schemata:
+            s = Schema(self.ns, id = 'default')
+            s.from_element(schema)
+            self.append_schema(s)
+
+    def etree_element(self):
+        element = super(Document, self).etree_element()
+        if self._schemata is not None:
+            for schema in self._schemata:
+                element.append(schema.etree_element())
+        return element
 
     def get_style_by_url(self, styleUrl):
         id = urlparse.urlparse(styleUrl).fragment
@@ -831,6 +861,112 @@ class TimeSpan(_TimePrimitive):
             raise ValueError("Either begin, end or both must be set")
         #TODO test if end > begin
         return element
+
+
+class Schema(_BaseObject):
+    """
+    Specifies a custom KML schema that is used to add custom data to
+    KML Features.
+    The "id" attribute is required and must be unique within the KML file.
+    <Schema> is always a child of <Document>.
+    """
+    __name__ = "Schema"
+
+    _simple_fields = None
+    # The declaration of the custom fields, each of which must specify both the
+    # type and the name of this field. If either the type or the name is
+    # omitted, the field is ignored.
+
+    def __init__(self, ns=None, id=None, fields=None):
+        if id is None:
+            raise ValueError('Id is required for schema')
+        super(Schema, self).__init__(ns, id)
+        self.simple_fields = fields
+
+    @property
+    def simple_fields(self):
+        sfs = []
+        for simple_field in self._simple_fields:
+            if simple_field.get('type') and simple_field.get('name'):
+                sfs.append( {'type': simple_field['type'],
+                    'name': simple_field['name'],
+                    'displayName': simple_field.get('displayName')})
+        return tuple(sfs)
+
+    @simple_fields.setter
+    def simple_fields(self, fields):
+        self._simple_fields = []
+        if isinstance(fields, dict):
+            self.append(**fields)
+        elif isinstance(fields, (list, tuple)):
+            for field in fields:
+                if isinstance(field, (list, tuple)):
+                    self.append(*field)
+                elif isinstance(field, dict):
+                    self.append(**field)
+        elif fields is None:
+            self._simple_fields = []
+        else:
+            raise ValueError('Fields must be of type list, tuple or dict')
+
+    def append(self, type, name, displayName=None):
+        """
+        append a field.
+        The declaration of the custom field, must specify both the type
+        and the name of this field.
+        If either the type or the name is omitted, the field is ignored.
+
+        The type can be one of the following:
+            string
+            int
+            uint
+            short
+            ushort
+            float
+            double
+            bool
+
+        <displayName>
+        The name, if any, to be used when the field name is displayed to
+        the Google Earth user. Use the [CDATA] element to escape standard
+        HTML markup.
+        """
+        allowed_types= ['string', 'int', 'uint', 'short', 'ushort',
+                        'float', 'double', 'bool']
+        if type not in allowed_types:
+            raise TypeError("type must be one of 'string', 'int', 'uint', 'short', 'ushort', 'float', 'double', 'bool'")
+        else:
+            #TODO explicit type conversion to check for the right type
+            pass
+        self._simple_fields.append({'type': type, 'name': name,
+                                    'displayName': displayName})
+
+    def from_element(self, element):
+        super(Schema, self).from_element(element)
+        simple_fields = element.findall('%sSimpleField' % self.ns)
+        self.simple_fields = None
+        for simple_field in simple_fields:
+            sfname = simple_field.get('name')
+            sftype = simple_field.get('type')
+            display_name = simple_field.find('%sdisplayName' % self.ns)
+            if display_name is not None:
+                sfdisplay_name = display_name.text
+            else:
+                sfdisplay_name = None
+            self.append(sftype, sfname, sfdisplay_name)
+
+    def etree_element(self):
+        element = super(Schema, self).etree_element()
+        for simple_field in self.simple_fields:
+            sf = etree.SubElement(element, "%sSimpleField" %self.ns)
+            sf.set('type', simple_field['type'])
+            sf.set('name', simple_field['name'])
+            if simple_field.get('displayName'):
+                dn = etree.SubElement(sf, "%sdisplayName" %self.ns)
+                dn.text = simple_field['displayName']
+
+        return element
+
 
 
 class UntypedExtendedData(_BaseObject):

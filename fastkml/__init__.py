@@ -18,6 +18,7 @@
 from .kml import KML, Document, Folder, Placemark
 from .kml import TimeSpan, TimeStamp
 from .kml import UntypedExtendedDataElement, UntypedExtendedData
+from .kml import Schema
 
 from .styles import StyleUrl, Style, StyleMap
 from .styles import IconStyle, LineStyle, PolyStyle
