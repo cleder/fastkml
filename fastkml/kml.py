@@ -29,6 +29,7 @@ try:
     import urlparse
 except ImportError:
     import urllib.parse as urlparse
+import warnings
 
 from .geometry import Point, LineString, Polygon
 from .geometry import MultiPoint, MultiLineString, MultiPolygon
@@ -969,7 +970,7 @@ class Schema(_BaseObject):
 
 
 
-class UntypedExtendedData(_BaseObject):
+class ExtendedData(_BaseObject):
     """ Represents a list of untyped name/value pairs. See docs:
 
     -> 'Adding Untyped Name/Value Pairs'
@@ -979,11 +980,11 @@ class UntypedExtendedData(_BaseObject):
     __name__ = 'ExtendedData'
 
     def __init__(self, ns=None, id=None, elements=None):
-        super(UntypedExtendedData, self).__init__(ns, id)
+        super(ExtendedData, self).__init__(ns, id)
         self.elements = elements or []
 
     def etree_element(self):
-        element = super(UntypedExtendedData, self).etree_element()
+        element = super(ExtendedData, self).etree_element()
 
         for subelement in self.elements:
             element.append(subelement.etree_element())
@@ -991,7 +992,7 @@ class UntypedExtendedData(_BaseObject):
         return element
 
     def from_element(self, element):
-        super(UntypedExtendedData, self).from_element(element)
+        super(ExtendedData, self).from_element(element)
         self.elements = []
 
         for subelement in element:
@@ -1000,21 +1001,24 @@ class UntypedExtendedData(_BaseObject):
 
             self.elements.append(el)
 
+class UntypedExtendedData(ExtendedData):
+    warnings.warn("UntypedExtendedData is deprecated use ExtendedData instead", DeprecationWarning)
 
-class UntypedExtendedDataElement(_BaseObject):
+
+class Data(_BaseObject):
     """ Represents an untyped name/value pair with optional display name. """
 
     __name__ = 'Data'
 
     def __init__(self, ns=None, id=None, name=None, value=None, display_name=None):
-        super(UntypedExtendedDataElement, self).__init__(ns, id)
+        super(Data, self).__init__(ns, id)
 
         self.name = name
         self.value = value
         self.display_name = display_name
 
     def etree_element(self):
-        element = super(UntypedExtendedDataElement, self).etree_element()
+        element = super(Data, self).etree_element()
 
         element.set('name', self.name)
 
@@ -1028,7 +1032,7 @@ class UntypedExtendedDataElement(_BaseObject):
         return element
 
     def from_element(self, element):
-        super(UntypedExtendedDataElement, self).from_element(element)
+        super(Data, self).from_element(element)
 
         self.name = element.get('name')
         self.value = element.find('%svalue' % self.ns).text
@@ -1036,3 +1040,6 @@ class UntypedExtendedDataElement(_BaseObject):
         display_name = element.find('%sdisplayName' % self.ns)
         if display_name is not None:
             self.display_name = display_name.text
+
+class UntypedExtendedDataElement(Data):
+    warnings.warn("UntypedExtendedDataElement is deprecated use Data instead", DeprecationWarning)
