@@ -22,6 +22,6 @@ from .kml import Schema
 
 from .styles import StyleUrl, Style, StyleMap
 from .styles import IconStyle, LineStyle, PolyStyle
-from .styles import LabelStyle #, BalloonStyle
+from .styles import LabelStyle, BalloonStyle
 
 from .atom import Link, Author, Contributor

@@ -1002,7 +1002,10 @@ class ExtendedData(_BaseObject):
             self.elements.append(el)
 
 class UntypedExtendedData(ExtendedData):
-    warnings.warn("UntypedExtendedData is deprecated use ExtendedData instead", DeprecationWarning)
+
+    def __init__(self, ns=None, id=None, elements=None):
+        super(UntypedExtendedData, self).__init__(ns, id, elements)
+        warnings.warn("UntypedExtendedData is deprecated use ExtendedData instead", DeprecationWarning)
 
 
 class Data(_BaseObject):
@@ -1042,4 +1045,6 @@ class Data(_BaseObject):
             self.display_name = display_name.text
 
 class UntypedExtendedDataElement(Data):
-    warnings.warn("UntypedExtendedDataElement is deprecated use Data instead", DeprecationWarning)
+    def __init__(self, ns=None, id=None, name=None, value=None, display_name=None):
+        super(UntypedExtendedDataElement, self).__init__(ns, id, name, value, display_name)
+        warnings.warn("UntypedExtendedDataElement is deprecated use Data instead", DeprecationWarning)
