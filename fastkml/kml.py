@@ -110,14 +110,14 @@ class KML(object):
             raise TypeError
 
     def etree_element(self):
-        root = etree.Element('%skml' % self.ns)
-
         # self.ns may be empty, which leads to unprefixed kml elements.
         # However, in this case the xlmns should still be mentioned on the kml
         # element, just without prefix.
         if not self.ns:
+            root = etree.Element('%skml' % self.ns)
             root.set('xmlns', config.NS[1:-1])
-
+        else:
+            root = etree.Element('%skml' % self.ns, nsmap={None:self.ns[1:-1]})
         for feature in self.features():
             root.append(feature.etree_element())
         return root
@@ -386,6 +386,36 @@ class _Feature(_BaseObject):
                 yield style
             else:
                 raise TypeError
+    @property
+    def snippet(self):
+        if self._snippet:
+            if isinstance(self._snippet, dict):
+                text = self._snippet.get('text')
+                if text:
+                    assert (isinstance(text, basestring))
+                    max_lines = self._snippet.get('maxLines', None)
+                    if max_lines is None:
+                        return {'text': text}
+                    elif int(max_lines) > 0:
+                        # if maxLines <=0 ignore it
+                        return {'text': text, 'maxLines': max_lines}
+            elif isinstance(self._snippet, basestring):
+                return self._snippet
+            else:
+                raise ValueError("Snippet must be dict of {'text':t, 'maxLines':i} or string")
+
+    @snippet.setter
+    def snippet(self, snip=None):
+        self._snippet = {}
+        if isinstance(snip, dict):
+            self._snippet['text'] = snip.get('text')
+            self._snippet['maxLines'] = int(snip.get('maxLines',0))
+        elif isinstance(text,basestring):
+            self._snippet['text'] = snip
+        elif text is None:
+            self._snippet = None
+        else:
+            raise ValueError("Snippet must be dict of {'text':t, 'maxLines':i} or string")
 
     def etree_element(self):
         element = super(_Feature, self).etree_element()
@@ -404,15 +434,15 @@ class _Feature(_BaseObject):
             element.append(self._styleUrl.etree_element())
         for style in self.styles():
             element.append(style.etree_element())
-        if self._snippet:
+        if self.snippet:
             snippet = etree.SubElement(element, "%sSnippet" %self.ns)
-            if isinstance(self._snippet, basestring):
-                snippet.text = self._snippet
+            if isinstance(self.snippet, basestring):
+                snippet.text = self.snippet
             else:
-                assert (isinstance(self._snippet['text'], basestring))
-                snippet.text = self._snippet['text']
-                if self._snippet.get('maxLines'):
-                    snippet.set('maxLines', str(self._snippet['maxLines']))
+                assert (isinstance(self.snippet['text'], basestring))
+                snippet.text = self.snippet['text']
+                if self.snippet.get('maxLines'):
+                    snippet.set('maxLines', str(self.snippet['maxLines']))
         if (self._time_span is not None) and (self._time_stamp is not None):
             raise ValueError('Either Timestamp or Timespan can be defined, not both')
         elif self._time_span is not None:
@@ -459,9 +489,10 @@ class _Feature(_BaseObject):
             self._styleUrl = s
         snippet = element.find('%sSnippet' % self.ns)
         if snippet is not None:
-            self._snippet = {'text': snippet.text}
+            _snippet = {'text': snippet.text}
             if snippet.get('maxLines'):
-                self._snippet['maxLines'] = int(snippet.get('maxLines'))
+                _snippet['maxLines'] = int(snippet.get('maxLines'))
+            self.snippet = _snippet
         timespan = element.find('%sTimeSpan' % self.ns)
         if timespan is not None:
             s = TimeSpan(self.ns)

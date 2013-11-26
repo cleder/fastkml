@@ -120,8 +120,8 @@ class BuildKmlTestCase(unittest.TestCase):
         k = kml.KML()
         self.assertEqual(len( list(k.features())),0)
         if hasattr(etree, 'register_namespace'):
-            self.assertEqual( str(k.to_string())[:51],
-            '<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2" />'[:51])
+            self.assertEqual( str(k.to_string())[:43],
+            '<kml xmlns="http://www.opengis.net/kml/2.2"/>'[:43])
         else:
             self.assertEqual(str(k.to_string())[:51],
             '<ns0:kml xmlns:ns0="http://www.opengis.net/kml/2.2" />'[:51])
