@@ -117,7 +117,10 @@ class KML(object):
             root = etree.Element('%skml' % self.ns)
             root.set('xmlns', config.NS[1:-1])
         else:
-            root = etree.Element('%skml' % self.ns, nsmap={None:self.ns[1:-1]})
+            if config.LXML:
+                root = etree.Element('%skml' % self.ns, nsmap={None:self.ns[1:-1]})
+            else:
+                root = etree.Element('%skml' % self.ns)
         for feature in self.features():
             root.append(feature.etree_element())
         return root

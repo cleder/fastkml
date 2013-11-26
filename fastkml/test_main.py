@@ -119,7 +119,7 @@ class BuildKmlTestCase(unittest.TestCase):
         """ kml file without contents """
         k = kml.KML()
         self.assertEqual(len( list(k.features())),0)
-        if hasattr(etree, 'register_namespace'):
+        if config.LXML:
             self.assertEqual( str(k.to_string())[:43],
             '<kml xmlns="http://www.opengis.net/kml/2.2"/>'[:43])
         else:
