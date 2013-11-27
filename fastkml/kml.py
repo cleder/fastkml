@@ -1095,7 +1095,6 @@ class SchemaData(_XMLObject):
         if isinstance(name, basestring) and name:
             self._data.append({'name':name, 'value': value})
         else:
-            print name
             raise TypeError('name must be a nonempty string')
 
     def etree_element(self):
