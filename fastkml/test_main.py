@@ -193,6 +193,25 @@ class BuildKmlTestCase(unittest.TestCase):
         self.assertEqual(list(s.simple_fields)[1]['name'], 'Integer')
         self.assertEqual(list(s.simple_fields)[1]['displayName'], 'An Integer')
 
+
+    def test_schema_data(self):
+        ns = '{http://www.opengis.net/kml/2.2}'
+        self.assertRaises(ValueError, kml.SchemaData, ns)
+        self.assertRaises(ValueError, kml.SchemaData, ns, '')
+        sd = kml.SchemaData(ns, '#default')
+        sd.append_data('text', 'Some Text')
+        self.assertEqual(len(sd.data), 1)
+        sd.append_data(value=1, name='Integer')
+        self.assertEqual(len(sd.data), 2)
+        self.assertEqual(sd.data[0], {'value': 'Some Text', 'name': 'text'})
+        self.assertEqual(sd.data[1], {'value': 1, 'name': 'Integer'})
+        data = (('text', 'Some new Text'), {'value': 2, 'name': 'Integer'})
+        sd.data = data
+        self.assertEqual(len(sd.data), 2)
+        self.assertEqual(sd.data[0], {'value': 'Some new Text', 'name': 'text'})
+        self.assertEqual(sd.data[1], {'value': 2, 'name': 'Integer'})
+
+
     def test_untyped_extended_data(self):
         ns = '{http://www.opengis.net/kml/2.2}'
         k = kml.KML(ns=ns)
@@ -441,6 +460,11 @@ class KmlFromStringTestCase( unittest.TestCase ):
                 ]]></displayName>
                 <value>4</value>
               </Data>
+              <SchemaData schemaUrl="#TrailHeadTypeId">
+                <SimpleData name="TrailHeadName">Mount Everest</SimpleData>
+                <SimpleData name="TrailLength">347.45</SimpleData>
+                <SimpleData name="ElevationGain">10000</SimpleData>
+              </SchemaData>
             </ExtendedData>
           </Placemark>
         </kml>"""
@@ -618,7 +642,26 @@ class KmlFromStringTestCase( unittest.TestCase ):
         self.assertEqual(s.to_string(), s2.to_string())
         k1 = kml.KML()
         k1.from_string(k.to_string())
+        self.assertTrue('Schema' in k1.to_string())
+        self.assertTrue('SimpleField' in k1.to_string())
         self.assertEqual(k1.to_string(), k.to_string())
+
+    def test_schema_data(self):
+        doc = """<SchemaData schemaUrl="#TrailHeadTypeId">
+          <SimpleData name="TrailHeadName">Pi in the sky</SimpleData>
+          <SimpleData name="TrailLength">3.14159</SimpleData>
+          <SimpleData name="ElevationGain">10</SimpleData>
+        </SchemaData>"""
+        sd = kml.SchemaData(ns='', schema_url='#default')
+        sd.from_string(doc)
+        self.assertEqual(sd.schema_url, '#TrailHeadTypeId')
+        self.assertEqual(sd.data[0], {'name': 'TrailHeadName', 'value': 'Pi in the sky'})
+        self.assertEqual(sd.data[1], {'name': 'TrailLength', 'value': '3.14159'})
+        self.assertEqual(sd.data[2], {'name': 'ElevationGain', 'value': '10'})
+        sd1 = kml.SchemaData(ns='', schema_url='#default')
+        sd1.from_string(sd.to_string())
+        self.assertEqual(sd1.schema_url, '#TrailHeadTypeId')
+        self.assertEqual(sd.to_string(), sd1.to_string())
 
 
     def test_snippet(self):

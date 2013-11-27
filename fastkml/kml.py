@@ -49,7 +49,7 @@ logger = logging.getLogger('fastkml.kml')
 
 from .config import etree
 
-from .base import _BaseObject
+from .base import _BaseObject, _XMLObject
 
 from .styles import StyleUrl, Style, StyleMap, _StyleSelector
 
@@ -521,14 +521,13 @@ class _Feature(_BaseObject):
             self._atom_author = s
         extended_data = element.find('%sExtendedData' % self.ns)
         if extended_data is not None:
-            if extended_data.find('%sData' % self.ns):
-                x = UntypedExtendedData(self.ns)
-                x.from_element(extended_data)
-                self.extended_data = x
-            else:
-                logger.warn(
-                    'arbitrary or typed extended data is not yet supported'
-                )
+            x = ExtendedData(self.ns)
+            x.from_element(extended_data)
+            self.extended_data = x
+            #else:
+            #    logger.warn(
+            #        'arbitrary or typed extended data is not yet supported'
+            #    )
 
 
 
@@ -877,12 +876,14 @@ class Schema(_BaseObject):
     # The declaration of the custom fields, each of which must specify both the
     # type and the name of this field. If either the type or the name is
     # omitted, the field is ignored.
+    name = None
 
-    def __init__(self, ns=None, id=None, fields=None):
+    def __init__(self, ns=None, id=None, name=None, fields=None):
         if id is None:
             raise ValueError('Id is required for schema')
         super(Schema, self).__init__(ns, id)
         self.simple_fields = fields
+        self.name = name
 
     @property
     def simple_fields(self):
@@ -944,6 +945,7 @@ class Schema(_BaseObject):
 
     def from_element(self, element):
         super(Schema, self).from_element(element)
+        self.name = element.get('name')
         simple_fields = element.findall('%sSimpleField' % self.ns)
         self.simple_fields = None
         for simple_field in simple_fields:
@@ -958,6 +960,8 @@ class Schema(_BaseObject):
 
     def etree_element(self):
         element = super(Schema, self).etree_element()
+        if self.name:
+            element.set('name', self.name)
         for simple_field in self.simple_fields:
             sf = etree.SubElement(element, "%sSimpleField" %self.ns)
             sf.set('type', simple_field['type'])
@@ -969,8 +973,7 @@ class Schema(_BaseObject):
         return element
 
 
-
-class ExtendedData(_BaseObject):
+class ExtendedData(_XMLObject):
     """ Represents a list of untyped name/value pairs. See docs:
 
     -> 'Adding Untyped Name/Value Pairs'
@@ -979,42 +982,45 @@ class ExtendedData(_BaseObject):
     """
     __name__ = 'ExtendedData'
 
-    def __init__(self, ns=None, id=None, elements=None):
-        super(ExtendedData, self).__init__(ns, id)
+    def __init__(self, ns=None, elements=None):
+        super(ExtendedData, self).__init__(ns)
         self.elements = elements or []
 
     def etree_element(self):
         element = super(ExtendedData, self).etree_element()
-
         for subelement in self.elements:
             element.append(subelement.etree_element())
-
         return element
 
     def from_element(self, element):
         super(ExtendedData, self).from_element(element)
         self.elements = []
-
-        for subelement in element:
-            el = UntypedExtendedDataElement(self.ns)
-            el.from_element(subelement)
-
+        untyped_data = element.findall('%sData' % self.ns)
+        for ud in untyped_data:
+            el = Data(self.ns)
+            el.from_element(ud)
             self.elements.append(el)
+        typed_data = element.findall('%sSimpleData' % self.ns)
+        for sd in typed_data:
+            el = SimpleData(self.ns)
+            el.from_element(sd)
+            self.elements.append(el)
+
 
 class UntypedExtendedData(ExtendedData):
 
-    def __init__(self, ns=None, id=None, elements=None):
-        super(UntypedExtendedData, self).__init__(ns, id, elements)
+    def __init__(self, ns=None, elements=None):
+        super(UntypedExtendedData, self).__init__(ns, elements)
         warnings.warn("UntypedExtendedData is deprecated use ExtendedData instead", DeprecationWarning)
 
 
-class Data(_BaseObject):
+class Data(_XMLObject):
     """ Represents an untyped name/value pair with optional display name. """
 
     __name__ = 'Data'
 
-    def __init__(self, ns=None, id=None, name=None, value=None, display_name=None):
-        super(Data, self).__init__(ns, id)
+    def __init__(self, ns=None, name=None, value=None, display_name=None):
+        super(Data, self).__init__(ns)
 
         self.name = name
         self.value = value
@@ -1022,29 +1028,91 @@ class Data(_BaseObject):
 
     def etree_element(self):
         element = super(Data, self).etree_element()
-
         element.set('name', self.name)
-
         value = etree.SubElement(element, "%svalue" % self.ns)
         value.text = self.value
-
         if self.display_name:
             display_name = etree.SubElement(element, "%sdisplayName" % self.ns)
             display_name.text = self.display_name
-
         return element
 
     def from_element(self, element):
         super(Data, self).from_element(element)
-
         self.name = element.get('name')
         self.value = element.find('%svalue' % self.ns).text
-
         display_name = element.find('%sdisplayName' % self.ns)
         if display_name is not None:
             self.display_name = display_name.text
 
 class UntypedExtendedDataElement(Data):
-    def __init__(self, ns=None, id=None, name=None, value=None, display_name=None):
-        super(UntypedExtendedDataElement, self).__init__(ns, id, name, value, display_name)
+    def __init__(self, ns=None, name=None, value=None, display_name=None):
+        super(UntypedExtendedDataElement, self).__init__(ns, name, value, display_name)
         warnings.warn("UntypedExtendedDataElement is deprecated use Data instead", DeprecationWarning)
+
+class SchemaData(_XMLObject):
+    """
+    <SchemaData schemaUrl="anyURI">
+    This element is used in conjunction with <Schema> to add typed
+    custom data to a KML Feature. The Schema element (identified by the
+    schemaUrl attribute) declares the custom data type. The actual data
+    objects ("instances" of the custom data) are defined using the
+    SchemaData element.
+    The <schemaURL> can be a full URL, a reference to a Schema ID defined
+    in an external KML file, or a reference to a Schema ID defined
+    in the same KML file.
+    """
+    __name__ = 'SchemaData'
+    schema_url = None
+    _data = None
+
+    def __init__(self, ns=None, schema_url=None, data=None):
+        super(SchemaData, self).__init__(ns)
+        if (not isinstance(schema_url, basestring)) or (not schema_url):
+            raise ValueError('required parameter schema_url missing')
+        self.schema_url = schema_url
+        self._data = []
+        self.data = data
+
+    @property
+    def data(self):
+        return tuple(self._data)
+
+    @data.setter
+    def data(self, data):
+        if isinstance(data, (tuple, list)):
+            self._data = []
+            for d in data:
+                if isinstance(d, (tuple, list)):
+                    self.append_data(*d)
+                elif isinstance(d, dict):
+                    self.append_data(**d)
+        elif data is None:
+            self._data = []
+        else:
+            raise TypeError('data must be of type tuple or list')
+
+    def append_data(self, name, value):
+        if isinstance(name, basestring) and name:
+            self._data.append({'name':name, 'value': value})
+        else:
+            print name
+            raise TypeError('name must be a nonempty string')
+
+    def etree_element(self):
+        element = super(SchemaData, self).etree_element()
+        element.set('schemaUrl', self.schema_url)
+        for data in self.data:
+            sd = etree.SubElement(element, "%sSimpleData" %self.ns)
+            sd.set('name', data['name'])
+            sd.text = data['value']
+        return element
+
+    def from_element(self, element):
+        super(SchemaData, self).from_element(element)
+        self.data = []
+        self.schema_url = element.get('schemaUrl')
+        simple_data = element.findall('%sSimpleData' % self.ns)
+        for sd in simple_data:
+            self.append_data(sd.get('name'), sd.text)
+
+
