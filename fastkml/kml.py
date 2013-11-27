@@ -1000,9 +1000,9 @@ class ExtendedData(_XMLObject):
             el = Data(self.ns)
             el.from_element(ud)
             self.elements.append(el)
-        typed_data = element.findall('%sSimpleData' % self.ns)
+        typed_data = element.findall('%sSchemaData' % self.ns)
         for sd in typed_data:
-            el = SimpleData(self.ns)
+            el = SchemaData(self.ns, 'dummy')
             el.from_element(sd)
             self.elements.append(el)
 

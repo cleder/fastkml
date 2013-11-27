@@ -2,7 +2,7 @@
 To Do
 ======
 
-- Schema and Extended Data
+- add untyped custom data with namespace prefix
 - Overlays
 
 

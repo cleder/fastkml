@@ -484,7 +484,9 @@ class KmlFromStringTestCase( unittest.TestCase ):
         self.assertTrue(
             '<i>The par for this hole is </i>' in extended_data.elements[1].display_name
         )
-
+        sd = extended_data.elements[2]
+        self.assertEqual(sd.data[0]['name'], 'TrailHeadName')
+        self.assertEqual(sd.data[1]['value'], '347.45')
 
     def test_polygon(self):
         doc= """<kml xmlns="http://www.opengis.net/kml/2.2">
