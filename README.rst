@@ -145,16 +145,22 @@ You can create a KML object by reading a KML file
     ... </kml>"""
     >>> k = kml.KML()
     >>> k.from_string(doc)
-    >>> len(k.features())
+    >>> features = list(k.features())
+    >>> len(features)
     1
-    >>> len(k.features()[0].features())
+    >>> features[0].features()
+    <generator object features at 0x2d7d870>
+    >>> f2 = list(features[0].features())
+    >>> len(f2)
     2
-    >>> k.features()[0].features()[1]
-    <fastkml.kml.Placemark object at 0x876a16c>
-    >>> k.features()[0].features()[1].description
-    >>> k.features()[0].features()[1].name
+    >>> f2[0]
+    <fastkml.kml.Placemark object at 0x2d791d0>
+    >>> f2[0].description
+    >>> f2[0].name
+    'Document Feature 1'
+    >>> f2[1].name
     'Document Feature 2'
-    >>> k.features()[0].features()[1].name = "ANOTHER NAME"
+    >>> f2[1].name = "ANOTHER NAME"    
     >>> print k.to_string(prettyprint=True)
     <kml:kml xmlns:ns0="http://www.opengis.net/kml/2.2">
       <kml:Document>
