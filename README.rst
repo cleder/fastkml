@@ -28,6 +28,18 @@ fastkml is continually tested with *Travis CI*
     :target: https://www.ohloh.net/p/fastkml
 
 
+Requirements
+============
+
+You can install the requirements for fastkml by using pip:
+
+    pip install -r requirements/common.txt
+
+To install packages required for running tests:
+
+    pip install -r requirements/test.txt
+
+
 Limitations
 ===========
 
