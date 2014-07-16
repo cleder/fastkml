@@ -14,7 +14,7 @@ class PyTest(TestCommand):
         sys.exit(errno)
 
 
-version = '0.6'
+version = '0.7'
 
 setup(name='fastkml',
       version=version,

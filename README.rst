@@ -160,7 +160,7 @@ You can create a KML object by reading a KML file
     'Document Feature 1'
     >>> f2[1].name
     'Document Feature 2'
-    >>> f2[1].name = "ANOTHER NAME"    
+    >>> f2[1].name = "ANOTHER NAME"
     >>> print k.to_string(prettyprint=True)
     <kml:kml xmlns:ns0="http://www.opengis.net/kml/2.2">
       <kml:Document>
@@ -192,11 +192,5 @@ You can create a KML object by reading a KML file
       </kml:Document>
     </kml:kml>
 
-Contributors
-=============
-
-- Jeremy Blalock
-- Denis Krienbühl
-- Egil Möller
 
 
