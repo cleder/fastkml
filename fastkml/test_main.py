@@ -685,6 +685,11 @@ class KmlFromStringTestCase( unittest.TestCase ):
         self.assertFalse('maxLines' in k.to_string())
         self.assertTrue('Diffrent Snippet' in k.to_string())
 
+    def test_from_wrong_string(self):
+        doc = kml.KML()
+        with self.assertRaises(TypeError):
+            doc.from_string('<xml></xml>')
+
 
 class StyleTestCase( unittest.TestCase ):
 
