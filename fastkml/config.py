@@ -16,10 +16,14 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 """frequently used constants and abstract base classes"""
+import logging
+logger = logging.getLogger('fastkml.config')
+
 try:
     from lxml import etree
     LXML = True
 except ImportError:
+    logger.warning('Package `lxml` missing. Pretty print will be disabled')
     import xml.etree.ElementTree as etree
     LXML = False
 
