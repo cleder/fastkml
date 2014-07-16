@@ -686,7 +686,6 @@ class KmlFromStringTestCase( unittest.TestCase ):
         self.assertTrue('Diffrent Snippet' in k.to_string())
 
 
-
 class StyleTestCase( unittest.TestCase ):
 
     def test_styleurl(self):
@@ -711,7 +710,59 @@ class StyleTestCase( unittest.TestCase ):
         self.assertEqual(f.to_string(), f2.to_string())
 
 
+class StyleUsageTestCase(unittest.TestCase):
+    def test_create_document_style(self):
+        style = styles.Style(styles=[styles.PolyStyle(color='7f000000')])
 
+        doc = kml.Document(styles=[style])
+
+        doc2 = kml.Document()
+        doc2.append_style(style)
+
+        expected = """
+            <kml:Document xmlns:kml="http://www.opengis.net/kml/2.2">
+              <kml:visibility>1</kml:visibility>
+                <kml:Style>
+                  <kml:PolyStyle>
+                    <kml:color>7f000000</kml:color>
+                    <kml:fill>1</kml:fill>
+                    <kml:outline>1</kml:outline>
+                  </kml:PolyStyle>
+                </kml:Style>
+            </kml:Document>
+        """
+        doc3 = kml.Document()
+        doc3.from_string(expected)
+
+        self.assertEqual(doc.to_string(), doc2.to_string())
+        self.assertEqual(doc2.to_string(), doc3.to_string())
+        self.assertEqual(doc.to_string(), doc3.to_string())
+
+    def test_create_placemark_style(self):
+        style = styles.Style(styles=[styles.PolyStyle(color='7f000000')])
+
+        place = kml.Placemark(styles=[style])
+
+        place2 = kml.Placemark()
+        place2.append_style(style)
+
+        expected = """
+            <kml:Placemark xmlns:kml="http://www.opengis.net/kml/2.2">
+              <kml:visibility>1</kml:visibility>
+                <kml:Style>
+                  <kml:PolyStyle>
+                    <kml:color>7f000000</kml:color>
+                    <kml:fill>1</kml:fill>
+                    <kml:outline>1</kml:outline>
+                  </kml:PolyStyle>
+                </kml:Style>
+            </kml:Placemark>
+        """
+        place3 = kml.Placemark()
+        place3.from_string(expected)
+        self.assertEqual(place.to_string(), place2.to_string())
+        self.assertEqual(place2.to_string(), place3.to_string())
+        self.assertEqual(place.to_string(), place3.to_string())
 
 
 class StyleFromStringTestCase( unittest.TestCase ):
