@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
-#    Copyright (C) 2012  Christian Ledermann
-#
-#    This library is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser General Public
-#    License as published by the Free Software Foundation; either
-#    version 2.1 of the License, or (at your option) any later version.
-#
-#    This library is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser General Public License for more details.
-#
-#    You should have received a copy of the GNU Lesser General Public
-#    License along with this library; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# Copyright (C) 2012  Christian Ledermann
+
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """
 KML 2.2 supports new elements for including data about the author and
 related website in your KML file. This information is displayed in geo
@@ -82,10 +82,11 @@ class Link(object):
     length = None
     # the length of the resource, in bytes
 
-
-    def __init__(self, ns=None, href=None, rel=None, type=None,
-                hreflang=None, title=None, length=None):
-        if ns == None:
+    def __init__(
+        self, ns=None, href=None, rel=None, type=None,
+        hreflang=None, title=None, length=None
+    ):
+        if ns is None:
             self.ns = NS
         else:
             self.ns = ns
@@ -98,7 +99,6 @@ class Link(object):
 
     def from_string(self, xml_string):
         self.from_element(etree.XML(xml_string))
-
 
     def from_element(self, element):
         if self.ns + self.__name__.lower() != element.tag:
@@ -119,7 +119,6 @@ class Link(object):
                 self.title = element.get('title')
             if element.get('length'):
                 self.length = element.get('length')
-
 
     def etree_element(self):
         element = etree.Element(self.ns + self.__name__.lower())
@@ -142,11 +141,14 @@ class Link(object):
     def to_string(self, prettyprint=True):
         """ Return the ATOM Object as serialized xml """
         if LXML and prettyprint:
-            return etree.tostring(self.etree_element(), encoding='utf-8',
-                                    pretty_print=True).decode('UTF-8')
+            return etree.tostring(
+                self.etree_element(),
+                encoding='utf-8',
+                pretty_print=True).decode('UTF-8')
         else:
-            return etree.tostring(self.etree_element(),
-                                    encoding='utf-8').decode('UTF-8')
+            return etree.tostring(
+                self.etree_element(),
+                encoding='utf-8').decode('UTF-8')
 
 
 class _Person(object):
@@ -159,16 +161,16 @@ class _Person(object):
     ns = None
 
     name = None
-    #conveys a human-readable name for the person.
+    # conveys a human-readable name for the person.
 
     uri = None
-    #contains a home page for the person.
+    # contains a home page for the person.
 
     email = None
-    #contains an email address for the person.
+    # contains an email address for the person.
 
     def __init__(self, ns=None, name=None, uri=None, email=None):
-        if ns == None:
+        if ns is None:
             self.ns = NS
         else:
             self.ns = ns
@@ -176,26 +178,23 @@ class _Person(object):
         self.uri = uri
         self.email = email
 
-
     def etree_element(self):
         element = etree.Element(self.ns + self.__name__.lower())
         if self.name:
-            name = etree.SubElement(element, "%sname" %self.ns)
+            name = etree.SubElement(element, "%sname" % self.ns)
             name.text = self.name
-        #else:
+        # else:
         #    logger.critical('No Name for person defined')
         #    raise TypeError
         if self.uri:
-            #XXX validate uri
-            uri = etree.SubElement(element, "%suri" %self.ns)
+            # XXX validate uri
+            uri = etree.SubElement(element, "%suri" % self.ns)
             uri.text = self.uri
         if self.email:
             if check_email(self.email):
-                email = etree.SubElement(element, "%semail" %self.ns)
+                email = etree.SubElement(element, "%semail" % self.ns)
                 email.text = self.email
         return element
-
-
 
     def from_string(self, xml_string):
         self.from_element(etree.XML(xml_string))
@@ -204,13 +203,13 @@ class _Person(object):
         if self.ns + self.__name__.lower() != element.tag:
             raise TypeError
         else:
-            name = element.find('%sname' %self.ns)
+            name = element.find('%sname' % self.ns)
             if name is not None:
                 self.name = name.text
-            uri = element.find('%suri' %self.ns)
+            uri = element.find('%suri' % self.ns)
             if uri is not None:
                 self.uri = uri.text
-            email = element.find('%semail' %self.ns)
+            email = element.find('%semail' % self.ns)
             if email is not None:
                 if check_email(email.text):
                     self.email = email.text
@@ -218,21 +217,23 @@ class _Person(object):
     def to_string(self, prettyprint=True):
         """ Return the ATOM Object as serialized xml """
         if LXML and prettyprint:
-            return etree.tostring(self.etree_element(), encoding='utf-8',
-                                    pretty_print=True).decode('UTF-8')
+            return etree.tostring(
+                self.etree_element(),
+                encoding='utf-8',
+                pretty_print=True).decode('UTF-8')
         else:
-            return etree.tostring(self.etree_element(),
-                                    encoding='utf-8').decode('UTF-8')
+            return etree.tostring(
+                self.etree_element(),
+                encoding='utf-8').decode('UTF-8')
+
 
 class Author(_Person):
     """ Names one author of the feed/entry. A feed/entry may have
     multiple authors."""
     __name__ = "Author"
 
+
 class Contributor(_Person):
     """ Names one contributor to the feed/entry. A feed/entry may have
     multiple contributor elements."""
     __name__ = "Contributor"
-
-
-
