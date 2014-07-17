@@ -552,11 +552,11 @@ class _Container(_Feature):
     def features(self):
         """ iterate over features """
         for feature in self._features:
-            if isinstance(feature, (Folder, Placemark)):
+            if isinstance(feature, (Folder, Placemark, Document)):
                 yield feature
             else:
                 raise TypeError(
-                    "Features must be instances of (Folder, Placemark)")
+                    "Features must be instances of (Folder, Placemark, Document)")
 
     def etree_element(self):
         element = super(_Container, self).etree_element()
@@ -567,11 +567,11 @@ class _Container(_Feature):
 
     def append(self, kmlobj):
         """ append a feature """
-        if isinstance(kmlobj, (Folder, Placemark)):
+        if isinstance(kmlobj, (Folder, Placemark, Document)):
             self._features.append(kmlobj)
         else:
             raise TypeError(
-                    "Features must be instances of (Folder, Placemark)")
+                    "Features must be instances of (Folder, Placemark, Document)")
         assert(kmlobj != self)
 
 
@@ -649,6 +649,11 @@ class Folder(_Container):
         for placemark in placemarks:
             feature = Placemark(self.ns)
             feature.from_element(placemark)
+            self.append(feature)
+        documents = element.findall('%sDocument' % self.ns)
+        for document in documents:
+            feature = Document(self.ns)
+            feature.from_element(document)
             self.append(feature)
 
 class Placemark(_Feature):
