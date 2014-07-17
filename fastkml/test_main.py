@@ -687,8 +687,7 @@ class KmlFromStringTestCase( unittest.TestCase ):
 
     def test_from_wrong_string(self):
         doc = kml.KML()
-        with self.assertRaises(TypeError):
-            doc.from_string('<xml></xml>')
+        self.assertRaises(TypeError, doc.from_string, '<xml></xml>')
 
 
 class StyleTestCase( unittest.TestCase ):
