@@ -79,12 +79,12 @@ class Link(object):
     title = None
     # human readable information about the link
 
-    lenght = None
+    length = None
     # the length of the resource, in bytes
 
 
     def __init__(self, ns=None, href=None, rel=None, type=None,
-                hreflang=None, title=None, lenght=None):
+                hreflang=None, title=None, length=None):
         if ns == None:
             self.ns = NS
         else:
@@ -94,7 +94,7 @@ class Link(object):
         self.type = type
         self.hreflang = hreflang
         self.title = title
-        self.lenght = lenght
+        self.length = length
 
     def from_string(self, xml_string):
         self.from_element(etree.XML(xml_string))
@@ -117,8 +117,8 @@ class Link(object):
                 self.hreflang = element.get('hreflang')
             if element.get('title'):
                 self.title = element.get('title')
-            if element.get('lenght'):
-                self.lenght = element.get('lenght')
+            if element.get('length'):
+                self.length = element.get('length')
 
 
     def etree_element(self):
@@ -135,8 +135,8 @@ class Link(object):
             element.set('hreflang', self.hreflang)
         if self.title:
             element.set('title', self.title)
-        if self.lenght:
-            element.set('lenght', self.lenght)
+        if self.length:
+            element.set('length', self.length)
         return element
 
     def to_string(self, prettyprint=True):

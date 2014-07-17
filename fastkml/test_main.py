@@ -685,6 +685,10 @@ class KmlFromStringTestCase( unittest.TestCase ):
         self.assertFalse('maxLines' in k.to_string())
         self.assertTrue('Diffrent Snippet' in k.to_string())
 
+    def test_from_wrong_string(self):
+        doc = kml.KML()
+        self.assertRaises(TypeError, doc.from_string, '<xml></xml>')
+
 
 class StyleTestCase( unittest.TestCase ):
 
@@ -1333,13 +1337,13 @@ class AtomTestCase( unittest.TestCase ):
         l.title="Title"
         l.type="text/html"
         l.hreflang ='en'
-        l.lenght="4096"
+        l.length="4096"
         self.assertTrue('href="http://localhost/"' in str(l.to_string()))
         self.assertTrue('rel="alternate"' in str(l.to_string()))
         self.assertTrue('title="Title"' in str(l.to_string()))
         self.assertTrue('hreflang="en"' in str(l.to_string()))
         self.assertTrue('type="text/html"' in str(l.to_string()))
-        self.assertTrue('lenght="4096"' in str(l.to_string()))
+        self.assertTrue('length="4096"' in str(l.to_string()))
         self.assertTrue('link' in str(l.to_string()))
         self.assertTrue('="http://www.w3.org/2005/Atom"' in str(l.to_string()))
         l2 = atom.Link()
