@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
-#    Copyright (C) 2012  Christian Ledermann
+# Copyright (C) 2012  Christian Ledermann
 #
-#    This library is free software; you can redistribute it and/or
-#    modify it under the terms of the GNU Lesser General Public
-#    License as published by the Free Software Foundation; either
-#    version 2.1 of the License, or (at your option) any later version.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
 #
-#    This library is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#    Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#    You should have received a copy of the GNU Lesser General Public
-#    License along with this library; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """
 KML is an open standard officially named the OpenGIS KML Encoding Standard
@@ -31,9 +31,9 @@ except ImportError:
     import urllib.parse as urlparse
 import warnings
 
-from .geometry import Point, LineString, Polygon
-from .geometry import MultiPoint, MultiLineString, MultiPolygon
-from .geometry import LinearRing
+# from .geometry import Point, LineString, Polygon
+# from .geometry import MultiPoint, MultiLineString, MultiPolygon
+# from .geometry import LinearRing
 from .geometry import Geometry
 
 from datetime import datetime, date
@@ -54,7 +54,7 @@ from .base import _BaseObject, _XMLObject
 from .styles import StyleUrl, Style, StyleMap, _StyleSelector
 
 import fastkml.atom as atom
-import fastkml.gx as gx
+# import fastkml.gx as gx
 import fastkml.config as config
 
 try:
@@ -76,7 +76,7 @@ class KML(object):
         to be initialized with empty namespace as well in this case.
 
         """
-        self._features =[]
+        self._features = []
 
         if ns is None:
             self.ns = config.NS
@@ -86,7 +86,10 @@ class KML(object):
     def from_string(self, xml_string):
         """ create a KML object from a xml string"""
         if config.LXML:
-            element = etree.fromstring(xml_string, parser=etree.XMLParser(huge_tree=True))
+            element = etree.fromstring(
+                xml_string,
+                parser=etree.XMLParser(huge_tree=True)
+            )
         else:
             element = etree.XML(xml_string)
 
@@ -119,22 +122,27 @@ class KML(object):
             root.set('xmlns', config.NS[1:-1])
         else:
             if config.LXML:
-                root = etree.Element('%skml' % self.ns, nsmap={None:self.ns[1:-1]})
+                root = etree.Element(
+                    '%skml' % self.ns,
+                    nsmap={None: self.ns[1:-1]}
+                )
             else:
                 root = etree.Element('%skml' % self.ns)
         for feature in self.features():
             root.append(feature.etree_element())
         return root
 
-
     def to_string(self, prettyprint=False):
         """ Return the KML Object as serialized xml """
         if config.LXML and prettyprint:
-            return etree.tostring(self.etree_element(), encoding='utf-8',
-                                    pretty_print=True).decode('UTF-8')
+            return etree.tostring(
+                self.etree_element(),
+                encoding='utf-8',
+                pretty_print=True).decode('UTF-8')
         else:
-            return etree.tostring(self.etree_element(),
-                    encoding='utf-8').decode('UTF-8')
+            return etree.tostring(
+                self.etree_element(),
+                encoding='utf-8').decode('UTF-8')
 
     def features(self):
         """ iterate over features """
@@ -143,7 +151,9 @@ class KML(object):
                 yield feature
             else:
                 raise TypeError(
-                    "Features must be instances of (Document, Folder, Placemark)")
+                    "Features must be instances of "
+                    "(Document, Folder, Placemark)"
+                )
 
     def append(self, kmlobj):
         """ append a feature """
@@ -151,7 +161,8 @@ class KML(object):
             self._features.append(kmlobj)
         else:
             raise TypeError(
-            "Features must be instances of (Document, Folder, Placemark)")
+                "Features must be instances of (Document, Folder, Placemark)")
+
 
 class _Feature(_BaseObject):
     """
@@ -188,17 +199,17 @@ class _Feature(_BaseObject):
     _atom_link = None
     # Specifies the URL of the website containing this KML or KMZ file.
 
-    #TODO address = None
+    # TODO address = None
     # A string value representing an unstructured address written as a
     # standard street, city, state address, and/or as a postal code.
     # You can use the <address> tag to specify the location of a point
     # instead of using latitude and longitude coordinates.
 
-    #TODO phoneNumber = None
+    # TODO phoneNumber = None
     # A string value representing a telephone number.
     # This element is used by Google Maps Mobile only.
 
-    _snippet = None    #XXX
+    _snippet = None    # XXX
     # _snippet is eiter a tuple of a string Snippet.text and an integer
     # Snippet.maxLines or a string
     #
@@ -213,7 +224,7 @@ class _Feature(_BaseObject):
     # that specifies the maximum number of lines to display.
 
     description = None
-    #User-supplied content that appears in the description balloon.
+    # User-supplied content that appears in the description balloon.
 
     _styleUrl = None
     # URL of a <Style> or <StyleMap> defined in a Document.
@@ -240,11 +251,11 @@ class _Feature(_BaseObject):
     _time_stamp = None
     # Associates this Feature with a point in time.
 
-    #TODO Region = None
+    # TODO Region = None
     # Features and geometry associated with a Region are drawn only when
     # the Region is active.
 
-    #TODO ExtendedData = None
+    # TODO ExtendedData = None
     # Allows you to add custom data to a KML file. This data can be
     # (1) data that references an external XML schema,
     # (2) untyped data/value pairs, or
@@ -257,11 +268,13 @@ class _Feature(_BaseObject):
     # <Metadata> (deprecated in KML 2.2; use <ExtendedData> instead)
     extended_data = None
 
-    def __init__(self, ns=None, id=None, name=None, description=None,
-                styles=None, styleUrl=None, extended_data=None):
+    def __init__(
+        self, ns=None, id=None, name=None, description=None,
+        styles=None, styleUrl=None, extended_data=None
+    ):
         super(_Feature, self).__init__(ns, id)
-        self.name=name
-        self.description=description
+        self.name = name
+        self.description = description
         self.styleUrl = styleUrl
         self._styles = []
         if styles:
@@ -297,7 +310,7 @@ class _Feature(_BaseObject):
 
     @timeStamp.setter
     def timeStamp(self, dt):
-        if dt == None:
+        if dt is None:
             self._time_stamp = None
         else:
             self._time_stamp = TimeStamp(timestamp=dt)
@@ -370,11 +383,10 @@ class _Feature(_BaseObject):
                 self._atom_author = atom.Author(name=name)
             else:
                 self._atom_author.name = name
-        elif name == None:
+        elif name is None:
             self._atom_author = None
         else:
             raise TypeError
-
 
     def append_style(self, style):
         """ append a style to the feature """
@@ -390,6 +402,7 @@ class _Feature(_BaseObject):
                 yield style
             else:
                 raise TypeError
+
     @property
     def snippet(self):
         if self._snippet:
@@ -406,7 +419,10 @@ class _Feature(_BaseObject):
             elif isinstance(self._snippet, basestring):
                 return self._snippet
             else:
-                raise ValueError("Snippet must be dict of {'text':t, 'maxLines':i} or string")
+                raise ValueError(
+                    "Snippet must be dict of "
+                    "{'text':t, 'maxLines':i} or string"
+                )
 
     @snippet.setter
     def snippet(self, snip=None):
@@ -421,27 +437,29 @@ class _Feature(_BaseObject):
         elif snip is None:
             self._snippet = None
         else:
-            raise ValueError("Snippet must be dict of {'text':t, 'maxLines':i} or string")
+            raise ValueError(
+                "Snippet must be dict of {'text':t, 'maxLines':i} or string"
+            )
 
     def etree_element(self):
         element = super(_Feature, self).etree_element()
         if self.name:
-            name = etree.SubElement(element, "%sname" %self.ns)
+            name = etree.SubElement(element, "%sname" % self.ns)
             name.text = self.name
         if self.description:
-            description =etree.SubElement(element, "%sdescription" %self.ns)
+            description = etree.SubElement(element, "%sdescription" % self.ns)
             description.text = self.description
-        visibility = etree.SubElement(element, "%svisibility" %self.ns)
+        visibility = etree.SubElement(element, "%svisibility" % self.ns)
         visibility.text = str(self.visibility)
         if self.isopen:
-            isopen = etree.SubElement(element, "%sopen" %self.ns)
+            isopen = etree.SubElement(element, "%sopen" % self.ns)
             isopen.text = str(self.isopen)
         if self._styleUrl is not None:
             element.append(self._styleUrl.etree_element())
         for style in self.styles():
             element.append(style.etree_element())
         if self.snippet:
-            snippet = etree.SubElement(element, "%sSnippet" %self.ns)
+            snippet = etree.SubElement(element, "%sSnippet" % self.ns)
             if isinstance(self.snippet, basestring):
                 snippet.text = self.snippet
             else:
@@ -450,7 +468,9 @@ class _Feature(_BaseObject):
                 if self.snippet.get('maxLines'):
                     snippet.set('maxLines', str(self.snippet['maxLines']))
         if (self._time_span is not None) and (self._time_stamp is not None):
-            raise ValueError('Either Timestamp or Timespan can be defined, not both')
+            raise ValueError(
+                'Either Timestamp or Timespan can be defined, not both'
+            )
         elif self._time_span is not None:
             element.append(self._time_span.etree_element())
         elif self._time_stamp is not None:
@@ -463,19 +483,18 @@ class _Feature(_BaseObject):
             element.append(self.extended_data.etree_element())
         return element
 
-
     def from_element(self, element):
         super(_Feature, self).from_element(element)
-        name = element.find('%sname' %self.ns)
+        name = element.find('%sname' % self.ns)
         if name is not None:
             self.name = name.text
-        description = element.find('%sdescription' %self.ns)
+        description = element.find('%sdescription' % self.ns)
         if description is not None:
             self.description = description.text
-        visibility = element.find('%svisibility' %self.ns)
+        visibility = element.find('%svisibility' % self.ns)
         if visibility is not None:
             self.visibility = int(visibility.text)
-        isopen = element.find('%sopen' %self.ns)
+        isopen = element.find('%sopen' % self.ns)
         if isopen is not None:
             self.isopen = int(isopen.text)
         styles = element.findall('%sStyle' % self.ns)
@@ -524,12 +543,10 @@ class _Feature(_BaseObject):
             x = ExtendedData(self.ns)
             x.from_element(extended_data)
             self.extended_data = x
-            #else:
+            # else:
             #    logger.warn(
             #        'arbitrary or typed extended data is not yet supported'
             #    )
-
-
 
 
 class _Container(_Feature):
@@ -544,10 +561,14 @@ class _Container(_Feature):
 
     _features = []
 
-    def __init__(self, ns=None, id=None, name=None, description=None,
-                styles=None, styleUrl=None):
-        super(_Container, self).__init__(ns, id, name, description, styles, styleUrl)
-        self._features =[]
+    def __init__(
+        self, ns=None, id=None, name=None, description=None,
+        styles=None, styleUrl=None
+    ):
+        super(_Container, self).__init__(
+            ns, id, name, description, styles, styleUrl
+        )
+        self._features = []
 
     def features(self):
         """ iterate over features """
@@ -564,16 +585,15 @@ class _Container(_Feature):
             element.append(feature.etree_element())
         return element
 
-
     def append(self, kmlobj):
         """ append a feature """
         if isinstance(kmlobj, (Folder, Placemark)):
             self._features.append(kmlobj)
         else:
             raise TypeError(
-                    "Features must be instances of (Folder, Placemark)")
+                "Features must be instances of (Folder, Placemark)"
+            )
         assert(kmlobj != self)
-
 
 
 class Document(_Container):
@@ -613,7 +633,7 @@ class Document(_Container):
             self.append(feature)
         schemata = element.findall('%sSchema' % self.ns)
         for schema in schemata:
-            s = Schema(self.ns, id = 'default')
+            s = Schema(self.ns, id='default')
             s.from_element(schema)
             self.append_schema(s)
 
@@ -650,6 +670,7 @@ class Folder(_Container):
             feature = Placemark(self.ns)
             feature.from_element(placemark)
             self.append(feature)
+
 
 class Placemark(_Feature):
     """
@@ -715,6 +736,7 @@ class Placemark(_Feature):
             logger.error('Object does not have a geometry')
         return element
 
+
 class _TimePrimitive(_BaseObject):
     """ The dateTime is defined according to XML Schema time.
     The value can be expressed as yyyy-mm-ddThh:mm:sszzzzzz, where T is
@@ -748,7 +770,6 @@ class _TimePrimitive(_BaseObject):
                 resolution = None
         return resolution
 
-
     def parse_str(self, datestr):
         resolution = 'dateTime'
         year = 0
@@ -778,7 +799,6 @@ class _TimePrimitive(_BaseObject):
             raise ValueError
         return [dt, resolution]
 
-
     def date_to_string(self, dt, resolution=None):
         if isinstance(dt, (date, datetime)):
             resolution = self.get_resolution(dt, resolution)
@@ -807,16 +827,15 @@ class TimeStamp(_TimePrimitive):
 
     def etree_element(self):
         element = super(TimeStamp, self).etree_element()
-        when = etree.SubElement(element, "%swhen" %self.ns)
+        when = etree.SubElement(element, "%swhen" % self.ns)
         when.text = self.date_to_string(*self.timestamp)
         return element
 
     def from_element(self, element):
         super(TimeStamp, self).from_element(element)
-        when = element.find('%swhen' %self.ns)
+        when = element.find('%swhen' % self.ns)
         if when is not None:
             self.timestamp = self.parse_str(when.text)
-
 
 
 class TimeSpan(_TimePrimitive):
@@ -826,8 +845,10 @@ class TimeSpan(_TimePrimitive):
     begin = None
     end = None
 
-    def __init__(self, ns=None, id=None, begin=None, begin_res=None,
-                    end=None, end_res=None):
+    def __init__(
+        self, ns=None, id=None, begin=None, begin_res=None,
+        end=None, end_res=None
+    ):
         super(TimeSpan, self).__init__(ns, id)
         if begin:
             resolution = self.get_resolution(begin, begin_res)
@@ -838,10 +859,10 @@ class TimeSpan(_TimePrimitive):
 
     def from_element(self, element):
         super(TimeSpan, self).from_element(element)
-        begin = element.find('%sbegin' %self.ns)
+        begin = element.find('%sbegin' % self.ns)
         if begin is not None:
             self.begin = self.parse_str(begin.text)
-        end = element.find('%send' %self.ns)
+        end = element.find('%send' % self.ns)
         if end is not None:
             self.end = self.parse_str(end.text)
 
@@ -850,16 +871,16 @@ class TimeSpan(_TimePrimitive):
         if self.begin is not None:
             text = self.date_to_string(*self.begin)
             if text:
-                begin = etree.SubElement(element, "%sbegin" %self.ns)
+                begin = etree.SubElement(element, "%sbegin" % self.ns)
                 begin.text = text
         if self.end is not None:
             text = self.date_to_string(*self.end)
             if text:
-                end = etree.SubElement(element, "%send" %self.ns)
+                end = etree.SubElement(element, "%send" % self.ns)
                 end.text = text
-        if self.begin == self.end == None:
+        if self.begin == self.end is None:
             raise ValueError("Either begin, end or both must be set")
-        #TODO test if end > begin
+        # TODO test if end > begin
         return element
 
 
@@ -890,9 +911,11 @@ class Schema(_BaseObject):
         sfs = []
         for simple_field in self._simple_fields:
             if simple_field.get('type') and simple_field.get('name'):
-                sfs.append( {'type': simple_field['type'],
+                sfs.append({
+                    'type': simple_field['type'],
                     'name': simple_field['name'],
-                    'displayName': simple_field.get('displayName')})
+                    'displayName': simple_field.get('displayName')
+                })
         return tuple(sfs)
 
     @simple_fields.setter
@@ -933,12 +956,17 @@ class Schema(_BaseObject):
         the Google Earth user. Use the [CDATA] element to escape standard
         HTML markup.
         """
-        allowed_types= ['string', 'int', 'uint', 'short', 'ushort',
-                        'float', 'double', 'bool']
+        allowed_types = [
+            'string', 'int', 'uint', 'short', 'ushort',
+            'float', 'double', 'bool'
+        ]
         if type not in allowed_types:
-            raise TypeError("type must be one of 'string', 'int', 'uint', 'short', 'ushort', 'float', 'double', 'bool'")
+            raise TypeError(
+                "type must be one of ""'string', 'int', 'uint', 'short', "
+                "'ushort', 'float', 'double', 'bool'"
+            )
         else:
-            #TODO explicit type conversion to check for the right type
+            # TODO explicit type conversion to check for the right type
             pass
         self._simple_fields.append({'type': type, 'name': name,
                                     'displayName': displayName})
@@ -963,11 +991,11 @@ class Schema(_BaseObject):
         if self.name:
             element.set('name', self.name)
         for simple_field in self.simple_fields:
-            sf = etree.SubElement(element, "%sSimpleField" %self.ns)
+            sf = etree.SubElement(element, "%sSimpleField" % self.ns)
             sf.set('type', simple_field['type'])
             sf.set('name', simple_field['name'])
             if simple_field.get('displayName'):
-                dn = etree.SubElement(sf, "%sdisplayName" %self.ns)
+                dn = etree.SubElement(sf, "%sdisplayName" % self.ns)
                 dn.text = simple_field['displayName']
 
         return element
@@ -1008,10 +1036,12 @@ class ExtendedData(_XMLObject):
 
 
 class UntypedExtendedData(ExtendedData):
-
     def __init__(self, ns=None, elements=None):
         super(UntypedExtendedData, self).__init__(ns, elements)
-        warnings.warn("UntypedExtendedData is deprecated use ExtendedData instead", DeprecationWarning)
+        warnings.warn(
+            "UntypedExtendedData is deprecated use ExtendedData instead",
+            DeprecationWarning
+        )
 
 
 class Data(_XMLObject):
@@ -1044,10 +1074,17 @@ class Data(_XMLObject):
         if display_name is not None:
             self.display_name = display_name.text
 
+
 class UntypedExtendedDataElement(Data):
     def __init__(self, ns=None, name=None, value=None, display_name=None):
-        super(UntypedExtendedDataElement, self).__init__(ns, name, value, display_name)
-        warnings.warn("UntypedExtendedDataElement is deprecated use Data instead", DeprecationWarning)
+        super(UntypedExtendedDataElement, self).__init__(
+            ns, name, value, display_name
+        )
+        warnings.warn(
+            "UntypedExtendedDataElement is deprecated use Data instead",
+            DeprecationWarning
+        )
+
 
 class SchemaData(_XMLObject):
     """
@@ -1093,7 +1130,7 @@ class SchemaData(_XMLObject):
 
     def append_data(self, name, value):
         if isinstance(name, basestring) and name:
-            self._data.append({'name':name, 'value': value})
+            self._data.append({'name': name, 'value': value})
         else:
             raise TypeError('name must be a nonempty string')
 
@@ -1101,7 +1138,7 @@ class SchemaData(_XMLObject):
         element = super(SchemaData, self).etree_element()
         element.set('schemaUrl', self.schema_url)
         for data in self.data:
-            sd = etree.SubElement(element, "%sSimpleData" %self.ns)
+            sd = etree.SubElement(element, "%sSimpleData" % self.ns)
             sd.set('name', data['name'])
             sd.text = data['value']
         return element
@@ -1113,5 +1150,3 @@ class SchemaData(_XMLObject):
         simple_data = element.findall('%sSimpleData' % self.ns)
         for sd in simple_data:
             self.append_data(sd.get('name'), sd.text)
-
-
