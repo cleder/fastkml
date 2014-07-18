@@ -24,7 +24,7 @@ Changelog
 0.4 (2013/09/05)
 -----------------
 
-- adds the ability to add untyped extended data / named value pairs [Denis Krienbühl]
+- adds the ability to add untyped extended data / named value pairs [Denis Krienbuehl]
 
 0.3 (2012/11/15)
 -----------------
