@@ -9,16 +9,16 @@ python:
 env:
     - LXML=true
     - LXML=false
-# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-# install: PLEASE CHANGE ME
+
+# command to install dependencies, e.g. pip install -r requirements.txt
 install:
-    - pip install coveralls --use-mirrors
-    - if $LXML == true; then pip install --use-mirrors lxml; fi
+    - pip install -r requirements/test.txt
+    - if $LXML == true; then pip install lxml; fi
 
 # command to run tests, e.g. python setup.py test
-
 script:
-    coverage run --source=fastkml setup.py test
+    - pep8 --exclude test_main.py fastkml
+    - coverage run --source=fastkml setup.py test
 
 after_success:
     coveralls

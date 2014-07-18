@@ -6,6 +6,8 @@ Changelog
 ----------------
 
 - test case additions and lxml warning [Ian Lee]
+- pep8-ify source code (except test_main.py) [Ian Lee]
+- pyflakes-ify source code (except __init__.py) [Ian Lee]
 
 0.6 (2014/05/29)
 ----------------
