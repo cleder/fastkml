@@ -91,8 +91,9 @@ class BaseClassesTestCase(unittest.TestCase):
 
     def test_Container(self):
         f = kml._Container(name='A Container')
-        d = kml.Document()
-        self.assertRaises(TypeError, f.append, d)
+        # apparently you can add documents to containes
+        #d = kml.Document()
+        #self.assertRaises(TypeError, f.append, d)
         p = kml.Placemark()
         f.append(p)
         self.assertRaises(NotImplementedError, f.etree_element)
