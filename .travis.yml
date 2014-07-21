@@ -17,7 +17,7 @@ install:
 
 # command to run tests, e.g. python setup.py test
 script:
-#    - pep8 --exclude test_main.py fastkml
+    - pep8 --exclude test_main.py fastkml
     - coverage run --source=fastkml setup.py test
 
 after_success:

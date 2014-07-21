@@ -577,7 +577,9 @@ class _Container(_Feature):
                 yield feature
             else:
                 raise TypeError(
-                    "Features must be instances of (Folder, Placemark, Document)")
+                    "Features must be instances of "
+                    "(Folder, Placemark, Document)"
+                )
 
     def etree_element(self):
         element = super(_Container, self).etree_element()
@@ -591,7 +593,8 @@ class _Container(_Feature):
             self._features.append(kmlobj)
         else:
             raise TypeError(
-                "Features must be instances of (Folder, Placemark, Document)"
+                "Features must be instances of "
+                "(Folder, Placemark, Document)"
             )
         assert(kmlobj != self)
 
