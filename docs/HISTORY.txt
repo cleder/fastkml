@@ -5,6 +5,7 @@ Changelog
 0.7 (unreleased)
 ----------------
 
+- Handle case where Document booleans (visibility,isopen) are 'true' or 'false' [jwhelland]
 - test case additions and lxml warning [Ian Lee]
 - pep8-ify source code (except test_main.py) [Ian Lee]
 - pyflakes-ify source code (except __init__.py) [Ian Lee]
