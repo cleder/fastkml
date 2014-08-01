@@ -493,10 +493,16 @@ class _Feature(_BaseObject):
             self.description = description.text
         visibility = element.find('%svisibility' % self.ns)
         if visibility is not None:
-            self.visibility = int(visibility.text)
+            if visibility.text in ['1', 'true']:
+                self.visibility = 1
+            else:
+                self.visibility = 0
         isopen = element.find('%sopen' % self.ns)
         if isopen is not None:
-            self.isopen = int(isopen.text)
+            if isopen.text in ['1', 'true']:
+                self.isopen = 1
+            else:
+                self.isopen = 0
         styles = element.findall('%sStyle' % self.ns)
         for style in styles:
             s = Style(self.ns)
