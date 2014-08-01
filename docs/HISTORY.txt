@@ -2,6 +2,11 @@
 Changelog
 =========
 
+0.8 (unreleased)
+-----------------
+
+- back to development
+
 0.7 (2014/08/01)
 ----------------
 
