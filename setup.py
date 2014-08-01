@@ -40,7 +40,7 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Operating System :: OS Independent',
     ],  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     keywords='GIS KML Google Maps OpenLayers',
