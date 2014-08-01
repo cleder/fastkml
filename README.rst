@@ -15,7 +15,7 @@ Geometries are handled as pygeoif_ or shapely_ (if installed) objects.
 .. _shapely: http://pypi.python.org/pypi/Shapely
 .. _collective.geo.fastkml: http://pypi.python.org/pypi/collective.geo.fastkml
 .. _lxml: https://pypi.python.org/pypi/lxml
-
+.. _dateutils: https://pypi.python.org/pypi/dateutils
 
 fastkml is continually tested with *Travis CI*
 
@@ -43,8 +43,22 @@ Why yet another KML library? None of the existing ones quite fitted my requireme
 * If available lxml_ will be used to increase its speed.
 
 
+Install
+========
+
+You can install the package with `pip install fastkml` or `easy_install fastkml` 
+which should also pull in all requirements.
+
 Requirements
-============
+-------------
+
+* pygeoif_
+* dateutils_
+
+optional:
+
+* lxml_
+* shapely_
 
 You can install the requirements for fastkml by using pip:
 
