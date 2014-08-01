@@ -27,6 +27,21 @@ fastkml is continually tested with *Travis CI*
 .. image:: https://www.ohloh.net/p/fastkml/widgets/project_thin_badge.gif
     :target: https://www.ohloh.net/p/fastkml
 
+Rationale
+==========
+
+Why yet another KML library? None of the existing ones quite fitted my requirements
+ 
+ * fastkml can *read and write* KML files, feeding fastkmls output back into fastkml 
+and serializing it again will result in the same output. 
+* You can parse any kml snipppet, it does not need to be a complete KML document.
+* It runs on python 2 and 3. 
+* It is fully tested and actively maintained.
+* Geometries are handled in the `__geo_interface__` standard.
+* Minimal dependencies, pure python.
+* If available lxml_ will be used.
+
+.. _lxml: https://pypi.python.org/pypi/lxml
 
 Requirements
 ============
