@@ -1,8 +1,8 @@
 Introduction
 ============
 
-fastkml is a library to read, write and manipulate kml files. The aims
-are to keep it simple and fast (using lxml if available). Fast refers to
+fastkml is a library to read, write and manipulate kml files. It aims
+to keep it simple and fast (using lxml_ if available). Fast refers to
 the time you spend to write and read KML files as well as the time you
 spend to get aquainted to the library or to create KML objects. It provides
 a subset of KML and is aimed at documents that can be read from multiple
@@ -14,6 +14,7 @@ Geometries are handled as pygeoif_ or shapely_ (if installed) objects.
 .. _pygeoif: http://pypi.python.org/pypi/pygeoif/
 .. _shapely: http://pypi.python.org/pypi/Shapely
 .. _collective.geo.fastkml: http://pypi.python.org/pypi/collective.geo.fastkml
+.. _lxml: https://pypi.python.org/pypi/lxml
 
 
 fastkml is continually tested with *Travis CI*
@@ -39,9 +40,8 @@ Why yet another KML library? None of the existing ones quite fitted my requireme
 * It is fully tested and actively maintained.
 * Geometries are handled in the `__geo_interface__` standard.
 * Minimal dependencies, pure python.
-* If available lxml_ will be used.
+* If available lxml_ will be used to increase its speed.
 
-.. _lxml: https://pypi.python.org/pypi/lxml
 
 Requirements
 ============
