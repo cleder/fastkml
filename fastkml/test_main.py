@@ -73,7 +73,7 @@ class BaseClassesTestCase(unittest.TestCase):
         self.assertEqual(f.isopen, 0)
         self.assertEqual(f._atom_author, None)
         self.assertEqual(f._atom_link, None)
-        # self.assertEqual(f.address, None)
+        self.assertEqual(f.address, None)
         # self.assertEqual(f.phoneNumber, None)
         self.assertEqual(f._snippet, None)
         self.assertEqual(f.description, None)
@@ -326,6 +326,13 @@ class BuildKmlTestCase(unittest.TestCase):
         self.assertEqual(d.to_string(), d2.to_string())
         d.link = None
 
+    def test_address(self):
+        address = '1600 Amphitheatre Parkway, Mountain View, CA 94043, USA'
+        d = kml.Document()
+        d.address = address
+        self.assertTrue(address in str(d.to_string()))
+        self.assertTrue('address>' in str(d.to_string()))
+
 
 class KmlFromStringTestCase(unittest.TestCase):
     def test_document(self):
@@ -384,8 +391,8 @@ class KmlFromStringTestCase(unittest.TestCase):
         k = kml.KML()
         k.from_string(doc)
         self.assertEqual(list(k.features())[0].visibility, 0)
-        self.assertEqual(list(k.features())[0].isopen, 0)        
-    
+        self.assertEqual(list(k.features())[0].isopen, 0)
+
     def test_folders(self):
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Folder>
@@ -810,6 +817,22 @@ class KmlFromStringTestCase(unittest.TestCase):
     def test_from_wrong_string(self):
         doc = kml.KML()
         self.assertRaises(TypeError, doc.from_string, '<xml></xml>')
+
+    def test_address(self):
+        doc = kml.Document()
+
+        doc.from_string("""
+        <kml:Document xmlns:kml="http://www.opengis.net/kml/2.2" id="pm-id">
+            <kml:name>pm-name</kml:name>
+            <kml:description>pm-description</kml:description>
+            <kml:visibility>1</kml:visibility>
+            <kml:address>3901 Holly Dr, San Jose, CA 95060</kml:address>
+        </kml:Document>
+        """)
+
+        doc2 = kml.Document()
+        doc2.from_string(doc.to_string())
+        self.assertEqual(doc.to_string(), doc2.to_string())
 
 
 class StyleTestCase(unittest.TestCase):
