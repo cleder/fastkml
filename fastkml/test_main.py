@@ -333,6 +333,13 @@ class BuildKmlTestCase(unittest.TestCase):
         self.assertTrue(address in str(d.to_string()))
         self.assertTrue('address>' in str(d.to_string()))
 
+    def test_phone_number(self):
+        phone = '+1 234 567 8901'
+        d = kml.Document()
+        d.phoneNumber = phone
+        self.assertTrue(phone in str(d.to_string()))
+        self.assertTrue('phoneNumber>' in str(d.to_string()))
+
 
 class KmlFromStringTestCase(unittest.TestCase):
     def test_document(self):
@@ -827,6 +834,22 @@ class KmlFromStringTestCase(unittest.TestCase):
             <kml:description>pm-description</kml:description>
             <kml:visibility>1</kml:visibility>
             <kml:address>3901 Holly Dr, San Jose, CA 95060</kml:address>
+        </kml:Document>
+        """)
+
+        doc2 = kml.Document()
+        doc2.from_string(doc.to_string())
+        self.assertEqual(doc.to_string(), doc2.to_string())
+
+    def test_phone_number(self):
+        doc = kml.Document()
+
+        doc.from_string("""
+        <kml:Document xmlns:kml="http://www.opengis.net/kml/2.2" id="pm-id">
+            <kml:name>pm-name</kml:name>
+            <kml:description>pm-description</kml:description>
+            <kml:visibility>1</kml:visibility>
+            <kml:phoneNumber>+1 234 567 8901</kml:phoneNumber>
         </kml:Document>
         """)
 

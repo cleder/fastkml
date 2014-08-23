@@ -205,7 +205,7 @@ class _Feature(_BaseObject):
     # You can use the <address> tag to specify the location of a point
     # instead of using latitude and longitude coordinates.
 
-    # TODO phoneNumber = None
+    _phoneNumber = None
     # A string value representing a telephone number.
     # This element is used by Google Maps Mobile only.
 
@@ -455,6 +455,20 @@ class _Feature(_BaseObject):
         else:
             raise ValueError
 
+    @property
+    def phoneNumber(self):
+        if self._phoneNumber:
+            return self._phoneNumber
+
+    @phoneNumber.setter
+    def phoneNumber(self, phoneNumber):
+        if isinstance(phoneNumber, basestring):
+            self._phoneNumber = phoneNumber
+        elif phoneNumber is None:
+            self._phoneNumber = None
+        else:
+            raise ValueError
+
     def etree_element(self):
         element = super(_Feature, self).etree_element()
         if self.name:
@@ -498,6 +512,9 @@ class _Feature(_BaseObject):
         if self._address is not None:
             address = etree.SubElement(element, '%saddress' % self.ns)
             address.text = self._address
+        if self._phoneNumber is not None:
+            phoneNumber = etree.SubElement(element, '%sphoneNumber' % self.ns)
+            phoneNumber.text = self._phoneNumber
         return element
 
     def from_element(self, element):
@@ -573,6 +590,9 @@ class _Feature(_BaseObject):
         address = element.find('%saddress' % self.ns)
         if address is not None:
             self.address = address.text
+        phoneNumber = element.find('%sphoneNumber' % self.ns)
+        if phoneNumber is not None:
+            self.phoneNumber = phoneNumber.text
 
 
 class _Container(_Feature):
