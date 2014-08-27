@@ -199,13 +199,13 @@ class _Feature(_BaseObject):
     _atom_link = None
     # Specifies the URL of the website containing this KML or KMZ file.
 
-    # TODO address = None
+    _address = None
     # A string value representing an unstructured address written as a
     # standard street, city, state address, and/or as a postal code.
     # You can use the <address> tag to specify the location of a point
     # instead of using latitude and longitude coordinates.
 
-    # TODO phoneNumber = None
+    _phoneNumber = None
     # A string value representing a telephone number.
     # This element is used by Google Maps Mobile only.
 
@@ -441,6 +441,34 @@ class _Feature(_BaseObject):
                 "Snippet must be dict of {'text':t, 'maxLines':i} or string"
             )
 
+    @property
+    def address(self):
+        if self._address:
+            return self._address
+
+    @address.setter
+    def address(self, address):
+        if isinstance(address, basestring):
+            self._address = address
+        elif address is None:
+            self._address = None
+        else:
+            raise ValueError
+
+    @property
+    def phoneNumber(self):
+        if self._phoneNumber:
+            return self._phoneNumber
+
+    @phoneNumber.setter
+    def phoneNumber(self, phoneNumber):
+        if isinstance(phoneNumber, basestring):
+            self._phoneNumber = phoneNumber
+        elif phoneNumber is None:
+            self._phoneNumber = None
+        else:
+            raise ValueError
+
     def etree_element(self):
         element = super(_Feature, self).etree_element()
         if self.name:
@@ -481,6 +509,12 @@ class _Feature(_BaseObject):
             element.append(self._atom_author.etree_element())
         if self.extended_data is not None:
             element.append(self.extended_data.etree_element())
+        if self._address is not None:
+            address = etree.SubElement(element, '%saddress' % self.ns)
+            address.text = self._address
+        if self._phoneNumber is not None:
+            phoneNumber = etree.SubElement(element, '%sphoneNumber' % self.ns)
+            phoneNumber.text = self._phoneNumber
         return element
 
     def from_element(self, element):
@@ -553,6 +587,12 @@ class _Feature(_BaseObject):
             #    logger.warn(
             #        'arbitrary or typed extended data is not yet supported'
             #    )
+        address = element.find('%saddress' % self.ns)
+        if address is not None:
+            self.address = address.text
+        phoneNumber = element.find('%sphoneNumber' % self.ns)
+        if phoneNumber is not None:
+            self.phoneNumber = phoneNumber.text
 
 
 class _Container(_Feature):
@@ -769,7 +809,7 @@ class _TimePrimitive(_BaseObject):
 
     RESOLUTIONS = ['gYear', 'gYearMonth', 'date', 'dateTime']
 
-    def get_resolution(self, dt, resolution):
+    def get_resolution(self, dt, resolution=None):
         if resolution:
             if resolution not in self.RESOLUTIONS:
                 raise ValueError

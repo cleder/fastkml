@@ -6,6 +6,7 @@ Changelog
 -----------------
 
 - back to development
+- Add support for address and phoneNumber
 
 0.7 (2014/08/01)
 ----------------
