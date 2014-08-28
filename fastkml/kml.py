@@ -168,12 +168,11 @@ class _Feature(_BaseObject):
     """
     abstract element; do not create
     subclasses are:
-    Container (Document, Folder),
-    Placemark,
-    #NetworkLink,
-    #GroundOverlay,
-    #PhotoOverlay,
-    #ScreenOverlay
+        * Container (Document, Folder)
+        * Placemark
+        * Overlay
+    Not Implemented Yet:
+        * NetworkLink
     """
     name = None
     # User-defined text displayed in the 3D viewer as the label for the
@@ -643,6 +642,76 @@ class _Container(_Feature):
                 "(Folder, Placemark, Document)"
             )
         assert(kmlobj != self)
+
+
+class _Overlay(_Feature):
+    """
+    abstract element; do not create
+
+    Base type for image overlays drawn on the planet surface or on the screen
+
+    A Container element holds one or more Features and allows the
+    creation of nested hierarchies.
+    subclasses are:
+        * GroundOverlay
+        * PhotoOverlay
+        * ScreenOverlay
+    """
+
+    _color = None
+    # Color values expressed in hexadecimal notation, including opacity (alpha)
+    # values. The order of expression is alpha, blue, green, red (AABBGGRR).
+    # The range of values for any one color is 0 to 255 (00 to ff). For
+    # opacity, 00 is fully transparent and ff is fully opaque.
+
+    _drawOrder = None
+    # Defines the stacking order for the images in overlapping overlays.
+    # Overlays with higher <drawOrder> values are drawn on top of those with
+    # lower <drawOrder> values.
+
+    _icon = None
+    # Defines the image associated with the overlay. Contains an <href> html
+    # tag which defines the location of the image to be used as the overlay.
+    # The location can be either on a local file system or on a webserver. If
+    # this element is omitted or contains no <href>, a rectangle is drawn using
+    # the color and size defined by the ground or screen overlay.
+
+    def __init__(
+        self, ns=None, id=None, name=None, description=None,
+        styles=None, styleUrl=None
+    ):
+        super(_Overlay, self).__init__(
+            ns, id, name, description, styles, styleUrl
+        )
+
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, color):
+        self._color = color
+
+    @property
+    def drawOrder(self):
+        return self._drawOrder
+
+    @drawOrder.setter
+    def drawOrder(self, value):
+        try:
+            int(value)
+        except (ValueError, TypeError):
+            self._drawOrder = None
+        else:
+            self._drawOrder = value
+
+    @property
+    def icon(self):
+        return self._icon
+
+    @icon.setter
+    def icon(self, url):
+        self._icon = url
 
 
 class Document(_Container):
