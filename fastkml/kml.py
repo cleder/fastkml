@@ -711,7 +711,16 @@ class _Overlay(_Feature):
 
     @icon.setter
     def icon(self, url):
-        self._icon = url
+        if isinstance(url, str):
+            if not url.startswith('<href>'):
+                url = '<href>' + url
+            if not url.endswith('</href>'):
+                url = url + '</href>'
+            self._icon = url
+        elif url is None:
+            self._icon = None
+        else:
+            raise ValueError
 
 
 class Document(_Container):

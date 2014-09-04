@@ -110,6 +110,12 @@ class BaseClassesTestCase(unittest.TestCase):
     def test_Person(self):
         pass
 
+    def test_Overlay(self):
+        o = kml._Overlay(name='An Overlay')
+        self.assertEqual(o._color, None)
+        self.assertEqual(o._drawOrder, None)
+        self.assertEqual(o._icon, None)
+
 
 class BuildKmlTestCase(unittest.TestCase):
     """ Build a simple KML File """
@@ -1930,6 +1936,40 @@ class Force3DTestCase(unittest.TestCase):
 
         # Important: Set FORCE3D back to False!
         config.FORCE3D = False
+
+
+class BaseOverlayTestCase(unittest.TestCase):
+    def test_icon_without_tag(self):
+        o = kml._Overlay(name='An Overlay')
+        o.icon = 'http://example.com/'
+        self.assertEqual(o.icon, '<href>http://example.com/</href>')
+
+    def test_icon_with_open_tag(self):
+        o = kml._Overlay(name='An Overlay')
+        o.icon = '<href>http://example.com/'
+        self.assertEqual(o.icon, '<href>http://example.com/</href>')
+
+    def test_icon_with_close_tag(self):
+        o = kml._Overlay(name='An Overlay')
+        o.icon = 'http://example.com/</href>'
+        self.assertEqual(o.icon, '<href>http://example.com/</href>')
+
+    def test_icon_with_tag(self):
+        o = kml._Overlay(name='An Overlay')
+        o.icon = '<href>http://example.com/</href>'
+        self.assertEqual(o.icon, '<href>http://example.com/</href>')
+
+    def test_icon_to_none(self):
+        o = kml._Overlay(name='An Overlay')
+        o.icon = '<href>http://example.com/</href>'
+        self.assertEqual(o.icon, '<href>http://example.com/</href>')
+        o.icon = None
+        self.assertEqual(o.icon, None)
+
+    def test_icon_raise_exception(self):
+        o = kml._Overlay(name='An Overlay')
+        with self.assertRaises(ValueError):
+            o.icon = 12345
 
 
 def test_suite():
