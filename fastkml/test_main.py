@@ -22,6 +22,7 @@ from fastkml import styles
 from fastkml import base
 from fastkml import atom
 from fastkml import config
+from fastkml import gx
 
 import datetime
 from dateutil.tz import tzutc, tzoffset
@@ -115,6 +116,17 @@ class BaseClassesTestCase(unittest.TestCase):
         self.assertEqual(o._color, None)
         self.assertEqual(o._drawOrder, None)
         self.assertEqual(o._icon, None)
+        self.assertRaises(NotImplementedError, o.etree_element)
+
+    def test_atom_link(self):
+        ns = '{http://www.opengis.net/kml/2.2}'
+        l = atom.Link(ns=ns)
+        self.assertEqual(l.ns, ns)
+
+    def test_atom_person(self):
+        ns = '{http://www.opengis.net/kml/2.2}'
+        p = atom._Person(ns=ns)
+        self.assertEqual(p.ns, ns)
 
 
 class BuildKmlTestCase(unittest.TestCase):
@@ -1939,6 +1951,21 @@ class Force3DTestCase(unittest.TestCase):
 
 
 class BaseOverlayTestCase(unittest.TestCase):
+    def test_color(self):
+        o = kml._Overlay(name='An Overlay')
+        o.color = '00010203'
+        self.assertEqual(o.color, '00010203')
+
+    def test_draw_order_string(self):
+        o = kml._Overlay(name='An Overlay')
+        o.drawOrder = '1'
+        self.assertEqual(o.drawOrder, '1')
+
+    def test_draw_order_int(self):
+        o = kml._Overlay(name='An Overlay')
+        o.drawOrder = 1
+        self.assertEqual(o.drawOrder, '1')
+
     def test_icon_without_tag(self):
         o = kml._Overlay(name='An Overlay')
         o.icon = 'http://example.com/'
@@ -1970,6 +1997,34 @@ class BaseOverlayTestCase(unittest.TestCase):
         o = kml._Overlay(name='An Overlay')
         with self.assertRaises(ValueError):
             o.icon = 12345
+
+
+class GroundOverlayTestCase(unittest.TestCase):
+    def test_default_to_string(self):
+        g = kml.GroundOverlay()
+        expected = (
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            '<kml:visibility>1</kml:visibility>'
+            '</kml:GroundOverlay>'
+        )
+        self.assertEqual(g.to_string(prettyprint=False), expected)
+
+    def test_to_string(self):
+        g = kml.GroundOverlay()
+        g.icon = 'http://example.com'
+        g.drawOrder = 1
+        g.color = '00010203'
+
+        expected = (
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            '<kml:visibility>1</kml:visibility>'
+            '<kml:color>00010203</kml:color>'
+            '<kml:drawOrder>1</kml:drawOrder>'
+            '<kml:icon>&lt;href&gt;http://example.com&lt;/href&gt;</kml:icon>'
+            '</kml:GroundOverlay>'
+        )
+
+        self.assertEqual(g.to_string(prettyprint=False), expected)
 
 
 def test_suite():

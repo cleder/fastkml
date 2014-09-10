@@ -28,6 +28,7 @@ http://schemas.opengis.net/kml/.
 try:
     import urlparse
 except ImportError:
+    # Python 3
     import urllib.parse as urlparse
 import warnings
 
@@ -650,19 +651,15 @@ class _Overlay(_Feature):
 
     Base type for image overlays drawn on the planet surface or on the screen
 
-    A Container element holds one or more Features and allows the
-    creation of nested hierarchies.
-    subclasses are:
-        * GroundOverlay
-        * PhotoOverlay
-        * ScreenOverlay
+    A Container element holds one or more Features and allows the creation of
+    nested hierarchies.
     """
 
     _color = None
     # Color values expressed in hexadecimal notation, including opacity (alpha)
-    # values. The order of expression is alpha, blue, green, red (AABBGGRR).
-    # The range of values for any one color is 0 to 255 (00 to ff). For
-    # opacity, 00 is fully transparent and ff is fully opaque.
+    # values. The order of expression is alpOverlayha, blue, green, red
+    # (AABBGGRR). The range of values for any one color is 0 to 255 (00 to ff).
+    # For opacity, 00 is fully transparent and ff is fully opaque.
 
     _drawOrder = None
     # Defines the stacking order for the images in overlapping overlays.
@@ -703,7 +700,7 @@ class _Overlay(_Feature):
         except (ValueError, TypeError):
             self._drawOrder = None
         else:
-            self._drawOrder = value
+            self._drawOrder = str(value)
 
     @property
     def icon(self):
@@ -721,6 +718,31 @@ class _Overlay(_Feature):
             self._icon = None
         else:
             raise ValueError
+
+    def etree_element(self):
+        element = super(_Overlay, self).etree_element()
+        if self._color:
+            color = etree.SubElement(element, "%scolor" % self.ns)
+            color.text = self._color
+        if self._drawOrder:
+            drawOrder = etree.SubElement(element, "%sdrawOrder" % self.ns)
+            drawOrder.text = self._drawOrder
+        if self._icon:
+            icon = etree.SubElement(element, "%sicon" % self.ns)
+            icon.text = self._icon
+        return element
+
+
+class GroundOverlay(_Overlay):
+    """
+    This element draws an image overlay draped onto the terrain. The <href>
+    child of <Icon> specifies the image to be used as the overlay. This file
+    can be either on a local file system or on a web server. If this element is
+    omitted or contains no <href>, a rectangle is drawn using the color and
+    LatLonBox bounds defined by the ground overlay.
+    """
+    __name__ = 'GroundOverlay'
+
 
 
 class Document(_Container):
