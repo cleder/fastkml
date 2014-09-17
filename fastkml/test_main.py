@@ -22,7 +22,7 @@ from fastkml import styles
 from fastkml import base
 from fastkml import atom
 from fastkml import config
-from fastkml import gx
+from fastkml import gx  # NOQA
 
 import datetime
 from dateutil.tz import tzutc, tzoffset
@@ -93,8 +93,8 @@ class BaseClassesTestCase(unittest.TestCase):
     def test_Container(self):
         f = kml._Container(name='A Container')
         # apparently you can add documents to containes
-        #d = kml.Document()
-        #self.assertRaises(TypeError, f.append, d)
+        # d = kml.Document()
+        # self.assertRaises(TypeError, f.append, d)
         p = kml.Placemark()
         f.append(p)
         self.assertRaises(NotImplementedError, f.etree_element)
@@ -2026,6 +2026,45 @@ class GroundOverlayTestCase(unittest.TestCase):
 
         self.assertEqual(g.to_string(prettyprint=False), expected)
 
+    def test_altitude_from_int(self):
+        g = kml.GroundOverlay()
+        g.altitude = 123
+
+        expected = (
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            '<kml:visibility>1</kml:visibility>'
+            '<kml:altitude>123</kml:altitude>'
+            '</kml:GroundOverlay>'
+        )
+
+        self.assertEqual(g.to_string(prettyprint=False), expected)
+
+    def test_altitude_from_float(self):
+        g = kml.GroundOverlay()
+        g.altitude = 123.4
+
+        expected = (
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            '<kml:visibility>1</kml:visibility>'
+            '<kml:altitude>123.4</kml:altitude>'
+            '</kml:GroundOverlay>'
+        )
+
+        self.assertEqual(g.to_string(prettyprint=False), expected)
+
+    def test_altitude_from_string(self):
+        g = kml.GroundOverlay()
+        g.altitude = '123.4'
+
+        expected = (
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            '<kml:visibility>1</kml:visibility>'
+            '<kml:altitude>123.4</kml:altitude>'
+            '</kml:GroundOverlay>'
+        )
+
+        self.assertEqual(g.to_string(prettyprint=False), expected)
+
 
 def test_suite():
     suite = unittest.TestSuite()
@@ -2039,6 +2078,8 @@ def test_suite():
     suite.addTest(unittest.makeSuite(SetGeometryTestCase))
     suite.addTest(unittest.makeSuite(GetGeometryTestCase))
     suite.addTest(unittest.makeSuite(Force3DTestCase))
+    suite.addTest(unittest.makeSuite(BaseOverlayTestCase))
+    suite.addTest(unittest.makeSuite(GroundOverlayTestCase))
     return suite
 
 if __name__ == '__main__':

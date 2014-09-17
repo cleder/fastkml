@@ -743,6 +743,72 @@ class GroundOverlay(_Overlay):
     """
     __name__ = 'GroundOverlay'
 
+    _altitude = None
+    # Specifies the distance above the earth's surface, in meters, and is
+    # interpreted according to the altitude mode.
+
+    _altitudeMode = None
+    # Specifies how the <altitude> is interpreted. Possible values are:
+    #   clampToGround -
+    #       (default) Indicates to ignore the altitude specification and drape
+    #       the overlay over the terrain.
+    #   absolute -
+    #       Sets the altitude of the overlay relative to sea level, regardless
+    #       of the actual elevation of the terrain beneath the element. For
+    #       example, if you set the altitude of an overlay to 10 meters with an
+    #       absolute altitude mode, the overlay will appear to be at ground
+    #       level if the terrain beneath is also 10 meters above sea level. If
+    #       the terrain is 3 meters above sea level, the overlay will appear
+    #       elevated above the terrain by 7 meters.
+
+    # - LatLonBox -
+    # Specifies where the top, bottom, right, and left sides of a bounding box
+    # for the ground overlay are aligned. Also, optionally the rotation of the
+    # overlay.
+
+    _north = None
+    # Specifies the latitude of the north edge of the bounding box, in decimal
+    # degrees from 0 to ±90.
+
+    _south = None
+    # Specifies the latitude of the south edge of the bounding box, in decimal
+    # degrees from 0 to ±90.
+
+    _east = None
+    # Specifies the longitude of the east edge of the bounding box, in decimal
+    # degrees from 0 to ±180. (For overlays that overlap the meridian of 180°
+    # longitude, values can extend beyond that range.)
+
+    _west = None
+    # Specifies the longitude of the west edge of the bounding box, in decimal
+    # degrees from 0 to ±180. (For overlays that overlap the meridian of 180°
+    # longitude, values can extend beyond that range.)
+
+    _rotation = None
+    # Specifies a rotation of the overlay about its center, in degrees. Values
+    # can be ±180. The default is 0 (north). Rotations are specified in a
+    # counterclockwise direction.
+
+
+    @property
+    def altitude(self):
+        return self._altitude
+
+    @altitude.setter
+    def altitude(self, value):
+        try:
+            float(value)
+        except (ValueError, TypeError):
+            self._altitude = None
+        else:
+            self._altitude = str(value)
+
+    def etree_element(self):
+        element = super(GroundOverlay, self).etree_element()
+        if self._altitude:
+            altitude = etree.SubElement(element, "%saltitude" % self.ns)
+            altitude.text = self._altitude
+        return element
 
 
 class Document(_Container):
