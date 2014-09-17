@@ -851,7 +851,7 @@ class KmlFromStringTestCase(unittest.TestCase):
             <kml:name>pm-name</kml:name>
             <kml:description>pm-description</kml:description>
             <kml:visibility>1</kml:visibility>
-            <kml:address>3901 Holly Dr, San Jose, CA 95060</kml:address>
+            <kml:address>1600 Amphitheatre Parkway, Mountain View, CA 94043, USA</kml:address>
         </kml:Document>
         """)
 
@@ -1948,6 +1948,39 @@ class Force3DTestCase(unittest.TestCase):
 
         # Important: Set FORCE3D back to False!
         config.FORCE3D = False
+
+
+class BaseFeatureTestCase(unittest.TestCase):
+    def test_address_string(self):
+        f = kml._Feature()
+        address = '1600 Amphitheatre Parkway, Mountain View, CA 94043, USA'
+        f.address = address
+        self.assertEqual(f.address, address)
+
+    def test_address_none(self):
+        f = kml._Feature()
+        f.address = None
+        self.assertEqual(f.address, None)
+
+    def test_address_value_error(self):
+        f = kml._Feature()
+        with self.assertRaises(ValueError):
+            f.address = 123
+
+    def test_phone_number_string(self):
+        f = kml._Feature()
+        f.phoneNumber = '+1-234-567-8901'
+        self.assertEqual(f.phoneNumber, '+1-234-567-8901')
+
+    def test_phone_number_none(self):
+        f = kml._Feature()
+        f.phoneNumber = None
+        self.assertEqual(f.phoneNumber, None)
+
+    def test_phone_number_value_error(self):
+        f = kml._Feature()
+        with self.assertRaises(ValueError):
+            f.phoneNumber = 123
 
 
 class BaseOverlayTestCase(unittest.TestCase):
