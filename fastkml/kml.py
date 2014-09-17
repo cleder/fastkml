@@ -697,7 +697,7 @@ class _Overlay(_Feature):
     def drawOrder(self, value):
         try:
             int(value)
-        except (ValueError, TypeError):
+        except TypeError:
             self._drawOrder = None
         else:
             self._drawOrder = str(value)
@@ -747,7 +747,7 @@ class GroundOverlay(_Overlay):
     # Specifies the distance above the earth's surface, in meters, and is
     # interpreted according to the altitude mode.
 
-    _altitudeMode = None
+    _altitudeMode = 'clampToGround'
     # Specifies how the <altitude> is interpreted. Possible values are:
     #   clampToGround -
     #       (default) Indicates to ignore the altitude specification and drape
@@ -789,7 +789,6 @@ class GroundOverlay(_Overlay):
     # can be ±180. The default is 0 (north). Rotations are specified in a
     # counterclockwise direction.
 
-
     @property
     def altitude(self):
         return self._altitude
@@ -803,11 +802,123 @@ class GroundOverlay(_Overlay):
         else:
             self._altitude = str(value)
 
+    @property
+    def altitudeMode(self):
+        return self._altitudeMode
+
+    @altitudeMode.setter
+    def altitudeMode(self, mode):
+        if mode in ('clampToGround', 'absolute'):
+                self._altitudeMode = str(mode)
+        else:
+            self._altitudeMode = 'clampToGround'
+
+    @property
+    def north(self):
+        return self._north
+
+    @north.setter
+    def north(self, value):
+        try:
+            float(value)
+        except (ValueError, TypeError):
+            self._north = None
+        else:
+            self._north = str(value)
+
+    @property
+    def south(self):
+        return self._south
+
+    @south.setter
+    def south(self, value):
+        try:
+            float(value)
+        except (ValueError, TypeError):
+            self._south = None
+        else:
+            self._south = str(value)
+
+    @property
+    def east(self):
+        return self._east
+
+    @east.setter
+    def east(self, value):
+        try:
+            float(value)
+        except (ValueError, TypeError):
+            self._east = None
+        else:
+            self._east = str(value)
+
+    @property
+    def west(self):
+        return self._west
+
+    @west.setter
+    def west(self, value):
+        try:
+            float(value)
+        except (ValueError, TypeError):
+            self._west = None
+        else:
+            self._west = str(value)
+
+    @property
+    def rotation(self):
+        return self._rotation
+
+    @rotation.setter
+    def rotation(self, value):
+        try:
+            float(value)
+        except (ValueError, TypeError):
+            self._rotation = None
+        else:
+            self._rotation = str(value)
+
+    def latLonBox(self, north, south, east, west, rotation=0):
+        # TODO: Check for bounds (0:+/-90 or 0:+/-180 degrees)
+        try:
+            float(north)
+            float(south)
+            float(east)
+            float(west)
+            float(rotation)
+        except:
+            raise ValueError
+        else:
+            self._north = str(north)
+            self._south = str(south)
+            self._east = str(east)
+            self._west = str(west)
+            self._rotation = str(rotation)
+
     def etree_element(self):
         element = super(GroundOverlay, self).etree_element()
         if self._altitude:
             altitude = etree.SubElement(element, "%saltitude" % self.ns)
             altitude.text = self._altitude
+            if self._altitudeMode:
+                altitudeMode = etree.SubElement(
+                    element, "%saltitudeMode" % self.ns
+                )
+                altitudeMode.text = self._altitudeMode
+        if all([self._north, self._south, self._east, self._west]):
+            latLonBox = etree.SubElement(element, '%slatLonBox' % self.ns)
+            north = etree.SubElement(latLonBox, '%snorth' % self.ns)
+            north.text = self._north
+            south = etree.SubElement(latLonBox, '%ssouth' % self.ns)
+            south.text = self._south
+            east = etree.SubElement(latLonBox, '%seast' % self.ns)
+            east.text = self._east
+            west = etree.SubElement(latLonBox, '%swest' % self.ns)
+            west.text = self._west
+            if self._rotation:
+                rotation = etree.SubElement(latLonBox, '%srotation' % self.ns)
+                rotation.text = self._rotation
+
         return element
 
 
