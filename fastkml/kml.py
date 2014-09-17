@@ -789,6 +789,10 @@ class GroundOverlay(_Overlay):
     # can be ±180. The default is 0 (north). Rotations are specified in a
     # counterclockwise direction.
 
+    # TODO: <gx:LatLonQuad>
+    # Used for nonrectangular quadrilateral ground overlays.
+    _latLonQuad = None
+
     @property
     def altitude(self):
         return self._altitude
