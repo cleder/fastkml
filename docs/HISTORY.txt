@@ -2,10 +2,9 @@
 Changelog
 =========
 
-0.8 (unreleased)
+0.8 (2014/09/18)
 -----------------
 
-- back to development
 - Add support for address and phoneNumber [Ian Lee]
 - Add support for Ground Overlay kml [Ian Lee]
 
