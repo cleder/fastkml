@@ -6,7 +6,8 @@ Changelog
 -----------------
 
 - back to development
-- Add support for address and phoneNumber
+- Add support for address and phoneNumber [Ian Lee]
+- Add support for Ground Overlay kml [Ian Lee]
 
 0.7 (2014/08/01)
 ----------------

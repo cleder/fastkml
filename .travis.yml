@@ -27,3 +27,4 @@ after_success:
 notifications:
   email:
     - christian.ledermann@gmail.com
+    - IanLee1521@gmail.com
