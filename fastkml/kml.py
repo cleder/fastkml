@@ -28,7 +28,7 @@ http://schemas.opengis.net/kml/.
 try:
     import urlparse
 except ImportError:
-    import urllib.parse as urlparse
+    import urllib.parse as urlparse  # Python 3
 import warnings
 
 # from .geometry import Point, LineString, Polygon
@@ -168,12 +168,11 @@ class _Feature(_BaseObject):
     """
     abstract element; do not create
     subclasses are:
-    Container (Document, Folder),
-    Placemark,
-    #NetworkLink,
-    #GroundOverlay,
-    #PhotoOverlay,
-    #ScreenOverlay
+        * Container (Document, Folder)
+        * Placemark
+        * Overlay
+    Not Implemented Yet:
+        * NetworkLink
     """
     name = None
     # User-defined text displayed in the 3D viewer as the label for the
@@ -643,6 +642,322 @@ class _Container(_Feature):
                 "(Folder, Placemark, Document)"
             )
         assert(kmlobj != self)
+
+
+class _Overlay(_Feature):
+    """
+    abstract element; do not create
+
+    Base type for image overlays drawn on the planet surface or on the screen
+
+    A Container element holds one or more Features and allows the creation of
+    nested hierarchies.
+    """
+
+    _color = None
+    # Color values expressed in hexadecimal notation, including opacity (alpha)
+    # values. The order of expression is alpOverlayha, blue, green, red
+    # (AABBGGRR). The range of values for any one color is 0 to 255 (00 to ff).
+    # For opacity, 00 is fully transparent and ff is fully opaque.
+
+    _drawOrder = None
+    # Defines the stacking order for the images in overlapping overlays.
+    # Overlays with higher <drawOrder> values are drawn on top of those with
+    # lower <drawOrder> values.
+
+    _icon = None
+    # Defines the image associated with the overlay. Contains an <href> html
+    # tag which defines the location of the image to be used as the overlay.
+    # The location can be either on a local file system or on a webserver. If
+    # this element is omitted or contains no <href>, a rectangle is drawn using
+    # the color and size defined by the ground or screen overlay.
+
+    def __init__(
+        self, ns=None, id=None, name=None, description=None,
+        styles=None, styleUrl=None
+    ):
+        super(_Overlay, self).__init__(
+            ns, id, name, description, styles, styleUrl
+        )
+
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, color):
+        if isinstance(color, basestring):
+            self._color = color
+        elif color is None:
+            self._color = None
+        else:
+            raise ValueError
+
+    @property
+    def drawOrder(self):
+        return self._drawOrder
+
+    @drawOrder.setter
+    def drawOrder(self, value):
+        if isinstance(value, (basestring, int, float)):
+            self._drawOrder = str(value)
+        elif value is None:
+            self._drawOrder = None
+        else:
+            raise ValueError
+
+    @property
+    def icon(self):
+        return self._icon
+
+    @icon.setter
+    def icon(self, url):
+        if isinstance(url, basestring):
+            if not url.startswith('<href>'):
+                url = '<href>' + url
+            if not url.endswith('</href>'):
+                url = url + '</href>'
+            self._icon = url
+        elif url is None:
+            self._icon = None
+        else:
+            raise ValueError
+
+    def etree_element(self):
+        element = super(_Overlay, self).etree_element()
+        if self._color:
+            color = etree.SubElement(element, "%scolor" % self.ns)
+            color.text = self._color
+        if self._drawOrder:
+            drawOrder = etree.SubElement(element, "%sdrawOrder" % self.ns)
+            drawOrder.text = self._drawOrder
+        if self._icon:
+            icon = etree.SubElement(element, "%sicon" % self.ns)
+            icon.text = self._icon
+        return element
+
+    def from_element(self, element):
+        super(_Overlay, self).from_element(element)
+        color = element.find('%scolor' % self.ns)
+        if color is not None:
+            self.color = color.text
+        drawOrder = element.find('%sdrawOrder' % self.ns)
+        if drawOrder is not None:
+            self.drawOrder = drawOrder.text
+        icon = element.find('%sicon' % self.ns)
+        if icon is not None:
+            self.icon = icon.text
+
+
+class GroundOverlay(_Overlay):
+    """
+    This element draws an image overlay draped onto the terrain. The <href>
+    child of <Icon> specifies the image to be used as the overlay. This file
+    can be either on a local file system or on a web server. If this element is
+    omitted or contains no <href>, a rectangle is drawn using the color and
+    LatLonBox bounds defined by the ground overlay.
+    """
+    __name__ = 'GroundOverlay'
+
+    _altitude = None
+    # Specifies the distance above the earth's surface, in meters, and is
+    # interpreted according to the altitude mode.
+
+    _altitudeMode = 'clampToGround'
+    # Specifies how the <altitude> is interpreted. Possible values are:
+    #   clampToGround -
+    #       (default) Indicates to ignore the altitude specification and drape
+    #       the overlay over the terrain.
+    #   absolute -
+    #       Sets the altitude of the overlay relative to sea level, regardless
+    #       of the actual elevation of the terrain beneath the element. For
+    #       example, if you set the altitude of an overlay to 10 meters with an
+    #       absolute altitude mode, the overlay will appear to be at ground
+    #       level if the terrain beneath is also 10 meters above sea level. If
+    #       the terrain is 3 meters above sea level, the overlay will appear
+    #       elevated above the terrain by 7 meters.
+
+    # - LatLonBox -
+    # TODO: Convert this to it's own class?
+    # Specifies where the top, bottom, right, and left sides of a bounding box
+    # for the ground overlay are aligned. Also, optionally the rotation of the
+    # overlay.
+
+    _north = None
+    # Specifies the latitude of the north edge of the bounding box, in decimal
+    # degrees from 0 to ±90.
+
+    _south = None
+    # Specifies the latitude of the south edge of the bounding box, in decimal
+    # degrees from 0 to ±90.
+
+    _east = None
+    # Specifies the longitude of the east edge of the bounding box, in decimal
+    # degrees from 0 to ±180. (For overlays that overlap the meridian of 180°
+    # longitude, values can extend beyond that range.)
+
+    _west = None
+    # Specifies the longitude of the west edge of the bounding box, in decimal
+    # degrees from 0 to ±180. (For overlays that overlap the meridian of 180°
+    # longitude, values can extend beyond that range.)
+
+    _rotation = None
+    # Specifies a rotation of the overlay about its center, in degrees. Values
+    # can be ±180. The default is 0 (north). Rotations are specified in a
+    # counterclockwise direction.
+
+    # TODO: <gx:LatLonQuad>
+    # Used for nonrectangular quadrilateral ground overlays.
+    _latLonQuad = None
+
+    @property
+    def altitude(self):
+        return self._altitude
+
+    @altitude.setter
+    def altitude(self, value):
+        if isinstance(value, (basestring, int, float)):
+            self._altitude = str(value)
+        elif value is None:
+            self._altitude = None
+        else:
+            raise ValueError
+
+    @property
+    def altitudeMode(self):
+        return self._altitudeMode
+
+    @altitudeMode.setter
+    def altitudeMode(self, mode):
+        if mode in ('clampToGround', 'absolute'):
+                self._altitudeMode = str(mode)
+        else:
+            self._altitudeMode = 'clampToGround'
+
+    @property
+    def north(self):
+        return self._north
+
+    @north.setter
+    def north(self, value):
+        if isinstance(value, (basestring, int, float)):
+            self._north = str(value)
+        elif value is None:
+            self._north = None
+        else:
+            raise ValueError
+
+    @property
+    def south(self):
+        return self._south
+
+    @south.setter
+    def south(self, value):
+        if isinstance(value, (basestring, int, float)):
+            self._south = str(value)
+        elif value is None:
+            self._south = None
+        else:
+            raise ValueError
+
+    @property
+    def east(self):
+        return self._east
+
+    @east.setter
+    def east(self, value):
+        if isinstance(value, (basestring, int, float)):
+            self._east = str(value)
+        elif value is None:
+            self._east = None
+        else:
+            raise ValueError
+
+    @property
+    def west(self):
+        return self._west
+
+    @west.setter
+    def west(self, value):
+        if isinstance(value, (basestring, int, float)):
+            self._west = str(value)
+        elif value is None:
+            self._west = None
+        else:
+            raise ValueError
+
+    @property
+    def rotation(self):
+        return self._rotation
+
+    @rotation.setter
+    def rotation(self, value):
+        if isinstance(value, (basestring, int, float)):
+            self._rotation = str(value)
+        elif value is None:
+            self._rotation = None
+        else:
+            raise ValueError
+
+    def latLonBox(self, north, south, east, west, rotation=0):
+        # TODO: Check for bounds (0:+/-90 or 0:+/-180 degrees)
+        self.north = north
+        self.south = south
+        self.east = east
+        self.west = west
+        self.rotation = rotation
+
+    def etree_element(self):
+        element = super(GroundOverlay, self).etree_element()
+        if self._altitude:
+            altitude = etree.SubElement(element, "%saltitude" % self.ns)
+            altitude.text = self._altitude
+            if self._altitudeMode:
+                altitudeMode = etree.SubElement(
+                    element, "%saltitudeMode" % self.ns
+                )
+                altitudeMode.text = self._altitudeMode
+        if all([self._north, self._south, self._east, self._west]):
+            latLonBox = etree.SubElement(element, '%slatLonBox' % self.ns)
+            north = etree.SubElement(latLonBox, '%snorth' % self.ns)
+            north.text = self._north
+            south = etree.SubElement(latLonBox, '%ssouth' % self.ns)
+            south.text = self._south
+            east = etree.SubElement(latLonBox, '%seast' % self.ns)
+            east.text = self._east
+            west = etree.SubElement(latLonBox, '%swest' % self.ns)
+            west.text = self._west
+            if self._rotation:
+                rotation = etree.SubElement(latLonBox, '%srotation' % self.ns)
+                rotation.text = self._rotation
+
+        return element
+
+    def from_element(self, element):
+        super(GroundOverlay, self).from_element(element)
+        altitude = element.find('%saltitude' % self.ns)
+        if altitude is not None:
+            self.altitude = altitude.text
+        altitudeMode = element.find('%saltitudeMode' % self.ns)
+        if altitudeMode is not None:
+            self.altitudeMode = altitudeMode.text
+        latLonBox = element.find('%slatLonBox' % self.ns)
+        if latLonBox is not None:
+            north = latLonBox.find('%snorth' % self.ns)
+            if north is not None:
+                self.north = north.text
+            south = latLonBox.find('%ssouth' % self.ns)
+            if south is not None:
+                self.south = south.text
+            east = latLonBox.find('%seast' % self.ns)
+            if east is not None:
+                self.east = east.text
+            west = latLonBox.find('%swest' % self.ns)
+            if west is not None:
+                self.west = west.text
+            rotation = latLonBox.find('%srotation' % self.ns)
+            if rotation is not None:
+                self.rotation = rotation.text
 
 
 class Document(_Container):

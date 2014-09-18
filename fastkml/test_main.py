@@ -15,13 +15,17 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-import unittest
+try:
+    import unittest2 as unittest  # Needed in Python 2.6
+except:
+    import unittest
 
 from fastkml import kml
 from fastkml import styles
 from fastkml import base
 from fastkml import atom
 from fastkml import config
+from fastkml import gx  # NOQA
 
 import datetime
 from dateutil.tz import tzutc, tzoffset
@@ -92,8 +96,8 @@ class BaseClassesTestCase(unittest.TestCase):
     def test_Container(self):
         f = kml._Container(name='A Container')
         # apparently you can add documents to containes
-        #d = kml.Document()
-        #self.assertRaises(TypeError, f.append, d)
+        # d = kml.Document()
+        # self.assertRaises(TypeError, f.append, d)
         p = kml.Placemark()
         f.append(p)
         self.assertRaises(NotImplementedError, f.etree_element)
@@ -109,6 +113,23 @@ class BaseClassesTestCase(unittest.TestCase):
 
     def test_Person(self):
         pass
+
+    def test_Overlay(self):
+        o = kml._Overlay(name='An Overlay')
+        self.assertEqual(o._color, None)
+        self.assertEqual(o._drawOrder, None)
+        self.assertEqual(o._icon, None)
+        self.assertRaises(NotImplementedError, o.etree_element)
+
+    def test_atom_link(self):
+        ns = '{http://www.opengis.net/kml/2.2}'
+        l = atom.Link(ns=ns)
+        self.assertEqual(l.ns, ns)
+
+    def test_atom_person(self):
+        ns = '{http://www.opengis.net/kml/2.2}'
+        p = atom._Person(ns=ns)
+        self.assertEqual(p.ns, ns)
 
 
 class BuildKmlTestCase(unittest.TestCase):
@@ -833,7 +854,7 @@ class KmlFromStringTestCase(unittest.TestCase):
             <kml:name>pm-name</kml:name>
             <kml:description>pm-description</kml:description>
             <kml:visibility>1</kml:visibility>
-            <kml:address>3901 Holly Dr, San Jose, CA 95060</kml:address>
+            <kml:address>1600 Amphitheatre Parkway, Mountain View, CA 94043, USA</kml:address>
         </kml:Document>
         """)
 
@@ -854,6 +875,39 @@ class KmlFromStringTestCase(unittest.TestCase):
         """)
 
         doc2 = kml.Document()
+        doc2.from_string(doc.to_string())
+        self.assertEqual(doc.to_string(), doc2.to_string())
+
+    def test_groundoverlay(self):
+        doc = kml.KML()
+
+        doc.from_string(
+            """
+            <kml xmlns="http://www.opengis.net/kml/2.2">
+              <Folder>
+                <name>Ground Overlays</name>
+                <description>Examples of ground overlays</description>
+                <GroundOverlay>
+                  <name>Large-scale overlay on terrain</name>
+                  <description>Overlay shows Mount Etna erupting
+                      on July 13th, 2001.</description>
+                  <Icon>
+                    <href>http://developers.google.com/kml/documentation/images/etna.jpg</href>
+                  </Icon>
+                  <LatLonBox>
+                    <north>37.91904192681665</north>
+                    <south>37.46543388598137</south>
+                    <east>15.35832653742206</east>
+                    <west>14.60128369746704</west>
+                    <rotation>-0.1556640799496235</rotation>
+                  </LatLonBox>
+                </GroundOverlay>
+              </Folder>
+            </kml>
+            """
+        )
+
+        doc2 = kml.KML()
         doc2.from_string(doc.to_string())
         self.assertEqual(doc.to_string(), doc2.to_string())
 
@@ -1932,6 +1986,438 @@ class Force3DTestCase(unittest.TestCase):
         config.FORCE3D = False
 
 
+class BaseFeatureTestCase(unittest.TestCase):
+    def test_address_string(self):
+        f = kml._Feature()
+        address = '1600 Amphitheatre Parkway, Mountain View, CA 94043, USA'
+        f.address = address
+        self.assertEqual(f.address, address)
+
+    def test_address_none(self):
+        f = kml._Feature()
+        f.address = None
+        self.assertEqual(f.address, None)
+
+    def test_address_value_error(self):
+        f = kml._Feature()
+        with self.assertRaises(ValueError):
+            f.address = 123
+
+    def test_phone_number_string(self):
+        f = kml._Feature()
+        f.phoneNumber = '+1-234-567-8901'
+        self.assertEqual(f.phoneNumber, '+1-234-567-8901')
+
+    def test_phone_number_none(self):
+        f = kml._Feature()
+        f.phoneNumber = None
+        self.assertEqual(f.phoneNumber, None)
+
+    def test_phone_number_value_error(self):
+        f = kml._Feature()
+        with self.assertRaises(ValueError):
+            f.phoneNumber = 123
+
+
+class BaseOverlayTestCase(unittest.TestCase):
+    def test_color_string(self):
+        o = kml._Overlay(name='An Overlay')
+        o.color = '00010203'
+        self.assertEqual(o.color, '00010203')
+
+    def test_color_none(self):
+        o = kml._Overlay(name='An Overlay')
+        o.color = '00010203'
+        self.assertEqual(o.color, '00010203')
+        o.color = None
+        self.assertEqual(o.color, None)
+
+    def test_color_value_error(self):
+        o = kml._Overlay(name='An Overlay')
+        with self.assertRaises(ValueError):
+            o.color = object()
+
+    def test_draw_order_string(self):
+        o = kml._Overlay(name='An Overlay')
+        o.drawOrder = '1'
+        self.assertEqual(o.drawOrder, '1')
+
+    def test_draw_order_int(self):
+        o = kml._Overlay(name='An Overlay')
+        o.drawOrder = 1
+        self.assertEqual(o.drawOrder, '1')
+
+    def test_draw_order_none(self):
+        o = kml._Overlay(name='An Overlay')
+        o.drawOrder = '1'
+        self.assertEqual(o.drawOrder, '1')
+        o.drawOrder = None
+        self.assertEqual(o.drawOrder, None)
+
+    def test_draw_order_value_error(self):
+        o = kml._Overlay(name='An Overlay')
+        with self.assertRaises(ValueError):
+            o.drawOrder = object()
+
+    def test_icon_without_tag(self):
+        o = kml._Overlay(name='An Overlay')
+        o.icon = 'http://example.com/'
+        self.assertEqual(o.icon, '<href>http://example.com/</href>')
+
+    def test_icon_with_open_tag(self):
+        o = kml._Overlay(name='An Overlay')
+        o.icon = '<href>http://example.com/'
+        self.assertEqual(o.icon, '<href>http://example.com/</href>')
+
+    def test_icon_with_close_tag(self):
+        o = kml._Overlay(name='An Overlay')
+        o.icon = 'http://example.com/</href>'
+        self.assertEqual(o.icon, '<href>http://example.com/</href>')
+
+    def test_icon_with_tag(self):
+        o = kml._Overlay(name='An Overlay')
+        o.icon = '<href>http://example.com/</href>'
+        self.assertEqual(o.icon, '<href>http://example.com/</href>')
+
+    def test_icon_to_none(self):
+        o = kml._Overlay(name='An Overlay')
+        o.icon = '<href>http://example.com/</href>'
+        self.assertEqual(o.icon, '<href>http://example.com/</href>')
+        o.icon = None
+        self.assertEqual(o.icon, None)
+
+    def test_icon_raise_exception(self):
+        o = kml._Overlay(name='An Overlay')
+        with self.assertRaises(ValueError):
+            o.icon = 12345
+
+
+class GroundOverlayTestCase(unittest.TestCase):
+    def setUp(self):
+        self.g = kml.GroundOverlay()
+
+    def test_altitude_int(self):
+        self.g.altitude = 123
+        self.assertEqual(self.g.altitude, '123')
+
+    def test_altitude_float(self):
+        self.g.altitude = 123.4
+        self.assertEqual(self.g.altitude, '123.4')
+
+    def test_altitude_string(self):
+        self.g.altitude = '123'
+        self.assertEqual(self.g.altitude, '123')
+
+    def test_altitude_value_error(self):
+        with self.assertRaises(ValueError):
+            self.g.altitude = object()
+
+    def test_altitude_none(self):
+        self.g.altitude = '123'
+        self.assertEqual(self.g.altitude, '123')
+        self.g.altitude = None
+        self.assertEqual(self.g.altitude, None)
+
+    def test_altitude_mode_default(self):
+        self.assertEqual(self.g.altitudeMode, 'clampToGround')
+
+    def test_altitude_mode_error(self):
+        self.g.altitudeMode = ''
+        self.assertEqual(self.g.altitudeMode, 'clampToGround')
+
+    def test_altitude_mode_clamp(self):
+        self.g.altitudeMode = 'clampToGround'
+        self.assertEqual(self.g.altitudeMode, 'clampToGround')
+
+    def test_altitude_mode_absolute(self):
+        self.g.altitudeMode = 'absolute'
+        self.assertEqual(self.g.altitudeMode, 'absolute')
+
+    def test_latlonbox_function(self):
+        self.g.latLonBox(10, 20, 30, 40, 50)
+
+        self.assertEqual(self.g.north, '10')
+        self.assertEqual(self.g.south, '20')
+        self.assertEqual(self.g.east, '30')
+        self.assertEqual(self.g.west, '40')
+        self.assertEqual(self.g.rotation, '50')
+
+    def test_latlonbox_string(self):
+        self.g.north = '10'
+        self.g.south = '20'
+        self.g.east = '30'
+        self.g.west = '40'
+        self.g.rotation = '50'
+
+        self.assertEqual(self.g.north, '10')
+        self.assertEqual(self.g.south, '20')
+        self.assertEqual(self.g.east, '30')
+        self.assertEqual(self.g.west, '40')
+        self.assertEqual(self.g.rotation, '50')
+
+    def test_latlonbox_int(self):
+        self.g.north = 10
+        self.g.south = 20
+        self.g.east = 30
+        self.g.west = 40
+        self.g.rotation = 50
+
+        self.assertEqual(self.g.north, '10')
+        self.assertEqual(self.g.south, '20')
+        self.assertEqual(self.g.east, '30')
+        self.assertEqual(self.g.west, '40')
+        self.assertEqual(self.g.rotation, '50')
+
+    def test_latlonbox_float(self):
+        self.g.north = 10.0
+        self.g.south = 20.0
+        self.g.east = 30.0
+        self.g.west = 40.0
+        self.g.rotation = 50.0
+
+        self.assertEqual(self.g.north, '10.0')
+        self.assertEqual(self.g.south, '20.0')
+        self.assertEqual(self.g.east, '30.0')
+        self.assertEqual(self.g.west, '40.0')
+        self.assertEqual(self.g.rotation, '50.0')
+
+    def test_latlonbox_value_error(self):
+        with self.assertRaises(ValueError):
+            self.g.north = object()
+
+        with self.assertRaises(ValueError):
+            self.g.south = object()
+
+        with self.assertRaises(ValueError):
+            self.g.east = object()
+
+        with self.assertRaises(ValueError):
+            self.g.west = object()
+
+        with self.assertRaises(ValueError):
+            self.g.rotation = object()
+
+        self.assertEqual(self.g.north, None)
+        self.assertEqual(self.g.south, None)
+        self.assertEqual(self.g.east, None)
+        self.assertEqual(self.g.west, None)
+        self.assertEqual(self.g.rotation, None)
+
+    def test_latlonbox_empty_string(self):
+        self.g.north = ''
+        self.g.south = ''
+        self.g.east = ''
+        self.g.west = ''
+        self.g.rotation = ''
+
+        self.assertEqual(self.g.north, '')
+        self.assertEqual(self.g.south, '')
+        self.assertEqual(self.g.east, '')
+        self.assertEqual(self.g.west, '')
+        self.assertEqual(self.g.rotation, '')
+
+    def test_latlonbox_none(self):
+        self.g.north = None
+        self.g.south = None
+        self.g.east = None
+        self.g.west = None
+        self.g.rotation = None
+
+        self.assertEqual(self.g.north, None)
+        self.assertEqual(self.g.south, None)
+        self.assertEqual(self.g.east, None)
+        self.assertEqual(self.g.west, None)
+        self.assertEqual(self.g.rotation, None)
+
+
+class GroundOverlayStringTestCase(unittest.TestCase):
+    def test_default_to_string(self):
+        g = kml.GroundOverlay()
+
+        expected = kml.GroundOverlay()
+        expected.from_string(
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            '<kml:visibility>1</kml:visibility>'
+            '</kml:GroundOverlay>'
+        )
+        self.assertEqual(g.to_string(), expected.to_string())
+
+    def test_to_string(self):
+        g = kml.GroundOverlay()
+        g.icon = 'http://example.com'
+        g.drawOrder = 1
+        g.color = '00010203'
+
+        expected = kml.GroundOverlay()
+        expected.from_string(
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            '<kml:visibility>1</kml:visibility>'
+            '<kml:color>00010203</kml:color>'
+            '<kml:drawOrder>1</kml:drawOrder>'
+            '<kml:icon>&lt;href&gt;http://example.com&lt;/href&gt;</kml:icon>'
+            '</kml:GroundOverlay>'
+        )
+
+        self.assertEqual(g.to_string(), expected.to_string())
+
+    def test_altitude_from_int(self):
+        g = kml.GroundOverlay()
+        g.altitude = 123
+
+        expected = kml.GroundOverlay()
+        expected.from_string(
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            '<kml:visibility>1</kml:visibility>'
+            '<kml:altitude>123</kml:altitude>'
+            '<kml:altitudeMode>clampToGround</kml:altitudeMode>'
+            '</kml:GroundOverlay>'
+        )
+
+        self.assertEqual(g.to_string(), expected.to_string())
+
+    def test_altitude_from_float(self):
+        g = kml.GroundOverlay()
+        g.altitude = 123.4
+
+        expected = kml.GroundOverlay()
+        expected.from_string(
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            '<kml:visibility>1</kml:visibility>'
+            '<kml:altitude>123.4</kml:altitude>'
+            '<kml:altitudeMode>clampToGround</kml:altitudeMode>'
+            '</kml:GroundOverlay>'
+        )
+
+        self.assertEqual(g.to_string(), expected.to_string())
+
+    def test_altitude_from_string(self):
+        g = kml.GroundOverlay()
+        g.altitude = '123.4'
+
+        expected = kml.GroundOverlay()
+        expected.from_string(
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            '<kml:visibility>1</kml:visibility>'
+            '<kml:altitude>123.4</kml:altitude>'
+            '<kml:altitudeMode>clampToGround</kml:altitudeMode>'
+            '</kml:GroundOverlay>'
+        )
+
+        self.assertEqual(g.to_string(), expected.to_string())
+
+    def test_altitude_mode_absolute(self):
+        g = kml.GroundOverlay()
+        g.altitude = '123.4'
+        g.altitudeMode = 'absolute'
+
+        expected = kml.GroundOverlay()
+        expected.from_string(
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            '<kml:visibility>1</kml:visibility>'
+            '<kml:altitude>123.4</kml:altitude>'
+            '<kml:altitudeMode>absolute</kml:altitudeMode>'
+            '</kml:GroundOverlay>'
+        )
+
+        self.assertEqual(g.to_string(), expected.to_string())
+
+    def test_altitude_mode_unknown_string(self):
+        g = kml.GroundOverlay()
+        g.altitude = '123.4'
+        g.altitudeMode = 'unknown string'
+
+        expected = kml.GroundOverlay()
+        expected.from_string(
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            '<kml:visibility>1</kml:visibility>'
+            '<kml:altitude>123.4</kml:altitude>'
+            '<kml:altitudeMode>clampToGround</kml:altitudeMode>'
+            '</kml:GroundOverlay>'
+        )
+
+        self.assertEqual(g.to_string(), expected.to_string())
+
+    def test_altitude_mode_value(self):
+        g = kml.GroundOverlay()
+        g.altitude = '123.4'
+        g.altitudeMode = 1234
+
+        expected = kml.GroundOverlay()
+        expected.from_string(
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            '<kml:visibility>1</kml:visibility>'
+            '<kml:altitude>123.4</kml:altitude>'
+            '<kml:altitudeMode>clampToGround</kml:altitudeMode>'
+            '</kml:GroundOverlay>'
+        )
+
+        self.assertEqual(g.to_string(), expected.to_string())
+
+    def test_latlonbox_no_rotation(self):
+        g = kml.GroundOverlay()
+        g.latLonBox(10, 20, 30, 40)
+
+        expected = kml.GroundOverlay()
+        expected.from_string(
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            '<kml:visibility>1</kml:visibility>'
+            '<kml:latLonBox>'
+            '<kml:north>10</kml:north>'
+            '<kml:south>20</kml:south>'
+            '<kml:east>30</kml:east>'
+            '<kml:west>40</kml:west>'
+            '<kml:rotation>0</kml:rotation>'
+            '</kml:latLonBox>'
+            '</kml:GroundOverlay>'
+        )
+
+        self.assertEqual(g.to_string(), expected.to_string())
+
+    def test_latlonbox_rotation(self):
+        g = kml.GroundOverlay()
+        g.latLonBox(10, 20, 30, 40, 50)
+
+        expected = kml.GroundOverlay()
+        expected.from_string(
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            '<kml:visibility>1</kml:visibility>'
+            '<kml:latLonBox>'
+            '<kml:north>10</kml:north>'
+            '<kml:south>20</kml:south>'
+            '<kml:east>30</kml:east>'
+            '<kml:west>40</kml:west>'
+            '<kml:rotation>50</kml:rotation>'
+            '</kml:latLonBox>'
+            '</kml:GroundOverlay>'
+        )
+
+        self.assertEqual(g.to_string(), expected.to_string())
+
+    def test_latlonbox_nswer(self):
+        g = kml.GroundOverlay()
+        g.north = 10
+        g.south = 20
+        g.east = 30
+        g.west = 40
+        g.rotation = 50
+
+        expected = kml.GroundOverlay()
+        expected.from_string(
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            '<kml:visibility>1</kml:visibility>'
+            '<kml:latLonBox>'
+            '<kml:north>10</kml:north>'
+            '<kml:south>20</kml:south>'
+            '<kml:east>30</kml:east>'
+            '<kml:west>40</kml:west>'
+            '<kml:rotation>50</kml:rotation>'
+            '</kml:latLonBox>'
+            '</kml:GroundOverlay>'
+        )
+
+        self.assertEqual(g.to_string(), expected.to_string())
+
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(BaseClassesTestCase))
@@ -1944,6 +2430,8 @@ def test_suite():
     suite.addTest(unittest.makeSuite(SetGeometryTestCase))
     suite.addTest(unittest.makeSuite(GetGeometryTestCase))
     suite.addTest(unittest.makeSuite(Force3DTestCase))
+    suite.addTest(unittest.makeSuite(BaseOverlayTestCase))
+    suite.addTest(unittest.makeSuite(GroundOverlayTestCase))
     return suite
 
 if __name__ == '__main__':

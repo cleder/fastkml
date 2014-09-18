@@ -14,6 +14,7 @@ env:
 install:
     - pip install -r requirements/test.txt
     - if $LXML == true; then pip install lxml; fi
+    - if [[ $TRAVIS_PYTHON_VERSION == 2.6 ]]; then pip install unittest2; fi
 
 # command to run tests, e.g. python setup.py test
 script:
@@ -26,3 +27,4 @@ after_success:
 notifications:
   email:
     - christian.ledermann@gmail.com
+    - IanLee1521@gmail.com
