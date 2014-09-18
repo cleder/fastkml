@@ -1964,7 +1964,7 @@ class BaseFeatureTestCase(unittest.TestCase):
 
     def test_address_value_error(self):
         f = kml._Feature()
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as context:
             f.address = 123
 
     def test_phone_number_string(self):
@@ -1979,7 +1979,7 @@ class BaseFeatureTestCase(unittest.TestCase):
 
     def test_phone_number_value_error(self):
         f = kml._Feature()
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as context:
             f.phoneNumber = 123
 
 
@@ -2033,7 +2033,7 @@ class BaseOverlayTestCase(unittest.TestCase):
 
     def test_icon_raise_exception(self):
         o = kml._Overlay(name='An Overlay')
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as context:
             o.icon = 12345
 
 
@@ -2077,7 +2077,7 @@ class GroundOverlayTestCase(unittest.TestCase):
         self.assertEqual(self.g.altitudeMode, 'absolute')
 
     def test_latlonbox_function_value_error(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as context:
             self.g.latLonBox('', '', '', '', '')
 
     def test_latlonbox_properties(self):
@@ -2123,12 +2123,14 @@ class GroundOverlayTestCase(unittest.TestCase):
 class GroundOverlayStringTestCase(unittest.TestCase):
     def test_default_to_string(self):
         g = kml.GroundOverlay()
-        expected = (
+
+        expected = kml.GroundOverlay()
+        expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             '<kml:visibility>1</kml:visibility>'
             '</kml:GroundOverlay>'
         )
-        self.assertEqual(g.to_string(prettyprint=False), expected)
+        self.assertEqual(g.to_string(), expected.to_string())
 
     def test_to_string(self):
         g = kml.GroundOverlay()
@@ -2136,7 +2138,8 @@ class GroundOverlayStringTestCase(unittest.TestCase):
         g.drawOrder = 1
         g.color = '00010203'
 
-        expected = (
+        expected = kml.GroundOverlay()
+        expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             '<kml:visibility>1</kml:visibility>'
             '<kml:color>00010203</kml:color>'
@@ -2145,13 +2148,14 @@ class GroundOverlayStringTestCase(unittest.TestCase):
             '</kml:GroundOverlay>'
         )
 
-        self.assertEqual(g.to_string(prettyprint=False), expected)
+        self.assertEqual(g.to_string(), expected.to_string())
 
     def test_altitude_from_int(self):
         g = kml.GroundOverlay()
         g.altitude = 123
 
-        expected = (
+        expected = kml.GroundOverlay()
+        expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             '<kml:visibility>1</kml:visibility>'
             '<kml:altitude>123</kml:altitude>'
@@ -2159,13 +2163,14 @@ class GroundOverlayStringTestCase(unittest.TestCase):
             '</kml:GroundOverlay>'
         )
 
-        self.assertEqual(g.to_string(prettyprint=False), expected)
+        self.assertEqual(g.to_string(), expected.to_string())
 
     def test_altitude_from_float(self):
         g = kml.GroundOverlay()
         g.altitude = 123.4
 
-        expected = (
+        expected = kml.GroundOverlay()
+        expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             '<kml:visibility>1</kml:visibility>'
             '<kml:altitude>123.4</kml:altitude>'
@@ -2173,13 +2178,14 @@ class GroundOverlayStringTestCase(unittest.TestCase):
             '</kml:GroundOverlay>'
         )
 
-        self.assertEqual(g.to_string(prettyprint=False), expected)
+        self.assertEqual(g.to_string(), expected.to_string())
 
     def test_altitude_from_string(self):
         g = kml.GroundOverlay()
         g.altitude = '123.4'
 
-        expected = (
+        expected = kml.GroundOverlay()
+        expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             '<kml:visibility>1</kml:visibility>'
             '<kml:altitude>123.4</kml:altitude>'
@@ -2187,14 +2193,15 @@ class GroundOverlayStringTestCase(unittest.TestCase):
             '</kml:GroundOverlay>'
         )
 
-        self.assertEqual(g.to_string(prettyprint=False), expected)
+        self.assertEqual(g.to_string(), expected.to_string())
 
     def test_altitude_mode_absolute(self):
         g = kml.GroundOverlay()
         g.altitude = '123.4'
         g.altitudeMode = 'absolute'
 
-        expected = (
+        expected = kml.GroundOverlay()
+        expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             '<kml:visibility>1</kml:visibility>'
             '<kml:altitude>123.4</kml:altitude>'
@@ -2202,14 +2209,15 @@ class GroundOverlayStringTestCase(unittest.TestCase):
             '</kml:GroundOverlay>'
         )
 
-        self.assertEqual(g.to_string(prettyprint=False), expected)
+        self.assertEqual(g.to_string(), expected.to_string())
 
     def test_altitude_mode_unknown_string(self):
         g = kml.GroundOverlay()
         g.altitude = '123.4'
         g.altitudeMode = 'unknown string'
 
-        expected = (
+        expected = kml.GroundOverlay()
+        expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             '<kml:visibility>1</kml:visibility>'
             '<kml:altitude>123.4</kml:altitude>'
@@ -2217,14 +2225,15 @@ class GroundOverlayStringTestCase(unittest.TestCase):
             '</kml:GroundOverlay>'
         )
 
-        self.assertEqual(g.to_string(prettyprint=False), expected)
+        self.assertEqual(g.to_string(), expected.to_string())
 
     def test_altitude_mode_value(self):
         g = kml.GroundOverlay()
         g.altitude = '123.4'
         g.altitudeMode = 1234
 
-        expected = (
+        expected = kml.GroundOverlay()
+        expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             '<kml:visibility>1</kml:visibility>'
             '<kml:altitude>123.4</kml:altitude>'
@@ -2232,13 +2241,14 @@ class GroundOverlayStringTestCase(unittest.TestCase):
             '</kml:GroundOverlay>'
         )
 
-        self.assertEqual(g.to_string(prettyprint=False), expected)
+        self.assertEqual(g.to_string(), expected.to_string())
 
     def test_latlonbox_no_rotation(self):
         g = kml.GroundOverlay()
         g.latLonBox(10, 20, 30, 40)
 
-        expected = (
+        expected = kml.GroundOverlay()
+        expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             '<kml:visibility>1</kml:visibility>'
             '<kml:latLonBox>'
@@ -2251,13 +2261,14 @@ class GroundOverlayStringTestCase(unittest.TestCase):
             '</kml:GroundOverlay>'
         )
 
-        self.assertEqual(g.to_string(prettyprint=False), expected)
+        self.assertEqual(g.to_string(), expected.to_string())
 
     def test_latlonbox_rotation(self):
         g = kml.GroundOverlay()
         g.latLonBox(10, 20, 30, 40, 50)
 
-        expected = (
+        expected = kml.GroundOverlay()
+        expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             '<kml:visibility>1</kml:visibility>'
             '<kml:latLonBox>'
@@ -2270,7 +2281,7 @@ class GroundOverlayStringTestCase(unittest.TestCase):
             '</kml:GroundOverlay>'
         )
 
-        self.assertEqual(g.to_string(prettyprint=False), expected)
+        self.assertEqual(g.to_string(), expected.to_string())
 
     def test_latlonbox_nswer(self):
         g = kml.GroundOverlay()
@@ -2280,7 +2291,8 @@ class GroundOverlayStringTestCase(unittest.TestCase):
         g.west = 40
         g.rotation = 50
 
-        expected = (
+        expected = kml.GroundOverlay()
+        expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             '<kml:visibility>1</kml:visibility>'
             '<kml:latLonBox>'
@@ -2293,7 +2305,7 @@ class GroundOverlayStringTestCase(unittest.TestCase):
             '</kml:GroundOverlay>'
         )
 
-        self.assertEqual(g.to_string(prettyprint=False), expected)
+        self.assertEqual(g.to_string(), expected.to_string())
 
 
 def test_suite():

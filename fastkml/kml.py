@@ -28,8 +28,7 @@ http://schemas.opengis.net/kml/.
 try:
     import urlparse
 except ImportError:
-    # Python 3
-    import urllib.parse as urlparse
+    import urllib.parse as urlparse  # Python 3
 import warnings
 
 # from .geometry import Point, LineString, Polygon
@@ -708,7 +707,7 @@ class _Overlay(_Feature):
 
     @icon.setter
     def icon(self, url):
-        if isinstance(url, str):
+        if isinstance(url, basestring):
             if not url.startswith('<href>'):
                 url = '<href>' + url
             if not url.endswith('</href>'):
@@ -731,6 +730,18 @@ class _Overlay(_Feature):
             icon = etree.SubElement(element, "%sicon" % self.ns)
             icon.text = self._icon
         return element
+
+    def from_element(self, element):
+        super(_Overlay, self).from_element(element)
+        color = element.find('%scolor' % self.ns)
+        if color is not None:
+            self.color = color.text
+        drawOrder = element.find('%sdrawOrder' % self.ns)
+        if drawOrder is not None:
+            self.drawOrder = drawOrder.text
+        icon = element.find('%sicon' % self.ns)
+        if icon is not None:
+            self.icon = icon.text
 
 
 class GroundOverlay(_Overlay):
@@ -762,6 +773,7 @@ class GroundOverlay(_Overlay):
     #       elevated above the terrain by 7 meters.
 
     # - LatLonBox -
+    # TODO: Convert this to it's own class?
     # Specifies where the top, bottom, right, and left sides of a bounding box
     # for the ground overlay are aligned. Also, optionally the rotation of the
     # overlay.
@@ -924,6 +936,32 @@ class GroundOverlay(_Overlay):
                 rotation.text = self._rotation
 
         return element
+
+    def from_element(self, element):
+        super(GroundOverlay, self).from_element(element)
+        altitude = element.find('%saltitude' % self.ns)
+        if altitude is not None:
+            self.altitude = altitude.text
+        altitudeMode = element.find('%saltitudeMode' % self.ns)
+        if altitudeMode is not None:
+            self.altitudeMode = altitudeMode.text
+        latLonBox = element.find('%slatLonBox' % self.ns)
+        if latLonBox is not None:
+            north = latLonBox.find('%snorth' % self.ns)
+            if north is not None:
+                self.north = north.text
+            south = latLonBox.find('%ssouth' % self.ns)
+            if south is not None:
+                self.south = south.text
+            east = latLonBox.find('%seast' % self.ns)
+            if east is not None:
+                self.east = east.text
+            west = latLonBox.find('%swest' % self.ns)
+            if west is not None:
+                self.west = west.text
+            rotation = latLonBox.find('%srotation' % self.ns)
+            if rotation is not None:
+                self.rotation = rotation.text
 
 
 class Document(_Container):
