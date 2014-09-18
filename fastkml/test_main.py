@@ -878,6 +878,39 @@ class KmlFromStringTestCase(unittest.TestCase):
         doc2.from_string(doc.to_string())
         self.assertEqual(doc.to_string(), doc2.to_string())
 
+    def test_groundoverlay(self):
+        doc = kml.KML()
+
+        doc.from_string(
+            """
+            <kml xmlns="http://www.opengis.net/kml/2.2">
+              <Folder>
+                <name>Ground Overlays</name>
+                <description>Examples of ground overlays</description>
+                <GroundOverlay>
+                  <name>Large-scale overlay on terrain</name>
+                  <description>Overlay shows Mount Etna erupting
+                      on July 13th, 2001.</description>
+                  <Icon>
+                    <href>http://developers.google.com/kml/documentation/images/etna.jpg</href>
+                  </Icon>
+                  <LatLonBox>
+                    <north>37.91904192681665</north>
+                    <south>37.46543388598137</south>
+                    <east>15.35832653742206</east>
+                    <west>14.60128369746704</west>
+                    <rotation>-0.1556640799496235</rotation>
+                  </LatLonBox>
+                </GroundOverlay>
+              </Folder>
+            </kml>
+            """
+        )
+
+        doc2 = kml.KML()
+        doc2.from_string(doc.to_string())
+        self.assertEqual(doc.to_string(), doc2.to_string())
+
 
 class StyleTestCase(unittest.TestCase):
     def test_styleurl(self):
