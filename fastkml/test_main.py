@@ -2020,10 +2020,22 @@ class BaseFeatureTestCase(unittest.TestCase):
 
 
 class BaseOverlayTestCase(unittest.TestCase):
-    def test_color(self):
+    def test_color_string(self):
         o = kml._Overlay(name='An Overlay')
         o.color = '00010203'
         self.assertEqual(o.color, '00010203')
+
+    def test_color_none(self):
+        o = kml._Overlay(name='An Overlay')
+        o.color = '00010203'
+        self.assertEqual(o.color, '00010203')
+        o.color = None
+        self.assertEqual(o.color, None)
+
+    def test_color_value_error(self):
+        o = kml._Overlay(name='An Overlay')
+        with self.assertRaises(ValueError):
+            o.color = object()
 
     def test_draw_order_string(self):
         o = kml._Overlay(name='An Overlay')
@@ -2035,10 +2047,17 @@ class BaseOverlayTestCase(unittest.TestCase):
         o.drawOrder = 1
         self.assertEqual(o.drawOrder, '1')
 
+    def test_draw_order_none(self):
+        o = kml._Overlay(name='An Overlay')
+        o.drawOrder = '1'
+        self.assertEqual(o.drawOrder, '1')
+        o.drawOrder = None
+        self.assertEqual(o.drawOrder, None)
+
     def test_draw_order_value_error(self):
         o = kml._Overlay(name='An Overlay')
-        o.drawOrder = object()
-        self.assertEqual(o.drawOrder, None)
+        with self.assertRaises(ValueError):
+            o.drawOrder = object()
 
     def test_icon_without_tag(self):
         o = kml._Overlay(name='An Overlay')
@@ -2089,12 +2108,14 @@ class GroundOverlayTestCase(unittest.TestCase):
         self.g.altitude = '123'
         self.assertEqual(self.g.altitude, '123')
 
-    def test_altitude_type_error(self):
-        self.g.altitude = object()
-        self.assertEqual(self.g.altitude, None)
-
     def test_altitude_value_error(self):
-        self.g.altitude = ''
+        with self.assertRaises(ValueError):
+            self.g.altitude = object()
+
+    def test_altitude_none(self):
+        self.g.altitude = '123'
+        self.assertEqual(self.g.altitude, '123')
+        self.g.altitude = None
         self.assertEqual(self.g.altitude, None)
 
     def test_altitude_mode_default(self):
@@ -2112,11 +2133,29 @@ class GroundOverlayTestCase(unittest.TestCase):
         self.g.altitudeMode = 'absolute'
         self.assertEqual(self.g.altitudeMode, 'absolute')
 
-    def test_latlonbox_function_value_error(self):
-        with self.assertRaises(ValueError):
-            self.g.latLonBox('', '', '', '', '')
+    def test_latlonbox_function(self):
+        self.g.latLonBox(10, 20, 30, 40, 50)
 
-    def test_latlonbox_properties(self):
+        self.assertEqual(self.g.north, '10')
+        self.assertEqual(self.g.south, '20')
+        self.assertEqual(self.g.east, '30')
+        self.assertEqual(self.g.west, '40')
+        self.assertEqual(self.g.rotation, '50')
+
+    def test_latlonbox_string(self):
+        self.g.north = '10'
+        self.g.south = '20'
+        self.g.east = '30'
+        self.g.west = '40'
+        self.g.rotation = '50'
+
+        self.assertEqual(self.g.north, '10')
+        self.assertEqual(self.g.south, '20')
+        self.assertEqual(self.g.east, '30')
+        self.assertEqual(self.g.west, '40')
+        self.assertEqual(self.g.rotation, '50')
+
+    def test_latlonbox_int(self):
         self.g.north = 10
         self.g.south = 20
         self.g.east = 30
@@ -2129,12 +2168,34 @@ class GroundOverlayTestCase(unittest.TestCase):
         self.assertEqual(self.g.west, '40')
         self.assertEqual(self.g.rotation, '50')
 
-    def test_latlonbox_properties_type_error(self):
-        self.g.north = object()
-        self.g.south = object()
-        self.g.east = object()
-        self.g.west = object()
-        self.g.rotation = object()
+    def test_latlonbox_float(self):
+        self.g.north = 10.0
+        self.g.south = 20.0
+        self.g.east = 30.0
+        self.g.west = 40.0
+        self.g.rotation = 50.0
+
+        self.assertEqual(self.g.north, '10.0')
+        self.assertEqual(self.g.south, '20.0')
+        self.assertEqual(self.g.east, '30.0')
+        self.assertEqual(self.g.west, '40.0')
+        self.assertEqual(self.g.rotation, '50.0')
+
+    def test_latlonbox_value_error(self):
+        with self.assertRaises(ValueError):
+            self.g.north = object()
+
+        with self.assertRaises(ValueError):
+            self.g.south = object()
+
+        with self.assertRaises(ValueError):
+            self.g.east = object()
+
+        with self.assertRaises(ValueError):
+            self.g.west = object()
+
+        with self.assertRaises(ValueError):
+            self.g.rotation = object()
 
         self.assertEqual(self.g.north, None)
         self.assertEqual(self.g.south, None)
@@ -2142,12 +2203,25 @@ class GroundOverlayTestCase(unittest.TestCase):
         self.assertEqual(self.g.west, None)
         self.assertEqual(self.g.rotation, None)
 
-    def test_latlonbox_properties_value_error(self):
+    def test_latlonbox_empty_string(self):
         self.g.north = ''
         self.g.south = ''
         self.g.east = ''
         self.g.west = ''
         self.g.rotation = ''
+
+        self.assertEqual(self.g.north, '')
+        self.assertEqual(self.g.south, '')
+        self.assertEqual(self.g.east, '')
+        self.assertEqual(self.g.west, '')
+        self.assertEqual(self.g.rotation, '')
+
+    def test_latlonbox_none(self):
+        self.g.north = None
+        self.g.south = None
+        self.g.east = None
+        self.g.west = None
+        self.g.rotation = None
 
         self.assertEqual(self.g.north, None)
         self.assertEqual(self.g.south, None)

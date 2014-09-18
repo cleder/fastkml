@@ -686,7 +686,12 @@ class _Overlay(_Feature):
 
     @color.setter
     def color(self, color):
-        self._color = color
+        if isinstance(color, basestring):
+            self._color = color
+        elif color is None:
+            self._color = None
+        else:
+            raise ValueError
 
     @property
     def drawOrder(self):
@@ -694,12 +699,12 @@ class _Overlay(_Feature):
 
     @drawOrder.setter
     def drawOrder(self, value):
-        try:
-            int(value)
-        except TypeError:
+        if isinstance(value, (basestring, int, float)):
+            self._drawOrder = str(value)
+        elif value is None:
             self._drawOrder = None
         else:
-            self._drawOrder = str(value)
+            raise ValueError
 
     @property
     def icon(self):
@@ -811,12 +816,12 @@ class GroundOverlay(_Overlay):
 
     @altitude.setter
     def altitude(self, value):
-        try:
-            float(value)
-        except (ValueError, TypeError):
+        if isinstance(value, (basestring, int, float)):
+            self._altitude = str(value)
+        elif value is None:
             self._altitude = None
         else:
-            self._altitude = str(value)
+            raise ValueError
 
     @property
     def altitudeMode(self):
@@ -835,12 +840,12 @@ class GroundOverlay(_Overlay):
 
     @north.setter
     def north(self, value):
-        try:
-            float(value)
-        except (ValueError, TypeError):
+        if isinstance(value, (basestring, int, float)):
+            self._north = str(value)
+        elif value is None:
             self._north = None
         else:
-            self._north = str(value)
+            raise ValueError
 
     @property
     def south(self):
@@ -848,12 +853,12 @@ class GroundOverlay(_Overlay):
 
     @south.setter
     def south(self, value):
-        try:
-            float(value)
-        except (ValueError, TypeError):
+        if isinstance(value, (basestring, int, float)):
+            self._south = str(value)
+        elif value is None:
             self._south = None
         else:
-            self._south = str(value)
+            raise ValueError
 
     @property
     def east(self):
@@ -861,12 +866,12 @@ class GroundOverlay(_Overlay):
 
     @east.setter
     def east(self, value):
-        try:
-            float(value)
-        except (ValueError, TypeError):
+        if isinstance(value, (basestring, int, float)):
+            self._east = str(value)
+        elif value is None:
             self._east = None
         else:
-            self._east = str(value)
+            raise ValueError
 
     @property
     def west(self):
@@ -874,12 +879,12 @@ class GroundOverlay(_Overlay):
 
     @west.setter
     def west(self, value):
-        try:
-            float(value)
-        except (ValueError, TypeError):
+        if isinstance(value, (basestring, int, float)):
+            self._west = str(value)
+        elif value is None:
             self._west = None
         else:
-            self._west = str(value)
+            raise ValueError
 
     @property
     def rotation(self):
@@ -887,29 +892,20 @@ class GroundOverlay(_Overlay):
 
     @rotation.setter
     def rotation(self, value):
-        try:
-            float(value)
-        except (ValueError, TypeError):
+        if isinstance(value, (basestring, int, float)):
+            self._rotation = str(value)
+        elif value is None:
             self._rotation = None
         else:
-            self._rotation = str(value)
+            raise ValueError
 
     def latLonBox(self, north, south, east, west, rotation=0):
         # TODO: Check for bounds (0:+/-90 or 0:+/-180 degrees)
-        try:
-            float(north)
-            float(south)
-            float(east)
-            float(west)
-            float(rotation)
-        except:
-            raise ValueError
-        else:
-            self._north = str(north)
-            self._south = str(south)
-            self._east = str(east)
-            self._west = str(west)
-            self._rotation = str(rotation)
+        self.north = north
+        self.south = south
+        self.east = east
+        self.west = west
+        self.rotation = rotation
 
     def etree_element(self):
         element = super(GroundOverlay, self).etree_element()
