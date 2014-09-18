@@ -1,6 +1,5 @@
 -r common.txt
 
-unittest2
 pytest
 pep8
 coveralls
