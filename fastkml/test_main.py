@@ -15,7 +15,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-import unittest
+import unittest2 as unittest
 
 from fastkml import kml
 from fastkml import styles
@@ -1964,7 +1964,7 @@ class BaseFeatureTestCase(unittest.TestCase):
 
     def test_address_value_error(self):
         f = kml._Feature()
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             f.address = 123
 
     def test_phone_number_string(self):
@@ -1979,7 +1979,7 @@ class BaseFeatureTestCase(unittest.TestCase):
 
     def test_phone_number_value_error(self):
         f = kml._Feature()
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             f.phoneNumber = 123
 
 
@@ -2033,7 +2033,7 @@ class BaseOverlayTestCase(unittest.TestCase):
 
     def test_icon_raise_exception(self):
         o = kml._Overlay(name='An Overlay')
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             o.icon = 12345
 
 
@@ -2077,7 +2077,7 @@ class GroundOverlayTestCase(unittest.TestCase):
         self.assertEqual(self.g.altitudeMode, 'absolute')
 
     def test_latlonbox_function_value_error(self):
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(ValueError):
             self.g.latLonBox('', '', '', '', '')
 
     def test_latlonbox_properties(self):
