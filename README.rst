@@ -85,7 +85,7 @@ package is run through Travis-CI):
     # Or optionally (to skip tests for Python versions you do not have installed)
     tox --skip-missing-interpreters
 
-This will run through all of the tests and produce an output similar to:
+This will run through all of the tests and produce an output similar to::
 
     ______________________________________________________ summary ______________________________________________________
     SKIPPED:  py26: InterpreterNotFound: python2.6
