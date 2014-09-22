@@ -2,6 +2,11 @@
 Changelog
 =========
 
+0.9 (unreleased)
+-----------------
+
+- Add tox.ini for running tests using tox [Ian Lee]
+
 0.8 (2014/09/18)
 -----------------
 

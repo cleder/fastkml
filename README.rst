@@ -16,6 +16,7 @@ Geometries are handled as pygeoif_ or shapely_ (if installed) objects.
 .. _collective.geo.fastkml: http://pypi.python.org/pypi/collective.geo.fastkml
 .. _lxml: https://pypi.python.org/pypi/lxml
 .. _dateutils: https://pypi.python.org/pypi/dateutils
+.. _tox: https://pypi.python.org/pypi/tox
 
 fastkml is continually tested with *Travis CI*
 
@@ -32,11 +33,11 @@ Rationale
 ==========
 
 Why yet another KML library? None of the existing ones quite fitted my requirements
- 
-* fastkml can *read and write* KML files, feeding fastkmls output back into fastkml 
-  and serializing it again will result in the same output. 
+
+* fastkml can *read and write* KML files, feeding fastkmls output back into fastkml
+  and serializing it again will result in the same output.
 * You can parse any kml snipppet, it does not need to be a complete KML document.
-* It runs on python 2 and 3. 
+* It runs on python 2 and 3.
 * It is fully tested and actively maintained.
 * Geometries are handled in the `__geo_interface__` standard.
 * Minimal dependencies, pure python.
@@ -46,7 +47,7 @@ Why yet another KML library? None of the existing ones quite fitted my requireme
 Install
 ========
 
-You can install the package with `pip install fastkml` or `easy_install fastkml` 
+You can install the package with `pip install fastkml` or `easy_install fastkml`
 which should also pull in all requirements.
 
 Requirements
@@ -55,7 +56,8 @@ Requirements
 * pygeoif_
 * dateutils_
 
-optional:
+Optional:
+---------
 
 * lxml_
 * shapely_
@@ -68,6 +70,50 @@ To install packages required for running tests:
 
     pip install -r requirements/test.txt
 
+Testing
+-------
+
+You can make use of tox_ >= 1.8 to test the entire matrix of options ``(with /
+without lxml) * (pygeoif vs shapely) * (py26,py27,py32,py33,py34)`` as well as
+pep8 style checking in a single call (this approximates what happens when the
+package is run through Travis-CI):
+
+    # Install tox
+    pip install tox>=1.8
+    tox
+
+    # Or optionally (to skip tests for Python versions you do not have installed)
+    tox --skip-missing-interpreters
+
+This will run through all of the tests and produce an output similar to:
+
+    ______________________________________________________ summary ______________________________________________________
+    SKIPPED:  py26: InterpreterNotFound: python2.6
+      py27: commands succeeded
+    SKIPPED:  py32: InterpreterNotFound: python3.2
+    SKIPPED:  py33: InterpreterNotFound: python3.3
+      py34: commands succeeded
+    SKIPPED:  py26-shapely: InterpreterNotFound: python2.6
+    SKIPPED:  py26-lxml: InterpreterNotFound: python2.6
+      py27-shapely: commands succeeded
+      py27-lxml: commands succeeded
+    SKIPPED:  py32-shapely: InterpreterNotFound: python3.2
+    SKIPPED:  py32-lxml: InterpreterNotFound: python3.2
+    SKIPPED:  py33-shapely: InterpreterNotFound: python3.3
+    SKIPPED:  py33-lxml: InterpreterNotFound: python3.3
+      py34-shapely: commands succeeded
+      py34-lxml: commands succeeded
+    SKIPPED:  py26-shapely-lxml: InterpreterNotFound: python2.6
+      py27-shapely-lxml: commands succeeded
+    SKIPPED:  py32-shapely-lxml: InterpreterNotFound: python3.2
+    SKIPPED:  py33-shapely-lxml: InterpreterNotFound: python3.3
+      py34-shapely-lxml: commands succeeded
+      pep8: commands succeeded
+      congratulations :)
+
+You are primarily looking for the ``congratulations :)`` line at the bottom,
+signifying that the code is working as expected on all configurations
+available.
 
 Limitations
 ===========
