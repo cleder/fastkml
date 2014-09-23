@@ -6,7 +6,8 @@ python:
   - "2.7"
   - "2.6"
   - "pypy"
-  - "pypy3"
+#  - "pypy3" this has problems with lxml so we leave it out for now, works fine
+# without lxml
 
 env:
     - LXML=true
