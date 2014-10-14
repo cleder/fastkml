@@ -1,7 +1,6 @@
 Usage Guide
 ===========
 
-.. _collective.geo.fastkml: http://pypi.python.org/pypi/collective.geo.fastkml
 
 You can find more examples in the included tests.py file or in
 collective.geo.fastkml_, here is a quick overview:
@@ -197,4 +196,4 @@ You can create a KML object by reading a KML file as a string
       </kml:Document>
     </kml:kml>
 
-
+.. _collective.geo.fastkml: https://pypi.python.org/pypi/collective.geo.fastkml
