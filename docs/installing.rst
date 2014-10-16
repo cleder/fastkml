@@ -23,8 +23,8 @@ You can install all of the requirements for working with fastkml by using pip_::
 .. note::
 
     Shapely_ requires that libgeos be installed on your system. ``apt-get
-    install libgeos`` will install these requirements for you on Debian-based
-    systems.
+    install libgeos-dev`` will install these requirements for you on Debian-
+    based systems.
 
 .. _lxml: https://pypi.python.org/pypi/lxml
 .. _pip: https://pypi.python.org/pypi/pip
