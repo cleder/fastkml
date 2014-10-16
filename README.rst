@@ -22,7 +22,7 @@ fastkml is continually tested with *Travis CI*
 .. image:: https://api.travis-ci.org/cleder/fastkml.png
     :target: https://travis-ci.org/cleder/fastkml
 
-.. image:: https://readthedocs.org/projects/fastkml/?badge=latest
+.. image:: https://readthedocs.org/projects/fastkml/badge/
     :target: https://fastkml.readthedocs.org/
 
 .. image:: https://coveralls.io/repos/cleder/fastkml/badge.png?branch=master
