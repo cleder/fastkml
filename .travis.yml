@@ -18,13 +18,16 @@ env:
 install:
     - pip install -r requirements.txt
     - if $LXML == true; then pip install lxml; fi
+    # Python 2.6 uses the unittest2 testing package backported from Python
+    # 2.7+'s unittest packages
     - if [[ $TRAVIS_PYTHON_VERSION == 2.6 ]]; then pip install unittest2; fi
 
 # command to run tests, e.g. python setup.py test
 script:
     - pep8 --exclude test_main.py fastkml
     - coverage run --source=fastkml setup.py test
-    - cd docs && make html
+    # Python 3.2 Sphinx / Jinja throws a Syntax Error while parsing the docs
+    - if [[ $TRAVIS_PYTHON_VERSION != 3.2 ]]; then cd docs && make html; fi
 
 after_success:
     coveralls
