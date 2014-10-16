@@ -50,7 +50,7 @@ Optional
 * lxml_
 * shapely_
 
-You can install all of the requirements for working with fastkml by using pip_:
+You can install all of the requirements for working with fastkml by using pip_::
 
     pip install -r requirements.txt
 

@@ -16,4 +16,16 @@ Install it with ``pip install fastkml`` or ``easy_install fastkml``.
 If you use it extensively or need to process big kml files consider
 installing lxml_ as it speeds up processing.
 
+You can install all of the requirements for working with fastkml by using pip_::
+
+    pip install -r requirements.txt
+
+.. note::
+
+    Shapely_ requires that libgeos be installed on your system. ``apt-get
+    install libgeos`` will install these requirements for you on Debian-based
+    systems.
+
 .. _lxml: https://pypi.python.org/pypi/lxml
+.. _pip: https://pypi.python.org/pypi/pip
+.. _shapely: http://pypi.python.org/pypi/Shapely
