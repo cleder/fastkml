@@ -21,6 +21,8 @@ you are making and or the bug that you are fixing. This will then trigger a
 build in `Travis-CI`_ where your contribution will be tested to verify it does
 not break existing functionality.
 
+.. _travis-ci: https://travis-ci.org/cleder/fastkml
+
 
 Running Tests Locally
 ---------------------
