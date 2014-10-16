@@ -15,6 +15,7 @@ Geometries are handled as pygeoif_ or shapely_ (if installed) objects.
 .. _shapely: http://pypi.python.org/pypi/Shapely
 .. _lxml: https://pypi.python.org/pypi/lxml
 .. _dateutils: https://pypi.python.org/pypi/dateutils
+.. _pip: https://pypi.python.org/pypi/pip
 
 fastkml is continually tested with *Travis CI*
 
@@ -48,6 +49,11 @@ Optional
 
 * lxml_
 * shapely_
+
+You can install all of the requirements for working with fastkml by using pip_:
+
+    pip install -r requirements.txt
+
 
 Documentation
 =============
