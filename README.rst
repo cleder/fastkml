@@ -32,6 +32,15 @@ fastkml is continually tested with *Travis CI*
     :target: https://www.ohloh.net/p/fastkml
 
 
+Documentation
+=============
+
+You can find all of the documentation for FastKML at `fastkml.readthedocs.org
+<https://fastkml.readthedocs.org>`_. If you find something that is missing,
+please submit a pull request on `GitHub <https://github.com/cleder/fastkml>`_
+with the improvement.
+
+
 Install
 ========
 
@@ -59,15 +68,6 @@ You can install all of the requirements for working with fastkml by using pip_::
     Shapely_ requires that libgeos be installed on your system. ``apt-get
     install libgeos-dev`` will install these requirements for you on Debian-
     based systems.
-
-
-Documentation
-=============
-
-You can find all of the documentation for FastKML at `fastkml.readthedocs.org
-<https://fastkml.readthedocs.org>`_. If you find something that is missing,
-please submit a pull request on `GitHub <https://github.com/cleder/fastkml>`_
-with the improvement.
 
 
 Limitations
