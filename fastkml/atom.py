@@ -1,25 +1,25 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2012  Christian Ledermann
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
-
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """
-KML 2.2 supports new elements for including data about the author and
-related website in your KML file. This information is displayed in geo
-search results, both in Earth browsers such as Google Earth, and in other
-applications such as Google Maps. The ascription elements used in KML
-are as follows:
+KML 2.2 supports new elements for including data about the author and related
+website in your KML file. This information is displayed in geo search results,
+both in Earth browsers such as Google Earth, and in other applications such as
+Google Maps. The ascription elements used in KML are as follows:
 
 atom:author element - parent element for atom:name
 atom:name element - the name of the author
@@ -29,8 +29,9 @@ href attribute - URL of the web page containing the KML/KMZ file
 These elements are defined in the Atom Syndication Format. The complete
 specification is found at http://atompub.org.
 
-This library only  implements a subset of Atom that is useful with KML
+This library only implements a subset of Atom that is useful with KML
 """
+
 import logging
 logger = logging.getLogger('fastkml.atom')
 

@@ -6,7 +6,7 @@ Changelog
 -----------------
 
 - Add tox.ini for running tests using tox [Ian Lee]
-- Add PyPy and PyPy3 to travis cofiguration
+- Add documentation, hosted at https://fastkml.readthedocs.org [Ian Lee]
 
 0.8 (2014/09/18)
 -----------------

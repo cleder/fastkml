@@ -2,40 +2,44 @@
 Reference Guide
 ===============
 
-Modules
-=======
-
-atom
-----
+Atom
+====
 
 .. automodule:: fastkml.atom
+    :members:
 
-base
-----
+Base
+====
 
 .. automodule:: fastkml.base
+    :members:
 
-config
-------
+Config
+======
 
 .. automodule:: fastkml.config
+    :members:
 
-geometry
---------
+Geometry
+========
 
 .. automodule:: fastkml.geometry
+    :members:
 
-gx
---
+GX
+==
 
 .. automodule:: fastkml.gx
+    :members:
 
-kml
----
+KML
+===
 
 .. automodule:: fastkml.kml
+    :members:
 
-styles
-------
+Styles
+======
 
 .. automodule:: fastkml.styles
+    :members:

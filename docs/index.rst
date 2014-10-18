@@ -13,10 +13,8 @@ Welcome to FastKML's documentation!
 .. image:: https://www.ohloh.net/p/fastkml/widgets/project_thin_badge.gif
     :target: https://www.ohloh.net/p/fastkml
 
-Introduction
-------------
 
-fastkml is a library to read, write and manipulate kml files. It aims to keep
+Fastkml is a library to read, write and manipulate kml files. It aims to keep
 it simple and fast (using lxml_ if available). "Fast" refers to the time you
 spend to write and read KML files as well as the time you spend to get
 aquainted to the library or to create KML objects. It provides a subset of KML
@@ -34,7 +32,7 @@ Rationale
 Why yet another KML library? None of the existing ones quite fitted my
 requirements, namely:
 
-* fastkml can *read and write* KML files, feeding fastkmls output back into
+* Fastkml can *read and write* KML files, feeding fastkmls output back into
   fastkml   and serializing it again will result in the same output.
 * You can parse any kml snipppet, it does not need to be a complete KML
   document.

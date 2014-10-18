@@ -3,6 +3,8 @@ from setuptools.command.test import test as TestCommand
 import sys
 import os
 
+import fastkml
+
 
 class PyTest(TestCommand):
     def finalize_options(self):
@@ -17,11 +19,9 @@ class PyTest(TestCommand):
         sys.exit(errno)
 
 
-version = '0.9'
-
 setup(
     name='fastkml',
-    version=version,
+    version=fastkml.__version__,
     description="Fast KML processing in python",
     long_description=(
         open("README.rst").read() + "\n" +
