@@ -1,13 +1,13 @@
 Introduction
 ============
 
-fastkml is a library to read, write and manipulate kml files. It aims
-to keep it simple and fast (using lxml_ if available). Fast refers to
-the time you spend to write and read KML files as well as the time you
-spend to get aquainted to the library or to create KML objects. It provides
-a subset of KML and is aimed at documents that can be read from multiple
-clients such as openlayers and google maps rather than to give you all
-functionality that KML on google earth provides.
+Fastkml is a library to read, write and manipulate kml files. It aims to keep
+it simple and fast (using lxml_ if available). Fast refers to the time you
+spend to write and read KML files as well as the time you spend to get
+aquainted to the library or to create KML objects. It provides a subset of KML
+and is aimed at documents that can be read from multiple clients such as
+openlayers and google maps rather than to give you all functionality that KML
+on google earth provides.
 
 Geometries are handled as pygeoif_ or shapely_ (if installed) objects.
 
@@ -17,7 +17,7 @@ Geometries are handled as pygeoif_ or shapely_ (if installed) objects.
 .. _dateutils: https://pypi.python.org/pypi/dateutils
 .. _pip: https://pypi.python.org/pypi/pip
 
-fastkml is continually tested with *Travis CI*
+Fastkml is continually tested with *Travis CI*:
 
 .. image:: https://api.travis-ci.org/cleder/fastkml.png
     :target: https://travis-ci.org/cleder/fastkml
@@ -59,7 +59,8 @@ Optional
 * lxml_
 * shapely_
 
-You can install all of the requirements for working with fastkml by using pip_::
+You can install all of the requirements for working with FastKML by using
+pip_::
 
     pip install -r requirements.txt
 
