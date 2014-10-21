@@ -26,7 +26,7 @@ from .styles import LabelStyle, BalloonStyle
 
 from .atom import Link, Author, Contributor
 
-__version__ = '0.9'
+__version__ = '0.10.dev'
 
 __all__ = [
     'KML', 'Document', 'Folder', 'Placemark',
