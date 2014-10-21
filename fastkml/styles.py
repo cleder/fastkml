@@ -353,10 +353,10 @@ class PolyStyle(_ColorStyle):
         super(PolyStyle, self).from_element(element)
         fill = element.find('%sfill' % self.ns)
         if fill is not None:
-            self.fill = int(fill.text)
+            self.fill = int(float(fill.text))
         outline = element.find('%soutline' % self.ns)
         if outline is not None:
-            self.outline = int(outline.text)
+            self.outline = int(float(outline.text))
 
 
 class LabelStyle(_ColorStyle):

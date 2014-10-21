@@ -934,6 +934,12 @@ class StyleTestCase(unittest.TestCase):
         f2.from_string(f.to_string(prettyprint=True))
         self.assertEqual(f.to_string(), f2.to_string())
 
+    def test_polystyle_fill(self):
+        style = styles.PolyStyle()
+
+    def test_polystyle_outline(self):
+        style = styles.PolyStyle()
+
 
 class StyleUsageTestCase(unittest.TestCase):
     def test_create_document_style(self):
@@ -1160,6 +1166,48 @@ class StyleFromStringTestCase(unittest.TestCase):
         self.assertTrue(isinstance(style, styles.PolyStyle))
         self.assertEqual(style.color, 'ff0000cc')
         self.assertEqual(style.colorMode, 'random')
+        k2 = kml.KML()
+        k2.from_string(k.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
+
+    def test_polystyle_float_fill(self):
+        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+          <name>PolygonStyle.kml</name>
+          <open>1</open>
+          <Style id="examplePolyStyle">
+            <PolyStyle>
+              <fill>0.0</fill>
+            </PolyStyle>
+          </Style>
+        </Document>
+        </kml>"""
+        k = kml.KML()
+        k.from_string(doc)
+        style = list(list(list(k.features())[0].styles())[0].styles())[0]
+        self.assertTrue(isinstance(style, styles.PolyStyle))
+        self.assertEqual(style.fill, 0)
+        k2 = kml.KML()
+        k2.from_string(k.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
+
+    def test_polystyle_float_outline(self):
+        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+          <name>PolygonStyle.kml</name>
+          <open>1</open>
+          <Style id="examplePolyStyle">
+            <PolyStyle>
+              <outline>0.0</outline>
+            </PolyStyle>
+          </Style>
+        </Document>
+        </kml>"""
+        k = kml.KML()
+        k.from_string(doc)
+        style = list(list(list(k.features())[0].styles())[0].styles())[0]
+        self.assertTrue(isinstance(style, styles.PolyStyle))
+        self.assertEqual(style.outline, 0)
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
