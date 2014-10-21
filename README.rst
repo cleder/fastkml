@@ -77,3 +77,6 @@ Limitations
 *Tesselate*, *Extrude* and *Altitude Mode* are assigned to a Geometry or
 Geometry collection (MultiGeometry). You cannot assign diffrent values of
 *Tesselate*, *Extrude* or *Altitude Mode* on parts of a MultiGeometry.
+
+You can find the complete list of current issues on `GitHub
+<https://github.com/cleder/fastkml/issues>`_.

@@ -25,8 +25,7 @@ setup(
     description="Fast KML processing in python",
     long_description=(
         open("README.rst").read() + "\n" +
-        open(os.path.join("docs", "HISTORY.txt")).read() + "\n" +
-        open(os.path.join("docs", "TODO.txt")).read()
+        open(os.path.join("docs", "HISTORY.txt")).read()
     ),
     classifiers=[
         "Topic :: Scientific/Engineering :: GIS",
