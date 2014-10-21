@@ -22,6 +22,10 @@ Fastkml is continually tested with *Travis CI*:
 .. image:: https://api.travis-ci.org/cleder/fastkml.png
     :target: https://travis-ci.org/cleder/fastkml
 
+.. image:: https://pypip.in/v/fastkml/badge.png
+    :target: https://pypi.python.org/pypi/fastkml
+    :alt: Latest PyPI version
+
 .. image:: https://readthedocs.org/projects/fastkml/badge/
     :target: https://fastkml.readthedocs.org/
 
