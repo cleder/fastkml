@@ -15,6 +15,17 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
+"""
+Fastkml is a library to read, write and manipulate kml files. It aims to keep
+it simple and fast (using lxml if available). Fast refers to the time you spend
+to write and read KML files as well as the time you spend to get aquainted to
+the library or to create KML objects. It provides a subset of KML and is aimed
+at documents that can be read from multiple clients such as openlayers and
+google maps rather than to give you all functionality that KML on google earth
+provides.
+"""
+
+
 from .kml import KML, Document, Folder, Placemark
 from .kml import TimeSpan, TimeStamp
 from .kml import ExtendedData, Data
