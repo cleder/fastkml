@@ -1,7 +1,6 @@
 Usage Guide
 ===========
 
-
 You can find more examples in the included ``test_main.py`` file or in
 collective.geo.fastkml_, here is a quick overview:
 

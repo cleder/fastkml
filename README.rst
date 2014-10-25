@@ -1,15 +1,16 @@
 Introduction
 ============
 
-Fastkml is a library to read, write and manipulate kml files. It aims to keep
+Fastkml is a library to read, write and manipulate KML files. It aims to keep
 it simple and fast (using lxml_ if available). Fast refers to the time you
-spend to write and read KML files as well as the time you spend to get
-aquainted to the library or to create KML objects. It provides a subset of KML
+spend to write and read KML files, as well as the time you spend to get
+acquainted with the library or to create KML objects.
+It provides a subset of KML
 and is aimed at documents that can be read from multiple clients such as
-openlayers and google maps rather than to give you all functionality that KML
+openlayers and google maps, rather than to give you all functionality that KML
 on google earth provides.
 
-Geometries are handled as pygeoif_ or shapely_ (if installed) objects.
+Geometries are handled as pygeoif_ or, if installed, shapely_ objects.
 
 .. _pygeoif: http://pypi.python.org/pypi/pygeoif/
 .. _shapely: http://pypi.python.org/pypi/Shapely
@@ -79,7 +80,7 @@ Limitations
 ===========
 
 *Tesselate*, *Extrude* and *Altitude Mode* are assigned to a Geometry or
-Geometry collection (MultiGeometry). You cannot assign diffrent values of
+Geometry collection (MultiGeometry). You cannot assign different values of
 *Tesselate*, *Extrude* or *Altitude Mode* on parts of a MultiGeometry.
 
 You can find the complete list of current issues on `GitHub

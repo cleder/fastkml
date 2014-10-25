@@ -13,7 +13,7 @@ fastkml works on Unix/Linux, OS X, and Windows.
 
 Install it with ``pip install fastkml`` or ``easy_install fastkml``.
 
-If you use fastkml extensively or need to process big kml files consider
+If you use fastkml extensively or need to process big KML files, consider
 installing lxml_ as it speeds up processing.
 
 You can install all requirements for working with fastkml by using pip_ from
