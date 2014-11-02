@@ -25,6 +25,7 @@ google maps rather than to give you all functionality that KML on google earth
 provides.
 """
 
+from pkg_resources import get_distribution, DistributionNotFound
 
 from .kml import KML, Document, Folder, Placemark
 from .kml import TimeSpan, TimeStamp
@@ -37,7 +38,10 @@ from .styles import LabelStyle, BalloonStyle
 
 from .atom import Link, Author, Contributor
 
-__version__ = '0.10.dev'
+try:
+    __version__ = get_distribution('fastkml').version
+except DistributionNotFound:
+    __version__ = 'dev'
 
 __all__ = [
     'KML', 'Document', 'Folder', 'Placemark',
