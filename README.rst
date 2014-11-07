@@ -22,19 +22,35 @@ Fastkml is continually tested with *Travis CI*:
 .. image:: https://api.travis-ci.org/cleder/fastkml.png
     :target: https://travis-ci.org/cleder/fastkml
 
+.. image:: https://coveralls.io/repos/cleder/fastkml/badge.png?branch=master
+    :target: https://coveralls.io/r/cleder/fastkml?branch=master
+
+
+Is Maintained and documented:
+
 .. image:: https://pypip.in/v/fastkml/badge.png
     :target: https://pypi.python.org/pypi/fastkml
     :alt: Latest PyPI version
 
+.. image:: https://pypip.in/status/fastkml/badge.svg
+    :target: https://pypi.python.org/pypi/fastkml/
+    :alt: Development Status
+
 .. image:: https://readthedocs.org/projects/fastkml/badge/
     :target: https://fastkml.readthedocs.org/
 
-.. image:: https://coveralls.io/repos/cleder/fastkml/badge.png?branch=master
-    :target: https://coveralls.io/r/cleder/fastkml?branch=master
+.. image:: https://www.openhub.net/p/fastkml/widgets/project_thin_badge.gif
+    :target: https://www.openhub.net/p/fastkml
 
-.. image:: https://www.ohloh.net/p/fastkml/widgets/project_thin_badge.gif
-    :target: https://www.ohloh.net/p/fastkml
+Supports python 2 and 3:
 
+.. image:: https://pypip.in/py_versions/fastkml/badge.svg
+    :target: https://pypi.python.org/pypi/fastkml/
+    :alt: Supported Python versions
+
+.. image:: https://pypip.in/implementation/fastkml/badge.svg
+    :target: https://pypi.python.org/pypi/fastkml/
+    :alt: Supported Python implementations
 
 Documentation
 =============
