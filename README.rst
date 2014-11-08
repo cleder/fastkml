@@ -4,10 +4,10 @@ Introduction
 Fastkml is a library to read, write and manipulate kml files. It aims to keep
 it simple and fast (using lxml_ if available). Fast refers to the time you
 spend to write and read KML files as well as the time you spend to get
-aquainted to the library or to create KML objects. It provides a subset of KML
-and is aimed at documents that can be read from multiple clients such as
-openlayers and google maps rather than to give you all functionality that KML
-on google earth provides.
+aquainted to the library or to create KML objects. It aims to provide all of
+the functionality that KML clients such as `OpenLayers
+<http://openlayers.org/>`_, `Google Maps <http://maps.google.com/>`_, and
+`Google Earth <http://earth.google.com/>`_ provides.
 
 Geometries are handled as pygeoif_ or shapely_ (if installed) objects.
 
@@ -97,6 +97,11 @@ Limitations
 *Tesselate*, *Extrude* and *Altitude Mode* are assigned to a Geometry or
 Geometry collection (MultiGeometry). You cannot assign diffrent values of
 *Tesselate*, *Extrude* or *Altitude Mode* on parts of a MultiGeometry.
+
+Currently, the only major feature missing for the full Google Earth experience
+is the `gx extension
+<https://developers.google.com/kml/documentation/kmlreference#kmlextensions>`_.
+This will most likely be added after the 1.0 version release.
 
 You can find the complete list of current issues on `GitHub
 <https://github.com/cleder/fastkml/issues>`_.
