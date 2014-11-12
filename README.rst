@@ -1,6 +1,3 @@
-.. image:: https://badge.waffle.io/cleder/fastkml.png?label=ready&title=Ready 
- :target: https://waffle.io/cleder/fastkml
- :alt: 'Stories in Ready'
 Introduction
 ============
 
@@ -42,8 +39,13 @@ Is Maintained and documented:
 .. image:: https://readthedocs.org/projects/fastkml/badge/
     :target: https://fastkml.readthedocs.org/
 
+.. image:: https://badge.waffle.io/cleder/fastkml.png?label=ready&title=Ready
+    :target: https://waffle.io/cleder/fastkml
+    :alt: 'Stories in Ready'
+
 .. image:: https://www.openhub.net/p/fastkml/widgets/project_thin_badge.gif
     :target: https://www.openhub.net/p/fastkml
+    :alt: Statistics from OpenHub
 
 Supports python 2 and 3:
 

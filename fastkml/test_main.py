@@ -39,6 +39,7 @@ from fastkml.geometry import Geometry
 
 
 class BaseClassesTestCase(unittest.TestCase):
+
     """ BaseClasses  must raise a NotImplementedError on etree_element
     and a TypeError on from_element """
 
@@ -133,7 +134,9 @@ class BaseClassesTestCase(unittest.TestCase):
 
 
 class BuildKmlTestCase(unittest.TestCase):
+
     """ Build a simple KML File """
+
     def test_kml(self):
         """ kml file without contents """
         k = kml.KML()
@@ -147,12 +150,14 @@ class BuildKmlTestCase(unittest.TestCase):
             if hasattr(etree, 'register_namespace'):
                 self.assertEqual(
                     str(k.to_string())[:51],
-                    '<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2" />'[:51]
+                    '<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2" />'[
+                        :51]
                 )
             else:
                 self.assertEqual(
                     str(k.to_string())[:51],
-                    '<ns0:kml xmlns:ns0="http://www.opengis.net/kml/2.2" />'[:51]
+                    '<ns0:kml xmlns:ns0="http://www.opengis.net/kml/2.2" />'[
+                        :51]
                 )
 
         k2 = kml.KML()
@@ -201,10 +206,14 @@ class BuildKmlTestCase(unittest.TestCase):
         self.assertEqual(list(s.simple_fields)[0]['displayName'], 'An Integer')
         s.simple_fields = None
         self.assertEqual(len(list(s.simple_fields)), 0)
-        self.assertRaises(TypeError, s.append, ('none', 'Integer', 'An Integer'))
-        self.assertRaises(TypeError, s.simple_fields, [('none', 'Integer', 'An Integer')])
-        self.assertRaises(TypeError, s.simple_fields, ('int', 'Integer', 'An Integer'))
-        fields = {'type': 'int', 'name': 'Integer', 'displayName': 'An Integer'}
+        self.assertRaises(
+            TypeError, s.append, ('none', 'Integer', 'An Integer'))
+        self.assertRaises(
+            TypeError, s.simple_fields, [('none', 'Integer', 'An Integer')])
+        self.assertRaises(
+            TypeError, s.simple_fields, ('int', 'Integer', 'An Integer'))
+        fields = {'type': 'int', 'name':
+                  'Integer', 'displayName': 'An Integer'}
         s.simple_fields = fields
         self.assertEqual(list(s.simple_fields)[0]['type'], 'int')
         self.assertEqual(list(s.simple_fields)[0]['name'], 'Integer')
@@ -231,7 +240,8 @@ class BuildKmlTestCase(unittest.TestCase):
         data = (('text', 'Some new Text'), {'value': 2, 'name': 'Integer'})
         sd.data = data
         self.assertEqual(len(sd.data), 2)
-        self.assertEqual(sd.data[0], {'value': 'Some new Text', 'name': 'text'})
+        self.assertEqual(
+            sd.data[0], {'value': 'Some new Text', 'name': 'text'})
         self.assertEqual(sd.data[1], {'value': 2, 'name': 'Integer'})
 
     def test_untyped_extended_data(self):
@@ -302,7 +312,8 @@ class BuildKmlTestCase(unittest.TestCase):
         f = kml.Folder(ns, 'fid', 'f name', 'f description')
         k.append(d)
         d.append(f)
-        nf = kml.Folder(ns, 'nested-fid', 'nested f name', 'nested f description')
+        nf = kml.Folder(
+            ns, 'nested-fid', 'nested f name', 'nested f description')
         f.append(nf)
         f2 = kml.Folder(ns, 'id2', 'name2', 'description2')
         d.append(f2)
@@ -322,7 +333,8 @@ class BuildKmlTestCase(unittest.TestCase):
         d = kml.Document()
         d.author = 'Christian Ledermann'
         self.assertTrue('Christian Ledermann' in str(d.to_string()))
-        a = atom.Author(name='Nobody', uri='http://localhost', email='cl@donotreply.com')
+        a = atom.Author(
+            name='Nobody', uri='http://localhost', email='cl@donotreply.com')
         d.author = a
         self.assertEqual(d.author, 'Nobody')
         self.assertFalse('Christian Ledermann' in str(d.to_string()))
@@ -363,6 +375,7 @@ class BuildKmlTestCase(unittest.TestCase):
 
 
 class KmlFromStringTestCase(unittest.TestCase):
+
     def test_document(self):
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document targetId="someTargetId">
@@ -531,7 +544,8 @@ class KmlFromStringTestCase(unittest.TestCase):
         self.assertEqual(extended_data.elements[1].name, 'holePar')
         self.assertEqual(extended_data.elements[1].value, '4')
         self.assertTrue(
-            '<i>The par for this hole is </i>' in extended_data.elements[1].display_name
+            '<i>The par for this hole is </i>' in extended_data.elements[
+                1].display_name
         )
         sd = extended_data.elements[2]
         self.assertEqual(sd.data[0]['name'], 'TrailHeadName')
@@ -779,15 +793,19 @@ class KmlFromStringTestCase(unittest.TestCase):
         self.assertEqual(list(s.simple_fields)[0]['name'], 'TrailHeadName')
         self.assertEqual(list(s.simple_fields)[1]['name'], 'TrailLength')
         self.assertEqual(list(s.simple_fields)[2]['name'], 'ElevationGain')
-        self.assertEqual(list(s.simple_fields)[0]['displayName'], '<b>Trail Head Name</b>')
-        self.assertEqual(list(s.simple_fields)[1]['displayName'], '<i>The length in miles</i>')
-        self.assertEqual(list(s.simple_fields)[2]['displayName'], '<i>change in altitude</i>')
+        self.assertEqual(list(s.simple_fields)[0][
+                         'displayName'], '<b>Trail Head Name</b>')
+        self.assertEqual(list(s.simple_fields)[1][
+                         'displayName'], '<i>The length in miles</i>')
+        self.assertEqual(list(s.simple_fields)[2][
+                         'displayName'], '<i>change in altitude</i>')
         s1 = kml.Schema(ns='', id='default')
         s1.from_string(s.to_string())
         self.assertEqual(len(list(s1.simple_fields)), 3)
         self.assertEqual(list(s1.simple_fields)[0]['type'], 'string')
         self.assertEqual(list(s1.simple_fields)[1]['name'], 'TrailLength')
-        self.assertEqual(list(s1.simple_fields)[2]['displayName'], '<i>change in altitude</i>')
+        self.assertEqual(list(s1.simple_fields)[2][
+                         'displayName'], '<i>change in altitude</i>')
         self.assertEqual(s.to_string(), s1.to_string())
         doc1 = """<kml xmlns="http://www.opengis.net/kml/2.2">
             <Document>
@@ -815,8 +833,10 @@ class KmlFromStringTestCase(unittest.TestCase):
         sd = kml.SchemaData(ns='', schema_url='#default')
         sd.from_string(doc)
         self.assertEqual(sd.schema_url, '#TrailHeadTypeId')
-        self.assertEqual(sd.data[0], {'name': 'TrailHeadName', 'value': 'Pi in the sky'})
-        self.assertEqual(sd.data[1], {'name': 'TrailLength', 'value': '3.14159'})
+        self.assertEqual(
+            sd.data[0], {'name': 'TrailHeadName', 'value': 'Pi in the sky'})
+        self.assertEqual(
+            sd.data[1], {'name': 'TrailLength', 'value': '3.14159'})
         self.assertEqual(sd.data[2], {'name': 'ElevationGain', 'value': '10'})
         sd1 = kml.SchemaData(ns='', schema_url='#default')
         sd1.from_string(sd.to_string())
@@ -913,6 +933,7 @@ class KmlFromStringTestCase(unittest.TestCase):
 
 
 class StyleTestCase(unittest.TestCase):
+
     def test_styleurl(self):
         f = kml.Document()
         f.styleUrl = '#somestyle'
@@ -942,6 +963,7 @@ class StyleTestCase(unittest.TestCase):
 
 
 class StyleUsageTestCase(unittest.TestCase):
+
     def test_create_document_style(self):
         style = styles.Style(styles=[styles.PolyStyle(color='7f000000')])
 
@@ -997,6 +1019,7 @@ class StyleUsageTestCase(unittest.TestCase):
 
 
 class StyleFromStringTestCase(unittest.TestCase):
+
     def test_styleurl(self):
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
@@ -1271,7 +1294,8 @@ class StyleFromStringTestCase(unittest.TestCase):
         k.from_string(doc)
         self.assertEqual(len(list(k.features())), 1)
         self.assertTrue(
-            isinstance(list(list(k.features())[0].styles())[0], styles.StyleMap)
+            isinstance(
+                list(list(k.features())[0].styles())[0], styles.StyleMap)
         )
         sm = list(list(list(k.features())[0].styles()))[0]
         self.assertTrue(isinstance(sm.normal, styles.StyleUrl))
@@ -1314,17 +1338,21 @@ class StyleFromStringTestCase(unittest.TestCase):
         k.from_string(doc)
         self.assertEqual(len(list(k.features())), 1)
         self.assertTrue(
-            isinstance(list(list(k.features())[0].styles())[0], styles.StyleMap)
+            isinstance(
+                list(list(k.features())[0].styles())[0], styles.StyleMap)
         )
         sm = list(list(list(k.features())[0].styles()))[0]
         self.assertTrue(isinstance(sm.normal, styles.Style))
         self.assertEqual(len(list(sm.normal.styles())), 1)
-        self.assertTrue(isinstance(list(sm.normal.styles())[0], styles.LabelStyle))
+        self.assertTrue(
+            isinstance(list(sm.normal.styles())[0], styles.LabelStyle))
         self.assertTrue(isinstance(sm.highlight, styles.Style))
         self.assertTrue(isinstance(sm.highlight, styles.Style))
         self.assertEqual(len(list(sm.highlight.styles())), 2)
-        self.assertTrue(isinstance(list(sm.highlight.styles())[0], styles.LineStyle))
-        self.assertTrue(isinstance(list(sm.highlight.styles())[1], styles.PolyStyle))
+        self.assertTrue(
+            isinstance(list(sm.highlight.styles())[0], styles.LineStyle))
+        self.assertTrue(
+            isinstance(list(sm.highlight.styles())[1], styles.PolyStyle))
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -1361,7 +1389,8 @@ class StyleFromStringTestCase(unittest.TestCase):
         k.from_string(doc)
         self.assertEqual(len(list(k.features())), 1)
         document = list(k.features())[0]
-        style = document.get_style_by_url('http://localhost:8080/somepath#exampleStyleDocument')
+        style = document.get_style_by_url(
+            'http://localhost:8080/somepath#exampleStyleDocument')
         self.assertTrue(isinstance(list(style.styles())[0], styles.LabelStyle))
         style = document.get_style_by_url('somepath#linestyleExample')
         self.assertTrue(isinstance(list(style.styles())[0], styles.LineStyle))
@@ -1527,7 +1556,8 @@ class DateTimeTestCase(unittest.TestCase):
         self.assertEqual(ts.timestamp[1], 'date')
         self.assertEqual(ts.timestamp[0], datetime.datetime(1997, 7, 16, 0, 0))
         # dateTime (YYYY-MM-DDThh:mm:ssZ)
-        # Here, T is the separator between the calendar and the hourly notation of time, and Z indicates UTC. (Seconds are required.)
+        # Here, T is the separator between the calendar and the hourly notation
+        # of time, and Z indicates UTC. (Seconds are required.)
         doc = """
         <TimeStamp>
           <when>1997-07-16T07:30:15Z</when>
@@ -1535,7 +1565,8 @@ class DateTimeTestCase(unittest.TestCase):
         """
         ts.from_string(doc)
         self.assertEqual(ts.timestamp[1], 'dateTime')
-        self.assertEqual(ts.timestamp[0], datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc()))
+        self.assertEqual(ts.timestamp[0], datetime.datetime(
+            1997, 7, 16, 7, 30, 15, tzinfo=tzutc()))
         doc = """
         <TimeStamp>
           <when>1997-07-16T10:30:15+03:00</when>
@@ -1543,7 +1574,8 @@ class DateTimeTestCase(unittest.TestCase):
         """
         ts.from_string(doc)
         self.assertEqual(ts.timestamp[1], 'dateTime')
-        self.assertEqual(ts.timestamp[0], datetime.datetime(1997, 7, 16, 10, 30, 15, tzinfo=tzoffset(None, 10800)))
+        self.assertEqual(ts.timestamp[0], datetime.datetime(
+            1997, 7, 16, 10, 30, 15, tzinfo=tzoffset(None, 10800)))
 
     def test_read_timespan(self):
         ts = kml.TimeSpan(ns='')
@@ -1557,7 +1589,8 @@ class DateTimeTestCase(unittest.TestCase):
         self.assertEqual(ts.begin[1], 'date')
         self.assertEqual(ts.begin[0], datetime.datetime(1876, 8, 1, 0, 0))
         self.assertEqual(ts.end[1], 'dateTime')
-        self.assertEqual(ts.end[0], datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc()))
+        self.assertEqual(ts.end[0], datetime.datetime(
+            1997, 7, 16, 7, 30, 15, tzinfo=tzutc()))
 
     def test_featurefromstring(self):
         d = kml.Document(ns='')
@@ -1576,6 +1609,7 @@ class DateTimeTestCase(unittest.TestCase):
 
 
 class AtomTestCase(unittest.TestCase):
+
     def test_author(self):
         a = atom.Author(name="Christian Ledermann")
         self.assertEqual(a.name, "Christian Ledermann")
@@ -1618,6 +1652,7 @@ class AtomTestCase(unittest.TestCase):
 
 
 class SetGeometryTestCase(unittest.TestCase):
+
     def test_altitude_mode(self):
         geom = Geometry()
         geom.geometry = Point(0, 1)
@@ -1632,7 +1667,8 @@ class SetGeometryTestCase(unittest.TestCase):
         geom.altitude_mode = 'clampToGround'
         self.assertFalse('altitudeMode' in str(geom.to_string()))
         geom.altitude_mode = 'relativeToGround'
-        self.assertTrue('altitudeMode>relativeToGround</' in str(geom.to_string()))
+        self.assertTrue(
+            'altitudeMode>relativeToGround</' in str(geom.to_string()))
         geom.altitude_mode = 'absolute'
         self.assertTrue('altitudeMode>absolute</' in str(geom.to_string()))
 
@@ -1683,14 +1719,16 @@ class SetGeometryTestCase(unittest.TestCase):
         g = Geometry(geometry=p.__geo_interface__)
         self.assertEqual(g.geometry.__geo_interface__, p.__geo_interface__)
         self.assertTrue('Point' in str(g.to_string()))
-        self.assertTrue('coordinates>0.000000,1.000000</' in str(g.to_string()))
+        self.assertTrue(
+            'coordinates>0.000000,1.000000</' in str(g.to_string()))
 
     def testLineString(self):
         l = LineString([(0, 0), (1, 1)])
         g = Geometry(geometry=l)
         self.assertEqual(g.geometry, l)
         self.assertTrue('LineString' in str(g.to_string()))
-        self.assertTrue('coordinates>0.000000,0.000000 1.000000,1.000000</' in str(g.to_string()))
+        self.assertTrue(
+            'coordinates>0.000000,0.000000 1.000000,1.000000</' in str(g.to_string()))
         g2 = Geometry()
         g2.from_string(g.to_string())
         self.assertEqual(g.to_string(), g2.to_string())
@@ -1740,8 +1778,10 @@ class SetGeometryTestCase(unittest.TestCase):
         g = Geometry(geometry=MultiPoint([p0, p1]))
         self.assertTrue('MultiGeometry' in str(g.to_string()))
         self.assertTrue('Point' in str(g.to_string()))
-        self.assertTrue('coordinates>0.000000,1.000000</' in str(g.to_string()))
-        self.assertTrue('coordinates>1.000000,1.000000</' in str(g.to_string()))
+        self.assertTrue(
+            'coordinates>0.000000,1.000000</' in str(g.to_string()))
+        self.assertTrue(
+            'coordinates>1.000000,1.000000</' in str(g.to_string()))
 
     def testMultiLineString(self):
         l0 = LineString([(0, 0), (1, 0)])
@@ -1749,8 +1789,10 @@ class SetGeometryTestCase(unittest.TestCase):
         g = Geometry(geometry=MultiLineString([l0, l1]))
         self.assertTrue('MultiGeometry' in str(g.to_string()))
         self.assertTrue('LineString' in str(g.to_string()))
-        self.assertTrue('coordinates>0.000000,0.000000 1.000000,0.000000</' in str(g.to_string()))
-        self.assertTrue('coordinates>0.000000,1.000000 1.000000,1.000000</' in str(g.to_string()))
+        self.assertTrue(
+            'coordinates>0.000000,0.000000 1.000000,0.000000</' in str(g.to_string()))
+        self.assertTrue(
+            'coordinates>0.000000,1.000000 1.000000,1.000000</' in str(g.to_string()))
 
     def testMultiPolygon(self):
         # with holes
@@ -1796,12 +1838,15 @@ class SetGeometryTestCase(unittest.TestCase):
             'coordinates>3.000000,0.000000 4.000000,0.000000 4.000000,1.000000 3.000000,0.000000</'
             in str(g.to_string()))
         self.assertTrue('LineString' in str(g.to_string()))
-        self.assertTrue('coordinates>0.000000,0.000000 1.000000,1.000000</' in str(g.to_string()))
+        self.assertTrue(
+            'coordinates>0.000000,0.000000 1.000000,1.000000</' in str(g.to_string()))
         self.assertTrue('Point' in str(g.to_string()))
-        self.assertTrue('coordinates>0.000000,1.000000</' in str(g.to_string()))
+        self.assertTrue(
+            'coordinates>0.000000,1.000000</' in str(g.to_string()))
 
 
 class GetGeometryTestCase(unittest.TestCase):
+
     def test_altitude_mode(self):
         doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:coordinates>0.000000,1.000000</kml:coordinates>
@@ -1863,7 +1908,8 @@ class GetGeometryTestCase(unittest.TestCase):
         g.from_string(doc)
         self.assertEqual(
             g.geometry.__geo_interface__,
-            {'type': 'LinearRing', 'coordinates': ((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0))}
+            {'type': 'LinearRing', 'coordinates':
+                ((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0))}
         )
 
     def testPolygon(self):
@@ -2013,6 +2059,7 @@ class GetGeometryTestCase(unittest.TestCase):
 
 
 class Force3DTestCase(unittest.TestCase):
+
     def test3d(self):
         ns = ''
         p2 = kml.Placemark(ns, 'id', 'name', 'description')
@@ -2035,6 +2082,7 @@ class Force3DTestCase(unittest.TestCase):
 
 
 class BaseFeatureTestCase(unittest.TestCase):
+
     def test_address_string(self):
         f = kml._Feature()
         address = '1600 Amphitheatre Parkway, Mountain View, CA 94043, USA'
@@ -2068,6 +2116,7 @@ class BaseFeatureTestCase(unittest.TestCase):
 
 
 class BaseOverlayTestCase(unittest.TestCase):
+
     def test_color_string(self):
         o = kml._Overlay(name='An Overlay')
         o.color = '00010203'
@@ -2141,6 +2190,7 @@ class BaseOverlayTestCase(unittest.TestCase):
 
 
 class GroundOverlayTestCase(unittest.TestCase):
+
     def setUp(self):
         self.g = kml.GroundOverlay()
 
@@ -2279,6 +2329,7 @@ class GroundOverlayTestCase(unittest.TestCase):
 
 
 class GroundOverlayStringTestCase(unittest.TestCase):
+
     def test_default_to_string(self):
         g = kml.GroundOverlay()
 
