@@ -1,3 +1,6 @@
+.. image:: https://badge.waffle.io/cleder/fastkml.png?label=ready&title=Ready 
+ :target: https://waffle.io/cleder/fastkml
+ :alt: 'Stories in Ready'
 Introduction
 ============
 
