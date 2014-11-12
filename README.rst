@@ -1,7 +1,7 @@
 Introduction
 ============
 
-Fastkml is a library to read, write and manipulate kml files. It aims to keep
+Fastkml is a library to read, write and manipulate KML files. It aims to keep
 it simple and fast (using lxml_ if available). Fast refers to the time you
 spend to write and read KML files as well as the time you spend to get
 aquainted to the library or to create KML objects. It aims to provide all of
@@ -9,7 +9,8 @@ the functionality that KML clients such as `OpenLayers
 <http://openlayers.org/>`_, `Google Maps <http://maps.google.com/>`_, and
 `Google Earth <http://earth.google.com/>`_ provides.
 
-Geometries are handled as pygeoif_ or shapely_ (if installed) objects.
+
+Geometries are handled as pygeoif_ or, if installed, shapely_ objects.
 
 .. _pygeoif: http://pypi.python.org/pypi/pygeoif/
 .. _shapely: http://pypi.python.org/pypi/Shapely
@@ -21,9 +22,11 @@ Fastkml is continually tested with *Travis CI*:
 
 .. image:: https://api.travis-ci.org/cleder/fastkml.png
     :target: https://travis-ci.org/cleder/fastkml
+    :alt: Tests
 
 .. image:: https://coveralls.io/repos/cleder/fastkml/badge.png?branch=master
     :target: https://coveralls.io/r/cleder/fastkml?branch=master
+    :alt: Coverage
 
 
 Is Maintained and documented:
@@ -38,6 +41,7 @@ Is Maintained and documented:
 
 .. image:: https://readthedocs.org/projects/fastkml/badge/
     :target: https://fastkml.readthedocs.org/
+    :alt: Documentation
 
 .. image:: https://badge.waffle.io/cleder/fastkml.png?label=ready&title=Ready
     :target: https://waffle.io/cleder/fastkml
@@ -100,7 +104,7 @@ Limitations
 ===========
 
 *Tesselate*, *Extrude* and *Altitude Mode* are assigned to a Geometry or
-Geometry collection (MultiGeometry). You cannot assign diffrent values of
+Geometry collection (MultiGeometry). You cannot assign different values of
 *Tesselate*, *Extrude* or *Altitude Mode* on parts of a MultiGeometry.
 
 Currently, the only major feature missing for the full Google Earth experience

@@ -36,10 +36,10 @@ Supports python 2 and 3:
     :target: https://pypi.python.org/pypi/fastkml/
     :alt: Supported Python implementations
 
-Fastkml is a library to read, write and manipulate kml files. It aims to keep
+fastkml is a library to read, write and manipulate KML files. It aims to keep
 it simple and fast (using lxml_ if available). "Fast" refers to the time you
-spend to write and read KML files as well as the time you spend to get
-aquainted to the library or to create KML objects. It provides a subset of KML
+spend to write and read KML files, as well as the time you spend to get
+acquainted with the library or to create KML objects. It provides a subset of KML
 and is aimed at documents that can be read from multiple clients such as
 openlayers and google maps rather than to give you all functionality that KML
 on google earth provides.
@@ -51,18 +51,18 @@ developers site.
 Rationale
 ---------
 
-Why yet another KML library? None of the existing ones quite fitted my
+Why yet another KML library? None of the existing ones quite fit my
 requirements, namely:
 
-* Fastkml can *read and write* KML files, feeding fastkmls output back into
-  fastkml   and serializing it again will result in the same output.
-* You can parse any kml snipppet, it does not need to be a complete KML
+* fastkml can *read and write* KML files, feeding fastkml's output back into
+  fastkml and serializing it again will result in the same output.
+* You can parse any KML snippet, it does not need to be a complete KML
   document.
-* It runs on python 2 and 3.
+* It runs on Python 2 and 3.
 * It is fully tested and actively maintained.
 * Geometries are handled in the `__geo_interface__` standard.
-* Minimal dependencies, pure python.
-* If available lxml_ will be used to increase its speed.
+* Minimal dependencies, pure Python.
+* If available, lxml_ will be used to increase its speed.
 
 .. toctree::
    :maxdepth: 2
