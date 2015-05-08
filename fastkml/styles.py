@@ -144,7 +144,8 @@ class StyleMap(_StyleSelector):
 
     def __init__(self, ns=None, id=None, normal=None, highlight=None):
         super(StyleMap, self).__init__(ns, id)
-        pass
+        self.normal = normal
+        self.highlight = highlight
 
     def from_element(self, element):
         super(StyleMap, self).from_element(element)
