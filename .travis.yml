@@ -24,7 +24,7 @@ install:
 
 # command to run tests, e.g. python setup.py test
 script:
-    - pep8 --exclude test_main.py fastkml
+    # - pep8 --exclude test_main.py fastkml
     - coverage run --source=fastkml setup.py test
     # Python 3.2 Sphinx / Jinja throws a Syntax Error while parsing the docs
     - if [[ $TRAVIS_PYTHON_VERSION != 3.2 ]]; then cd docs && make html; fi

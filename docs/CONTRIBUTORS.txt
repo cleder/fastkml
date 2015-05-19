@@ -7,3 +7,4 @@ Contributors
 - Egil Möller
 - Ian Lee <IanLee1521@gmail.com>
 - jwhelland
+- c-nichols
