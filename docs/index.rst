@@ -26,6 +26,13 @@ Is Maintained and documented:
 .. image:: https://www.openhub.net/p/fastkml/widgets/project_thin_badge.gif
     :target: https://www.openhub.net/p/fastkml
 
+Follows best practises:
+
+.. image:: https://landscape.io/github/cleder/fastkml/master/landscape.svg?style=plastic
+   :target: https://landscape.io/github/cleder/fastkml/master
+   :alt: Code Health
+
+
 Supports python 2 and 3:
 
 .. image:: https://pypip.in/py_versions/fastkml/badge.svg
