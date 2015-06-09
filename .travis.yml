@@ -22,9 +22,9 @@ notifications:
   - IanLee1521@gmail.com
 deploy:
  provider: pypi
-  user: "Christian.Ledermann"
+  user:
   password:
-    secure: Ri6RrdNePDkWWuOgtmbWHQWsZHerEVdI570AuCOWJVxHHyFGTdcsAXfklOwj5W3iE/2URjvtEb47UIorWvwmhI2TvGRkFSt8NS4gFEVXakquxwslYsK6CPFjo/PT2BoCiB93WJJmNWlwyERrjThaJYomEDlvb8IF+Qrru3wKm0Y=
+    secure:
   distributions: "sdist bdist_wheel"
   on:
     tags: true
