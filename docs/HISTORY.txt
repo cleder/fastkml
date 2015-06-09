@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.10 (unreleased)
+0.10 (2015/06/09)
 -----------------
 
 - Fix bug when the fill or outline attributes of a PolyStyle are float strings
