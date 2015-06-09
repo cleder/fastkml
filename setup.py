@@ -19,7 +19,7 @@ class PyTest(TestCommand):
 
 setup(
     name='fastkml',
-    version='0.10.dev',
+    version='0.10',
     description="Fast KML processing in python",
     long_description=(
         open("README.rst").read() + "\n" +

@@ -1,38 +1,30 @@
 language: python
 python:
-  - "3.2"
-  - "3.3"
-  - "3.4"
-  - "2.7"
-  - "2.6"
-  # pypy and pypy3 have problems with lxml so we leave it out for now,
-  # works fine without lxml
-  # - "pypy"
-  # - "pypy3"
-
+- '3.2'
+- '3.3'
+- '3.4'
+- '2.7'
+- '2.6'
 env:
-    - LXML=true
-    - LXML=false
-
-# command to install dependencies, e.g. pip install -r requirements.txt
+- LXML=true
+- LXML=false
 install:
-    - pip install -r requirements.txt
-    - if $LXML == true; then pip install lxml; fi
-    # Python 2.6 uses the unittest2 testing package backported from Python
-    # 2.7+'s unittest packages
-    - if [[ $TRAVIS_PYTHON_VERSION == 2.6 ]]; then pip install unittest2; fi
-
-# command to run tests, e.g. python setup.py test
+- pip install -r requirements.txt
+- if $LXML == true; then pip install lxml; fi
+- if [[ $TRAVIS_PYTHON_VERSION == 2.6 ]]; then pip install unittest2; fi
 script:
-    # - pep8 --exclude test_main.py fastkml
-    - coverage run --source=fastkml setup.py test
-    # Python 3.2 Sphinx / Jinja throws a Syntax Error while parsing the docs
-    - if [[ $TRAVIS_PYTHON_VERSION != 3.2 ]]; then cd docs && make html; fi
-
-after_success:
-    coveralls
-
+- coverage run --source=fastkml setup.py test
+- if [[ $TRAVIS_PYTHON_VERSION != 3.2 ]]; then cd docs && make html; fi
+after_success: coveralls
 notifications:
   email:
-    - christian.ledermann@gmail.com
-    - IanLee1521@gmail.com
+  - christian.ledermann@gmail.com
+  - IanLee1521@gmail.com
+deploy:
+ provider: pypi
+  user: Christian.Ledermann
+  password:
+    secure: Ri6RrdNePDkWWuOgtmbWHQWsZHerEVdI570AuCOWJVxHHyFGTdcsAXfklOwj5W3iE/2URjvtEb47UIorWvwmhI2TvGRkFSt8NS4gFEVXakquxwslYsK6CPFjo/PT2BoCiB93WJJmNWlwyERrjThaJYomEDlvb8IF+Qrru3wKm0Y=
+  distributions: "sdist bdist_wheel"
+  on:
+    tags: true
