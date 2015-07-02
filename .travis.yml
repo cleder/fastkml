@@ -8,6 +8,8 @@ python:
 env:
 - LXML=true
 - LXML=false
+before_install:
+  pip install codecov
 install:
 - pip install -r requirements.txt
 - if $LXML == true; then pip install lxml; fi
@@ -15,16 +17,11 @@ install:
 script:
 - coverage run --source=fastkml setup.py test
 - if [[ $TRAVIS_PYTHON_VERSION != 3.2 ]]; then cd docs && make html; fi
-after_success: coveralls
+after_success:
+  coveralls
+  codecov
 notifications:
   email:
   - christian.ledermann@gmail.com
   - IanLee1521@gmail.com
-deploy:
- provider: pypi
-  user:
-  password:
-    secure:
-  distributions: "sdist bdist_wheel"
-  on:
-    tags: true
+

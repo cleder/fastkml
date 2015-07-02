@@ -130,9 +130,9 @@ class Geometry(_BaseObject):
 
     def _set_altitude_mode(self, element):
         if self.altitude_mode:
+            # XXX add 'relativeToSeaFloor', 'clampToSeaFloor',
             assert(self.altitude_mode in [
                 'clampToGround',
-                # 'relativeToSeaFloor', 'clampToSeaFloor',
                 'relativeToGround', 'absolute'
             ])
             if self.altitude_mode != 'clampToGround':
