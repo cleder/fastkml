@@ -26,8 +26,11 @@ Fastkml is continually tested with *Travis CI*:
 
 .. image:: https://coveralls.io/repos/cleder/fastkml/badge.png?branch=master
     :target: https://coveralls.io/r/cleder/fastkml?branch=master
-    :alt: Coverage
+    :alt: coveralls.io
 
+.. image:: http://codecov.io/github/cleder/fastkml/coverage.svg?branch=master
+    :target: http://codecov.io/github/cleder/fastkml?branch=master
+    :alt: codecov.io
 
 Is Maintained and documented:
 

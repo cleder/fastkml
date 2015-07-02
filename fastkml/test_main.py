@@ -42,7 +42,7 @@ class BaseClassesTestCase(unittest.TestCase):
     """ BaseClasses  must raise a NotImplementedError on etree_element
     and a TypeError on from_element """
 
-    def test_BaseObject(self):
+    def test_base_object(self):
         bo = base._BaseObject(id='id0')
         self.assertEqual(bo.id, 'id0')
         self.assertEqual(bo.ns, config.NS)
@@ -69,7 +69,7 @@ class BaseClassesTestCase(unittest.TestCase):
         self.assertFalse(bo.etree_element(), None)
         self.assertTrue(len(bo.to_string()) > 1)
 
-    def test_Feature(self):
+    def test_feature(self):
         f = kml._Feature(name='A Feature')
         self.assertRaises(NotImplementedError, f.etree_element)
         self.assertEqual(f.name, 'A Feature')
@@ -93,7 +93,7 @@ class BaseClassesTestCase(unittest.TestCase):
         self.assertTrue('Feature>' in str(f.to_string()))
         self.assertTrue('#default' in str(f.to_string()))
 
-    def test_Container(self):
+    def test_container(self):
         f = kml._Container(name='A Container')
         # apparently you can add documents to containes
         # d = kml.Document()
@@ -102,19 +102,7 @@ class BaseClassesTestCase(unittest.TestCase):
         f.append(p)
         self.assertRaises(NotImplementedError, f.etree_element)
 
-    def test_TimePrimitive(self):
-        pass
-
-    def test_StyleSelector(self):
-        pass
-
-    def test_ColorStyle(self):
-        pass
-
-    def test_Person(self):
-        pass
-
-    def test_Overlay(self):
+    def test_overlay(self):
         o = kml._Overlay(name='An Overlay')
         self.assertEqual(o._color, None)
         self.assertEqual(o._drawOrder, None)
@@ -939,6 +927,7 @@ class KmlFromStringTestCase(unittest.TestCase):
 
 
 class StyleTestCase(unittest.TestCase):
+
     def test_styleurl(self):
         f = kml.Document()
         f.styleUrl = '#somestyle'
@@ -968,6 +957,7 @@ class StyleTestCase(unittest.TestCase):
 
 
 class StyleUsageTestCase(unittest.TestCase):
+
     def test_create_document_style(self):
         style = styles.Style(styles=[styles.PolyStyle(color='7f000000')])
 
@@ -1025,6 +1015,7 @@ class StyleUsageTestCase(unittest.TestCase):
 
 
 class StyleFromStringTestCase(unittest.TestCase):
+
     def test_styleurl(self):
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
@@ -1408,6 +1399,7 @@ class StyleFromStringTestCase(unittest.TestCase):
 
 
 class DateTimeTestCase(unittest.TestCase):
+
     def test_timestamp(self):
         now = datetime.datetime.now()
         ts = kml.TimeStamp(timestamp=now)
@@ -1628,6 +1620,7 @@ class DateTimeTestCase(unittest.TestCase):
 
 
 class AtomTestCase(unittest.TestCase):
+
     def test_author(self):
         a = atom.Author(name="Christian Ledermann")
         self.assertEqual(a.name, "Christian Ledermann")
@@ -1670,6 +1663,7 @@ class AtomTestCase(unittest.TestCase):
 
 
 class SetGeometryTestCase(unittest.TestCase):
+
     def test_altitude_mode(self):
         geom = Geometry()
         geom.geometry = Point(0, 1)
@@ -1729,7 +1723,7 @@ class SetGeometryTestCase(unittest.TestCase):
         geom.geometry = Polygon([(0, 0), (1, 0), (1, 1), (0, 0)])
         self.assertFalse('tessellate' in str(geom.to_string()))
 
-    def testPoint(self):
+    def test_point(self):
         p = Point(0, 1)
         g = Geometry(geometry=p)
         self.assertEqual(g.geometry, p)
@@ -1739,7 +1733,7 @@ class SetGeometryTestCase(unittest.TestCase):
         self.assertTrue(
             'coordinates>0.000000,1.000000</' in str(g.to_string()))
 
-    def testLineString(self):
+    def test_linestring(self):
         l = LineString([(0, 0), (1, 1)])
         g = Geometry(geometry=l)
         self.assertEqual(g.geometry, l)
@@ -1751,7 +1745,7 @@ class SetGeometryTestCase(unittest.TestCase):
         g2.from_string(g.to_string())
         self.assertEqual(g.to_string(), g2.to_string())
 
-    def testLinearRing(self):
+    def test_linearring(self):
         l = LinearRing([(0, 0), (1, 0), (1, 1), (0, 0)])
         g = Geometry(geometry=l)
         self.assertEqual(g.geometry, l)
@@ -1760,7 +1754,7 @@ class SetGeometryTestCase(unittest.TestCase):
             'coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</'
             in str(g.to_string()))
 
-    def testPolygon(self):
+    def test_polygon(self):
         # without holes
         l = Polygon([(0, 0), (1, 0), (1, 1), (0, 0)])
         g = Geometry(geometry=l)
@@ -1789,7 +1783,7 @@ class SetGeometryTestCase(unittest.TestCase):
             'coordinates>-1.000000,-1.000000 2.000000,-1.000000 2.000000,2.000000 -1.000000,-1.000000</'
             in str(g.to_string()))
 
-    def testMultiPoint(self):
+    def test_multipoint(self):
         p0 = Point(0, 1)
         p1 = Point(1, 1)
         g = Geometry(geometry=MultiPoint([p0, p1]))
@@ -1800,7 +1794,7 @@ class SetGeometryTestCase(unittest.TestCase):
         self.assertTrue(
             'coordinates>1.000000,1.000000</' in str(g.to_string()))
 
-    def testMultiLineString(self):
+    def test_multilinestring(self):
         l0 = LineString([(0, 0), (1, 0)])
         l1 = LineString([(0, 1), (1, 1)])
         g = Geometry(geometry=MultiLineString([l0, l1]))
@@ -1813,7 +1807,7 @@ class SetGeometryTestCase(unittest.TestCase):
             'coordinates>0.000000,1.000000 1.000000,1.000000</' in
             str(g.to_string()))
 
-    def testMultiPolygon(self):
+    def test_multipolygon(self):
         # with holes
         p0 = Polygon(
             [(-1, -1), (2, -1), (2, 2), (-1, -1)], [[(0, 0), (1, 0), (1, 1),
@@ -1836,7 +1830,7 @@ class SetGeometryTestCase(unittest.TestCase):
             'coordinates>3.000000,0.000000 4.000000,0.000000 4.000000,1.000000 3.000000,0.000000</'
             in str(g.to_string()))
 
-    def testGeometryCollection(self):
+    def test_geometrycollection(self):
         po = Polygon([(3, 0), (4, 0), (4, 1), (3, 0)])
         lr = LinearRing([(0, -1), (1, -1), (1, 1), (0, -1)])
         ls = LineString([(0, 0), (1, 1)])
@@ -1865,6 +1859,7 @@ class SetGeometryTestCase(unittest.TestCase):
 
 
 class GetGeometryTestCase(unittest.TestCase):
+
     def test_altitude_mode(self):
         doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:coordinates>0.000000,1.000000</kml:coordinates>
@@ -1898,7 +1893,7 @@ class GetGeometryTestCase(unittest.TestCase):
         g.from_string(doc)
         self.assertEqual(g.tessellate, True)
 
-    def testPoint(self):
+    def test_point(self):
         doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:coordinates>0.000000,1.000000</kml:coordinates>
         </kml:Point>"""
@@ -1910,7 +1905,7 @@ class GetGeometryTestCase(unittest.TestCase):
             {'type': 'Point',
              'coordinates': (0.0, 1.0)})
 
-    def testLineString(self):
+    def test_linestring(self):
         doc = """<kml:LineString xmlns:kml="http://www.opengis.net/kml/2.2">
             <kml:coordinates>0.000000,0.000000 1.000000,1.000000</kml:coordinates>
         </kml:LineString>"""
@@ -1922,7 +1917,7 @@ class GetGeometryTestCase(unittest.TestCase):
             {'type': 'LineString',
              'coordinates': ((0.0, 0.0), (1.0, 1.0))})
 
-    def testLinearRing(self):
+    def test_linearring(self):
         doc = """<kml:LinearRing xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</kml:coordinates>
         </kml:LinearRing>
@@ -1936,7 +1931,7 @@ class GetGeometryTestCase(unittest.TestCase):
                 'coordinates': ((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0))
             })
 
-    def testPolygon(self):
+    def test_polygon(self):
         doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:outerBoundaryIs>
             <kml:LinearRing>
@@ -1980,7 +1975,7 @@ class GetGeometryTestCase(unittest.TestCase):
                 )
             })
 
-    def testMultiPoint(self):
+    def test_multipoint(self):
         doc = """
         <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:Point>
@@ -1996,7 +1991,7 @@ class GetGeometryTestCase(unittest.TestCase):
         g.from_string(doc)
         self.assertEqual(len(g.geometry), 2)
 
-    def testMultiLineString(self):
+    def test_multilinestring(self):
         doc = """
         <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:LineString>
@@ -2012,7 +2007,7 @@ class GetGeometryTestCase(unittest.TestCase):
         g.from_string(doc)
         self.assertEqual(len(g.geometry), 2)
 
-    def testMultiPolygon(self):
+    def test_multipolygon(self):
         doc = """
         <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:Polygon>
@@ -2041,7 +2036,7 @@ class GetGeometryTestCase(unittest.TestCase):
         g.from_string(doc)
         self.assertEqual(len(g.geometry), 2)
 
-    def testGeometryCollection(self):
+    def test_geometrycollection(self):
         doc = """
         <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:Polygon>
@@ -2084,28 +2079,35 @@ class GetGeometryTestCase(unittest.TestCase):
 
 
 class Force3DTestCase(unittest.TestCase):
+
+    def setUp(self):
+        config.FORCE3D = False
+
+    def tearDown(self):
+        # Important: Set FORCE3D back to False!
+        config.FORCE3D = False
+
     def test3d(self):
+        config.FORCE3D = True
         ns = ''
         p2 = kml.Placemark(ns, 'id', 'name', 'description')
         p2.geometry = Polygon([(0, 0), (1, 1), (1, 0)])
         p3 = kml.Placemark(ns, 'id', 'name', 'description')
         p3.geometry = Polygon([(0, 0, 0), (1, 1, 0), (1, 0, 0)])
-        config.FORCE3D = False
-        # p3.altitudeMode = 'absolute'
-        self.assertNotEqual(p2.to_string(), p3.to_string())
-        config.FORCE3D = True
         self.assertEqual(p2.to_string(), p3.to_string())
-        # altitudeMode clampToGround indicates to ignore an altitude specification.
-        # p3.altitudeMode = 'clampToGround'
-        # self.assertEqual(p2.to_string(), p3.to_string())
-        # config.FORCE3D = False
-        # self.assertNotEqual(p2.to_string(), p3.to_string())
 
-        # Important: Set FORCE3D back to False!
+    def testno3d(self):
         config.FORCE3D = False
+        ns = ''
+        p2 = kml.Placemark(ns, 'id', 'name', 'description')
+        p2.geometry = Polygon([(0, 0), (1, 1), (1, 0)])
+        p3 = kml.Placemark(ns, 'id', 'name', 'description')
+        p3.geometry = Polygon([(0, 0, 0), (1, 1, 0), (1, 0, 0)])
+        self.assertNotEqual(p2.to_string(), p3.to_string())
 
 
 class BaseFeatureTestCase(unittest.TestCase):
+
     def test_address_string(self):
         f = kml._Feature()
         address = '1600 Amphitheatre Parkway, Mountain View, CA 94043, USA'
@@ -2139,6 +2141,7 @@ class BaseFeatureTestCase(unittest.TestCase):
 
 
 class BaseOverlayTestCase(unittest.TestCase):
+
     def test_color_string(self):
         o = kml._Overlay(name='An Overlay')
         o.color = '00010203'
@@ -2212,6 +2215,7 @@ class BaseOverlayTestCase(unittest.TestCase):
 
 
 class GroundOverlayTestCase(unittest.TestCase):
+
     def setUp(self):
         self.g = kml.GroundOverlay()
 
@@ -2350,6 +2354,7 @@ class GroundOverlayTestCase(unittest.TestCase):
 
 
 class GroundOverlayStringTestCase(unittest.TestCase):
+
     def test_default_to_string(self):
         g = kml.GroundOverlay()
 
