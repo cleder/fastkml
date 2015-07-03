@@ -41,6 +41,7 @@ except ImportError:
     from pygeoif.geometry import GeometryCollection
     from pygeoif.geometry import as_shape as asShape
 
+import re
 import fastkml.config as config
 
 from .config import etree
@@ -314,7 +315,13 @@ class Geometry(_BaseObject):
     def _get_coordinates(self, element):
         coordinates = element.find('%scoordinates' % self.ns)
         if coordinates is not None:
-            latlons = coordinates.text.strip().split()
+            # https://developers.google.com/kml/documentation/kmlreference#coordinates
+            # Coordinates can be any number of tuples separated by a
+            # space (potentially any number of whitespace characters).
+            # Values in tuples should be separated by commas with no
+            # spaces. Clean up badly formatted tuples by stripping
+            # space following commas.
+            latlons = re.sub(r', +', ',', coordinates.text.strip()).split()
             coords = []
             for latlon in latlons:
                 coords.append([float(c) for c in latlon.split(',')])
