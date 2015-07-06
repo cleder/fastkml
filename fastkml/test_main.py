@@ -2067,7 +2067,7 @@ class GetGeometryTestCase(unittest.TestCase):
             <kml:coordinates>3.0,0.0 4.0,0.0 4.0,1.0 3.0,0.0</kml:coordinates>
           </kml:LinearRing>
           <kml:LinearRing>
-            <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</kml:coordinates>
+            <kml:coordinates>0.0,0.0 1.0,0.0 1.0,1.0 0.0,0.0</kml:coordinates>
           </kml:LinearRing>
         </kml:MultiGeometry>
         """
