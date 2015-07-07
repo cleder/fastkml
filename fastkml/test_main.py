@@ -133,9 +133,9 @@ class BuildKmlTestCase(unittest.TestCase):
                 '<kml xmlns="http://www.opengis.net/kml/2.2"/>' [:43])
         else:
             if hasattr(etree, 'register_namespace'):
-                self.assertEqual(str(k.to_string())[:51],'<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2" />'[:51])
+                self.assertEqual(str(k.to_string())[:51], '<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2" />'[:51])
             else:
-                self.assertEqual(str(k.to_string())[:51],'<ns0:kml xmlns:ns0="http://www.opengis.net/kml/2.2" />'[:51])
+                self.assertEqual(str(k.to_string())[:51], '<ns0:kml xmlns:ns0="http://www.opengis.net/kml/2.2" />'[:51])
 
         k2 = kml.KML()
         k2.from_string(k.to_string())
@@ -360,6 +360,7 @@ class BuildKmlTestCase(unittest.TestCase):
 
 
 class KmlFromStringTestCase(unittest.TestCase):
+
     def test_document(self):
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document targetId="someTargetId">
@@ -925,6 +926,12 @@ class KmlFromStringTestCase(unittest.TestCase):
         doc2.from_string(doc.to_string())
         self.assertEqual(doc.to_string(), doc2.to_string())
 
+    def test_linarring_placemark(self):
+        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
+        <Placemark>
+        <kml:coordinates>0.0,0.0 1.0,0.0 1.0,1.0 0.0,0.0</kml:coordinates>
+        </Placemark> </kml>"""
+
 
 class StyleTestCase(unittest.TestCase):
 
@@ -1075,6 +1082,33 @@ class StyleFromStringTestCase(unittest.TestCase):
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k2.to_string(), k.to_string())
+
+    def test_balloonstyle_old_color(self):
+        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+          <name>Document.kml</name>
+          <Style id="exampleBalloonStyle">
+            <BalloonStyle>
+              <!-- a background color for the balloon -->
+              <color>ffffffbb</color>
+            </BalloonStyle>
+          </Style>
+        </Document>
+        </kml>"""
+
+        k = kml.KML()
+        k.from_string(doc)
+        self.assertEqual(len(list(k.features())), 1)
+        self.assertTrue(
+            isinstance(list(list(k.features())[0].styles())[0], styles.Style))
+        style = list(list(list(k.features())[0].styles())[0].styles())[0]
+        self.assertTrue(isinstance(style, styles.BalloonStyle))
+        self.assertEqual(style.bgColor, 'ffffffbb')
+        k2 = kml.KML()
+        k2.from_string(k.to_string())
+        self.assertEqual(k2.to_string(), k.to_string())
+
+
 
     def test_labelstyle(self):
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">

@@ -49,7 +49,7 @@ setup(
     include_package_data=True,
     zip_safe=False,
     tests_require=['pytest'],
-    cmdclass = {'test': PyTest},
+    cmdclass={'test': PyTest},
     install_requires=[
         # -*- Extra requirements: -*-
         'pygeoif',
