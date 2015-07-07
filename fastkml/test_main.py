@@ -927,10 +927,18 @@ class KmlFromStringTestCase(unittest.TestCase):
         self.assertEqual(doc.to_string(), doc2.to_string())
 
     def test_linarring_placemark(self):
-        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
+        doc = kml.KML()
+        doc.from_string( """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Placemark>
-        <kml:coordinates>0.0,0.0 1.0,0.0 1.0,1.0 0.0,0.0</kml:coordinates>
-        </Placemark> </kml>"""
+          <LinearRing>
+            <coordinates>0.0,0.0 1.0,0.0 1.0,1.0 0.0,0.0</coordinates>
+          </LinearRing>
+        </Placemark> </kml>""")
+        doc2 = kml.KML()
+        doc2.from_string(doc.to_string())
+        self.assertTrue(
+            isinstance(list(doc.features())[0].geometry, LinearRing))
+        self.assertEqual(doc.to_string(), doc2.to_string())
 
 
 class StyleTestCase(unittest.TestCase):
