@@ -24,4 +24,11 @@ notifications:
   email:
   - christian.ledermann@gmail.com
   - IanLee1521@gmail.com
-
+deploy:
+  provider: pypi
+  user: Christian.Ledermann
+  password:
+    secure: MhOkMil0/EsZRS1FB6xYiFfjbFjafYuBE/bKMnsHZqtoVU/CH0UCfjIJpDyRzYeTliub84r7hwHzTwnDzxijWIdy8T4tcuVja0Iu8ItGc4VopYKyUjUgxUT9PWk0in5C/gtwEQb2VYOhrQA9F3XRZ6RfHvUAJJYhdV2GM6ehm+0=
+  on:
+    tags: true
+    repo: cleder/fastkml

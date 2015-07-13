@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.11.1 (2015/07/13)
+
+- add travis deploy to travis.yml
+
+0.11 (2015/07/10)
+-----------------
+
+-  handle coordinates tuples which contain spaces
+
 0.10 (2015/06/09)
 -----------------
 
