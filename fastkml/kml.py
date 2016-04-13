@@ -1095,7 +1095,7 @@ class Placemark(_Feature):
             geom.from_element(multigeometry)
             self._geometry = geom
             return
-        logger.warn('No geometries found')
+        raise ValueError('No geometries found')
 
     def etree_element(self):
         element = super(Placemark, self).etree_element()
