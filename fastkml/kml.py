@@ -1438,7 +1438,9 @@ class Data(_XMLObject):
     def from_element(self, element):
         super(Data, self).from_element(element)
         self.name = element.get('name')
-        self.value = element.find('%svalue' % self.ns).text
+        tmp_value = element.find('%svalue' % self.ns)
+        if tmp_value is not None:
+            self.value = tmp_value.text
         display_name = element.find('%sdisplayName' % self.ns)
         if display_name is not None:
             self.display_name = display_name.text
