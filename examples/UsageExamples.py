@@ -1,25 +1,22 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-from fastkml.kml import *
+from fastkml import kml
 
-def printChildFeatures(element):
-    level = 0
+def print_child_features(element):    
+    if not getattr(element, 'features', None):
+        return
     for feature in element.features():
-        try:
-            print "    " * level, feature.name
-            printChildFeatures(feature)
-            level += 1
-        except:
-            pass
+        print feature.name
+        print_child_features(feature)
 
 if __name__ == '__main__':
     
     fname = "KML_Samples.kml"
 
-    k = KML()
+    k = kml.KML()
 
     with open(fname) as kmlFile:
         k.from_string(kmlFile.read())    
 
-    printChildFeatures(k)
+    print_child_features(k)
