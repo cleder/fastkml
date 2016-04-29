@@ -4,6 +4,8 @@ Usage Guide
 You can find more examples in the included ``test_main.py`` file or in
 collective.geo.fastkml_, here is a quick overview:
 
+(The examples below are available as standalone scripts in the ``examples`` folder.)
+
 
 Build a KML from Scratch
 ------------------------
