@@ -9,4 +9,5 @@ Contributors
 - jwhelland
 - c-nichols
 - Aaron Culich
+- Frédéric Passaniti for OpenDataSoft
 
