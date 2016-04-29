@@ -567,12 +567,12 @@ class _Feature(_BaseObject):
             s = TimeStamp(self.ns)
             s.from_element(timestamp)
             self._time_stamp = s
-        atom_link = element.find('%slink' % atom.ATOMNS)
+        atom_link = element.find('%slink' % atom.NS)
         if atom_link is not None:
             s = atom.Link()
             s.from_element(atom_link)
             self._atom_link = s
-        atom_author = element.find('%sauthor' % atom.ATOMNS)
+        atom_author = element.find('%sauthor' % atom.NS)
         if atom_author is not None:
             s = atom.Author()
             s.from_element(atom_author)

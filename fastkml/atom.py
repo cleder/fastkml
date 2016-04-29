@@ -36,7 +36,7 @@ import logging
 logger = logging.getLogger('fastkml.atom')
 
 from .config import etree
-from .config import ATOMNS
+from .config import ATOMNS as NS
 from .config import LXML
 
 import re
@@ -88,7 +88,7 @@ class Link(object):
         hreflang=None, title=None, length=None
     ):
         if ns is None:
-            self.ns = ATOMNS
+            self.ns = NS
         else:
             self.ns = ns
         self.href = href
@@ -172,7 +172,7 @@ class _Person(object):
 
     def __init__(self, ns=None, name=None, uri=None, email=None):
         if ns is None:
-            self.ns = ATOMNS
+            self.ns = NS
         else:
             self.ns = ns
         self.name = name
