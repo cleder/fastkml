@@ -1097,7 +1097,7 @@ class Placemark(_Feature):
             return
 
         logger.warn('No geometries found')
-        logger.debug(u'Problem with element: {}'.format(etree.tostring(element, pretty_print=True)))
+        logger.debug(u'Problem with element: {}'.format(etree.tostring(element)))
         raise ValueError('No geometries found')
 
     def etree_element(self):
