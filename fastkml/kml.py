@@ -79,7 +79,7 @@ class KML(object):
         self._features = []
 
         if ns is None:
-            self.ns = config.NS
+            self.ns = config.KMLNS
         else:
             self.ns = ns
 
@@ -119,7 +119,7 @@ class KML(object):
         # element, just without prefix.
         if not self.ns:
             root = etree.Element('%skml' % self.ns)
-            root.set('xmlns', config.NS[1:-1])
+            root.set('xmlns', config.KMLNS[1:-1])
         else:
             if config.LXML:
                 root = etree.Element(
@@ -567,12 +567,12 @@ class _Feature(_BaseObject):
             s = TimeStamp(self.ns)
             s.from_element(timestamp)
             self._time_stamp = s
-        atom_link = element.find('%slink' % atom.NS)
+        atom_link = element.find('%slink' % atom.ATOMNS)
         if atom_link is not None:
             s = atom.Link()
             s.from_element(atom_link)
             self._atom_link = s
-        atom_author = element.find('%sauthor' % atom.NS)
+        atom_author = element.find('%sauthor' % atom.ATOMNS)
         if atom_author is not None:
             s = atom.Author()
             s.from_element(atom_author)

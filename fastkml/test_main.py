@@ -45,7 +45,7 @@ class BaseClassesTestCase(unittest.TestCase):
     def test_base_object(self):
         bo = base._BaseObject(id='id0')
         self.assertEqual(bo.id, 'id0')
-        self.assertEqual(bo.ns, config.NS)
+        self.assertEqual(bo.ns, config.KMLNS)
         self.assertEqual(bo.targetId, None)
         self.assertEqual(bo.__name__, None)
         bo.targetId = 'target'
@@ -55,17 +55,17 @@ class BaseClassesTestCase(unittest.TestCase):
         self.assertEqual(bo.id, None)
         self.assertEqual(bo.ns, '')
         self.assertRaises(NotImplementedError, bo.etree_element)
-        element = etree.Element(config.NS + 'Base')
+        element = etree.Element(config.KMLNS + 'Base')
         self.assertRaises(TypeError, bo.from_element)
         self.assertRaises(TypeError, bo.from_element, element)
         bo.__name__ = 'NotABaseObject'
         self.assertRaises(TypeError, bo.from_element, element)
         # Note that we can coax baseclasses not to throw errors
         bo.__name__ = 'Base'
-        bo.ns = config.NS
+        bo.ns = config.KMLNS
         bo.from_element(element)
         self.assertEqual(bo.id, None)
-        self.assertEqual(bo.ns, config.NS)
+        self.assertEqual(bo.ns, config.KMLNS)
         self.assertFalse(bo.etree_element(), None)
         self.assertTrue(len(bo.to_string()) > 1)
 
@@ -808,7 +808,7 @@ class KmlFromStringTestCase(unittest.TestCase):
         k.from_string(doc1)
         d = list(k.features())[0]
         s2 = list(d.schemata())[0]
-        s.ns = config.NS
+        s.ns = config.KMLNS
         self.assertEqual(s.to_string(), s2.to_string())
         k1 = kml.KML()
         k1.from_string(k.to_string())
@@ -948,7 +948,7 @@ class StyleTestCase(unittest.TestCase):
         f.styleUrl = '#somestyle'
         self.assertEqual(f.styleUrl, '#somestyle')
         self.assertTrue(isinstance(f._styleUrl, styles.StyleUrl))
-        s = styles.StyleUrl(config.NS, url='#otherstyle')
+        s = styles.StyleUrl(config.KMLNS, url='#otherstyle')
         f.styleUrl = s
         self.assertTrue(isinstance(f._styleUrl, styles.StyleUrl))
         self.assertEqual(f.styleUrl, '#otherstyle')
