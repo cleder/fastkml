@@ -79,7 +79,7 @@ class KML(object):
         self._features = []
 
         if ns is None:
-            self.ns = config.NS
+            self.ns = config.KMLNS
         else:
             self.ns = ns
 

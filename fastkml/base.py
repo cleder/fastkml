@@ -29,7 +29,7 @@ class _XMLObject(object):
 
     def __init__(self, ns=None):
         if ns is None:
-            self.ns = config.NS
+            self.ns = config.KMLNS
         else:
             self.ns = ns
 
@@ -78,7 +78,7 @@ class _BaseObject(_XMLObject):
         super(_BaseObject, self).__init__(ns)
         self.id = id
         if ns is None:
-            self.ns = config.NS
+            self.ns = config.KMLNS
         else:
             self.ns = ns
 
