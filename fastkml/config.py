@@ -29,12 +29,12 @@ except ImportError:
     LXML = False
 
 
-NS = '{http://www.opengis.net/kml/2.2}'
+KMLNS = '{http://www.opengis.net/kml/2.2}'
 ATOMNS = '{http://www.w3.org/2005/Atom}'
 GXNS = '{http://www.google.com/kml/ext/2.2}'
 
 if hasattr(etree, 'register_namespace'):
-    etree.register_namespace('kml', NS[1:-1])
+    etree.register_namespace('kml', KMLNS[1:-1])
     etree.register_namespace('atom', ATOMNS[1:-1])
     etree.register_namespace('gx', GXNS[1:-1])
 

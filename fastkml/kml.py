@@ -79,7 +79,7 @@ class KML(object):
         self._features = []
 
         if ns is None:
-            self.ns = config.NS
+            self.ns = config.KMLNS
         else:
             self.ns = ns
 
@@ -119,7 +119,7 @@ class KML(object):
         # element, just without prefix.
         if not self.ns:
             root = etree.Element('%skml' % self.ns)
-            root.set('xmlns', config.NS[1:-1])
+            root.set('xmlns', config.KMLNS[1:-1])
         else:
             if config.LXML:
                 root = etree.Element(
