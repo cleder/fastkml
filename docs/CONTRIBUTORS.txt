@@ -10,4 +10,5 @@ Contributors
 - c-nichols
 - Aaron Culich
 - Frédéric Passaniti for OpenDataSoft
+- Zsolt Ero
 
