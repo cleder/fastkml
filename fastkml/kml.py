@@ -830,7 +830,7 @@ class GroundOverlay(_Overlay):
     @altitudeMode.setter
     def altitudeMode(self, mode):
         if mode in ('clampToGround', 'absolute'):
-                self._altitudeMode = str(mode)
+            self._altitudeMode = str(mode)
         else:
             self._altitudeMode = 'clampToGround'
 
@@ -985,6 +985,11 @@ class Document(_Container):
 
     def from_element(self, element):
         super(Document, self).from_element(element)
+        documents = element.findall('%sDocument' % self.ns)
+        for document in documents:
+            feature = Document(self.ns)
+            feature.from_element(document)
+            self.append(feature)
         folders = element.findall('%sFolder' % self.ns)
         for folder in folders:
             feature = Folder(self.ns)
@@ -1097,7 +1102,8 @@ class Placemark(_Feature):
             return
 
         logger.warn('No geometries found')
-        logger.debug(u'Problem with element: {}'.format(etree.tostring(element)))
+        logger.debug(u'Problem with element: {}'.format(
+            etree.tostring(element)))
         raise ValueError('No geometries found')
 
     def etree_element(self):
@@ -1408,6 +1414,7 @@ class ExtendedData(_XMLObject):
 
 
 class UntypedExtendedData(ExtendedData):
+
     def __init__(self, ns=None, elements=None):
         super(UntypedExtendedData, self).__init__(ns, elements)
         warnings.warn(
@@ -1450,6 +1457,7 @@ class Data(_XMLObject):
 
 
 class UntypedExtendedDataElement(Data):
+
     def __init__(self, ns=None, name=None, value=None, display_name=None):
         super(UntypedExtendedDataElement, self).__init__(
             ns, name, value, display_name
