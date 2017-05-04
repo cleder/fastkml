@@ -1957,6 +1957,7 @@ class GetGeometryTestCase(unittest.TestCase):
         self.assertEqual(
             g.geometry.__geo_interface__,
             {'type': 'LineString',
+             'bbox': (0.0, 0.0, 1.0, 1.0),
              'coordinates': ((0.0, 0.0), (1.0, 1.0))})
 
     def test_linearring(self):
@@ -1970,6 +1971,7 @@ class GetGeometryTestCase(unittest.TestCase):
         self.assertEqual(
             g.geometry.__geo_interface__, {
                 'type': 'LinearRing',
+                'bbox': (0.0, 0.0, 1.0, 1.0),
                 'coordinates': ((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0))
             })
 
@@ -1988,6 +1990,7 @@ class GetGeometryTestCase(unittest.TestCase):
         self.assertEqual(
             g.geometry.__geo_interface__, {
                 'type': 'Polygon',
+                'bbox': (0.0, 0.0, 1.0, 1.0),
                 'coordinates': ((
                     (0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0)
                 ), )
@@ -2010,6 +2013,7 @@ class GetGeometryTestCase(unittest.TestCase):
         self.assertEqual(
             g.geometry.__geo_interface__, {
                 'type': 'Polygon',
+                'bbox': (-1.0, -1.0, 2.0, 2.0),
                 'coordinates': (
                     ((-1.0, -1.0), (2.0, -1.0), (2.0, 2.0),
                      (-1.0, -1.0)), ((0.0, 0.0), (1.0, 0.0), (1.0, 1.0),
