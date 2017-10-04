@@ -93,7 +93,7 @@ Example how to build a simple KML file from the Python interpreter.
 
 
 
-Read a KML File
+Read a KML File/String
 ---------------
 
 You can create a KML object by reading a KML file as a string
@@ -102,7 +102,13 @@ You can create a KML object by reading a KML file as a string
 
     # Start by importing the kml module
     >>> from fastkml import kml
-
+    
+    #Read file into string and convert to UTF-8 (Python3 style)
+    >>> with open(kml_file, 'rt', encoding="utf-8") as myfile:
+    ...     doc=myfile.read()
+    
+    # OR
+    
     # Setup the string which contains the KML file we want to read
     >>> doc = """<?xml version="1.0" encoding="UTF-8"?>
     ... <kml xmlns="http://www.opengis.net/kml/2.2">
