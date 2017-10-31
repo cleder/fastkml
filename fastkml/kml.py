@@ -147,21 +147,21 @@ class KML(object):
     def features(self):
         """ iterate over features """
         for feature in self._features:
-            if isinstance(feature, (Document, Folder, Placemark)):
+            if isinstance(feature, (Document, Folder, Placemark, _Overlay)):
                 yield feature
             else:
                 raise TypeError(
                     "Features must be instances of "
-                    "(Document, Folder, Placemark)"
+                    "(Document, Folder, Placemark, Overlay)"
                 )
 
     def append(self, kmlobj):
         """ append a feature """
-        if isinstance(kmlobj, (Document, Folder, Placemark)):
+        if isinstance(kmlobj, (Document, Folder, Placemark, _Overlay)):
             self._features.append(kmlobj)
         else:
             raise TypeError(
-                "Features must be instances of (Document, Folder, Placemark)")
+                "Features must be instances of (Document, Folder, Placemark, Overlay)")
 
 
 class _Feature(_BaseObject):
@@ -618,12 +618,12 @@ class _Container(_Feature):
     def features(self):
         """ iterate over features """
         for feature in self._features:
-            if isinstance(feature, (Folder, Placemark, Document)):
+            if isinstance(feature, (Folder, Placemark, Document, _Overlay)):
                 yield feature
             else:
                 raise TypeError(
                     "Features must be instances of "
-                    "(Folder, Placemark, Document)"
+                    "(Folder, Placemark, Document, Overlay)"
                 )
 
     def etree_element(self):
@@ -634,12 +634,12 @@ class _Container(_Feature):
 
     def append(self, kmlobj):
         """ append a feature """
-        if isinstance(kmlobj, (Folder, Placemark, Document)):
+        if isinstance(kmlobj, (Folder, Placemark, Document, _Overlay)):
             self._features.append(kmlobj)
         else:
             raise TypeError(
                 "Features must be instances of "
-                "(Folder, Placemark, Document)"
+                "(Folder, Placemark, Document, Overlay)"
             )
         assert(kmlobj != self)
 
