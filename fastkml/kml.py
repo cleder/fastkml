@@ -915,7 +915,7 @@ class GroundOverlay(_Overlay):
                 )
                 altitudeMode.text = self._altitudeMode
         if all([self._north, self._south, self._east, self._west]):
-            latLonBox = etree.SubElement(element, '%slatLonBox' % self.ns)
+            latLonBox = etree.SubElement(element, '%sLatLonBox' % self.ns)
             north = etree.SubElement(latLonBox, '%snorth' % self.ns)
             north.text = self._north
             south = etree.SubElement(latLonBox, '%ssouth' % self.ns)
@@ -938,7 +938,7 @@ class GroundOverlay(_Overlay):
         altitudeMode = element.find('%saltitudeMode' % self.ns)
         if altitudeMode is not None:
             self.altitudeMode = altitudeMode.text
-        latLonBox = element.find('%slatLonBox' % self.ns)
+        latLonBox = element.find('%sLatLonBox' % self.ns)
         if latLonBox is not None:
             north = latLonBox.find('%snorth' % self.ns)
             if north is not None:
