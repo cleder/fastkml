@@ -34,11 +34,11 @@ Fastkml is continually tested with *Travis CI*:
 
 Is Maintained and documented:
 
-.. image:: https://pypip.in/v/fastkml/badge.png
+.. image:: https://img.shields.io/pypi/v/fastkml.svg
     :target: https://pypi.python.org/pypi/fastkml
     :alt: Latest PyPI version
 
-.. image:: https://pypip.in/status/fastkml/badge.svg
+.. image:: https://img.shields.io/pypi/status/fastkml.svg
     :target: https://pypi.python.org/pypi/fastkml/
     :alt: Development Status
 
@@ -56,11 +56,11 @@ Is Maintained and documented:
 
 Supports python 2 and 3:
 
-.. image:: https://pypip.in/py_versions/fastkml/badge.svg
+.. image:: https://img.shields.io/pypi/pyversions/fastkml.svg
     :target: https://pypi.python.org/pypi/fastkml/
     :alt: Supported Python versions
 
-.. image:: https://pypip.in/implementation/fastkml/badge.svg
+.. image:: https://img.shields.io/pypi/implementation/fastkml.svg
     :target: https://pypi.python.org/pypi/fastkml/
     :alt: Supported Python implementations
 
