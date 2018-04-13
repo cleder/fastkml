@@ -18,9 +18,9 @@ class PyTest(TestCommand):
 
 
 setup(
-    name='fastkml',
+    name='fastkml-klinden',
     version='0.11',
-    description="Fast KML processing in python",
+    description="Fast KML processing in python (forked from https://github.com/cleder/fastkml)",
     long_description=(
         open("README.rst").read() + "\n" +
         open(os.path.join("docs", "HISTORY.txt")).read()
@@ -41,9 +41,9 @@ setup(
         'Operating System :: OS Independent',
     ],  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     keywords='GIS KML Google Maps OpenLayers',
-    author='Christian Ledermann',
-    author_email='christian.ledermann@gmail.com',
-    url='https://github.com/cleder/fastkml',
+    author='Kyle Linden',
+    author_email='linden.kyle@gmail.com',
+    url='https://github.com/klinden/fastkml',
     license='LGPL',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     include_package_data=True,
