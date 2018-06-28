@@ -105,6 +105,11 @@ class KML(object):
                 feature = Folder(ns)
                 feature.from_element(folder)
                 self.append(feature)
+            groundoverlays = element.findall('%sGroundOverlay' % ns)
+            for groundoverlay in groundoverlays:
+                feature = GroundOverlay(ns)
+                feature.from_element(groundoverlay)
+                self.append(feature)
             placemarks = element.findall('%sPlacemark' % ns)
             for placemark in placemarks:
                 feature = Placemark(ns)
@@ -147,21 +152,21 @@ class KML(object):
     def features(self):
         """ iterate over features """
         for feature in self._features:
-            if isinstance(feature, (Document, Folder, Placemark)):
+            if isinstance(feature, (Document, Folder, Placemark, GroundOverlay)):
                 yield feature
             else:
                 raise TypeError(
                     "Features must be instances of "
-                    "(Document, Folder, Placemark)"
+                    "(Document, Folder, Placemark, GroundOverlay)"
                 )
 
     def append(self, kmlobj):
         """ append a feature """
-        if isinstance(kmlobj, (Document, Folder, Placemark)):
+        if isinstance(kmlobj, (Document, Folder, Placemark, GroundOverlay)):
             self._features.append(kmlobj)
         else:
             raise TypeError(
-                "Features must be instances of (Document, Folder, Placemark)")
+                "Features must be instances of (Document, Folder, Placemark, GroundOverlay)")
 
 
 class _Feature(_BaseObject):
