@@ -10,4 +10,4 @@ tox>=1.8
 
 # Documentation Requirements
 Sphinx==1.8.0
-sphinx-rtd-theme
+sphinx-rtd-theme==0.4.1
