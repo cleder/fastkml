@@ -4,7 +4,7 @@ python-dateutil==2.7.3
 
 # Testing Requirements
 pytest==3.8.0
-pep8
+pep8==1.7.1
 coveralls
 tox>=1.8
 
