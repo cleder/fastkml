@@ -395,7 +395,7 @@ class Geometry(_BaseObject):
                 for lr in linearings:
                     self._get_geometry_spec(lr)
                     geoms.append(LinearRing(self._get_coordinates(lr)))
-        if len(geoms) > 0:
+        if geoms:
             geom_types = []
             for geom in geoms:
                 geom_types.append(geom.geom_type)
