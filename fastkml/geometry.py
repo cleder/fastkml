@@ -132,10 +132,12 @@ class Geometry(_BaseObject):
     def _set_altitude_mode(self, element):
         if self.altitude_mode:
             # XXX add 'relativeToSeaFloor', 'clampToSeaFloor',
-            assert(self.altitude_mode in [
-                'clampToGround',
-                'relativeToGround', 'absolute'
-            ])
+            if self.altitude_mode not in ['clampToGround', 'relativeToGround',
+                                          'absolute']:
+                raise AssertionError("Altitude mode not in "
+                                     " not in clampToGround,"
+                                     "'relativeToGround' or"
+                                     "'absolute' mode")
             if self.altitude_mode != 'clampToGround':
                 am_element = etree.SubElement(
                     element, "%saltitudeMode" % self.ns
