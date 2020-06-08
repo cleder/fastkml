@@ -410,7 +410,7 @@ class _Feature(_BaseObject):
                 if text:
                     if not (isinstance(text, basestring)):
                         raise TypeError("text should be of"
-                                             "type basestring")
+                                        "type basestring")
                     max_lines = self._snippet.get('maxLines', None)
                     if max_lines is None:
                         return {'text': text}
@@ -494,7 +494,7 @@ class _Feature(_BaseObject):
             else:
                 if not (isinstance(self.snippet['text'], basestring)):
                     raise TypeError("text snippet should be of"
-                                             "type basestring")
+                                    "type basestring")
                 snippet.text = self.snippet['text']
                 if self.snippet.get('maxLines'):
                     snippet.set('maxLines', str(self.snippet['maxLines']))
