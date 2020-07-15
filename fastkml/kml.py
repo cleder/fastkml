@@ -408,7 +408,9 @@ class _Feature(_BaseObject):
             if isinstance(self._snippet, dict):
                 text = self._snippet.get('text')
                 if text:
-                    assert (isinstance(text, basestring))
+                    if not (isinstance(text, basestring)):
+                        raise TypeError("text should be of"
+                                        "type basestring")
                     max_lines = self._snippet.get('maxLines', None)
                     if max_lines is None:
                         return {'text': text}
@@ -490,7 +492,9 @@ class _Feature(_BaseObject):
             if isinstance(self.snippet, basestring):
                 snippet.text = self.snippet
             else:
-                assert (isinstance(self.snippet['text'], basestring))
+                if not (isinstance(self.snippet['text'], basestring)):
+                    raise TypeError("text snippet should be of"
+                                    "type basestring")
                 snippet.text = self.snippet['text']
                 if self.snippet.get('maxLines'):
                     snippet.set('maxLines', str(self.snippet['maxLines']))
@@ -641,7 +645,9 @@ class _Container(_Feature):
                 "Features must be instances of "
                 "(Folder, Placemark, Document)"
             )
-        assert(kmlobj != self)
+        if not (kmlobj != self):
+            raise AssertionError(" kml object should not be instance of class"
+                                 "(self)")
 
 
 class _Overlay(_Feature):
@@ -656,7 +662,7 @@ class _Overlay(_Feature):
 
     _color = None
     # Color values expressed in hexadecimal notation, including opacity (alpha)
-    # values. The order of expression is alpOverlayha, blue, green, red
+    # values. The order of expression is alphaOverlay, blue, green, red
     # (AABBGGRR). The range of values for any one color is 0 to 255 (00 to ff).
     # For opacity, 00 is fully transparent and ff is fully opaque.
 
@@ -830,7 +836,7 @@ class GroundOverlay(_Overlay):
     @altitudeMode.setter
     def altitudeMode(self, mode):
         if mode in ('clampToGround', 'absolute'):
-                self._altitudeMode = str(mode)
+            self._altitudeMode = str(mode)
         else:
             self._altitudeMode = 'clampToGround'
 
@@ -1098,7 +1104,7 @@ class Placemark(_Feature):
 
         logger.warn('No geometries found')
         logger.debug(u'Problem with element: {}'.format(etree.tostring(element)))
-        #raise ValueError('No geometries found')
+        # raise ValueError('No geometries found')
 
     def etree_element(self):
         element = super(Placemark, self).etree_element()
