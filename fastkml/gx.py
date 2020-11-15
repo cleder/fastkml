@@ -77,5 +77,74 @@ The complete XML schema for elements in this extension namespace is
 located at http://developers.google.com/kml/schema/kml22gx.xsd.
 """
 
+try:
+    from shapely.geometry.linestring import LineString
+    from shapely.geometry.multilinestring import MultiLineString
+
+except ImportError:
+    from pygeoif.geometry import LineString, MultiLineString
+
+from xml.etree.ElementTree import Element
+
+from pygeoif.geometry import GeometryCollection
+
+from .config import etree
+from .config import GXNS as NS
+from .geometry import Geometry
+
+import fastkml.config as config
+
 import logging
 logger = logging.getLogger('fastkml.gx')
+
+
+class GxGeometry(Geometry):
+    """
+
+    """
+    def __init__(
+        self, ns=None, id=None,
+    ):
+        """
+        gxgeometry: a read-only subclass of geometry supporting gx: features, like gx:Track
+
+
+        """
+        if ns is None:
+            self.ns = NS
+        else:
+            self.ns = ns
+        super(Geometry, self).__init__(ns, id)
+
+    def _get_geometry(self, element):
+        # Track
+        if element.tag == ('%sTrack' % self.ns):
+            coords = self._get_coordinates(element)
+            self._get_geometry_spec(element)
+            return LineString(coords)
+
+    def _get_multigeometry(self, element):
+        # MultiTrack
+        geoms = []
+        if element.tag == ('%sMultiGeometry' % self.ns):
+            tracks = element.find("%sTrack" % self.ns)
+            if tracks:
+                for track in tracks:
+                    self._get_geometry_spec(track)
+                    geoms.append()
+
+        if len(geoms) > 0:
+            geom_types = []
+            for geom in geoms:
+                geom_types.append(geom.geom_type)
+            geom_types = list(set(geom_types))
+            if len(geom_types) > 1:
+                return GeometryCollection(geoms)
+            if geom_types[0] == 'LineString':
+                return MultiLineString(geoms)
+
+    def _get_coordinates(self, element):
+        coordinates = element.findall('%scoords' % self.ns)
+        if coordinates is not None:
+            coords = [coord.text.strip().split() for coord in coordinates]
+            return coords

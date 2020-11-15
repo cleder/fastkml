@@ -35,6 +35,7 @@ import warnings
 # from .geometry import MultiPoint, MultiLineString, MultiPolygon
 # from .geometry import LinearRing
 from .geometry import Geometry
+from .gx import GxGeometry
 
 from datetime import datetime, date
 
@@ -54,7 +55,7 @@ from .base import _BaseObject, _XMLObject
 from .styles import StyleUrl, Style, StyleMap, _StyleSelector
 
 import fastkml.atom as atom
-# import fastkml.gx as gx
+import fastkml.gx as gx
 import fastkml.config as config
 
 try:
@@ -1093,6 +1094,18 @@ class Placemark(_Feature):
         if multigeometry is not None:
             geom = Geometry(ns=self.ns)
             geom.from_element(multigeometry)
+            self._geometry = geom
+            return
+        track = element.find("%sTrack" % gx.NS)
+        if track is not None:
+            geom = GxGeometry(ns=gx.NS)
+            geom.from_element(track)
+            self._geometry = geom
+            return
+        multitrack = element.find("%sMultiTrack" % gx.NS)
+        if line is not None:
+            geom = GxGeometry(ns=gx.NS)
+            geom.from_element(multitrack)
             self._geometry = geom
             return
 
