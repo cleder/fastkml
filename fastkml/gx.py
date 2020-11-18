@@ -110,11 +110,11 @@ class GxGeometry(Geometry):
 
 
         """
+        super(GxGeometry, self).__init__(ns, id)
         if ns is None:
             self.ns = NS
         else:
             self.ns = ns
-        super(Geometry, self).__init__(ns, id)
 
     def _get_geometry(self, element):
         # Track
@@ -126,12 +126,12 @@ class GxGeometry(Geometry):
     def _get_multigeometry(self, element):
         # MultiTrack
         geoms = []
-        if element.tag == ('%sMultiGeometry' % self.ns):
-            tracks = element.find("%sTrack" % self.ns)
+        if element.tag == ('%sMultiTrack' % self.ns):
+            tracks = element.findall("%sTrack" % self.ns)
             if tracks:
                 for track in tracks:
                     self._get_geometry_spec(track)
-                    geoms.append()
+                    geoms.append(LineString(self._get_coordinates(track)))
 
         if len(geoms) > 0:
             geom_types = []
@@ -144,7 +144,8 @@ class GxGeometry(Geometry):
                 return MultiLineString(geoms)
 
     def _get_coordinates(self, element):
-        coordinates = element.findall('%scoords' % self.ns)
+        coordinates = element.findall('%scoord' % self.ns)
         if coordinates is not None:
-            coords = [coord.text.strip().split() for coord in coordinates]
+            coords = [[float(c) for c in coord.text.strip().split()]
+                      for coord in coordinates]
             return coords
