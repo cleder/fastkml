@@ -84,15 +84,10 @@ try:
 except ImportError:
     from pygeoif.geometry import LineString, MultiLineString
 
-from xml.etree.ElementTree import Element
-
 from pygeoif.geometry import GeometryCollection
 
-from .config import etree
 from .config import GXNS as NS
 from .geometry import Geometry
-
-import fastkml.config as config
 
 import logging
 logger = logging.getLogger('fastkml.gx')

@@ -35,7 +35,6 @@ import warnings
 # from .geometry import MultiPoint, MultiLineString, MultiPolygon
 # from .geometry import LinearRing
 from .geometry import Geometry
-from .gx import GxGeometry
 
 from datetime import datetime, date
 
@@ -1098,13 +1097,13 @@ class Placemark(_Feature):
             return
         track = element.find("%sTrack" % gx.NS)
         if track is not None:
-            geom = GxGeometry(ns=gx.NS)
+            geom = gx.GxGeometry(ns=gx.NS)
             geom.from_element(track)
             self._geometry = geom
             return
         multitrack = element.find("%sMultiTrack" % gx.NS)
         if line is not None:
-            geom = GxGeometry(ns=gx.NS)
+            geom = gx.GxGeometry(ns=gx.NS)
             geom.from_element(multitrack)
             self._geometry = geom
             return
