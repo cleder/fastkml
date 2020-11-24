@@ -128,11 +128,8 @@ class GxGeometry(Geometry):
                     self._get_geometry_spec(track)
                     geoms.append(LineString(self._get_coordinates(track)))
 
-        if len(geoms) > 0:
-            geom_types = []
-            for geom in geoms:
-                geom_types.append(geom.geom_type)
-            geom_types = list(set(geom_types))
+        if geoms:
+            geom_types = list({geom.geom_type for geom in geoms})
             if len(geom_types) > 1:
                 return GeometryCollection(geoms)
             if geom_types[0] == 'LineString':
