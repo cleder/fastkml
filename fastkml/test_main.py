@@ -2124,6 +2124,7 @@ class GetGeometryTestCase(unittest.TestCase):
         self.assertEqual(len(g.geometry), 2)
         self.assertEqual(g.geometry.geom_type, 'GeometryCollection')
 
+
 class GetGxGeometryTestCase(unittest.TestCase):
 
     def test_track(self):

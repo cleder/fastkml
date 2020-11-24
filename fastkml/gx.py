@@ -97,13 +97,13 @@ class GxGeometry(Geometry):
     """
 
     """
+
     def __init__(
         self, ns=None, id=None,
     ):
         """
-        gxgeometry: a read-only subclass of geometry supporting gx: features, like gx:Track
-
-
+        gxgeometry: a read-only subclass of geometry supporting gx: features,
+        like gx:Track
         """
         super(GxGeometry, self).__init__(ns, id)
         if ns is None:
