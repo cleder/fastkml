@@ -164,8 +164,8 @@ class Geometry(_BaseObject):
                 tuples = ('%f,%f' % tuple(c) for c in coordinates)
         elif len(coordinates[0]) == 3:
             # if clampToGround:
-            # if the altitude is ignored anyway, we may as well
-            # ignore the z-value
+                # if the altitude is ignored anyway, we may as well
+                # ignore the z-value
             #    tuples = ('%f,%f' % tuple(c[:2]) for c in coordinates)
             # else:
             tuples = ('%f,%f,%f' % tuple(c) for c in coordinates)
