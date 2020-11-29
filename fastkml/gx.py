@@ -94,9 +94,6 @@ logger = logging.getLogger('fastkml.gx')
 
 
 class GxGeometry(Geometry):
-    """
-
-    """
 
     def __init__(
         self, ns=None, id=None,
@@ -129,10 +126,10 @@ class GxGeometry(Geometry):
                     geoms.append(LineString(self._get_coordinates(track)))
 
         if geoms:
-            geom_types = list({geom.geom_type for geom in geoms})
+            geom_types = {geom.geom_type for geom in geoms}
             if len(geom_types) > 1:
                 return GeometryCollection(geoms)
-            if geom_types[0] == 'LineString':
+            if 'LineString' in geom_types:
                 return MultiLineString(geoms)
 
     def _get_coordinates(self, element):
