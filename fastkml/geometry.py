@@ -19,6 +19,8 @@
 Import the geometries from shapely if it is installed or otherwise from Pygeoif
 """
 
+import re
+
 try:
     from shapely.geometry import Point, LineString, Polygon
     from shapely.geometry import MultiPoint, MultiLineString, MultiPolygon
@@ -40,8 +42,6 @@ except ImportError:
     from pygeoif.geometry import as_shape as asShape
 from pygeoif.geometry import GeometryCollection
 
-
-import re
 import fastkml.config as config
 
 from .config import etree
