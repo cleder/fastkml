@@ -28,10 +28,7 @@ class _XMLObject(object):
     ns = None
 
     def __init__(self, ns=None):
-        if ns is None:
-            self.ns = config.KMLNS
-        else:
-            self.ns = ns
+        self.ns = config.KMLNS if ns is None else ns
 
     def etree_element(self):
         if self.__name__:
@@ -77,10 +74,7 @@ class _BaseObject(_XMLObject):
     def __init__(self, ns=None, id=None):
         super(_BaseObject, self).__init__(ns)
         self.id = id
-        if ns is None:
-            self.ns = config.KMLNS
-        else:
-            self.ns = ns
+        self.ns = config.KMLNS if ns is None else ns
 
     def etree_element(self):
         element = super(_BaseObject, self).etree_element()

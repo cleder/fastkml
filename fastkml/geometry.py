@@ -31,15 +31,15 @@ try:
     # to another geometry. I've seen some signs of this changing in GEOS,
     # but until it does I don't think there's any point to the class.
     # It wouldn't be much more than a list of geometries.
-    from pygeoif.geometry import GeometryCollection
     from shapely.geometry import asShape
 
 except ImportError:
     from pygeoif.geometry import Point, LineString, Polygon
     from pygeoif.geometry import MultiPoint, MultiLineString, MultiPolygon
     from pygeoif.geometry import LinearRing
-    from pygeoif.geometry import GeometryCollection
     from pygeoif.geometry import as_shape as asShape
+from pygeoif.geometry import GeometryCollection
+
 
 import re
 import fastkml.config as config
@@ -322,11 +322,10 @@ class Geometry(_BaseObject):
             # spaces. Clean up badly formatted tuples by stripping
             # space following commas.
             latlons = re.sub(r', +', ',', coordinates.text.strip()).split()
-            coords = [
+            return [
                 [float(c) for c in latlon.split(',')]
                 for latlon in latlons
             ]
-            return coords
 
     def _get_linear_ring(self, element):
         # LinearRing in polygon
