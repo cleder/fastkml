@@ -381,7 +381,7 @@ class Geometry(_BaseObject):
                     '%sinnerBoundaryIs' % self.ns
                 )
                 ibs = [self._get_linear_ring(inner_boundary)
-                        for inner_boundary in inner_boundaries]
+                       for inner_boundary in inner_boundaries]
                 geoms.append(Polygon(ob, ibs))
             linearings = element.findall('%sLinearRing' % self.ns)
             if linearings:
