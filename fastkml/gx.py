@@ -117,20 +117,20 @@ class GxGeometry(Geometry):
         geoms = []
         if element.tag == ('%sMultiTrack' % self.ns):
             tracks = element.findall("%sTrack" % self.ns)
-            if tracks:
-                for track in tracks:
-                    self._get_geometry_spec(track)
-                    geoms.append(LineString(self._get_coordinates(track)))
+            for track in tracks:
+                self._get_geometry_spec(track)
+                geoms.append(LineString(self._get_coordinates(track)))
 
-        if geoms:
-            geom_types = {geom.geom_type for geom in geoms}
-            if len(geom_types) > 1:
-                return GeometryCollection(geoms)
-            if 'LineString' in geom_types:
-                return MultiLineString(geoms)
+        geom_types = {geom.geom_type for geom in geoms}
+        if len(geom_types) > 1:
+            return GeometryCollection(geoms)
+        if 'LineString' in geom_types:
+            return MultiLineString(geoms)
 
     def _get_coordinates(self, element):
         coordinates = element.findall('%scoord' % self.ns)
         if coordinates is not None:
-            return [[float(c) for c in coord.text.strip().split()]
-                      for coord in coordinates]
+            return [
+                [float(c) for c in coord.text.strip().split()]
+                for coord in coordinates
+            ]
