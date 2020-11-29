@@ -103,10 +103,7 @@ class GxGeometry(Geometry):
         like gx:Track
         """
         super(GxGeometry, self).__init__(ns, id)
-        if ns is None:
-            self.ns = NS
-        else:
-            self.ns = ns
+        self.ns = NS if ns is None else ns
 
     def _get_geometry(self, element):
         # Track
@@ -135,6 +132,5 @@ class GxGeometry(Geometry):
     def _get_coordinates(self, element):
         coordinates = element.findall('%scoord' % self.ns)
         if coordinates is not None:
-            coords = [[float(c) for c in coord.text.strip().split()]
+            return [[float(c) for c in coord.text.strip().split()]
                       for coord in coordinates]
-            return coords
