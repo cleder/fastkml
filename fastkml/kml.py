@@ -54,7 +54,7 @@ from .base import _BaseObject, _XMLObject
 from .styles import StyleUrl, Style, StyleMap, _StyleSelector
 
 import fastkml.atom as atom
-# import fastkml.gx as gx
+import fastkml.gx as gx
 import fastkml.config as config
 
 try:
@@ -78,10 +78,7 @@ class KML(object):
         """
         self._features = []
 
-        if ns is None:
-            self.ns = config.KMLNS
-        else:
-            self.ns = ns
+        self.ns = config.KMLNS if ns is None else ns
 
     def from_string(self, xml_string):
         """ create a KML object from a xml string"""
@@ -93,25 +90,25 @@ class KML(object):
         else:
             element = etree.XML(xml_string)
 
-        if element.tag.endswith('kml'):
-            ns = element.tag.rstrip('kml')
-            documents = element.findall('%sDocument' % ns)
-            for document in documents:
-                feature = Document(ns)
-                feature.from_element(document)
-                self.append(feature)
-            folders = element.findall('%sFolder' % ns)
-            for folder in folders:
-                feature = Folder(ns)
-                feature.from_element(folder)
-                self.append(feature)
-            placemarks = element.findall('%sPlacemark' % ns)
-            for placemark in placemarks:
-                feature = Placemark(ns)
-                feature.from_element(placemark)
-                self.append(feature)
-        else:
+        if not element.tag.endswith('kml'):
             raise TypeError
+
+        ns = element.tag.rstrip('kml')
+        documents = element.findall('%sDocument' % ns)
+        for document in documents:
+            feature = Document(ns)
+            feature.from_element(document)
+            self.append(feature)
+        folders = element.findall('%sFolder' % ns)
+        for folder in folders:
+            feature = Folder(ns)
+            feature.from_element(folder)
+            self.append(feature)
+        placemarks = element.findall('%sPlacemark' % ns)
+        for placemark in placemarks:
+            feature = Placemark(ns)
+            feature.from_element(placemark)
+            self.append(feature)
 
     def etree_element(self):
         # self.ns may be empty, which leads to unprefixed kml elements.
@@ -309,10 +306,7 @@ class _Feature(_BaseObject):
 
     @timeStamp.setter
     def timeStamp(self, dt):
-        if dt is None:
-            self._time_stamp = None
-        else:
-            self._time_stamp = TimeStamp(timestamp=dt)
+        self._time_stamp = None if dt is None else TimeStamp(timestamp=dt)
         if self._time_span is not None:
             logger.warn('Setting a TimeStamp, TimeSpan deleted')
             self._time_span = None
@@ -404,24 +398,25 @@ class _Feature(_BaseObject):
 
     @property
     def snippet(self):
-        if self._snippet:
-            if isinstance(self._snippet, dict):
-                text = self._snippet.get('text')
-                if text:
-                    assert (isinstance(text, basestring))
-                    max_lines = self._snippet.get('maxLines', None)
-                    if max_lines is None:
-                        return {'text': text}
-                    elif int(max_lines) > 0:
-                        # if maxLines <=0 ignore it
-                        return {'text': text, 'maxLines': max_lines}
-            elif isinstance(self._snippet, basestring):
-                return self._snippet
-            else:
-                raise ValueError(
-                    "Snippet must be dict of "
-                    "{'text':t, 'maxLines':i} or string"
-                )
+        if not self._snippet:
+            return
+        if isinstance(self._snippet, dict):
+            text = self._snippet.get('text')
+            if text:
+                assert (isinstance(text, basestring))
+                max_lines = self._snippet.get('maxLines', None)
+                if max_lines is None:
+                    return {'text': text}
+                elif int(max_lines) > 0:
+                    # if maxLines <=0 ignore it
+                    return {'text': text, 'maxLines': max_lines}
+        elif isinstance(self._snippet, basestring):
+            return self._snippet
+        else:
+            raise ValueError(
+                "Snippet must be dict of "
+                "{'text':t, 'maxLines':i} or string"
+            )
 
     @snippet.setter
     def snippet(self, snip=None):
@@ -526,16 +521,10 @@ class _Feature(_BaseObject):
             self.description = description.text
         visibility = element.find('%svisibility' % self.ns)
         if visibility is not None:
-            if visibility.text in ['1', 'true']:
-                self.visibility = 1
-            else:
-                self.visibility = 0
+            self.visibility = 1 if visibility.text in ['1', 'true'] else 0
         isopen = element.find('%sopen' % self.ns)
         if isopen is not None:
-            if isopen.text in ['1', 'true']:
-                self.isopen = 1
-            else:
-                self.isopen = 0
+            self.isopen = 1 if isopen.text in ['1', 'true'] else 0
         styles = element.findall('%sStyle' % self.ns)
         for style in styles:
             s = Style(self.ns)
@@ -971,8 +960,7 @@ class Document(_Container):
 
     def schemata(self):
         if self._schemata:
-            for schema in self._schemata:
-                yield schema
+            yield from self._schemata
 
     def append_schema(self, schema):
         if self._schemata is None:
@@ -1095,6 +1083,18 @@ class Placemark(_Feature):
             geom.from_element(multigeometry)
             self._geometry = geom
             return
+        track = element.find("%sTrack" % gx.NS)
+        if track is not None:
+            geom = gx.GxGeometry(ns=gx.NS)
+            geom.from_element(track)
+            self._geometry = geom
+            return
+        multitrack = element.find("%sMultiTrack" % gx.NS)
+        if line is not None:
+            geom = gx.GxGeometry(ns=gx.NS)
+            geom.from_element(multitrack)
+            self._geometry = geom
+            return
 
         logger.warn('No geometries found')
         logger.debug(u'Problem with element: {}'.format(etree.tostring(element)))
@@ -1161,7 +1161,7 @@ class _TimePrimitive(_BaseObject):
             year = int(datestr.split('-')[0])
             month = int(datestr.split('-')[1])
             dt = datetime(year, month, day)
-        elif len(datestr) == 8 or len(datestr) == 10:
+        elif len(datestr) in [8, 10]:
             resolution = 'date'
             dt = dateutil.parser.parse(datestr)
         elif len(datestr) > 10:
@@ -1280,14 +1280,16 @@ class Schema(_BaseObject):
 
     @property
     def simple_fields(self):
-        sfs = []
-        for simple_field in self._simple_fields:
-            if simple_field.get('type') and simple_field.get('name'):
-                sfs.append({
-                    'type': simple_field['type'],
-                    'name': simple_field['name'],
-                    'displayName': simple_field.get('displayName')
-                })
+        sfs = [
+            {
+                'type': simple_field['type'],
+                'name': simple_field['name'],
+                'displayName': simple_field.get('displayName'),
+            }
+            for simple_field in self._simple_fields
+            if simple_field.get('type') and simple_field.get('name')
+        ]
+
         return tuple(sfs)
 
     @simple_fields.setter
@@ -1352,10 +1354,7 @@ class Schema(_BaseObject):
             sfname = simple_field.get('name')
             sftype = simple_field.get('type')
             display_name = simple_field.find('%sdisplayName' % self.ns)
-            if display_name is not None:
-                sfdisplay_name = display_name.text
-            else:
-                sfdisplay_name = None
+            sfdisplay_name = display_name.text if display_name is not None else None
             self.append(sftype, sfname, sfdisplay_name)
 
     def etree_element(self):
