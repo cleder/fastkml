@@ -54,7 +54,7 @@ from .base import _BaseObject, _XMLObject
 from .styles import StyleUrl, Style, StyleMap, _StyleSelector
 
 import fastkml.atom as atom
-# import fastkml.gx as gx
+import fastkml.gx as gx
 import fastkml.config as config
 
 try:
@@ -1083,6 +1083,18 @@ class Placemark(_Feature):
             geom.from_element(multigeometry)
             self._geometry = geom
             return
+        track = element.find("%sTrack" % gx.NS)
+        if track is not None:
+            geom = gx.GxGeometry(ns=gx.NS)
+            geom.from_element(track)
+            self._geometry = geom
+            return
+        multitrack = element.find("%sMultiTrack" % gx.NS)
+        if line is not None:
+            geom = gx.GxGeometry(ns=gx.NS)
+            geom.from_element(multitrack)
+            self._geometry = geom
+            return
 
         logger.warn('No geometries found')
         logger.debug(u'Problem with element: {}'.format(etree.tostring(element)))
@@ -1340,11 +1352,7 @@ class Schema(_BaseObject):
             sfname = simple_field.get('name')
             sftype = simple_field.get('type')
             display_name = simple_field.find('%sdisplayName' % self.ns)
-            sfdisplay_name = (
-                display_name.text
-                if display_name is not None
-                else None
-            )
+            sfdisplay_name = display_name.text if display_name is not None else None
             self.append(sftype, sfname, sfdisplay_name)
 
     def etree_element(self):
