@@ -2141,6 +2141,7 @@ class GetGxGeometryTestCase(unittest.TestCase):
             g.geometry.__geo_interface__,
             {
                 'type': 'LineString',
+                'bbox': (0.0, 0.0, 1.0, 1.0),
                 'coordinates': ((0.0, 0.0), (1.0, 1.0))})
 
     def test_multitrack(self):
