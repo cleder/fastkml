@@ -1174,17 +1174,14 @@ class _TimePrimitive(_BaseObject):
     def date_to_string(self, dt, resolution=None):
         if isinstance(dt, (date, datetime)):
             resolution = self.get_resolution(dt, resolution)
-            if resolution == 'gYear':
+            if resolution == 'date' and isinstance(dt, datetime):
+                return dt.date().isoformat()
+            elif resolution in ['date', 'dateTime']:
+                return dt.isoformat()
+            elif resolution == 'gYear':
                 return dt.strftime('%Y')
             elif resolution == 'gYearMonth':
                 return dt.strftime('%Y-%m')
-            elif resolution == 'date':
-                if isinstance(dt, datetime):
-                    return dt.date().isoformat()
-                else:
-                    return dt.isoformat()
-            elif resolution == 'dateTime':
-                return dt.isoformat()
 
 
 class TimeStamp(_TimePrimitive):
