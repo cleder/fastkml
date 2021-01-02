@@ -819,7 +819,7 @@ class GroundOverlay(_Overlay):
     @altitudeMode.setter
     def altitudeMode(self, mode):
         if mode in ('clampToGround', 'absolute'):
-                self._altitudeMode = str(mode)
+            self._altitudeMode = str(mode)
         else:
             self._altitudeMode = 'clampToGround'
 
@@ -1280,7 +1280,7 @@ class Schema(_BaseObject):
 
     @property
     def simple_fields(self):
-        sfs = [
+        return tuple(
             {
                 'type': simple_field['type'],
                 'name': simple_field['name'],
@@ -1288,9 +1288,7 @@ class Schema(_BaseObject):
             }
             for simple_field in self._simple_fields
             if simple_field.get('type') and simple_field.get('name')
-        ]
-
-        return tuple(sfs)
+        )
 
     @simple_fields.setter
     def simple_fields(self, fields):

@@ -87,10 +87,7 @@ class Link(object):
         self, ns=None, href=None, rel=None, type=None,
         hreflang=None, title=None, length=None
     ):
-        if ns is None:
-            self.ns = NS
-        else:
-            self.ns = ns
+        self.ns = NS if ns is None else ns
         self.href = href
         self.rel = rel
         self.type = type
@@ -104,22 +101,21 @@ class Link(object):
     def from_element(self, element):
         if self.ns + self.__name__.lower() != element.tag:
             raise TypeError
+        if element.get('href'):
+            self.href = element.get('href')
         else:
-            if element.get('href'):
-                self.href = element.get('href')
-            else:
-                logger.critical('required attribute href missing')
-                raise TypeError
-            if element.get('rel'):
-                self.rel = element.get('rel')
-            if element.get('type'):
-                self.type = element.get('type')
-            if element.get('hreflang'):
-                self.hreflang = element.get('hreflang')
-            if element.get('title'):
-                self.title = element.get('title')
-            if element.get('length'):
-                self.length = element.get('length')
+            logger.critical('required attribute href missing')
+            raise TypeError
+        if element.get('rel'):
+            self.rel = element.get('rel')
+        if element.get('type'):
+            self.type = element.get('type')
+        if element.get('hreflang'):
+            self.hreflang = element.get('hreflang')
+        if element.get('title'):
+            self.title = element.get('title')
+        if element.get('length'):
+            self.length = element.get('length')
 
     def etree_element(self):
         element = etree.Element(self.ns + self.__name__.lower())
@@ -171,10 +167,7 @@ class _Person(object):
     # contains an email address for the person.
 
     def __init__(self, ns=None, name=None, uri=None, email=None):
-        if ns is None:
-            self.ns = NS
-        else:
-            self.ns = ns
+        self.ns = NS if ns is None else ns
         self.name = name
         self.uri = uri
         self.email = email
@@ -191,10 +184,9 @@ class _Person(object):
             # XXX validate uri
             uri = etree.SubElement(element, "%suri" % self.ns)
             uri.text = self.uri
-        if self.email:
-            if check_email(self.email):
-                email = etree.SubElement(element, "%semail" % self.ns)
-                email.text = self.email
+        if self.email and check_email(self.email):
+            email = etree.SubElement(element, "%semail" % self.ns)
+            email.text = self.email
         return element
 
     def from_string(self, xml_string):
@@ -203,17 +195,15 @@ class _Person(object):
     def from_element(self, element):
         if self.ns + self.__name__.lower() != element.tag:
             raise TypeError
-        else:
-            name = element.find('%sname' % self.ns)
-            if name is not None:
-                self.name = name.text
-            uri = element.find('%suri' % self.ns)
-            if uri is not None:
-                self.uri = uri.text
-            email = element.find('%semail' % self.ns)
-            if email is not None:
-                if check_email(email.text):
-                    self.email = email.text
+        name = element.find('%sname' % self.ns)
+        if name is not None:
+            self.name = name.text
+        uri = element.find('%suri' % self.ns)
+        if uri is not None:
+            self.uri = uri.text
+        email = element.find('%semail' % self.ns)
+        if email is not None and check_email(email.text):
+            self.email = email.text
 
     def to_string(self, prettyprint=True):
         """ Return the ATOM Object as serialized xml """

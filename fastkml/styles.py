@@ -179,18 +179,16 @@ class StyleMap(_StyleSelector):
 
     def etree_element(self):
         element = super(StyleMap, self).etree_element()
-        if self.normal:
-            if isinstance(self.normal, (Style, StyleUrl)):
-                pair = etree.SubElement(element, "%sPair" % self.ns)
-                key = etree.SubElement(pair, "%skey" % self.ns)
-                key.text = 'normal'
-                pair.append(self.normal.etree_element())
-        if self.highlight:
-            if isinstance(self.highlight, (Style, StyleUrl)):
-                pair = etree.SubElement(element, "%sPair" % self.ns)
-                key = etree.SubElement(pair, "%skey" % self.ns)
-                key.text = 'highlight'
-                pair.append(self.highlight.etree_element())
+        if self.normal and isinstance(self.normal, (Style, StyleUrl)):
+            pair = etree.SubElement(element, "%sPair" % self.ns)
+            key = etree.SubElement(pair, "%skey" % self.ns)
+            key.text = 'normal'
+            pair.append(self.normal.etree_element())
+        if self.highlight and isinstance(self.highlight, (Style, StyleUrl)):
+            pair = etree.SubElement(element, "%sPair" % self.ns)
+            key = etree.SubElement(pair, "%skey" % self.ns)
+            key.text = 'highlight'
+            pair.append(self.highlight.etree_element())
         return element
 
 
