@@ -85,7 +85,7 @@ class KML(object):
         if config.LXML:
             element = etree.fromstring(
                 xml_string,
-                parser=etree.XMLParser(huge_tree=True)
+                parser=etree.XMLParser(huge_tree=True, recover=True)
             )
         else:
             element = etree.XML(xml_string)
