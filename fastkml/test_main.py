@@ -863,6 +863,21 @@ class KmlFromStringTestCase(unittest.TestCase):
         doc = kml.KML()
         self.assertRaises(TypeError, doc.from_string, '<xml></xml>')
 
+    def test_from_string_with_unbound_prefix(self):
+        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
+        <Placemark>
+        <ExtendedData>
+          <lc:attachment>image.png</lc:attachment>
+        </ExtendedData>
+        </Placemark> </kml>"""
+
+        k = kml.KML()
+        if config.LXML:
+            k.from_string(doc)
+            self.assertEqual(len(list(k.features())), 1)
+        else:
+            self.assertRaises(etree.ParseError, k.from_string, doc)
+
     def test_address(self):
         doc = kml.Document()
 
