@@ -117,14 +117,13 @@ class KML(object):
         if not self.ns:
             root = etree.Element('%skml' % self.ns)
             root.set('xmlns', config.KMLNS[1:-1])
+        elif config.LXML:
+            root = etree.Element(
+                '%skml' % self.ns,
+                nsmap={None: self.ns[1:-1]}
+            )
         else:
-            if config.LXML:
-                root = etree.Element(
-                    '%skml' % self.ns,
-                    nsmap={None: self.ns[1:-1]}
-                )
-            else:
-                root = etree.Element('%skml' % self.ns)
+            root = etree.Element('%skml' % self.ns)
         for feature in self.features():
             root.append(feature.etree_element())
         return root
@@ -320,11 +319,10 @@ class _Feature(_BaseObject):
     def begin(self, dt):
         if self._time_span is None:
             self._time_span = TimeSpan(begin=dt)
+        elif self._time_span.begin is None:
+            self._time_span.begin = [dt, None]
         else:
-            if self._time_span.begin is None:
-                self._time_span.begin = [dt, None]
-            else:
-                self._time_span.begin[0] = dt
+            self._time_span.begin[0] = dt
         if self._time_stamp is not None:
             logger.warn('Setting a TimeSpan, TimeStamp deleted')
             self._time_stamp = None
@@ -338,11 +336,10 @@ class _Feature(_BaseObject):
     def end(self, dt):
         if self._time_span is None:
             self._time_span = TimeSpan(end=dt)
+        elif self._time_span.end is None:
+            self._time_span.end = [dt, None]
         else:
-            if self._time_span.end is None:
-                self._time_span.end = [dt, None]
-            else:
-                self._time_span.end[0] = dt
+            self._time_span.end[0] = dt
         if self._time_stamp is not None:
             logger.warn('Setting a TimeSpan, TimeStamp deleted')
             self._time_stamp = None
@@ -1133,13 +1130,12 @@ class _TimePrimitive(_BaseObject):
                 raise ValueError
             else:
                 return resolution
+        elif isinstance(dt, datetime):
+            resolution = 'dateTime'
+        elif isinstance(dt, date):
+            resolution = 'date'
         else:
-            if isinstance(dt, datetime):
-                resolution = 'dateTime'
-            elif isinstance(dt, date):
-                resolution = 'date'
-            else:
-                resolution = None
+            resolution = None
         return resolution
 
     def parse_str(self, datestr):
@@ -1337,9 +1333,6 @@ class Schema(_BaseObject):
                 "type must be one of ""'string', 'int', 'uint', 'short', "
                 "'ushort', 'float', 'double', 'bool'"
             )
-        else:
-            # TODO explicit type conversion to check for the right type
-            pass
         self._simple_fields.append({'type': type, 'name': name,
                                     'displayName': displayName})
 
