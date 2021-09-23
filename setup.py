@@ -18,9 +18,9 @@ class PyTest(TestCommand):
 
 
 setup(
-    name='fastkml-klinden',
-    version='0.11',
-    description="Fast KML processing in python (forked from https://github.com/cleder/fastkml)",
+    name='fastkml',
+    version='0.12',
+    description="Fast KML processing in python",
     long_description=(
         open("README.rst").read() + "\n" +
         open(os.path.join("docs", "HISTORY.txt")).read()
@@ -30,21 +30,22 @@ setup(
         "Topic :: Scientific/Engineering :: GIS",
         "Programming Language :: Python",
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)',
         'Development Status :: 5 - Production/Stable',
         'Operating System :: OS Independent',
     ],  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     keywords='GIS KML Google Maps OpenLayers',
-    author='Kyle Linden',
-    author_email='linden.kyle@gmail.com',
-    url='https://github.com/klinden/fastkml',
+    author='Christian Ledermann',
+    author_email='christian.ledermann@gmail.com',
+    url='https://github.com/cleder/fastkml',
     license='LGPL',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     include_package_data=True,
@@ -53,7 +54,7 @@ setup(
     cmdclass={'test': PyTest},
     install_requires=[
         # -*- Extra requirements: -*-
-        'pygeoif',
+        'pygeoif<1.0',
         'python-dateutil',
     ],
     entry_points="""
