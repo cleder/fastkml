@@ -1,5 +1,5 @@
 # Base package requirements
-pygeoif
+pygeoif==0.7
 python-dateutil
 
 # Testing Requirements
