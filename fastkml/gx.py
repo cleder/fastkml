@@ -84,19 +84,21 @@ try:
 except ImportError:
     from pygeoif.geometry import LineString, MultiLineString
 
+import logging
+
 from pygeoif.geometry import GeometryCollection
 
 from .config import GXNS as NS
 from .geometry import Geometry
 
-import logging
-logger = logging.getLogger('fastkml.gx')
+logger = logging.getLogger(__name__)
 
 
 class GxGeometry(Geometry):
-
     def __init__(
-        self, ns=None, id=None,
+        self,
+        ns=None,
+        id=None,
     ):
         """
         gxgeometry: a read-only subclass of geometry supporting gx: features,
@@ -107,7 +109,7 @@ class GxGeometry(Geometry):
 
     def _get_geometry(self, element):
         # Track
-        if element.tag == ('%sTrack' % self.ns):
+        if element.tag == ("%sTrack" % self.ns):
             coords = self._get_coordinates(element)
             self._get_geometry_spec(element)
             return LineString(coords)
@@ -115,7 +117,7 @@ class GxGeometry(Geometry):
     def _get_multigeometry(self, element):
         # MultiTrack
         geoms = []
-        if element.tag == ('%sMultiTrack' % self.ns):
+        if element.tag == ("%sMultiTrack" % self.ns):
             tracks = element.findall("%sTrack" % self.ns)
             for track in tracks:
                 self._get_geometry_spec(track)
@@ -124,13 +126,12 @@ class GxGeometry(Geometry):
         geom_types = {geom.geom_type for geom in geoms}
         if len(geom_types) > 1:
             return GeometryCollection(geoms)
-        if 'LineString' in geom_types:
+        if "LineString" in geom_types:
             return MultiLineString(geoms)
 
     def _get_coordinates(self, element):
-        coordinates = element.findall('%scoord' % self.ns)
+        coordinates = element.findall("%scoord" % self.ns)
         if coordinates is not None:
             return [
-                [float(c) for c in coord.text.strip().split()]
-                for coord in coordinates
+                [float(c) for c in coord.text.strip().split()] for coord in coordinates
             ]

@@ -1,0 +1,152 @@
+# This workflow will install Python dependencies,
+# run tests and lint with a variety of Python versions
+---
+name: Tests
+on: [push, pull_request]
+
+jobs:
+  cpython:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10-dev']
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip wheel
+          pip install -r test-requirements.txt
+      - name: Test with pytest
+        run: |
+          pytest fastkml --cov=fastkml --cov-fail-under=96
+      - name: "Upload coverage to Codecov"
+        uses: codecov/codecov-action@v1
+
+  cpython-lxml:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10-dev']
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip wheel
+          pip install lxml
+      - name: Test with pytest
+        run: |
+          python setup.py test
+
+  cpython-2:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['2.7']
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install "pytest<5"
+      - name: Test with pytest
+        run: |
+          python setup.py test
+
+  static-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9']
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip wheel
+          pip install -r test-requirements.txt
+      #- name: Typecheck
+      #  run: |
+      #    mypy fastkml
+      - name: Linting
+        run: |
+          flake8 fastkml
+          black --check fastkml
+          yamllint .github/workflows/
+      - name: Check complexity
+        run: |
+          radon cc --min B fastkml
+          radon mi --min B fastkml
+          lizard -l python -w fastkml || true
+
+  pypy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pypy-version: ['pypy-3.6', 'pypy-3.7']
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.pypy-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.pypy-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip wheel
+      - name: Test with pytest
+        run: |
+          python setup.py test
+
+  publish:
+    if: "github.event_name == 'push' && github.repository == 'cleder/fastkml'"
+    needs: [cpython, static-tests, pypy, cpython-2, cpython-lxml]
+    name: Build and publish to PyPI and TestPyPI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+      - name: Install pypa/build
+        run: >-
+          python -m
+          pip install
+          build
+          --user
+      - name: Build a binary wheel and a source tarball
+        run: >-
+          python -m
+          build
+          --sdist
+          --wheel
+          --outdir dist/
+      - name: Publish distribution 📦 to Test PyPI for tags
+        if: startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
+      - name: Publish distribution 📦 to PyPI for push to main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+...

@@ -1,0 +1,11 @@
+-r requirements.txt
+-r doc-requirements.txt
+pytest
+pytest-cov
+flake8
+black
+isort
+pytest-isort
+radon
+lizard
+yamllint

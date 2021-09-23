@@ -1,13 +1,3 @@
 # Base package requirements
-pygeoif
+pygeoif<1.0
 python-dateutil
-
-# Testing Requirements
-pytest
-pep8
-coveralls
-tox>=1.8
-
-# Documentation Requirements
-Sphinx
-sphinx-rtd-theme

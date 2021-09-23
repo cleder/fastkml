@@ -18,15 +18,11 @@ Geometries are handled as pygeoif_ or, if installed, shapely_ objects.
 .. _dateutils: https://pypi.python.org/pypi/dateutils
 .. _pip: https://pypi.python.org/pypi/pip
 
-Fastkml is continually tested with *Travis CI*:
+Fastkml is continually tested
 
-.. image:: https://api.travis-ci.org/cleder/fastkml.png
-    :target: https://travis-ci.org/cleder/fastkml
-    :alt: Tests
-
-.. image:: https://coveralls.io/repos/cleder/fastkml/badge.png?branch=master
-    :target: https://coveralls.io/r/cleder/fastkml?branch=master
-    :alt: coveralls.io
+.. image:: https://github.com/cleder/fastkml/actions/workflows/run-all-tests.yml/badge.svg?branch=master
+    :target: https://github.com/cleder/fastkml/actions/workflows/run-all-tests.yml
+    :alt: Test
 
 .. image:: http://codecov.io/github/cleder/fastkml/coverage.svg?branch=master
     :target: http://codecov.io/github/cleder/fastkml?branch=master
@@ -45,10 +41,6 @@ Is Maintained and documented:
 .. image:: https://readthedocs.org/projects/fastkml/badge/
     :target: https://fastkml.readthedocs.org/
     :alt: Documentation
-
-.. image:: https://badge.waffle.io/cleder/fastkml.png?label=ready&title=Ready
-    :target: https://waffle.io/cleder/fastkml
-    :alt: 'Stories in Ready'
 
 .. image:: https://www.openhub.net/p/fastkml/widgets/project_thin_badge.gif
     :target: https://www.openhub.net/p/fastkml
@@ -114,6 +106,3 @@ Currently, the only major feature missing for the full Google Earth experience
 is the `gx extension
 <https://developers.google.com/kml/documentation/kmlreference#kmlextensions>`_.
 This will most likely be added after the 1.0 version release.
-
-You can find the complete list of current issues on `GitHub
-<https://github.com/cleder/fastkml/issues>`_.
