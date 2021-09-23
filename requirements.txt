@@ -1,6 +1,6 @@
 # Base package requirements
 pygeoif
-python-dateutil
+python-dateutil==2.8.2
 
 # Testing Requirements
 pytest
