@@ -141,23 +141,23 @@ class KML(object):
     def features(self):
         """iterate over features"""
         for feature in self._features:
-            if isinstance(feature, (Document, Folder, Placemark)):
+            if isinstance(feature, (Document, Folder, Placemark, _Overlay)):
                 yield feature
             else:
                 raise TypeError(
-                    "Features must be instances of " "(Document, Folder, Placemark)"
+                    "Features must be instances of "
+                    "(Document, Folder, Placemark, Overlay)"
                 )
 
     def append(self, kmlobj):
-        """append a feature"""
-        if isinstance(kmlobj, (Document, Folder, Placemark)):
+        """ append a feature """
+        if isinstance(kmlobj, (Document, Folder, Placemark, _Overlay)):
             self._features.append(kmlobj)
         else:
             raise TypeError(
-                "Features must be instances of (Document, Folder, Placemark)"
-            )
+                "Features must be instances of (Document, Folder, Placemark, Overlay)")
 
-
+            
 class _Feature(_BaseObject):
     """
     abstract element; do not create
@@ -603,11 +603,12 @@ class _Container(_Feature):
     def features(self):
         """iterate over features"""
         for feature in self._features:
-            if isinstance(feature, (Folder, Placemark, Document)):
+            if isinstance(feature, (Folder, Placemark, Document, _Overlay)):
                 yield feature
             else:
                 raise TypeError(
-                    "Features must be instances of " "(Folder, Placemark, Document)"
+                    "Features must be instances of "
+                    "(Folder, Placemark, Document, Overlay)"
                 )
 
     def etree_element(self):
@@ -617,12 +618,13 @@ class _Container(_Feature):
         return element
 
     def append(self, kmlobj):
-        """append a feature"""
-        if isinstance(kmlobj, (Folder, Placemark, Document)):
+        """ append a feature """
+        if isinstance(kmlobj, (Folder, Placemark, Document, _Overlay)):
             self._features.append(kmlobj)
         else:
             raise TypeError(
-                "Features must be instances of " "(Folder, Placemark, Document)"
+                "Features must be instances of "
+                "(Folder, Placemark, Document, Overlay)"
             )
         assert kmlobj != self
 
@@ -691,14 +693,10 @@ class _Overlay(_Feature):
         return self._icon
 
     @icon.setter
-    def icon(self, url):
-        if isinstance(url, basestring):
-            if not url.startswith("<href>"):
-                url = "<href>" + url
-            if not url.endswith("</href>"):
-                url = url + "</href>"
-            self._icon = url
-        elif url is None:
+    def icon(self, value):
+        if isinstance(value, Icon):
+            self._icon = value
+        elif value is None:
             self._icon = None
         else:
             raise ValueError
@@ -712,8 +710,7 @@ class _Overlay(_Feature):
             drawOrder = etree.SubElement(element, "%sdrawOrder" % self.ns)
             drawOrder.text = self._drawOrder
         if self._icon:
-            icon = etree.SubElement(element, "%sicon" % self.ns)
-            icon.text = self._icon
+            element.append(self._icon.etree_element())
         return element
 
     def from_element(self, element):
@@ -726,7 +723,9 @@ class _Overlay(_Feature):
             self.drawOrder = drawOrder.text
         icon = element.find("%sicon" % self.ns)
         if icon is not None:
-            self.icon = icon.text
+            s = Icon(self.ns)
+            s.from_element(icon)
+            self._icon = s
 
 
 class GroundOverlay(_Overlay):
@@ -897,8 +896,8 @@ class GroundOverlay(_Overlay):
                 altitudeMode = etree.SubElement(element, "%saltitudeMode" % self.ns)
                 altitudeMode.text = self._altitudeMode
         if all([self._north, self._south, self._east, self._west]):
-            latLonBox = etree.SubElement(element, "%slatLonBox" % self.ns)
-            north = etree.SubElement(latLonBox, "%snorth" % self.ns)
+            latLonBox = etree.SubElement(element, '%sLatLonBox' % self.ns)
+            north = etree.SubElement(latLonBox, '%snorth' % self.ns)
             north.text = self._north
             south = etree.SubElement(latLonBox, "%ssouth" % self.ns)
             south.text = self._south
@@ -920,7 +919,8 @@ class GroundOverlay(_Overlay):
         altitudeMode = element.find("%saltitudeMode" % self.ns)
         if altitudeMode is not None:
             self.altitudeMode = altitudeMode.text
-        latLonBox = element.find("%slatLonBox" % self.ns)
+
+        latLonBox = element.find('%sLatLonBox' % self.ns)
         if latLonBox is not None:
             north = latLonBox.find("%snorth" % self.ns)
             if north is not None:
@@ -1524,4 +1524,188 @@ class SchemaData(_XMLObject):
         self.schema_url = element.get("schemaUrl")
         simple_data = element.findall("%sSimpleData" % self.ns)
         for sd in simple_data:
-            self.append_data(sd.get("name"), sd.text)
+            self.append_data(sd.get('name'), sd.text)
+
+
+class Icon(_BaseObject):
+    '''Represents an <Icon> element used in Overlays '''
+
+    __name__ = "Icon"
+
+    _href = None
+    _refresh_mode = None
+    _refresh_interval = None
+    _view_refresh_mode = None
+    _view_refresh_time = None
+    _view_bound_scale = None
+    _view_format = None
+    _http_query = None
+
+    @property
+    def href(self):
+        return self._href
+
+    @href.setter
+    def href(self, href):
+        if isinstance(href, basestring):
+            self._href = href
+        elif href is None:
+            self._href = None
+        else:
+            raise ValueError
+
+    @property
+    def refresh_mode(self):
+        return self._refresh_mode
+
+    @refresh_mode.setter
+    def refresh_mode(self, refresh_mode):
+        if isinstance(refresh_mode, basestring):
+            self._refresh_mode = refresh_mode
+        elif refresh_mode is None:
+            self._refresh_mode = None
+        else:
+            raise ValueError
+
+    @property
+    def refresh_interval(self):
+        return self._refresh_interval
+
+    @refresh_interval.setter
+    def refresh_interval(self, refresh_interval):
+        if isinstance(refresh_interval, basestring):
+            self._refresh_interval = refresh_interval
+        elif refresh_interval is None:
+            self._refresh_interval = None
+        else:
+            raise ValueError
+
+    @property
+    def view_refresh_mode(self):
+        return self._view_refresh_mode
+
+    @view_refresh_mode.setter
+    def view_refresh_mode(self, view_refresh_mode):
+        if isinstance(view_refresh_mode, basestring):
+            self._view_refresh_mode = view_refresh_mode
+        elif view_refresh_mode is None:
+            self._view_refresh_mode = None
+        else:
+            raise ValueError
+
+    @property
+    def view_refresh_time(self):
+        return self._view_refresh_time
+
+    @view_refresh_time.setter
+    def view_refresh_time(self, view_refresh_time):
+        if isinstance(view_refresh_time, basestring):
+            self._view_refresh_time = view_refresh_time
+        elif view_refresh_time is None:
+            self._view_refresh_time = None
+        else:
+            raise ValueError
+
+    @property
+    def view_bound_scale(self):
+        return self._view_bound_scale
+
+    @view_bound_scale.setter
+    def view_bound_scale(self, view_bound_scale):
+        if isinstance(view_bound_scale, basestring):
+            self._view_bound_scale = view_bound_scale
+        elif view_bound_scale is None:
+            self._view_bound_scale = None
+        else:
+            raise ValueError
+
+    @property
+    def view_format(self):
+        return self._view_format
+
+    @view_format.setter
+    def view_format(self, view_format):
+        if isinstance(view_format, basestring):
+            self._view_format = view_format
+        elif view_format is None:
+            self._view_format = None
+        else:
+            raise ValueError
+
+    @property
+    def http_query(self):
+        return self._http_query
+
+    @http_query.setter
+    def http_query(self, http_query):
+        if isinstance(http_query, basestring):
+            self._http_query = http_query
+        elif http_query is None:
+            self._http_query = None
+        else:
+            raise ValueError
+
+    def etree_element(self):
+        element = super(Icon, self).etree_element()
+
+        if self._href:
+            href = etree.SubElement(element, "%shref" % self.ns)
+            href.text = self._href
+        if self._refresh_mode:
+            refresh_mode = etree.SubElement(element, "%srefreshMode" % self.ns)
+            refresh_mode.text = self._refresh_mode
+        if self._refresh_interval:
+            refresh_interval = etree.SubElement(element, "%srefreshInterval" % self.ns)
+            refresh_interval.text = self._refresh_interval
+        if self._view_refresh_mode:
+            view_refresh_mode = etree.SubElement(element, "%sviewRefreshMode" % self.ns)
+            view_refresh_mode.text = self._view_refresh_mode
+        if self._view_refresh_time:
+            view_refresh_time = etree.SubElement(element, "%sviewRefreshTime" % self.ns)
+            view_refresh_time.text = self._view_refresh_time
+        if self._view_bound_scale:
+            view_bound_scale = etree.SubElement(element, "%sviewBoundScale" % self.ns)
+            view_bound_scale.text = self._view_bound_scale
+        if self._view_format:
+            view_format = etree.SubElement(element, "%sviewFormat" % self.ns)
+            view_format.text = self._view_format
+        if self._http_query:
+            http_query = etree.SubElement(element, "%shttpQuery" % self.ns)
+            http_query.text = self._http_query
+
+        return element
+
+    def from_element(self, element):
+        super(Icon, self).from_element(element)
+
+        href = element.find('%shref' % self.ns)
+        if href is not None:
+            self.href = href.text
+
+        refresh_mode = element.find('%srefreshMode' % self.ns)
+        if refresh_mode is not None:
+            self.refresh_mode = refresh_mode.text
+
+        refresh_interval = element.find('%srefreshInterval' % self.ns)
+        if refresh_interval is not None:
+            self.refresh_interval = refresh_interval.text
+
+        view_refresh_mode = element.find('%sviewRefreshMode' % self.ns)
+        if view_refresh_mode is not None:
+            self.view_refresh_mode = view_refresh_mode.text
+
+        view_refresh_time = element.find('%sviewRefreshTime' % self.ns)
+        if view_refresh_time is not None:
+            self.view_refresh_time = view_refresh_time.text
+
+        view_bound_scale = element.find('%sviewBoundScale' % self.ns)
+        if view_bound_scale is not None:
+            self.view_bound_scale = view_bound_scale.text
+
+        view_format = element.find('%sviewFormat' % self.ns)
+        if view_format is not None:
+            self.view_format = view_format.text
+
+        http_query = element.find('%shttpQuery' % self.ns)
+        if http_query is not None:
+            self.http_query = http_query.text
