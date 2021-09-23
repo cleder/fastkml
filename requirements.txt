@@ -4,7 +4,7 @@ python-dateutil
 
 # Testing Requirements
 pytest
-pep8
+pep8==1.7.1
 coveralls
 tox>=1.8
 
