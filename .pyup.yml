@@ -1,0 +1,34 @@
+# configure updates globally
+# default: all
+# allowed: all, insecure, False
+update: all
+
+# configure dependency pinning globally
+# default: True
+# allowed: True, False
+pin: False
+
+# set the default branch
+# default: empty, the default branch on GitHub
+branch: dev
+
+# update schedule
+# default: empty
+# allowed: "every day", "every week", ..
+schedule: "every day"
+
+# search for requirement files
+# default: True
+# allowed: True, False
+search: True
+
+# Specify requirement files by hand, default is empty
+# default: empty
+# allowed: list
+requirements:
+  - test-requirements.txt:
+      pin: False
+
+# allow to close stale PRs
+# default: True
+close_prs: True
