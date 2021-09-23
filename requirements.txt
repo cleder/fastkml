@@ -9,5 +9,5 @@ coveralls
 tox>=1.8
 
 # Documentation Requirements
-Sphinx
+Sphinx==4.2.0
 sphinx-rtd-theme
