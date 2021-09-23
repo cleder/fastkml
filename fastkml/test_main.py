@@ -25,7 +25,6 @@ from fastkml import styles
 from fastkml import base
 from fastkml import atom
 from fastkml import config
-from fastkml import gx  # NOQA
 
 import datetime
 from dateutil.tz import tzutc, tzoffset
@@ -36,6 +35,8 @@ from fastkml.geometry import Point, LineString, Polygon
 from fastkml.geometry import MultiPoint, MultiLineString, MultiPolygon
 from fastkml.geometry import LinearRing, GeometryCollection
 from fastkml.geometry import Geometry
+
+from fastkml.gx import GxGeometry
 
 
 class BaseClassesTestCase(unittest.TestCase):
@@ -861,6 +862,21 @@ class KmlFromStringTestCase(unittest.TestCase):
     def test_from_wrong_string(self):
         doc = kml.KML()
         self.assertRaises(TypeError, doc.from_string, '<xml></xml>')
+
+    def test_from_string_with_unbound_prefix(self):
+        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
+        <Placemark>
+        <ExtendedData>
+          <lc:attachment>image.png</lc:attachment>
+        </ExtendedData>
+        </Placemark> </kml>"""
+
+        k = kml.KML()
+        if config.LXML:
+            k.from_string(doc)
+            self.assertEqual(len(list(k.features())), 1)
+        else:
+            self.assertRaises(etree.ParseError, k.from_string, doc)
 
     def test_address(self):
         doc = kml.Document()
@@ -2124,6 +2140,48 @@ class GetGeometryTestCase(unittest.TestCase):
         self.assertEqual(g.geometry.geom_type, 'GeometryCollection')
 
 
+class GetGxGeometryTestCase(unittest.TestCase):
+
+    def test_track(self):
+        doc = """<gx:Track xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+            <when>2020-01-01T00:00:00Z</when>
+            <when>2020-01-01T00:10:00Z</when>
+            <gx:coord>0.000000 0.000000</gx:coord>
+            <gx:coord>1.000000 1.000000</gx:coord>
+        </gx:Track>"""
+
+        g = GxGeometry()
+        g.from_string(doc)
+        self.assertEqual(
+            g.geometry.__geo_interface__,
+            {
+                'type': 'LineString',
+                'bbox': (0.0, 0.0, 1.0, 1.0),
+                'coordinates': ((0.0, 0.0), (1.0, 1.0))})
+
+    def test_multitrack(self):
+        doc = """
+        <gx:MultiTrack xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+          <gx:Track>
+            <when>2020-01-01T00:00:00Z</when>
+            <when>2020-01-01T00:10:00Z</when>
+            <gx:coord>0.000000 0.000000</gx:coord>
+            <gx:coord>1.000000 0.000000</gx:coord>
+          </gx:Track>
+          <gx:Track>
+            <when>2020-01-01T00:10:00Z</when>
+            <when>2020-01-01T00:20:00Z</when>
+            <gx:coord>0.000000 1.000000</gx:coord>
+            <gx:coord>1.000000 1.000000</gx:coord>
+          </gx:Track>
+        </gx:MultiTrack>
+        """
+
+        g = GxGeometry()
+        g.from_string(doc)
+        self.assertEqual(len(g.geometry), 2)
+
+
 class Force3DTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -2588,6 +2646,7 @@ def test_suite():
     suite.addTest(unittest.makeSuite(AtomTestCase))
     suite.addTest(unittest.makeSuite(SetGeometryTestCase))
     suite.addTest(unittest.makeSuite(GetGeometryTestCase))
+    suite.addTest(unittest.makeSuite(GetGxGeometryTestCase))
     suite.addTest(unittest.makeSuite(Force3DTestCase))
     suite.addTest(unittest.makeSuite(BaseOverlayTestCase))
     suite.addTest(unittest.makeSuite(GroundOverlayTestCase))

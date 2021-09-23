@@ -19,6 +19,8 @@
 Import the geometries from shapely if it is installed or otherwise from Pygeoif
 """
 
+import re
+
 try:
     from shapely.geometry import Point, LineString, Polygon
     from shapely.geometry import MultiPoint, MultiLineString, MultiPolygon
@@ -31,17 +33,15 @@ try:
     # to another geometry. I've seen some signs of this changing in GEOS,
     # but until it does I don't think there's any point to the class.
     # It wouldn't be much more than a list of geometries.
-    from pygeoif.geometry import GeometryCollection
     from shapely.geometry import asShape
 
 except ImportError:
     from pygeoif.geometry import Point, LineString, Polygon
     from pygeoif.geometry import MultiPoint, MultiLineString, MultiPolygon
     from pygeoif.geometry import LinearRing
-    from pygeoif.geometry import GeometryCollection
     from pygeoif.geometry import as_shape as asShape
+from pygeoif.geometry import GeometryCollection
 
-import re
 import fastkml.config as config
 
 from .config import etree
@@ -322,10 +322,10 @@ class Geometry(_BaseObject):
             # spaces. Clean up badly formatted tuples by stripping
             # space following commas.
             latlons = re.sub(r', +', ',', coordinates.text.strip()).split()
-            coords = []
-            for latlon in latlons:
-                coords.append([float(c) for c in latlon.split(',')])
-            return coords
+            return [
+                [float(c) for c in latlon.split(',')]
+                for latlon in latlons
+            ]
 
     def _get_linear_ring(self, element):
         # LinearRing in polygon
@@ -350,9 +350,8 @@ class Geometry(_BaseObject):
             outer_boundary = element.find('%souterBoundaryIs' % self.ns)
             ob = self._get_linear_ring(outer_boundary)
             inner_boundaries = element.findall('%sinnerBoundaryIs' % self.ns)
-            ibs = []
-            for inner_boundary in inner_boundaries:
-                ibs.append(self._get_linear_ring(inner_boundary))
+            ibs = [self._get_linear_ring(inner_boundary)
+                   for inner_boundary in inner_boundaries]
             return Polygon(ob, ibs)
         if element.tag == ('%sLinearRing' % self.ns):
             coords = self._get_coordinates(element)
@@ -364,49 +363,42 @@ class Geometry(_BaseObject):
         geoms = []
         if element.tag == ('%sMultiGeometry' % self.ns):
             points = element.findall('%sPoint' % self.ns)
-            if points:
-                for point in points:
-                    self._get_geometry_spec(point)
-                    geoms.append(Point(self._get_coordinates(point)[0]))
+            for point in points:
+                self._get_geometry_spec(point)
+                geoms.append(Point(self._get_coordinates(point)[0]))
             linestrings = element.findall('%sLineString' % self.ns)
-            if linestrings:
-                for ls in linestrings:
-                    self._get_geometry_spec(ls)
-                    geoms.append(LineString(self._get_coordinates(ls)))
+            for ls in linestrings:
+                self._get_geometry_spec(ls)
+                geoms.append(LineString(self._get_coordinates(ls)))
             polygons = element.findall('%sPolygon' % self.ns)
-            if polygons:
-                for polygon in polygons:
-                    self._get_geometry_spec(polygon)
-                    outer_boundary = polygon.find(
-                        '%souterBoundaryIs' % self.ns
-                    )
-                    ob = self._get_linear_ring(outer_boundary)
-                    inner_boundaries = polygon.findall(
-                        '%sinnerBoundaryIs' % self.ns
-                    )
-                    ibs = []
-                    for inner_boundary in inner_boundaries:
-                        ibs.append(self._get_linear_ring(inner_boundary))
-                    geoms.append(Polygon(ob, ibs))
+            for polygon in polygons:
+                self._get_geometry_spec(polygon)
+                outer_boundary = polygon.find(
+                    '%souterBoundaryIs' % self.ns
+                )
+                ob = self._get_linear_ring(outer_boundary)
+                inner_boundaries = polygon.findall(
+                    '%sinnerBoundaryIs' % self.ns
+                )
+                ibs = [self._get_linear_ring(inner_boundary)
+                       for inner_boundary in inner_boundaries]
+                geoms.append(Polygon(ob, ibs))
             linearings = element.findall('%sLinearRing' % self.ns)
             if linearings:
                 for lr in linearings:
                     self._get_geometry_spec(lr)
                     geoms.append(LinearRing(self._get_coordinates(lr)))
-        if len(geoms) > 0:
-            geom_types = []
-            for geom in geoms:
-                geom_types.append(geom.geom_type)
-            geom_types = list(set(geom_types))
+        if geoms:
+            geom_types = {geom.geom_type for geom in geoms}
             if len(geom_types) > 1:
                 return GeometryCollection(geoms)
-            if geom_types[0] == 'Point':
+            if 'Point' in geom_types:
                 return MultiPoint(geoms)
-            elif geom_types[0] == 'LineString':
+            elif 'LineString' in geom_types:
                 return MultiLineString(geoms)
-            elif geom_types[0] == 'Polygon':
+            elif 'Polygon' in geom_types:
                 return MultiPolygon(geoms)
-            elif geom_types[0] == 'LinearRing':
+            elif 'LinearRing' in geom_types:
                 return GeometryCollection(geoms)
 
     def from_element(self, element):
