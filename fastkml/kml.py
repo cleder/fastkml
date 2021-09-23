@@ -119,11 +119,10 @@ class KML(object):
         if not self.ns:
             root = etree.Element("%skml" % self.ns)
             root.set("xmlns", config.KMLNS[1:-1])
+        elif config.LXML:
+            root = etree.Element("%skml" % self.ns, nsmap={None: self.ns[1:-1]})
         else:
-            if config.LXML:
-                root = etree.Element("%skml" % self.ns, nsmap={None: self.ns[1:-1]})
-            else:
-                root = etree.Element("%skml" % self.ns)
+            root = etree.Element("%skml" % self.ns)
         for feature in self.features():
             root.append(feature.etree_element())
         return root
@@ -1338,9 +1337,6 @@ class Schema(_BaseObject):
                 "'string', 'int', 'uint', 'short', "
                 "'ushort', 'float', 'double', 'bool'"
             )
-        else:
-            # TODO explicit type conversion to check for the right type
-            pass
         self._simple_fields.append(
             {"type": type, "name": name, "displayName": displayName}
         )
