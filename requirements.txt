@@ -3,7 +3,7 @@ pygeoif
 python-dateutil
 
 # Testing Requirements
-pytest
+pytest==6.2.5
 pep8
 coveralls
 tox>=1.8
