@@ -137,17 +137,16 @@ class BuildKmlTestCase(unittest.TestCase):
                 str(k.to_string())[:43],
                 '<kml xmlns="http://www.opengis.net/kml/2.2"/>'[:43],
             )
+        elif hasattr(etree, "register_namespace"):
+            self.assertEqual(
+                str(k.to_string())[:51],
+                '<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2" />'[:51],
+            )
         else:
-            if hasattr(etree, "register_namespace"):
-                self.assertEqual(
-                    str(k.to_string())[:51],
-                    '<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2" />'[:51],
-                )
-            else:
-                self.assertEqual(
-                    str(k.to_string())[:51],
-                    '<ns0:kml xmlns:ns0="http://www.opengis.net/kml/2.2" />'[:51],
-                )
+            self.assertEqual(
+                str(k.to_string())[:51],
+                '<ns0:kml xmlns:ns0="http://www.opengis.net/kml/2.2" />'[:51],
+            )
 
         k2 = kml.KML()
         k2.from_string(k.to_string())
