@@ -1338,9 +1338,9 @@ class Schema(_BaseObject):
         if type not in allowed_types:
             raise TypeError(
                 "{0} has the type {1} which is invalid. ".format(name, type)
-                "The type must be one of "
-                "'string', 'int', 'uint', 'short', "
-                "'ushort', 'float', 'double', 'bool'"
+                + "The type must be one of "
+                + "'string', 'int', 'uint', 'short', "
+                + "'ushort', 'float', 'double', 'bool'"
             )
         self._simple_fields.append(
             {"type": type, "name": name, "displayName": displayName}
