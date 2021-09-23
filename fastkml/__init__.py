@@ -25,31 +25,56 @@ google maps rather than to give you all functionality that KML on google earth
 provides.
 """
 
-from pkg_resources import get_distribution, DistributionNotFound
+from pkg_resources import DistributionNotFound
+from pkg_resources import get_distribution
 
-from .kml import KML, Document, Folder, Placemark
-from .kml import TimeSpan, TimeStamp
-from .kml import ExtendedData, Data
-from .kml import Schema, SchemaData
-
-from .styles import StyleUrl, Style, StyleMap
-from .styles import IconStyle, LineStyle, PolyStyle
-from .styles import LabelStyle, BalloonStyle
-
-from .atom import Link, Author, Contributor
+from .atom import Author
+from .atom import Contributor
+from .atom import Link
+from .kml import KML
+from .kml import Data
+from .kml import Document
+from .kml import ExtendedData
+from .kml import Folder
+from .kml import Placemark
+from .kml import Schema
+from .kml import SchemaData
+from .kml import TimeSpan
+from .kml import TimeStamp
+from .styles import BalloonStyle
+from .styles import IconStyle
+from .styles import LabelStyle
+from .styles import LineStyle
+from .styles import PolyStyle
+from .styles import Style
+from .styles import StyleMap
+from .styles import StyleUrl
 
 try:
-    __version__ = get_distribution('fastkml').version
+    __version__ = get_distribution("fastkml").version
 except DistributionNotFound:
-    __version__ = 'dev'
+    __version__ = "dev"
 
 __all__ = [
-    'KML', 'Document', 'Folder', 'Placemark',
-    'TimeSpan', 'TimeStamp',
-    'ExtendedData', 'Data',
-    'Schema', 'SchemaData',
-    'StyleUrl', 'Style', 'StyleMap',
-    'IconStyle', 'LineStyle', 'PolyStyle',
-    'LabelStyle', 'BalloonStyle',
-    'Link', 'Author', 'Contributor',
+    "KML",
+    "Document",
+    "Folder",
+    "Placemark",
+    "TimeSpan",
+    "TimeStamp",
+    "ExtendedData",
+    "Data",
+    "Schema",
+    "SchemaData",
+    "StyleUrl",
+    "Style",
+    "StyleMap",
+    "IconStyle",
+    "LineStyle",
+    "PolyStyle",
+    "LabelStyle",
+    "BalloonStyle",
+    "Link",
+    "Author",
+    "Contributor",
 ]

@@ -18,24 +18,28 @@
 """Frequently used constants and configuration options"""
 
 import logging
-logger = logging.getLogger('fastkml.config')
+import warnings
 
 try:
     from lxml import etree
+
     LXML = True
 except ImportError:
-    logger.warning('Package `lxml` missing. Pretty print will be disabled')
+    warnings.warn("Package `lxml` missing. Pretty print will be disabled")
     import xml.etree.ElementTree as etree
+
     LXML = False
 
+logger = logging.getLogger(__name__)
 
-KMLNS = '{http://www.opengis.net/kml/2.2}'
-ATOMNS = '{http://www.w3.org/2005/Atom}'
-GXNS = '{http://www.google.com/kml/ext/2.2}'
 
-if hasattr(etree, 'register_namespace'):
-    etree.register_namespace('kml', KMLNS[1:-1])
-    etree.register_namespace('atom', ATOMNS[1:-1])
-    etree.register_namespace('gx', GXNS[1:-1])
+KMLNS = "{http://www.opengis.net/kml/2.2}"
+ATOMNS = "{http://www.w3.org/2005/Atom}"
+GXNS = "{http://www.google.com/kml/ext/2.2}"
+
+if hasattr(etree, "register_namespace"):
+    etree.register_namespace("kml", KMLNS[1:-1])
+    etree.register_namespace("atom", ATOMNS[1:-1])
+    etree.register_namespace("gx", GXNS[1:-1])
 
 FORCE3D = False

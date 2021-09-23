@@ -22,10 +22,11 @@ part of how your data is displayed.
 """
 
 import logging
-logger = logging.getLogger('fastkml.styles')
 
-from fastkml.config import etree
 from fastkml.base import _BaseObject
+from fastkml.config import etree
+
+logger = logging.getLogger(__name__)
 
 
 class StyleUrl(_BaseObject):
@@ -34,7 +35,8 @@ class StyleUrl(_BaseObject):
     is in the same file, use a # reference. If the style is defined in
     an external file, use a full URL along with # referencing.
     """
-    __name__ = 'styleUrl'
+
+    __name__ = "styleUrl"
     url = None
 
     def __init__(self, ns=None, id=None, url=None):
@@ -47,7 +49,7 @@ class StyleUrl(_BaseObject):
             element.text = self.url
             return element
         else:
-            raise ValueError('No url given for styleUrl')
+            raise ValueError("No url given for styleUrl")
 
     def from_element(self, element):
         super(StyleUrl, self).from_element(element)
@@ -73,6 +75,7 @@ class Style(_StyleSelector):
     an id defined for them so that they can be referenced by the
     individual Features that use them.
     """
+
     __name__ = "Style"
     _styles = None
 
@@ -98,27 +101,27 @@ class Style(_StyleSelector):
 
     def from_element(self, element):
         super(Style, self).from_element(element)
-        style = element.find('%sIconStyle' % self.ns)
+        style = element.find("%sIconStyle" % self.ns)
         if style is not None:
             thestyle = IconStyle(self.ns)
             thestyle.from_element(style)
             self.append_style(thestyle)
-        style = element.find('%sLineStyle' % self.ns)
+        style = element.find("%sLineStyle" % self.ns)
         if style is not None:
             thestyle = LineStyle(self.ns)
             thestyle.from_element(style)
             self.append_style(thestyle)
-        style = element.find('%sPolyStyle' % self.ns)
+        style = element.find("%sPolyStyle" % self.ns)
         if style is not None:
             thestyle = PolyStyle(self.ns)
             thestyle.from_element(style)
             self.append_style(thestyle)
-        style = element.find('%sLabelStyle' % self.ns)
+        style = element.find("%sLabelStyle" % self.ns)
         if style is not None:
             thestyle = LabelStyle(self.ns)
             thestyle.from_element(style)
             self.append_style(thestyle)
-        style = element.find('%sBalloonStyle' % self.ns)
+        style = element.find("%sBalloonStyle" % self.ns)
         if style is not None:
             thestyle = BalloonStyle(self.ns)
             thestyle.from_element(style)
@@ -138,6 +141,7 @@ class StyleMap(_StyleSelector):
     styles for a placemark, so that the highlighted version appears when
     the user mouses over the icon in Google Earth.
     """
+
     __name__ = "StyleMap"
     normal = None
     highlight = None
@@ -149,11 +153,11 @@ class StyleMap(_StyleSelector):
 
     def from_element(self, element):
         super(StyleMap, self).from_element(element)
-        pairs = element.findall('%sPair' % self.ns)
+        pairs = element.findall("%sPair" % self.ns)
         for pair in pairs:
-            key = pair.find('%skey' % self.ns)
-            style = pair.find('%sStyle' % self.ns)
-            style_url = pair.find('%sstyleUrl' % self.ns)
+            key = pair.find("%skey" % self.ns)
+            style = pair.find("%sStyle" % self.ns)
+            style_url = pair.find("%sstyleUrl" % self.ns)
             if key.text == "highlight":
                 if style is not None:
                     highlight = Style(self.ns)
@@ -182,12 +186,12 @@ class StyleMap(_StyleSelector):
         if self.normal and isinstance(self.normal, (Style, StyleUrl)):
             pair = etree.SubElement(element, "%sPair" % self.ns)
             key = etree.SubElement(pair, "%skey" % self.ns)
-            key.text = 'normal'
+            key.text = "normal"
             pair.append(self.normal.etree_element())
         if self.highlight and isinstance(self.highlight, (Style, StyleUrl)):
             pair = etree.SubElement(element, "%sPair" % self.ns)
             key = etree.SubElement(pair, "%skey" % self.ns)
-            key.text = 'highlight'
+            key.text = "highlight"
             pair.append(self.highlight.etree_element())
         return element
 
@@ -200,6 +204,7 @@ class _ColorStyle(_BaseObject):
     extended style types.
     subclasses are: IconStyle, LabelStyle, LineStyle, PolyStyle
     """
+
     id = None
     ns = None
     color = None
@@ -230,16 +235,17 @@ class _ColorStyle(_BaseObject):
 
     def from_element(self, element):
         super(_ColorStyle, self).from_element(element)
-        colorMode = element.find('%scolorMode' % self.ns)
+        colorMode = element.find("%scolorMode" % self.ns)
         if colorMode is not None:
             self.colorMode = colorMode.text
-        color = element.find('%scolor' % self.ns)
+        color = element.find("%scolor" % self.ns)
         if color is not None:
             self.color = color.text
 
 
 class IconStyle(_ColorStyle):
-    """ Specifies how icons for point Placemarks are drawn """
+    """Specifies how icons for point Placemarks are drawn"""
+
     __name__ = "IconStyle"
     scale = 1.0
     # Resizes the icon. (float)
@@ -250,8 +256,14 @@ class IconStyle(_ColorStyle):
     # An HTTP address or a local file specification used to load an icon.
 
     def __init__(
-        self, ns=None, id=None, color=None, colorMode=None, scale=1.0,
-        heading=None, icon_href=None
+        self,
+        ns=None,
+        id=None,
+        color=None,
+        colorMode=None,
+        scale=1.0,
+        heading=None,
+        icon_href=None,
     ):
         super(IconStyle, self).__init__(ns, id, color, colorMode)
         self.scale = scale
@@ -274,15 +286,15 @@ class IconStyle(_ColorStyle):
 
     def from_element(self, element):
         super(IconStyle, self).from_element(element)
-        scale = element.find('%sscale' % self.ns)
+        scale = element.find("%sscale" % self.ns)
         if scale is not None:
             self.scale = float(scale.text)
-        heading = element.find('%sheading' % self.ns)
+        heading = element.find("%sheading" % self.ns)
         if heading is not None:
             self.heading = float(heading.text)
-        icon = element.find('%sIcon' % self.ns)
+        icon = element.find("%sIcon" % self.ns)
         if icon is not None:
-            href = icon.find('%shref' % self.ns)
+            href = icon.find("%shref" % self.ns)
             if href is not None:
                 self.icon_href = href.text
 
@@ -294,13 +306,12 @@ class LineStyle(_ColorStyle):
     outlined polygons and the extruded "tether" of Placemark icons
     (if extrusion is enabled).
     """
+
     __name__ = "LineStyle"
     width = 1.0
     # Width of the line, in pixels.
 
-    def __init__(
-        self, ns=None, id=None, color=None, colorMode=None, width=1
-    ):
+    def __init__(self, ns=None, id=None, color=None, colorMode=None, width=1):
         super(LineStyle, self).__init__(ns, id, color, colorMode)
         self.width = width
 
@@ -313,7 +324,7 @@ class LineStyle(_ColorStyle):
 
     def from_element(self, element):
         super(LineStyle, self).from_element(element)
-        width = element.find('%swidth' % self.ns)
+        width = element.find("%swidth" % self.ns)
         if width is not None:
             self.width = float(width.text)
 
@@ -324,6 +335,7 @@ class PolyStyle(_ColorStyle):
     extrusions (which look like the walls of buildings) and line
     extrusions (which look like solid fences).
     """
+
     __name__ = "PolyStyle"
     fill = 1
     # Boolean value. Specifies whether to fill the polygon.
@@ -331,9 +343,7 @@ class PolyStyle(_ColorStyle):
     # Boolean value. Specifies whether to outline the polygon.
     # Polygon outlines use the current LineStyle.
 
-    def __init__(
-        self, ns=None, id=None, color=None, colorMode=None, fill=1, outline=1
-    ):
+    def __init__(self, ns=None, id=None, color=None, colorMode=None, fill=1, outline=1):
         super(PolyStyle, self).__init__(ns, id, color, colorMode)
         self.fill = fill
         self.outline = outline
@@ -350,10 +360,10 @@ class PolyStyle(_ColorStyle):
 
     def from_element(self, element):
         super(PolyStyle, self).from_element(element)
-        fill = element.find('%sfill' % self.ns)
+        fill = element.find("%sfill" % self.ns)
         if fill is not None:
             self.fill = int(float(fill.text))
-        outline = element.find('%soutline' % self.ns)
+        outline = element.find("%soutline" % self.ns)
         if outline is not None:
             self.outline = int(float(outline.text))
 
@@ -362,13 +372,12 @@ class LabelStyle(_ColorStyle):
     """
     Specifies how the <name> of a Feature is drawn in the 3D viewer
     """
+
     __name__ = "LabelStyle"
     scale = 1.0
     # Resizes the label.
 
-    def __init__(
-        self, ns=None, id=None, color=None, colorMode=None, scale=1.0
-    ):
+    def __init__(self, ns=None, id=None, color=None, colorMode=None, scale=1.0):
         super(LabelStyle, self).__init__(ns, id, color, colorMode)
         self.scale = scale
 
@@ -381,15 +390,15 @@ class LabelStyle(_ColorStyle):
 
     def from_element(self, element):
         super(LabelStyle, self).from_element(element)
-        scale = element.find('%sscale' % self.ns)
+        scale = element.find("%sscale" % self.ns)
         if scale is not None:
             self.scale = float(scale.text)
 
 
 class BalloonStyle(_BaseObject):
-    """ Specifies how the description balloon for placemarks is drawn.
-        The <bgColor>, if specified, is used as the background color of
-        the balloon."""
+    """Specifies how the description balloon for placemarks is drawn.
+    The <bgColor>, if specified, is used as the background color of
+    the balloon."""
 
     __name__ = "BalloonStyle"
 
@@ -438,8 +447,13 @@ class BalloonStyle(_BaseObject):
     # Google Earth to fly to the Placemark.
 
     def __init__(
-        self, ns=None, id=None, bgColor=None, textColor=None, text=None,
-        displayMode=None
+        self,
+        ns=None,
+        id=None,
+        bgColor=None,
+        textColor=None,
+        text=None,
+        displayMode=None,
     ):
         super(BalloonStyle, self).__init__(ns, id)
         self.bgColor = bgColor
@@ -449,20 +463,20 @@ class BalloonStyle(_BaseObject):
 
     def from_element(self, element):
         super(BalloonStyle, self).from_element(element)
-        bgColor = element.find('%sbgColor' % self.ns)
+        bgColor = element.find("%sbgColor" % self.ns)
         if bgColor is not None:
             self.bgColor = bgColor.text
         else:
-            bgColor = element.find('%scolor' % self.ns)
+            bgColor = element.find("%scolor" % self.ns)
             if bgColor is not None:
                 self.bgColor = bgColor.text
-        textColor = element.find('%stextColor' % self.ns)
+        textColor = element.find("%stextColor" % self.ns)
         if textColor is not None:
             self.textColor = textColor.text
-        text = element.find('%stext' % self.ns)
+        text = element.find("%stext" % self.ns)
         if text is not None:
             self.text = text.text
-        displayMode = element.find('%sdisplayMode' % self.ns)
+        displayMode = element.find("%sdisplayMode" % self.ns)
         if displayMode is not None:
             self.displayMode = displayMode.text
 
