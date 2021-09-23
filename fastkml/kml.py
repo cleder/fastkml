@@ -92,6 +92,11 @@ class KML(object):
         else:
             element = etree.XML(xml_string)
 
+            placemarks = element.findall('%sPlacemark' % ns)
+            for placemark in placemarks:
+                feature = Placemark(ns)
+                feature.from_element(placemark)
+                self.append(feature)
         if not element.tag.endswith("kml"):
             raise TypeError
 
@@ -111,6 +116,11 @@ class KML(object):
             feature = Placemark(ns)
             feature.from_element(placemark)
             self.append(feature)
+        groundoverlays = element.findall('%sGroundOverlay' % ns)
+        for groundoverlay in groundoverlays:
+            feature = GroundOverlay(ns)
+            feature.from_element(groundoverlay)
+            self.append(feature)         
 
     def etree_element(self):
         # self.ns may be empty, which leads to unprefixed kml elements.
@@ -142,15 +152,18 @@ class KML(object):
         """iterate over features"""
         for feature in self._features:
             if isinstance(feature, (Document, Folder, Placemark, _Overlay)):
+
                 yield feature
             else:
                 raise TypeError(
                     "Features must be instances of "
                     "(Document, Folder, Placemark, Overlay)"
+
                 )
 
     def append(self, kmlobj):
         """ append a feature """
+
         if isinstance(kmlobj, (Document, Folder, Placemark, _Overlay)):
             self._features.append(kmlobj)
         else:
