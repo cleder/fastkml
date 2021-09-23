@@ -116,7 +116,7 @@ jobs:
 
   publish:
     if: "github.event_name == 'push' && github.repository == 'cleder/fastkml'"
-    needs: [cpython, static-tests, pypy]
+    needs: [cpython, static-tests, pypy, cpython-2, cpython-lxml]
     name: Build and publish to PyPI and TestPyPI
     runs-on: ubuntu-latest
     steps:
