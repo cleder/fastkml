@@ -964,6 +964,11 @@ class Document(_Container):
 
     def from_element(self, element):
         super(Document, self).from_element(element)
+        documents = element.findall("%sDocument" % self.ns)
+        for document in documents:
+            feature = Document(self.ns)
+            feature.from_element(document)
+            self.append(feature)
         folders = element.findall("%sFolder" % self.ns)
         for folder in folders:
             feature = Folder(self.ns)
