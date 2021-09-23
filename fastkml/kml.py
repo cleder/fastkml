@@ -1337,7 +1337,7 @@ class Schema(_BaseObject):
         ]
         if type not in allowed_types:
             raise TypeError(
-                f"{name} has the type {type} which is invalid. "
+                "{0} has the type {1} which is invalid. ".format(name, type)
                 "The type must be one of "
                 "'string', 'int', 'uint', 'short', "
                 "'ushort', 'float', 'double', 'bool'"
