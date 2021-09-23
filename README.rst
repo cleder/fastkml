@@ -106,6 +106,3 @@ Currently, the only major feature missing for the full Google Earth experience
 is the `gx extension
 <https://developers.google.com/kml/documentation/kmlreference#kmlextensions>`_.
 This will most likely be added after the 1.0 version release.
-
-You can find the complete list of current issues on `GitHub
-<https://github.com/cleder/fastkml/issues>`_.
