@@ -77,5 +77,61 @@ The complete XML schema for elements in this extension namespace is
 located at http://developers.google.com/kml/schema/kml22gx.xsd.
 """
 
+try:
+    from shapely.geometry.linestring import LineString
+    from shapely.geometry.multilinestring import MultiLineString
+
+except ImportError:
+    from pygeoif.geometry import LineString, MultiLineString
+
 import logging
-logger = logging.getLogger('fastkml.gx')
+
+from pygeoif.geometry import GeometryCollection
+
+from .config import GXNS as NS
+from .geometry import Geometry
+
+logger = logging.getLogger(__name__)
+
+
+class GxGeometry(Geometry):
+    def __init__(
+        self,
+        ns=None,
+        id=None,
+    ):
+        """
+        gxgeometry: a read-only subclass of geometry supporting gx: features,
+        like gx:Track
+        """
+        super(GxGeometry, self).__init__(ns, id)
+        self.ns = NS if ns is None else ns
+
+    def _get_geometry(self, element):
+        # Track
+        if element.tag == ("%sTrack" % self.ns):
+            coords = self._get_coordinates(element)
+            self._get_geometry_spec(element)
+            return LineString(coords)
+
+    def _get_multigeometry(self, element):
+        # MultiTrack
+        geoms = []
+        if element.tag == ("%sMultiTrack" % self.ns):
+            tracks = element.findall("%sTrack" % self.ns)
+            for track in tracks:
+                self._get_geometry_spec(track)
+                geoms.append(LineString(self._get_coordinates(track)))
+
+        geom_types = {geom.geom_type for geom in geoms}
+        if len(geom_types) > 1:
+            return GeometryCollection(geoms)
+        if "LineString" in geom_types:
+            return MultiLineString(geoms)
+
+    def _get_coordinates(self, element):
+        coordinates = element.findall("%scoord" % self.ns)
+        if coordinates is not None:
+            return [
+                [float(c) for c in coord.text.strip().split()] for coord in coordinates
+            ]

@@ -33,13 +33,13 @@ This library only implements a subset of Atom that is useful with KML
 """
 
 import logging
-logger = logging.getLogger('fastkml.atom')
+import re
 
-from .config import etree
 from .config import ATOMNS as NS
 from .config import LXML
+from .config import etree
 
-import re
+logger = logging.getLogger(__name__)
 regex = r"^[a-zA-Z0-9._%-]+@([a-zA-Z0-9-]+\.)*[a-zA-Z]{2,4}$"
 check_email = re.compile(regex).match
 
@@ -53,7 +53,8 @@ class Link(object):
     attribute, href, and five optional attributes: rel, type, hreflang,
     title, and length.
     """
-    __name__ = 'Link'
+
+    __name__ = "Link"
     ns = None
 
     href = None
@@ -84,13 +85,16 @@ class Link(object):
     # the length of the resource, in bytes
 
     def __init__(
-        self, ns=None, href=None, rel=None, type=None,
-        hreflang=None, title=None, length=None
+        self,
+        ns=None,
+        href=None,
+        rel=None,
+        type=None,
+        hreflang=None,
+        title=None,
+        length=None,
     ):
-        if ns is None:
-            self.ns = NS
-        else:
-            self.ns = ns
+        self.ns = NS if ns is None else ns
         self.href = href
         self.rel = rel
         self.type = type
@@ -104,52 +108,50 @@ class Link(object):
     def from_element(self, element):
         if self.ns + self.__name__.lower() != element.tag:
             raise TypeError
+        if element.get("href"):
+            self.href = element.get("href")
         else:
-            if element.get('href'):
-                self.href = element.get('href')
-            else:
-                logger.critical('required attribute href missing')
-                raise TypeError
-            if element.get('rel'):
-                self.rel = element.get('rel')
-            if element.get('type'):
-                self.type = element.get('type')
-            if element.get('hreflang'):
-                self.hreflang = element.get('hreflang')
-            if element.get('title'):
-                self.title = element.get('title')
-            if element.get('length'):
-                self.length = element.get('length')
+            logger.critical("required attribute href missing")
+            raise TypeError
+        if element.get("rel"):
+            self.rel = element.get("rel")
+        if element.get("type"):
+            self.type = element.get("type")
+        if element.get("hreflang"):
+            self.hreflang = element.get("hreflang")
+        if element.get("title"):
+            self.title = element.get("title")
+        if element.get("length"):
+            self.length = element.get("length")
 
     def etree_element(self):
         element = etree.Element(self.ns + self.__name__.lower())
         if self.href:
-            element.set('href', self.href)
+            element.set("href", self.href)
         else:
-            raise ValueError('required attribute href missing')
+            raise ValueError("required attribute href missing")
         if self.rel:
-            element.set('rel', self.rel)
+            element.set("rel", self.rel)
         if self.type:
-            element.set('type', self.type)
+            element.set("type", self.type)
         if self.hreflang:
-            element.set('hreflang', self.hreflang)
+            element.set("hreflang", self.hreflang)
         if self.title:
-            element.set('title', self.title)
+            element.set("title", self.title)
         if self.length:
-            element.set('length', self.length)
+            element.set("length", self.length)
         return element
 
     def to_string(self, prettyprint=True):
-        """ Return the ATOM Object as serialized xml """
+        """Return the ATOM Object as serialized xml"""
         if LXML and prettyprint:
             return etree.tostring(
-                self.etree_element(),
-                encoding='utf-8',
-                pretty_print=True).decode('UTF-8')
+                self.etree_element(), encoding="utf-8", pretty_print=True
+            ).decode("UTF-8")
         else:
-            return etree.tostring(
-                self.etree_element(),
-                encoding='utf-8').decode('UTF-8')
+            return etree.tostring(self.etree_element(), encoding="utf-8").decode(
+                "UTF-8"
+            )
 
 
 class _Person(object):
@@ -158,6 +160,7 @@ class _Person(object):
     entity. It has one required element, name, and two optional elements:
     uri, email.
     """
+
     __name__ = None
     ns = None
 
@@ -171,10 +174,7 @@ class _Person(object):
     # contains an email address for the person.
 
     def __init__(self, ns=None, name=None, uri=None, email=None):
-        if ns is None:
-            self.ns = NS
-        else:
-            self.ns = ns
+        self.ns = NS if ns is None else ns
         self.name = name
         self.uri = uri
         self.email = email
@@ -191,10 +191,9 @@ class _Person(object):
             # XXX validate uri
             uri = etree.SubElement(element, "%suri" % self.ns)
             uri.text = self.uri
-        if self.email:
-            if check_email(self.email):
-                email = etree.SubElement(element, "%semail" % self.ns)
-                email.text = self.email
+        if self.email and check_email(self.email):
+            email = etree.SubElement(element, "%semail" % self.ns)
+            email.text = self.email
         return element
 
     def from_string(self, xml_string):
@@ -203,38 +202,37 @@ class _Person(object):
     def from_element(self, element):
         if self.ns + self.__name__.lower() != element.tag:
             raise TypeError
-        else:
-            name = element.find('%sname' % self.ns)
-            if name is not None:
-                self.name = name.text
-            uri = element.find('%suri' % self.ns)
-            if uri is not None:
-                self.uri = uri.text
-            email = element.find('%semail' % self.ns)
-            if email is not None:
-                if check_email(email.text):
-                    self.email = email.text
+        name = element.find("%sname" % self.ns)
+        if name is not None:
+            self.name = name.text
+        uri = element.find("%suri" % self.ns)
+        if uri is not None:
+            self.uri = uri.text
+        email = element.find("%semail" % self.ns)
+        if email is not None and check_email(email.text):
+            self.email = email.text
 
     def to_string(self, prettyprint=True):
-        """ Return the ATOM Object as serialized xml """
+        """Return the ATOM Object as serialized xml"""
         if LXML and prettyprint:
             return etree.tostring(
-                self.etree_element(),
-                encoding='utf-8',
-                pretty_print=True).decode('UTF-8')
+                self.etree_element(), encoding="utf-8", pretty_print=True
+            ).decode("UTF-8")
         else:
-            return etree.tostring(
-                self.etree_element(),
-                encoding='utf-8').decode('UTF-8')
+            return etree.tostring(self.etree_element(), encoding="utf-8").decode(
+                "UTF-8"
+            )
 
 
 class Author(_Person):
-    """ Names one author of the feed/entry. A feed/entry may have
+    """Names one author of the feed/entry. A feed/entry may have
     multiple authors."""
+
     __name__ = "Author"
 
 
 class Contributor(_Person):
-    """ Names one contributor to the feed/entry. A feed/entry may have
+    """Names one contributor to the feed/entry. A feed/entry may have
     multiple contributor elements."""
+
     __name__ = "Contributor"

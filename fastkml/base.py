@@ -22,16 +22,13 @@ from fastkml.config import etree
 
 
 class _XMLObject(object):
-    """ XML Baseclass"""
+    """XML Baseclass"""
 
     __name__ = None
     ns = None
 
     def __init__(self, ns=None):
-        if ns is None:
-            self.ns = config.KMLNS
-        else:
-            self.ns = ns
+        self.ns = config.KMLNS if ns is None else ns
 
     def etree_element(self):
         if self.__name__:
@@ -44,55 +41,50 @@ class _XMLObject(object):
 
     def from_element(self, element):
         if self.ns + self.__name__ != element.tag:
-            raise TypeError(
-                "Call of abstract base class, subclasses implement this!"
-            )
+            raise TypeError("Call of abstract base class, subclasses implement this!")
 
     def from_string(self, xml_string):
         self.from_element(etree.XML(xml_string))
 
     def to_string(self, prettyprint=True):
-        """ Return the KML Object as serialized xml """
+        """Return the KML Object as serialized xml"""
         if config.LXML and prettyprint:
             return etree.tostring(
-                self.etree_element(),
-                encoding='utf-8',
-                pretty_print=True).decode('UTF-8')
+                self.etree_element(), encoding="utf-8", pretty_print=True
+            ).decode("UTF-8")
         else:
-            return etree.tostring(
-                self.etree_element(),
-                encoding='utf-8').decode('UTF-8')
+            return etree.tostring(self.etree_element(), encoding="utf-8").decode(
+                "UTF-8"
+            )
 
 
 class _BaseObject(_XMLObject):
-    """ This is an abstract base class and cannot be used directly in a
+    """This is an abstract base class and cannot be used directly in a
     KML file. It provides the id attribute, which allows unique
     identification of a KML element, and the targetId attribute,
     which is used to reference objects that have already been loaded into
     Google Earth. The id attribute must be assigned if the <Update>
     mechanism is to be used."""
+
     id = None
     targetId = None
 
     def __init__(self, ns=None, id=None):
         super(_BaseObject, self).__init__(ns)
         self.id = id
-        if ns is None:
-            self.ns = config.KMLNS
-        else:
-            self.ns = ns
+        self.ns = config.KMLNS if ns is None else ns
 
     def etree_element(self):
         element = super(_BaseObject, self).etree_element()
         if self.id:
-            element.set('id', self.id)
+            element.set("id", self.id)
         if self.targetId:
-            element.set('targetId', self.targetId)
+            element.set("targetId", self.targetId)
         return element
 
     def from_element(self, element):
         super(_BaseObject, self).from_element(element)
-        if element.get('id'):
-            self.id = element.get('id')
-        if element.get('targetId'):
-            self.targetId = element.get('targetId')
+        if element.get("id"):
+            self.id = element.get("id")
+        if element.get("targetId"):
+            self.targetId = element.get("targetId")
