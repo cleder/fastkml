@@ -5,7 +5,7 @@ python-dateutil
 # Testing Requirements
 pytest
 pep8
-coveralls
+coveralls==3.2.0
 tox>=1.8
 
 # Documentation Requirements
