@@ -23,7 +23,7 @@ jobs:
           pip install -r test-requirements.txt
       - name: Test with pytest
         run: |
-          pytest fastkml --cov=fastkml --cov-fail-under=100
+          pytest fastkml --cov=fastkml --cov-fail-under=96
       - name: "Upload coverage to Codecov"
         uses: codecov/codecov-action@v1
 
