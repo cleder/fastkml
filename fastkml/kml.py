@@ -325,11 +325,10 @@ class _Feature(_BaseObject):
     def begin(self, dt):
         if self._time_span is None:
             self._time_span = TimeSpan(begin=dt)
+        elif self._time_span.begin is None:
+            self._time_span.begin = [dt, None]
         else:
-            if self._time_span.begin is None:
-                self._time_span.begin = [dt, None]
-            else:
-                self._time_span.begin[0] = dt
+            self._time_span.begin[0] = dt
         if self._time_stamp is not None:
             logger.warn("Setting a TimeSpan, TimeStamp deleted")
             self._time_stamp = None
@@ -343,11 +342,10 @@ class _Feature(_BaseObject):
     def end(self, dt):
         if self._time_span is None:
             self._time_span = TimeSpan(end=dt)
+        elif self._time_span.end is None:
+            self._time_span.end = [dt, None]
         else:
-            if self._time_span.end is None:
-                self._time_span.end = [dt, None]
-            else:
-                self._time_span.end[0] = dt
+            self._time_span.end[0] = dt
         if self._time_stamp is not None:
             logger.warn("Setting a TimeSpan, TimeStamp deleted")
             self._time_stamp = None
@@ -1128,13 +1126,12 @@ class _TimePrimitive(_BaseObject):
                 raise ValueError
             else:
                 return resolution
+        elif isinstance(dt, datetime):
+            resolution = "dateTime"
+        elif isinstance(dt, date):
+            resolution = "date"
         else:
-            if isinstance(dt, datetime):
-                resolution = "dateTime"
-            elif isinstance(dt, date):
-                resolution = "date"
-            else:
-                resolution = None
+            resolution = None
         return resolution
 
     def parse_str(self, datestr):
@@ -1336,7 +1333,8 @@ class Schema(_BaseObject):
         ]
         if type not in allowed_types:
             raise TypeError(
-                "type must be one of "
+                f"{name} has the type {type} which is invalid. "
+                "The type must be one of "
                 "'string', 'int', 'uint', 'short', "
                 "'ushort', 'float', 'double', 'bool'"
             )
