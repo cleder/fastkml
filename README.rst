@@ -20,12 +20,12 @@ Geometries are handled as pygeoif_ or, if installed, shapely_ objects.
 
 Fastkml is continually tested
 
-.. image:: https://github.com/cleder/fastkml/actions/workflows/run-all-tests.yml/badge.svg?branch=master
+.. image:: https://github.com/cleder/fastkml/actions/workflows/run-all-tests.yml/badge.svg?branch=main
     :target: https://github.com/cleder/fastkml/actions/workflows/run-all-tests.yml
     :alt: Test
 
-.. image:: http://codecov.io/github/cleder/fastkml/coverage.svg?branch=master
-    :target: http://codecov.io/github/cleder/fastkml?branch=master
+.. image:: http://codecov.io/github/cleder/fastkml/coverage.svg?branch=main
+    :target: http://codecov.io/github/cleder/fastkml?branch=main
     :alt: codecov.io
 
 Is Maintained and documented:
