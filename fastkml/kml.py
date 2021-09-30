@@ -958,8 +958,7 @@ class Document(_Container):
 
     def schemata(self):
         if self._schemata:
-            for schema in self._schemata:
-                yield schema
+            yield from self._schemata
 
     def append_schema(self, schema):
         if self._schemata is None:
