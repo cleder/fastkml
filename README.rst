@@ -64,6 +64,9 @@ You can find all of the documentation for FastKML at `fastkml.readthedocs.org
 please submit a pull request on `GitHub <https://github.com/cleder/fastkml>`_
 with the improvement.
 
+Have a look at Aryan Guptas
+`The Definite Guide to FastKML. <https://medium.com/@wwaryan/the-definite-only-guide-to-fastkml-58b8e19b8454>`_
+
 
 Install
 ========
