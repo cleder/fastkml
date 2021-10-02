@@ -13,13 +13,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-
-try:
-    import unittest2 as unittest  # Needed in Python 2.6
-except:
-    import unittest
-
 import datetime
+import unittest
 
 from dateutil.tz import tzoffset
 from dateutil.tz import tzutc
