@@ -32,9 +32,6 @@ Follows best practises:
    :target: https://landscape.io/github/cleder/fastkml/master
    :alt: Code Health
 
-
-Supports python 2 and 3:
-
 .. image:: https://pypip.in/py_versions/fastkml/badge.svg
     :target: https://pypi.python.org/pypi/fastkml/
     :alt: Supported Python versions

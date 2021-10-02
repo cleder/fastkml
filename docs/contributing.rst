@@ -31,7 +31,7 @@ You can make use of tox_ >= 1.8 to test the entire matrix of options:
 
 * with / without lxml
 * pygeoif vs shapely
-* py26,py27,py32,py33,py34
+* py33,py34,py35
 
 as well as pep8 style checking in a single call (this approximates what happens
 when the package is run through Travis-CI)
