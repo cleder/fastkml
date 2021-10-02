@@ -12,3 +12,4 @@ Contributors
 - Aaron Culich
 - Frédéric Passaniti for OpenDataSoft
 - Zsolt Ero
+- MrNaif2018
