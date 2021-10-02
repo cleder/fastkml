@@ -301,7 +301,7 @@ class _Feature(_BaseObject):
     def timeStamp(self, dt):
         self._time_stamp = None if dt is None else TimeStamp(timestamp=dt)
         if self._time_span is not None:
-            logger.warn("Setting a TimeStamp, TimeSpan deleted")
+            logger.warning("Setting a TimeStamp, TimeSpan deleted")
             self._time_span = None
 
     @property
@@ -335,7 +335,7 @@ class _Feature(_BaseObject):
         else:
             self._time_span.end[0] = dt
         if self._time_stamp is not None:
-            logger.warn("Setting a TimeSpan, TimeStamp deleted")
+            logger.warning("Setting a TimeSpan, TimeStamp deleted")
             self._time_stamp = None
 
     @property
@@ -1082,7 +1082,7 @@ class Placemark(_Feature):
             self._geometry = geom
             return
 
-        logger.warn("No geometries found")
+        logger.warning("No geometries found")
         logger.debug(f"Problem with element: {etree.tostring(element)}")
         # raise ValueError('No geometries found')
 
