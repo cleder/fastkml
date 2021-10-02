@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2012  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -119,7 +118,7 @@ class Geometry(_BaseObject):
                     elevated above the terrain by 7 meters. A typical use
                     of this mode is for aircraft placement.
         """
-        super(Geometry, self).__init__(ns, id)
+        super().__init__(ns, id)
         self.extrude = extrude
         self.tessellate = tessellate
         self.altitude_mode = altitude_mode
