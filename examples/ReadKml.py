@@ -39,28 +39,28 @@ k.from_string(doc)
 # Check that the number of features is correct
 # This corresponds to the single ``Document``
 features = list(k.features())
-print len(features)
+print(len(features))
 
 # Check that we can access the features as a generator
 # (The two Placemarks of the Document)
-print features[0].features()
+print(features[0].features())
 
 f2 = list(features[0].features())
-print len(f2)
+print(len(f2))
 
 
 # Check specifics of the first Placemark in the Document
-print f2[0]
-print f2[0].description
-print f2[0].name
+print(f2[0])
+print(f2[0].description)
+print(f2[0].name)
 
 # Check specifics of the second Placemark in the Document
-print f2[1].name
+print(f2[1].name)
 f2[1].name = "ANOTHER NAME"
-print f2[1].name
+print(f2[1].name)
 
 # Verify that we can print back out the KML object as a string
-print k.to_string(prettyprint=True)
+print(k.to_string(prettyprint=True))
 
 expected = """<kml:kml xmlns:ns0="http://www.opengis.net/kml/2.2">
   <kml:Document>

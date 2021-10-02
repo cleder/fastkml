@@ -24,12 +24,8 @@ The complete XML schema for KML is located at
 http://schemas.opengis.net/kml/.
 
 """
-try:
-    import urlparse
-except ImportError:
-    import urllib.parse as urlparse  # Python 3
-
 import logging
+import urllib.parse as urlparse
 import warnings
 from datetime import date
 from datetime import datetime
@@ -56,12 +52,6 @@ from .styles import Style
 from .styles import StyleMap
 from .styles import StyleUrl
 from .styles import _StyleSelector
-
-try:
-    unicode
-except NameError:
-    # Python 3
-    basestring = unicode = str
 
 logger = logging.getLogger(__name__)
 
@@ -293,7 +283,7 @@ class _Feature(_BaseObject):
         """you may pass a StyleUrl Object, a string or None"""
         if isinstance(styleurl, StyleUrl):
             self._styleUrl = styleurl
-        elif isinstance(styleurl, basestring):
+        elif isinstance(styleurl, str):
             s = StyleUrl(self.ns, url=styleurl)
             self._styleUrl = s
         elif styleurl is None:
@@ -354,7 +344,7 @@ class _Feature(_BaseObject):
 
     @link.setter
     def link(self, url):
-        if isinstance(url, basestring):
+        if isinstance(url, str):
             self._atom_link = atom.Link(href=url)
         elif isinstance(url, atom.Link):
             self._atom_link = url
@@ -372,7 +362,7 @@ class _Feature(_BaseObject):
     def author(self, name):
         if isinstance(name, atom.Author):
             self._atom_author = name
-        elif isinstance(name, basestring):
+        elif isinstance(name, str):
             if self._atom_author is None:
                 self._atom_author = atom.Author(name=name)
             else:
@@ -404,14 +394,14 @@ class _Feature(_BaseObject):
         if isinstance(self._snippet, dict):
             text = self._snippet.get("text")
             if text:
-                assert isinstance(text, basestring)
+                assert isinstance(text, str)
                 max_lines = self._snippet.get("maxLines", None)
                 if max_lines is None:
                     return {"text": text}
                 elif int(max_lines) > 0:
                     # if maxLines <=0 ignore it
                     return {"text": text, "maxLines": max_lines}
-        elif isinstance(self._snippet, basestring):
+        elif isinstance(self._snippet, str):
             return self._snippet
         else:
             raise ValueError(
@@ -426,7 +416,7 @@ class _Feature(_BaseObject):
             max_lines = snip.get("maxLines")
             if max_lines is not None:
                 self._snippet["maxLines"] = int(snip["maxLines"])
-        elif isinstance(snip, basestring):
+        elif isinstance(snip, str):
             self._snippet["text"] = snip
         elif snip is None:
             self._snippet = None
@@ -442,7 +432,7 @@ class _Feature(_BaseObject):
 
     @address.setter
     def address(self, address):
-        if isinstance(address, basestring):
+        if isinstance(address, str):
             self._address = address
         elif address is None:
             self._address = None
@@ -456,7 +446,7 @@ class _Feature(_BaseObject):
 
     @phoneNumber.setter
     def phoneNumber(self, phoneNumber):
-        if isinstance(phoneNumber, basestring):
+        if isinstance(phoneNumber, str):
             self._phoneNumber = phoneNumber
         elif phoneNumber is None:
             self._phoneNumber = None
@@ -482,10 +472,10 @@ class _Feature(_BaseObject):
             element.append(style.etree_element())
         if self.snippet:
             snippet = etree.SubElement(element, "%sSnippet" % self.ns)
-            if isinstance(self.snippet, basestring):
+            if isinstance(self.snippet, str):
                 snippet.text = self.snippet
             else:
-                assert isinstance(self.snippet["text"], basestring)
+                assert isinstance(self.snippet["text"], str)
                 snippet.text = self.snippet["text"]
                 if self.snippet.get("maxLines"):
                     snippet.set("maxLines", str(self.snippet["maxLines"]))
@@ -665,7 +655,7 @@ class _Overlay(_Feature):
 
     @color.setter
     def color(self, color):
-        if isinstance(color, basestring):
+        if isinstance(color, str):
             self._color = color
         elif color is None:
             self._color = None
@@ -678,7 +668,7 @@ class _Overlay(_Feature):
 
     @drawOrder.setter
     def drawOrder(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._drawOrder = str(value)
         elif value is None:
             self._drawOrder = None
@@ -691,7 +681,7 @@ class _Overlay(_Feature):
 
     @icon.setter
     def icon(self, url):
-        if isinstance(url, basestring):
+        if isinstance(url, str):
             if not url.startswith("<href>"):
                 url = "<href>" + url
             if not url.endswith("</href>"):
@@ -796,7 +786,7 @@ class GroundOverlay(_Overlay):
 
     @altitude.setter
     def altitude(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._altitude = str(value)
         elif value is None:
             self._altitude = None
@@ -820,7 +810,7 @@ class GroundOverlay(_Overlay):
 
     @north.setter
     def north(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._north = str(value)
         elif value is None:
             self._north = None
@@ -833,7 +823,7 @@ class GroundOverlay(_Overlay):
 
     @south.setter
     def south(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._south = str(value)
         elif value is None:
             self._south = None
@@ -846,7 +836,7 @@ class GroundOverlay(_Overlay):
 
     @east.setter
     def east(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._east = str(value)
         elif value is None:
             self._east = None
@@ -859,7 +849,7 @@ class GroundOverlay(_Overlay):
 
     @west.setter
     def west(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._west = str(value)
         elif value is None:
             self._west = None
@@ -872,7 +862,7 @@ class GroundOverlay(_Overlay):
 
     @rotation.setter
     def rotation(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._rotation = str(value)
         elif value is None:
             self._rotation = None
@@ -1477,7 +1467,7 @@ class SchemaData(_XMLObject):
 
     def __init__(self, ns=None, schema_url=None, data=None):
         super().__init__(ns)
-        if (not isinstance(schema_url, basestring)) or (not schema_url):
+        if (not isinstance(schema_url, str)) or (not schema_url):
             raise ValueError("required parameter schema_url missing")
         self.schema_url = schema_url
         self._data = []
@@ -1502,7 +1492,7 @@ class SchemaData(_XMLObject):
             raise TypeError("data must be of type tuple or list")
 
     def append_data(self, name, value):
-        if isinstance(name, basestring) and name:
+        if isinstance(name, str) and name:
             self._data.append({"name": name, "value": value})
         else:
             raise TypeError("name must be a nonempty string")

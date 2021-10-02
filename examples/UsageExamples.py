@@ -7,7 +7,7 @@ def print_child_features(element):
     if not getattr(element, 'features', None):
         return
     for feature in element.features():
-        print feature.name
+        print(feature.name)
         print_child_features(feature)
 
 if __name__ == '__main__':
