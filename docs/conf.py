@@ -246,9 +246,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'FastKML', 'FastKML Documentation',
-   'Christian Ledermann & Ian Lee', 'FastKML', 'One line description of project.',
-   'Miscellaneous'),
+    ('index', 'FastKML', 'FastKML Documentation',
+     'Christian Ledermann & Ian Lee', 'FastKML',
+     'One line description of project.', 'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.
