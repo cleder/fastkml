@@ -707,7 +707,7 @@ class KmlFromStringTestCase(unittest.TestCase):
         k.from_string(doc)
         self.assertEqual(len(list(k.features())), 1)
         self.assertTrue(isinstance(list(k.features())[0].geometry, MultiPoint))
-        self.assertEqual(len(list(k.features())[0].geometry.geoms), 12)
+        self.assertEqual(len(list(list(k.features())[0].geometry.geoms)), 12)
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -728,7 +728,7 @@ class KmlFromStringTestCase(unittest.TestCase):
         k.from_string(doc)
         self.assertEqual(len(list(k.features())), 1)
         self.assertTrue(isinstance(list(k.features())[0].geometry, MultiLineString))
-        self.assertEqual(len(list(k.features())[0].geometry.geoms), 4)
+        self.assertEqual(len(list(list(k.features())[0].geometry.geoms)), 4)
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -1843,7 +1843,7 @@ class SetGeometryTestCase(unittest.TestCase):
     def test_multipoint(self):
         p0 = Point(0, 1)
         p1 = Point(1, 1)
-        g = Geometry(geometry=MultiPoint([p0, p1]))
+        g = Geometry(geometry=MultiPoint.from_points(p0, p1))
         self.assertTrue("MultiGeometry" in str(g.to_string()))
         self.assertTrue("Point" in str(g.to_string()))
         self.assertTrue("coordinates>0.000000,1.000000</" in str(g.to_string()))
@@ -1852,7 +1852,7 @@ class SetGeometryTestCase(unittest.TestCase):
     def test_multilinestring(self):
         l0 = LineString([(0, 0), (1, 0)])
         l1 = LineString([(0, 1), (1, 1)])
-        g = Geometry(geometry=MultiLineString([l0, l1]))
+        g = Geometry(geometry=MultiLineString.from_linestrings(l0, l1))
         self.assertTrue("MultiGeometry" in str(g.to_string()))
         self.assertTrue("LineString" in str(g.to_string()))
         self.assertTrue(
@@ -1869,7 +1869,7 @@ class SetGeometryTestCase(unittest.TestCase):
         )
         # without holes
         p1 = Polygon([(3, 0), (4, 0), (4, 1), (3, 0)])
-        g = Geometry(geometry=MultiPolygon([p0, p1]))
+        g = Geometry(geometry=MultiPolygon.from_polygons(p0, p1))
         self.assertTrue("MultiGeometry" in str(g.to_string()))
         self.assertTrue("Polygon" in str(g.to_string()))
         self.assertTrue("outerBoundaryIs" in str(g.to_string()))
@@ -1958,7 +1958,8 @@ class GetGeometryTestCase(unittest.TestCase):
         g = Geometry()
         g.from_string(doc)
         self.assertEqual(
-            g.geometry.__geo_interface__, {"type": "Point", "coordinates": (0.0, 1.0)}
+            g.geometry.__geo_interface__,
+            {"type": "Point", "bbox": (0.0, 1.0, 0.0, 1.0), "coordinates": (0.0, 1.0)},
         )
 
     def test_linestring(self):

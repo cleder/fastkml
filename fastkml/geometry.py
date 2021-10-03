@@ -42,7 +42,7 @@ except ImportError:
     from pygeoif.geometry import Point, LineString, Polygon
     from pygeoif.geometry import MultiPoint, MultiLineString, MultiPolygon
     from pygeoif.geometry import LinearRing
-    from pygeoif.geometry import as_shape as asShape
+    from pygeoif.factories import shape as asShape
 
 import logging
 
@@ -346,7 +346,7 @@ class Geometry(_BaseObject):
         if element.tag == ("%sPoint" % self.ns):
             coords = self._get_coordinates(element)
             self._get_geometry_spec(element)
-            return Point(coords[0])
+            return Point.from_coordinates(coords)
         if element.tag == ("%sLineString" % self.ns):
             coords = self._get_coordinates(element)
             self._get_geometry_spec(element)
@@ -360,7 +360,7 @@ class Geometry(_BaseObject):
                 self._get_linear_ring(inner_boundary)
                 for inner_boundary in inner_boundaries
             ]
-            return Polygon(ob, ibs)
+            return Polygon.from_linear_rings(ob, *ibs)
         if element.tag == ("%sLinearRing" % self.ns):
             coords = self._get_coordinates(element)
             self._get_geometry_spec(element)
@@ -373,7 +373,7 @@ class Geometry(_BaseObject):
             points = element.findall("%sPoint" % self.ns)
             for point in points:
                 self._get_geometry_spec(point)
-                geoms.append(Point(self._get_coordinates(point)[0]))
+                geoms.append(Point.from_coordinates(self._get_coordinates(point)))
             linestrings = element.findall("%sLineString" % self.ns)
             for ls in linestrings:
                 self._get_geometry_spec(ls)
@@ -388,7 +388,7 @@ class Geometry(_BaseObject):
                     self._get_linear_ring(inner_boundary)
                     for inner_boundary in inner_boundaries
                 ]
-                geoms.append(Polygon(ob, ibs))
+                geoms.append(Polygon.from_linear_rings(ob, *ibs))
             linearings = element.findall("%sLinearRing" % self.ns)
             if linearings:
                 for lr in linearings:
@@ -399,11 +399,11 @@ class Geometry(_BaseObject):
             if len(geom_types) > 1:
                 return GeometryCollection(geoms)
             if "Point" in geom_types:
-                return MultiPoint(geoms)
+                return MultiPoint.from_points(*geoms)
             elif "LineString" in geom_types:
-                return MultiLineString(geoms)
+                return MultiLineString.from_linestrings(*geoms)
             elif "Polygon" in geom_types:
-                return MultiPolygon(geoms)
+                return MultiPolygon.from_polygons(*geoms)
             elif "LinearRing" in geom_types:
                 return GeometryCollection(geoms)
 

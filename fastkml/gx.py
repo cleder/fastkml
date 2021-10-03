@@ -126,7 +126,7 @@ class GxGeometry(Geometry):
         if len(geom_types) > 1:
             return GeometryCollection(geoms)
         if "LineString" in geom_types:
-            return MultiLineString(geoms)
+            return MultiLineString.from_linestrings(*geoms)
 
     def _get_coordinates(self, element):
         coordinates = element.findall("%scoord" % self.ns)
