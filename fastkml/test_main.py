@@ -311,9 +311,7 @@ class BuildKmlTestCase(unittest.TestCase):
         d = kml.Document()
         d.author = "Christian Ledermann"
         self.assertIn("Christian Ledermann", str(d.to_string()))
-        a = atom.Author(
-            name="Nobody", uri="http://localhost", email="cl@donotreply.com"
-        )
+        a = atom.Author(name="Nobody", uri="http://localhost", email="cl@donotreply.com")
         d.author = a
         self.assertEqual(d.author, "Nobody")
         self.assertNotIn("Christian Ledermann", str(d.to_string()))
@@ -819,9 +817,7 @@ class KmlFromStringTestCase(unittest.TestCase):
         sd = kml.SchemaData(ns="", schema_url="#default")
         sd.from_string(doc)
         self.assertEqual(sd.schema_url, "#TrailHeadTypeId")
-        self.assertEqual(
-            sd.data[0], {"name": "TrailHeadName", "value": "Pi in the sky"}
-        )
+        self.assertEqual(sd.data[0], {"name": "TrailHeadName", "value": "Pi in the sky"})
         self.assertEqual(sd.data[1], {"name": "TrailLength", "value": "3.14159"})
         self.assertEqual(sd.data[2], {"name": "ElevationGain", "value": "10"})
         sd1 = kml.SchemaData(ns="", schema_url="#default")
