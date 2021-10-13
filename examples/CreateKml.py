@@ -29,7 +29,7 @@ p.geometry =  Polygon([(0, 0, 0), (1, 1, 0), (1, 0, 1)])
 f2.append(p)
 
 # Print out the KML Object as a string
-print k.to_string(prettyprint=True)
+print(k.to_string(prettyprint=True))
 
 expected = """<kml:kml xmlns:ns0="http://www.opengis.net/kml/2.2">
   <kml:Document id="docid">

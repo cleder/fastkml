@@ -1,7 +1,7 @@
 Installation
 ============
 
-fastkml works with CPython version 2.6, 2.7, 3.2, 3.3, 3.4 and is
+fastkml works with CPython version 3.6+ and is
 continually tested with TravisCI for these version. The tests break
 intermittently for pypy and pypy3 so they are not tested but *should* work,
 Jython and IronPython are not tested but *should* work.

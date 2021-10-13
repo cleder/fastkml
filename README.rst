@@ -46,8 +46,6 @@ Is Maintained and documented:
     :target: https://www.openhub.net/p/fastkml
     :alt: Statistics from OpenHub
 
-Supports python 2 and 3:
-
 .. image:: https://img.shields.io/pypi/pyversions/fastkml.svg
     :target: https://pypi.python.org/pypi/fastkml/
     :alt: Supported Python versions

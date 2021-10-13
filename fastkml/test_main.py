@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2012  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -14,13 +13,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-
-try:
-    import unittest2 as unittest  # Needed in Python 2.6
-except:
-    import unittest
-
 import datetime
+import unittest
 
 from dateutil.tz import tzoffset
 from dateutil.tz import tzutc
@@ -308,7 +302,7 @@ class BuildKmlTestCase(unittest.TestCase):
         f2.append(p)
         nf.append(p2)
         self.assertEqual(len(list(k.features())), 1)
-        self.assertEqual(len(list((list(k.features())[0].features()))), 2)
+        self.assertEqual(len(list(list(k.features())[0].features())), 2)
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -1181,7 +1175,7 @@ class StyleFromStringTestCase(unittest.TestCase):
 
         k = kml.KML()
         k.from_string(doc)
-        self.assertEqual(len(list((k.features()))), 1)
+        self.assertEqual(len(list(k.features())), 1)
         self.assertTrue(
             isinstance(list(list(k.features())[0].styles())[0], styles.Style)
         )

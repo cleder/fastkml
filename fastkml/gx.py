@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2012  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -104,7 +103,7 @@ class GxGeometry(Geometry):
         gxgeometry: a read-only subclass of geometry supporting gx: features,
         like gx:Track
         """
-        super(GxGeometry, self).__init__(ns, id)
+        super().__init__(ns, id)
         self.ns = NS if ns is None else ns
 
     def _get_geometry(self, element):
