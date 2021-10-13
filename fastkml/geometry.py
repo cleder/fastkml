@@ -14,35 +14,12 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-"""
-Import the geometries from shapely if it is installed or otherwise from Pygeoif
-"""
-
 import re
 
-try:
-    # from shapely.geometry import GeometryCollection
-    # Sean Gillies:
-    # I deliberately omitted a geometry collection constructor because
-    # there was almost no support in GEOS for operations on them. You
-    # couldn't buffer a collection, for example, or find its difference
-    # to another geometry. I've seen some signs of this changing in GEOS,
-    # but until it does I don't think there's any point to the class.
-    # It wouldn't be much more than a list of geometries.
-    from shapely.geometry import LineString
-    from shapely.geometry import MultiLineString
-    from shapely.geometry import MultiPoint
-    from shapely.geometry import MultiPolygon
-    from shapely.geometry import Point
-    from shapely.geometry import Polygon
-    from shapely.geometry import asShape
-    from shapely.geometry.polygon import LinearRing
-
-except ImportError:
-    from pygeoif.geometry import Point, LineString, Polygon
-    from pygeoif.geometry import MultiPoint, MultiLineString, MultiPolygon
-    from pygeoif.geometry import LinearRing
-    from pygeoif.factories import shape as asShape
+from pygeoif.geometry import Point, LineString, Polygon
+from pygeoif.geometry import MultiPoint, MultiLineString, MultiPolygon
+from pygeoif.geometry import LinearRing
+from pygeoif.factories import shape as asShape
 
 import logging
 

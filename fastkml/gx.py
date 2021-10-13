@@ -76,12 +76,7 @@ The complete XML schema for elements in this extension namespace is
 located at http://developers.google.com/kml/schema/kml22gx.xsd.
 """
 
-try:
-    from shapely.geometry.linestring import LineString
-    from shapely.geometry.multilinestring import MultiLineString
-
-except ImportError:
-    from pygeoif.geometry import LineString, MultiLineString
+from pygeoif.geometry import LineString, MultiLineString
 
 import logging
 

@@ -10,10 +10,9 @@ the functionality that KML clients such as `OpenLayers
 `Google Earth <http://earth.google.com/>`_ provides.
 
 
-Geometries are handled as pygeoif_ or, if installed, shapely_ objects.
+Geometries are handled as pygeoif_ objects.
 
 .. _pygeoif: http://pypi.python.org/pypi/pygeoif/
-.. _shapely: http://pypi.python.org/pypi/Shapely
 .. _lxml: https://pypi.python.org/pypi/lxml
 .. _dateutils: https://pypi.python.org/pypi/dateutils
 .. _pip: https://pypi.python.org/pypi/pip
@@ -87,18 +86,11 @@ Optional
 ---------
 
 * lxml_
-* shapely_
 
 You can install all of the requirements for working with FastKML by using
 pip_::
 
     pip install -r requirements.txt
-
-.. note::
-
-    Shapely_ requires that libgeos be installed on your system. ``apt-get
-    install libgeos-dev`` will install these requirements for you on Debian-
-    based systems.
 
 
 Limitations
