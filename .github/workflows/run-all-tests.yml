@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10-dev']
+        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
 
     steps:
       - uses: actions/checkout@v2
@@ -70,8 +70,8 @@ jobs:
       #    mypy fastkml
       - name: Linting
         run: |
-          flake8 fastkml
-          black --check fastkml
+          flake8 fastkml examples docs
+          black --check fastkml examples docs
           yamllint .github/workflows/
       - name: Check complexity
         run: |
