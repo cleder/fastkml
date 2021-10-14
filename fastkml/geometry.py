@@ -14,16 +14,18 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
+import logging
 import re
 
-from pygeoif.geometry import Point, LineString, Polygon
-from pygeoif.geometry import MultiPoint, MultiLineString, MultiPolygon
-from pygeoif.geometry import LinearRing
 from pygeoif.factories import shape as asShape
-
-import logging
-
 from pygeoif.geometry import GeometryCollection
+from pygeoif.geometry import LinearRing
+from pygeoif.geometry import LineString
+from pygeoif.geometry import MultiLineString
+from pygeoif.geometry import MultiPoint
+from pygeoif.geometry import MultiPolygon
+from pygeoif.geometry import Point
+from pygeoif.geometry import Polygon
 
 import fastkml.config as config
 

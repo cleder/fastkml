@@ -76,11 +76,11 @@ The complete XML schema for elements in this extension namespace is
 located at http://developers.google.com/kml/schema/kml22gx.xsd.
 """
 
-from pygeoif.geometry import LineString, MultiLineString
-
 import logging
 
 from pygeoif.geometry import GeometryCollection
+from pygeoif.geometry import LineString
+from pygeoif.geometry import MultiLineString
 
 from .config import GXNS as NS
 from .geometry import Geometry
