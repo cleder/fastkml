@@ -73,8 +73,7 @@ approach.
 Install
 ========
 
-You can install the package with ``pip install fastkml`` or ``easy_install
-fastkml`` which should also pull in all requirements.
+You can install the package with ``pip install fastkml`` which will pull in all requirements.
 
 Requirements
 -------------
@@ -103,4 +102,4 @@ Geometry collection (MultiGeometry). You cannot assign different values of
 Currently, the only major feature missing for the full Google Earth experience
 is the `gx extension
 <https://developers.google.com/kml/documentation/kmlreference#kmlextensions>`_.
-This will most likely be added after the 1.0 version release.
+This will most likely be added after the 1.1 version release.
