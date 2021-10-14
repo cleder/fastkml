@@ -43,9 +43,7 @@ import fastkml.gx as gx
 from .base import _BaseObject
 from .base import _XMLObject
 from .config import etree
-# from .geometry import Point, LineString, Polygon
-# from .geometry import MultiPoint, MultiLineString, MultiPolygon
-# from .geometry import LinearRing
+
 from .geometry import Geometry
 from .styles import Style
 from .styles import StyleMap
