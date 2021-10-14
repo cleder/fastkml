@@ -7,7 +7,6 @@ flake8-isort
 flake8-logging-format
 black
 isort
-pytest-isort
 radon
 lizard
 yamllint
