@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.0 (unreleased)
+-----------------
+
+- Drop Python 2 support
+- Use pygeoif >=1.0
+- Drop shapely native support
+
+
 0.12 (2020/09/23)
 -----------------
 

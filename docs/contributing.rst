@@ -15,13 +15,9 @@ especially in the following ways:
 Pull Requests
 -------------
 
-Start by submitting a pull request on GitHub against the `master` branch of the
+Start by submitting a pull request on GitHub against the `develop` branch of the
 repository. Your pull request should provide a good description of the change
-you are making, and/or the bug that you are fixing. This will then trigger a
-build in `Travis-CI`_ where your contribution will be tested to verify it does
-not break existing functionality.
-
-.. _travis-ci: https://travis-ci.org/cleder/fastkml
+you are making, and/or the bug that you are fixing.
 
 
 Running Tests Locally
