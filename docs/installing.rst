@@ -21,12 +21,5 @@ the base of the source tree::
 
     pip install -r requirements.txt
 
-.. note::
-
-    Shapely_ requires that libgeos be installed on your system. ``apt-get
-    install libgeos-dev`` will install these requirements for you on Debian-
-    based systems.
-
 .. _lxml: https://pypi.python.org/pypi/lxml
 .. _pip: https://pypi.python.org/pypi/pip
-.. _shapely: http://pypi.python.org/pypi/Shapely

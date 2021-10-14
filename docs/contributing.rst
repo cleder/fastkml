@@ -30,7 +30,6 @@ Running Tests Locally
 You can make use of tox_ >= 1.8 to test the entire matrix of options:
 
 * with / without lxml
-* pygeoif vs shapely
 * py36,py37,py38,py39
 
 as well as pep8 style checking in a single call (this approximates what happens
@@ -55,18 +54,10 @@ This will run through all of the tests and produce an output similar to::
       py37: commands succeeded
       py38: commands succeeded
       py39: commands succeeded
-    SKIPPED:  py36-shapely: InterpreterNotFound: python3.6
     SKIPPED:  py36-lxml: InterpreterNotFound: python3.6
-      py37-shapely: commands succeeded
       py37-lxml: commands succeeded
-      py38-shapely: commands succeeded
       py38-lxml: commands succeeded
-      py39-shapely: commands succeeded
       py39-lxml: commands succeeded
-    SKIPPED:  py36-shapely-lxml: InterpreterNotFound: python3.6
-      py37-shapely-lxml: commands succeeded
-      py38-shapely-lxml: commands succeeded
-      py39-shapely-lxml: commands succeeded
       pep8: commands succeeded
       docs: commands succeeded
       congratulations :)

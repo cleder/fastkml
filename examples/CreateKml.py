@@ -1,6 +1,6 @@
 # Import the library
 from fastkml import kml
-from shapely.geometry import Point, LineString, Polygon
+from pygeoif.geometry import Polygon
 
 # Create the root KML object
 k = kml.KML()
@@ -25,7 +25,7 @@ d.append(f2)
 # Create a Placemark with a simple polygon geometry and add it to the
 # second folder of the Document
 p = kml.Placemark(ns, 'id', 'name', 'description')
-p.geometry =  Polygon([(0, 0, 0), (1, 1, 0), (1, 0, 1)])
+p.geometry = Polygon([(0, 0, 0), (1, 1, 0), (1, 0, 1)])
 f2.append(p)
 
 # Print out the KML Object as a string
