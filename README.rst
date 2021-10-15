@@ -102,4 +102,4 @@ Geometry collection (MultiGeometry). You cannot assign different values of
 Currently, the only major feature missing for the full Google Earth experience
 is the `gx extension
 <https://developers.google.com/kml/documentation/kmlreference#kmlextensions>`_.
-This will most likely be added after the 1.1 version release.
+Please submit a PR with the features you'd like to see implementd.
