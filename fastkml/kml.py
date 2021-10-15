@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2012  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -25,12 +24,8 @@ The complete XML schema for KML is located at
 http://schemas.opengis.net/kml/.
 
 """
-try:
-    import urlparse
-except ImportError:
-    import urllib.parse as urlparse  # Python 3
-
 import logging
+import urllib.parse as urlparse
 import warnings
 from datetime import date
 from datetime import datetime
@@ -48,26 +43,16 @@ import fastkml.gx as gx
 from .base import _BaseObject
 from .base import _XMLObject
 from .config import etree
-
-# from .geometry import Point, LineString, Polygon
-# from .geometry import MultiPoint, MultiLineString, MultiPolygon
-# from .geometry import LinearRing
 from .geometry import Geometry
 from .styles import Style
 from .styles import StyleMap
 from .styles import StyleUrl
 from .styles import _StyleSelector
 
-try:
-    unicode
-except NameError:
-    # Python 3
-    basestring = unicode = str
-
 logger = logging.getLogger(__name__)
 
 
-class KML(object):
+class KML:
     """represents a KML File"""
 
     _features = []
@@ -272,7 +257,7 @@ class _Feature(_BaseObject):
         styleUrl=None,
         extended_data=None,
     ):
-        super(_Feature, self).__init__(ns, id)
+        super().__init__(ns, id)
         self.name = name
         self.description = description
         self.styleUrl = styleUrl
@@ -294,7 +279,7 @@ class _Feature(_BaseObject):
         """you may pass a StyleUrl Object, a string or None"""
         if isinstance(styleurl, StyleUrl):
             self._styleUrl = styleurl
-        elif isinstance(styleurl, basestring):
+        elif isinstance(styleurl, str):
             s = StyleUrl(self.ns, url=styleurl)
             self._styleUrl = s
         elif styleurl is None:
@@ -312,7 +297,7 @@ class _Feature(_BaseObject):
     def timeStamp(self, dt):
         self._time_stamp = None if dt is None else TimeStamp(timestamp=dt)
         if self._time_span is not None:
-            logger.warn("Setting a TimeStamp, TimeSpan deleted")
+            logger.warning("Setting a TimeStamp, TimeSpan deleted")
             self._time_span = None
 
     @property
@@ -346,7 +331,7 @@ class _Feature(_BaseObject):
         else:
             self._time_span.end[0] = dt
         if self._time_stamp is not None:
-            logger.warn("Setting a TimeSpan, TimeStamp deleted")
+            logger.warning("Setting a TimeSpan, TimeStamp deleted")
             self._time_stamp = None
 
     @property
@@ -355,7 +340,7 @@ class _Feature(_BaseObject):
 
     @link.setter
     def link(self, url):
-        if isinstance(url, basestring):
+        if isinstance(url, str):
             self._atom_link = atom.Link(href=url)
         elif isinstance(url, atom.Link):
             self._atom_link = url
@@ -373,7 +358,7 @@ class _Feature(_BaseObject):
     def author(self, name):
         if isinstance(name, atom.Author):
             self._atom_author = name
-        elif isinstance(name, basestring):
+        elif isinstance(name, str):
             if self._atom_author is None:
                 self._atom_author = atom.Author(name=name)
             else:
@@ -405,14 +390,14 @@ class _Feature(_BaseObject):
         if isinstance(self._snippet, dict):
             text = self._snippet.get("text")
             if text:
-                assert isinstance(text, basestring)
+                assert isinstance(text, str)
                 max_lines = self._snippet.get("maxLines", None)
                 if max_lines is None:
                     return {"text": text}
                 elif int(max_lines) > 0:
                     # if maxLines <=0 ignore it
                     return {"text": text, "maxLines": max_lines}
-        elif isinstance(self._snippet, basestring):
+        elif isinstance(self._snippet, str):
             return self._snippet
         else:
             raise ValueError(
@@ -427,7 +412,7 @@ class _Feature(_BaseObject):
             max_lines = snip.get("maxLines")
             if max_lines is not None:
                 self._snippet["maxLines"] = int(snip["maxLines"])
-        elif isinstance(snip, basestring):
+        elif isinstance(snip, str):
             self._snippet["text"] = snip
         elif snip is None:
             self._snippet = None
@@ -443,7 +428,7 @@ class _Feature(_BaseObject):
 
     @address.setter
     def address(self, address):
-        if isinstance(address, basestring):
+        if isinstance(address, str):
             self._address = address
         elif address is None:
             self._address = None
@@ -457,7 +442,7 @@ class _Feature(_BaseObject):
 
     @phoneNumber.setter
     def phoneNumber(self, phoneNumber):
-        if isinstance(phoneNumber, basestring):
+        if isinstance(phoneNumber, str):
             self._phoneNumber = phoneNumber
         elif phoneNumber is None:
             self._phoneNumber = None
@@ -465,7 +450,7 @@ class _Feature(_BaseObject):
             raise ValueError
 
     def etree_element(self):
-        element = super(_Feature, self).etree_element()
+        element = super().etree_element()
         if self.name:
             name = etree.SubElement(element, f"{self.ns}name")
             name.text = self.name
@@ -483,10 +468,10 @@ class _Feature(_BaseObject):
             element.append(style.etree_element())
         if self.snippet:
             snippet = etree.SubElement(element, f"{self.ns}Snippet")
-            if isinstance(self.snippet, basestring):
+            if isinstance(self.snippet, str):
                 snippet.text = self.snippet
             else:
-                assert isinstance(self.snippet["text"], basestring)
+                assert isinstance(self.snippet["text"], str)
                 snippet.text = self.snippet["text"]
                 if self.snippet.get("maxLines"):
                     snippet.set("maxLines", str(self.snippet["maxLines"]))
@@ -511,7 +496,7 @@ class _Feature(_BaseObject):
         return element
 
     def from_element(self, element):
-        super(_Feature, self).from_element(element)
+        super().from_element(element)
         name = element.find(f"{self.ns}name")
         if name is not None:
             self.name = name.text
@@ -597,7 +582,7 @@ class _Container(_Feature):
     def __init__(
         self, ns=None, id=None, name=None, description=None, styles=None, styleUrl=None
     ):
-        super(_Container, self).__init__(ns, id, name, description, styles, styleUrl)
+        super().__init__(ns, id, name, description, styles, styleUrl)
         self._features = []
 
     def features(self):
@@ -611,7 +596,7 @@ class _Container(_Feature):
                 )
 
     def etree_element(self):
-        element = super(_Container, self).etree_element()
+        element = super().etree_element()
         for feature in self.features():
             element.append(feature.etree_element())
         return element
@@ -658,7 +643,7 @@ class _Overlay(_Feature):
     def __init__(
         self, ns=None, id=None, name=None, description=None, styles=None, styleUrl=None
     ):
-        super(_Overlay, self).__init__(ns, id, name, description, styles, styleUrl)
+        super().__init__(ns, id, name, description, styles, styleUrl)
 
     @property
     def color(self):
@@ -666,7 +651,7 @@ class _Overlay(_Feature):
 
     @color.setter
     def color(self, color):
-        if isinstance(color, basestring):
+        if isinstance(color, str):
             self._color = color
         elif color is None:
             self._color = None
@@ -679,7 +664,7 @@ class _Overlay(_Feature):
 
     @drawOrder.setter
     def drawOrder(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._drawOrder = str(value)
         elif value is None:
             self._drawOrder = None
@@ -692,7 +677,7 @@ class _Overlay(_Feature):
 
     @icon.setter
     def icon(self, url):
-        if isinstance(url, basestring):
+        if isinstance(url, str):
             if not url.startswith("<href>"):
                 url = "<href>" + url
             if not url.endswith("</href>"):
@@ -704,7 +689,7 @@ class _Overlay(_Feature):
             raise ValueError
 
     def etree_element(self):
-        element = super(_Overlay, self).etree_element()
+        element = super().etree_element()
         if self._color:
             color = etree.SubElement(element, f"{self.ns}color")
             color.text = self._color
@@ -717,7 +702,7 @@ class _Overlay(_Feature):
         return element
 
     def from_element(self, element):
-        super(_Overlay, self).from_element(element)
+        super().from_element(element)
         color = element.find(f"{self.ns}color")
         if color is not None:
             self.color = color.text
@@ -797,7 +782,7 @@ class GroundOverlay(_Overlay):
 
     @altitude.setter
     def altitude(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._altitude = str(value)
         elif value is None:
             self._altitude = None
@@ -821,7 +806,7 @@ class GroundOverlay(_Overlay):
 
     @north.setter
     def north(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._north = str(value)
         elif value is None:
             self._north = None
@@ -834,7 +819,7 @@ class GroundOverlay(_Overlay):
 
     @south.setter
     def south(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._south = str(value)
         elif value is None:
             self._south = None
@@ -847,7 +832,7 @@ class GroundOverlay(_Overlay):
 
     @east.setter
     def east(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._east = str(value)
         elif value is None:
             self._east = None
@@ -860,7 +845,7 @@ class GroundOverlay(_Overlay):
 
     @west.setter
     def west(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._west = str(value)
         elif value is None:
             self._west = None
@@ -873,7 +858,7 @@ class GroundOverlay(_Overlay):
 
     @rotation.setter
     def rotation(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._rotation = str(value)
         elif value is None:
             self._rotation = None
@@ -889,7 +874,7 @@ class GroundOverlay(_Overlay):
         self.rotation = rotation
 
     def etree_element(self):
-        element = super(GroundOverlay, self).etree_element()
+        element = super().etree_element()
         if self._altitude:
             altitude = etree.SubElement(element, f"{self.ns}altitude")
             altitude.text = self._altitude
@@ -913,7 +898,7 @@ class GroundOverlay(_Overlay):
         return element
 
     def from_element(self, element):
-        super(GroundOverlay, self).from_element(element)
+        super().from_element(element)
         altitude = element.find(f"{self.ns}altitude")
         if altitude is not None:
             self.altitude = altitude.text
@@ -951,8 +936,7 @@ class Document(_Container):
 
     def schemata(self):
         if self._schemata:
-            for schema in self._schemata:
-                yield schema
+            yield from self._schemata
 
     def append_schema(self, schema):
         if self._schemata is None:
@@ -964,7 +948,7 @@ class Document(_Container):
             self._schemata.append(s)
 
     def from_element(self, element):
-        super(Document, self).from_element(element)
+        super().from_element(element)
         documents = element.findall(f"{self.ns}Document")
         for document in documents:
             feature = Document(self.ns)
@@ -987,7 +971,7 @@ class Document(_Container):
             self.append_schema(s)
 
     def etree_element(self):
-        element = super(Document, self).etree_element()
+        element = super().etree_element()
         if self._schemata is not None:
             for schema in self._schemata:
                 element.append(schema.etree_element())
@@ -1009,7 +993,7 @@ class Folder(_Container):
     __name__ = "Folder"
 
     def from_element(self, element):
-        super(Folder, self).from_element(element)
+        super().from_element(element)
         folders = element.findall(f"{self.ns}Folder")
         for folder in folders:
             feature = Folder(self.ns)
@@ -1050,7 +1034,7 @@ class Placemark(_Feature):
             self._geometry = Geometry(ns=self.ns, geometry=geometry)
 
     def from_element(self, element):
-        super(Placemark, self).from_element(element)
+        super().from_element(element)
         point = element.find(f"{self.ns}Point")
         if point is not None:
             geom = Geometry(ns=self.ns)
@@ -1093,13 +1077,12 @@ class Placemark(_Feature):
             geom.from_element(multitrack)
             self._geometry = geom
             return
-
-        logger.warn("No geometries found")
+        logger.warning("No geometries found")
         logger.debug(f"Problem with element: {etree.tostring(element)}")
         # raise ValueError('No geometries found')
 
     def etree_element(self):
-        element = super(Placemark, self).etree_element()
+        element = super().etree_element()
         if self._geometry is not None:
             element.append(self._geometry.etree_element())
         else:
@@ -1191,18 +1174,18 @@ class TimeStamp(_TimePrimitive):
     timestamp = None
 
     def __init__(self, ns=None, id=None, timestamp=None, resolution=None):
-        super(TimeStamp, self).__init__(ns, id)
+        super().__init__(ns, id)
         resolution = self.get_resolution(timestamp, resolution)
         self.timestamp = [timestamp, resolution]
 
     def etree_element(self):
-        element = super(TimeStamp, self).etree_element()
+        element = super().etree_element()
         when = etree.SubElement(element, f"{self.ns}when")
         when.text = self.date_to_string(*self.timestamp)
         return element
 
     def from_element(self, element):
-        super(TimeStamp, self).from_element(element)
+        super().from_element(element)
         when = element.find(f"{self.ns}when")
         if when is not None:
             self.timestamp = self.parse_str(when.text)
@@ -1218,7 +1201,7 @@ class TimeSpan(_TimePrimitive):
     def __init__(
         self, ns=None, id=None, begin=None, begin_res=None, end=None, end_res=None
     ):
-        super(TimeSpan, self).__init__(ns, id)
+        super().__init__(ns, id)
         if begin:
             resolution = self.get_resolution(begin, begin_res)
             self.begin = [begin, resolution]
@@ -1227,7 +1210,7 @@ class TimeSpan(_TimePrimitive):
             self.end = [end, resolution]
 
     def from_element(self, element):
-        super(TimeSpan, self).from_element(element)
+        super().from_element(element)
         begin = element.find(f"{self.ns}begin")
         if begin is not None:
             self.begin = self.parse_str(begin.text)
@@ -1236,7 +1219,7 @@ class TimeSpan(_TimePrimitive):
             self.end = self.parse_str(end.text)
 
     def etree_element(self):
-        element = super(TimeSpan, self).etree_element()
+        element = super().etree_element()
         if self.begin is not None:
             text = self.date_to_string(*self.begin)
             if text:
@@ -1272,7 +1255,7 @@ class Schema(_BaseObject):
     def __init__(self, ns=None, id=None, name=None, fields=None):
         if id is None:
             raise ValueError("Id is required for schema")
-        super(Schema, self).__init__(ns, id)
+        super().__init__(ns, id)
         self.simple_fields = fields
         self.name = name
 
@@ -1348,7 +1331,7 @@ class Schema(_BaseObject):
         )
 
     def from_element(self, element):
-        super(Schema, self).from_element(element)
+        super().from_element(element)
         self.name = element.get("name")
         simple_fields = element.findall(f"{self.ns}SimpleField")
         self.simple_fields = None
@@ -1360,7 +1343,7 @@ class Schema(_BaseObject):
             self.append(sftype, sfname, sfdisplay_name)
 
     def etree_element(self):
-        element = super(Schema, self).etree_element()
+        element = super().etree_element()
         if self.name:
             element.set("name", self.name)
         for simple_field in self.simple_fields:
@@ -1385,17 +1368,17 @@ class ExtendedData(_XMLObject):
     __name__ = "ExtendedData"
 
     def __init__(self, ns=None, elements=None):
-        super(ExtendedData, self).__init__(ns)
+        super().__init__(ns)
         self.elements = elements or []
 
     def etree_element(self):
-        element = super(ExtendedData, self).etree_element()
+        element = super().etree_element()
         for subelement in self.elements:
             element.append(subelement.etree_element())
         return element
 
     def from_element(self, element):
-        super(ExtendedData, self).from_element(element)
+        super().from_element(element)
         self.elements = []
         untyped_data = element.findall(f"{self.ns}Data")
         for ud in untyped_data:
@@ -1411,7 +1394,7 @@ class ExtendedData(_XMLObject):
 
 class UntypedExtendedData(ExtendedData):
     def __init__(self, ns=None, elements=None):
-        super(UntypedExtendedData, self).__init__(ns, elements)
+        super().__init__(ns, elements)
         warnings.warn(
             "UntypedExtendedData is deprecated use ExtendedData instead",
             DeprecationWarning,
@@ -1424,14 +1407,14 @@ class Data(_XMLObject):
     __name__ = "Data"
 
     def __init__(self, ns=None, name=None, value=None, display_name=None):
-        super(Data, self).__init__(ns)
+        super().__init__(ns)
 
         self.name = name
         self.value = value
         self.display_name = display_name
 
     def etree_element(self):
-        element = super(Data, self).etree_element()
+        element = super().etree_element()
         element.set("name", self.name)
         value = etree.SubElement(element, f"{self.ns}value")
         value.text = self.value
@@ -1441,7 +1424,7 @@ class Data(_XMLObject):
         return element
 
     def from_element(self, element):
-        super(Data, self).from_element(element)
+        super().from_element(element)
         self.name = element.get("name")
         tmp_value = element.find(f"{self.ns}value")
         if tmp_value is not None:
@@ -1453,7 +1436,7 @@ class Data(_XMLObject):
 
 class UntypedExtendedDataElement(Data):
     def __init__(self, ns=None, name=None, value=None, display_name=None):
-        super(UntypedExtendedDataElement, self).__init__(ns, name, value, display_name)
+        super().__init__(ns, name, value, display_name)
         warnings.warn(
             "UntypedExtendedDataElement is deprecated use Data instead",
             DeprecationWarning,
@@ -1478,8 +1461,8 @@ class SchemaData(_XMLObject):
     _data = None
 
     def __init__(self, ns=None, schema_url=None, data=None):
-        super(SchemaData, self).__init__(ns)
-        if (not isinstance(schema_url, basestring)) or (not schema_url):
+        super().__init__(ns)
+        if (not isinstance(schema_url, str)) or (not schema_url):
             raise ValueError("required parameter schema_url missing")
         self.schema_url = schema_url
         self._data = []
@@ -1504,13 +1487,13 @@ class SchemaData(_XMLObject):
             raise TypeError("data must be of type tuple or list")
 
     def append_data(self, name, value):
-        if isinstance(name, basestring) and name:
+        if isinstance(name, str) and name:
             self._data.append({"name": name, "value": value})
         else:
             raise TypeError("name must be a nonempty string")
 
     def etree_element(self):
-        element = super(SchemaData, self).etree_element()
+        element = super().etree_element()
         element.set("schemaUrl", self.schema_url)
         for data in self.data:
             sd = etree.SubElement(element, f"{self.ns}SimpleData")
@@ -1519,7 +1502,7 @@ class SchemaData(_XMLObject):
         return element
 
     def from_element(self, element):
-        super(SchemaData, self).from_element(element)
+        super().from_element(element)
         self.data = []
         self.schema_url = element.get("schemaUrl")
         simple_data = element.findall(f"{self.ns}SimpleData")

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2012  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -77,16 +76,11 @@ The complete XML schema for elements in this extension namespace is
 located at http://developers.google.com/kml/schema/kml22gx.xsd.
 """
 
-try:
-    from shapely.geometry.linestring import LineString
-    from shapely.geometry.multilinestring import MultiLineString
-
-except ImportError:
-    from pygeoif.geometry import LineString, MultiLineString
-
 import logging
 
 from pygeoif.geometry import GeometryCollection
+from pygeoif.geometry import LineString
+from pygeoif.geometry import MultiLineString
 
 from .config import GXNS as NS
 from .geometry import Geometry
@@ -104,7 +98,7 @@ class GxGeometry(Geometry):
         gxgeometry: a read-only subclass of geometry supporting gx: features,
         like gx:Track
         """
-        super(GxGeometry, self).__init__(ns, id)
+        super().__init__(ns, id)
         self.ns = NS if ns is None else ns
 
     def _get_geometry(self, element):
@@ -127,7 +121,7 @@ class GxGeometry(Geometry):
         if len(geom_types) > 1:
             return GeometryCollection(geoms)
         if "LineString" in geom_types:
-            return MultiLineString(geoms)
+            return MultiLineString.from_linestrings(*geoms)
 
     def _get_coordinates(self, element):
         coordinates = element.findall(f"{self.ns}coord")

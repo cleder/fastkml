@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2012  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -40,19 +39,19 @@ class StyleUrl(_BaseObject):
     url = None
 
     def __init__(self, ns=None, id=None, url=None):
-        super(StyleUrl, self).__init__(ns, id)
+        super().__init__(ns, id)
         self.url = url
 
     def etree_element(self):
         if self.url:
-            element = super(StyleUrl, self).etree_element()
+            element = super().etree_element()
             element.text = self.url
             return element
         else:
             raise ValueError("No url given for styleUrl")
 
     def from_element(self, element):
-        super(StyleUrl, self).from_element(element)
+        super().from_element(element)
         self.url = element.text
 
 
@@ -80,7 +79,7 @@ class Style(_StyleSelector):
     _styles = None
 
     def __init__(self, ns=None, id=None, styles=None):
-        super(Style, self).__init__(ns, id)
+        super().__init__(ns, id)
         self._styles = []
         if styles:
             for style in styles:
@@ -100,7 +99,7 @@ class Style(_StyleSelector):
                 raise TypeError
 
     def from_element(self, element):
-        super(Style, self).from_element(element)
+        super().from_element(element)
         style = element.find(f"{self.ns}IconStyle")
         if style is not None:
             thestyle = IconStyle(self.ns)
@@ -128,7 +127,7 @@ class Style(_StyleSelector):
             self.append_style(thestyle)
 
     def etree_element(self):
-        element = super(Style, self).etree_element()
+        element = super().etree_element()
         for style in self.styles():
             element.append(style.etree_element())
         return element
@@ -147,12 +146,12 @@ class StyleMap(_StyleSelector):
     highlight = None
 
     def __init__(self, ns=None, id=None, normal=None, highlight=None):
-        super(StyleMap, self).__init__(ns, id)
+        super().__init__(ns, id)
         self.normal = normal
         self.highlight = highlight
 
     def from_element(self, element):
-        super(StyleMap, self).from_element(element)
+        super().from_element(element)
         pairs = element.findall(f"{self.ns}Pair")
         for pair in pairs:
             key = pair.find(f"{self.ns}key")
@@ -182,7 +181,7 @@ class StyleMap(_StyleSelector):
                 raise ValueError
 
     def etree_element(self):
-        element = super(StyleMap, self).etree_element()
+        element = super().etree_element()
         if self.normal and isinstance(self.normal, (Style, StyleUrl)):
             pair = etree.SubElement(element, f"{self.ns}Pair")
             key = etree.SubElement(pair, f"{self.ns}key")
@@ -219,12 +218,12 @@ class _ColorStyle(_BaseObject):
     # A value of random applies a random linear scale to the base <color>
 
     def __init__(self, ns=None, id=None, color=None, colorMode=None):
-        super(_ColorStyle, self).__init__(ns, id)
+        super().__init__(ns, id)
         self.color = color
         self.colorMode = colorMode
 
     def etree_element(self):
-        element = super(_ColorStyle, self).etree_element()
+        element = super().etree_element()
         if self.color:
             color = etree.SubElement(element, f"{self.ns}color")
             color.text = self.color
@@ -234,7 +233,8 @@ class _ColorStyle(_BaseObject):
         return element
 
     def from_element(self, element):
-        super(_ColorStyle, self).from_element(element)
+
+        super().from_element(element)
         colorMode = element.find(f"{self.ns}colorMode")
         if colorMode is not None:
             self.colorMode = colorMode.text
@@ -265,13 +265,13 @@ class IconStyle(_ColorStyle):
         heading=None,
         icon_href=None,
     ):
-        super(IconStyle, self).__init__(ns, id, color, colorMode)
+        super().__init__(ns, id, color, colorMode)
         self.scale = scale
         self.heading = heading
         self.icon_href = icon_href
 
     def etree_element(self):
-        element = super(IconStyle, self).etree_element()
+        element = super().etree_element()
         if self.scale is not None:
             scale = etree.SubElement(element, f"{self.ns}scale")
             scale.text = str(self.scale)
@@ -285,7 +285,7 @@ class IconStyle(_ColorStyle):
         return element
 
     def from_element(self, element):
-        super(IconStyle, self).from_element(element)
+        super().from_element(element)
         scale = element.find(f"{self.ns}scale")
         if scale is not None:
             self.scale = float(scale.text)
@@ -312,18 +312,18 @@ class LineStyle(_ColorStyle):
     # Width of the line, in pixels.
 
     def __init__(self, ns=None, id=None, color=None, colorMode=None, width=1):
-        super(LineStyle, self).__init__(ns, id, color, colorMode)
+        super().__init__(ns, id, color, colorMode)
         self.width = width
 
     def etree_element(self):
-        element = super(LineStyle, self).etree_element()
+        element = super().etree_element()
         if self.width is not None:
             width = etree.SubElement(element, f"{self.ns}width")
             width.text = str(self.width)
         return element
 
     def from_element(self, element):
-        super(LineStyle, self).from_element(element)
+        super().from_element(element)
         width = element.find(f"{self.ns}width")
         if width is not None:
             self.width = float(width.text)
@@ -344,12 +344,12 @@ class PolyStyle(_ColorStyle):
     # Polygon outlines use the current LineStyle.
 
     def __init__(self, ns=None, id=None, color=None, colorMode=None, fill=1, outline=1):
-        super(PolyStyle, self).__init__(ns, id, color, colorMode)
+        super().__init__(ns, id, color, colorMode)
         self.fill = fill
         self.outline = outline
 
     def etree_element(self):
-        element = super(PolyStyle, self).etree_element()
+        element = super().etree_element()
         if self.fill is not None:
             fill = etree.SubElement(element, f"{self.ns}fill")
             fill.text = str(self.fill)
@@ -359,7 +359,7 @@ class PolyStyle(_ColorStyle):
         return element
 
     def from_element(self, element):
-        super(PolyStyle, self).from_element(element)
+        super().from_element(element)
         fill = element.find(f"{self.ns}fill")
         if fill is not None:
             self.fill = int(float(fill.text))
@@ -378,18 +378,18 @@ class LabelStyle(_ColorStyle):
     # Resizes the label.
 
     def __init__(self, ns=None, id=None, color=None, colorMode=None, scale=1.0):
-        super(LabelStyle, self).__init__(ns, id, color, colorMode)
+        super().__init__(ns, id, color, colorMode)
         self.scale = scale
 
     def etree_element(self):
-        element = super(LabelStyle, self).etree_element()
+        element = super().etree_element()
         if self.scale is not None:
             scale = etree.SubElement(element, f"{self.ns}scale")
             scale.text = str(self.scale)
         return element
 
     def from_element(self, element):
-        super(LabelStyle, self).from_element(element)
+        super().from_element(element)
         scale = element.find(f"{self.ns}scale")
         if scale is not None:
             self.scale = float(scale.text)
@@ -455,14 +455,14 @@ class BalloonStyle(_BaseObject):
         text=None,
         displayMode=None,
     ):
-        super(BalloonStyle, self).__init__(ns, id)
+        super().__init__(ns, id)
         self.bgColor = bgColor
         self.textColor = textColor
         self.text = text
         self.displayMode = displayMode
 
     def from_element(self, element):
-        super(BalloonStyle, self).from_element(element)
+        super().from_element(element)
         bgColor = element.find(f"{self.ns}bgColor")
         if bgColor is not None:
             self.bgColor = bgColor.text
@@ -481,7 +481,7 @@ class BalloonStyle(_BaseObject):
             self.displayMode = displayMode.text
 
     def etree_element(self):
-        element = super(BalloonStyle, self).etree_element()
+        element = super().etree_element()
         if self.bgColor is not None:
             elem = etree.SubElement(element, f"{self.ns}bgColor")
             elem.text = self.bgColor

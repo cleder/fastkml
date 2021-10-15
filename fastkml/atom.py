@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2012  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -44,7 +43,7 @@ regex = r"^[a-zA-Z0-9._%-]+@([a-zA-Z0-9-]+\.)*[a-zA-Z]{2,4}$"
 check_email = re.compile(regex).match
 
 
-class Link(object):
+class Link:
     """
     Identifies a related Web page. The type of relation is defined by
     the rel attribute. A feed is limited to one alternate per type and
@@ -154,7 +153,7 @@ class Link(object):
             )
 
 
-class _Person(object):
+class _Person:
     """
     <author> and <contributor> describe a person, corporation, or similar
     entity. It has one required element, name, and two optional elements:

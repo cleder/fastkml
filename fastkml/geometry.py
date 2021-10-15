@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2012  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -15,39 +14,18 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-"""
-Import the geometries from shapely if it is installed or otherwise from Pygeoif
-"""
-
+import logging
 import re
 
-try:
-    # from shapely.geometry import GeometryCollection
-    # Sean Gillies:
-    # I deliberately omitted a geometry collection constructor because
-    # there was almost no support in GEOS for operations on them. You
-    # couldn't buffer a collection, for example, or find its difference
-    # to another geometry. I've seen some signs of this changing in GEOS,
-    # but until it does I don't think there's any point to the class.
-    # It wouldn't be much more than a list of geometries.
-    from shapely.geometry import LineString
-    from shapely.geometry import MultiLineString
-    from shapely.geometry import MultiPoint
-    from shapely.geometry import MultiPolygon
-    from shapely.geometry import Point
-    from shapely.geometry import Polygon
-    from shapely.geometry import asShape
-    from shapely.geometry.polygon import LinearRing
-
-except ImportError:
-    from pygeoif.geometry import Point, LineString, Polygon
-    from pygeoif.geometry import MultiPoint, MultiLineString, MultiPolygon
-    from pygeoif.geometry import LinearRing
-    from pygeoif.geometry import as_shape as asShape
-
-import logging
-
+from pygeoif.factories import shape as asShape
 from pygeoif.geometry import GeometryCollection
+from pygeoif.geometry import LinearRing
+from pygeoif.geometry import LineString
+from pygeoif.geometry import MultiLineString
+from pygeoif.geometry import MultiPoint
+from pygeoif.geometry import MultiPolygon
+from pygeoif.geometry import Point
+from pygeoif.geometry import Polygon
 
 import fastkml.config as config
 
@@ -119,7 +97,7 @@ class Geometry(_BaseObject):
                     elevated above the terrain by 7 meters. A typical use
                     of this mode is for aircraft placement.
         """
-        super(Geometry, self).__init__(ns, id)
+        super().__init__(ns, id)
         self.extrude = extrude
         self.tessellate = tessellate
         self.altitude_mode = altitude_mode
@@ -347,7 +325,7 @@ class Geometry(_BaseObject):
         if element.tag == f"{self.ns}Point":
             coords = self._get_coordinates(element)
             self._get_geometry_spec(element)
-            return Point(coords[0])
+            return Point.from_coordinates(coords)
         if element.tag == f"{self.ns}LineString":
             coords = self._get_coordinates(element)
             self._get_geometry_spec(element)
@@ -361,7 +339,7 @@ class Geometry(_BaseObject):
                 self._get_linear_ring(inner_boundary)
                 for inner_boundary in inner_boundaries
             ]
-            return Polygon(ob, ibs)
+           return Polygon.from_linear_rings(ob, *ibs)
         if element.tag == f"{self.ns}LinearRing":
             coords = self._get_coordinates(element)
             self._get_geometry_spec(element)
@@ -374,7 +352,7 @@ class Geometry(_BaseObject):
             points = element.findall(f"{self.ns}Point")
             for point in points:
                 self._get_geometry_spec(point)
-                geoms.append(Point(self._get_coordinates(point)[0]))
+                 geoms.append(Point.from_coordinates(self._get_coordinates(point)))
             linestrings = element.findall(f"{self.ns}LineString")
             for ls in linestrings:
                 self._get_geometry_spec(ls)
@@ -389,7 +367,7 @@ class Geometry(_BaseObject):
                     self._get_linear_ring(inner_boundary)
                     for inner_boundary in inner_boundaries
                 ]
-                geoms.append(Polygon(ob, ibs))
+                geoms.append(Polygon.from_linear_rings(ob, *ibs))
             linearings = element.findall(f"{self.ns}LinearRing")
             if linearings:
                 for lr in linearings:
@@ -400,11 +378,11 @@ class Geometry(_BaseObject):
             if len(geom_types) > 1:
                 return GeometryCollection(geoms)
             if "Point" in geom_types:
-                return MultiPoint(geoms)
+                return MultiPoint.from_points(*geoms)
             elif "LineString" in geom_types:
-                return MultiLineString(geoms)
+                return MultiLineString.from_linestrings(*geoms)
             elif "Polygon" in geom_types:
-                return MultiPolygon(geoms)
+                return MultiPolygon.from_polygons(*geoms)
             elif "LinearRing" in geom_types:
                 return GeometryCollection(geoms)
 

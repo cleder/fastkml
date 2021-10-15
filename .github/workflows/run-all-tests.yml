@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10-dev']
+        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
 
     steps:
       - uses: actions/checkout@v2
@@ -23,15 +23,17 @@ jobs:
           pip install -r test-requirements.txt
       - name: Test with pytest
         run: |
-          pytest fastkml --cov=fastkml --cov-fail-under=96
+          pytest fastkml --cov=fastkml --cov-fail-under=96  --cov-report=xml
       - name: "Upload coverage to Codecov"
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v2
+        with:
+          fail_ci_if_error: true
 
   cpython-lxml:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10-dev']
+        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
 
     steps:
       - uses: actions/checkout@v2
@@ -43,25 +45,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel
           pip install lxml
-      - name: Test with pytest
-        run: |
-          python setup.py test
-
-  cpython-2:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['2.7']
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python -m pip install "pytest<5"
       - name: Test with pytest
         run: |
           python setup.py test
@@ -82,13 +65,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel
           pip install -r test-requirements.txt
-      #- name: Typecheck
-      #  run: |
-      #    mypy fastkml
+      # - name: Typecheck
+      #   run: |
+      #     mypy fastkml
       - name: Linting
         run: |
-          flake8 fastkml
-          black --check fastkml
+          flake8 fastkml examples docs
+          black --check fastkml examples docs
           yamllint .github/workflows/
       - name: Check complexity
         run: |
@@ -116,7 +99,7 @@ jobs:
 
   publish:
     if: "github.event_name == 'push' && github.repository == 'cleder/fastkml'"
-    needs: [cpython, static-tests, pypy, cpython-2, cpython-lxml]
+    needs: [cpython, static-tests, pypy, cpython-lxml]
     name: Build and publish to PyPI and TestPyPI
     runs-on: ubuntu-latest
     steps:
