@@ -798,12 +798,11 @@ class KmlFromStringTestCase(unittest.TestCase):
         )
         self.assertEqual(s.to_string(), s1.to_string())
         doc1 = (
-            """<kml xmlns="http://www.opengis.net/kml/2.2">
+            f"""<kml xmlns="http://www.opengis.net/kml/2.2">
             <Document>
-            %s
+            {doc}
         </Document>
         </kml>"""
-            % doc
         )
         k = kml.KML()
         k.from_string(doc1)
