@@ -540,12 +540,12 @@ class _Feature(_BaseObject):
             s = TimeStamp(self.ns)
             s.from_element(timestamp)
             self._time_stamp = s
-        atom_link = element.find(f"{self.ns}link")
+        atom_link = element.find(f"{atom.NS}link")
         if atom_link is not None:
             s = atom.Link()
             s.from_element(atom_link)
             self._atom_link = s
-        atom_author = element.find(f"{self.ns}author")
+        atom_author = element.find(f"{atom.NS}author")
         if atom_author is not None:
             s = atom.Author()
             s.from_element(atom_author)

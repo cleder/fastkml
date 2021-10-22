@@ -339,7 +339,7 @@ class Geometry(_BaseObject):
                 self._get_linear_ring(inner_boundary)
                 for inner_boundary in inner_boundaries
             ]
-           return Polygon.from_linear_rings(ob, *ibs)
+            return Polygon.from_linear_rings(ob, *ibs)
         if element.tag == f"{self.ns}LinearRing":
             coords = self._get_coordinates(element)
             self._get_geometry_spec(element)
@@ -352,7 +352,7 @@ class Geometry(_BaseObject):
             points = element.findall(f"{self.ns}Point")
             for point in points:
                 self._get_geometry_spec(point)
-                 geoms.append(Point.from_coordinates(self._get_coordinates(point)))
+                geoms.append(Point.from_coordinates(self._get_coordinates(point)))
             linestrings = element.findall(f"{self.ns}LineString")
             for ls in linestrings:
                 self._get_geometry_spec(ls)

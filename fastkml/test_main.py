@@ -789,13 +789,11 @@ class KmlFromStringTestCase(unittest.TestCase):
             list(s1.simple_fields)[2]["displayName"], "<i>change in altitude</i>"
         )
         self.assertEqual(s.to_string(), s1.to_string())
-        doc1 = (
-            f"""<kml xmlns="http://www.opengis.net/kml/2.2">
+        doc1 = f"""<kml xmlns="http://www.opengis.net/kml/2.2">
             <Document>
             {doc}
         </Document>
         </kml>"""
-        )
         k = kml.KML()
         k.from_string(doc1)
         d = list(k.features())[0]
