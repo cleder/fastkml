@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2012  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -21,7 +20,7 @@ import fastkml.config as config
 from fastkml.config import etree
 
 
-class _XMLObject(object):
+class _XMLObject:
     """XML Baseclass"""
 
     __name__ = None
@@ -70,12 +69,12 @@ class _BaseObject(_XMLObject):
     targetId = None
 
     def __init__(self, ns=None, id=None):
-        super(_BaseObject, self).__init__(ns)
+        super().__init__(ns)
         self.id = id
         self.ns = config.KMLNS if ns is None else ns
 
     def etree_element(self):
-        element = super(_BaseObject, self).etree_element()
+        element = super().etree_element()
         if self.id:
             element.set("id", self.id)
         if self.targetId:
@@ -83,7 +82,7 @@ class _BaseObject(_XMLObject):
         return element
 
     def from_element(self, element):
-        super(_BaseObject, self).from_element(element)
+        super().from_element(element)
         if element.get("id"):
             self.id = element.get("id")
         if element.get("targetId"):

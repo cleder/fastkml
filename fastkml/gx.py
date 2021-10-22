@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2012  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -77,16 +76,11 @@ The complete XML schema for elements in this extension namespace is
 located at http://developers.google.com/kml/schema/kml22gx.xsd.
 """
 
-try:
-    from shapely.geometry.linestring import LineString
-    from shapely.geometry.multilinestring import MultiLineString
-
-except ImportError:
-    from pygeoif.geometry import LineString, MultiLineString
-
 import logging
 
 from pygeoif.geometry import GeometryCollection
+from pygeoif.geometry import LineString
+from pygeoif.geometry import MultiLineString
 
 from .config import GXNS as NS
 from .geometry import Geometry
@@ -104,12 +98,12 @@ class GxGeometry(Geometry):
         gxgeometry: a read-only subclass of geometry supporting gx: features,
         like gx:Track
         """
-        super(GxGeometry, self).__init__(ns, id)
+        super().__init__(ns, id)
         self.ns = NS if ns is None else ns
 
     def _get_geometry(self, element):
         # Track
-        if element.tag == ("%sTrack" % self.ns):
+        if element.tag == (f"{self.ns}Track"):
             coords = self._get_coordinates(element)
             self._get_geometry_spec(element)
             return LineString(coords)
@@ -117,8 +111,8 @@ class GxGeometry(Geometry):
     def _get_multigeometry(self, element):
         # MultiTrack
         geoms = []
-        if element.tag == ("%sMultiTrack" % self.ns):
-            tracks = element.findall("%sTrack" % self.ns)
+        if element.tag == (f"{self.ns}MultiTrack"):
+            tracks = element.findall(f"{self.ns}Track")
             for track in tracks:
                 self._get_geometry_spec(track)
                 geoms.append(LineString(self._get_coordinates(track)))
@@ -127,10 +121,10 @@ class GxGeometry(Geometry):
         if len(geom_types) > 1:
             return GeometryCollection(geoms)
         if "LineString" in geom_types:
-            return MultiLineString(geoms)
+            return MultiLineString.from_linestrings(*geoms)
 
     def _get_coordinates(self, element):
-        coordinates = element.findall("%scoord" % self.ns)
+        coordinates = element.findall(f"{self.ns}coord")
         if coordinates is not None:
             return [
                 [float(c) for c in coord.text.strip().split()] for coord in coordinates

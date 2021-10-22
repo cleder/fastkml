@@ -1,7 +1,9 @@
-from setuptools import setup, find_packages
-from setuptools.command.test import test as TestCommand
-import sys
 import os
+import sys
+
+from setuptools import find_packages
+from setuptools import setup
+from setuptools.command.test import test as TestCommand
 
 
 class PyTest(TestCommand):
@@ -20,7 +22,7 @@ class PyTest(TestCommand):
 
 setup(
     name="fastkml",
-    version="0.12",
+    version="1.0.alpha.1",
     description="Fast KML processing in python",
     long_description=(
         open("README.rst").read()
@@ -31,8 +33,6 @@ setup(
     classifiers=[
         "Topic :: Scientific/Engineering :: GIS",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
@@ -56,7 +56,7 @@ setup(
     cmdclass={"test": PyTest},
     install_requires=[
         # -*- Extra requirements: -*-
-        "pygeoif<1.0",
+        "pygeoif>=1.0b1",
         "python-dateutil",
     ],
     entry_points="""

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2012  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -25,12 +24,8 @@ The complete XML schema for KML is located at
 http://schemas.opengis.net/kml/.
 
 """
-try:
-    import urlparse
-except ImportError:
-    import urllib.parse as urlparse  # Python 3
-
 import logging
+import urllib.parse as urlparse
 import warnings
 from datetime import date
 from datetime import datetime
@@ -48,26 +43,16 @@ import fastkml.gx as gx
 from .base import _BaseObject
 from .base import _XMLObject
 from .config import etree
-
-# from .geometry import Point, LineString, Polygon
-# from .geometry import MultiPoint, MultiLineString, MultiPolygon
-# from .geometry import LinearRing
 from .geometry import Geometry
 from .styles import Style
 from .styles import StyleMap
 from .styles import StyleUrl
 from .styles import _StyleSelector
 
-try:
-    unicode
-except NameError:
-    # Python 3
-    basestring = unicode = str
-
 logger = logging.getLogger(__name__)
 
 
-class KML(object):
+class KML:
     """represents a KML File"""
 
     _features = []
@@ -95,22 +80,22 @@ class KML(object):
             raise TypeError
 
         ns = element.tag.rstrip("kml")
-        documents = element.findall("%sDocument" % ns)
+        documents = element.findall(f"{ns}Document")
         for document in documents:
             feature = Document(ns)
             feature.from_element(document)
             self.append(feature)
-        folders = element.findall("%sFolder" % ns)
+        folders = element.findall(f"{ns}Folder")
         for folder in folders:
             feature = Folder(ns)
             feature.from_element(folder)
             self.append(feature)
-        placemarks = element.findall("%sPlacemark" % ns)
+        placemarks = element.findall(f"{ns}Placemark")
         for placemark in placemarks:
             feature = Placemark(ns)
             feature.from_element(placemark)
             self.append(feature)
-        groundoverlays = element.findall('%sGroundOverlay' % ns)
+        groundoverlays = element.findall(f"{ns}GroundOverlay")
         for groundoverlay in groundoverlays:
             feature = GroundOverlay(ns)
             feature.from_element(groundoverlay)
@@ -121,12 +106,12 @@ class KML(object):
         # However, in this case the xlmns should still be mentioned on the kml
         # element, just without prefix.
         if not self.ns:
-            root = etree.Element("%skml" % self.ns)
+            root = etree.Element(f"{self.ns}kml")
             root.set("xmlns", config.KMLNS[1:-1])
         elif config.LXML:
-            root = etree.Element("%skml" % self.ns, nsmap={None: self.ns[1:-1]})
+            root = etree.Element(f"{self.ns}kml", nsmap={None: self.ns[1:-1]})
         else:
-            root = etree.Element("%skml" % self.ns)
+            root = etree.Element(f"{self.ns}kml")
         for feature in self.features():
             root.append(feature.etree_element())
         return root
@@ -152,17 +137,17 @@ class KML(object):
                 raise TypeError(
                     "Features must be instances of "
                     "(Document, Folder, Placemark, Overlay)"
-
                 )
 
     def append(self, kmlobj):
-        """ append a feature """
+        """append a feature"""
 
         if isinstance(kmlobj, (Document, Folder, Placemark, _Overlay)):
             self._features.append(kmlobj)
         else:
             raise TypeError(
-                "Features must be instances of (Document, Folder, Placemark, Overlay)")
+                "Features must be instances of (Document, Folder, Placemark, Overlay)"
+            )
 
 
 class _Feature(_BaseObject):
@@ -211,7 +196,7 @@ class _Feature(_BaseObject):
     # This element is used by Google Maps Mobile only.
 
     _snippet = None  # XXX
-    # _snippet is eiter a tuple of a string Snippet.text and an integer
+    # _snippet is either a tuple of a string Snippet.text and an integer
     # Snippet.maxLines or a string
     #
     # A short description of the feature. In Google Earth, this
@@ -279,7 +264,7 @@ class _Feature(_BaseObject):
         styleUrl=None,
         extended_data=None,
     ):
-        super(_Feature, self).__init__(ns, id)
+        super().__init__(ns, id)
         self.name = name
         self.description = description
         self.styleUrl = styleUrl
@@ -301,7 +286,7 @@ class _Feature(_BaseObject):
         """you may pass a StyleUrl Object, a string or None"""
         if isinstance(styleurl, StyleUrl):
             self._styleUrl = styleurl
-        elif isinstance(styleurl, basestring):
+        elif isinstance(styleurl, str):
             s = StyleUrl(self.ns, url=styleurl)
             self._styleUrl = s
         elif styleurl is None:
@@ -319,7 +304,7 @@ class _Feature(_BaseObject):
     def timeStamp(self, dt):
         self._time_stamp = None if dt is None else TimeStamp(timestamp=dt)
         if self._time_span is not None:
-            logger.warn("Setting a TimeStamp, TimeSpan deleted")
+            logger.warning("Setting a TimeStamp, TimeSpan deleted")
             self._time_span = None
 
     @property
@@ -336,7 +321,7 @@ class _Feature(_BaseObject):
         else:
             self._time_span.begin[0] = dt
         if self._time_stamp is not None:
-            logger.warn("Setting a TimeSpan, TimeStamp deleted")
+            logger.warning("Setting a TimeSpan, TimeStamp deleted")
             self._time_stamp = None
 
     @property
@@ -353,7 +338,7 @@ class _Feature(_BaseObject):
         else:
             self._time_span.end[0] = dt
         if self._time_stamp is not None:
-            logger.warn("Setting a TimeSpan, TimeStamp deleted")
+            logger.warning("Setting a TimeSpan, TimeStamp deleted")
             self._time_stamp = None
 
     @property
@@ -362,7 +347,7 @@ class _Feature(_BaseObject):
 
     @link.setter
     def link(self, url):
-        if isinstance(url, basestring):
+        if isinstance(url, str):
             self._atom_link = atom.Link(href=url)
         elif isinstance(url, atom.Link):
             self._atom_link = url
@@ -380,7 +365,7 @@ class _Feature(_BaseObject):
     def author(self, name):
         if isinstance(name, atom.Author):
             self._atom_author = name
-        elif isinstance(name, basestring):
+        elif isinstance(name, str):
             if self._atom_author is None:
                 self._atom_author = atom.Author(name=name)
             else:
@@ -412,18 +397,19 @@ class _Feature(_BaseObject):
         if isinstance(self._snippet, dict):
             text = self._snippet.get("text")
             if text:
-                assert isinstance(text, basestring)
+                assert isinstance(text, str)
                 max_lines = self._snippet.get("maxLines", None)
                 if max_lines is None:
                     return {"text": text}
                 elif int(max_lines) > 0:
                     # if maxLines <=0 ignore it
                     return {"text": text, "maxLines": max_lines}
-        elif isinstance(self._snippet, basestring):
+        elif isinstance(self._snippet, str):
             return self._snippet
         else:
             raise ValueError(
-                "Snippet must be dict of " "{'text':t, 'maxLines':i} or string"
+                "Snippet must be dict of "
+                "{'text':t, 'maxLines':i} or string"  # noqa: FS003
             )
 
     @snippet.setter
@@ -434,13 +420,14 @@ class _Feature(_BaseObject):
             max_lines = snip.get("maxLines")
             if max_lines is not None:
                 self._snippet["maxLines"] = int(snip["maxLines"])
-        elif isinstance(snip, basestring):
+        elif isinstance(snip, str):
             self._snippet["text"] = snip
         elif snip is None:
             self._snippet = None
         else:
             raise ValueError(
-                "Snippet must be dict of {'text':t, 'maxLines':i} or string"
+                "Snippet must be dict of "
+                "{'text':t, 'maxLines':i} or string"  # noqa: FS003
             )
 
     @property
@@ -450,7 +437,7 @@ class _Feature(_BaseObject):
 
     @address.setter
     def address(self, address):
-        if isinstance(address, basestring):
+        if isinstance(address, str):
             self._address = address
         elif address is None:
             self._address = None
@@ -464,7 +451,7 @@ class _Feature(_BaseObject):
 
     @phoneNumber.setter
     def phoneNumber(self, phoneNumber):
-        if isinstance(phoneNumber, basestring):
+        if isinstance(phoneNumber, str):
             self._phoneNumber = phoneNumber
         elif phoneNumber is None:
             self._phoneNumber = None
@@ -472,28 +459,28 @@ class _Feature(_BaseObject):
             raise ValueError
 
     def etree_element(self):
-        element = super(_Feature, self).etree_element()
+        element = super().etree_element()
         if self.name:
-            name = etree.SubElement(element, "%sname" % self.ns)
+            name = etree.SubElement(element, f"{self.ns}name")
             name.text = self.name
         if self.description:
-            description = etree.SubElement(element, "%sdescription" % self.ns)
+            description = etree.SubElement(element, f"{self.ns}description")
             description.text = self.description
-        visibility = etree.SubElement(element, "%svisibility" % self.ns)
+        visibility = etree.SubElement(element, f"{self.ns}visibility")
         visibility.text = str(self.visibility)
         if self.isopen:
-            isopen = etree.SubElement(element, "%sopen" % self.ns)
+            isopen = etree.SubElement(element, f"{self.ns}open")
             isopen.text = str(self.isopen)
         if self._styleUrl is not None:
             element.append(self._styleUrl.etree_element())
         for style in self.styles():
             element.append(style.etree_element())
         if self.snippet:
-            snippet = etree.SubElement(element, "%sSnippet" % self.ns)
-            if isinstance(self.snippet, basestring):
+            snippet = etree.SubElement(element, f"{self.ns}Snippet")
+            if isinstance(self.snippet, str):
                 snippet.text = self.snippet
             else:
-                assert isinstance(self.snippet["text"], basestring)
+                assert isinstance(self.snippet["text"], str)
                 snippet.text = self.snippet["text"]
                 if self.snippet.get("maxLines"):
                     snippet.set("maxLines", str(self.snippet["maxLines"]))
@@ -510,69 +497,69 @@ class _Feature(_BaseObject):
         if self.extended_data is not None:
             element.append(self.extended_data.etree_element())
         if self._address is not None:
-            address = etree.SubElement(element, "%saddress" % self.ns)
+            address = etree.SubElement(element, f"{self.ns}address")
             address.text = self._address
         if self._phoneNumber is not None:
-            phoneNumber = etree.SubElement(element, "%sphoneNumber" % self.ns)
+            phoneNumber = etree.SubElement(element, f"{self.ns}phoneNumber")
             phoneNumber.text = self._phoneNumber
         return element
 
     def from_element(self, element):
-        super(_Feature, self).from_element(element)
-        name = element.find("%sname" % self.ns)
+        super().from_element(element)
+        name = element.find(f"{self.ns}name")
         if name is not None:
             self.name = name.text
-        description = element.find("%sdescription" % self.ns)
+        description = element.find(f"{self.ns}description")
         if description is not None:
             self.description = description.text
-        visibility = element.find("%svisibility" % self.ns)
+        visibility = element.find(f"{self.ns}visibility")
         if visibility is not None:
             self.visibility = 1 if visibility.text in ["1", "true"] else 0
-        isopen = element.find("%sopen" % self.ns)
+        isopen = element.find(f"{self.ns}open")
         if isopen is not None:
             self.isopen = 1 if isopen.text in ["1", "true"] else 0
-        styles = element.findall("%sStyle" % self.ns)
+        styles = element.findall(f"{self.ns}Style")
         for style in styles:
             s = Style(self.ns)
             s.from_element(style)
             self.append_style(s)
-        styles = element.findall("%sStyleMap" % self.ns)
+        styles = element.findall(f"{self.ns}StyleMap")
         for style in styles:
             s = StyleMap(self.ns)
             s.from_element(style)
             self.append_style(s)
-        style_url = element.find("%sstyleUrl" % self.ns)
+        style_url = element.find(f"{self.ns}styleUrl")
         if style_url is not None:
             s = StyleUrl(self.ns)
             s.from_element(style_url)
             self._styleUrl = s
-        snippet = element.find("%sSnippet" % self.ns)
+        snippet = element.find(f"{self.ns}Snippet")
         if snippet is not None:
             _snippet = {"text": snippet.text}
             if snippet.get("maxLines"):
                 _snippet["maxLines"] = int(snippet.get("maxLines"))
             self.snippet = _snippet
-        timespan = element.find("%sTimeSpan" % self.ns)
+        timespan = element.find(f"{self.ns}TimeSpan")
         if timespan is not None:
             s = TimeSpan(self.ns)
             s.from_element(timespan)
             self._time_span = s
-        timestamp = element.find("%sTimeStamp" % self.ns)
+        timestamp = element.find(f"{self.ns}TimeStamp")
         if timestamp is not None:
             s = TimeStamp(self.ns)
             s.from_element(timestamp)
             self._time_stamp = s
-        atom_link = element.find("%slink" % atom.NS)
+        atom_link = element.find(f"{atom.NS}link")
         if atom_link is not None:
             s = atom.Link()
             s.from_element(atom_link)
             self._atom_link = s
-        atom_author = element.find("%sauthor" % atom.NS)
+        atom_author = element.find(f"{atom.NS}author")
         if atom_author is not None:
             s = atom.Author()
             s.from_element(atom_author)
             self._atom_author = s
-        extended_data = element.find("%sExtendedData" % self.ns)
+        extended_data = element.find(f"{self.ns}ExtendedData")
         if extended_data is not None:
             x = ExtendedData(self.ns)
             x.from_element(extended_data)
@@ -581,10 +568,10 @@ class _Feature(_BaseObject):
             #    logger.warn(
             #        'arbitrary or typed extended data is not yet supported'
             #    )
-        address = element.find("%saddress" % self.ns)
+        address = element.find(f"{self.ns}address")
         if address is not None:
             self.address = address.text
-        phoneNumber = element.find("%sphoneNumber" % self.ns)
+        phoneNumber = element.find(f"{self.ns}phoneNumber")
         if phoneNumber is not None:
             self.phoneNumber = phoneNumber.text
 
@@ -604,7 +591,7 @@ class _Container(_Feature):
     def __init__(
         self, ns=None, id=None, name=None, description=None, styles=None, styleUrl=None
     ):
-        super(_Container, self).__init__(ns, id, name, description, styles, styleUrl)
+        super().__init__(ns, id, name, description, styles, styleUrl)
         self._features = []
 
     def features(self):
@@ -619,13 +606,13 @@ class _Container(_Feature):
                 )
 
     def etree_element(self):
-        element = super(_Container, self).etree_element()
+        element = super().etree_element()
         for feature in self.features():
             element.append(feature.etree_element())
         return element
 
     def append(self, kmlobj):
-        """ append a feature """
+        """append a feature"""
         if isinstance(kmlobj, (Folder, Placemark, Document, _Overlay)):
             self._features.append(kmlobj)
         else:
@@ -667,7 +654,7 @@ class _Overlay(_Feature):
     def __init__(
         self, ns=None, id=None, name=None, description=None, styles=None, styleUrl=None
     ):
-        super(_Overlay, self).__init__(ns, id, name, description, styles, styleUrl)
+        super().__init__(ns, id, name, description, styles, styleUrl)
 
     @property
     def color(self):
@@ -675,7 +662,7 @@ class _Overlay(_Feature):
 
     @color.setter
     def color(self, color):
-        if isinstance(color, basestring):
+        if isinstance(color, str):
             self._color = color
         elif color is None:
             self._color = None
@@ -688,7 +675,7 @@ class _Overlay(_Feature):
 
     @drawOrder.setter
     def drawOrder(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._drawOrder = str(value)
         elif value is None:
             self._drawOrder = None
@@ -709,26 +696,26 @@ class _Overlay(_Feature):
             raise ValueError
 
     def etree_element(self):
-        element = super(_Overlay, self).etree_element()
+        element = super().etree_element()
         if self._color:
-            color = etree.SubElement(element, "%scolor" % self.ns)
+            color = etree.SubElement(element, f"{self.ns}color")
             color.text = self._color
         if self._drawOrder:
-            drawOrder = etree.SubElement(element, "%sdrawOrder" % self.ns)
+            drawOrder = etree.SubElement(element, f"{self.ns}drawOrder")
             drawOrder.text = self._drawOrder
         if self._icon:
             element.append(self._icon.etree_element())
         return element
 
     def from_element(self, element):
-        super(_Overlay, self).from_element(element)
-        color = element.find("%scolor" % self.ns)
+        super().from_element(element)
+        color = element.find(f"{self.ns}color")
         if color is not None:
             self.color = color.text
-        drawOrder = element.find("%sdrawOrder" % self.ns)
+        drawOrder = element.find(f"{self.ns}drawOrder")
         if drawOrder is not None:
             self.drawOrder = drawOrder.text
-        icon = element.find("%sicon" % self.ns)
+        icon = element.find(f"{self.ns}icon")
         if icon is not None:
             s = Icon(self.ns)
             s.from_element(icon)
@@ -803,7 +790,7 @@ class GroundOverlay(_Overlay):
 
     @altitude.setter
     def altitude(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._altitude = str(value)
         elif value is None:
             self._altitude = None
@@ -827,7 +814,7 @@ class GroundOverlay(_Overlay):
 
     @north.setter
     def north(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._north = str(value)
         elif value is None:
             self._north = None
@@ -840,7 +827,7 @@ class GroundOverlay(_Overlay):
 
     @south.setter
     def south(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._south = str(value)
         elif value is None:
             self._south = None
@@ -853,7 +840,7 @@ class GroundOverlay(_Overlay):
 
     @east.setter
     def east(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._east = str(value)
         elif value is None:
             self._east = None
@@ -866,7 +853,7 @@ class GroundOverlay(_Overlay):
 
     @west.setter
     def west(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._west = str(value)
         elif value is None:
             self._west = None
@@ -879,7 +866,7 @@ class GroundOverlay(_Overlay):
 
     @rotation.setter
     def rotation(self, value):
-        if isinstance(value, (basestring, int, float)):
+        if isinstance(value, (str, int, float)):
             self._rotation = str(value)
         elif value is None:
             self._rotation = None
@@ -895,53 +882,53 @@ class GroundOverlay(_Overlay):
         self.rotation = rotation
 
     def etree_element(self):
-        element = super(GroundOverlay, self).etree_element()
+        element = super().etree_element()
         if self._altitude:
-            altitude = etree.SubElement(element, "%saltitude" % self.ns)
+            altitude = etree.SubElement(element, f"{self.ns}altitude")
             altitude.text = self._altitude
             if self._altitudeMode:
-                altitudeMode = etree.SubElement(element, "%saltitudeMode" % self.ns)
+                altitudeMode = etree.SubElement(element, f"{self.ns}altitudeMode")
                 altitudeMode.text = self._altitudeMode
         if all([self._north, self._south, self._east, self._west]):
-            latLonBox = etree.SubElement(element, '%sLatLonBox' % self.ns)
-            north = etree.SubElement(latLonBox, '%snorth' % self.ns)
+            latLonBox = etree.SubElement(element, f"{self.ns}LatLonBox")
+            north = etree.SubElement(latLonBox, f"{self.ns}north")
             north.text = self._north
-            south = etree.SubElement(latLonBox, "%ssouth" % self.ns)
+            south = etree.SubElement(latLonBox, f"{self.ns}south")
             south.text = self._south
-            east = etree.SubElement(latLonBox, "%seast" % self.ns)
+            east = etree.SubElement(latLonBox, f"{self.ns}east")
             east.text = self._east
-            west = etree.SubElement(latLonBox, "%swest" % self.ns)
+            west = etree.SubElement(latLonBox, f"{self.ns}west")
             west.text = self._west
             if self._rotation:
-                rotation = etree.SubElement(latLonBox, "%srotation" % self.ns)
+                rotation = etree.SubElement(latLonBox, f"{self.ns}rotation")
                 rotation.text = self._rotation
 
         return element
 
     def from_element(self, element):
-        super(GroundOverlay, self).from_element(element)
-        altitude = element.find("%saltitude" % self.ns)
+        super().from_element(element)
+        altitude = element.find(f"{self.ns}altitude")
         if altitude is not None:
             self.altitude = altitude.text
-        altitudeMode = element.find("%saltitudeMode" % self.ns)
+        altitudeMode = element.find(f"{self.ns}altitudeMode")
         if altitudeMode is not None:
             self.altitudeMode = altitudeMode.text
 
-        latLonBox = element.find('%sLatLonBox' % self.ns)
+        latLonBox = element.find(f"{self.ns}LatLonBox")
         if latLonBox is not None:
-            north = latLonBox.find("%snorth" % self.ns)
+            north = latLonBox.find(f"{self.ns}north")
             if north is not None:
                 self.north = north.text
-            south = latLonBox.find("%ssouth" % self.ns)
+            south = latLonBox.find(f"{self.ns}south")
             if south is not None:
                 self.south = south.text
-            east = latLonBox.find("%seast" % self.ns)
+            east = latLonBox.find(f"{self.ns}east")
             if east is not None:
                 self.east = east.text
-            west = latLonBox.find("%swest" % self.ns)
+            west = latLonBox.find(f"{self.ns}west")
             if west is not None:
                 self.west = west.text
-            rotation = latLonBox.find("%srotation" % self.ns)
+            rotation = latLonBox.find(f"{self.ns}rotation")
             if rotation is not None:
                 self.rotation = rotation.text
 
@@ -958,8 +945,7 @@ class Document(_Container):
 
     def schemata(self):
         if self._schemata:
-            for schema in self._schemata:
-                yield schema
+            yield from self._schemata
 
     def append_schema(self, schema):
         if self._schemata is None:
@@ -971,30 +957,30 @@ class Document(_Container):
             self._schemata.append(s)
 
     def from_element(self, element):
-        super(Document, self).from_element(element)
-        documents = element.findall("%sDocument" % self.ns)
+        super().from_element(element)
+        documents = element.findall(f"{self.ns}Document")
         for document in documents:
             feature = Document(self.ns)
             feature.from_element(document)
             self.append(feature)
-        folders = element.findall("%sFolder" % self.ns)
+        folders = element.findall(f"{self.ns}Folder")
         for folder in folders:
             feature = Folder(self.ns)
             feature.from_element(folder)
             self.append(feature)
-        placemarks = element.findall("%sPlacemark" % self.ns)
+        placemarks = element.findall(f"{self.ns}Placemark")
         for placemark in placemarks:
             feature = Placemark(self.ns)
             feature.from_element(placemark)
             self.append(feature)
-        schemata = element.findall("%sSchema" % self.ns)
+        schemata = element.findall(f"{self.ns}Schema")
         for schema in schemata:
             s = Schema(self.ns, id="default")
             s.from_element(schema)
             self.append_schema(s)
 
     def etree_element(self):
-        element = super(Document, self).etree_element()
+        element = super().etree_element()
         if self._schemata is not None:
             for schema in self._schemata:
                 element.append(schema.etree_element())
@@ -1016,18 +1002,18 @@ class Folder(_Container):
     __name__ = "Folder"
 
     def from_element(self, element):
-        super(Folder, self).from_element(element)
-        folders = element.findall("%sFolder" % self.ns)
+        super().from_element(element)
+        folders = element.findall(f"{self.ns}Folder")
         for folder in folders:
             feature = Folder(self.ns)
             feature.from_element(folder)
             self.append(feature)
-        placemarks = element.findall("%sPlacemark" % self.ns)
+        placemarks = element.findall(f"{self.ns}Placemark")
         for placemark in placemarks:
             feature = Placemark(self.ns)
             feature.from_element(placemark)
             self.append(feature)
-        documents = element.findall("%sDocument" % self.ns)
+        documents = element.findall(f"{self.ns}Document")
         for document in documents:
             feature = Document(self.ns)
             feature.from_element(document)
@@ -1057,56 +1043,55 @@ class Placemark(_Feature):
             self._geometry = Geometry(ns=self.ns, geometry=geometry)
 
     def from_element(self, element):
-        super(Placemark, self).from_element(element)
-        point = element.find("%sPoint" % self.ns)
+        super().from_element(element)
+        point = element.find(f"{self.ns}Point")
         if point is not None:
             geom = Geometry(ns=self.ns)
             geom.from_element(point)
             self._geometry = geom
             return
-        line = element.find("%sLineString" % self.ns)
+        line = element.find(f"{self.ns}LineString")
         if line is not None:
             geom = Geometry(ns=self.ns)
             geom.from_element(line)
             self._geometry = geom
             return
-        polygon = element.find("%sPolygon" % self.ns)
+        polygon = element.find(f"{self.ns}Polygon")
         if polygon is not None:
             geom = Geometry(ns=self.ns)
             geom.from_element(polygon)
             self._geometry = geom
             return
-        linearring = element.find("%sLinearRing" % self.ns)
+        linearring = element.find(f"{self.ns}LinearRing")
         if linearring is not None:
             geom = Geometry(ns=self.ns)
             geom.from_element(linearring)
             self._geometry = geom
             return
-        multigeometry = element.find("%sMultiGeometry" % self.ns)
+        multigeometry = element.find(f"{self.ns}MultiGeometry")
         if multigeometry is not None:
             geom = Geometry(ns=self.ns)
             geom.from_element(multigeometry)
             self._geometry = geom
             return
-        track = element.find("%sTrack" % gx.NS)
+        track = element.find(f"{self.ns}Track")
         if track is not None:
             geom = gx.GxGeometry(ns=gx.NS)
             geom.from_element(track)
             self._geometry = geom
             return
-        multitrack = element.find("%sMultiTrack" % gx.NS)
+        multitrack = element.find(f"{self.ns}MultiTrack")
         if line is not None:
             geom = gx.GxGeometry(ns=gx.NS)
             geom.from_element(multitrack)
             self._geometry = geom
             return
-
-        logger.warn("No geometries found")
-        logger.debug("Problem with element: {}".format(etree.tostring(element)))
+        logger.warning("No geometries found")
+        logger.debug("Problem with element: %", etree.tostring(element))
         # raise ValueError('No geometries found')
 
     def etree_element(self):
-        element = super(Placemark, self).etree_element()
+        element = super().etree_element()
         if self._geometry is not None:
             element.append(self._geometry.etree_element())
         else:
@@ -1198,19 +1183,19 @@ class TimeStamp(_TimePrimitive):
     timestamp = None
 
     def __init__(self, ns=None, id=None, timestamp=None, resolution=None):
-        super(TimeStamp, self).__init__(ns, id)
+        super().__init__(ns, id)
         resolution = self.get_resolution(timestamp, resolution)
         self.timestamp = [timestamp, resolution]
 
     def etree_element(self):
-        element = super(TimeStamp, self).etree_element()
-        when = etree.SubElement(element, "%swhen" % self.ns)
+        element = super().etree_element()
+        when = etree.SubElement(element, f"{self.ns}when")
         when.text = self.date_to_string(*self.timestamp)
         return element
 
     def from_element(self, element):
-        super(TimeStamp, self).from_element(element)
-        when = element.find("%swhen" % self.ns)
+        super().from_element(element)
+        when = element.find(f"{self.ns}when")
         if when is not None:
             self.timestamp = self.parse_str(when.text)
 
@@ -1225,7 +1210,7 @@ class TimeSpan(_TimePrimitive):
     def __init__(
         self, ns=None, id=None, begin=None, begin_res=None, end=None, end_res=None
     ):
-        super(TimeSpan, self).__init__(ns, id)
+        super().__init__(ns, id)
         if begin:
             resolution = self.get_resolution(begin, begin_res)
             self.begin = [begin, resolution]
@@ -1234,25 +1219,25 @@ class TimeSpan(_TimePrimitive):
             self.end = [end, resolution]
 
     def from_element(self, element):
-        super(TimeSpan, self).from_element(element)
-        begin = element.find("%sbegin" % self.ns)
+        super().from_element(element)
+        begin = element.find(f"{self.ns}begin")
         if begin is not None:
             self.begin = self.parse_str(begin.text)
-        end = element.find("%send" % self.ns)
+        end = element.find(f"{self.ns}end")
         if end is not None:
             self.end = self.parse_str(end.text)
 
     def etree_element(self):
-        element = super(TimeSpan, self).etree_element()
+        element = super().etree_element()
         if self.begin is not None:
             text = self.date_to_string(*self.begin)
             if text:
-                begin = etree.SubElement(element, "%sbegin" % self.ns)
+                begin = etree.SubElement(element, f"{self.ns}begin")
                 begin.text = text
         if self.end is not None:
             text = self.date_to_string(*self.end)
             if text:
-                end = etree.SubElement(element, "%send" % self.ns)
+                end = etree.SubElement(element, f"{self.ns}end")
                 end.text = text
         if self.begin == self.end is None:
             raise ValueError("Either begin, end or both must be set")
@@ -1279,7 +1264,7 @@ class Schema(_BaseObject):
     def __init__(self, ns=None, id=None, name=None, fields=None):
         if id is None:
             raise ValueError("Id is required for schema")
-        super(Schema, self).__init__(ns, id)
+        super().__init__(ns, id)
         self.simple_fields = fields
         self.name = name
 
@@ -1345,7 +1330,7 @@ class Schema(_BaseObject):
         ]
         if type not in allowed_types:
             raise TypeError(
-                "{0} has the type {1} which is invalid. ".format(name, type)
+                f"{name} has the type {type} which is invalid. "
                 + "The type must be one of "
                 + "'string', 'int', 'uint', 'short', "
                 + "'ushort', 'float', 'double', 'bool'"
@@ -1355,27 +1340,27 @@ class Schema(_BaseObject):
         )
 
     def from_element(self, element):
-        super(Schema, self).from_element(element)
+        super().from_element(element)
         self.name = element.get("name")
-        simple_fields = element.findall("%sSimpleField" % self.ns)
+        simple_fields = element.findall(f"{self.ns}SimpleField")
         self.simple_fields = None
         for simple_field in simple_fields:
             sfname = simple_field.get("name")
             sftype = simple_field.get("type")
-            display_name = simple_field.find("%sdisplayName" % self.ns)
+            display_name = simple_field.find(f"{self.ns}displayName")
             sfdisplay_name = display_name.text if display_name is not None else None
             self.append(sftype, sfname, sfdisplay_name)
 
     def etree_element(self):
-        element = super(Schema, self).etree_element()
+        element = super().etree_element()
         if self.name:
             element.set("name", self.name)
         for simple_field in self.simple_fields:
-            sf = etree.SubElement(element, "%sSimpleField" % self.ns)
+            sf = etree.SubElement(element, f"{self.ns}SimpleField")
             sf.set("type", simple_field["type"])
             sf.set("name", simple_field["name"])
             if simple_field.get("displayName"):
-                dn = etree.SubElement(sf, "%sdisplayName" % self.ns)
+                dn = etree.SubElement(sf, f"{self.ns}displayName")
                 dn.text = simple_field["displayName"]
 
         return element
@@ -1392,24 +1377,24 @@ class ExtendedData(_XMLObject):
     __name__ = "ExtendedData"
 
     def __init__(self, ns=None, elements=None):
-        super(ExtendedData, self).__init__(ns)
+        super().__init__(ns)
         self.elements = elements or []
 
     def etree_element(self):
-        element = super(ExtendedData, self).etree_element()
+        element = super().etree_element()
         for subelement in self.elements:
             element.append(subelement.etree_element())
         return element
 
     def from_element(self, element):
-        super(ExtendedData, self).from_element(element)
+        super().from_element(element)
         self.elements = []
-        untyped_data = element.findall("%sData" % self.ns)
+        untyped_data = element.findall(f"{self.ns}Data")
         for ud in untyped_data:
             el = Data(self.ns)
             el.from_element(ud)
             self.elements.append(el)
-        typed_data = element.findall("%sSchemaData" % self.ns)
+        typed_data = element.findall(f"{self.ns}SchemaData")
         for sd in typed_data:
             el = SchemaData(self.ns, "dummy")
             el.from_element(sd)
@@ -1418,7 +1403,7 @@ class ExtendedData(_XMLObject):
 
 class UntypedExtendedData(ExtendedData):
     def __init__(self, ns=None, elements=None):
-        super(UntypedExtendedData, self).__init__(ns, elements)
+        super().__init__(ns, elements)
         warnings.warn(
             "UntypedExtendedData is deprecated use ExtendedData instead",
             DeprecationWarning,
@@ -1431,36 +1416,36 @@ class Data(_XMLObject):
     __name__ = "Data"
 
     def __init__(self, ns=None, name=None, value=None, display_name=None):
-        super(Data, self).__init__(ns)
+        super().__init__(ns)
 
         self.name = name
         self.value = value
         self.display_name = display_name
 
     def etree_element(self):
-        element = super(Data, self).etree_element()
+        element = super().etree_element()
         element.set("name", self.name)
-        value = etree.SubElement(element, "%svalue" % self.ns)
+        value = etree.SubElement(element, f"{self.ns}value")
         value.text = self.value
         if self.display_name:
-            display_name = etree.SubElement(element, "%sdisplayName" % self.ns)
+            display_name = etree.SubElement(element, f"{self.ns}displayName")
             display_name.text = self.display_name
         return element
 
     def from_element(self, element):
-        super(Data, self).from_element(element)
+        super().from_element(element)
         self.name = element.get("name")
-        tmp_value = element.find("%svalue" % self.ns)
+        tmp_value = element.find(f"{self.ns}value")
         if tmp_value is not None:
             self.value = tmp_value.text
-        display_name = element.find("%sdisplayName" % self.ns)
+        display_name = element.find(f"{self.ns}displayName")
         if display_name is not None:
             self.display_name = display_name.text
 
 
 class UntypedExtendedDataElement(Data):
     def __init__(self, ns=None, name=None, value=None, display_name=None):
-        super(UntypedExtendedDataElement, self).__init__(ns, name, value, display_name)
+        super().__init__(ns, name, value, display_name)
         warnings.warn(
             "UntypedExtendedDataElement is deprecated use Data instead",
             DeprecationWarning,
@@ -1485,8 +1470,8 @@ class SchemaData(_XMLObject):
     _data = None
 
     def __init__(self, ns=None, schema_url=None, data=None):
-        super(SchemaData, self).__init__(ns)
-        if (not isinstance(schema_url, basestring)) or (not schema_url):
+        super().__init__(ns)
+        if (not isinstance(schema_url, str)) or (not schema_url):
             raise ValueError("required parameter schema_url missing")
         self.schema_url = schema_url
         self._data = []
@@ -1511,31 +1496,31 @@ class SchemaData(_XMLObject):
             raise TypeError("data must be of type tuple or list")
 
     def append_data(self, name, value):
-        if isinstance(name, basestring) and name:
+        if isinstance(name, str) and name:
             self._data.append({"name": name, "value": value})
         else:
             raise TypeError("name must be a nonempty string")
 
     def etree_element(self):
-        element = super(SchemaData, self).etree_element()
+        element = super().etree_element()
         element.set("schemaUrl", self.schema_url)
         for data in self.data:
-            sd = etree.SubElement(element, "%sSimpleData" % self.ns)
+            sd = etree.SubElement(element, f"{self.ns}SimpleData")
             sd.set("name", data["name"])
             sd.text = data["value"]
         return element
 
     def from_element(self, element):
-        super(SchemaData, self).from_element(element)
+        super().from_element(element)
         self.data = []
         self.schema_url = element.get("schemaUrl")
-        simple_data = element.findall("%sSimpleData" % self.ns)
+        simple_data = element.findall(f"{self.ns}SimpleData")
         for sd in simple_data:
-            self.append_data(sd.get('name'), sd.text)
+            self.append_data(sd.get("name"), sd.text)
 
 
 class Icon(_BaseObject):
-    '''Represents an <Icon> element used in Overlays '''
+    """Represents an <Icon> element used in Overlays"""
 
     __name__ = "Icon"
 
@@ -1554,7 +1539,7 @@ class Icon(_BaseObject):
 
     @href.setter
     def href(self, href):
-        if isinstance(href, basestring):
+        if isinstance(href, str):
             self._href = href
         elif href is None:
             self._href = None
@@ -1567,7 +1552,7 @@ class Icon(_BaseObject):
 
     @refresh_mode.setter
     def refresh_mode(self, refresh_mode):
-        if isinstance(refresh_mode, basestring):
+        if isinstance(refresh_mode, str):
             self._refresh_mode = refresh_mode
         elif refresh_mode is None:
             self._refresh_mode = None
@@ -1580,7 +1565,7 @@ class Icon(_BaseObject):
 
     @refresh_interval.setter
     def refresh_interval(self, refresh_interval):
-        if isinstance(refresh_interval, basestring):
+        if isinstance(refresh_interval, str):
             self._refresh_interval = refresh_interval
         elif refresh_interval is None:
             self._refresh_interval = None
@@ -1593,7 +1578,7 @@ class Icon(_BaseObject):
 
     @view_refresh_mode.setter
     def view_refresh_mode(self, view_refresh_mode):
-        if isinstance(view_refresh_mode, basestring):
+        if isinstance(view_refresh_mode, str):
             self._view_refresh_mode = view_refresh_mode
         elif view_refresh_mode is None:
             self._view_refresh_mode = None
@@ -1606,7 +1591,7 @@ class Icon(_BaseObject):
 
     @view_refresh_time.setter
     def view_refresh_time(self, view_refresh_time):
-        if isinstance(view_refresh_time, basestring):
+        if isinstance(view_refresh_time, str):
             self._view_refresh_time = view_refresh_time
         elif view_refresh_time is None:
             self._view_refresh_time = None
@@ -1619,7 +1604,7 @@ class Icon(_BaseObject):
 
     @view_bound_scale.setter
     def view_bound_scale(self, view_bound_scale):
-        if isinstance(view_bound_scale, basestring):
+        if isinstance(view_bound_scale, str):
             self._view_bound_scale = view_bound_scale
         elif view_bound_scale is None:
             self._view_bound_scale = None
@@ -1632,7 +1617,7 @@ class Icon(_BaseObject):
 
     @view_format.setter
     def view_format(self, view_format):
-        if isinstance(view_format, basestring):
+        if isinstance(view_format, str):
             self._view_format = view_format
         elif view_format is None:
             self._view_format = None
@@ -1645,7 +1630,7 @@ class Icon(_BaseObject):
 
     @http_query.setter
     def http_query(self, http_query):
-        if isinstance(http_query, basestring):
+        if isinstance(http_query, str):
             self._http_query = http_query
         elif http_query is None:
             self._http_query = None
@@ -1656,28 +1641,28 @@ class Icon(_BaseObject):
         element = super(Icon, self).etree_element()
 
         if self._href:
-            href = etree.SubElement(element, "%shref" % self.ns)
+            href = etree.SubElement(element, f"{self.ns}href")
             href.text = self._href
         if self._refresh_mode:
-            refresh_mode = etree.SubElement(element, "%srefreshMode" % self.ns)
+            refresh_mode = etree.SubElement(element, f"{self.ns}refreshMode")
             refresh_mode.text = self._refresh_mode
         if self._refresh_interval:
-            refresh_interval = etree.SubElement(element, "%srefreshInterval" % self.ns)
+            refresh_interval = etree.SubElement(element, f"{self.ns}refreshInterval")
             refresh_interval.text = self._refresh_interval
         if self._view_refresh_mode:
-            view_refresh_mode = etree.SubElement(element, "%sviewRefreshMode" % self.ns)
+            view_refresh_mode = etree.SubElement(element, f"{self.ns}viewRefreshMode")
             view_refresh_mode.text = self._view_refresh_mode
         if self._view_refresh_time:
-            view_refresh_time = etree.SubElement(element, "%sviewRefreshTime" % self.ns)
+            view_refresh_time = etree.SubElement(element, f"{self.ns}viewRefreshTime")
             view_refresh_time.text = self._view_refresh_time
         if self._view_bound_scale:
-            view_bound_scale = etree.SubElement(element, "%sviewBoundScale" % self.ns)
+            view_bound_scale = etree.SubElement(element, f"{self.ns}viewBoundScale")
             view_bound_scale.text = self._view_bound_scale
         if self._view_format:
-            view_format = etree.SubElement(element, "%sviewFormat" % self.ns)
+            view_format = etree.SubElement(element, f"{self.ns}viewFormat")
             view_format.text = self._view_format
         if self._http_query:
-            http_query = etree.SubElement(element, "%shttpQuery" % self.ns)
+            http_query = etree.SubElement(element, f"{self.ns}httpQuery")
             http_query.text = self._http_query
 
         return element
@@ -1685,34 +1670,34 @@ class Icon(_BaseObject):
     def from_element(self, element):
         super(Icon, self).from_element(element)
 
-        href = element.find('%shref' % self.ns)
+        href = element.find(f"{self.ns}href")
         if href is not None:
             self.href = href.text
 
-        refresh_mode = element.find('%srefreshMode' % self.ns)
+        refresh_mode = element.find(f"{self.ns}refreshMode")
         if refresh_mode is not None:
             self.refresh_mode = refresh_mode.text
 
-        refresh_interval = element.find('%srefreshInterval' % self.ns)
+        refresh_interval = element.find(f"{self.ns}refreshInterval")
         if refresh_interval is not None:
             self.refresh_interval = refresh_interval.text
 
-        view_refresh_mode = element.find('%sviewRefreshMode' % self.ns)
+        view_refresh_mode = element.find(f"{self.ns}viewRefreshMode")
         if view_refresh_mode is not None:
             self.view_refresh_mode = view_refresh_mode.text
 
-        view_refresh_time = element.find('%sviewRefreshTime' % self.ns)
+        view_refresh_time = element.find(f"{self.ns}viewRefreshTime")
         if view_refresh_time is not None:
             self.view_refresh_time = view_refresh_time.text
 
-        view_bound_scale = element.find('%sviewBoundScale' % self.ns)
+        view_bound_scale = element.find(f"{self.ns}viewBoundScale")
         if view_bound_scale is not None:
             self.view_bound_scale = view_bound_scale.text
 
-        view_format = element.find('%sviewFormat' % self.ns)
+        view_format = element.find(f"{self.ns}viewFormat")
         if view_format is not None:
             self.view_format = view_format.text
 
-        http_query = element.find('%shttpQuery' % self.ns)
+        http_query = element.find(f"{self.ns}httpQuery")
         if http_query is not None:
             self.http_query = http_query.text

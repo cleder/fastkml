@@ -32,9 +32,6 @@ Follows best practises:
    :target: https://landscape.io/github/cleder/fastkml/master
    :alt: Code Health
 
-
-Supports python 2 and 3:
-
 .. image:: https://pypip.in/py_versions/fastkml/badge.svg
     :target: https://pypi.python.org/pypi/fastkml/
     :alt: Supported Python versions
@@ -65,7 +62,6 @@ requirements, namely:
   fastkml and serializing it again will result in the same output.
 * You can parse any KML snippet, it does not need to be a complete KML
   document.
-* It runs on Python 2 and 3.
 * It is fully tested and actively maintained.
 * Geometries are handled in the `__geo_interface__` standard.
 * Minimal dependencies, pure Python.

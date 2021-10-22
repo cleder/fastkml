@@ -16,7 +16,7 @@ Example how to build a simple KML file from the Python interpreter.
 
     # Import the library
     >>> from fastkml import kml
-    >>> from shapely.geometry import Point, LineString, Polygon
+    >>> from pygeoif.geometry import Polygon
 
     # Create the root KML object
     >>> k = kml.KML()

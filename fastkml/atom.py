@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (C) 2012  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
@@ -44,7 +43,7 @@ regex = r"^[a-zA-Z0-9._%-]+@([a-zA-Z0-9-]+\.)*[a-zA-Z]{2,4}$"
 check_email = re.compile(regex).match
 
 
-class Link(object):
+class Link:
     """
     Identifies a related Web page. The type of relation is defined by
     the rel attribute. A feed is limited to one alternate per type and
@@ -154,7 +153,7 @@ class Link(object):
             )
 
 
-class _Person(object):
+class _Person:
     """
     <author> and <contributor> describe a person, corporation, or similar
     entity. It has one required element, name, and two optional elements:
@@ -182,17 +181,17 @@ class _Person(object):
     def etree_element(self):
         element = etree.Element(self.ns + self.__name__.lower())
         if self.name:
-            name = etree.SubElement(element, "%sname" % self.ns)
+            name = etree.SubElement(element, f"{self.ns}name")
             name.text = self.name
         # else:
         #    logger.critical('No Name for person defined')
         #    raise TypeError
         if self.uri:
             # XXX validate uri
-            uri = etree.SubElement(element, "%suri" % self.ns)
+            uri = etree.SubElement(element, f"{self.ns}uri")
             uri.text = self.uri
         if self.email and check_email(self.email):
-            email = etree.SubElement(element, "%semail" % self.ns)
+            email = etree.SubElement(element, f"{self.ns}email")
             email.text = self.email
         return element
 
@@ -202,13 +201,13 @@ class _Person(object):
     def from_element(self, element):
         if self.ns + self.__name__.lower() != element.tag:
             raise TypeError
-        name = element.find("%sname" % self.ns)
+        name = element.find(f"{self.ns}name")
         if name is not None:
             self.name = name.text
-        uri = element.find("%suri" % self.ns)
+        uri = element.find(f"{self.ns}uri")
         if uri is not None:
             self.uri = uri.text
-        email = element.find("%semail" % self.ns)
+        email = element.find(f"{self.ns}email")
         if email is not None and check_email(email.text):
             self.email = email.text
 
