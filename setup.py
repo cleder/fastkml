@@ -22,7 +22,7 @@ class PyTest(TestCommand):
 
 setup(
     name="fastkml",
-    version="1.0.alpha.0",
+    version="1.0.alpha.1",
     description="Fast KML processing in python",
     long_description=(
         open("README.rst").read()
