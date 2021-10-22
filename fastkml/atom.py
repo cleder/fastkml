@@ -181,17 +181,17 @@ class _Person:
     def etree_element(self):
         element = etree.Element(self.ns + self.__name__.lower())
         if self.name:
-            name = etree.SubElement(element, "%sname" % self.ns)
+            name = etree.SubElement(element, f"{self.ns}name")
             name.text = self.name
         # else:
         #    logger.critical('No Name for person defined')
         #    raise TypeError
         if self.uri:
             # XXX validate uri
-            uri = etree.SubElement(element, "%suri" % self.ns)
+            uri = etree.SubElement(element, f"{self.ns}uri")
             uri.text = self.uri
         if self.email and check_email(self.email):
-            email = etree.SubElement(element, "%semail" % self.ns)
+            email = etree.SubElement(element, f"{self.ns}email")
             email.text = self.email
         return element
 
@@ -201,13 +201,13 @@ class _Person:
     def from_element(self, element):
         if self.ns + self.__name__.lower() != element.tag:
             raise TypeError
-        name = element.find("%sname" % self.ns)
+        name = element.find(f"{self.ns}name")
         if name is not None:
             self.name = name.text
-        uri = element.find("%suri" % self.ns)
+        uri = element.find(f"{self.ns}uri")
         if uri is not None:
             self.uri = uri.text
-        email = element.find("%semail" % self.ns)
+        email = element.find(f"{self.ns}email")
         if email is not None and check_email(email.text):
             self.email = email.text
 

@@ -81,17 +81,17 @@ class KML:
             raise TypeError
 
         ns = element.tag.rstrip("kml")
-        documents = element.findall("%sDocument" % ns)
+        documents = element.findall(f"{ns}Document")
         for document in documents:
             feature = Document(ns)
             feature.from_element(document)
             self.append(feature)
-        folders = element.findall("%sFolder" % ns)
+        folders = element.findall(f"{ns}Folder")
         for folder in folders:
             feature = Folder(ns)
             feature.from_element(folder)
             self.append(feature)
-        placemarks = element.findall("%sPlacemark" % ns)
+        placemarks = element.findall(f"{ns}Placemark")
         for placemark in placemarks:
             feature = Placemark(ns)
             feature.from_element(placemark)
@@ -102,12 +102,12 @@ class KML:
         # However, in this case the xlmns should still be mentioned on the kml
         # element, just without prefix.
         if not self.ns:
-            root = etree.Element("%skml" % self.ns)
+            root = etree.Element(f"{self.ns}kml")
             root.set("xmlns", config.KMLNS[1:-1])
         elif config.LXML:
-            root = etree.Element("%skml" % self.ns, nsmap={None: self.ns[1:-1]})
+            root = etree.Element(f"{self.ns}kml", nsmap={None: self.ns[1:-1]})
         else:
-            root = etree.Element("%skml" % self.ns)
+            root = etree.Element(f"{self.ns}kml")
         for feature in self.features():
             root.append(feature.etree_element())
         return root
@@ -452,22 +452,22 @@ class _Feature(_BaseObject):
     def etree_element(self):
         element = super().etree_element()
         if self.name:
-            name = etree.SubElement(element, "%sname" % self.ns)
+            name = etree.SubElement(element, f"{self.ns}name")
             name.text = self.name
         if self.description:
-            description = etree.SubElement(element, "%sdescription" % self.ns)
+            description = etree.SubElement(element, f"{self.ns}description")
             description.text = self.description
-        visibility = etree.SubElement(element, "%svisibility" % self.ns)
+        visibility = etree.SubElement(element, f"{self.ns}visibility")
         visibility.text = str(self.visibility)
         if self.isopen:
-            isopen = etree.SubElement(element, "%sopen" % self.ns)
+            isopen = etree.SubElement(element, f"{self.ns}open")
             isopen.text = str(self.isopen)
         if self._styleUrl is not None:
             element.append(self._styleUrl.etree_element())
         for style in self.styles():
             element.append(style.etree_element())
         if self.snippet:
-            snippet = etree.SubElement(element, "%sSnippet" % self.ns)
+            snippet = etree.SubElement(element, f"{self.ns}Snippet")
             if isinstance(self.snippet, str):
                 snippet.text = self.snippet
             else:
@@ -488,69 +488,69 @@ class _Feature(_BaseObject):
         if self.extended_data is not None:
             element.append(self.extended_data.etree_element())
         if self._address is not None:
-            address = etree.SubElement(element, "%saddress" % self.ns)
+            address = etree.SubElement(element, f"{self.ns}address")
             address.text = self._address
         if self._phoneNumber is not None:
-            phoneNumber = etree.SubElement(element, "%sphoneNumber" % self.ns)
+            phoneNumber = etree.SubElement(element, f"{self.ns}phoneNumber")
             phoneNumber.text = self._phoneNumber
         return element
 
     def from_element(self, element):
         super().from_element(element)
-        name = element.find("%sname" % self.ns)
+        name = element.find(f"{self.ns}name")
         if name is not None:
             self.name = name.text
-        description = element.find("%sdescription" % self.ns)
+        description = element.find(f"{self.ns}description")
         if description is not None:
             self.description = description.text
-        visibility = element.find("%svisibility" % self.ns)
+        visibility = element.find(f"{self.ns}visibility")
         if visibility is not None:
             self.visibility = 1 if visibility.text in ["1", "true"] else 0
-        isopen = element.find("%sopen" % self.ns)
+        isopen = element.find(f"{self.ns}open")
         if isopen is not None:
             self.isopen = 1 if isopen.text in ["1", "true"] else 0
-        styles = element.findall("%sStyle" % self.ns)
+        styles = element.findall(f"{self.ns}Style")
         for style in styles:
             s = Style(self.ns)
             s.from_element(style)
             self.append_style(s)
-        styles = element.findall("%sStyleMap" % self.ns)
+        styles = element.findall(f"{self.ns}StyleMap")
         for style in styles:
             s = StyleMap(self.ns)
             s.from_element(style)
             self.append_style(s)
-        style_url = element.find("%sstyleUrl" % self.ns)
+        style_url = element.find(f"{self.ns}styleUrl")
         if style_url is not None:
             s = StyleUrl(self.ns)
             s.from_element(style_url)
             self._styleUrl = s
-        snippet = element.find("%sSnippet" % self.ns)
+        snippet = element.find(f"{self.ns}Snippet")
         if snippet is not None:
             _snippet = {"text": snippet.text}
             if snippet.get("maxLines"):
                 _snippet["maxLines"] = int(snippet.get("maxLines"))
             self.snippet = _snippet
-        timespan = element.find("%sTimeSpan" % self.ns)
+        timespan = element.find(f"{self.ns}TimeSpan")
         if timespan is not None:
             s = TimeSpan(self.ns)
             s.from_element(timespan)
             self._time_span = s
-        timestamp = element.find("%sTimeStamp" % self.ns)
+        timestamp = element.find(f"{self.ns}TimeStamp")
         if timestamp is not None:
             s = TimeStamp(self.ns)
             s.from_element(timestamp)
             self._time_stamp = s
-        atom_link = element.find("%slink" % atom.NS)
+        atom_link = element.find(f"{self.ns}link")
         if atom_link is not None:
             s = atom.Link()
             s.from_element(atom_link)
             self._atom_link = s
-        atom_author = element.find("%sauthor" % atom.NS)
+        atom_author = element.find(f"{self.ns}author")
         if atom_author is not None:
             s = atom.Author()
             s.from_element(atom_author)
             self._atom_author = s
-        extended_data = element.find("%sExtendedData" % self.ns)
+        extended_data = element.find(f"{self.ns}ExtendedData")
         if extended_data is not None:
             x = ExtendedData(self.ns)
             x.from_element(extended_data)
@@ -559,10 +559,10 @@ class _Feature(_BaseObject):
             #    logger.warn(
             #        'arbitrary or typed extended data is not yet supported'
             #    )
-        address = element.find("%saddress" % self.ns)
+        address = element.find(f"{self.ns}address")
         if address is not None:
             self.address = address.text
-        phoneNumber = element.find("%sphoneNumber" % self.ns)
+        phoneNumber = element.find(f"{self.ns}phoneNumber")
         if phoneNumber is not None:
             self.phoneNumber = phoneNumber.text
 
@@ -691,25 +691,25 @@ class _Overlay(_Feature):
     def etree_element(self):
         element = super().etree_element()
         if self._color:
-            color = etree.SubElement(element, "%scolor" % self.ns)
+            color = etree.SubElement(element, f"{self.ns}color")
             color.text = self._color
         if self._drawOrder:
-            drawOrder = etree.SubElement(element, "%sdrawOrder" % self.ns)
+            drawOrder = etree.SubElement(element, f"{self.ns}drawOrder")
             drawOrder.text = self._drawOrder
         if self._icon:
-            icon = etree.SubElement(element, "%sicon" % self.ns)
+            icon = etree.SubElement(element, f"{self.ns}icon")
             icon.text = self._icon
         return element
 
     def from_element(self, element):
         super().from_element(element)
-        color = element.find("%scolor" % self.ns)
+        color = element.find(f"{self.ns}color")
         if color is not None:
             self.color = color.text
-        drawOrder = element.find("%sdrawOrder" % self.ns)
+        drawOrder = element.find(f"{self.ns}drawOrder")
         if drawOrder is not None:
             self.drawOrder = drawOrder.text
-        icon = element.find("%sicon" % self.ns)
+        icon = element.find(f"{self.ns}icon")
         if icon is not None:
             self.icon = icon.text
 
@@ -876,50 +876,50 @@ class GroundOverlay(_Overlay):
     def etree_element(self):
         element = super().etree_element()
         if self._altitude:
-            altitude = etree.SubElement(element, "%saltitude" % self.ns)
+            altitude = etree.SubElement(element, f"{self.ns}altitude")
             altitude.text = self._altitude
             if self._altitudeMode:
-                altitudeMode = etree.SubElement(element, "%saltitudeMode" % self.ns)
+                altitudeMode = etree.SubElement(element, f"{self.ns}altitudeMode")
                 altitudeMode.text = self._altitudeMode
         if all([self._north, self._south, self._east, self._west]):
-            latLonBox = etree.SubElement(element, "%slatLonBox" % self.ns)
-            north = etree.SubElement(latLonBox, "%snorth" % self.ns)
+            latLonBox = etree.SubElement(element, f"{self.ns}latLonBox")
+            north = etree.SubElement(latLonBox, f"{self.ns}north")
             north.text = self._north
-            south = etree.SubElement(latLonBox, "%ssouth" % self.ns)
+            south = etree.SubElement(latLonBox, f"{self.ns}south")
             south.text = self._south
-            east = etree.SubElement(latLonBox, "%seast" % self.ns)
+            east = etree.SubElement(latLonBox, f"{self.ns}east")
             east.text = self._east
-            west = etree.SubElement(latLonBox, "%swest" % self.ns)
+            west = etree.SubElement(latLonBox, f"{self.ns}west")
             west.text = self._west
             if self._rotation:
-                rotation = etree.SubElement(latLonBox, "%srotation" % self.ns)
+                rotation = etree.SubElement(latLonBox, f"{self.ns}rotation")
                 rotation.text = self._rotation
 
         return element
 
     def from_element(self, element):
         super().from_element(element)
-        altitude = element.find("%saltitude" % self.ns)
+        altitude = element.find(f"{self.ns}altitude")
         if altitude is not None:
             self.altitude = altitude.text
-        altitudeMode = element.find("%saltitudeMode" % self.ns)
+        altitudeMode = element.find(f"{self.ns}altitudeMode")
         if altitudeMode is not None:
             self.altitudeMode = altitudeMode.text
-        latLonBox = element.find("%slatLonBox" % self.ns)
+        latLonBox = element.find(f"{self.ns}latLonBox")
         if latLonBox is not None:
-            north = latLonBox.find("%snorth" % self.ns)
+            north = latLonBox.find(f"{self.ns}north")
             if north is not None:
                 self.north = north.text
-            south = latLonBox.find("%ssouth" % self.ns)
+            south = latLonBox.find(f"{self.ns}south")
             if south is not None:
                 self.south = south.text
-            east = latLonBox.find("%seast" % self.ns)
+            east = latLonBox.find(f"{self.ns}east")
             if east is not None:
                 self.east = east.text
-            west = latLonBox.find("%swest" % self.ns)
+            west = latLonBox.find(f"{self.ns}west")
             if west is not None:
                 self.west = west.text
-            rotation = latLonBox.find("%srotation" % self.ns)
+            rotation = latLonBox.find(f"{self.ns}rotation")
             if rotation is not None:
                 self.rotation = rotation.text
 
@@ -949,22 +949,22 @@ class Document(_Container):
 
     def from_element(self, element):
         super().from_element(element)
-        documents = element.findall("%sDocument" % self.ns)
+        documents = element.findall(f"{self.ns}Document")
         for document in documents:
             feature = Document(self.ns)
             feature.from_element(document)
             self.append(feature)
-        folders = element.findall("%sFolder" % self.ns)
+        folders = element.findall(f"{self.ns}Folder")
         for folder in folders:
             feature = Folder(self.ns)
             feature.from_element(folder)
             self.append(feature)
-        placemarks = element.findall("%sPlacemark" % self.ns)
+        placemarks = element.findall(f"{self.ns}Placemark")
         for placemark in placemarks:
             feature = Placemark(self.ns)
             feature.from_element(placemark)
             self.append(feature)
-        schemata = element.findall("%sSchema" % self.ns)
+        schemata = element.findall(f"{self.ns}Schema")
         for schema in schemata:
             s = Schema(self.ns, id="default")
             s.from_element(schema)
@@ -994,17 +994,17 @@ class Folder(_Container):
 
     def from_element(self, element):
         super().from_element(element)
-        folders = element.findall("%sFolder" % self.ns)
+        folders = element.findall(f"{self.ns}Folder")
         for folder in folders:
             feature = Folder(self.ns)
             feature.from_element(folder)
             self.append(feature)
-        placemarks = element.findall("%sPlacemark" % self.ns)
+        placemarks = element.findall(f"{self.ns}Placemark")
         for placemark in placemarks:
             feature = Placemark(self.ns)
             feature.from_element(placemark)
             self.append(feature)
-        documents = element.findall("%sDocument" % self.ns)
+        documents = element.findall(f"{self.ns}Document")
         for document in documents:
             feature = Document(self.ns)
             feature.from_element(document)
@@ -1035,49 +1035,48 @@ class Placemark(_Feature):
 
     def from_element(self, element):
         super().from_element(element)
-        point = element.find("%sPoint" % self.ns)
+        point = element.find(f"{self.ns}Point")
         if point is not None:
             geom = Geometry(ns=self.ns)
             geom.from_element(point)
             self._geometry = geom
             return
-        line = element.find("%sLineString" % self.ns)
+        line = element.find(f"{self.ns}LineString")
         if line is not None:
             geom = Geometry(ns=self.ns)
             geom.from_element(line)
             self._geometry = geom
             return
-        polygon = element.find("%sPolygon" % self.ns)
+        polygon = element.find(f"{self.ns}Polygon")
         if polygon is not None:
             geom = Geometry(ns=self.ns)
             geom.from_element(polygon)
             self._geometry = geom
             return
-        linearring = element.find("%sLinearRing" % self.ns)
+        linearring = element.find(f"{self.ns}LinearRing")
         if linearring is not None:
             geom = Geometry(ns=self.ns)
             geom.from_element(linearring)
             self._geometry = geom
             return
-        multigeometry = element.find("%sMultiGeometry" % self.ns)
+        multigeometry = element.find(f"{self.ns}MultiGeometry")
         if multigeometry is not None:
             geom = Geometry(ns=self.ns)
             geom.from_element(multigeometry)
             self._geometry = geom
             return
-        track = element.find("%sTrack" % gx.NS)
+        track = element.find(f"{self.ns}Track")
         if track is not None:
             geom = gx.GxGeometry(ns=gx.NS)
             geom.from_element(track)
             self._geometry = geom
             return
-        multitrack = element.find("%sMultiTrack" % gx.NS)
+        multitrack = element.find(f"{self.ns}MultiTrack")
         if line is not None:
             geom = gx.GxGeometry(ns=gx.NS)
             geom.from_element(multitrack)
             self._geometry = geom
             return
-
         logger.warning("No geometries found")
         logger.debug(f"Problem with element: {etree.tostring(element)}")
         # raise ValueError('No geometries found')
@@ -1181,13 +1180,13 @@ class TimeStamp(_TimePrimitive):
 
     def etree_element(self):
         element = super().etree_element()
-        when = etree.SubElement(element, "%swhen" % self.ns)
+        when = etree.SubElement(element, f"{self.ns}when")
         when.text = self.date_to_string(*self.timestamp)
         return element
 
     def from_element(self, element):
         super().from_element(element)
-        when = element.find("%swhen" % self.ns)
+        when = element.find(f"{self.ns}when")
         if when is not None:
             self.timestamp = self.parse_str(when.text)
 
@@ -1212,10 +1211,10 @@ class TimeSpan(_TimePrimitive):
 
     def from_element(self, element):
         super().from_element(element)
-        begin = element.find("%sbegin" % self.ns)
+        begin = element.find(f"{self.ns}begin")
         if begin is not None:
             self.begin = self.parse_str(begin.text)
-        end = element.find("%send" % self.ns)
+        end = element.find(f"{self.ns}end")
         if end is not None:
             self.end = self.parse_str(end.text)
 
@@ -1224,12 +1223,12 @@ class TimeSpan(_TimePrimitive):
         if self.begin is not None:
             text = self.date_to_string(*self.begin)
             if text:
-                begin = etree.SubElement(element, "%sbegin" % self.ns)
+                begin = etree.SubElement(element, f"{self.ns}begin")
                 begin.text = text
         if self.end is not None:
             text = self.date_to_string(*self.end)
             if text:
-                end = etree.SubElement(element, "%send" % self.ns)
+                end = etree.SubElement(element, f"{self.ns}end")
                 end.text = text
         if self.begin == self.end is None:
             raise ValueError("Either begin, end or both must be set")
@@ -1334,12 +1333,12 @@ class Schema(_BaseObject):
     def from_element(self, element):
         super().from_element(element)
         self.name = element.get("name")
-        simple_fields = element.findall("%sSimpleField" % self.ns)
+        simple_fields = element.findall(f"{self.ns}SimpleField")
         self.simple_fields = None
         for simple_field in simple_fields:
             sfname = simple_field.get("name")
             sftype = simple_field.get("type")
-            display_name = simple_field.find("%sdisplayName" % self.ns)
+            display_name = simple_field.find(f"{self.ns}displayName")
             sfdisplay_name = display_name.text if display_name is not None else None
             self.append(sftype, sfname, sfdisplay_name)
 
@@ -1348,11 +1347,11 @@ class Schema(_BaseObject):
         if self.name:
             element.set("name", self.name)
         for simple_field in self.simple_fields:
-            sf = etree.SubElement(element, "%sSimpleField" % self.ns)
+            sf = etree.SubElement(element, f"{self.ns}SimpleField")
             sf.set("type", simple_field["type"])
             sf.set("name", simple_field["name"])
             if simple_field.get("displayName"):
-                dn = etree.SubElement(sf, "%sdisplayName" % self.ns)
+                dn = etree.SubElement(sf, f"{self.ns}displayName")
                 dn.text = simple_field["displayName"]
 
         return element
@@ -1381,12 +1380,12 @@ class ExtendedData(_XMLObject):
     def from_element(self, element):
         super().from_element(element)
         self.elements = []
-        untyped_data = element.findall("%sData" % self.ns)
+        untyped_data = element.findall(f"{self.ns}Data")
         for ud in untyped_data:
             el = Data(self.ns)
             el.from_element(ud)
             self.elements.append(el)
-        typed_data = element.findall("%sSchemaData" % self.ns)
+        typed_data = element.findall(f"{self.ns}SchemaData")
         for sd in typed_data:
             el = SchemaData(self.ns, "dummy")
             el.from_element(sd)
@@ -1417,20 +1416,20 @@ class Data(_XMLObject):
     def etree_element(self):
         element = super().etree_element()
         element.set("name", self.name)
-        value = etree.SubElement(element, "%svalue" % self.ns)
+        value = etree.SubElement(element, f"{self.ns}value")
         value.text = self.value
         if self.display_name:
-            display_name = etree.SubElement(element, "%sdisplayName" % self.ns)
+            display_name = etree.SubElement(element, f"{self.ns}displayName")
             display_name.text = self.display_name
         return element
 
     def from_element(self, element):
         super().from_element(element)
         self.name = element.get("name")
-        tmp_value = element.find("%svalue" % self.ns)
+        tmp_value = element.find(f"{self.ns}value")
         if tmp_value is not None:
             self.value = tmp_value.text
-        display_name = element.find("%sdisplayName" % self.ns)
+        display_name = element.find(f"{self.ns}displayName")
         if display_name is not None:
             self.display_name = display_name.text
 
@@ -1497,7 +1496,7 @@ class SchemaData(_XMLObject):
         element = super().etree_element()
         element.set("schemaUrl", self.schema_url)
         for data in self.data:
-            sd = etree.SubElement(element, "%sSimpleData" % self.ns)
+            sd = etree.SubElement(element, f"{self.ns}SimpleData")
             sd.set("name", data["name"])
             sd.text = data["value"]
         return element
@@ -1506,6 +1505,6 @@ class SchemaData(_XMLObject):
         super().from_element(element)
         self.data = []
         self.schema_url = element.get("schemaUrl")
-        simple_data = element.findall("%sSimpleData" % self.ns)
+        simple_data = element.findall(f"{self.ns}SimpleData")
         for sd in simple_data:
             self.append_data(sd.get("name"), sd.text)

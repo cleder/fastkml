@@ -103,7 +103,7 @@ class GxGeometry(Geometry):
 
     def _get_geometry(self, element):
         # Track
-        if element.tag == ("%sTrack" % self.ns):
+        if element.tag == (f"{self.ns}Track"):
             coords = self._get_coordinates(element)
             self._get_geometry_spec(element)
             return LineString(coords)
@@ -111,8 +111,8 @@ class GxGeometry(Geometry):
     def _get_multigeometry(self, element):
         # MultiTrack
         geoms = []
-        if element.tag == ("%sMultiTrack" % self.ns):
-            tracks = element.findall("%sTrack" % self.ns)
+        if element.tag == (f"{self.ns}MultiTrack"):
+            tracks = element.findall(f"{self.ns}Track")
             for track in tracks:
                 self._get_geometry_spec(track)
                 geoms.append(LineString(self._get_coordinates(track)))
@@ -124,7 +124,7 @@ class GxGeometry(Geometry):
             return MultiLineString.from_linestrings(*geoms)
 
     def _get_coordinates(self, element):
-        coordinates = element.findall("%scoord" % self.ns)
+        coordinates = element.findall(f"{self.ns}coord")
         if coordinates is not None:
             return [
                 [float(c) for c in coord.text.strip().split()] for coord in coordinates
