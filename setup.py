@@ -22,7 +22,7 @@ class PyTest(TestCommand):
 
 setup(
     name="fastkml",
-    version="1.0.alpha.1",
+    version="1.0.alpha.0",
     description="Fast KML processing in python",
     long_description=(
         open("README.rst").read()
@@ -41,7 +41,8 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
-        "Development Status :: 5 - Production/Stable",
+        # "Development Status :: 5 - Production/Stable",
+        "Development Status :: 3 - Alpha"
         "Operating System :: OS Independent",
     ],  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     keywords="GIS KML Google Maps OpenLayers",
