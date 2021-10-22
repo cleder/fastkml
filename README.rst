@@ -10,10 +10,9 @@ the functionality that KML clients such as `OpenLayers
 `Google Earth <http://earth.google.com/>`_ provides.
 
 
-Geometries are handled as pygeoif_ or, if installed, shapely_ objects.
+Geometries are handled as pygeoif_ objects.
 
 .. _pygeoif: http://pypi.python.org/pypi/pygeoif/
-.. _shapely: http://pypi.python.org/pypi/Shapely
 .. _lxml: https://pypi.python.org/pypi/lxml
 .. _dateutils: https://pypi.python.org/pypi/dateutils
 .. _pip: https://pypi.python.org/pypi/pip
@@ -46,8 +45,6 @@ Is Maintained and documented:
     :target: https://www.openhub.net/p/fastkml
     :alt: Statistics from OpenHub
 
-Supports python 2 and 3:
-
 .. image:: https://img.shields.io/pypi/pyversions/fastkml.svg
     :target: https://pypi.python.org/pypi/fastkml/
     :alt: Supported Python versions
@@ -76,8 +73,7 @@ approach.
 Install
 ========
 
-You can install the package with ``pip install fastkml`` or ``easy_install
-fastkml`` which should also pull in all requirements.
+You can install the package with ``pip install fastkml`` which will pull in all requirements.
 
 Requirements
 -------------
@@ -89,18 +85,11 @@ Optional
 ---------
 
 * lxml_
-* shapely_
 
 You can install all of the requirements for working with FastKML by using
 pip_::
 
     pip install -r requirements.txt
-
-.. note::
-
-    Shapely_ requires that libgeos be installed on your system. ``apt-get
-    install libgeos-dev`` will install these requirements for you on Debian-
-    based systems.
 
 
 Limitations
@@ -113,4 +102,4 @@ Geometry collection (MultiGeometry). You cannot assign different values of
 Currently, the only major feature missing for the full Google Earth experience
 is the `gx extension
 <https://developers.google.com/kml/documentation/kmlreference#kmlextensions>`_.
-This will most likely be added after the 1.0 version release.
+Please submit a PR with the features you'd like to see implementd.

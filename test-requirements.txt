@@ -3,9 +3,11 @@
 pytest
 pytest-cov
 flake8
+flake8-isort
+flake8-logging-format
+flake8-use-fstring
 black
 isort
-pytest-isort
 radon
 lizard
 yamllint
