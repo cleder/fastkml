@@ -150,16 +150,16 @@ class Geometry(_BaseObject):
         element = etree.Element(f"{self.ns}coordinates")
         if len(coordinates[0]) == 2:
             if config.FORCE3D:  # and not clampToGround:
-                tuples = ("%f,%f,0.000000" % tuple(c) for c in coordinates)
+                tuples = (f"{c[0]:f},{c[1]:f},0.000000" for c in coordinates)
             else:
-                tuples = ("%f,%f" % tuple(c) for c in coordinates)
+                tuples = (f"{c[0]:f},{c[1]:f}" for c in coordinates)
         elif len(coordinates[0]) == 3:
             # if clampToGround:
             # if the altitude is ignored anyway, we may as well
             # ignore the z-value
             #    tuples = ('%f,%f' % tuple(c[:2]) for c in coordinates)
             # else:
-            tuples = ("%f,%f,%f" % tuple(c) for c in coordinates)
+            tuples = (f"{c[0]:f},{c[1]:f},{c[2]:f}" for c in coordinates)
         else:
             raise ValueError("Invalid dimensions")
         element.text = " ".join(tuples)
@@ -395,4 +395,4 @@ class Geometry(_BaseObject):
             if mgeom is not None:
                 self.geometry = mgeom
             else:
-                logger.warn("No geometries found")
+                logger.warning("No geometries found")

@@ -109,12 +109,12 @@ class BaseClassesTestCase(unittest.TestCase):
         self.assertRaises(NotImplementedError, o.etree_element)
 
     def test_atom_link(self):
-        ns = "{http://www.opengis.net/kml/2.2}"
+        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         l = atom.Link(ns=ns)
         self.assertEqual(l.ns, ns)
 
     def test_atom_person(self):
-        ns = "{http://www.opengis.net/kml/2.2}"
+        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         p = atom._Person(ns=ns)
         self.assertEqual(p.ns, ns)
 
@@ -148,7 +148,7 @@ class BuildKmlTestCase(unittest.TestCase):
 
     def test_folder(self):
         """KML file with folders"""
-        ns = "{http://www.opengis.net/kml/2.2}"
+        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         k = kml.KML()
         f = kml.Folder(ns, "id", "name", "description")
         nf = kml.Folder(ns, "nested-id", "nested-name", "nested-description")
@@ -164,7 +164,7 @@ class BuildKmlTestCase(unittest.TestCase):
         self.assertEqual(s, k2.to_string())
 
     def test_placemark(self):
-        ns = "{http://www.opengis.net/kml/2.2}"
+        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         k = kml.KML(ns=ns)
         p = kml.Placemark(ns, "id", "name", "description")
         p.geometry = Point(0.0, 0.0, 0.0)
@@ -178,7 +178,7 @@ class BuildKmlTestCase(unittest.TestCase):
         self.assertEqual(k.to_string(), k2.to_string())
 
     def test_schema(self):
-        ns = "{http://www.opengis.net/kml/2.2}"
+        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         self.assertRaises(ValueError, kml.Schema, ns)
         s = kml.Schema(ns, "some_id")
         self.assertEqual(len(list(s.simple_fields)), 0)
@@ -207,7 +207,7 @@ class BuildKmlTestCase(unittest.TestCase):
         self.assertEqual(list(s.simple_fields)[1]["displayName"], "An Integer")
 
     def test_schema_data(self):
-        ns = "{http://www.opengis.net/kml/2.2}"
+        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         self.assertRaises(ValueError, kml.SchemaData, ns)
         self.assertRaises(ValueError, kml.SchemaData, ns, "")
         sd = kml.SchemaData(ns, "#default")
@@ -224,7 +224,7 @@ class BuildKmlTestCase(unittest.TestCase):
         self.assertEqual(sd.data[1], {"value": 2, "name": "Integer"})
 
     def test_untyped_extended_data(self):
-        ns = "{http://www.opengis.net/kml/2.2}"
+        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         k = kml.KML(ns=ns)
 
         p = kml.Placemark(ns, "id", "name", "description")
@@ -256,7 +256,7 @@ class BuildKmlTestCase(unittest.TestCase):
         self.assertEqual(extended_data.elements[1].display_name, "Weather")
 
     def test_untyped_extended_data_nested(self):
-        ns = "{http://www.opengis.net/kml/2.2}"
+        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         k = kml.KML(ns=ns)
 
         d = kml.Document(ns, "docid", "doc name", "doc description")
@@ -286,7 +286,7 @@ class BuildKmlTestCase(unittest.TestCase):
 
     def test_document(self):
         k = kml.KML()
-        ns = "{http://www.opengis.net/kml/2.2}"
+        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         d = kml.Document(ns, "docid", "doc name", "doc description")
         f = kml.Folder(ns, "fid", "f name", "f description")
         k.append(d)

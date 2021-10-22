@@ -32,9 +32,9 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-KMLNS = "{http://www.opengis.net/kml/2.2}"
-ATOMNS = "{http://www.w3.org/2005/Atom}"
-GXNS = "{http://www.google.com/kml/ext/2.2}"
+KMLNS = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
+ATOMNS = "{http://www.w3.org/2005/Atom}"  # noqa: FS003
+GXNS = "{http://www.google.com/kml/ext/2.2}"  # noqa: FS003
 
 if hasattr(etree, "register_namespace"):
     etree.register_namespace("kml", KMLNS[1:-1])

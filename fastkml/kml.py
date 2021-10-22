@@ -314,7 +314,7 @@ class _Feature(_BaseObject):
         else:
             self._time_span.begin[0] = dt
         if self._time_stamp is not None:
-            logger.warn("Setting a TimeSpan, TimeStamp deleted")
+            logger.warning("Setting a TimeSpan, TimeStamp deleted")
             self._time_stamp = None
 
     @property
@@ -401,7 +401,8 @@ class _Feature(_BaseObject):
             return self._snippet
         else:
             raise ValueError(
-                "Snippet must be dict of " "{'text':t, 'maxLines':i} or string"
+                "Snippet must be dict of "
+                "{'text':t, 'maxLines':i} or string"  # noqa: FS003
             )
 
     @snippet.setter
@@ -418,7 +419,8 @@ class _Feature(_BaseObject):
             self._snippet = None
         else:
             raise ValueError(
-                "Snippet must be dict of {'text':t, 'maxLines':i} or string"
+                "Snippet must be dict of "
+                "{'text':t, 'maxLines':i} or string"  # noqa: FS003
             )
 
     @property
@@ -1078,7 +1080,7 @@ class Placemark(_Feature):
             self._geometry = geom
             return
         logger.warning("No geometries found")
-        logger.debug(f"Problem with element: {etree.tostring(element)}")
+        logger.debug("Problem with element: %", etree.tostring(element))
         # raise ValueError('No geometries found')
 
     def etree_element(self):
