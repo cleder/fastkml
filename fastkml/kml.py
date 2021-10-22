@@ -189,7 +189,7 @@ class _Feature(_BaseObject):
     # This element is used by Google Maps Mobile only.
 
     _snippet = None  # XXX
-    # _snippet is eiter a tuple of a string Snippet.text and an integer
+    # _snippet is either a tuple of a string Snippet.text and an integer
     # Snippet.maxLines or a string
     #
     # A short description of the feature. In Google Earth, this

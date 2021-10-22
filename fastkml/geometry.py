@@ -166,50 +166,42 @@ class Geometry(_BaseObject):
         return element
 
     def _etree_point(self, point):
-        element = etree.Element(f"{self.ns}Point")
-        self._set_extrude(element)
-        self._set_altitude_mode(element)
-        coords = list(point.coords)
-        element.append(self._etree_coordinates(coords))
-        return element
+        element = self._extrude_and_altitude_mode("Point")
+        return self._extracted_from__etree_linearring_5(point, element)
 
     def _etree_linestring(self, linestring):
-        element = etree.Element(f"{self.ns}LineString")
-        self._set_extrude(element)
-        self._set_altitude_mode(element)
+        element = self._extrude_and_altitude_mode("LineString")
         if self.tessellate and self.altitude_mode in [
             "clampToGround",
             "clampToSeaFloor",
         ]:
             ts_element = etree.SubElement(element, f"{self.ns}tessellate")
             ts_element.text = "1"
-        coords = list(linestring.coords)
-        element.append(self._etree_coordinates(coords))
-        return element
+        return self._extracted_from__etree_linearring_5(linestring, element)
 
     def _etree_linearring(self, linearring):
-        element = etree.Element(f"{self.ns}LinearRing")
-        self._set_extrude(element)
-        self._set_altitude_mode(element)
-        # tesseleation is ignored by polygon and tesselation together with
-        # LinearRing without a polygon very rare Edgecase -> ignore for now
-        # if self.tessellate and self.altitude_mode in ['clampToGround',
-        #        'clampToSeaFloor']:
-        #    element.set('tessellate', '1')
-        coords = list(linearring.coords)
+        element = self._extrude_and_altitude_mode("LinearRing")
+        return self._extracted_from__etree_linearring_5(linearring, element)
+
+    def _extracted_from__etree_linearring_5(self, arg0, element):
+        coords = list(arg0.coords)
         element.append(self._etree_coordinates(coords))
         return element
 
     def _etree_polygon(self, polygon):
-        element = etree.Element(f"{self.ns}Polygon")
-        self._set_extrude(element)
-        self._set_altitude_mode(element)
+        element = self._extrude_and_altitude_mode("Polygon")
         outer_boundary = etree.SubElement(element, f"{self.ns}outerBoundaryIs")
         outer_boundary.append(self._etree_linearring(polygon.exterior))
         for ib in polygon.interiors:
             inner_boundary = etree.SubElement(element, f"{self.ns}innerBoundaryIs")
             inner_boundary.append(self._etree_linearring(ib))
         return element
+
+    def _extrude_and_altitude_mode(self, kml_geometry):
+        result = etree.Element(f"{self.ns}{kml_geometry}")
+        self._set_extrude(result)
+        self._set_altitude_mode(result)
+        return result
 
     def _etree_multipoint(self, points):
         element = etree.Element(f"{self.ns}MultiGeometry")
