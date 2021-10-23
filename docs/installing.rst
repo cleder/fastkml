@@ -1,9 +1,8 @@
 Installation
 ============
 
-fastkml works with CPython version 2.6, 2.7, 3.2, 3.3, 3.4 and is
-continually tested with TravisCI for these version. The tests break
-intermittently for pypy and pypy3 so they are not tested but *should* work,
+fastkml works with CPython and Pypy version 3.6+ and is
+continually tested for these version.
 Jython and IronPython are not tested but *should* work.
 
 .. image:: https://api.travis-ci.org/cleder/fastkml.png
@@ -21,12 +20,5 @@ the base of the source tree::
 
     pip install -r requirements.txt
 
-.. note::
-
-    Shapely_ requires that libgeos be installed on your system. ``apt-get
-    install libgeos-dev`` will install these requirements for you on Debian-
-    based systems.
-
 .. _lxml: https://pypi.python.org/pypi/lxml
 .. _pip: https://pypi.python.org/pypi/pip
-.. _shapely: http://pypi.python.org/pypi/Shapely

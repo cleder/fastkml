@@ -42,3 +42,7 @@ _build/
 # virtual environments
 .venv
 venv
+
+# editors
+.vscode/
+.idea/
