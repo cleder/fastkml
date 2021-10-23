@@ -229,12 +229,10 @@ class BuildKmlTestCase(unittest.TestCase):
 
         p = kml.Placemark(ns, "id", "name", "description")
         p.geometry = Point(0.0, 0.0, 0.0)
-        p.extended_data = kml.UntypedExtendedData(
+        p.extended_data = kml.ExtendedData(
             elements=[
-                kml.UntypedExtendedDataElement(name="info", value="so much to see"),
-                kml.UntypedExtendedDataElement(
-                    name="weather", display_name="Weather", value="blue skies"
-                ),
+                kml.Data(name="info", value="so much to see"),
+                kml.Data(name="weather", display_name="Weather", value="blue skies"),
             ]
         )
 
@@ -260,13 +258,13 @@ class BuildKmlTestCase(unittest.TestCase):
         k = kml.KML(ns=ns)
 
         d = kml.Document(ns, "docid", "doc name", "doc description")
-        d.extended_data = kml.UntypedExtendedData(
-            elements=[kml.UntypedExtendedDataElement(name="type", value="Document")]
+        d.extended_data = kml.ExtendedData(
+            elements=[kml.Data(name="type", value="Document")]
         )
 
         f = kml.Folder(ns, "fid", "f name", "f description")
-        f.extended_data = kml.UntypedExtendedData(
-            elements=[kml.UntypedExtendedDataElement(name="type", value="Folder")]
+        f.extended_data = kml.ExtendedData(
+            elements=[kml.Data(name="type", value="Folder")]
         )
 
         k.append(d)
