@@ -26,7 +26,6 @@ http://schemas.opengis.net/kml/.
 """
 import logging
 import urllib.parse as urlparse
-import warnings
 from datetime import date
 from datetime import datetime
 
