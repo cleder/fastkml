@@ -42,3 +42,5 @@ if hasattr(etree, "register_namespace"):
     etree.register_namespace("gx", GXNS[1:-1])
 
 FORCE3D = False
+
+__all__ = ["ATOMNS", "FORCE3D", "GXNS", "KMLNS", "LXML"]

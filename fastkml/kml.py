@@ -1510,3 +1510,18 @@ class SchemaData(_XMLObject):
         simple_data = element.findall(f"{self.ns}SimpleData")
         for sd in simple_data:
             self.append_data(sd.get("name"), sd.text)
+
+
+__all__ = [
+    "Data",
+    "Document",
+    "ExtendedData",
+    "Folder",
+    "GroundOverlay",
+    "KML",
+    "Placemark",
+    "Schema",
+    "SchemaData",
+    "TimeSpan",
+    "TimeStamp",
+]

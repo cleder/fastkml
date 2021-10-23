@@ -235,3 +235,6 @@ class Contributor(_Person):
     multiple contributor elements."""
 
     __name__ = "Contributor"
+
+
+__all__ = ["Author", "Contributor", "Link"]

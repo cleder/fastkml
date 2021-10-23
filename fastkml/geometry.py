@@ -388,3 +388,6 @@ class Geometry(_BaseObject):
                 self.geometry = mgeom
             else:
                 logger.warning("No geometries found")
+
+
+__all__ = ["Geometry"]

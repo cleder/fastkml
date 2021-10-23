@@ -3,6 +3,7 @@
 pytest
 pytest-cov
 flake8
+flake8-dunder-all
 flake8-isort
 flake8-logging-format
 flake8-use-fstring
