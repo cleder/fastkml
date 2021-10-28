@@ -229,36 +229,36 @@ Placemark descriptions can be enriched by using many standard HTML tags.<br>
 For example:
 <hr>
 Styles:<br>
-<i>Italics</i>, 
-<b>Bold</b>, 
-<u>Underlined</u>, 
-<s>Strike Out</s>, 
-subscript<sub>subscript</sub>, 
-superscript<sup>superscript</sup>, 
-<big>Big</big>, 
-<small>Small</small>, 
-<tt>Typewriter</tt>, 
-<em>Emphasized</em>, 
-<strong>Strong</strong>, 
+<i>Italics</i>,
+<b>Bold</b>,
+<u>Underlined</u>,
+<s>Strike Out</s>,
+subscript<sub>subscript</sub>,
+superscript<sup>superscript</sup>,
+<big>Big</big>,
+<small>Small</small>,
+<tt>Typewriter</tt>,
+<em>Emphasized</em>,
+<strong>Strong</strong>,
 <code>Code</code>
 <hr>
-Fonts:<br> 
-<font color="red">red by name</font>, 
+Fonts:<br>
+<font color="red">red by name</font>,
 <font color="#408010">leaf green by hexadecimal RGB</font>
 <br>
-<font size=1>size 1</font>, 
-<font size=2>size 2</font>, 
-<font size=3>size 3</font>, 
-<font size=4>size 4</font>, 
-<font size=5>size 5</font>, 
-<font size=6>size 6</font>, 
+<font size=1>size 1</font>,
+<font size=2>size 2</font>,
+<font size=3>size 3</font>,
+<font size=4>size 4</font>,
+<font size=5>size 5</font>,
+<font size=6>size 6</font>,
 <font size=7>size 7</font>
 <br>
-<font face=times>Times</font>, 
-<font face=verdana>Verdana</font>, 
+<font face=times>Times</font>,
+<font face=verdana>Verdana</font>,
 <font face=arial>Arial</font><br>
 <hr>
-Links: 
+Links:
 <br>
 <a href="http://earth.google.com/">Google Earth!</a>
 <br>
