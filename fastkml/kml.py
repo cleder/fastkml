@@ -26,7 +26,6 @@ http://schemas.opengis.net/kml/.
 """
 import logging
 import urllib.parse as urlparse
-import warnings
 from datetime import date
 from datetime import datetime
 
@@ -1394,15 +1393,6 @@ class ExtendedData(_XMLObject):
             self.elements.append(el)
 
 
-class UntypedExtendedData(ExtendedData):
-    def __init__(self, ns=None, elements=None):
-        super().__init__(ns, elements)
-        warnings.warn(
-            "UntypedExtendedData is deprecated use ExtendedData instead",
-            DeprecationWarning,
-        )
-
-
 class Data(_XMLObject):
     """Represents an untyped name/value pair with optional display name."""
 
@@ -1434,15 +1424,6 @@ class Data(_XMLObject):
         display_name = element.find(f"{self.ns}displayName")
         if display_name is not None:
             self.display_name = display_name.text
-
-
-class UntypedExtendedDataElement(Data):
-    def __init__(self, ns=None, name=None, value=None, display_name=None):
-        super().__init__(ns, name, value, display_name)
-        warnings.warn(
-            "UntypedExtendedDataElement is deprecated use Data instead",
-            DeprecationWarning,
-        )
 
 
 class SchemaData(_XMLObject):
