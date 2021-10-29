@@ -12,3 +12,4 @@ isort
 radon
 lizard
 yamllint
+pre-commit
