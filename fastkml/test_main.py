@@ -45,10 +45,10 @@ class BaseClassesTestCase(unittest.TestCase):
         bo = base._BaseObject(id="id0")
         self.assertEqual(bo.id, "id0")
         self.assertEqual(bo.ns, config.KMLNS)
-        self.assertEqual(bo.targetId, None)
+        self.assertEqual(bo.target_id, None)
         self.assertEqual(bo.__name__, None)
-        bo.targetId = "target"
-        self.assertEqual(bo.targetId, "target")
+        bo.target_id = "target"
+        self.assertEqual(bo.target_id, "target")
         bo.ns = ""
         bo.id = None
         self.assertEqual(bo.id, None)
@@ -1085,9 +1085,9 @@ class StyleFromStringTestCase(unittest.TestCase):
         self.assertIsInstance(list(list(k.features())[0].styles())[0], styles.Style)
         style = list(list(list(k.features())[0].styles())[0].styles())[0]
         self.assertIsInstance(style, styles.BalloonStyle)
-        self.assertEqual(style.bgColor, "ffffffbb")
-        self.assertEqual(style.textColor, "ff000000")
-        self.assertEqual(style.displayMode, "default")
+        self.assertEqual(style.bg_color, "ffffffbb")
+        self.assertEqual(style.text_color, "ff000000")
+        self.assertEqual(style.display_mode, "default")
         self.assertIn("$[geDirections]", style.text)
         self.assertIn("$[description]", style.text)
         k2 = kml.KML()
@@ -1113,7 +1113,7 @@ class StyleFromStringTestCase(unittest.TestCase):
         self.assertIsInstance(list(list(k.features())[0].styles())[0], styles.Style)
         style = list(list(list(k.features())[0].styles())[0].styles())[0]
         self.assertIsInstance(style, styles.BalloonStyle)
-        self.assertEqual(style.bgColor, "ffffffbb")
+        self.assertEqual(style.bg_color, "ffffffbb")
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k2.to_string(), k.to_string())
