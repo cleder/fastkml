@@ -213,23 +213,23 @@ class _ColorStyle(_BaseObject):
     # The order of expression is aabbggrr, where aa=alpha (00 to ff);
     # bb=blue (00 to ff); gg=green (00 to ff); rr=red (00 to ff).
 
-    colorMode = None
+    color_mode = None
     # Values for <colorMode> are normal (no effect) and random.
     # A value of random applies a random linear scale to the base <color>
 
-    def __init__(self, ns=None, id=None, color=None, colorMode=None):
+    def __init__(self, ns=None, id=None, color=None, color_mode=None):
         super().__init__(ns, id)
         self.color = color
-        self.colorMode = colorMode
+        self.color_mode = color_mode
 
     def etree_element(self):
         element = super().etree_element()
         if self.color:
             color = etree.SubElement(element, f"{self.ns}color")
             color.text = self.color
-        if self.colorMode:
+        if self.color_mode:
             colorMode = etree.SubElement(element, f"{self.ns}colorMode")
-            colorMode.text = self.colorMode
+            colorMode.text = self.color_mode
         return element
 
     def from_element(self, element):
@@ -237,7 +237,7 @@ class _ColorStyle(_BaseObject):
         super().from_element(element)
         colorMode = element.find(f"{self.ns}colorMode")
         if colorMode is not None:
-            self.colorMode = colorMode.text
+            self.color_mode = colorMode.text
         color = element.find(f"{self.ns}color")
         if color is not None:
             self.color = color.text
