@@ -94,7 +94,7 @@ Example how to build a simple KML file from the Python interpreter.
 
 
 Read a KML File/String
----------------
+----------------------
 
 You can create a KML object by reading a KML file as a string
 
