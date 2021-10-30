@@ -183,7 +183,7 @@ class _Feature(_BaseObject):
     # You can use the <address> tag to specify the location of a point
     # instead of using latitude and longitude coordinates.
 
-    _phoneNumber = None
+    _phone_number = None
     # A string value representing a telephone number.
     # This element is used by Google Maps Mobile only.
 
@@ -204,7 +204,7 @@ class _Feature(_BaseObject):
     description = None
     # User-supplied content that appears in the description balloon.
 
-    _styleUrl = None
+    _style_url = None
     # URL of a <Style> or <StyleMap> defined in a Document.
     # If the style is in the same file, use a # reference.
     # If the style is defined in an external file, use a full URL
@@ -253,13 +253,13 @@ class _Feature(_BaseObject):
         name=None,
         description=None,
         styles=None,
-        styleUrl=None,
+        style_url=None,
         extended_data=None,
     ):
         super().__init__(ns, id)
         self.name = name
         self.description = description
-        self.styleUrl = styleUrl
+        self.style_url = style_url
         self._styles = []
         if styles:
             for style in styles:
@@ -267,33 +267,33 @@ class _Feature(_BaseObject):
         self.extended_data = extended_data
 
     @property
-    def styleUrl(self):
+    def style_url(self):
         """Returns the url only, not a full StyleUrl object.
-        if you need the full StyleUrl object use _styleUrl"""
-        if isinstance(self._styleUrl, StyleUrl):
-            return self._styleUrl.url
+        if you need the full StyleUrl object use _style_url"""
+        if isinstance(self._style_url, StyleUrl):
+            return self._style_url.url
 
-    @styleUrl.setter
-    def styleUrl(self, styleurl):
+    @style_url.setter
+    def style_url(self, styleurl):
         """you may pass a StyleUrl Object, a string or None"""
         if isinstance(styleurl, StyleUrl):
-            self._styleUrl = styleurl
+            self._style_url = styleurl
         elif isinstance(styleurl, str):
             s = StyleUrl(self.ns, url=styleurl)
-            self._styleUrl = s
+            self._style_url = s
         elif styleurl is None:
-            self._styleUrl = None
+            self._style_url = None
         else:
             raise ValueError
 
     @property
-    def timeStamp(self):
+    def time_stamp(self):
         """This just returns the datetime portion of the timestamp"""
         if self._time_stamp is not None:
             return self._time_stamp.timestamp[0]
 
-    @timeStamp.setter
-    def timeStamp(self, dt):
+    @time_stamp.setter
+    def time_stamp(self, dt):
         self._time_stamp = None if dt is None else TimeStamp(timestamp=dt)
         if self._time_span is not None:
             logger.warning("Setting a TimeStamp, TimeSpan deleted")
@@ -437,16 +437,16 @@ class _Feature(_BaseObject):
             raise ValueError
 
     @property
-    def phoneNumber(self):
-        if self._phoneNumber:
-            return self._phoneNumber
+    def phone_number(self):
+        if self._phone_number:
+            return self._phone_number
 
-    @phoneNumber.setter
-    def phoneNumber(self, phoneNumber):
-        if isinstance(phoneNumber, str):
-            self._phoneNumber = phoneNumber
-        elif phoneNumber is None:
-            self._phoneNumber = None
+    @phone_number.setter
+    def phone_number(self, phone_number):
+        if isinstance(phone_number, str):
+            self._phone_number = phone_number
+        elif phone_number is None:
+            self._phone_number = None
         else:
             raise ValueError
 
@@ -463,8 +463,8 @@ class _Feature(_BaseObject):
         if self.isopen:
             isopen = etree.SubElement(element, f"{self.ns}open")
             isopen.text = str(self.isopen)
-        if self._styleUrl is not None:
-            element.append(self._styleUrl.etree_element())
+        if self._style_url is not None:
+            element.append(self._style_url.etree_element())
         for style in self.styles():
             element.append(style.etree_element())
         if self.snippet:
@@ -491,9 +491,9 @@ class _Feature(_BaseObject):
         if self._address is not None:
             address = etree.SubElement(element, f"{self.ns}address")
             address.text = self._address
-        if self._phoneNumber is not None:
-            phoneNumber = etree.SubElement(element, f"{self.ns}phoneNumber")
-            phoneNumber.text = self._phoneNumber
+        if self._phone_number is not None:
+            phone_number = etree.SubElement(element, f"{self.ns}phoneNumber")
+            phone_number.text = self._phone_number
         return element
 
     def from_element(self, element):
@@ -524,7 +524,7 @@ class _Feature(_BaseObject):
         if style_url is not None:
             s = StyleUrl(self.ns)
             s.from_element(style_url)
-            self._styleUrl = s
+            self._style_url = s
         snippet = element.find(f"{self.ns}Snippet")
         if snippet is not None:
             _snippet = {"text": snippet.text}
@@ -563,9 +563,9 @@ class _Feature(_BaseObject):
         address = element.find(f"{self.ns}address")
         if address is not None:
             self.address = address.text
-        phoneNumber = element.find(f"{self.ns}phoneNumber")
-        if phoneNumber is not None:
-            self.phoneNumber = phoneNumber.text
+        phone_number = element.find(f"{self.ns}phoneNumber")
+        if phone_number is not None:
+            self.phone_number = phone_number.text
 
 
 class _Container(_Feature):
@@ -581,9 +581,9 @@ class _Container(_Feature):
     _features = []
 
     def __init__(
-        self, ns=None, id=None, name=None, description=None, styles=None, styleUrl=None
+        self, ns=None, id=None, name=None, description=None, styles=None, style_url=None
     ):
-        super().__init__(ns, id, name, description, styles, styleUrl)
+        super().__init__(ns, id, name, description, styles, style_url)
         self._features = []
 
     def features(self):
@@ -629,7 +629,7 @@ class _Overlay(_Feature):
     # (AABBGGRR). The range of values for any one color is 0 to 255 (00 to ff).
     # For opacity, 00 is fully transparent and ff is fully opaque.
 
-    _drawOrder = None
+    _draw_order = None
     # Defines the stacking order for the images in overlapping overlays.
     # Overlays with higher <drawOrder> values are drawn on top of those with
     # lower <drawOrder> values.
@@ -642,9 +642,9 @@ class _Overlay(_Feature):
     # the color and size defined by the ground or screen overlay.
 
     def __init__(
-        self, ns=None, id=None, name=None, description=None, styles=None, styleUrl=None
+        self, ns=None, id=None, name=None, description=None, styles=None, style_url=None
     ):
-        super().__init__(ns, id, name, description, styles, styleUrl)
+        super().__init__(ns, id, name, description, styles, style_url)
 
     @property
     def color(self):
@@ -660,15 +660,15 @@ class _Overlay(_Feature):
             raise ValueError
 
     @property
-    def drawOrder(self):
-        return self._drawOrder
+    def draw_order(self):
+        return self._draw_order
 
-    @drawOrder.setter
-    def drawOrder(self, value):
+    @draw_order.setter
+    def draw_order(self, value):
         if isinstance(value, (str, int, float)):
-            self._drawOrder = str(value)
+            self._draw_order = str(value)
         elif value is None:
-            self._drawOrder = None
+            self._draw_order = None
         else:
             raise ValueError
 
@@ -694,9 +694,9 @@ class _Overlay(_Feature):
         if self._color:
             color = etree.SubElement(element, f"{self.ns}color")
             color.text = self._color
-        if self._drawOrder:
-            drawOrder = etree.SubElement(element, f"{self.ns}drawOrder")
-            drawOrder.text = self._drawOrder
+        if self._draw_order:
+            draw_order = etree.SubElement(element, f"{self.ns}drawOrder")
+            draw_order.text = self._draw_order
         if self._icon:
             icon = etree.SubElement(element, f"{self.ns}icon")
             icon.text = self._icon
@@ -707,9 +707,9 @@ class _Overlay(_Feature):
         color = element.find(f"{self.ns}color")
         if color is not None:
             self.color = color.text
-        drawOrder = element.find(f"{self.ns}drawOrder")
-        if drawOrder is not None:
-            self.drawOrder = drawOrder.text
+        draw_order = element.find(f"{self.ns}drawOrder")
+        if draw_order is not None:
+            self.draw_order = draw_order.text
         icon = element.find(f"{self.ns}icon")
         if icon is not None:
             self.icon = icon.text
@@ -730,7 +730,7 @@ class GroundOverlay(_Overlay):
     # Specifies the distance above the earth's surface, in meters, and is
     # interpreted according to the altitude mode.
 
-    _altitudeMode = "clampToGround"
+    _altitude_mode = "clampToGround"
     # Specifies how the <altitude> is interpreted. Possible values are:
     #   clampToGround -
     #       (default) Indicates to ignore the altitude specification and drape
@@ -775,7 +775,7 @@ class GroundOverlay(_Overlay):
 
     # TODO: <gx:LatLonQuad>
     # Used for nonrectangular quadrilateral ground overlays.
-    _latLonQuad = None
+    _lat_lon_quad = None
 
     @property
     def altitude(self):
@@ -791,15 +791,15 @@ class GroundOverlay(_Overlay):
             raise ValueError
 
     @property
-    def altitudeMode(self):
-        return self._altitudeMode
+    def altitude_mode(self):
+        return self._altitude_mode
 
-    @altitudeMode.setter
-    def altitudeMode(self, mode):
+    @altitude_mode.setter
+    def altitude_mode(self, mode):
         if mode in ("clampToGround", "absolute"):
-            self._altitudeMode = str(mode)
+            self._altitude_mode = str(mode)
         else:
-            self._altitudeMode = "clampToGround"
+            self._altitude_mode = "clampToGround"
 
     @property
     def north(self):
@@ -866,7 +866,7 @@ class GroundOverlay(_Overlay):
         else:
             raise ValueError
 
-    def latLonBox(self, north, south, east, west, rotation=0):
+    def lat_lon_box(self, north, south, east, west, rotation=0):
         # TODO: Check for bounds (0:+/-90 or 0:+/-180 degrees)
         self.north = north
         self.south = south
@@ -879,21 +879,21 @@ class GroundOverlay(_Overlay):
         if self._altitude:
             altitude = etree.SubElement(element, f"{self.ns}altitude")
             altitude.text = self._altitude
-            if self._altitudeMode:
-                altitudeMode = etree.SubElement(element, f"{self.ns}altitudeMode")
-                altitudeMode.text = self._altitudeMode
+            if self._altitude_mode:
+                altitude_mode = etree.SubElement(element, f"{self.ns}altitudeMode")
+                altitude_mode.text = self._altitude_mode
         if all([self._north, self._south, self._east, self._west]):
-            latLonBox = etree.SubElement(element, f"{self.ns}latLonBox")
-            north = etree.SubElement(latLonBox, f"{self.ns}north")
+            lat_lon_box = etree.SubElement(element, f"{self.ns}latLonBox")
+            north = etree.SubElement(lat_lon_box, f"{self.ns}north")
             north.text = self._north
-            south = etree.SubElement(latLonBox, f"{self.ns}south")
+            south = etree.SubElement(lat_lon_box, f"{self.ns}south")
             south.text = self._south
-            east = etree.SubElement(latLonBox, f"{self.ns}east")
+            east = etree.SubElement(lat_lon_box, f"{self.ns}east")
             east.text = self._east
-            west = etree.SubElement(latLonBox, f"{self.ns}west")
+            west = etree.SubElement(lat_lon_box, f"{self.ns}west")
             west.text = self._west
             if self._rotation:
-                rotation = etree.SubElement(latLonBox, f"{self.ns}rotation")
+                rotation = etree.SubElement(lat_lon_box, f"{self.ns}rotation")
                 rotation.text = self._rotation
 
         return element
@@ -903,24 +903,24 @@ class GroundOverlay(_Overlay):
         altitude = element.find(f"{self.ns}altitude")
         if altitude is not None:
             self.altitude = altitude.text
-        altitudeMode = element.find(f"{self.ns}altitudeMode")
-        if altitudeMode is not None:
-            self.altitudeMode = altitudeMode.text
-        latLonBox = element.find(f"{self.ns}latLonBox")
-        if latLonBox is not None:
-            north = latLonBox.find(f"{self.ns}north")
+        altitude_mode = element.find(f"{self.ns}altitudeMode")
+        if altitude_mode is not None:
+            self.altitudeMode = altitude_mode.text
+        lat_lon_box = element.find(f"{self.ns}latLonBox")
+        if lat_lon_box is not None:
+            north = lat_lon_box.find(f"{self.ns}north")
             if north is not None:
                 self.north = north.text
-            south = latLonBox.find(f"{self.ns}south")
+            south = lat_lon_box.find(f"{self.ns}south")
             if south is not None:
                 self.south = south.text
-            east = latLonBox.find(f"{self.ns}east")
+            east = lat_lon_box.find(f"{self.ns}east")
             if east is not None:
                 self.east = east.text
-            west = latLonBox.find(f"{self.ns}west")
+            west = lat_lon_box.find(f"{self.ns}west")
             if west is not None:
                 self.west = west.text
-            rotation = latLonBox.find(f"{self.ns}rotation")
+            rotation = lat_lon_box.find(f"{self.ns}rotation")
             if rotation is not None:
                 self.rotation = rotation.text
 
@@ -978,8 +978,8 @@ class Document(_Container):
                 element.append(schema.etree_element())
         return element
 
-    def get_style_by_url(self, styleUrl):
-        id = urlparse.urlparse(styleUrl).fragment
+    def get_style_by_url(self, style_url):
+        id = urlparse.urlparse(style_url).fragment
         for style in self.styles():
             if style.id == id:
                 return style
@@ -1288,7 +1288,7 @@ class Schema(_BaseObject):
         else:
             raise ValueError("Fields must be of type list, tuple or dict")
 
-    def append(self, type, name, displayName=None):
+    def append(self, type, name, display_name=None):
         """
         append a field.
         The declaration of the custom field, must specify both the type
@@ -1328,7 +1328,7 @@ class Schema(_BaseObject):
                 + "'ushort', 'float', 'double', 'bool'"
             )
         self._simple_fields.append(
-            {"type": type, "name": name, "displayName": displayName}
+            {"type": type, "name": name, "displayName": display_name}
         )
 
     def from_element(self, element):

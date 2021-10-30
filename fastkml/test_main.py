@@ -80,7 +80,7 @@ class BaseClassesTestCase(unittest.TestCase):
         # self.assertEqual(f.phoneNumber, None)
         self.assertEqual(f._snippet, None)
         self.assertEqual(f.description, None)
-        self.assertEqual(f._styleUrl, None)
+        self.assertEqual(f._style_url, None)
         self.assertEqual(f._styles, [])
         self.assertEqual(f._time_span, None)
         self.assertEqual(f._time_stamp, None)
@@ -88,7 +88,7 @@ class BaseClassesTestCase(unittest.TestCase):
         # self.assertEqual(f.extended_data, None)
 
         f.__name__ = "Feature"
-        f.styleUrl = "#default"
+        f.style_url = "#default"
         self.assertIn("Feature>", str(f.to_string()))
         self.assertIn("#default", str(f.to_string()))
 
@@ -104,7 +104,7 @@ class BaseClassesTestCase(unittest.TestCase):
     def test_overlay(self):
         o = kml._Overlay(name="An Overlay")
         self.assertEqual(o._color, None)
-        self.assertEqual(o._drawOrder, None)
+        self.assertEqual(o._draw_order, None)
         self.assertEqual(o._icon, None)
         self.assertRaises(NotImplementedError, o.etree_element)
 
@@ -193,7 +193,7 @@ class BuildKmlTestCase(unittest.TestCase):
             TypeError, s.simple_fields, [("none", "Integer", "An Integer")]
         )
         self.assertRaises(TypeError, s.simple_fields, ("int", "Integer", "An Integer"))
-        fields = {"type": "int", "name": "Integer", "displayName": "An Integer"}
+        fields = {"type": "int", "name": "Integer", "display_name": "An Integer"}
         s.simple_fields = fields
         self.assertEqual(list(s.simple_fields)[0]["type"], "int")
         self.assertEqual(list(s.simple_fields)[0]["name"], "Integer")
@@ -346,7 +346,7 @@ class BuildKmlTestCase(unittest.TestCase):
     def test_phone_number(self):
         phone = "+1 234 567 8901"
         d = kml.Document()
-        d.phoneNumber = phone
+        d.phone_number = phone
         self.assertIn(phone, str(d.to_string()))
         self.assertIn("phoneNumber>", str(d.to_string()))
 
@@ -951,13 +951,13 @@ class KmlFromStringTestCase(unittest.TestCase):
 class StyleTestCase(unittest.TestCase):
     def test_styleurl(self):
         f = kml.Document()
-        f.styleUrl = "#somestyle"
-        self.assertEqual(f.styleUrl, "#somestyle")
-        self.assertIsInstance(f._styleUrl, styles.StyleUrl)
+        f.style_url = "#somestyle"
+        self.assertEqual(f.style_url, "#somestyle")
+        self.assertIsInstance(f._style_url, styles.StyleUrl)
         s = styles.StyleUrl(config.KMLNS, url="#otherstyle")
-        f.styleUrl = s
-        self.assertIsInstance(f._styleUrl, styles.StyleUrl)
-        self.assertEqual(f.styleUrl, "#otherstyle")
+        f.style_url = s
+        self.assertIsInstance(f._style_url, styles.StyleUrl)
+        self.assertEqual(f.style_url, "#otherstyle")
         f2 = kml.Document()
         f2.from_string(f.to_string())
         self.assertEqual(f.to_string(), f2.to_string())
@@ -1047,7 +1047,7 @@ class StyleFromStringTestCase(unittest.TestCase):
         k = kml.KML()
         k.from_string(doc)
         self.assertEqual(len(list(k.features())), 1)
-        self.assertEqual(list(k.features())[0].styleUrl, "#default")
+        self.assertEqual(list(k.features())[0].style_url, "#default")
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -1480,15 +1480,15 @@ class DateTimeTestCase(unittest.TestCase):
     def test_feature_timestamp(self):
         now = datetime.datetime.now()
         f = kml.Document()
-        f.timeStamp = now
-        self.assertEqual(f.timeStamp, now)
+        f.time_stamp = now
+        self.assertEqual(f.time_stamp, now)
         self.assertIn(now.isoformat(), str(f.to_string()))
         self.assertIn("TimeStamp>", str(f.to_string()))
         self.assertIn("when>", str(f.to_string()))
-        f.timeStamp = now.date()
+        f.time_stamp = now.date()
         self.assertIn(now.date().isoformat(), str(f.to_string()))
         self.assertNotIn(now.isoformat(), str(f.to_string()))
-        f.timeStamp = None
+        f.time_stamp = None
         self.assertNotIn("TimeStamp>", str(f.to_string()))
 
     def test_feature_timespan(self):
@@ -1527,7 +1527,7 @@ class DateTimeTestCase(unittest.TestCase):
         self.assertNotIn("TimeStamp>", str(f.to_string()))
         self.assertNotIn("when>", str(f.to_string()))
         # when we set a timestamp an existing timespan will be deleted
-        f.timeStamp = now
+        f.time_stamp = now
         self.assertIn(now.isoformat(), str(f.to_string()))
         self.assertIn("TimeStamp>", str(f.to_string()))
         self.assertIn("when>", str(f.to_string()))
@@ -2209,18 +2209,18 @@ class BaseFeatureTestCase(unittest.TestCase):
 
     def test_phone_number_string(self):
         f = kml._Feature()
-        f.phoneNumber = "+1-234-567-8901"
-        self.assertEqual(f.phoneNumber, "+1-234-567-8901")
+        f.phone_number = "+1-234-567-8901"
+        self.assertEqual(f.phone_number, "+1-234-567-8901")
 
     def test_phone_number_none(self):
         f = kml._Feature()
-        f.phoneNumber = None
-        self.assertEqual(f.phoneNumber, None)
+        f.phone_number = None
+        self.assertEqual(f.phone_number, None)
 
     def test_phone_number_value_error(self):
         f = kml._Feature()
         with self.assertRaises(ValueError):
-            f.phoneNumber = 123
+            f.phone_number = 123
 
 
 class BaseOverlayTestCase(unittest.TestCase):
@@ -2243,25 +2243,25 @@ class BaseOverlayTestCase(unittest.TestCase):
 
     def test_draw_order_string(self):
         o = kml._Overlay(name="An Overlay")
-        o.drawOrder = "1"
-        self.assertEqual(o.drawOrder, "1")
+        o.draw_order = "1"
+        self.assertEqual(o.draw_order, "1")
 
     def test_draw_order_int(self):
         o = kml._Overlay(name="An Overlay")
-        o.drawOrder = 1
-        self.assertEqual(o.drawOrder, "1")
+        o.draw_order = 1
+        self.assertEqual(o.draw_order, "1")
 
     def test_draw_order_none(self):
         o = kml._Overlay(name="An Overlay")
-        o.drawOrder = "1"
-        self.assertEqual(o.drawOrder, "1")
-        o.drawOrder = None
-        self.assertEqual(o.drawOrder, None)
+        o.draw_order = "1"
+        self.assertEqual(o.draw_order, "1")
+        o.draw_order = None
+        self.assertEqual(o.draw_order, None)
 
     def test_draw_order_value_error(self):
         o = kml._Overlay(name="An Overlay")
         with self.assertRaises(ValueError):
-            o.drawOrder = object()
+            o.draw_order = object()
 
     def test_icon_without_tag(self):
         o = kml._Overlay(name="An Overlay")
@@ -2323,22 +2323,22 @@ class GroundOverlayTestCase(unittest.TestCase):
         self.assertEqual(self.g.altitude, None)
 
     def test_altitude_mode_default(self):
-        self.assertEqual(self.g.altitudeMode, "clampToGround")
+        self.assertEqual(self.g.altitude_mode, "clampToGround")
 
     def test_altitude_mode_error(self):
-        self.g.altitudeMode = ""
-        self.assertEqual(self.g.altitudeMode, "clampToGround")
+        self.g.altitude_mode = ""
+        self.assertEqual(self.g.altitude_mode, "clampToGround")
 
     def test_altitude_mode_clamp(self):
-        self.g.altitudeMode = "clampToGround"
-        self.assertEqual(self.g.altitudeMode, "clampToGround")
+        self.g.altitude_mode = "clampToGround"
+        self.assertEqual(self.g.altitude_mode, "clampToGround")
 
     def test_altitude_mode_absolute(self):
-        self.g.altitudeMode = "absolute"
-        self.assertEqual(self.g.altitudeMode, "absolute")
+        self.g.altitude_mode = "absolute"
+        self.assertEqual(self.g.altitude_mode, "absolute")
 
     def test_latlonbox_function(self):
-        self.g.latLonBox(10, 20, 30, 40, 50)
+        self.g.lat_lon_box(10, 20, 30, 40, 50)
 
         self.assertEqual(self.g.north, "10")
         self.assertEqual(self.g.south, "20")
@@ -2449,7 +2449,7 @@ class GroundOverlayStringTestCase(unittest.TestCase):
     def test_to_string(self):
         g = kml.GroundOverlay()
         g.icon = "http://example.com"
-        g.drawOrder = 1
+        g.draw_order = 1
         g.color = "00010203"
 
         expected = kml.GroundOverlay()
@@ -2559,7 +2559,7 @@ class GroundOverlayStringTestCase(unittest.TestCase):
 
     def test_latlonbox_no_rotation(self):
         g = kml.GroundOverlay()
-        g.latLonBox(10, 20, 30, 40)
+        g.lat_lon_box(10, 20, 30, 40)
 
         expected = kml.GroundOverlay()
         expected.from_string(
@@ -2579,7 +2579,7 @@ class GroundOverlayStringTestCase(unittest.TestCase):
 
     def test_latlonbox_rotation(self):
         g = kml.GroundOverlay()
-        g.latLonBox(10, 20, 30, 40, 50)
+        g.lat_lon_box(10, 20, 30, 40, 50)
 
         expected = kml.GroundOverlay()
         expected.from_string(
