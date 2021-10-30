@@ -1,15 +1,15 @@
 -r requirements.txt
 -r doc-requirements.txt
-pytest
-pytest-cov
+black
 flake8
 flake8-dunder-all
 flake8-isort
 flake8-logging-format
 flake8-use-fstring
-black
 isort
-radon
 lizard
-yamllint
 pre-commit
+pytest
+pytest-cov
+radon
+yamllint
