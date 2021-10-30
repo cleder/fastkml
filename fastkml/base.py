@@ -66,7 +66,7 @@ class _BaseObject(_XMLObject):
     mechanism is to be used."""
 
     id = None
-    targetId = None
+    target_id = None
 
     def __init__(self, ns=None, id=None):
         super().__init__(ns)
@@ -77,8 +77,8 @@ class _BaseObject(_XMLObject):
         element = super().etree_element()
         if self.id:
             element.set("id", self.id)
-        if self.targetId:
-            element.set("targetId", self.targetId)
+        if self.target_id:
+            element.set("targetId", self.target_id)
         return element
 
     def from_element(self, element):
@@ -86,4 +86,4 @@ class _BaseObject(_XMLObject):
         if element.get("id"):
             self.id = element.get("id")
         if element.get("targetId"):
-            self.targetId = element.get("targetId")
+            self.target_id = element.get("targetId")
