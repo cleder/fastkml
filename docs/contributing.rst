@@ -63,3 +63,15 @@ signifying that the code is working as expected on all configurations
 available.
 
 .. _tox: https://pypi.python.org/pypi/tox
+
+pre-commit
+~~~~~~~~~~~
+
+Install the ``pre-commit`` hook with::
+
+    pip install pre-commit
+    pre-commit install
+
+and check the code with::
+
+    pre-commit run --all-files
