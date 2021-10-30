@@ -25,7 +25,7 @@ try:
     LXML = True
 except ImportError:
     warnings.warn("Package `lxml` missing. Pretty print will be disabled")
-    import xml.etree.ElementTree as etree
+    import xml.etree.ElementTree as etree  # noqa: N813
 
     LXML = False
 

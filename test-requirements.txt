@@ -8,6 +8,7 @@ flake8-logging-format
 flake8-use-fstring
 isort
 lizard
+pep8-naming
 pre-commit
 pytest
 pytest-cov
