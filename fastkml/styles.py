@@ -213,31 +213,31 @@ class _ColorStyle(_BaseObject):
     # The order of expression is aabbggrr, where aa=alpha (00 to ff);
     # bb=blue (00 to ff); gg=green (00 to ff); rr=red (00 to ff).
 
-    colorMode = None
+    color_mode = None
     # Values for <colorMode> are normal (no effect) and random.
     # A value of random applies a random linear scale to the base <color>
 
-    def __init__(self, ns=None, id=None, color=None, colorMode=None):
+    def __init__(self, ns=None, id=None, color=None, color_mode=None):
         super().__init__(ns, id)
         self.color = color
-        self.colorMode = colorMode
+        self.color_mode = color_mode
 
     def etree_element(self):
         element = super().etree_element()
         if self.color:
             color = etree.SubElement(element, f"{self.ns}color")
             color.text = self.color
-        if self.colorMode:
-            colorMode = etree.SubElement(element, f"{self.ns}colorMode")
-            colorMode.text = self.colorMode
+        if self.color_mode:
+            color_mode = etree.SubElement(element, f"{self.ns}colorMode")
+            color_mode.text = self.color_mode
         return element
 
     def from_element(self, element):
 
         super().from_element(element)
-        colorMode = element.find(f"{self.ns}colorMode")
-        if colorMode is not None:
-            self.colorMode = colorMode.text
+        color_mode = element.find(f"{self.ns}colorMode")
+        if color_mode is not None:
+            self.color_mode = color_mode.text
         color = element.find(f"{self.ns}color")
         if color is not None:
             self.color = color.text
@@ -260,12 +260,12 @@ class IconStyle(_ColorStyle):
         ns=None,
         id=None,
         color=None,
-        colorMode=None,
+        color_mode=None,
         scale=1.0,
         heading=None,
         icon_href=None,
     ):
-        super().__init__(ns, id, color, colorMode)
+        super().__init__(ns, id, color, color_mode)
         self.scale = scale
         self.heading = heading
         self.icon_href = icon_href
@@ -311,8 +311,8 @@ class LineStyle(_ColorStyle):
     width = 1.0
     # Width of the line, in pixels.
 
-    def __init__(self, ns=None, id=None, color=None, colorMode=None, width=1):
-        super().__init__(ns, id, color, colorMode)
+    def __init__(self, ns=None, id=None, color=None, color_mode=None, width=1):
+        super().__init__(ns, id, color, color_mode)
         self.width = width
 
     def etree_element(self):
@@ -343,8 +343,10 @@ class PolyStyle(_ColorStyle):
     # Boolean value. Specifies whether to outline the polygon.
     # Polygon outlines use the current LineStyle.
 
-    def __init__(self, ns=None, id=None, color=None, colorMode=None, fill=1, outline=1):
-        super().__init__(ns, id, color, colorMode)
+    def __init__(
+        self, ns=None, id=None, color=None, color_mode=None, fill=1, outline=1
+    ):
+        super().__init__(ns, id, color, color_mode)
         self.fill = fill
         self.outline = outline
 
@@ -377,8 +379,8 @@ class LabelStyle(_ColorStyle):
     scale = 1.0
     # Resizes the label.
 
-    def __init__(self, ns=None, id=None, color=None, colorMode=None, scale=1.0):
-        super().__init__(ns, id, color, colorMode)
+    def __init__(self, ns=None, id=None, color=None, color_mode=None, scale=1.0):
+        super().__init__(ns, id, color, color_mode)
         self.scale = scale
 
     def etree_element(self):
@@ -402,7 +404,7 @@ class BalloonStyle(_BaseObject):
 
     __name__ = "BalloonStyle"
 
-    bgColor = None
+    bg_color = None
     # Background color of the balloon (optional). Color and opacity (alpha)
     # values are expressed in hexadecimal notation. The range of values for
     # any one color is 0 to 255 (00 to ff). The order of expression is
@@ -416,7 +418,7 @@ class BalloonStyle(_BaseObject):
     # Note: The use of the <color> element within <BalloonStyle> has been
     # deprecated. Use <bgColor> instead.
 
-    textColor = None
+    text_color = None
     # Foreground color for text. The default is black (ff000000).
 
     text = None
@@ -439,7 +441,7 @@ class BalloonStyle(_BaseObject):
     # in the Feature elements that use this BalloonStyle:
     # <text>This is $[name], whose description is:<br/>$[description]</text>
 
-    displayMode = None
+    display_mode = None
     # If <displayMode> is default, Google Earth uses the information supplied
     # in <text> to create a balloon . If <displayMode> is hide, Google Earth
     # does not display the balloon. In Google Earth, clicking the List View
@@ -450,50 +452,50 @@ class BalloonStyle(_BaseObject):
         self,
         ns=None,
         id=None,
-        bgColor=None,
-        textColor=None,
+        bg_color=None,
+        text_color=None,
         text=None,
-        displayMode=None,
+        display_mode=None,
     ):
         super().__init__(ns, id)
-        self.bgColor = bgColor
-        self.textColor = textColor
+        self.bg_color = bg_color
+        self.text_color = text_color
         self.text = text
-        self.displayMode = displayMode
+        self.display_mode = display_mode
 
     def from_element(self, element):
         super().from_element(element)
-        bgColor = element.find(f"{self.ns}bgColor")
-        if bgColor is not None:
-            self.bgColor = bgColor.text
+        bg_color = element.find(f"{self.ns}bgColor")
+        if bg_color is not None:
+            self.bg_color = bg_color.text
         else:
-            bgColor = element.find(f"{self.ns}color")
-            if bgColor is not None:
-                self.bgColor = bgColor.text
-        textColor = element.find(f"{self.ns}textColor")
-        if textColor is not None:
-            self.textColor = textColor.text
+            bg_color = element.find(f"{self.ns}color")
+            if bg_color is not None:
+                self.bg_color = bg_color.text
+        text_color = element.find(f"{self.ns}textColor")
+        if text_color is not None:
+            self.text_color = text_color.text
         text = element.find(f"{self.ns}text")
         if text is not None:
             self.text = text.text
-        displayMode = element.find(f"{self.ns}displayMode")
-        if displayMode is not None:
-            self.displayMode = displayMode.text
+        display_mode = element.find(f"{self.ns}displayMode")
+        if display_mode is not None:
+            self.display_mode = display_mode.text
 
     def etree_element(self):
         element = super().etree_element()
-        if self.bgColor is not None:
+        if self.bg_color is not None:
             elem = etree.SubElement(element, f"{self.ns}bgColor")
-            elem.text = self.bgColor
-        if self.textColor is not None:
+            elem.text = self.bg_color
+        if self.text_color is not None:
             elem = etree.SubElement(element, f"{self.ns}textColor")
-            elem.text = self.textColor
+            elem.text = self.text_color
         if self.text is not None:
             elem = etree.SubElement(element, f"{self.ns}text")
             elem.text = self.text
-        if self.displayMode is not None:
+        if self.display_mode is not None:
             elem = etree.SubElement(element, f"{self.ns}displayMode")
-            elem.text = self.displayMode
+            elem.text = self.display_mode
         return element
 
 

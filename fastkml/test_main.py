@@ -45,10 +45,10 @@ class BaseClassesTestCase(unittest.TestCase):
         bo = base._BaseObject(id="id0")
         self.assertEqual(bo.id, "id0")
         self.assertEqual(bo.ns, config.KMLNS)
-        self.assertEqual(bo.targetId, None)
+        self.assertEqual(bo.target_id, None)
         self.assertEqual(bo.__name__, None)
-        bo.targetId = "target"
-        self.assertEqual(bo.targetId, "target")
+        bo.target_id = "target"
+        self.assertEqual(bo.target_id, "target")
         bo.ns = ""
         bo.id = None
         self.assertEqual(bo.id, None)
@@ -1085,9 +1085,9 @@ class StyleFromStringTestCase(unittest.TestCase):
         self.assertIsInstance(list(list(k.features())[0].styles())[0], styles.Style)
         style = list(list(list(k.features())[0].styles())[0].styles())[0]
         self.assertIsInstance(style, styles.BalloonStyle)
-        self.assertEqual(style.bgColor, "ffffffbb")
-        self.assertEqual(style.textColor, "ff000000")
-        self.assertEqual(style.displayMode, "default")
+        self.assertEqual(style.bg_color, "ffffffbb")
+        self.assertEqual(style.text_color, "ff000000")
+        self.assertEqual(style.display_mode, "default")
         self.assertIn("$[geDirections]", style.text)
         self.assertIn("$[description]", style.text)
         k2 = kml.KML()
@@ -1113,7 +1113,7 @@ class StyleFromStringTestCase(unittest.TestCase):
         self.assertIsInstance(list(list(k.features())[0].styles())[0], styles.Style)
         style = list(list(list(k.features())[0].styles())[0].styles())[0]
         self.assertIsInstance(style, styles.BalloonStyle)
-        self.assertEqual(style.bgColor, "ffffffbb")
+        self.assertEqual(style.bg_color, "ffffffbb")
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k2.to_string(), k.to_string())
@@ -1138,7 +1138,7 @@ class StyleFromStringTestCase(unittest.TestCase):
         style = list(list(list(k.features())[0].styles())[0].styles())[0]
         self.assertIsInstance(style, styles.LabelStyle)
         self.assertEqual(style.color, "ff0000cc")
-        self.assertEqual(style.colorMode, None)
+        self.assertEqual(style.color_mode, None)
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -1168,7 +1168,7 @@ class StyleFromStringTestCase(unittest.TestCase):
         self.assertIsInstance(style, styles.IconStyle)
         self.assertEqual(style.color, "ff00ff00")
         self.assertEqual(style.scale, 1.1)
-        self.assertEqual(style.colorMode, "random")
+        self.assertEqual(style.color_mode, "random")
         self.assertEqual(style.heading, 0.0)
         self.assertEqual(style.icon_href, "http://maps.google.com/icon21.png")
         k2 = kml.KML()
@@ -1223,7 +1223,7 @@ class StyleFromStringTestCase(unittest.TestCase):
         style = list(list(list(k.features())[0].styles())[0].styles())[0]
         self.assertIsInstance(style, styles.PolyStyle)
         self.assertEqual(style.color, "ff0000cc")
-        self.assertEqual(style.colorMode, "random")
+        self.assertEqual(style.color_mode, "random")
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
