@@ -17,7 +17,7 @@
 import logging
 import re
 
-from pygeoif.factories import shape as asShape
+from pygeoif.factories import shape
 from pygeoif.geometry import GeometryCollection
 from pygeoif.geometry import LinearRing
 from pygeoif.geometry import LineString
@@ -117,7 +117,7 @@ class Geometry(_BaseObject):
             ):
                 self.geometry = geometry
             else:
-                self.geometry = asShape(geometry)
+                self.geometry = shape(geometry)
 
     # write kml
 
