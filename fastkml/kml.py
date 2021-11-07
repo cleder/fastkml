@@ -906,7 +906,7 @@ class GroundOverlay(_Overlay):
         altitude_mode = element.find(f"{self.ns}altitudeMode")
         if altitude_mode is not None:
             self.altitudeMode = altitude_mode.text
-        lat_lon_box = element.find(f"{self.ns}latLonBox")
+        lat_lon_box = element.find(f"{self.ns}LatLonBox")
         if lat_lon_box is not None:
             north = lat_lon_box.find(f"{self.ns}north")
             if north is not None:
