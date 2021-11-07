@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     k = kml.KML()
 
-    with open(fname) as kmlFile:
-        k.from_string(kmlFile.read().encode("utf-8"))
+    with open(fname) as kml_file:
+        k.from_string(kml_file.read().encode("utf-8"))
 
     print_child_features(k)
