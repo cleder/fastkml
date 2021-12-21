@@ -7,3 +7,11 @@ max_line_length = 89
 
 [tool.check-manifest]
 ignore = [".*", "mutmut_config.py", "test-requirements.txt", "tox.ini", "examples/*"]
+[tool.pyright]
+include = ["fastkml"]
+exclude = ["**/node_modules",
+    "**/__pycache__",
+    ".pytype",
+    ".pyre",
+    "fastkml/test_main.py"
+]

@@ -16,20 +16,22 @@
 
 """Abstract base classes"""
 
+from typing import Optional
+
 import fastkml.config as config
 from fastkml.config import etree
 
 
 class _XMLObject:
-    """XML Baseclass"""
+    """XML Baseclass."""
 
     __name__ = None
     ns = None
 
-    def __init__(self, ns=None):
-        self.ns = config.KMLNS if ns is None else ns
+    def __init__(self, ns: Optional[str] = None) -> None:
+        self.ns: str = config.KMLNS if ns is None else ns
 
-    def etree_element(self):
+    def etree_element(self) -> etree.Element:
         if self.__name__:
             element = etree.Element(self.ns + self.__name__)
         else:
@@ -38,14 +40,14 @@ class _XMLObject:
             )
         return element
 
-    def from_element(self, element):
-        if self.ns + self.__name__ != element.tag:
+    def from_element(self, element: etree.Element) -> None:
+        if f"{self.ns}{self.__name__}" != element.tag:
             raise TypeError("Call of abstract base class, subclasses implement this!")
 
-    def from_string(self, xml_string):
+    def from_string(self, xml_string: str) -> None:
         self.from_element(etree.XML(xml_string))
 
-    def to_string(self, prettyprint=True):
+    def to_string(self, prettyprint: bool = True) -> str:
         """Return the KML Object as serialized xml"""
         if config.LXML and prettyprint:
             return etree.tostring(
@@ -58,22 +60,25 @@ class _XMLObject:
 
 
 class _BaseObject(_XMLObject):
-    """This is an abstract base class and cannot be used directly in a
+    """
+    Base class for all KML objects.
+
+    This is an abstract base class and cannot be used directly in a
     KML file. It provides the id attribute, which allows unique
     identification of a KML element, and the targetId attribute,
     which is used to reference objects that have already been loaded into
     Google Earth. The id attribute must be assigned if the <Update>
-    mechanism is to be used."""
+    mechanism is to be used.
+    """
 
     id = None
     target_id = None
 
-    def __init__(self, ns=None, id=None):
+    def __init__(self, ns: Optional[str] = None, id: Optional[str] = None) -> None:
         super().__init__(ns)
         self.id = id
-        self.ns = config.KMLNS if ns is None else ns
 
-    def etree_element(self):
+    def etree_element(self) -> etree.Element:
         element = super().etree_element()
         if self.id:
             element.set("id", self.id)
@@ -81,7 +86,7 @@ class _BaseObject(_XMLObject):
             element.set("targetId", self.target_id)
         return element
 
-    def from_element(self, element):
+    def from_element(self, element: etree.Element) -> None:
         super().from_element(element)
         if element.get("id"):
             self.id = element.get("id")
