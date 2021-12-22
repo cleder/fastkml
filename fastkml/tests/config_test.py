@@ -32,12 +32,14 @@ from fastkml import config
 
 def test_set_etree_implementation_xml() -> None:
     config.set_etree_implementation(xml.etree.ElementTree)
+
     assert config.etree.__name__ == "xml.etree.ElementTree"
 
 
 @pytest.mark.skipif(not LXML, reason="lxml not installed")
 def test_set_etree_implementation_lxml() -> None:
     config.set_etree_implementation(lxml.etree)
+
     assert config.etree.__name__ == "lxml.etree"
 
 
@@ -48,7 +50,9 @@ def test_register_namespaces() -> None:
         "real_person": "http://people.example.com",
         "role": "http://characters.example.com",
     }
+
     config.register_namespaces(**ns)
+
     for k, v in ns.items():
         assert config.etree._namespace_map[v] == k
 

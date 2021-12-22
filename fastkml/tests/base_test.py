@@ -18,11 +18,13 @@
 
 import xml.etree.ElementTree
 
-try:
+import pytest
+
+try:  # pragma: no cover
     import lxml  # noqa: F401
 
     LXML = True
-except ImportError:
+except ImportError:  # pragma: no cover
     LXML = False
 
 from fastkml import base
@@ -38,4 +40,17 @@ def test_to_string_xml() -> None:
     assert (
         obj.to_string()
         == '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id" />'
+    )
+
+
+@pytest.mark.skipif(not LXML, reason="lxml not installed")
+def test_to_string_lxml() -> None:
+    config.set_etree_implementation(lxml.etree)
+    config.set_default_namespaces()
+    obj = base._BaseObject(id="id")
+    obj.__name__ = "test"  # type: ignore[assignment]
+
+    assert (
+        obj.to_string()
+        == '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id"/>\n'
     )

@@ -51,15 +51,21 @@ class _XMLObject:
     def to_string(self, prettyprint: bool = True) -> str:
         """Return the KML Object as serialized xml"""
         try:
-            return config.etree.tostring(  # type: ignore
-                self.etree_element(),
-                encoding="utf-8",
-                pretty_print=prettyprint,
-            ).decode("UTF-8")
+            return cast(
+                str,
+                config.etree.tostring(  # type: ignore[call-overload]
+                    self.etree_element(),
+                    encoding="utf-8",
+                    pretty_print=prettyprint,
+                ).decode("UTF-8"),
+            )
         except TypeError:
-            return config.etree.tostring(  # type: ignore
-                self.etree_element(), encoding="utf-8"
-            ).decode("UTF-8")
+            return cast(
+                str,
+                config.etree.tostring(  # type: ignore[call-overload]
+                    self.etree_element(), encoding="utf-8"
+                ).decode("UTF-8"),
+            )
 
 
 class _BaseObject(_XMLObject):

@@ -102,10 +102,13 @@ class KML:
         if not self.ns:
             root = config.etree.Element(f"{self.ns}kml")
             root.set("xmlns", config.KMLNS[1:-1])
-        elif config.LXML:
-            root = config.etree.Element(f"{self.ns}kml", nsmap={None: self.ns[1:-1]})
         else:
-            root = config.etree.Element(f"{self.ns}kml")
+            try:
+                root = config.etree.Element(
+                    f"{self.ns}kml", nsmap={None: self.ns[1:-1]}
+                )
+            except TypeError:
+                root = config.etree.Element(f"{self.ns}kml")
         for feature in self.features():
             root.append(feature.etree_element())
         return root

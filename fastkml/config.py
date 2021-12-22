@@ -25,21 +25,18 @@ __all__ = [
     "FORCE3D",
     "GXNS",
     "KMLNS",
-    "LXML",
     "register_namespaces",
     "set_default_namespaces",
     "set_etree_implementation",
 ]
 
-try:
+try:  # pragma: no cover
     from lxml import etree
 
-    LXML = True
-except ImportError:
+except ImportError:  # pragma: no cover
     warnings.warn("Package `lxml` missing. Pretty print will be disabled")
-    import xml.etree.ElementTree as etree  # type: ignore  # noqa: N813
+    import xml.etree.ElementTree as etree  # type: ignore[no-redef] # noqa: N813
 
-    LXML = False
 
 logger = logging.getLogger(__name__)
 

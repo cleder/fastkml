@@ -35,15 +35,16 @@ import logging
 import re
 
 from fastkml import config
+from fastkml.base import _XMLObject
 
 from .config import ATOMNS as NS
 
 logger = logging.getLogger(__name__)
-regex = r"^[a-zA-Z0-9._%-]+@([a-zA-Z0-9-]+\.)*[a-zA-Z]{2,4}$"
+regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
 check_email = re.compile(regex).match
 
 
-class Link:
+class Link(_XMLObject):
     """
     Identifies a related Web page. The type of relation is defined by
     the rel attribute. A feed is limited to one alternate per type and
@@ -53,7 +54,7 @@ class Link:
     title, and length.
     """
 
-    __name__ = "Link"
+    __name__ = "link"
     ns = None
 
     href = None
@@ -93,7 +94,8 @@ class Link:
         title=None,
         length=None,
     ):
-        self.ns = NS if ns is None else ns
+        super().__init__(NS if ns is None else ns)
+        # self.ns = NS if ns is None else ns
         self.href = href
         self.rel = rel
         self.type = type
@@ -101,12 +103,8 @@ class Link:
         self.title = title
         self.length = length
 
-    def from_string(self, xml_string):
-        self.from_element(config.etree.XML(xml_string))
-
     def from_element(self, element):
-        if self.ns + self.__name__.lower() != element.tag:
-            raise TypeError
+        super().from_element(element)
         if element.get("href"):
             self.href = element.get("href")
         else:
@@ -141,21 +139,8 @@ class Link:
             element.set("length", self.length)
         return element
 
-    def to_string(self, prettyprint=True):
-        """Return the ATOM Object as serialized xml"""
-        try:
-            return config.etree.tostring(
-                self.etree_element(),
-                encoding="utf-8",
-                pretty_print=prettyprint,
-            ).decode("UTF-8")
-        except TypeError:
-            return config.etree.tostring(self.etree_element(), encoding="utf-8").decode(
-                "UTF-8"
-            )
 
-
-class _Person:
+class _Person(_XMLObject):
     """
     <author> and <contributor> describe a person, corporation, or similar
     entity. It has one required element, name, and two optional elements:
@@ -197,12 +182,8 @@ class _Person:
             email.text = self.email
         return element
 
-    def from_string(self, xml_string):
-        self.from_element(config.etree.XML(xml_string))
-
     def from_element(self, element):
-        if self.ns + self.__name__.lower() != element.tag:
-            raise TypeError
+        super().from_element(element)
         name = element.find(f"{self.ns}name")
         if name is not None:
             self.name = name.text
@@ -213,32 +194,19 @@ class _Person:
         if email is not None and check_email(email.text):
             self.email = email.text
 
-    def to_string(self, prettyprint=True):
-        """Return the ATOM Object as serialized xml"""
-        try:
-            return config.etree.tostring(
-                self.etree_element(),
-                encoding="utf-8",
-                pretty_print=prettyprint,
-            ).decode("UTF-8")
-        except TypeError:
-            return config.etree.tostring(self.etree_element(), encoding="utf-8").decode(
-                "UTF-8"
-            )
-
 
 class Author(_Person):
     """Names one author of the feed/entry. A feed/entry may have
     multiple authors."""
 
-    __name__ = "Author"
+    __name__ = "author"
 
 
 class Contributor(_Person):
     """Names one contributor to the feed/entry. A feed/entry may have
     multiple contributor elements."""
 
-    __name__ = "Contributor"
+    __name__ = "contributor"
 
 
 __all__ = ["Author", "Contributor", "Link"]
