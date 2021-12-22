@@ -9,6 +9,7 @@ flake8-use-fstring
 isort
 lizard
 lxml-stubs
+mypy
 pep8-naming
 pre-commit
 pytest
@@ -16,4 +17,6 @@ pytest
 pytest-cov
 pytest-cov
 radon
+types-python-dateutil
+types-setuptools
 yamllint

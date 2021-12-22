@@ -30,18 +30,18 @@ except ImportError:
 from fastkml import config
 
 
-def test_set_etree_implementation_xml():
+def test_set_etree_implementation_xml() -> None:
     config.set_etree_implementation(xml.etree.ElementTree)
     assert config.etree.__name__ == "xml.etree.ElementTree"
 
 
 @pytest.mark.skipif(not LXML, reason="lxml not installed")
-def test_set_etree_implementation_lxml():
+def test_set_etree_implementation_lxml() -> None:
     config.set_etree_implementation(lxml.etree)
     assert config.etree.__name__ == "lxml.etree"
 
 
-def test_register_namespaces():
+def test_register_namespaces() -> None:
     """Register namespaces for use in etree."""
     config.set_etree_implementation(xml.etree.ElementTree)
     ns = {
@@ -53,7 +53,7 @@ def test_register_namespaces():
         assert config.etree._namespace_map[v] == k
 
 
-def test_default_registered_namespaces():
+def test_default_registered_namespaces() -> None:
     assert config.DEFAULT_NAME_SPACES == {
         "kml": "http://www.opengis.net/kml/2.2",
         "atom": "http://www.w3.org/2005/Atom",
@@ -61,7 +61,7 @@ def test_default_registered_namespaces():
     }
 
 
-def test_set_default_namespaces():
+def test_set_default_namespaces() -> None:
     """Set the default namespaces."""
     config.set_etree_implementation(xml.etree.ElementTree)
     for v in config.DEFAULT_NAME_SPACES.values():
