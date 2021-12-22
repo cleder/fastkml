@@ -1,4 +1,4 @@
-# Copyright (C) 2012  Christian Ledermann
+# Copyright (C) 2012 - 2020  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -33,7 +33,7 @@ class _XMLObject:
 
     def etree_element(self) -> etree.Element:
         if self.__name__:
-            element = etree.Element(self.ns + self.__name__)
+            element = etree.Element(f"{self.ns}{self.__name__}")
         else:
             raise NotImplementedError(
                 "Call of abstract base class, subclasses implement this!"
