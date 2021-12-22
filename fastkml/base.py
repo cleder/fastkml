@@ -15,48 +15,50 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Abstract base classes"""
-
 from typing import Optional
+from typing import cast
 
 import fastkml.config as config
 from fastkml.config import etree
+from fastkml.types import Element
 
 
 class _XMLObject:
     """XML Baseclass."""
 
     __name__ = None
-    ns = None
 
     def __init__(self, ns: Optional[str] = None) -> None:
         self.ns: str = config.KMLNS if ns is None else ns
 
-    def etree_element(self) -> etree.Element:
+    def etree_element(self) -> Element:
         if self.__name__:
-            element = etree.Element(f"{self.ns}{self.__name__}")
+            element = etree.Element(  # type: ignore [unreachable]
+                f"{self.ns}{self.__name__}"
+            )
         else:
             raise NotImplementedError(
                 "Call of abstract base class, subclasses implement this!"
             )
-        return element
+        return element  # type: ignore [unreachable]
 
-    def from_element(self, element: etree.Element) -> None:
+    def from_element(self, element: Element) -> None:
         if f"{self.ns}{self.__name__}" != element.tag:
             raise TypeError("Call of abstract base class, subclasses implement this!")
 
     def from_string(self, xml_string: str) -> None:
-        self.from_element(etree.XML(xml_string))
+        self.from_element(cast(Element, etree.XML(xml_string)))
 
     def to_string(self, prettyprint: bool = True) -> str:
         """Return the KML Object as serialized xml"""
         if config.LXML and prettyprint:
-            return etree.tostring(
+            return etree.tostring(  # type: ignore
                 self.etree_element(), encoding="utf-8", pretty_print=True
             ).decode("UTF-8")
         else:
-            return etree.tostring(self.etree_element(), encoding="utf-8").decode(
-                "UTF-8"
-            )
+            return etree.tostring(  # type: ignore
+                self.etree_element(), encoding="utf-8"
+            ).decode("UTF-8")
 
 
 class _BaseObject(_XMLObject):
@@ -78,15 +80,15 @@ class _BaseObject(_XMLObject):
         super().__init__(ns)
         self.id = id
 
-    def etree_element(self) -> etree.Element:
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self.id:
             element.set("id", self.id)
         if self.target_id:
-            element.set("targetId", self.target_id)
+            element.set("targetId", self.target_id)  # type: ignore [unreachable]
         return element
 
-    def from_element(self, element: etree.Element) -> None:
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         if element.get("id"):
             self.id = element.get("id")
