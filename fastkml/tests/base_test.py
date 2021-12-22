@@ -29,10 +29,13 @@ from fastkml import base
 from fastkml import config
 
 
-def test_to_string_xml():
+def test_to_string_xml() -> None:
     config.set_etree_implementation(xml.etree.ElementTree)
     config.set_default_namespaces()
-    obj = base._BaseObject()
-    obj.__name__ = "test"
+    obj = base._BaseObject(id="id")
+    obj.__name__ = "test"  # type: ignore[assignment]
 
-    assert obj.to_string() == '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" />'
+    assert (
+        obj.to_string()
+        == '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id" />'
+    )

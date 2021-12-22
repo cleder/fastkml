@@ -145,7 +145,9 @@ class Link:
         """Return the ATOM Object as serialized xml"""
         try:
             return config.etree.tostring(
-                self.etree_element(), encoding="utf-8", pretty_print=True
+                self.etree_element(),
+                encoding="utf-8",
+                pretty_print=prettyprint,
             ).decode("UTF-8")
         except TypeError:
             return config.etree.tostring(self.etree_element(), encoding="utf-8").decode(
@@ -215,7 +217,9 @@ class _Person:
         """Return the ATOM Object as serialized xml"""
         try:
             return config.etree.tostring(
-                self.etree_element(), encoding="utf-8", pretty_print=True
+                self.etree_element(),
+                encoding="utf-8",
+                pretty_print=prettyprint,
             ).decode("UTF-8")
         except TypeError:
             return config.etree.tostring(self.etree_element(), encoding="utf-8").decode(
