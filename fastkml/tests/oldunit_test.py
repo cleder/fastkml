@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 import datetime
 import unittest
+import xml.etree.ElementTree
 
 from dateutil.tz import tzoffset
 from dateutil.tz import tzutc
@@ -24,7 +25,6 @@ from fastkml import base
 from fastkml import config
 from fastkml import kml
 from fastkml import styles
-from fastkml.config import etree
 from fastkml.geometry import Geometry
 from fastkml.geometry import GeometryCollection
 from fastkml.geometry import LinearRing
@@ -36,10 +36,22 @@ from fastkml.geometry import Point
 from fastkml.geometry import Polygon
 from fastkml.gx import GxGeometry
 
+try:
+    import lxml
+
+    LXML = True
+except ImportError:
+    LXML = False
+
 
 class BaseClassesTestCase(unittest.TestCase):
     """BaseClasses  must raise a NotImplementedError on etree_element
     and a TypeError on from_element"""
+
+    def setUp(self) -> None:
+        """Always test with the same parser."""
+        config.set_etree_implementation(xml.etree.ElementTree)
+        config.set_default_namespaces()
 
     def test_base_object(self):
         bo = base._BaseObject(id="id0")
@@ -54,7 +66,7 @@ class BaseClassesTestCase(unittest.TestCase):
         self.assertEqual(bo.id, None)
         self.assertEqual(bo.ns, "")
         self.assertRaises(NotImplementedError, bo.etree_element)
-        element = etree.Element(config.KMLNS + "Base")
+        element = config.etree.Element(config.KMLNS + "Base")
         self.assertRaises(TypeError, bo.from_element)
         self.assertRaises(TypeError, bo.from_element, element)
         bo.__name__ = "NotABaseObject"
@@ -122,26 +134,19 @@ class BaseClassesTestCase(unittest.TestCase):
 class BuildKmlTestCase(unittest.TestCase):
     """Build a simple KML File"""
 
+    def setUp(self) -> None:
+        """Always test with the same parser."""
+        config.set_etree_implementation(xml.etree.ElementTree)
+        config.set_default_namespaces()
+
     def test_kml(self):
         """kml file without contents"""
         k = kml.KML()
         self.assertEqual(len(list(k.features())), 0)
-        if config.LXML:
-            self.assertEqual(
-                str(k.to_string())[:43],
-                '<kml xmlns="http://www.opengis.net/kml/2.2"/>'[:43],
-            )
-        elif hasattr(etree, "register_namespace"):
-            self.assertEqual(
-                str(k.to_string())[:51],
-                '<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2" />'[:51],
-            )
-        else:
-            self.assertEqual(
-                str(k.to_string())[:51],
-                '<ns0:kml xmlns:ns0="http://www.opengis.net/kml/2.2" />'[:51],
-            )
-
+        self.assertEqual(
+            str(k.to_string())[:51],
+            '<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2" />'[:51],
+        )
         k2 = kml.KML()
         k2.from_string(k.to_string())
         self.assertEqual(k.to_string(), k2.to_string())
@@ -855,13 +860,14 @@ class KmlFromStringTestCase(unittest.TestCase):
           <lc:attachment>image.png</lc:attachment>
         </ExtendedData>
         </Placemark> </kml>"""
-
-        k = kml.KML()
-        if config.LXML:
+        if LXML:
+            config.set_etree_implementation(lxml.etree)
+            k = kml.KML()
             k.from_string(doc)
             self.assertEqual(len(list(k.features())), 1)
-        else:
-            self.assertRaises(etree.ParseError, k.from_string, doc)
+        config.set_etree_implementation(xml.etree.ElementTree)
+        k = kml.KML()
+        self.assertRaises(xml.etree.ElementTree.ParseError, k.from_string, doc)
 
     def test_address(self):
         doc = kml.Document()

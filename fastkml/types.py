@@ -18,6 +18,8 @@
 
 from typing_extensions import Protocol
 
+__all__ = ["Element"]
+
 
 class Element(Protocol):
     """Protocol for Element."""

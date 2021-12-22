@@ -34,9 +34,9 @@ This library only implements a subset of Atom that is useful with KML
 import logging
 import re
 
+from fastkml import config
+
 from .config import ATOMNS as NS
-from .config import LXML
-from .config import etree
 
 logger = logging.getLogger(__name__)
 regex = r"^[a-zA-Z0-9._%-]+@([a-zA-Z0-9-]+\.)*[a-zA-Z]{2,4}$"
@@ -102,7 +102,7 @@ class Link:
         self.length = length
 
     def from_string(self, xml_string):
-        self.from_element(etree.XML(xml_string))
+        self.from_element(config.etree.XML(xml_string))
 
     def from_element(self, element):
         if self.ns + self.__name__.lower() != element.tag:
@@ -124,7 +124,7 @@ class Link:
             self.length = element.get("length")
 
     def etree_element(self):
-        element = etree.Element(self.ns + self.__name__.lower())
+        element = config.etree.Element(self.ns + self.__name__.lower())
         if self.href:
             element.set("href", self.href)
         else:
@@ -143,12 +143,12 @@ class Link:
 
     def to_string(self, prettyprint=True):
         """Return the ATOM Object as serialized xml"""
-        if LXML and prettyprint:
-            return etree.tostring(
+        try:
+            return config.etree.tostring(
                 self.etree_element(), encoding="utf-8", pretty_print=True
             ).decode("UTF-8")
-        else:
-            return etree.tostring(self.etree_element(), encoding="utf-8").decode(
+        except TypeError:
+            return config.etree.tostring(self.etree_element(), encoding="utf-8").decode(
                 "UTF-8"
             )
 
@@ -179,24 +179,24 @@ class _Person:
         self.email = email
 
     def etree_element(self):
-        element = etree.Element(self.ns + self.__name__.lower())
+        element = config.etree.Element(self.ns + self.__name__.lower())
         if self.name:
-            name = etree.SubElement(element, f"{self.ns}name")
+            name = config.etree.SubElement(element, f"{self.ns}name")
             name.text = self.name
         # else:
         #    logger.critical('No Name for person defined')
         #    raise TypeError
         if self.uri:
             # XXX validate uri
-            uri = etree.SubElement(element, f"{self.ns}uri")
+            uri = config.etree.SubElement(element, f"{self.ns}uri")
             uri.text = self.uri
         if self.email and check_email(self.email):
-            email = etree.SubElement(element, f"{self.ns}email")
+            email = config.etree.SubElement(element, f"{self.ns}email")
             email.text = self.email
         return element
 
     def from_string(self, xml_string):
-        self.from_element(etree.XML(xml_string))
+        self.from_element(config.etree.XML(xml_string))
 
     def from_element(self, element):
         if self.ns + self.__name__.lower() != element.tag:
@@ -213,12 +213,12 @@ class _Person:
 
     def to_string(self, prettyprint=True):
         """Return the ATOM Object as serialized xml"""
-        if LXML and prettyprint:
-            return etree.tostring(
+        try:
+            return config.etree.tostring(
                 self.etree_element(), encoding="utf-8", pretty_print=True
             ).decode("UTF-8")
-        else:
-            return etree.tostring(self.etree_element(), encoding="utf-8").decode(
+        except TypeError:
+            return config.etree.tostring(self.etree_element(), encoding="utf-8").decode(
                 "UTF-8"
             )
 

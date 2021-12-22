@@ -19,13 +19,25 @@ import logging
 import warnings
 from types import ModuleType
 
+__all__ = [
+    "ATOMNS",
+    "DEFAULT_NAME_SPACES",
+    "FORCE3D",
+    "GXNS",
+    "KMLNS",
+    "LXML",
+    "register_namespaces",
+    "set_default_namespaces",
+    "set_etree_implementation",
+]
+
 try:
     from lxml import etree
 
     LXML = True
 except ImportError:
     warnings.warn("Package `lxml` missing. Pretty print will be disabled")
-    import xml.etree.ElementTree as etree  # type: ignore
+    import xml.etree.ElementTree as etree  # type: ignore  # noqa: N813
 
     LXML = False
 
@@ -62,5 +74,7 @@ def set_default_namespaces() -> None:
     """Register the default namespaces for use in etree.ElementTree.parse()."""
     register_namespaces(**DEFAULT_NAME_SPACES)
 
+
+set_default_namespaces()
 
 FORCE3D = False

@@ -64,8 +64,7 @@ def test_default_registered_namespaces() -> None:
 def test_set_default_namespaces() -> None:
     """Set the default namespaces."""
     config.set_etree_implementation(xml.etree.ElementTree)
-    for v in config.DEFAULT_NAME_SPACES.values():
-        assert v not in config.etree._namespace_map.keys()
+    config.etree._namespace_map = {}
 
     config.set_default_namespaces()
 

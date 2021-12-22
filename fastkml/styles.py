@@ -22,8 +22,8 @@ part of how your data is displayed.
 
 import logging
 
+from fastkml import config
 from fastkml.base import _BaseObject
-from fastkml.config import etree
 
 logger = logging.getLogger(__name__)
 
@@ -183,13 +183,13 @@ class StyleMap(_StyleSelector):
     def etree_element(self):
         element = super().etree_element()
         if self.normal and isinstance(self.normal, (Style, StyleUrl)):
-            pair = etree.SubElement(element, f"{self.ns}Pair")
-            key = etree.SubElement(pair, f"{self.ns}key")
+            pair = config.etree.SubElement(element, f"{self.ns}Pair")
+            key = config.etree.SubElement(pair, f"{self.ns}key")
             key.text = "normal"
             pair.append(self.normal.etree_element())
         if self.highlight and isinstance(self.highlight, (Style, StyleUrl)):
-            pair = etree.SubElement(element, f"{self.ns}Pair")
-            key = etree.SubElement(pair, f"{self.ns}key")
+            pair = config.etree.SubElement(element, f"{self.ns}Pair")
+            key = config.etree.SubElement(pair, f"{self.ns}key")
             key.text = "highlight"
             pair.append(self.highlight.etree_element())
         return element
@@ -225,10 +225,10 @@ class _ColorStyle(_BaseObject):
     def etree_element(self):
         element = super().etree_element()
         if self.color:
-            color = etree.SubElement(element, f"{self.ns}color")
+            color = config.etree.SubElement(element, f"{self.ns}color")
             color.text = self.color
         if self.color_mode:
-            color_mode = etree.SubElement(element, f"{self.ns}colorMode")
+            color_mode = config.etree.SubElement(element, f"{self.ns}colorMode")
             color_mode.text = self.color_mode
         return element
 
@@ -273,14 +273,14 @@ class IconStyle(_ColorStyle):
     def etree_element(self):
         element = super().etree_element()
         if self.scale is not None:
-            scale = etree.SubElement(element, f"{self.ns}scale")
+            scale = config.etree.SubElement(element, f"{self.ns}scale")
             scale.text = str(self.scale)
         if self.heading:
-            heading = etree.SubElement(element, f"{self.ns}heading")
+            heading = config.etree.SubElement(element, f"{self.ns}heading")
             heading.text = str(self.heading)
         if self.icon_href:
-            icon = etree.SubElement(element, f"{self.ns}Icon")
-            href = etree.SubElement(icon, f"{self.ns}href")
+            icon = config.etree.SubElement(element, f"{self.ns}Icon")
+            href = config.etree.SubElement(icon, f"{self.ns}href")
             href.text = self.icon_href
         return element
 
@@ -318,7 +318,7 @@ class LineStyle(_ColorStyle):
     def etree_element(self):
         element = super().etree_element()
         if self.width is not None:
-            width = etree.SubElement(element, f"{self.ns}width")
+            width = config.etree.SubElement(element, f"{self.ns}width")
             width.text = str(self.width)
         return element
 
@@ -353,10 +353,10 @@ class PolyStyle(_ColorStyle):
     def etree_element(self):
         element = super().etree_element()
         if self.fill is not None:
-            fill = etree.SubElement(element, f"{self.ns}fill")
+            fill = config.etree.SubElement(element, f"{self.ns}fill")
             fill.text = str(self.fill)
         if self.outline is not None:
-            outline = etree.SubElement(element, f"{self.ns}outline")
+            outline = config.etree.SubElement(element, f"{self.ns}outline")
             outline.text = str(self.outline)
         return element
 
@@ -386,7 +386,7 @@ class LabelStyle(_ColorStyle):
     def etree_element(self):
         element = super().etree_element()
         if self.scale is not None:
-            scale = etree.SubElement(element, f"{self.ns}scale")
+            scale = config.etree.SubElement(element, f"{self.ns}scale")
             scale.text = str(self.scale)
         return element
 
@@ -485,16 +485,16 @@ class BalloonStyle(_BaseObject):
     def etree_element(self):
         element = super().etree_element()
         if self.bg_color is not None:
-            elem = etree.SubElement(element, f"{self.ns}bgColor")
+            elem = config.etree.SubElement(element, f"{self.ns}bgColor")
             elem.text = self.bg_color
         if self.text_color is not None:
-            elem = etree.SubElement(element, f"{self.ns}textColor")
+            elem = config.etree.SubElement(element, f"{self.ns}textColor")
             elem.text = self.text_color
         if self.text is not None:
-            elem = etree.SubElement(element, f"{self.ns}text")
+            elem = config.etree.SubElement(element, f"{self.ns}text")
             elem.text = self.text
         if self.display_mode is not None:
-            elem = etree.SubElement(element, f"{self.ns}displayMode")
+            elem = config.etree.SubElement(element, f"{self.ns}displayMode")
             elem.text = self.display_mode
         return element
 

@@ -18,8 +18,7 @@
 from typing import Optional
 from typing import cast
 
-import fastkml.config as config
-from fastkml.config import etree
+from fastkml import config
 from fastkml.types import Element
 
 
@@ -33,7 +32,7 @@ class _XMLObject:
 
     def etree_element(self) -> Element:
         if self.__name__:
-            element = etree.Element(  # type: ignore [unreachable]
+            element = config.etree.Element(  # type: ignore [unreachable]
                 f"{self.ns}{self.__name__}"
             )
         else:
@@ -47,16 +46,16 @@ class _XMLObject:
             raise TypeError("Call of abstract base class, subclasses implement this!")
 
     def from_string(self, xml_string: str) -> None:
-        self.from_element(cast(Element, etree.XML(xml_string)))
+        self.from_element(cast(Element, config.etree.XML(xml_string)))
 
     def to_string(self, prettyprint: bool = True) -> str:
         """Return the KML Object as serialized xml"""
-        if config.LXML and prettyprint:
-            return etree.tostring(  # type: ignore
+        try:
+            return config.etree.tostring(  # type: ignore
                 self.etree_element(), encoding="utf-8", pretty_print=True
             ).decode("UTF-8")
-        else:
-            return etree.tostring(  # type: ignore
+        except TypeError:
+            return config.etree.tostring(  # type: ignore
                 self.etree_element(), encoding="utf-8"
             ).decode("UTF-8")
 

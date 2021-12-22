@@ -27,10 +27,9 @@ from pygeoif.geometry import MultiPolygon
 from pygeoif.geometry import Point
 from pygeoif.geometry import Polygon
 
-import fastkml.config as config
+from fastkml import config
 
 from .base import _BaseObject
-from .config import etree
 
 logger = logging.getLogger(__name__)
 
@@ -130,7 +129,7 @@ class Geometry(_BaseObject):
                 "absolute",
             ]
             if self.altitude_mode != "clampToGround":
-                am_element = etree.SubElement(element, f"{self.ns}altitudeMode")
+                am_element = config.etree.SubElement(element, f"{self.ns}altitudeMode")
                 am_element.text = self.altitude_mode
 
     def _set_extrude(self, element):
@@ -139,7 +138,7 @@ class Geometry(_BaseObject):
             # 'relativeToSeaFloor',
             "absolute",
         ]:
-            et_element = etree.SubElement(element, f"{self.ns}extrude")
+            et_element = config.etree.SubElement(element, f"{self.ns}extrude")
             et_element.text = "1"
 
     def _etree_coordinates(self, coordinates):
@@ -147,7 +146,7 @@ class Geometry(_BaseObject):
         #     (self.altitude_mode == 'clampToGround')
         #     or (self.altitude_mode is None)
         # )
-        element = etree.Element(f"{self.ns}coordinates")
+        element = config.etree.Element(f"{self.ns}coordinates")
         if len(coordinates[0]) == 2:
             if config.FORCE3D:  # and not clampToGround:
                 tuples = (f"{c[0]:f},{c[1]:f},0.000000" for c in coordinates)
@@ -175,7 +174,7 @@ class Geometry(_BaseObject):
             "clampToGround",
             "clampToSeaFloor",
         ]:
-            ts_element = etree.SubElement(element, f"{self.ns}tessellate")
+            ts_element = config.etree.SubElement(element, f"{self.ns}tessellate")
             ts_element.text = "1"
         return self._extracted_from__etree_linearring_5(linestring, element)
 
@@ -190,39 +189,41 @@ class Geometry(_BaseObject):
 
     def _etree_polygon(self, polygon):
         element = self._extrude_and_altitude_mode("Polygon")
-        outer_boundary = etree.SubElement(element, f"{self.ns}outerBoundaryIs")
+        outer_boundary = config.etree.SubElement(element, f"{self.ns}outerBoundaryIs")
         outer_boundary.append(self._etree_linearring(polygon.exterior))
         for ib in polygon.interiors:
-            inner_boundary = etree.SubElement(element, f"{self.ns}innerBoundaryIs")
+            inner_boundary = config.etree.SubElement(
+                element, f"{self.ns}innerBoundaryIs"
+            )
             inner_boundary.append(self._etree_linearring(ib))
         return element
 
     def _extrude_and_altitude_mode(self, kml_geometry):
-        result = etree.Element(f"{self.ns}{kml_geometry}")
+        result = config.etree.Element(f"{self.ns}{kml_geometry}")
         self._set_extrude(result)
         self._set_altitude_mode(result)
         return result
 
     def _etree_multipoint(self, points):
-        element = etree.Element(f"{self.ns}MultiGeometry")
+        element = config.etree.Element(f"{self.ns}MultiGeometry")
         for point in points.geoms:
             element.append(self._etree_point(point))
         return element
 
     def _etree_multilinestring(self, linestrings):
-        element = etree.Element(f"{self.ns}MultiGeometry")
+        element = config.etree.Element(f"{self.ns}MultiGeometry")
         for linestring in linestrings.geoms:
             element.append(self._etree_linestring(linestring))
         return element
 
     def _etree_multipolygon(self, polygons):
-        element = etree.Element(f"{self.ns}MultiGeometry")
+        element = config.etree.Element(f"{self.ns}MultiGeometry")
         for polygon in polygons.geoms:
             element.append(self._etree_polygon(polygon))
         return element
 
     def _etree_collection(self, features):
-        element = etree.Element(f"{self.ns}MultiGeometry")
+        element = config.etree.Element(f"{self.ns}MultiGeometry")
         for feature in features.geoms:
             if feature.geom_type == "Point":
                 element.append(self._etree_point(feature))

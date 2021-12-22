@@ -13,9 +13,8 @@ mypy
 pep8-naming
 pre-commit
 pytest
-pytest
 pytest-cov
-pytest-cov
+pytest-randomly
 radon
 types-python-dateutil
 types-setuptools
