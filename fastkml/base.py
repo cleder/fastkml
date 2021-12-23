@@ -25,7 +25,7 @@ from fastkml.types import Element
 class _XMLObject:
     """XML Baseclass."""
 
-    __name__ = None
+    __name__ = ""
 
     def __init__(self, ns: Optional[str] = None) -> None:
         """Initialize the XML Object."""
@@ -34,14 +34,12 @@ class _XMLObject:
     def etree_element(self) -> Element:
         """Return the KML Object as an Element."""
         if self.__name__:
-            element = config.etree.Element(  # type: ignore [unreachable]
-                f"{self.ns}{self.__name__}"
-            )
+            element = config.etree.Element(f"{self.ns}{self.__name__}")
         else:
             raise NotImplementedError(
                 "Call of abstract base class, subclasses implement this!"
             )
-        return element  # type: ignore [unreachable]
+        return element  # type: ignore [return-value]
 
     def from_element(self, element: Element) -> None:
         """Load the KML Object from an Element."""

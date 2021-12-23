@@ -31,7 +31,7 @@ class TestStdLibrary(StdLibrary):
 
     def test_to_string(self) -> None:
         obj = base._BaseObject(id="id-0", target_id="target-id-0")
-        obj.__name__ = "test"  # type: ignore[assignment]
+        obj.__name__ = "test"
 
         assert (
             obj.to_string()
@@ -40,7 +40,7 @@ class TestStdLibrary(StdLibrary):
 
     def test_from_string(self) -> None:
         be = base._BaseObject()
-        be.__name__ = "test"  # type: ignore[assignment]
+        be.__name__ = "test"
 
         be.from_string(
             xml_string='<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" targetId="target-id-0" />'
@@ -83,7 +83,7 @@ class TestLxml(Lxml, TestStdLibrary):
 
     def test_to_string(self) -> None:
         obj = base._BaseObject(id="id-0")
-        obj.__name__ = "test"  # type: ignore[assignment]
+        obj.__name__ = "test"
 
         assert (
             obj.to_string()
@@ -92,7 +92,7 @@ class TestLxml(Lxml, TestStdLibrary):
 
     def test_from_string(self) -> None:
         be = base._BaseObject()
-        be.__name__ = "test"  # type: ignore[assignment]
+        be.__name__ = "test"
 
         be.from_string(
             xml_string='<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" targetId="target-id-0"/>\n'

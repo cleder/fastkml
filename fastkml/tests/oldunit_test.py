@@ -58,7 +58,7 @@ class TestBaseClasses:
         assert bo.id == "id0"
         assert bo.ns == config.KMLNS
         assert bo.target_id is None
-        assert bo.__name__ is None
+        assert bo.__name__ == ""
         bo.target_id = "target"
         assert bo.target_id == "target"
         bo.ns = ""

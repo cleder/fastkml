@@ -33,9 +33,11 @@ This library only implements a subset of Atom that is useful with KML
 
 import logging
 import re
+from typing import Optional
 
 from fastkml import config
 from fastkml.base import _XMLObject
+from fastkml.types import Element
 
 from .config import ATOMNS as NS
 
@@ -85,14 +87,14 @@ class Link(_XMLObject):
 
     def __init__(
         self,
-        ns=None,
-        href=None,
-        rel=None,
-        type=None,
-        hreflang=None,
-        title=None,
-        length=None,
-    ):
+        ns: Optional[str] = None,
+        href: Optional[str] = None,
+        rel: Optional[str] = None,
+        type: Optional[str] = None,
+        hreflang: Optional[str] = None,
+        title: Optional[str] = None,
+        length: Optional[str] = None,
+    ) -> None:
         self.ns: str = NS if ns is None else ns
         self.href = href
         self.rel = rel
@@ -101,7 +103,7 @@ class Link(_XMLObject):
         self.title = title
         self.length = length
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         if element.get("href"):
             self.href = element.get("href")
@@ -118,7 +120,7 @@ class Link(_XMLObject):
         if element.get("length"):
             self.length = element.get("length")
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self.href:
             element.set("href", self.href)
@@ -144,44 +146,54 @@ class _Person(_XMLObject):
     uri, email.
     """
 
-    __name__ = None
-    ns = None
+    __name__ = ""
 
-    name = None
+    name: Optional[str] = None
     # conveys a human-readable name for the person.
 
-    uri = None
+    uri: Optional[str] = None
     # contains a home page for the person.
 
-    email = None
+    email: Optional[str] = None
     # contains an email address for the person.
 
-    def __init__(self, ns=None, name=None, uri=None, email=None):
-        self.ns = NS if ns is None else ns
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name: Optional[str] = None,
+        uri: Optional[str] = None,
+        email: Optional[str] = None,
+    ) -> None:
+        self.ns: str = NS if ns is None else ns
         self.name = name
         self.uri = uri
         self.email = email
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self.name:
-            name = config.etree.SubElement(element, f"{self.ns}name")
+            name = config.etree.SubElement(
+                element, f"{self.ns}name"  # type: ignore[arg-type]
+            )
             name.text = self.name
         else:
             logger.warning("No Name for person defined")
         if self.uri:
-            # XXX validate uri
-            uri = config.etree.SubElement(element, f"{self.ns}uri")
+            uri = config.etree.SubElement(
+                element, f"{self.ns}uri"  # type: ignore[arg-type]
+            )
             uri.text = self.uri
         if self.email and check_email(self.email):
-            email = config.etree.SubElement(element, f"{self.ns}email")
+            email = config.etree.SubElement(
+                element, f"{self.ns}email"  # type: ignore[arg-type]
+            )
             email.text = self.email
         return element
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         name = element.find(f"{self.ns}name")
-        if name is not None:
+        if name:
             self.name = name.text
         else:
             logger.warning("No Name for person defined")

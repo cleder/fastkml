@@ -25,9 +25,13 @@ class Element(Protocol):
     """Protocol for Element."""
 
     tag: str
+    text: str
 
     def set(self, tag: str, value: str) -> None:
         ...
 
     def get(self, tag: str) -> str:
+        ...
+
+    def find(self, tag: str) -> "Element":
         ...
