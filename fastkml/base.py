@@ -87,10 +87,16 @@ class _BaseObject(_XMLObject):
     id = None
     target_id = None
 
-    def __init__(self, ns: Optional[str] = None, id: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+    ) -> None:
         """Initialize the KML Object."""
         super().__init__(ns)
         self.id = id
+        self.target_id = target_id
 
     def etree_element(self) -> Element:
         """Return the KML Object as an Element."""
@@ -98,7 +104,7 @@ class _BaseObject(_XMLObject):
         if self.id:
             element.set("id", self.id)
         if self.target_id:
-            element.set("targetId", self.target_id)  # type: ignore [unreachable]
+            element.set("targetId", self.target_id)
         return element
 
     def from_element(self, element: Element) -> None:

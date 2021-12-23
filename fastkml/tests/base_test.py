@@ -41,12 +41,12 @@ class TestStdLibrary:
         config.set_default_namespaces()
 
     def test_to_string(self) -> None:
-        obj = base._BaseObject(id="id-0")
+        obj = base._BaseObject(id="id-0", target_id="target-id-0")
         obj.__name__ = "test"  # type: ignore[assignment]
 
         assert (
             obj.to_string()
-            == '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" />'
+            == '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" targetId="target-id-0" />'
         )
 
     def test_base_etree_element_raises(self) -> None:
