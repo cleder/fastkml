@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Types for fastkml."""
+from typing import Iterable
 
 from typing_extensions import Protocol
 
@@ -34,4 +35,10 @@ class Element(Protocol):
         ...
 
     def find(self, tag: str) -> "Element":
+        ...
+
+    def findall(self, tag: str) -> Iterable["Element"]:
+        ...
+
+    def append(self, element: "Element") -> None:
         ...

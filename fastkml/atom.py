@@ -193,10 +193,10 @@ class _Person(_XMLObject):
     def from_element(self, element: Element) -> None:
         super().from_element(element)
         name = element.find(f"{self.ns}name")
-        if name:
+        if name is not None:
             self.name = name.text
         else:
-            logger.warning("No Name for person defined")
+            logger.warning("No Name for person defined")  # type: ignore[unreachable]
         uri = element.find(f"{self.ns}uri")
         if uri is not None:
             self.uri = uri.text
