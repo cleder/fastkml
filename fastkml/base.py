@@ -176,8 +176,7 @@ class _BaseObject(_XMLObject):
 
     def etree_element(self) -> Element:
         """Return the KML Object as an Element."""
-        element = super().etree_element()
-        return element
+        return super().etree_element()
 
     def from_element(self, element: Element) -> None:
         """Load the KML Object from an Element."""
