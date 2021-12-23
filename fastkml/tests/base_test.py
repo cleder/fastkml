@@ -15,8 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the configuration options."""
-
 import xml.etree.ElementTree
+from typing import cast
 
 import pytest
 
@@ -29,6 +29,7 @@ except ImportError:  # pragma: no cover
 
 from fastkml import base
 from fastkml import config
+from fastkml import types
 
 
 class TestStdLibrary:
@@ -40,8 +41,6 @@ class TestStdLibrary:
         config.set_default_namespaces()
 
     def test_to_string(self) -> None:
-        config.set_etree_implementation(xml.etree.ElementTree)
-        config.set_default_namespaces()
         obj = base._BaseObject(id="id-0")
         obj.__name__ = "test"  # type: ignore[assignment]
 
@@ -65,7 +64,7 @@ class TestStdLibrary:
 
     def test_base_from_element_raises(self) -> None:
         be = base._BaseObject()
-        element = config.etree.Element(config.KMLNS + "Base")
+        element = cast(types.Element, config.etree.Element(config.KMLNS + "Base"))
 
         with pytest.raises(TypeError):
             be.from_element(element=element)
