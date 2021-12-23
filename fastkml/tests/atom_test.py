@@ -41,11 +41,14 @@ class TestStdLibrary(StdLibrary):
             title="Title",
             length=3456,
         )
-        assert l.to_string().startswith(
-            '<atom:link xmlns:atom="http://www.w3.org/2005/Atom" '
-            'href="#here" rel="alternate" type="text/html" hreflang="en" '
-            'title="Title" length="3456"'
-        )
+        serialized = l.to_string()
+        assert '<atom:link xmlns:atom="http://www.w3.org/2005/Atom"' in serialized
+        assert 'href="#here"' in serialized
+        assert 'rel="alternate"' in serialized
+        assert 'type="text/html"' in serialized
+        assert 'hreflang="en"' in serialized
+        assert 'title="Title"' in serialized
+        assert 'length="3456"' in serialized
 
     def test_atom_link_read(self) -> None:
         l = atom.Link()
