@@ -22,7 +22,7 @@ jobs:
           python -m pip install --upgrade pip wheel
       - name: Test with pytest
         run: |
-          pytest fastkml --cov=fastkml
+          pytest fastkml
 
   cpython-lxml:
     runs-on: ubuntu-latest
