@@ -41,7 +41,7 @@ def o_to_attr(
     if attribute:
         element.set(kml_attr, str(attribute))
     elif required:
-        logger.warn(f"Required attribute {kml_attr} missing.")
+        logger.warning("Required attribute '%s' missing.", obj_attr)
 
 
 def o_from_attr(
@@ -57,7 +57,7 @@ def o_from_attr(
     if attribute:
         setattr(obj, obj_attr, attribute)
     elif required:
-        logger.warn(f"Required attribute {kml_attr} missing.")
+        logger.warning("Required attribute '%s' missing.", kml_attr)
 
 
 def o_int_from_attr(
@@ -76,7 +76,7 @@ def o_int_from_attr(
     if attribute is not None:
         setattr(obj, obj_attr, attribute)
     elif required:
-        logger.warn(f"Required attribute {kml_attr} missing.")
+        logger.warning("Required attribute '%s' missing.", kml_attr)
 
 
 class _XMLObject:
