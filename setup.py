@@ -59,6 +59,7 @@ setup(
         # -*- Extra requirements: -*-
         "pygeoif>=1.0b1",
         "python-dateutil",
+        "setuptools",
     ],
     entry_points="""
     # -*- Entry points: -*-

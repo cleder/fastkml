@@ -28,9 +28,11 @@ class _XMLObject:
     __name__ = None
 
     def __init__(self, ns: Optional[str] = None) -> None:
+        """Initialize the XML Object."""
         self.ns: str = config.KMLNS if ns is None else ns
 
     def etree_element(self) -> Element:
+        """Return the KML Object as an Element."""
         if self.__name__:
             element = config.etree.Element(  # type: ignore [unreachable]
                 f"{self.ns}{self.__name__}"
@@ -42,14 +44,16 @@ class _XMLObject:
         return element  # type: ignore [unreachable]
 
     def from_element(self, element: Element) -> None:
+        """Load the KML Object from an Element."""
         if f"{self.ns}{self.__name__}" != element.tag:
             raise TypeError("Call of abstract base class, subclasses implement this!")
 
     def from_string(self, xml_string: str) -> None:
+        """Load the KML Object from serialized xml."""
         self.from_element(cast(Element, config.etree.XML(xml_string)))
 
     def to_string(self, prettyprint: bool = True) -> str:
-        """Return the KML Object as serialized xml"""
+        """Return the KML Object as serialized xml."""
         try:
             return cast(
                 str,
@@ -84,10 +88,12 @@ class _BaseObject(_XMLObject):
     target_id = None
 
     def __init__(self, ns: Optional[str] = None, id: Optional[str] = None) -> None:
+        """Initialize the KML Object."""
         super().__init__(ns)
         self.id = id
 
     def etree_element(self) -> Element:
+        """Return the KML Object as an Element."""
         element = super().etree_element()
         if self.id:
             element.set("id", self.id)
@@ -96,6 +102,7 @@ class _BaseObject(_XMLObject):
         return element
 
     def from_element(self, element: Element) -> None:
+        """Load the KML Object from an Element."""
         super().from_element(element)
         if element.get("id"):
             self.id = element.get("id")

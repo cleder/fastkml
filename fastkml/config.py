@@ -63,7 +63,7 @@ def register_namespaces(**namespaces: str) -> None:
     try:
         for prefix, uri in namespaces.items():
             etree.register_namespace(prefix, uri)
-    except AttributeError:
+    except AttributeError:  # pragma: no cover
         logger.warning("Namespaces were not registered.")
 
 

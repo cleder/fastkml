@@ -31,26 +31,68 @@ from fastkml import base
 from fastkml import config
 
 
-def test_to_string_xml() -> None:
-    config.set_etree_implementation(xml.etree.ElementTree)
-    config.set_default_namespaces()
-    obj = base._BaseObject(id="id")
-    obj.__name__ = "test"  # type: ignore[assignment]
+class TestStdLibrary:
+    """Test the base object with the standard library."""
 
-    assert (
-        obj.to_string()
-        == '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id" />'
-    )
+    def setup_method(self) -> None:
+        """Always test with the same parser."""
+        config.set_etree_implementation(xml.etree.ElementTree)
+        config.set_default_namespaces()
+
+    def test_to_string(self) -> None:
+        config.set_etree_implementation(xml.etree.ElementTree)
+        config.set_default_namespaces()
+        obj = base._BaseObject(id="id-0")
+        obj.__name__ = "test"  # type: ignore[assignment]
+
+        assert (
+            obj.to_string()
+            == '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" />'
+        )
+
+    def test_base_etree_element_raises(self) -> None:
+        be = base._BaseObject()
+
+        with pytest.raises(NotImplementedError):
+            be.etree_element()
+
+    def test_base_etree_element_raises_subclass(self) -> None:
+        class Test(base._BaseObject):
+            pass
+
+        with pytest.raises(NotImplementedError):
+            Test().etree_element()
+
+    def test_base_from_element_raises(self) -> None:
+        be = base._BaseObject()
+        element = config.etree.Element(config.KMLNS + "Base")
+
+        with pytest.raises(TypeError):
+            be.from_element(element=element)
+
+    def test_base_from_string_raises(self) -> None:
+        be = base._BaseObject()
+
+        with pytest.raises(TypeError):
+            be.from_string(
+                xml_string='<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" />'
+            )
 
 
 @pytest.mark.skipif(not LXML, reason="lxml not installed")
-def test_to_string_lxml() -> None:
-    config.set_etree_implementation(lxml.etree)
-    config.set_default_namespaces()
-    obj = base._BaseObject(id="id")
-    obj.__name__ = "test"  # type: ignore[assignment]
+class TestLxml(TestStdLibrary):
+    """Test the base object with lxml."""
 
-    assert (
-        obj.to_string()
-        == '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id"/>\n'
-    )
+    def setup_method(self) -> None:
+        """Always test with the same parser."""
+        config.set_etree_implementation(lxml.etree)
+        config.set_default_namespaces()
+
+    def test_to_string(self) -> None:
+        obj = base._BaseObject(id="id-0")
+        obj.__name__ = "test"  # type: ignore[assignment]
+
+        assert (
+            obj.to_string()
+            == '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0"/>\n'
+        )
