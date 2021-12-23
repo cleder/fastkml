@@ -15,17 +15,75 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Abstract base classes"""
+import logging
+from typing import Any
 from typing import Optional
+from typing import Tuple
 from typing import cast
 
 from fastkml import config
 from fastkml.types import Element
+from fastkml.types import KmlObjectMap
+
+logger = logging.getLogger(__name__)
+
+
+def o_to_attr(
+    obj: object,
+    element: Element,
+    kml_attr: str,
+    obj_attr: str,
+    required: bool,
+    **kwargs: Any,
+) -> None:
+    """Set an attribute on an KML Element from an object attribute."""
+    attribute = getattr(obj, obj_attr)
+    if attribute:
+        element.set(kml_attr, str(attribute))
+    elif required:
+        logger.warn(f"Required attribute {kml_attr} missing.")
+
+
+def o_from_attr(
+    obj: object,
+    element: Element,
+    kml_attr: str,
+    obj_attr: str,
+    required: bool,
+    **kwargs: Any,
+) -> None:
+    """Set an attribute on self from an KML attribute."""
+    attribute = element.get(kml_attr)
+    if attribute:
+        setattr(obj, obj_attr, attribute)
+    elif required:
+        logger.warn(f"Required attribute {kml_attr} missing.")
+
+
+def o_int_from_attr(
+    obj: object,
+    element: Element,
+    kml_attr: str,
+    obj_attr: str,
+    required: bool,
+    **kwargs: Any,
+) -> None:
+    """Set an attribute on self from an KML attribute."""
+    try:
+        attribute = int(element.get(kml_attr))
+    except (ValueError, TypeError):
+        attribute = None
+    if attribute is not None:
+        setattr(obj, obj_attr, attribute)
+    elif required:
+        logger.warn(f"Required attribute {kml_attr} missing.")
 
 
 class _XMLObject:
     """XML Baseclass."""
 
     __name__ = ""
+    kml_object_mapping: Tuple[KmlObjectMap, ...] = ()
 
     def __init__(self, ns: Optional[str] = None) -> None:
         """Initialize the XML Object."""
@@ -39,12 +97,16 @@ class _XMLObject:
             raise NotImplementedError(
                 "Call of abstract base class, subclasses implement this!"
             )
+        for mapping in self.kml_object_mapping:
+            mapping["to_kml"](self, element, **mapping)
         return element  # type: ignore [return-value]
 
     def from_element(self, element: Element) -> None:
         """Load the KML Object from an Element."""
         if f"{self.ns}{self.__name__}" != element.tag:
             raise TypeError("Call of abstract base class, subclasses implement this!")
+        for mapping in self.kml_object_mapping:
+            mapping["from_kml"](self, element, **mapping)
 
     def from_string(self, xml_string: str) -> None:
         """Load the KML Object from serialized xml."""
@@ -84,6 +146,22 @@ class _BaseObject(_XMLObject):
 
     id = None
     target_id = None
+    kml_object_mapping: Tuple[KmlObjectMap, ...] = (
+        {
+            "kml_attr": "id",
+            "obj_attr": "id",
+            "from_kml": o_from_attr,
+            "to_kml": o_to_attr,
+            "required": False,
+        },
+        {
+            "kml_attr": "targetId",
+            "obj_attr": "target_id",
+            "from_kml": o_from_attr,
+            "to_kml": o_to_attr,
+            "required": False,
+        },
+    )
 
     def __init__(
         self,
@@ -99,16 +177,8 @@ class _BaseObject(_XMLObject):
     def etree_element(self) -> Element:
         """Return the KML Object as an Element."""
         element = super().etree_element()
-        if self.id:
-            element.set("id", self.id)
-        if self.target_id:
-            element.set("targetId", self.target_id)
         return element
 
     def from_element(self, element: Element) -> None:
         """Load the KML Object from an Element."""
         super().from_element(element)
-        if element.get("id"):
-            self.id = element.get("id")
-        if element.get("targetId"):
-            self.target_id = element.get("targetId")

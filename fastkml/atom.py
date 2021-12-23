@@ -1,4 +1,4 @@
-# Copyright (C) 2012  Christian Ledermann
+# Copyright (C) 2012 - 2021  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -34,10 +34,15 @@ This library only implements a subset of Atom that is useful with KML
 import logging
 import re
 from typing import Optional
+from typing import Tuple
 
 from fastkml import config
 from fastkml.base import _XMLObject
+from fastkml.base import o_from_attr
+from fastkml.base import o_int_from_attr
+from fastkml.base import o_to_attr
 from fastkml.types import Element
+from fastkml.types import KmlObjectMap
 
 from .config import ATOMNS as NS
 
@@ -57,6 +62,51 @@ class Link(_XMLObject):
     """
 
     __name__ = "link"
+
+    kml_object_mapping: Tuple[KmlObjectMap, ...] = (
+        {
+            "kml_attr": "href",
+            "obj_attr": "href",
+            "from_kml": o_from_attr,
+            "to_kml": o_to_attr,
+            "required": True,
+        },
+        {
+            "kml_attr": "rel",
+            "obj_attr": "rel",
+            "from_kml": o_from_attr,
+            "to_kml": o_to_attr,
+            "required": False,
+        },
+        {
+            "kml_attr": "type",
+            "obj_attr": "type",
+            "from_kml": o_from_attr,
+            "to_kml": o_to_attr,
+            "required": False,
+        },
+        {
+            "kml_attr": "hreflang",
+            "obj_attr": "hreflang",
+            "from_kml": o_from_attr,
+            "to_kml": o_to_attr,
+            "required": False,
+        },
+        {
+            "kml_attr": "title",
+            "obj_attr": "title",
+            "from_kml": o_from_attr,
+            "to_kml": o_to_attr,
+            "required": False,
+        },
+        {
+            "kml_attr": "length",
+            "obj_attr": "length",
+            "from_kml": o_int_from_attr,
+            "to_kml": o_to_attr,
+            "required": False,
+        },
+    )
 
     href = None
     # href is the URI of the referenced resource
@@ -93,7 +143,7 @@ class Link(_XMLObject):
         type: Optional[str] = None,
         hreflang: Optional[str] = None,
         title: Optional[str] = None,
-        length: Optional[str] = None,
+        length: Optional[int] = None,
     ) -> None:
         self.ns: str = NS if ns is None else ns
         self.href = href
@@ -105,38 +155,9 @@ class Link(_XMLObject):
 
     def from_element(self, element: Element) -> None:
         super().from_element(element)
-        if element.get("href"):
-            self.href = element.get("href")
-        else:
-            logger.warning("required attribute href missing")
-        if element.get("rel"):
-            self.rel = element.get("rel")
-        if element.get("type"):
-            self.type = element.get("type")
-        if element.get("hreflang"):
-            self.hreflang = element.get("hreflang")
-        if element.get("title"):
-            self.title = element.get("title")
-        if element.get("length"):
-            self.length = element.get("length")
 
     def etree_element(self) -> Element:
-        element = super().etree_element()
-        if self.href:
-            element.set("href", self.href)
-        else:
-            logger.warning("required attribute href missing")
-        if self.rel:
-            element.set("rel", self.rel)
-        if self.type:
-            element.set("type", self.type)
-        if self.hreflang:
-            element.set("hreflang", self.hreflang)
-        if self.title:
-            element.set("title", self.title)
-        if self.length:
-            element.set("length", self.length)
-        return element
+        return super().etree_element()
 
 
 class _Person(_XMLObject):

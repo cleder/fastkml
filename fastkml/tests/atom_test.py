@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the Atom classes."""
-from typing import cast
 
 from fastkml import atom
 from fastkml.tests.base import Lxml
@@ -40,7 +39,7 @@ class TestStdLibrary(StdLibrary):
             type="text/html",
             hreflang="en",
             title="Title",
-            length="3456",
+            length=3456,
         )
         assert l.to_string().startswith(
             '<atom:link xmlns:atom="http://www.w3.org/2005/Atom" '
@@ -60,7 +59,7 @@ class TestStdLibrary(StdLibrary):
         assert l.type == "text/html"
         assert l.hreflang == "en"
         assert l.title == "Title"
-        assert l.length == "3456"
+        assert l.length == 3456
 
     def test_atom_link_read_no_href(self) -> None:
         l = atom.Link()
@@ -133,7 +132,7 @@ class TestStdLibrary(StdLibrary):
         l.title = "Title"
         l.type = "text/html"
         l.hreflang = "en"
-        l.length = "4096"
+        l.length = 4096
         l2 = atom.Link()
         l2.from_string(l.to_string())
         assert l.to_string() == l2.to_string()
