@@ -44,7 +44,7 @@ jobs:
           pip install lxml
       - name: Test with pytest
         run: |
-          pytest fastkml --cov=fastkml --cov-fail-under=96  --cov-report=xml
+          pytest fastkml --cov=fastkml --cov-fail-under=97 --cov-report=xml
       - name: "Upload coverage to Codecov"
         uses: codecov/codecov-action@v2
         with:

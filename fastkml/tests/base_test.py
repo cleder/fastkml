@@ -14,31 +14,20 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-"""Test the configuration options."""
-import xml.etree.ElementTree
+"""Test the base classes."""
 from typing import cast
 
 import pytest
 
-try:  # pragma: no cover
-    import lxml  # noqa: F401
-
-    LXML = True
-except ImportError:  # pragma: no cover
-    LXML = False
-
 from fastkml import base
 from fastkml import config
 from fastkml import types
+from fastkml.tests.base import Lxml
+from fastkml.tests.base import StdLibrary
 
 
-class TestStdLibrary:
+class TestStdLibrary(StdLibrary):
     """Test the base object with the standard library."""
-
-    def setup_method(self) -> None:
-        """Always test with the same parser."""
-        config.set_etree_implementation(xml.etree.ElementTree)
-        config.set_default_namespaces()
 
     def test_to_string(self) -> None:
         obj = base._BaseObject(id="id-0", target_id="target-id-0")
@@ -48,6 +37,17 @@ class TestStdLibrary:
             obj.to_string()
             == '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" targetId="target-id-0" />'
         )
+
+    def test_from_string(self) -> None:
+        be = base._BaseObject()
+        be.__name__ = "test"  # type: ignore[assignment]
+
+        be.from_string(
+            xml_string='<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" targetId="target-id-0" />'
+        )
+
+        assert be.id == "id-0"
+        assert be.target_id == "target-id-0"
 
     def test_base_etree_element_raises(self) -> None:
         be = base._BaseObject()
@@ -78,14 +78,8 @@ class TestStdLibrary:
             )
 
 
-@pytest.mark.skipif(not LXML, reason="lxml not installed")
-class TestLxml(TestStdLibrary):
+class TestLxml(Lxml, TestStdLibrary):
     """Test the base object with lxml."""
-
-    def setup_method(self) -> None:
-        """Always test with the same parser."""
-        config.set_etree_implementation(lxml.etree)
-        config.set_default_namespaces()
 
     def test_to_string(self) -> None:
         obj = base._BaseObject(id="id-0")
@@ -95,3 +89,14 @@ class TestLxml(TestStdLibrary):
             obj.to_string()
             == '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0"/>\n'
         )
+
+    def test_from_string(self) -> None:
+        be = base._BaseObject()
+        be.__name__ = "test"  # type: ignore[assignment]
+
+        be.from_string(
+            xml_string='<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" targetId="target-id-0"/>\n'
+        )
+
+        assert be.id == "id-0"
+        assert be.target_id == "target-id-0"

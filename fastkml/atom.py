@@ -106,8 +106,7 @@ class Link(_XMLObject):
         if element.get("href"):
             self.href = element.get("href")
         else:
-            logger.critical("required attribute href missing")
-            raise TypeError
+            logger.warning("required attribute href missing")
         if element.get("rel"):
             self.rel = element.get("rel")
         if element.get("type"):
@@ -120,11 +119,11 @@ class Link(_XMLObject):
             self.length = element.get("length")
 
     def etree_element(self):
-        element = config.etree.Element(self.ns + self.__name__.lower())
+        element = super().etree_element()
         if self.href:
             element.set("href", self.href)
         else:
-            raise ValueError("required attribute href missing")
+            logger.warning("required attribute href missing")
         if self.rel:
             element.set("rel", self.rel)
         if self.type:
@@ -164,13 +163,12 @@ class _Person(_XMLObject):
         self.email = email
 
     def etree_element(self):
-        element = config.etree.Element(self.ns + self.__name__.lower())
+        element = super().etree_element()
         if self.name:
             name = config.etree.SubElement(element, f"{self.ns}name")
             name.text = self.name
-        # else:
-        #    logger.critical('No Name for person defined')
-        #    raise TypeError
+        else:
+            logger.warning("No Name for person defined")
         if self.uri:
             # XXX validate uri
             uri = config.etree.SubElement(element, f"{self.ns}uri")
@@ -185,6 +183,8 @@ class _Person(_XMLObject):
         name = element.find(f"{self.ns}name")
         if name is not None:
             self.name = name.text
+        else:
+            logger.warning("No Name for person defined")
         uri = element.find(f"{self.ns}uri")
         if uri is not None:
             self.uri = uri.text

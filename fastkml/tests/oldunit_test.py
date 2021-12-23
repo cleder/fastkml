@@ -120,16 +120,6 @@ class TestBaseClasses:
         assert o._icon is None
         pytest.raises(NotImplementedError, o.etree_element)
 
-    def test_atom_link(self):
-        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
-        l = atom.Link(ns=ns)
-        assert l.ns == ns
-
-    def test_atom_person(self):
-        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
-        p = atom._Person(ns=ns)
-        assert p.ns == ns
-
 
 class TestBuildKml:
     """Build a simple KML File"""
@@ -1641,48 +1631,6 @@ class TestDateTime:
         </Document>"""
 
         d.from_string(doc)
-
-
-class TestAtom:
-    def test_author(self):
-        a = atom.Author(name="Christian Ledermann")
-        assert a.name == "Christian Ledermann"
-        a.uri = "http://iwlearn.net"
-        a.email = "christian@gmail.com"
-        assert "Christian Ledermann" in str(a.to_string())
-        assert "http://iwlearn.net" in str(a.to_string())
-        assert "christian@gmail.com" in str(a.to_string())
-        assert "name>" in str(a.to_string())
-        assert "uri>" in str(a.to_string())
-        assert "email>" in str(a.to_string())
-        # print (a.to_string())
-        a.email = "christian"
-        assert "email>" not in str(a.to_string())
-        a2 = atom.Author()
-        a2.from_string(a.to_string())
-        assert a.to_string() == a2.to_string()
-
-    def test_link(self):
-        l = atom.Link(href="http://localhost/", rel="alternate")
-        assert l.href == "http://localhost/"
-        assert l.rel == "alternate"
-        l.title = "Title"
-        l.type = "text/html"
-        l.hreflang = "en"
-        l.length = "4096"
-        assert 'href="http://localhost/"' in str(l.to_string())
-        assert 'rel="alternate"' in str(l.to_string())
-        assert 'title="Title"' in str(l.to_string())
-        assert 'hreflang="en"' in str(l.to_string())
-        assert 'type="text/html"' in str(l.to_string())
-        assert 'length="4096"' in str(l.to_string())
-        assert "link" in str(l.to_string())
-        assert '="http://www.w3.org/2005/Atom"' in str(l.to_string())
-        l2 = atom.Link()
-        l2.from_string(l.to_string())
-        assert l.to_string() == l2.to_string()
-        l.href = None
-        pytest.raises(ValueError, l.to_string)
 
 
 class TestSetGeometry:
