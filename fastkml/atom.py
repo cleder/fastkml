@@ -55,7 +55,6 @@ class Link(_XMLObject):
     """
 
     __name__ = "link"
-    ns = None
 
     href = None
     # href is the URI of the referenced resource
@@ -94,8 +93,7 @@ class Link(_XMLObject):
         title=None,
         length=None,
     ):
-        super().__init__(NS if ns is None else ns)
-        # self.ns = NS if ns is None else ns
+        self.ns: str = NS if ns is None else ns
         self.href = href
         self.rel = rel
         self.type = type
@@ -196,15 +194,21 @@ class _Person(_XMLObject):
 
 
 class Author(_Person):
-    """Names one author of the feed/entry. A feed/entry may have
-    multiple authors."""
+    """
+    Return the names one author of the feed/entry.
+
+    A feed/entry may have multiple authors.
+    """
 
     __name__ = "author"
 
 
 class Contributor(_Person):
-    """Names one contributor to the feed/entry. A feed/entry may have
-    multiple contributor elements."""
+    """
+    Return the names one contributor to the feed/entry.
+
+    A feed/entry may have multiple contributor elements.
+    """
 
     __name__ = "contributor"
 
