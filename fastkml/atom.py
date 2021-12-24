@@ -36,11 +36,12 @@ import re
 from typing import Optional
 from typing import Tuple
 
-from fastkml import config
 from fastkml.base import _XMLObject
 from fastkml.base import o_from_attr
+from fastkml.base import o_from_subelement_text
 from fastkml.base import o_int_from_attr
 from fastkml.base import o_to_attr
+from fastkml.base import o_to_subelement_text
 from fastkml.types import Element
 from fastkml.types import KmlObjectMap
 
@@ -70,6 +71,7 @@ class Link(_XMLObject):
             "from_kml": o_from_attr,
             "to_kml": o_to_attr,
             "required": True,
+            "validator": None,
         },
         {
             "kml_attr": "rel",
@@ -77,6 +79,7 @@ class Link(_XMLObject):
             "from_kml": o_from_attr,
             "to_kml": o_to_attr,
             "required": False,
+            "validator": None,
         },
         {
             "kml_attr": "type",
@@ -84,6 +87,7 @@ class Link(_XMLObject):
             "from_kml": o_from_attr,
             "to_kml": o_to_attr,
             "required": False,
+            "validator": None,
         },
         {
             "kml_attr": "hreflang",
@@ -91,6 +95,7 @@ class Link(_XMLObject):
             "from_kml": o_from_attr,
             "to_kml": o_to_attr,
             "required": False,
+            "validator": None,
         },
         {
             "kml_attr": "title",
@@ -98,6 +103,7 @@ class Link(_XMLObject):
             "from_kml": o_from_attr,
             "to_kml": o_to_attr,
             "required": False,
+            "validator": None,
         },
         {
             "kml_attr": "length",
@@ -105,6 +111,7 @@ class Link(_XMLObject):
             "from_kml": o_int_from_attr,
             "to_kml": o_to_attr,
             "required": False,
+            "validator": None,
         },
     )
 
@@ -168,6 +175,32 @@ class _Person(_XMLObject):
     """
 
     __name__ = ""
+    kml_object_mapping: Tuple[KmlObjectMap, ...] = (
+        {
+            "kml_attr": "name",
+            "obj_attr": "name",
+            "from_kml": o_from_subelement_text,
+            "to_kml": o_to_subelement_text,
+            "required": True,
+            "validator": None,
+        },
+        {
+            "kml_attr": "uri",
+            "obj_attr": "uri",
+            "from_kml": o_from_subelement_text,
+            "to_kml": o_to_subelement_text,
+            "required": False,
+            "validator": None,
+        },
+        {
+            "kml_attr": "email",
+            "obj_attr": "email",
+            "from_kml": o_from_subelement_text,
+            "to_kml": o_to_subelement_text,
+            "required": False,
+            "validator": check_email,
+        },
+    )
 
     name: Optional[str] = None
     # conveys a human-readable name for the person.
@@ -191,39 +224,10 @@ class _Person(_XMLObject):
         self.email = email
 
     def etree_element(self) -> Element:
-        element = super().etree_element()
-        if self.name:
-            name = config.etree.SubElement(
-                element, f"{self.ns}name"  # type: ignore[arg-type]
-            )
-            name.text = self.name
-        else:
-            logger.warning("No Name for person defined")
-        if self.uri:
-            uri = config.etree.SubElement(
-                element, f"{self.ns}uri"  # type: ignore[arg-type]
-            )
-            uri.text = self.uri
-        if self.email and check_email(self.email):
-            email = config.etree.SubElement(
-                element, f"{self.ns}email"  # type: ignore[arg-type]
-            )
-            email.text = self.email
-        return element
+        return super().etree_element()
 
     def from_element(self, element: Element) -> None:
         super().from_element(element)
-        name = element.find(f"{self.ns}name")
-        if name is not None:
-            self.name = name.text
-        else:
-            logger.warning("No Name for person defined")  # type: ignore[unreachable]
-        uri = element.find(f"{self.ns}uri")
-        if uri is not None:
-            self.uri = uri.text
-        email = element.find(f"{self.ns}email")
-        if email is not None and check_email(email.text):
-            self.email = email.text
 
 
 class Author(_Person):

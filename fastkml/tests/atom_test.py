@@ -41,7 +41,9 @@ class TestStdLibrary(StdLibrary):
             title="Title",
             length=3456,
         )
+
         serialized = l.to_string()
+
         assert '<atom:link xmlns:atom="http://www.w3.org/2005/Atom"' in serialized
         assert 'href="#here"' in serialized
         assert 'rel="alternate"' in serialized

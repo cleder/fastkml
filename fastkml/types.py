@@ -17,11 +17,12 @@
 """Types for fastkml."""
 from typing import Callable
 from typing import Iterable
+from typing import Optional
 
 from typing_extensions import Protocol
 from typing_extensions import TypedDict
 
-__all__ = ["Element"]
+__all__ = ["Element", "KmlObjectMap"]
 
 
 class Element(Protocol):
@@ -31,19 +32,19 @@ class Element(Protocol):
     text: str
 
     def set(self, tag: str, value: str) -> None:
-        ...
+        """Set the value of the tag."""
 
     def get(self, tag: str) -> str:
-        ...
+        """Get the value of the tag."""
 
     def find(self, tag: str) -> "Element":
-        ...
+        """Find the first element with the given tag."""
 
     def findall(self, tag: str) -> Iterable["Element"]:
-        ...
+        """Find all elements with the given tag."""
 
     def append(self, element: "Element") -> None:
-        ...
+        """Append an element to the current element."""
 
 
 class KmlObjectMap(TypedDict):
@@ -54,3 +55,4 @@ class KmlObjectMap(TypedDict):
     required: bool
     from_kml: Callable[..., None]
     to_kml: Callable[..., None]
+    validator: Optional[Callable[..., bool]]

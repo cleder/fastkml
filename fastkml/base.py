@@ -17,6 +17,7 @@
 """Abstract base classes"""
 import logging
 from typing import Any
+from typing import Callable
 from typing import Optional
 from typing import Tuple
 from typing import cast
@@ -41,7 +42,11 @@ def o_to_attr(
     if attribute:
         element.set(kml_attr, str(attribute))
     elif required:
-        logger.warning("Required attribute '%s' missing.", obj_attr)
+        logger.warning(
+            "Required attribute '%s' for '%s' missing.",
+            obj_attr,
+            obj.__class__.__name__,
+        )
 
 
 def o_from_attr(
@@ -57,7 +62,11 @@ def o_from_attr(
     if attribute:
         setattr(obj, obj_attr, attribute)
     elif required:
-        logger.warning("Required attribute '%s' missing.", kml_attr)
+        logger.warning(
+            "Required attribute '%s' for '%s' missing.",
+            kml_attr,
+            obj.__class__.__name__,
+        )
 
 
 def o_int_from_attr(
@@ -76,7 +85,71 @@ def o_int_from_attr(
     if attribute is not None:
         setattr(obj, obj_attr, attribute)
     elif required:
-        logger.warning("Required attribute '%s' missing.", kml_attr)
+        logger.warning(
+            "Required attribute '%s' for '%s' missing.",
+            kml_attr,
+            obj.__class__.__name__,
+        )
+
+
+def o_from_subelement_text(
+    obj: object,
+    element: Element,
+    kml_attr: str,
+    obj_attr: str,
+    required: bool,
+    validator: Optional[Callable[..., bool]] = None,
+    **kwargs: Any,
+) -> None:
+    """Set an attribute on self from the text of a SubElement."""
+    elem = element.find(f"{obj.ns}{kml_attr}")  # type: ignore[attr-defined]
+    if elem is not None:
+        if validator is not None and not validator(elem.text):
+            logger.warning(
+                "Invalid value for attribute '%s' for '%s'",
+                kml_attr,
+                obj.__class__.__name__,
+            )
+        else:
+            setattr(obj, obj_attr, elem.text)
+    elif required:  # type: ignore[unreachable]
+        logger.warning(
+            "Required attribute '%s' for '%s' missing.",
+            kml_attr,
+            obj.__class__.__name__,
+        )
+
+
+def o_to_subelement_text(
+    obj: object,
+    element: Element,
+    kml_attr: str,
+    obj_attr: str,
+    required: bool,
+    validator: Optional[Callable[..., bool]] = None,
+    **kwargs: Any,
+) -> None:
+    """Set the text of a SubElement from an object attribute."""
+    attribute = getattr(obj, obj_attr)
+    if attribute:
+        if validator is not None and not validator(attribute):
+            logger.warning(
+                "Invalid value for attribute '%s' for '%s'",
+                obj_attr,
+                obj.__class__.__name__,
+            )
+        else:
+            elem = config.etree.SubElement(
+                element,  # type: ignore[arg-type]
+                f"{obj.ns}{kml_attr}",  # type: ignore[attr-defined]
+            )
+            elem.text = str(attribute)
+    elif required:
+        logger.warning(
+            "Required attribute '%s' for '%s' missing.",
+            obj_attr,
+            obj.__class__.__name__,
+        )
 
 
 class _XMLObject:
@@ -153,6 +226,7 @@ class _BaseObject(_XMLObject):
             "from_kml": o_from_attr,
             "to_kml": o_to_attr,
             "required": False,
+            "validator": None,
         },
         {
             "kml_attr": "targetId",
@@ -160,6 +234,7 @@ class _BaseObject(_XMLObject):
             "from_kml": o_from_attr,
             "to_kml": o_to_attr,
             "required": False,
+            "validator": None,
         },
     )
 
