@@ -16,6 +16,8 @@
 
 """Test the styles classes."""
 
+from typing import NoReturn
+
 from fastkml.tests.base import Lxml
 from fastkml.tests.base import StdLibrary
 
@@ -23,76 +25,76 @@ from fastkml.tests.base import StdLibrary
 class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
 
-    def test_style_url(self):
+    def test_style_url(self) -> NoReturn:
         assert None
 
-    def test_style_url_read(self):
+    def test_style_url_read(self) -> NoReturn:
         assert None
 
-    def test_style_url_roundtrip(self):
+    def test_style_url_roundtrip(self) -> NoReturn:
         assert None
 
-    def test_icon_style(self):
+    def test_icon_style(self) -> NoReturn:
         assert None
 
-    def test_icon_style_read(self):
+    def test_icon_style_read(self) -> NoReturn:
         assert None
 
-    def test_icon_style_rountrip(self):
+    def test_icon_style_roundtrip(self):
         assert None
 
-    def test_line_style(self):
+    def test_line_style(self) -> NoReturn:
         assert None
 
-    def test_line_style_read(self):
+    def test_line_style_read(self) -> NoReturn:
         assert None
 
-    def test_line_style_roundtrip(self):
+    def test_line_style_roundtrip(self) -> NoReturn:
         assert None
 
-    def test_poly_style(self):
+    def test_poly_style(self) -> NoReturn:
         assert None
 
-    def test_poly_style_read(self):
+    def test_poly_style_read(self) -> NoReturn:
         assert None
 
-    def test_poly_style_roundtrip(self):
+    def test_poly_style_roundtrip(self) -> NoReturn:
         assert None
 
-    def test_label_style(self):
+    def test_label_style(self) -> NoReturn:
         assert None
 
-    def test_label_style_read(self):
+    def test_label_style_read(self) -> NoReturn:
         assert None
 
-    def test_label_style_roundtrip(self):
+    def test_label_style_roundtrip(self) -> NoReturn:
         assert None
 
-    def test_balloon_style(self):
+    def test_balloon_style(self) -> NoReturn:
         assert None
 
-    def test_balloon_style_read(self):
+    def test_balloon_style_read(self) -> NoReturn:
         assert None
 
-    def test_balloon_style_roundtrip(self):
+    def test_balloon_style_roundtrip(self) -> NoReturn:
         assert None
 
-    def test_style(self):
+    def test_style(self) -> NoReturn:
         assert None
 
-    def test_style_read(self):
+    def test_style_read(self) -> NoReturn:
         assert None
 
-    def test_style_roundtrip(self):
+    def test_style_roundtrip(self) -> NoReturn:
         assert None
 
-    def test_stylemap(self):
+    def test_stylemap(self) -> NoReturn:
         assert None
 
-    def test_stylemap_read(self):
+    def test_stylemap_read(self) -> NoReturn:
         assert None
 
-    def test_stylemap_roundtrip(self):
+    def test_stylemap_roundtrip(self) -> NoReturn:
         assert None
 
 
