@@ -37,11 +37,11 @@ from typing import Optional
 from typing import Tuple
 
 from fastkml.base import _XMLObject
-from fastkml.base import o_from_attr
-from fastkml.base import o_from_subelement_text
-from fastkml.base import o_int_from_attr
-from fastkml.base import o_to_attr
-from fastkml.base import o_to_subelement_text
+from fastkml.helpers import o_from_attr
+from fastkml.helpers import o_from_subelement_text
+from fastkml.helpers import o_int_from_attr
+from fastkml.helpers import o_to_attr
+from fastkml.helpers import o_to_subelement_text
 from fastkml.types import Element
 from fastkml.types import KmlObjectMap
 

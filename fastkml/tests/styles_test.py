@@ -15,13 +15,15 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the styles classes."""
-
 from typing import NoReturn
+
+import pytest
 
 from fastkml.tests.base import Lxml
 from fastkml.tests.base import StdLibrary
 
 
+@pytest.mark.skip()
 class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
 
@@ -98,5 +100,6 @@ class TestStdLibrary(StdLibrary):
         assert None
 
 
+@pytest.mark.skip()
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""

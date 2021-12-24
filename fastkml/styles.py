@@ -51,7 +51,7 @@ class StyleUrl(_BaseObject):
         target_id: Optional[str] = None,
         url: Optional[str] = None,
     ) -> None:
-        super().__init__(ns, id)
+        super().__init__(ns, id, target_id)
         self.url = url
 
     def etree_element(self) -> Element:
@@ -102,10 +102,11 @@ class _ColorStyle(_BaseObject):
         self,
         ns: Optional[str] = None,
         id: Optional[str] = None,
+        target_id: Optional[str] = None,
         color: Optional[str] = None,
         color_mode: Optional[str] = None,
     ) -> None:
-        super().__init__(ns, id)
+        super().__init__(ns, id, target_id)
         self.color = color
         self.color_mode = color_mode
 
@@ -152,13 +153,14 @@ class IconStyle(_ColorStyle):
         self,
         ns: Optional[str] = None,
         id: Optional[str] = None,
+        target_id: Optional[str] = None,
         color: Optional[str] = None,
         color_mode: Optional[str] = None,
         scale: float = 1.0,
         heading: Optional[float] = None,
         icon_href: Optional[str] = None,
     ) -> None:
-        super().__init__(ns, id, color, color_mode)
+        super().__init__(ns, id, target_id, color, color_mode)
         self.scale = scale
         self.heading = heading
         self.icon_href = icon_href
@@ -220,11 +222,12 @@ class LineStyle(_ColorStyle):
         self,
         ns: Optional[str] = None,
         id: Optional[str] = None,
+        target_id: Optional[str] = None,
         color: Optional[str] = None,
         color_mode: Optional[str] = None,
         width: Union[int, float] = 1,
     ) -> None:
-        super().__init__(ns, id, color, color_mode)
+        super().__init__(ns, id, target_id, color, color_mode)
         self.width = width
 
     def etree_element(self) -> Element:
@@ -262,12 +265,13 @@ class PolyStyle(_ColorStyle):
         self,
         ns: Optional[str] = None,
         id: Optional[str] = None,
+        target_id: Optional[str] = None,
         color: Optional[str] = None,
         color_mode: Optional[str] = None,
         fill: int = 1,
         outline: int = 1,
     ) -> None:
-        super().__init__(ns, id, color, color_mode)
+        super().__init__(ns, id, target_id, color, color_mode)
         self.fill = fill
         self.outline = outline
 
@@ -310,11 +314,12 @@ class LabelStyle(_ColorStyle):
         self,
         ns: Optional[str] = None,
         id: Optional[str] = None,
+        target_id: Optional[str] = None,
         color: Optional[str] = None,
         color_mode: Optional[str] = None,
         scale: float = 1.0,
     ) -> None:
-        super().__init__(ns, id, color, color_mode)
+        super().__init__(ns, id, target_id, color, color_mode)
         self.scale = scale
 
     def etree_element(self) -> Element:
@@ -389,12 +394,13 @@ class BalloonStyle(_BaseObject):
         self,
         ns: Optional[str] = None,
         id: Optional[str] = None,
+        target_id: Optional[str] = None,
         bg_color: Optional[str] = None,
         text_color: Optional[str] = None,
         text: Optional[str] = None,
         display_mode: Optional[str] = None,
     ) -> None:
-        super().__init__(ns, id)
+        super().__init__(ns, id, target_id)
         self.bg_color = bg_color
         self.text_color = text_color
         self.text = text
@@ -467,9 +473,10 @@ class Style(_StyleSelector):
         self,
         ns: Optional[str] = None,
         id: None = None,
+        target_id: Optional[str] = None,
         styles: Optional[Iterable[AnyStyle]] = None,
     ) -> None:
-        super().__init__(ns, id)
+        super().__init__(ns, id, target_id)
         self._styles: List[AnyStyle] = []
         if styles:
             for style in styles:
@@ -544,10 +551,11 @@ class StyleMap(_StyleSelector):
         self,
         ns: Optional[str] = None,
         id: Optional[str] = None,
+        target_id: Optional[str] = None,
         normal: Optional[Union[Style, StyleUrl]] = None,
         highlight: Optional[Union[Style, StyleUrl]] = None,
     ) -> None:
-        super().__init__(ns, id)
+        super().__init__(ns, id, target_id)
         self.normal = normal
         self.highlight = highlight
 
