@@ -49,7 +49,12 @@ from .config import ATOMNS as NS
 
 logger = logging.getLogger(__name__)
 regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
-check_email = re.compile(regex).match
+check_email_match = re.compile(regex).match
+
+
+def check_email(email: str) -> bool:
+    """Check if the email address is valid."""
+    return bool(check_email_match(email))
 
 
 class Link(_XMLObject):
