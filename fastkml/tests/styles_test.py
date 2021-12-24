@@ -15,19 +15,85 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the styles classes."""
-from typing import cast
 
-import pytest
-
-from fastkml import config
-from fastkml import styles
-from fastkml import types
 from fastkml.tests.base import Lxml
 from fastkml.tests.base import StdLibrary
 
 
 class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
+
+    def test_style_url(self):
+        assert None
+
+    def test_style_url_read(self):
+        assert None
+
+    def test_style_url_roundtrip(self):
+        assert None
+
+    def test_icon_style(self):
+        assert None
+
+    def test_icon_style_read(self):
+        assert None
+
+    def test_icon_style_rountrip(self):
+        assert None
+
+    def test_line_style(self):
+        assert None
+
+    def test_line_style_read(self):
+        assert None
+
+    def test_line_style_roundtrip(self):
+        assert None
+
+    def test_poly_style(self):
+        assert None
+
+    def test_poly_style_read(self):
+        assert None
+
+    def test_poly_style_roundtrip(self):
+        assert None
+
+    def test_label_style(self):
+        assert None
+
+    def test_label_style_read(self):
+        assert None
+
+    def test_label_style_roundtrip(self):
+        assert None
+
+    def test_balloon_style(self):
+        assert None
+
+    def test_balloon_style_read(self):
+        assert None
+
+    def test_balloon_style_roundtrip(self):
+        assert None
+
+    def test_style(self):
+        assert None
+
+    def test_style_read(self):
+        assert None
+
+    def test_style_roundtrip(self):
+        assert None
+
+    def test_stylemap(self):
+        assert None
+
+    def test_stylemap_read(self):
+        assert None
+
+    def test_stylemap_roundtrip(self):
+        assert None
 
 
 class TestLxml(Lxml, TestStdLibrary):

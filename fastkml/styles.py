@@ -48,18 +48,19 @@ class StyleUrl(_BaseObject):
         self,
         ns: Optional[str] = None,
         id: Optional[str] = None,
+        target_id: Optional[str] = None,
         url: Optional[str] = None,
     ) -> None:
         super().__init__(ns, id)
         self.url = url
 
     def etree_element(self) -> Element:
+        element = super().etree_element()
         if self.url:
-            element = super().etree_element()
             element.text = self.url
-            return element
         else:
-            raise ValueError("No url given for styleUrl")
+            logger.warning("StyleUrl is missing required url.")
+        return element
 
     def from_element(self, element: Element) -> None:
         super().from_element(element)
