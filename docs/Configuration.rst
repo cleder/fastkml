@@ -4,7 +4,6 @@ Configuration
 ElementTree configuration
 --------------------------
 
-
 By default, fastkml uses the standard libraries
 ``xml.etree.ElementTree`` or, if installed, ``lxml.etree``
 as its parser, but you can change this by setting the

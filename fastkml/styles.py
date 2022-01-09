@@ -173,7 +173,7 @@ class IconStyle(_ColorStyle):
                 f"{self.ns}scale",
             )
             scale.text = str(self.scale)
-        if self.heading:
+        if self.heading is not None:
             heading = config.etree.SubElement(
                 element,  # type: ignore[arg-type]
                 f"{self.ns}heading",

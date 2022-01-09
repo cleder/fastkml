@@ -15,91 +15,256 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the styles classes."""
-from typing import NoReturn
 
-import pytest
-
+from fastkml import styles
 from fastkml.tests.base import Lxml
 from fastkml.tests.base import StdLibrary
 
 
-@pytest.mark.skip()
 class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
 
-    def test_style_url(self) -> NoReturn:
-        assert None
+    def test_style_url(self) -> None:
+        url = styles.StyleUrl(id="id-0", url="#style-0", target_id="target-0")
 
-    def test_style_url_read(self) -> NoReturn:
-        assert None
+        serialized = url.to_string()
 
-    def test_style_url_roundtrip(self) -> NoReturn:
-        assert None
+        assert '<kml:styleUrl xmlns:kml="http://www.opengis.net/kml/2.2"' in serialized
+        assert 'id="id-0"' in serialized
+        assert 'targetId="target-0"' in serialized
+        assert ">#style-0</kml:styleUrl>" in serialized
 
-    def test_icon_style(self) -> NoReturn:
-        assert None
+    def test_style_url_read(self) -> None:
+        url = styles.StyleUrl()
+        url.from_string(
+            '<kml:styleUrl xmlns:kml="http://www.opengis.net/kml/2.2"'
+            ' id="id-0" targetId="target-0">#style-0</kml:styleUrl>'
+        )
+        assert url.id == "id-0"
+        assert url.url == "#style-0"
+        assert url.target_id == "target-0"
 
-    def test_icon_style_read(self) -> NoReturn:
-        assert None
+    def test_icon_style(self) -> None:
+        icons = styles.IconStyle(
+            id="id-0",
+            target_id="target-0",
+            color="ff0000ff",
+            color_mode="random",
+            scale=1.0,
+            heading=0,
+            icon_href="http://example.com/icon.png",
+        )
 
-    def test_icon_style_roundtrip(self):
-        assert None
+        serialized = icons.to_string()
 
-    def test_line_style(self) -> NoReturn:
-        assert None
+        assert '<kml:IconStyle xmlns:kml="http://www.opengis.net/kml/2.2"' in serialized
+        assert 'id="id-0"' in serialized
+        assert 'targetId="target-0"' in serialized
+        assert "<kml:color>ff0000ff</kml:color>" in serialized
+        assert "<kml:colorMode>random</kml:colorMode>" in serialized
+        assert "<kml:scale>1.0</kml:scale>" in serialized
+        assert "<kml:heading>0</kml:heading>" in serialized
+        assert "<kml:Icon>" in serialized
+        assert "<kml:href>http://example.com/icon.png</kml:href>" in serialized
+        assert "</kml:Icon>" in serialized
+        assert "</kml:IconStyle>" in serialized
 
-    def test_line_style_read(self) -> NoReturn:
-        assert None
+    def test_icon_style_read(self) -> None:
+        icons = styles.IconStyle()
 
-    def test_line_style_roundtrip(self) -> NoReturn:
-        assert None
+        icons.from_string(
+            '<kml:IconStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
+            'id="id-1" targetId="target-1">'
+            "<kml:color>ff2200ff</kml:color><kml:colorMode>random</kml:colorMode>"
+            "<kml:scale>5</kml:scale><kml:heading>20</kml:heading><kml:Icon>"
+            "<kml:href>http://example.com/icon.png</kml:href></kml:Icon>"
+            "</kml:IconStyle>"
+        )
 
-    def test_poly_style(self) -> NoReturn:
-        assert None
+        assert icons.id == "id-1"
+        assert icons.target_id == "target-1"
+        assert icons.color == "ff2200ff"
+        assert icons.color_mode == "random"
+        assert icons.scale == 5.0
+        assert icons.icon_href == "http://example.com/icon.png"
+        assert icons.heading == 20.0
 
-    def test_poly_style_read(self) -> NoReturn:
-        assert None
+    def test_line_style(self) -> None:
 
-    def test_poly_style_roundtrip(self) -> NoReturn:
-        assert None
+        lines = styles.LineStyle(
+            id="id-0",
+            target_id="target-0",
+            color="ff0000ff",
+            color_mode="normal",
+            width=1.0,
+        )
 
-    def test_label_style(self) -> NoReturn:
-        assert None
+        serialized = lines.to_string()
 
-    def test_label_style_read(self) -> NoReturn:
-        assert None
+        assert '<kml:LineStyle xmlns:kml="http://www.opengis.net/kml/2.2"' in serialized
+        assert 'id="id-0"' in serialized
+        assert 'targetId="target-0"' in serialized
+        assert "<kml:color>ff0000ff</kml:color>" in serialized
+        assert "<kml:colorMode>normal</kml:colorMode>" in serialized
+        assert "<kml:width>1.0</kml:width>" in serialized
+        assert "</kml:LineStyle>" in serialized
 
-    def test_label_style_roundtrip(self) -> NoReturn:
-        assert None
+    def test_line_style_read(self) -> None:
+        lines = styles.LineStyle()
+        lines.from_string(
+            '<kml:LineStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
+            'id="id-l0" targetId="target-line">\n'
+            "  <kml:color>ffaa00ff</kml:color>\n"
+            "  <kml:colorMode>normal</kml:colorMode>\n"
+            "  <kml:width>3.0</kml:width>\n"
+            "</kml:LineStyle>\n"
+        )
 
-    def test_balloon_style(self) -> NoReturn:
-        assert None
+        assert lines.id == "id-l0"
+        assert lines.target_id == "target-line"
+        assert lines.color == "ffaa00ff"
+        assert lines.color_mode == "normal"
+        assert lines.width == 3.0
 
-    def test_balloon_style_read(self) -> NoReturn:
-        assert None
+    def test_poly_style(self) -> None:
+        ps = styles.PolyStyle(
+            id="id-0",
+            target_id="target-0",
+            color="ff0000ff",
+            color_mode="random",
+            fill=0,
+            outline=1,
+        )
+        serialized = ps.to_string()
 
-    def test_balloon_style_roundtrip(self) -> NoReturn:
-        assert None
+        assert '<kml:PolyStyle xmlns:kml="http://www.opengis.net/kml/2.2"' in serialized
+        assert 'id="id-0"' in serialized
+        assert 'targetId="target-0"' in serialized
+        assert "<kml:color>ff0000ff</kml:color>" in serialized
+        assert "<kml:colorMode>random</kml:colorMode>" in serialized
+        assert "<kml:fill>0</kml:fill>" in serialized
+        assert "<kml:outline>1</kml:outline>" in serialized
+        assert "</kml:PolyStyle>" in serialized
 
-    def test_style(self) -> NoReturn:
-        assert None
+    def test_poly_style_read(self) -> None:
+        ps = styles.PolyStyle()
 
-    def test_style_read(self) -> NoReturn:
-        assert None
+        ps.from_string(
+            '<kml:PolyStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
+            'id="id-1" targetId="target-1">'
+            "<kml:color>ffaabbff</kml:color>"
+            "<kml:colorMode>normal</kml:colorMode>"
+            "<kml:fill>1</kml:fill>"
+            "<kml:outline>0</kml:outline>"
+            "</kml:PolyStyle>"
+        )
 
-    def test_style_roundtrip(self) -> NoReturn:
-        assert None
+        assert ps.id == "id-1"
+        assert ps.target_id == "target-1"
+        assert ps.color == "ffaabbff"
+        assert ps.color_mode == "normal"
+        assert ps.fill == 1
+        assert ps.outline == 0
 
-    def test_stylemap(self) -> NoReturn:
-        assert None
+    def test_label_style(self) -> None:
+        ls = styles.LabelStyle(
+            id="id-0",
+            target_id="target-0",
+            color="ff0000ff",
+            color_mode="random",
+            scale=1.0,
+        )
 
-    def test_stylemap_read(self) -> NoReturn:
-        assert None
+        serialized = ls.to_string()
+        assert (
+            '<kml:LabelStyle xmlns:kml="http://www.opengis.net/kml/2.2"' in serialized
+        )
+        assert 'id="id-0"' in serialized
+        assert 'targetId="target-0"' in serialized
+        assert "<kml:color>ff0000ff</kml:color>" in serialized
+        assert "<kml:colorMode>random</kml:colorMode>" in serialized
+        assert "<kml:scale>1.0</kml:scale>" in serialized
+        assert "</kml:LabelStyle>" in serialized
 
-    def test_stylemap_roundtrip(self) -> NoReturn:
-        assert None
+    def test_label_style_read(self) -> None:
+        ls = styles.LabelStyle()
+
+        ls.from_string(
+            '<kml:LabelStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
+            'id="id-1" targetId="target-1">'
+            "<kml:color>ff001122</kml:color>"
+            "<kml:colorMode>normal</kml:colorMode>"
+            "<kml:scale>2.2</kml:scale>"
+            "</kml:LabelStyle>"
+        )
+
+        assert ls.id == "id-1"
+        assert ls.target_id == "target-1"
+        assert ls.color == "ff001122"
+        assert ls.color_mode == "normal"
+        assert ls.scale == 2.2
+
+    def test_balloon_style(self) -> None:
+        bs = styles.BalloonStyle(
+            id="id-0",
+            target_id="target-0",
+            bg_color="7fff0000",
+            text_color="ff00ff00",
+            text="<b>Hello</b>",
+            display_mode="hide",
+        )
+
+        serialized = bs.to_string()
+
+        assert (
+            '<kml:BalloonStyle xmlns:kml="http://www.opengis.net/kml/2.2"' in serialized
+        )
+        assert 'id="id-0"' in serialized
+        assert 'targetId="target-0">' in serialized
+        assert "<kml:bgColor>7fff0000</kml:bgColor>" in serialized
+        assert "<kml:textColor>ff00ff00</kml:textColor>" in serialized
+        assert "<kml:text>&lt;b&gt;Hello&lt;/b&gt;</kml:text>" in serialized
+        assert "<kml:displayMode>hide</kml:displayMode>" in serialized
+        assert "</kml:BalloonStyle>" in serialized
+
+    def test_balloon_style_read(self) -> None:
+        bs = styles.BalloonStyle()
+
+        bs.from_string(
+            '<kml:BalloonStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
+            'id="id-7" targetId="target-6">'
+            "<kml:bgColor>7fff1144</kml:bgColor>"
+            "<kml:textColor>ff11ff22</kml:textColor>"
+            "<kml:text>&lt;b&gt;World&lt;/b&gt;</kml:text>"
+            "<kml:displayMode>default</kml:displayMode>"
+            "</kml:BalloonStyle>"
+        )
+
+        assert bs.id == "id-7"
+        assert bs.target_id == "target-6"
+        assert bs.bg_color == "7fff1144"
+        assert bs.text_color == "ff11ff22"
+        assert bs.text == "<b>World</b>"
+        assert bs.display_mode == "default"
+
+    def test_style(self) -> None:
+        pass
+
+    def test_style_read(self) -> None:
+        pass
+
+    def test_style_roundtrip(self) -> None:
+        pass
+
+    def test_stylemap(self) -> None:
+        pass
+
+    def test_stylemap_read(self) -> None:
+        pass
+
+    def test_stylemap_roundtrip(self) -> None:
+        pass
 
 
-@pytest.mark.skip()
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
