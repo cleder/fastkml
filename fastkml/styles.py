@@ -25,6 +25,7 @@ from typing import Iterable
 from typing import Iterator
 from typing import List
 from typing import Optional
+from typing import Type
 from typing import Union
 
 from fastkml import config
@@ -500,33 +501,17 @@ class Style(_StyleSelector):
             else:
                 raise TypeError
 
+    def _get_style(self, element: Element, style_class: Type[AnyStyle]) -> None:
+        style = element.find(f"{self.ns}{style_class.__name__}")
+        if style is not None:
+            thestyle = style_class(self.ns)
+            thestyle.from_element(style)
+            self.append_style(thestyle)
+
     def from_element(self, element: Element) -> None:
         super().from_element(element)
-        style = element.find(f"{self.ns}IconStyle")
-        if style is not None:
-            thestyle = IconStyle(self.ns)
-            thestyle.from_element(style)
-            self.append_style(thestyle)
-        style = element.find(f"{self.ns}LineStyle")
-        if style is not None:
-            thestyle = LineStyle(self.ns)  # type: ignore[assignment]
-            thestyle.from_element(style)
-            self.append_style(thestyle)
-        style = element.find(f"{self.ns}PolyStyle")
-        if style is not None:
-            thestyle = PolyStyle(self.ns)  # type: ignore[assignment]
-            thestyle.from_element(style)
-            self.append_style(thestyle)
-        style = element.find(f"{self.ns}LabelStyle")
-        if style is not None:
-            thestyle = LabelStyle(self.ns)  # type: ignore[assignment]
-            thestyle.from_element(style)
-            self.append_style(thestyle)
-        style = element.find(f"{self.ns}BalloonStyle")
-        if style is not None:
-            thestyle = BalloonStyle(self.ns)  # type: ignore[assignment]
-            thestyle.from_element(style)
-            self.append_style(thestyle)
+        for style in [BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle]:
+            self._get_style(element, style)
 
     def etree_element(self) -> Element:
         element = super().etree_element()
