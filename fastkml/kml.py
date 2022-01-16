@@ -118,11 +118,11 @@ class KML:
         try:
             return config.etree.tostring(
                 self.etree_element(),
-                encoding="utf-8",
+                encoding="UTF-8",
                 pretty_print=prettyprint,
             ).decode("UTF-8")
         except TypeError:
-            return config.etree.tostring(self.etree_element(), encoding="utf-8").decode(
+            return config.etree.tostring(self.etree_element(), encoding="UTF-8").decode(
                 "UTF-8"
             )
 

@@ -16,6 +16,12 @@
 
 import logging
 import re
+from typing import Any
+from typing import List
+from typing import Optional
+from typing import Sequence
+from typing import Union
+from typing import cast
 
 from pygeoif.factories import shape
 from pygeoif.geometry import GeometryCollection
@@ -26,18 +32,21 @@ from pygeoif.geometry import MultiPoint
 from pygeoif.geometry import MultiPolygon
 from pygeoif.geometry import Point
 from pygeoif.geometry import Polygon
+from pygeoif.types import PointType
 
 from fastkml import config
-
-from .base import _BaseObject
+from fastkml.base import _BaseObject
+from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
+
+GeometryType = Union[Polygon, LineString, LinearRing, Point]
+MultiGeometryType = Union[MultiPoint, MultiLineString, MultiPolygon, GeometryCollection]
 
 
 class Geometry(_BaseObject):
     """ """
 
-    __name__ = None
     geometry = None
     extrude = False
     tessellate = False
@@ -45,13 +54,13 @@ class Geometry(_BaseObject):
 
     def __init__(
         self,
-        ns=None,
-        id=None,
-        geometry=None,
-        extrude=False,
-        tessellate=False,
-        altitude_mode=None,
-    ):
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        geometry: Optional[Any] = None,
+        extrude: bool = False,
+        tessellate: bool = False,
+        altitude_mode: Optional[str] = None,
+    ) -> None:
         """
         geometry: a geometry that implements the __geo_interface__ convention
 
@@ -120,7 +129,7 @@ class Geometry(_BaseObject):
 
     # write kml
 
-    def _set_altitude_mode(self, element):
+    def _set_altitude_mode(self, element: Element) -> None:
         if self.altitude_mode:
             # XXX add 'relativeToSeaFloor', 'clampToSeaFloor',
             assert self.altitude_mode in [
@@ -129,101 +138,116 @@ class Geometry(_BaseObject):
                 "absolute",
             ]
             if self.altitude_mode != "clampToGround":
-                am_element = config.etree.SubElement(element, f"{self.ns}altitudeMode")
+                am_element = config.etree.SubElement(
+                    element, f"{self.ns}altitudeMode"  # type: ignore[arg-type]
+                )
                 am_element.text = self.altitude_mode
 
-    def _set_extrude(self, element):
+    def _set_extrude(self, element: Element) -> None:
         if self.extrude and self.altitude_mode in [
             "relativeToGround",
             # 'relativeToSeaFloor',
             "absolute",
         ]:
-            et_element = config.etree.SubElement(element, f"{self.ns}extrude")
+            et_element = cast(
+                Element,
+                config.etree.SubElement(
+                    element, f"{self.ns}extrude"  # type: ignore[arg-type]
+                ),
+            )
             et_element.text = "1"
 
-    def _etree_coordinates(self, coordinates):
-        # clampToGround = (
-        #     (self.altitude_mode == 'clampToGround')
-        #     or (self.altitude_mode is None)
-        # )
-        element = config.etree.Element(f"{self.ns}coordinates")
+    def _etree_coordinates(
+        self,
+        coordinates: Sequence[PointType],
+    ) -> Element:
+        element = cast(Element, config.etree.Element(f"{self.ns}coordinates"))
         if len(coordinates[0]) == 2:
             if config.FORCE3D:  # and not clampToGround:
                 tuples = (f"{c[0]:f},{c[1]:f},0.000000" for c in coordinates)
             else:
                 tuples = (f"{c[0]:f},{c[1]:f}" for c in coordinates)
         elif len(coordinates[0]) == 3:
-            # if clampToGround:
-            # if the altitude is ignored anyway, we may as well
-            # ignore the z-value
-            #    tuples = ('%f,%f' % tuple(c[:2]) for c in coordinates)
-            # else:
             tuples = (f"{c[0]:f},{c[1]:f},{c[2]:f}" for c in coordinates)
         else:
             raise ValueError("Invalid dimensions")
         element.text = " ".join(tuples)
         return element
 
-    def _etree_point(self, point):
+    def _etree_point(self, point: Point) -> Element:
         element = self._extrude_and_altitude_mode("Point")
         return self._extracted_from__etree_linearring_5(point, element)
 
-    def _etree_linestring(self, linestring):
+    def _etree_linestring(self, linestring: LineString) -> Element:
         element = self._extrude_and_altitude_mode("LineString")
         if self.tessellate and self.altitude_mode in [
             "clampToGround",
             "clampToSeaFloor",
         ]:
-            ts_element = config.etree.SubElement(element, f"{self.ns}tessellate")
+            ts_element = config.etree.SubElement(
+                element, f"{self.ns}tessellate"  # type: ignore[arg-type]
+            )
             ts_element.text = "1"
         return self._extracted_from__etree_linearring_5(linestring, element)
 
-    def _etree_linearring(self, linearring):
+    def _etree_linearring(self, linearring: LinearRing) -> Element:
         element = self._extrude_and_altitude_mode("LinearRing")
         return self._extracted_from__etree_linearring_5(linearring, element)
 
-    def _extracted_from__etree_linearring_5(self, arg0, element):
+    def _extracted_from__etree_linearring_5(
+        self, arg0: Union[LineString, LinearRing, Point], element: Element
+    ) -> Element:
         coords = list(arg0.coords)
         element.append(self._etree_coordinates(coords))
         return element
 
-    def _etree_polygon(self, polygon):
+    def _etree_polygon(self, polygon: Polygon) -> Element:
         element = self._extrude_and_altitude_mode("Polygon")
-        outer_boundary = config.etree.SubElement(element, f"{self.ns}outerBoundaryIs")
+        outer_boundary = cast(
+            Element,
+            config.etree.SubElement(
+                element,  # type: ignore[arg-type]
+                f"{self.ns}outerBoundaryIs",
+            ),
+        )
         outer_boundary.append(self._etree_linearring(polygon.exterior))
         for ib in polygon.interiors:
-            inner_boundary = config.etree.SubElement(
-                element, f"{self.ns}innerBoundaryIs"
+            inner_boundary = cast(
+                Element,
+                config.etree.SubElement(
+                    element,  # type: ignore[arg-type]
+                    f"{self.ns}innerBoundaryIs",
+                ),
             )
             inner_boundary.append(self._etree_linearring(ib))
         return element
 
-    def _extrude_and_altitude_mode(self, kml_geometry):
-        result = config.etree.Element(f"{self.ns}{kml_geometry}")
+    def _extrude_and_altitude_mode(self, kml_geometry: str) -> Element:
+        result = cast(Element, config.etree.Element(f"{self.ns}{kml_geometry}"))
         self._set_extrude(result)
         self._set_altitude_mode(result)
         return result
 
-    def _etree_multipoint(self, points):
-        element = config.etree.Element(f"{self.ns}MultiGeometry")
+    def _etree_multipoint(self, points: MultiPoint) -> Element:
+        element = cast(Element, config.etree.Element(f"{self.ns}MultiGeometry"))
         for point in points.geoms:
             element.append(self._etree_point(point))
         return element
 
-    def _etree_multilinestring(self, linestrings):
-        element = config.etree.Element(f"{self.ns}MultiGeometry")
+    def _etree_multilinestring(self, linestrings: MultiLineString) -> Element:
+        element = cast(Element, config.etree.Element(f"{self.ns}MultiGeometry"))
         for linestring in linestrings.geoms:
             element.append(self._etree_linestring(linestring))
         return element
 
-    def _etree_multipolygon(self, polygons):
-        element = config.etree.Element(f"{self.ns}MultiGeometry")
+    def _etree_multipolygon(self, polygons: MultiPolygon) -> Element:
+        element = cast(Element, config.etree.Element(f"{self.ns}MultiGeometry"))
         for polygon in polygons.geoms:
             element.append(self._etree_polygon(polygon))
         return element
 
-    def _etree_collection(self, features):
-        element = config.etree.Element(f"{self.ns}MultiGeometry")
+    def _etree_collection(self, features: GeometryCollection) -> Element:
+        element = cast(Element, config.etree.Element(f"{self.ns}MultiGeometry"))
         for feature in features.geoms:
             if feature.geom_type == "Point":
                 element.append(self._etree_point(feature))
@@ -237,7 +261,7 @@ class Geometry(_BaseObject):
                 raise ValueError("Illegal geometry type.")
         return element
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         if isinstance(self.geometry, Point):
             return self._etree_point(self.geometry)
         elif isinstance(self.geometry, LinearRing):
@@ -259,7 +283,7 @@ class Geometry(_BaseObject):
 
     # read kml
 
-    def _get_geometry_spec(self, element):
+    def _get_geometry_spec(self, element: Element) -> None:
         extrude = element.find(f"{self.ns}extrude")
         if extrude is not None:
             try:
@@ -293,7 +317,7 @@ class Geometry(_BaseObject):
         else:
             self.altitude_mode = None
 
-    def _get_coordinates(self, element):
+    def _get_coordinates(self, element: Element) -> List[PointType]:
         coordinates = element.find(f"{self.ns}coordinates")
         if coordinates is not None:
             # https://developers.google.com/kml/documentation/kmlreference#coordinates
@@ -303,16 +327,20 @@ class Geometry(_BaseObject):
             # spaces. Clean up badly formatted tuples by stripping
             # space following commas.
             latlons = re.sub(r", +", ",", coordinates.text.strip()).split()
-            return [[float(c) for c in latlon.split(",")] for latlon in latlons]
+            return [
+                cast(PointType, tuple(float(c) for c in latlon.split(",")))
+                for latlon in latlons
+            ]
 
-    def _get_linear_ring(self, element):
+    def _get_linear_ring(self, element: Element) -> Optional[LinearRing]:
         # LinearRing in polygon
         lr = element.find(f"{self.ns}LinearRing")
         if lr is not None:
             coords = self._get_coordinates(lr)
             return LinearRing(coords)
+        return None
 
-    def _get_geometry(self, element):
+    def _get_geometry(self, element: Element) -> Optional[GeometryType]:
         # Point, LineString,
         # Polygon, LinearRing
         if element.tag == f"{self.ns}Point":
@@ -338,7 +366,7 @@ class Geometry(_BaseObject):
             self._get_geometry_spec(element)
             return LinearRing(coords)
 
-    def _get_multigeometry(self, element):
+    def _get_multigeometry(self, element: Element) -> GeometryType:
         # MultiGeometry
         geoms = []
         if element.tag == f"{self.ns}MultiGeometry":
@@ -379,7 +407,7 @@ class Geometry(_BaseObject):
             elif "LinearRing" in geom_types:
                 return GeometryCollection(geoms)
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         geom = self._get_geometry(element)
         if geom is not None:
             self.geometry = geom
