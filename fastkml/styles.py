@@ -454,7 +454,7 @@ class BalloonStyle(_BaseObject):
         return element
 
 
-AnyStyle = Union[BalloonStyle, _ColorStyle]
+AnyStyle = Union[BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle]
 
 
 class Style(_StyleSelector):
@@ -472,7 +472,7 @@ class Style(_StyleSelector):
     def __init__(
         self,
         ns: Optional[str] = None,
-        id: None = None,
+        id: Optional[str] = None,
         target_id: Optional[str] = None,
         styles: Optional[Iterable[AnyStyle]] = None,
     ) -> None:

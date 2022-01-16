@@ -357,33 +357,33 @@ class TestStdLibrary(StdLibrary):
         assert style.target_id == "target-0"
         assert list(style.styles())[0].id == "id-i0"
         assert list(style.styles())[0].target_id == "target-i0"
-        assert list(style.styles())[0].color == "ff0000ff"
-        assert list(style.styles())[0].color_mode == "random"
-        assert list(style.styles())[0].scale == 1.0
-        assert list(style.styles())[0].heading == 0
-        assert list(style.styles())[0].icon_href == "http://example.com/icon.png"
+        assert list(style.styles())[0].color == "ff0000ff"  # type: ignore[union-attr]
+        assert list(style.styles())[0].color_mode == "random"  # type: ignore[union-attr]
+        assert list(style.styles())[0].scale == 1.0  # type: ignore[union-attr]
+        assert list(style.styles())[0].heading == 0  # type: ignore[union-attr]
+        assert list(style.styles())[0].icon_href == "http://example.com/icon.png"  # type: ignore[union-attr]
         assert list(style.styles())[1].id == "id-l0"
         assert list(style.styles())[1].target_id == "target-l0"
-        assert list(style.styles())[1].color == "ff0000ff"
-        assert list(style.styles())[1].color_mode == "normal"
-        assert list(style.styles())[1].width == 1.0
+        assert list(style.styles())[1].color == "ff0000ff"  # type: ignore[union-attr]
+        assert list(style.styles())[1].color_mode == "normal"  # type: ignore[union-attr]
+        assert list(style.styles())[1].width == 1.0  # type: ignore[union-attr]
         assert list(style.styles())[2].id == "id-p0"
         assert list(style.styles())[2].target_id == "target-p0"
-        assert list(style.styles())[2].color == "ff0000ff"
-        assert list(style.styles())[2].color_mode == "random"
-        assert list(style.styles())[2].fill == 0
-        assert list(style.styles())[2].outline == 1
+        assert list(style.styles())[2].color == "ff0000ff"  # type: ignore[union-attr]
+        assert list(style.styles())[2].color_mode == "random"  # type: ignore[union-attr]
+        assert list(style.styles())[2].fill == 0  # type: ignore[union-attr]
+        assert list(style.styles())[2].outline == 1  # type: ignore[union-attr]
         assert list(style.styles())[3].id == "id-a0"
         assert list(style.styles())[3].target_id == "target-a0"
-        assert list(style.styles())[3].color == "ff0000ff"
-        assert list(style.styles())[3].color_mode == "random"
-        assert list(style.styles())[3].scale == 1.0
+        assert list(style.styles())[3].color == "ff0000ff"  # type: ignore[union-attr]
+        assert list(style.styles())[3].color_mode == "random"  # type: ignore[union-attr]
+        assert list(style.styles())[3].scale == 1.0  # type: ignore[union-attr]
         assert list(style.styles())[4].id == "id-b0"
         assert list(style.styles())[4].target_id == "target-b0"
-        assert list(style.styles())[4].bg_color == "7fff0000"
-        assert list(style.styles())[4].text_color == "ff00ff00"
-        assert list(style.styles())[4].text == "<b>Hello</b>"
-        assert list(style.styles())[4].display_mode == "hide"
+        assert list(style.styles())[4].bg_color == "7fff0000"  # type: ignore[union-attr]
+        assert list(style.styles())[4].text_color == "ff00ff00"  # type: ignore[union-attr]
+        assert list(style.styles())[4].text == "<b>Hello</b>"  # type: ignore[union-attr]
+        assert list(style.styles())[4].display_mode == "hide"  # type: ignore[union-attr]
 
     def test_stylemap(self) -> None:
         url = styles.StyleUrl(id="id-0", url="#style-0", target_id="target-0")
@@ -431,7 +431,6 @@ class TestStdLibrary(StdLibrary):
             target_id="target-0",
             styles=[icons, lines, bs, ls, ps],
         )
-
         sm = styles.StyleMap(
             id="id-sm-0",
             target_id="target-sm-0",
@@ -538,10 +537,10 @@ class TestStdLibrary(StdLibrary):
 
         assert sm.id == "id-sm-0"
         assert sm.target_id == "target-sm-0"
-        assert sm.normal.id == "id-0"
-        assert sm.normal.target_id == "target-0"
-        assert sm.highlight.id == "id-u0"
-        assert sm.highlight.target_id == "target-u0"
+        assert sm.normal.id == "id-0"  # type: ignore[union-attr]
+        assert sm.normal.target_id == "target-0"  # type: ignore[union-attr]
+        assert sm.highlight.id == "id-u0"  # type: ignore[union-attr]
+        assert sm.highlight.target_id == "target-u0"  # type: ignore[union-attr]
 
 
 class TestLxml(Lxml, TestStdLibrary):
