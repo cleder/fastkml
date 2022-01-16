@@ -1,4 +1,4 @@
-# Copyright (C) 2012 - 2021  Christian Ledermann
+# Copyright (C) 2012 - 2022  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -303,7 +303,7 @@ class PolyStyle(_ColorStyle):
 
 class LabelStyle(_ColorStyle):
     """
-    Specifies how the <name> of a Feature is drawn in the 3D viewer
+    Specifies how the <name> of a Feature is drawn in the 3D viewer.
     """
 
     __name__ = "LabelStyle"
