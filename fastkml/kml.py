@@ -1166,7 +1166,11 @@ class _TimePrimitive(_BaseObject):
             elif resolution == "gYearMonth":
                 return dt.strftime("%Y-%m")
             elif resolution == "date":
-                return dt.date().isoformat() if isinstance(dt, datetime) else dt.isoformat()
+                return (
+                    dt.date().isoformat()
+                    if isinstance(dt, datetime)
+                    else dt.isoformat()
+                )
             elif resolution == "dateTime":
                 return dt.isoformat()
 
