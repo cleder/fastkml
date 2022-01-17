@@ -42,6 +42,7 @@ logger = logging.getLogger(__name__)
 
 GeometryType = Union[Polygon, LineString, LinearRing, Point]
 MultiGeometryType = Union[MultiPoint, MultiLineString, MultiPolygon, GeometryCollection]
+AnyGeometryType = Union[GeometryType, MultiGeometryType]
 
 
 class Geometry(_BaseObject):
@@ -168,7 +169,9 @@ class Geometry(_BaseObject):
             else:
                 tuples = (f"{c[0]:f},{c[1]:f}" for c in coordinates)
         elif len(coordinates[0]) == 3:
-            tuples = (f"{c[0]:f},{c[1]:f},{c[2]:f}" for c in coordinates)
+            tuples = (
+                f"{c[0]:f},{c[1]:f},{c[2]:f}" for c in coordinates  # type: ignore[misc]
+            )
         else:
             raise ValueError("Invalid dimensions")
         element.text = " ".join(tuples)
@@ -355,20 +358,23 @@ class Geometry(_BaseObject):
             self._get_geometry_spec(element)
             outer_boundary = element.find(f"{self.ns}outerBoundaryIs")
             ob = self._get_linear_ring(outer_boundary)
+            if not ob:
+                return None
             inner_boundaries = element.findall(f"{self.ns}innerBoundaryIs")
             ibs = [
                 self._get_linear_ring(inner_boundary)
                 for inner_boundary in inner_boundaries
             ]
-            return Polygon.from_linear_rings(ob, *ibs)
+            return Polygon.from_linear_rings(ob, *[b for b in ibs if b])
         if element.tag == f"{self.ns}LinearRing":
             coords = self._get_coordinates(element)
             self._get_geometry_spec(element)
             return LinearRing(coords)
+        return None
 
-    def _get_multigeometry(self, element: Element) -> GeometryType:
+    def _get_multigeometry(self, element: Element) -> Optional[GeometryType]:
         # MultiGeometry
-        geoms = []
+        geoms: List[AnyGeometryType] = []
         if element.tag == f"{self.ns}MultiGeometry":
             points = element.findall(f"{self.ns}Point")
             for point in points:
@@ -406,6 +412,7 @@ class Geometry(_BaseObject):
                 return MultiPolygon.from_polygons(*geoms)
             elif "LinearRing" in geom_types:
                 return GeometryCollection(geoms)
+        return None
 
     def from_element(self, element: Element) -> None:
         geom = self._get_geometry(element)

@@ -70,7 +70,7 @@ class _XMLObject:
                 str,
                 config.etree.tostring(  # type: ignore[call-overload]
                     self.etree_element(),
-                    encoding="utf-8",
+                    encoding="UTF-8",
                     pretty_print=prettyprint,
                 ).decode("UTF-8"),
             )
@@ -78,7 +78,7 @@ class _XMLObject:
             return cast(
                 str,
                 config.etree.tostring(  # type: ignore[call-overload]
-                    self.etree_element(), encoding="utf-8"
+                    self.etree_element(), encoding="UTF-8"
                 ).decode("UTF-8"),
             )
 
