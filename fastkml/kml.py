@@ -28,12 +28,14 @@ import logging
 import urllib.parse as urlparse
 from datetime import date
 from datetime import datetime
+from xml.dom.expatbuilder import parseString
 
 # note that there are some ISO 8601 timeparsers at pypi
 # but in my tests all of them had some errors so we rely on the
 # tried and tested dateutil here which is more stable. As a side effect
 # we can also parse non ISO compliant dateTimes
 import dateutil.parser
+from matplotlib.pyplot import phase_spectrum
 
 import fastkml.atom as atom
 import fastkml.config as config
@@ -715,12 +717,258 @@ class _Overlay(_Feature):
             self.icon = icon.text
 
 
+class PhotoOverlay(_Overlay):
+    """
+    The <PhotoOverlay> element allows you to geographically locate a photograph 
+    on the Earth and to specify viewing parameters for this PhotoOverlay. 
+    The PhotoOverlay can be a simple 2D rectangle, a partial or full cylinder, 
+    or a sphere (for spherical panoramas). The overlay is placed at the 
+    specified location and oriented toward the viewpoint.
+
+    Because <PhotoOverlay> is derived from <Feature>, it can contain one of
+    the two elements derived from <AbstractView>—either <Camera> or <LookAt>. 
+    The Camera (or LookAt) specifies a viewpoint and a viewing direction (also 
+    referred to as a view vector). The PhotoOverlay is positioned in relation 
+    to the viewpoint. Specifically, the plane of a 2D rectangular image is 
+    orthogonal (at right angles to) the view vector. The normal of this 
+    plane—that is, its front, which is the part 
+    with the photo—is oriented toward the viewpoint.
+
+    The URL for the PhotoOverlay image is specified in the <Icon> tag, 
+    which is inherited from <Overlay>. The <Icon> tag must contain an <href> 
+    element that specifies the image file to use for the PhotoOverlay. 
+    In the case of a very large image, the <href> is a special URL that 
+    indexes into a pyramid of images of varying resolutions (see ImagePyramid).
+    """
+
+    __name__ = "PhotoOverlay"
+
+    _rotation = None
+    # Adjusts how the photo is placed inside the field of view. This element is
+    # useful if your photo has been rotated and deviates slightly from a desired
+    # horizontal view.
+
+    # - ViewVolume -
+    # Defines how much of the current scene is visible. Specifying the field of
+    # view is analogous to specifying the lens opening in a physical camera.
+    # A small field of view, like a telephoto lens, focuses on a small part of
+    # the scene. A large field of view, like a wide-angle lens, focuses on a
+    # large part of the scene.
+
+    _leftFov = None
+    # Angle, in degrees, between the camera's viewing direction and the left side
+    # of the view volume.
+
+    _rightFov = None
+    # Angle, in degrees, between the camera's viewing direction and the right side
+    # of the view volume.
+
+    _bottomFov = None
+    # Angle, in degrees, between the camera's viewing direction and the bottom side
+    # of the view volume.
+
+    _topFov = None
+    # Angle, in degrees, between the camera's viewing direction and the top side
+    # of the view volume.
+
+    _near = None
+    # Measurement in meters along the viewing direction from the camera viewpoint
+    # to the PhotoOverlay shape.
+
+    _tileSize = "256"
+    # Size of the tiles, in pixels. Tiles must be square, and <tileSize> must
+    # be a power of 2. A tile size of 256 (the default) or 512 is recommended.
+    # The original image is divided into tiles of this size, at varying resolutions.
+
+    _maxWidth = None
+    # Width in pixels of the original image.
+
+    _maxHeight = None
+    # Height in pixels of the original image.
+
+    _gridOrigin = None
+    # Specifies where to begin numbering the tiles in each layer of the pyramid.
+    # A value of lowerLeft specifies that row 1, column 1 of each layer is in
+    # the bottom left corner of the grid.
+
+    _point = None
+    # The <Point> element acts as a <Point> inside a <Placemark> element.
+    # It draws an icon to mark the position of the PhotoOverlay.
+    # The icon drawn is specified by the <styleUrl> and <StyleSelector> fields,
+    # just as it is for <Placemark>.
+
+    _shape = "rectangle"
+    # The PhotoOverlay is projected onto the <shape>. The <shape> can be one of the following:
+    #   rectangle (default) -
+    #       for an ordinary photo
+    #   cylinder -
+    #       for panoramas, which can be either partial or full cylinders
+    #   sphere -
+    #       for spherical panoramas
+
+    @property
+    def rotation(self):
+        return self._rotation
+
+    @rotation.setter
+    def rotation(self, value):
+        if isinstance(value, (str, int, float)):
+            self._rotation = str(value)
+        elif value is None:
+            self._rotation = None
+        else:
+            raise ValueError
+
+    @property
+    def leftFov(self):
+        return self._leftFov
+
+    @leftFov.setter
+    def leftFov(self, value):
+        if isinstance(value, (str, int, float)):
+            self._leftFov = str(value)
+        elif value is None:
+            self._leftFov = None
+        else:
+            raise ValueError
+
+    @property
+    def rightFov(self):
+        return self._rightFov
+
+    @rightFov.setter
+    def rightFov(self, value):
+        if isinstance(value, (str, int, float)):
+            self._rightFov = str(value)
+        elif value is None:
+            self._rightFov = None
+        else:
+            raise ValueError
+
+    @property
+    def bottomFov(self):
+        return self._bottomFov
+
+    @bottomFov.setter
+    def bottomFov(self, value):
+        if isinstance(value, (str, int, float)):
+            self._bottomFov = str(value)
+        elif value is None:
+            self._bottomFov = None
+        else:
+            raise ValueError
+
+    @property
+    def topFov(self):
+        return self._topFov
+
+    @topFov.setter
+    def topFov(self, value):
+        if isinstance(value, (str, int, float)):
+            self._topFov = str(value)
+        elif value is None:
+            self._topFov = None
+        else:
+            raise ValueError
+
+    @property
+    def near(self):
+        return self._near
+
+    @near.setter
+    def near(self, value):
+        if isinstance(value, (str, int, float)):
+            self._near = str(value)
+        elif value is None:
+            self._near = None
+        else:
+            raise ValueError
+
+    @property
+    def tileSize(self):
+        return self._tileSize
+
+    @tileSize.setter
+    def tileSize(self, value):
+        if isinstance(value, (str, int, float)):
+            self._tileSize = str(value)
+        elif value is None:
+            self._tileSize = None
+        else:
+            raise ValueError
+
+    @property
+    def maxWidth(self):
+        return self._maxWidth
+
+    @maxWidth.setter
+    def maxWidth(self, value):
+        if isinstance(value, (str, int, float)):
+            self._maxWidth = str(value)
+        elif value is None:
+            self._maxWidth = None
+        else:
+            raise ValueError
+
+    @property
+    def maxHeight(self):
+        return self._maxHeight
+
+    @maxHeight.setter
+    def maxHeight(self, value):
+        if isinstance(value, (str, int, float)):
+            self._maxHeight = str(value)
+        elif value is None:
+            self._maxHeight = None
+        else:
+            raise ValueError
+
+    @property
+    def gridOrigin(self):
+        return self._gridOrigin
+
+    @gridOrigin.setter
+    def gridOrigin(self, value):
+        if value in ("lowerLeft", "upperLeft"):
+            self._gridOrigin = str(value)
+        elif value is None:
+            self._gridOrigin = None
+        else:
+            raise ValueError
+
+    @property
+    def shape(self):
+        return self._shape
+
+    @shape.setter
+    def shape(self, value):
+        if value in ("rectangle", "cylinder", "sphere"):
+            self._shape = str(value)
+        elif value is None:
+            self._shape = None
+        else:
+            raise ValueError
+
+    def ViewVolume(self, leftFov, rightFov, bottomFov, topFov, near):
+        self.leftFov = leftFov
+        self.rightFov = rightFov
+        self.bottomFov = bottomFov
+        self.topFov = topFov
+        self.near = near
+
+    def ImagePyramid(self, tileSize, maxWidth, maxHeight, gridOrigin):
+        self.tileSize = tileSize
+        self.maxWidth = maxWidth
+        self.maxHeight = maxHeight
+        self.gridOrigin = gridOrigin
+
+
 class GroundOverlay(_Overlay):
     """
     This element draws an image overlay draped onto the terrain. The <href>
     child of <Icon> specifies the image to be used as the overlay. This file
-    can be either on a local file system or on a web server. If this element is
-    omitted or contains no <href>, a rectangle is drawn using the color and
+    can be either on a local file system or on a web server. If this element
+    is omitted or contains no <href>, a rectangle is drawn using the color and
     LatLonBox bounds defined by the ground overlay.
     """
 
@@ -868,11 +1116,14 @@ class GroundOverlay(_Overlay):
 
     def latLonBox(self, north, south, east, west, rotation=0):
         # TODO: Check for bounds (0:+/-90 or 0:+/-180 degrees)
-        self.north = north
-        self.south = south
-        self.east = east
-        self.west = west
-        self.rotation = rotation
+        if -90 <= float(north) <= 90:
+            self.north = north
+        else:
+            raise ValueError
+        self.south = south if -90 <= float(south) <= 90 else raise ValueError
+        self.east = east if -180 <= float(east) <= 180 else raise ValueError
+        self.west = west if -180 <= float(east) <= 180 else raise ValueError
+        self.rotation = rotation if -180 <= float(east) <= 180 else raise ValueError
 
     def etree_element(self):
         element = super().etree_element()
@@ -1493,11 +1744,175 @@ class SchemaData(_XMLObject):
             self.append_data(sd.get("name"), sd.text)
 
 
+class _AbstractView(_BaseObject):
+    """
+    This is an abstract element and cannot be used directly in a KML file. 
+    This element is extended by the <Camera> and <LookAt> elements.
+    """
+
+    # TODO: <gx:ViewerOptions>
+    # TODO: <gx:horizFov>
+
+
+class Camera(_AbstractView):
+    """
+    Defines the virtual camera that views the scene. This element defines 
+    the position of the camera relative to the Earth's surface as well 
+    as the viewing direction of the camera. The camera position is defined 
+    by <longitude>, <latitude>, <altitude>, and either <altitudeMode> or 
+    <gx:altitudeMode>. The viewing direction of the camera is defined by 
+    <heading>, <tilt>, and <roll>. <Camera> can be a child element of any 
+    Feature or of <NetworkLinkControl>. A parent element cannot contain both a 
+    <Camera> and a <LookAt> at the same time.
+
+    <Camera> provides full six-degrees-of-freedom control over the view, 
+    so you can position the Camera in space and then rotate it around the 
+    X, Y, and Z axes. Most importantly, you can tilt the camera view so that 
+    you're looking above the horizon into the sky.
+
+    <Camera> can also contain a TimePrimitive (<gx:TimeSpan> or <gx:TimeStamp>). 
+    Time values in Camera affect historical imagery, sunlight, and the display of 
+    time-stamped features. For more information, read Time with AbstractViews in 
+    the Time and Animation chapter of the Developer's Guide.
+    """
+
+    _longitude = None
+    # Longitude of the virtual camera (eye point). Angular distance in degrees,
+    # relative to the Prime Meridian. Values west of the Meridian range from −180
+    # to 0 degrees. Values east of the Meridian range from 0 to 180 degrees.
+
+    _latitude = None
+    # Latitude of the virtual camera. Degrees north or south of the Equator (0 degrees).
+    # Values range from −90 degrees to 90 degrees.
+
+    _altitude = None
+    # Distance of the camera from the earth's surface, in meters. Interpreted according to
+    # the Camera's <altitudeMode> or <gx:altitudeMode>.
+
+    _heading = None
+    # Direction (azimuth) of the camera, in degrees. Default=0 (true North). (See diagram.)
+    # Values range from 0 to 360 degrees.
+
+    _tilt = None
+    # Rotation, in degrees, of the camera around the X axis. A value of 0 indicates that the
+    # view is aimed straight down toward the earth (the most common case). A value for 90 for
+    # <tilt> indicates that the view is aimed toward the horizon. Values greater than 90 indicate
+    # that the view is pointed up into the sky. Values for <tilt> are clamped at +180 degrees.
+
+    _roll = None
+    # Rotation, in degrees, of the camera around the Z axis. Values range from −180 to +180 degrees.
+
+    _altitudeMode = "relativeToGround"
+    # Specifies how the <altitude> specified for the Camera is interpreted. Possible values are as follows:
+    #   relativeToGround -
+    #       (default) Interprets the <altitude> as a value in meters above the ground.
+    #       If the point is over water, the <altitude> will be interpreted as a value in meters above sea level.
+    #       See <gx:altitudeMode> below to specify points relative to the sea floor.
+    #   clampToGround -
+    #       For a camera, this setting also places the camera relativeToGround, since putting
+    #       the camera exactly at terrain height would mean that the eye would intersect the terrain (and the view
+    #       would be blocked).
+    #   absolute -
+    #       Interprets the <altitude> as a value in meters above sea level.
+
+    # TODO: <gx:altitudeMode>
+
+    @property
+    def longitude(self):
+        return self._longitude
+
+    @longitude.setter
+    def longitude(self, value):
+        if isinstance(value, (str, int, float)) and (-180 <= float(value) <= 180):
+            self._longitude = str(value)
+        elif value is None:
+            self._longitude = None
+        else:
+            raise ValueError
+
+    @property
+    def latitude(self):
+        return self._latitude
+
+    @latitude.setter
+    def latitude(self, value):
+        if isinstance(value, (str, int, float)) and (-90 <= float(value) <= 90):
+            self._latitude = str(value)
+        elif value is None:
+            self._latitude = None
+        else:
+            raise ValueError
+
+    @property
+    def altitude(self):
+        return self._altitude
+
+    @altitude.setter
+    def altitude(self, value):
+        if isinstance(value, (str, int, float)):
+            self._altitude = str(value)
+        elif value is None:
+            self._altitude = None
+        else:
+            raise ValueError
+
+    @property
+    def heading(self):
+        return self._heading
+
+    @heading.setter
+    def heading(self, value):
+        if isinstance(value, (str, int, float)) and (0 <= float(value) <= 360):
+            self._heading = str(value)
+        elif value is None:
+            self._heading = None
+        else:
+            raise ValueError
+
+    @property
+    def tilt(self):
+        return self._tilt
+
+    @tilt.setter
+    def tilt(self, value):
+        if isinstance(value, (str, int, float)) and (0 <= float(value) <= 180):
+            self._tilt = str(value)
+        elif value is None:
+            self._tilt = None
+        else:
+            raise ValueError
+
+    @property
+    def roll(self):
+        return self._roll
+
+    @roll.setter
+    def roll(self, value):
+        if isinstance(value, (str, int, float)) and (-180 <= float(value) <= 180):
+            self._roll = str(value)
+        elif value is None:
+            self._roll = None
+        else:
+            raise ValueError
+
+    @property
+    def altitudeMode(self):
+        return self._altitudeMode
+
+    @altitudeMode.setter
+    def altitudeMode(self, mode):
+        if mode in ("relativeToGround", "clampToGround", "absolute"):
+            self._altitudeMode = str(mode)
+        else:
+            self._altitudeMode = "relativeToGround"
+
+
 __all__ = [
     "Data",
     "Document",
     "ExtendedData",
     "Folder",
+    "PhotoOverlay",
     "GroundOverlay",
     "KML",
     "Placemark",
@@ -1505,4 +1920,6 @@ __all__ = [
     "SchemaData",
     "TimeSpan",
     "TimeStamp",
+    "AbstractView",
+    "Camera",
 ]
