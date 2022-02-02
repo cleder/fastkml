@@ -231,6 +231,8 @@ class _Feature(_BaseObject):
     _time_stamp = None
     # Associates this Feature with a point in time.
 
+    _camera = None
+
     # TODO Region = None
     # Features and geometry associated with a Region are drawn only when
     # the Region is active.
@@ -334,6 +336,16 @@ class _Feature(_BaseObject):
         if self._time_stamp is not None:
             logger.warning("Setting a TimeSpan, TimeStamp deleted")
             self._time_stamp = None
+
+    @property
+    def camera(self):
+        if self._camera is not None:
+            return self._camera
+
+    @camera.setter
+    def camera(self, camera):
+        if isinstance(camera, Camera):
+            self._camera = camera
 
     @property
     def link(self):
@@ -933,6 +945,17 @@ class PhotoOverlay(_Overlay):
             self._gridOrigin = str(value)
         elif value is None:
             self._gridOrigin = None
+        else:
+            raise ValueError
+
+    @property
+    def point(self):
+        return self._point
+
+    @point.setter
+    def point(self, point):
+        if isinstance(point.geometry, Point):
+            self._point = point
         else:
             raise ValueError
 
@@ -1775,6 +1798,7 @@ class Camera(_AbstractView):
     time-stamped features. For more information, read Time with AbstractViews in 
     the Time and Animation chapter of the Developer's Guide.
     """
+    __name__ = "Camera"
 
     _longitude = None
     # Longitude of the virtual camera (eye point). Angular distance in degrees,
@@ -1816,6 +1840,16 @@ class Camera(_AbstractView):
     #       Interprets the <altitude> as a value in meters above sea level.
 
     # TODO: <gx:altitudeMode>
+
+    def __init__(self, ns=None, id=None, longitude=None, latitude=None, altitude=None, heading=None, tilt=None, roll=None, altitudeMode=None):
+        super().__init__(ns, id)
+        self.longitude = longitude
+        self.latitude = latitude
+        self.altitude = altitude
+        self.heading = heading
+        self.tilt = tilt
+        self.roll = roll
+        self.altitudeMode = altitudeMode
 
     @property
     def longitude(self):
@@ -1920,6 +1954,5 @@ __all__ = [
     "SchemaData",
     "TimeSpan",
     "TimeStamp",
-    "AbstractView",
     "Camera",
 ]
