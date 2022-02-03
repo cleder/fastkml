@@ -963,9 +963,11 @@ class PhotoOverlay(_Overlay):
         return self._point
 
     @point.setter
-    def point(self, point):
-        if isinstance(point.geometry, Point):
-            self._point = point
+    def point(self, value):
+        # point = Geometry()
+        # point._etree_coordinates
+        if isinstance(value, (str, tuple)):
+            self._point = str(value)
         else:
             raise ValueError
 
