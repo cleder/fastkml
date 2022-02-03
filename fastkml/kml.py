@@ -353,6 +353,16 @@ class _Feature(_BaseObject):
             self._camera = camera
 
     @property
+    def lookAt(self):
+        if self._lookAt is not None:
+            return self._lookAt
+
+    @lookAt.setter
+    def lookAt(self, lookAt):
+        if isinstance(lookAt, lookAt):
+            self._lookAt = lookAt
+
+    @property
     def link(self):
         return self._atom_link.href
 
@@ -477,6 +487,12 @@ class _Feature(_BaseObject):
         if self.description:
             description = etree.SubElement(element, f"{self.ns}description")
             description.text = self.description
+        if (self.camera is not None) and (self.lookAt is not None):
+            raise ValueError("Either Camera or LookAt can be defined, not both")
+        elif self.camera is not None:
+            element.append(self._camera.etree_element)
+        elif self.lookAt:
+            element.append(self._lookAt.etree_element)
         visibility = etree.SubElement(element, f"{self.ns}visibility")
         visibility.text = str(self.visibility)
         if self.isopen:
@@ -1869,6 +1885,8 @@ class _AbstractView(_BaseObject):
 
     # TODO: <gx:ViewerOptions>
     # TODO: <gx:horizFov>
+
+    pass
 
 
 class Camera(_AbstractView):
