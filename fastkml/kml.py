@@ -97,6 +97,11 @@ class KML:
             feature = Placemark(ns)
             feature.from_element(placemark)
             self.append(feature)
+        photo_overlays = element.findall(f"{ns}PhotoOverlay")
+        for photo_overlay in photo_overlays:
+            feature = PhotoOverlay(ns)
+            feature.from_element(photo_overlay)
+            self.append(feature)
 
     def etree_element(self):
         # self.ns may be empty, which leads to unprefixed kml elements.
