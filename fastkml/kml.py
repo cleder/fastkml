@@ -585,6 +585,11 @@ class _Feature(_BaseObject):
         phoneNumber = element.find(f"{self.ns}phoneNumber")
         if phoneNumber is not None:
             self.phoneNumber = phoneNumber.text
+        camera = element.find(f"{self.ns}Camera")
+        if camera is not None:
+            s = Camera(self.ns)
+            s.from_element(camera)
+            self.camera = s
 
 
 class _Container(_Feature):
