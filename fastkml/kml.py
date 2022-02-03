@@ -982,7 +982,7 @@ class PhotoOverlay(_Overlay):
         elif value is None:
             self._shape = None
         else:
-            raise ValueError
+            raise ValueError("Shape must be one of " "rectangle, cylinder, sphere")
 
     def ViewVolume(self, leftFov, rightFov, bottomFov, topFov, near):
         self.leftFov = leftFov
