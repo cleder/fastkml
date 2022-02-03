@@ -997,6 +997,77 @@ class PhotoOverlay(_Overlay):
         self.maxHeight = maxHeight
         self.gridOrigin = gridOrigin
 
+    def etree_element(self):
+        element = super().etree_element()
+        if self._rotation:
+            rotation = etree.SubElement(element, f"{self.ns}rotation")
+            rotation.text = self._rotation
+        if all([self._leftFov, self._rightFov, self._bottomFov, self._topFov, self._near]):
+            ViewVolume = etree.SubElement(element, f"{self.ns}ViewVolume")
+            leftFov = etree.SubElement(ViewVolume, f"{self.ns}leftFov")
+            leftFov.text = self._leftFov
+            rightFov = etree.SubElement(ViewVolume, f"{self.ns}rightFov")
+            rightFov.text = self._rightFov
+            bottomFov = etree.SubElement(ViewVolume, f"{self.ns}bottomFov")
+            bottomFov.text = self._bottomFov
+            topFov = etree.SubElement(ViewVolume, f"{self.ns}topFov")
+            topFov.text = self._topFov
+            near = etree.SubElement(ViewVolume, f"{self.ns}near")
+            near.text = self._near
+        if all([self._tileSize, self._maxWidth, self._maxHeight, self._gridOrigin]):
+            ImagePyramid = etree.SubElement(element, f"{self.ns}ImagePyramid")
+            tileSize = etree.SubElement(ImagePyramid, f"{self.ns}tileSize")
+            tileSize.text = self._tileSize
+            maxWidth = etree.SubElement(ImagePyramid, f"{self.ns}maxWidth")
+            maxWidth.text = self._maxWidth
+            maxHeight = etree.SubElement(ImagePyramid, f"{self.ns}maxHeight")
+            maxHeight.text = self._maxHeight
+            gridOrigin = etree.SubElement(ImagePyramid, f"{self.ns}gridOrigin")
+            gridOrigin.text = self._gridOrigin
+
+    def from_element(self, element):
+        super().from_element(element)
+        rotation = element.find(f"{self.ns}rotation")
+        if rotation is not None:
+            self.rotation = rotation.text
+        ViewVolume = element.find(f"{self.ns}ViewVolume")
+        if ViewVolume is not None:
+            leftFov = ViewVolume.find(f"{self.ns}leftFov")
+            if leftFov is not None:
+                self.leftFov = leftFov.text
+            rightFov = ViewVolume.find(f"{self.ns}rightFov")
+            if rightFov is not None:
+                self.rightFov = rightFov.text
+            bottomFov = ViewVolume.find(f"{self.ns}bottomFov")
+            if bottomFov is not None:
+                self.bottomFov = bottomFov.text
+            topFov = ViewVolume.find(f"{self.ns}topFov")
+            if topFov is not None:
+                self.topFov = topFov.text
+            near = ViewVolume.find(f"{self.ns}near")
+            if near is not None:
+                self.near = near.text
+        ImagePyramid = element.find(f"{self.ns}ImagePyramid")
+        if ImagePyramid is not None:
+            tileSize = ImagePyramid.find(f"{self.ns}tileSize")
+            if tileSize is not None:
+                self.tileSize = tileSize.text
+            maxWidth = ImagePyramid.find(f"{self.ns}maxWidth")
+            if maxWidth is not None:
+                self.maxWidth = maxWidth.text
+            maxHeight = ImagePyramid.find(f"{self.ns}maxHeight")
+            if maxHeight is not None:
+                self.maxHeight = maxHeight.text
+            gridOrigin = ImagePyramid.find(f"{self.ns}gridOrigin")
+            if gridOrigin is not None:
+                self.gridOrigin = gridOrigin.text
+        Point = element.find(f"{self.ns}Point")
+        if Point is not None:
+            self.point = Point.text
+        shape = element.find(f"{self.ns}shape")
+        if shape is not None:
+            self.shape = shape.text
+
 
 class GroundOverlay(_Overlay):
     """
@@ -1950,7 +2021,75 @@ class Camera(_AbstractView):
         if mode in ("relativeToGround", "clampToGround", "absolute"):
             self._altitudeMode = str(mode)
         else:
-            self._altitudeMode = "relativeToGround"
+            # self._altitudeMode = "relativeToGround"
+            raise ValueError(
+                "altitudeMode must be one of " "relativeToGround, clampToGround, absolute")
+
+    def from_element(self, element):
+        super().from_element(element)
+        longitude = element.find(f"{self.ns}longitude")
+        if longitude is not None:
+            self.longitude = longitude.text
+        latitude = element.find(f"{self.ns}latitude")
+        if latitude is not None:
+            self.latitude = latitude.text
+        altitude = element.find(f"{self.ns}altitude")
+        if altitude is not None:
+            self.altitude = altitude.text
+        heading = element.find(f"{self.ns}heading")
+        if heading is not None:
+            self.heading = heading.text
+        tilt = element.find(f"{self.ns}tilt")
+        if tilt is not None:
+            self.tilt = tilt.text
+        roll = element.find(f"{self.ns}roll")
+        if roll is not None:
+            self.roll = roll.text
+        altitudeMode = element.find(f"{self.ns}altitudeMode")
+        if altitudeMode is not None:
+            self.altitudeMode = altitudeMode.text
+
+    def etree_element(self):
+        element = super().etree_element()
+        if self.longitude:
+            longitude = etree.SubElement(element, f"{self.ns}longitude")
+            longitude.text = self._longitude
+        if self.latitude:
+            latitude = etree.SubElement(element, f"{self.ns}latitude")
+            latitude.text = self.latitude
+        if self.altitude:
+            altitude = etree.SubElement(element, f"{self.ns}altitude")
+            altitude.text = self._altitude
+        if self.heading:
+            heading = etree.SubElement(element, f"{self.ns}heading")
+            heading.text = self._heading
+        if self.tilt:
+            tilt = etree.SubElement(element, f"{self.ns}tilt")
+            tilt.text = self._tilt
+        if self.roll:
+            roll = etree.SubElement(element, f"{self.ns}roll")
+            roll.text = self._roll
+        if self.altitudeMode:
+            altitudeMode = etree.SubElement(element, f"{self.ns}altitudeMode")
+            altitudeMode.text = self._altitudeMode
+        return element
+
+
+class LookAt(_AbstractView):
+
+    _longitude = None
+
+    _latitude = None
+
+    _altitude = None
+
+    _heading = None
+
+    _tilt = None
+
+    _range = None
+
+    _altitudeMode = None
 
 
 __all__ = [
