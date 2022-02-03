@@ -1220,16 +1220,27 @@ class GroundOverlay(_Overlay):
         else:
             raise ValueError
 
-    def latLonBox(self, north, south, east, west, rotation=0):
-        # TODO: Check for bounds (0:+/-90 or 0:+/-180 degrees)
+    def LatLonBox(self, north, south, east, west, rotation=0):
         if -90 <= float(north) <= 90:
             self.north = north
         else:
             raise ValueError
-        self.south = south if -90 <= float(south) <= 90 else raise ValueError
-        self.east = east if -180 <= float(east) <= 180 else raise ValueError
-        self.west = west if -180 <= float(east) <= 180 else raise ValueError
-        self.rotation = rotation if -180 <= float(east) <= 180 else raise ValueError
+        if -90 <= float(south) <= 90:
+            self.south = south
+        else:
+            raise ValueError
+        if -180 <= float(east) <= 180:
+            self.east = east
+        else:
+            raise ValueError
+        if -180 <= float(east) <= 180:
+            self.west = west
+        else:
+            raise ValueError
+        if -180 <= float(east) <= 180:
+            self.rotation = rotation
+        else:
+            raise ValueError
 
     def etree_element(self):
         element = super().etree_element()
@@ -1240,17 +1251,17 @@ class GroundOverlay(_Overlay):
                 altitudeMode = etree.SubElement(element, f"{self.ns}altitudeMode")
                 altitudeMode.text = self._altitudeMode
         if all([self._north, self._south, self._east, self._west]):
-            latLonBox = etree.SubElement(element, f"{self.ns}latLonBox")
-            north = etree.SubElement(latLonBox, f"{self.ns}north")
+            LatLonBox = etree.SubElement(element, f"{self.ns}LatLonBox")
+            north = etree.SubElement(LatLonBox, f"{self.ns}north")
             north.text = self._north
-            south = etree.SubElement(latLonBox, f"{self.ns}south")
+            south = etree.SubElement(LatLonBox, f"{self.ns}south")
             south.text = self._south
-            east = etree.SubElement(latLonBox, f"{self.ns}east")
+            east = etree.SubElement(LatLonBox, f"{self.ns}east")
             east.text = self._east
-            west = etree.SubElement(latLonBox, f"{self.ns}west")
+            west = etree.SubElement(LatLonBox, f"{self.ns}west")
             west.text = self._west
             if self._rotation:
-                rotation = etree.SubElement(latLonBox, f"{self.ns}rotation")
+                rotation = etree.SubElement(LatLonBox, f"{self.ns}rotation")
                 rotation.text = self._rotation
 
         return element
@@ -1263,21 +1274,21 @@ class GroundOverlay(_Overlay):
         altitudeMode = element.find(f"{self.ns}altitudeMode")
         if altitudeMode is not None:
             self.altitudeMode = altitudeMode.text
-        latLonBox = element.find(f"{self.ns}latLonBox")
-        if latLonBox is not None:
-            north = latLonBox.find(f"{self.ns}north")
+        LatLonBox = element.find(f"{self.ns}LatLonBox")
+        if LatLonBox is not None:
+            north = LatLonBox.find(f"{self.ns}north")
             if north is not None:
                 self.north = north.text
-            south = latLonBox.find(f"{self.ns}south")
+            south = LatLonBox.find(f"{self.ns}south")
             if south is not None:
                 self.south = south.text
-            east = latLonBox.find(f"{self.ns}east")
+            east = LatLonBox.find(f"{self.ns}east")
             if east is not None:
                 self.east = east.text
-            west = latLonBox.find(f"{self.ns}west")
+            west = LatLonBox.find(f"{self.ns}west")
             if west is not None:
                 self.west = west.text
-            rotation = latLonBox.find(f"{self.ns}rotation")
+            rotation = LatLonBox.find(f"{self.ns}rotation")
             if rotation is not None:
                 self.rotation = rotation.text
 
