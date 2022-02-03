@@ -132,20 +132,20 @@ class KML:
     def features(self):
         """iterate over features"""
         for feature in self._features:
-            if isinstance(feature, (Document, Folder, Placemark)):
+            if isinstance(feature, (Document, Folder, Placemark, GroundOverlay, PhotoOverlay)):
                 yield feature
             else:
                 raise TypeError(
-                    "Features must be instances of " "(Document, Folder, Placemark)"
+                    "Features must be instances of " "(Document, Folder, Placemark, GroundOverlay, PhotoOverlay)"
                 )
 
     def append(self, kmlobj):
         """append a feature"""
-        if isinstance(kmlobj, (Document, Folder, Placemark)):
+        if isinstance(kmlobj, (Document, Folder, Placemark, GroundOverlay, PhotoOverlay)):
             self._features.append(kmlobj)
         else:
             raise TypeError(
-                "Features must be instances of (Document, Folder, Placemark)"
+                "Features must be instances of (Document, Folder, Placemark, GroundOverlay, PhotoOverlay)"
             )
 
 
