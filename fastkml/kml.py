@@ -1990,7 +1990,7 @@ class Camera(_AbstractView):
 
     @heading.setter
     def heading(self, value):
-        if isinstance(value, (str, int, float)) and (0 <= float(value) <= 360):
+        if isinstance(value, (str, int, float)) and (-180 <= float(value) <= 180):
             self._heading = str(value)
         elif value is None:
             self._heading = None
