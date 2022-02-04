@@ -2566,13 +2566,13 @@ class GroundOverlayStringTestCase(unittest.TestCase):
         expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:visibility>1</kml:visibility>"
-            "<kml:latLonBox>"
+            "<kml:LatLonBox>"
             "<kml:north>10</kml:north>"
             "<kml:south>20</kml:south>"
             "<kml:east>30</kml:east>"
             "<kml:west>40</kml:west>"
             "<kml:rotation>0</kml:rotation>"
-            "</kml:latLonBox>"
+            "</kml:LatLonBox>"
             "</kml:GroundOverlay>"
         )
 
@@ -2586,13 +2586,13 @@ class GroundOverlayStringTestCase(unittest.TestCase):
         expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:visibility>1</kml:visibility>"
-            "<kml:latLonBox>"
+            "<kml:LatLonBox>"
             "<kml:north>10</kml:north>"
             "<kml:south>20</kml:south>"
             "<kml:east>30</kml:east>"
             "<kml:west>40</kml:west>"
             "<kml:rotation>50</kml:rotation>"
-            "</kml:latLonBox>"
+            "</kml:LatLonBox>"
             "</kml:GroundOverlay>"
         )
 
@@ -2610,13 +2610,13 @@ class GroundOverlayStringTestCase(unittest.TestCase):
         expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:visibility>1</kml:visibility>"
-            "<kml:latLonBox>"
+            "<kml:LatLonBox>"
             "<kml:north>10</kml:north>"
             "<kml:south>20</kml:south>"
             "<kml:east>30</kml:east>"
             "<kml:west>40</kml:west>"
             "<kml:rotation>50</kml:rotation>"
-            "</kml:latLonBox>"
+            "</kml:LatLonBox>"
             "</kml:GroundOverlay>"
         )
 
