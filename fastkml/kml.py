@@ -24,6 +24,7 @@ The complete XML schema for KML is located at
 http://schemas.opengis.net/kml/.
 
 """
+from abc import abstractmethod
 import logging
 import urllib.parse as urlparse
 from datetime import date
@@ -188,7 +189,7 @@ class _Feature(_BaseObject):
     # A string value representing an unstructured address written as a
     # standard street, city, state address, and/or as a postal code.
     # You can use the <address> tag to specify the location of a point
-    # instead of using latitude and longitude coordinates.
+    # instead of using latitude and altitude coordinates.
 
     _phoneNumber = None
     # A string value representing a telephone number.
@@ -237,6 +238,8 @@ class _Feature(_BaseObject):
     # Associates this Feature with a point in time.
 
     _camera = None
+
+    _lookAt = None
 
     # TODO Region = None
     # Features and geometry associated with a Region are drawn only when
@@ -359,7 +362,7 @@ class _Feature(_BaseObject):
 
     @lookAt.setter
     def lookAt(self, lookAt):
-        if isinstance(lookAt, lookAt):
+        if isinstance(lookAt, LookAt):
             self._lookAt = lookAt
 
     @property
@@ -490,9 +493,9 @@ class _Feature(_BaseObject):
         if (self.camera is not None) and (self.lookAt is not None):
             raise ValueError("Either Camera or LookAt can be defined, not both")
         elif self.camera is not None:
-            element.append(self._camera.etree_element)
-        elif self.lookAt:
-            element.append(self._lookAt.etree_element)
+            element.append(self._camera.etree_element())
+        elif self.lookAt is not None:
+            element.append(self._lookAt.etree_element())
         visibility = etree.SubElement(element, f"{self.ns}visibility")
         visibility.text = str(self.visibility)
         if self.isopen:
@@ -1953,7 +1956,7 @@ class Camera(_AbstractView):
 
     # TODO: <gx:altitudeMode>
 
-    def __init__(self, ns=None, id=None, longitude=None, latitude=None, altitude=None, heading=None, tilt=None, roll=None, altitudeMode=None):
+    def __init__(self, ns=None, id=None, longitude=None, latitude=None, altitude=None, heading=None, tilt=None, roll=None, altitudeMode="relativeToGround"):
         super().__init__(ns, id)
         self.longitude = longitude
         self.latitude = latitude
@@ -2050,7 +2053,7 @@ class Camera(_AbstractView):
         if mode in ("relativeToGround", "clampToGround", "absolute"):
             self._altitudeMode = str(mode)
         else:
-            # self._altitudeMode = "relativeToGround"
+            #self._altitudeMode = "relativeToGround"
             raise ValueError(
                 "altitudeMode must be one of " "relativeToGround, clampToGround, absolute")
 
@@ -2120,6 +2123,146 @@ class LookAt(_AbstractView):
 
     _altitudeMode = None
 
+    @property
+    def longitude(self):
+        return self._longitude
+
+    @longitude.setter
+    def longitude(self, value):
+        if isinstance(value, (str, int, float)) and (-180 <= float(value) <= 180):
+            self._longitude = str(value)
+        elif value is None:
+            self._longitude = None
+        else:
+            raise ValueError
+
+    @property
+    def latitude(self):
+        return self._latitude
+
+    @latitude.setter
+    def latitude(self, value):
+        if isinstance(value, (str, int, float)) and (-90 <= float(value) <= 90):
+            self._latitude = str(value)
+        elif value is None:
+            self._latitude = None
+        else:
+            raise ValueError
+
+    @property
+    def altitude(self):
+        return self._altitude
+
+    @altitude.setter
+    def altitude(self, value):
+        if isinstance(value, (str, int, float)):
+            self._altitude = str(value)
+        elif value is None:
+            self._altitude = None
+        else:
+            raise ValueError
+
+    @property
+    def heading(self):
+        return self._heading
+
+    @heading.setter
+    def heading(self, value):
+        if isinstance(value, (str, int, float)) and (-180 <= float(value) <= 180):
+            self._heading = str(value)
+        elif value is None:
+            self._heading = None
+        else:
+            raise ValueError
+
+    @property
+    def tilt(self):
+        return self._tilt
+
+    @tilt.setter
+    def tilt(self, value):
+        if isinstance(value, (str, int, float)) and (0 <= float(value) <= 90):
+            self._tilt = str(value)
+        elif value is None:
+            self._tilt = None
+        else:
+            raise ValueError
+
+    @property
+    def range(self):
+        return self._range
+
+    @range.setter
+    def range(self, value):
+        if isinstance(value, (str, int, float)):
+            self._range = str(value)
+        elif value is None:
+            self._range = None
+        else:
+            raise ValueError
+
+    @property
+    def altitudeMode(self):
+        return self._altitudeMode
+
+    @altitudeMode.setter
+    def altitudeMode(self, mode):
+        if mode in ("relativeToGround", "clampToGround", "absolute"):
+            self._altitudeMode = str(mode)
+        else:
+            #self._altitudeMode = "relativeToGround"
+            raise ValueError(
+                "altitudeMode must be one of " "relativeToGround, clampToGround, absolute")
+
+    def from_element(self, element):
+        super().from_element(element)
+        longitude = element.find(f"{self.ns}longitude")
+        if longitude is not None:
+            self.longitude = longitude.text
+        latitude = element.find(f"{self.ns}latitude")
+        if latitude is not None:
+            self.latitude = latitude.text
+        altitude = element.find(f"{self.ns}altitude")
+        if altitude is not None:
+            self.altitude = altitude.text
+        heading = element.find(f"{self.ns}heading")
+        if heading is not None:
+            self.heading = heading.text
+        tilt = element.find(f"{self.ns}tilt")
+        if tilt is not None:
+            self.tilt = tilt.text
+        range = element.find(f"{self.ns}range")
+        if range is not None:
+            self.range = range.text
+        altitudeMode = element.find(f"{self.ns}altitudeMode")
+        if altitudeMode is not None:
+            self.altitudeMode = altitudeMode.text
+
+    def etree_element(self):
+        element = super().etree_element()
+        if self.longitude:
+            longitude = etree.SubElement(element, f"{self.ns}longitude")
+            longitude.text = self._longitude
+        if self.latitude:
+            latitude = etree.SubElement(element, f"{self.ns}latitude")
+            latitude.text = self.latitude
+        if self.altitude:
+            altitude = etree.SubElement(element, f"{self.ns}altitude")
+            altitude.text = self._altitude
+        if self.heading:
+            heading = etree.SubElement(element, f"{self.ns}heading")
+            heading.text = self._heading
+        if self.tilt:
+            tilt = etree.SubElement(element, f"{self.ns}tilt")
+            tilt.text = self._tilt
+        if self.range:
+            range = etree.SubElement(element, f"{self.ns}range")
+            range.text = self._range
+        if self.altitudeMode:
+            altitudeMode = etree.SubElement(element, f"{self.ns}altitudeMode")
+            altitudeMode.text = self._altitudeMode
+        return element
+
 
 __all__ = [
     "Data",
@@ -2135,4 +2278,5 @@ __all__ = [
     "TimeSpan",
     "TimeStamp",
     "Camera",
+    "LookAt"
 ]
