@@ -84,6 +84,7 @@ class BaseClassesTestCase(unittest.TestCase):
         self.assertEqual(f._styles, [])
         self.assertEqual(f._time_span, None)
         self.assertEqual(f._time_stamp, None)
+        self.assertEqual(f.camera, None)
         # self.assertEqual(f.region, None)
         # self.assertEqual(f.extended_data, None)
 
@@ -2338,7 +2339,7 @@ class GroundOverlayTestCase(unittest.TestCase):
         self.assertEqual(self.g.altitudeMode, "absolute")
 
     def test_latlonbox_function(self):
-        self.g.latLonBox(10, 20, 30, 40, 50)
+        self.g.LatLonBox(10, 20, 30, 40, 50)
 
         self.assertEqual(self.g.north, "10")
         self.assertEqual(self.g.south, "20")
@@ -2559,7 +2560,7 @@ class GroundOverlayStringTestCase(unittest.TestCase):
 
     def test_latlonbox_no_rotation(self):
         g = kml.GroundOverlay()
-        g.latLonBox(10, 20, 30, 40)
+        g.LatLonBox(10, 20, 30, 40)
 
         expected = kml.GroundOverlay()
         expected.from_string(
@@ -2579,7 +2580,7 @@ class GroundOverlayStringTestCase(unittest.TestCase):
 
     def test_latlonbox_rotation(self):
         g = kml.GroundOverlay()
-        g.latLonBox(10, 20, 30, 40, 50)
+        g.LatLonBox(10, 20, 30, 40, 50)
 
         expected = kml.GroundOverlay()
         expected.from_string(
