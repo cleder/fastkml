@@ -19,22 +19,22 @@ import unittest
 from dateutil.tz import tzoffset
 from dateutil.tz import tzutc
 
-from fastkml import atom
-from fastkml import base
-from fastkml import config
-from fastkml import kml
-from fastkml import styles
-from fastkml.config import etree
-from fastkml.geometry import Geometry
-from fastkml.geometry import GeometryCollection
-from fastkml.geometry import LinearRing
-from fastkml.geometry import LineString
-from fastkml.geometry import MultiLineString
-from fastkml.geometry import MultiPoint
-from fastkml.geometry import MultiPolygon
-from fastkml.geometry import Point
-from fastkml.geometry import Polygon
-from fastkml.gx import GxGeometry
+import atom
+import base
+import config
+import kml
+import styles
+from config import etree
+from geometry import Geometry
+from geometry import GeometryCollection
+from geometry import LinearRing
+from geometry import LineString
+from geometry import MultiLineString
+from geometry import MultiPoint
+from geometry import MultiPolygon
+from geometry import Point
+from geometry import Polygon
+from gx import GxGeometry
 
 
 class BaseClassesTestCase(unittest.TestCase):
@@ -82,8 +82,8 @@ class BaseClassesTestCase(unittest.TestCase):
         self.assertEqual(f.description, None)
         self.assertEqual(f._styleUrl, None)
         self.assertEqual(f._styles, [])
-        self.assertEqual(f._time_span, None)
-        self.assertEqual(f._time_stamp, None)
+        self.assertEqual(f._timespan, None)
+        self.assertEqual(f._timestamp, None)
         self.assertEqual(f.camera, None)
         # self.assertEqual(f.region, None)
         # self.assertEqual(f.extended_data, None)
@@ -1481,15 +1481,15 @@ class DateTimeTestCase(unittest.TestCase):
     def test_feature_timestamp(self):
         now = datetime.datetime.now()
         f = kml.Document()
-        f.timeStamp = now
-        self.assertEqual(f.timeStamp, now)
+        f.timestamp = now
+        self.assertEqual(f.timestamp, now)
         self.assertIn(now.isoformat(), str(f.to_string()))
         self.assertIn("TimeStamp>", str(f.to_string()))
         self.assertIn("when>", str(f.to_string()))
-        f.timeStamp = now.date()
+        f.timestamp = now.date()
         self.assertIn(now.date().isoformat(), str(f.to_string()))
         self.assertNotIn(now.isoformat(), str(f.to_string()))
-        f.timeStamp = None
+        f.timestamp = None
         self.assertNotIn("TimeStamp>", str(f.to_string()))
 
     def test_feature_timespan(self):
@@ -1528,7 +1528,7 @@ class DateTimeTestCase(unittest.TestCase):
         self.assertNotIn("TimeStamp>", str(f.to_string()))
         self.assertNotIn("when>", str(f.to_string()))
         # when we set a timestamp an existing timespan will be deleted
-        f.timeStamp = now
+        f.timestamp = now
         self.assertIn(now.isoformat(), str(f.to_string()))
         self.assertIn("TimeStamp>", str(f.to_string()))
         self.assertIn("when>", str(f.to_string()))
@@ -1547,7 +1547,7 @@ class DateTimeTestCase(unittest.TestCase):
         self.assertNotIn("when>", str(f.to_string()))
         # We manipulate our Feature so it has timespan and stamp
         ts = kml.TimeStamp(timestamp=now)
-        f._time_stamp = ts
+        f._timestamp = ts
         # this raises an exception as only either timespan or timestamp
         # are allowed not both
         self.assertRaises(ValueError, f.to_string)
@@ -2324,19 +2324,19 @@ class GroundOverlayTestCase(unittest.TestCase):
         self.assertEqual(self.g.altitude, None)
 
     def test_altitude_mode_default(self):
-        self.assertEqual(self.g.altitudeMode, "clampToGround")
+        self.assertEqual(self.g.altitude_mode, "clampToGround")
 
     def test_altitude_mode_error(self):
-        self.g.altitudeMode = ""
-        self.assertEqual(self.g.altitudeMode, "clampToGround")
+        self.g.altitude_mode = ""
+        self.assertEqual(self.g.altitude_mode, "clampToGround")
 
     def test_altitude_mode_clamp(self):
-        self.g.altitudeMode = "clampToGround"
-        self.assertEqual(self.g.altitudeMode, "clampToGround")
+        self.g.altitude_mode = "clampToGround"
+        self.assertEqual(self.g.altitude_mode, "clampToGround")
 
     def test_altitude_mode_absolute(self):
-        self.g.altitudeMode = "absolute"
-        self.assertEqual(self.g.altitudeMode, "absolute")
+        self.g.altitude_mode = "absolute"
+        self.assertEqual(self.g.altitude_mode, "absolute")
 
     def test_latlonbox_function(self):
         self.g.LatLonBox(10, 20, 30, 40, 50)
@@ -2513,7 +2513,7 @@ class GroundOverlayStringTestCase(unittest.TestCase):
     def test_altitude_mode_absolute(self):
         g = kml.GroundOverlay()
         g.altitude = "123.4"
-        g.altitudeMode = "absolute"
+        g.altitude_mode = "absolute"
 
         expected = kml.GroundOverlay()
         expected.from_string(

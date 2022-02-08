@@ -82,8 +82,8 @@ from pygeoif.geometry import GeometryCollection
 from pygeoif.geometry import LineString
 from pygeoif.geometry import MultiLineString
 
-from .config import GXNS as NS
-from .geometry import Geometry
+from config import GXNS as NS
+from geometry import Geometry
 
 logger = logging.getLogger(__name__)
 

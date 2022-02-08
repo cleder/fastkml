@@ -22,8 +22,8 @@ part of how your data is displayed.
 
 import logging
 
-from fastkml.base import _BaseObject
-from fastkml.config import etree
+from base import _BaseObject
+from config import etree
 
 logger = logging.getLogger(__name__)
 

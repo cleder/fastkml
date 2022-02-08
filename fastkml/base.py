@@ -16,8 +16,8 @@
 
 """Abstract base classes"""
 
-import fastkml.config as config
-from fastkml.config import etree
+import config
+from config import etree
 
 
 class _XMLObject:

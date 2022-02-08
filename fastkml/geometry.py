@@ -27,10 +27,10 @@ from pygeoif.geometry import MultiPolygon
 from pygeoif.geometry import Point
 from pygeoif.geometry import Polygon
 
-import fastkml.config as config
+import config
 
-from .base import _BaseObject
-from .config import etree
+from base import _BaseObject
+from config import etree
 
 logger = logging.getLogger(__name__)
 
