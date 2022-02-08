@@ -34,9 +34,9 @@ This library only implements a subset of Atom that is useful with KML
 import logging
 import re
 
-from config import ATOMNS as NS
-from config import LXML
-from config import etree
+from .config import ATOMNS as NS
+from .config import LXML
+from .config import etree
 
 logger = logging.getLogger(__name__)
 regex = r"^[a-zA-Z0-9._%-]+@([a-zA-Z0-9-]+\.)*[a-zA-Z]{2,4}$"

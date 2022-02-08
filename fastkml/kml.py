@@ -35,20 +35,19 @@ from xml.dom.expatbuilder import parseString
 # tried and tested dateutil here which is more stable. As a side effect
 # we can also parse non ISO compliant dateTimes
 import dateutil.parser
-#from matplotlib.pyplot import phase_spectrum
 
-import atom
-import config
-import gx
+import fastkml.atom as atom
+import fastkml.config as config
+import fastkml.gx as gx
 
-from base import _BaseObject
-from base import _XMLObject
-from config import etree
-from geometry import Geometry
-from styles import Style
-from styles import StyleMap
-from styles import StyleUrl
-from styles import _StyleSelector
+from .base import _BaseObject
+from .base import _XMLObject
+from .config import etree
+from .geometry import Geometry
+from .styles import Style
+from .styles import StyleMap
+from .styles import StyleUrl
+from .styles import _StyleSelector
 
 logger = logging.getLogger(__name__)
 

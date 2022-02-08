@@ -19,22 +19,22 @@ import unittest
 from dateutil.tz import tzoffset
 from dateutil.tz import tzutc
 
-import atom
-import base
-import config
-import kml
-import styles
-from config import etree
-from geometry import Geometry
-from geometry import GeometryCollection
-from geometry import LinearRing
-from geometry import LineString
-from geometry import MultiLineString
-from geometry import MultiPoint
-from geometry import MultiPolygon
-from geometry import Point
-from geometry import Polygon
-from gx import GxGeometry
+from fastkml import atom
+from fastkml import base
+from fastkml import config
+from fastkml import kml
+from fastkml import styles
+from fastkml.config import etree
+from fastkml.geometry import Geometry
+from fastkml.geometry import GeometryCollection
+from fastkml.geometry import LinearRing
+from fastkml.geometry import LineString
+from fastkml.geometry import MultiLineString
+from fastkml.geometry import MultiPoint
+from fastkml.geometry import MultiPolygon
+from fastkml.geometry import Point
+from fastkml.geometry import Polygon
+from fastkml.gx import GxGeometry
 
 
 class BaseClassesTestCase(unittest.TestCase):
