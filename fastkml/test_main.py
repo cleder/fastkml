@@ -2339,7 +2339,7 @@ class GroundOverlayTestCase(unittest.TestCase):
         self.assertEqual(self.g.altitude_mode, "absolute")
 
     def test_latlonbox_function(self):
-        self.g.LatLonBox(10, 20, 30, 40, 50)
+        self.g.lat_lon_box(10, 20, 30, 40, 50)
 
         self.assertEqual(self.g.north, "10")
         self.assertEqual(self.g.south, "20")
@@ -2560,7 +2560,7 @@ class GroundOverlayStringTestCase(unittest.TestCase):
 
     def test_latlonbox_no_rotation(self):
         g = kml.GroundOverlay()
-        g.LatLonBox(10, 20, 30, 40)
+        g.lat_lon_box(10, 20, 30, 40)
 
         expected = kml.GroundOverlay()
         expected.from_string(
@@ -2580,7 +2580,7 @@ class GroundOverlayStringTestCase(unittest.TestCase):
 
     def test_latlonbox_rotation(self):
         g = kml.GroundOverlay()
-        g.LatLonBox(10, 20, 30, 40, 50)
+        g.lat_lon_box(10, 20, 30, 40, 50)
 
         expected = kml.GroundOverlay()
         expected.from_string(
@@ -2623,6 +2623,66 @@ class GroundOverlayStringTestCase(unittest.TestCase):
         self.assertEqual(g.to_string(), expected.to_string())
 
 
+class PhotoOverlayTestCase(unittest.TestCase):
+    def setUp(self):
+        self.p = kml.PhotoOverlay()
+        self.p.camera = kml.Camera()
+
+    def test_camera_altitude_int(self):
+        self.p.camera.altitude = 123
+        self.assertEqual(self.p.camera.altitude, "123")
+
+    def test_camera_altitude_float(self):
+        self.p.camera.altitude = 123.4
+        self.assertEqual(self.p.camera.altitude, "123.4")
+
+    def test_camera_altitude_string(self):
+        self.p.camera.altitude = "123"
+        self.assertEqual(self.p.camera.altitude, "123")
+
+    def test_camera_altitude_value_error(self):
+        with self.assertRaises(ValueError):
+            self.p.camera.altitude = object()
+
+    def test_camera_altitude_none(self):
+        self.p.camera.altitude = "123"
+        self.assertEqual(self.p.camera.altitude, "123")
+        self.p.camera.altitude = None
+        self.assertEqual(self.p.camera.altitude, None)
+
+    def test_camera_altitude_mode_default(self):
+        self.assertEqual(self.p.camera.altitude_mode, "relativeToGround")
+
+    def test_camera_altitude_mode_error(self):
+        self.p.camera.altitude_mode = ""
+        self.assertEqual(self.p.camera.altitude_mode, "relativeToGround")
+
+    def test_camera_altitude_mode_clamp(self):
+        self.p.camera.altitude_mode = "clampToGround"
+        self.assertEqual(self.p.camera.altitude_mode, "clampToGround")
+
+    def test_camera_altitude_mode_absolute(self):
+        self.p.camera.altitude_mode = "absolute"
+        self.assertEqual(self.p.camera.altitude_mode, "absolute")
+
+    def test_camera_initialization(self):
+        self.p.camera = kml.Camera(
+            longitude=10,
+            latitude=20,
+            altitude=30,
+            heading=40,
+            tilt=50,
+            roll=60)
+
+        self.assertEqual(self.p.camera.longitude, 10)
+        self.assertEqual(self.p.camera.latitude, 20)
+        self.assertEqual(self.p.camera.altitude, 30)
+        self.assertEqual(self.p.camera.heading, 40)
+        self.assertEqual(self.p.camera.tilt, 50)
+        self.assertEqual(self.p.camera.roll, 60)
+        self.assertEqual(self.p.camera.altitude_mode, "relativeToGround")
+
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(BaseClassesTestCase))
@@ -2638,6 +2698,7 @@ def test_suite():
     suite.addTest(unittest.makeSuite(Force3DTestCase))
     suite.addTest(unittest.makeSuite(BaseOverlayTestCase))
     suite.addTest(unittest.makeSuite(GroundOverlayTestCase))
+    # suite.addTest(unittest.makeSuite(PhotoOverlayTestCase))
     return suite
 
 
