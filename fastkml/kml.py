@@ -1233,7 +1233,7 @@ class GroundOverlay(_Overlay):
         else:
             raise ValueError
 
-    def LatLonBox(self, north, south, east, west, rotation=0):
+    def lat_lon_box(self, north, south, east, west, rotation=0):
         if -90 <= float(north) <= 90:
             self.north = north
         else:
@@ -1264,17 +1264,17 @@ class GroundOverlay(_Overlay):
                 altitude_mode = etree.SubElement(element, f"{self.ns}altitudeMode")
                 altitude_mode.text = self._altitude_mode
         if all([self._north, self._south, self._east, self._west]):
-            LatLonBox = etree.SubElement(element, f"{self.ns}LatLonBox")
-            north = etree.SubElement(LatLonBox, f"{self.ns}north")
+            lat_lon_box = etree.SubElement(element, f"{self.ns}LatLonBox")
+            north = etree.SubElement(lat_lon_box, f"{self.ns}north")
             north.text = self._north
-            south = etree.SubElement(LatLonBox, f"{self.ns}south")
+            south = etree.SubElement(lat_lon_box, f"{self.ns}south")
             south.text = self._south
-            east = etree.SubElement(LatLonBox, f"{self.ns}east")
+            east = etree.SubElement(lat_lon_box, f"{self.ns}east")
             east.text = self._east
-            west = etree.SubElement(LatLonBox, f"{self.ns}west")
+            west = etree.SubElement(lat_lon_box, f"{self.ns}west")
             west.text = self._west
             if self._rotation:
-                rotation = etree.SubElement(LatLonBox, f"{self.ns}rotation")
+                rotation = etree.SubElement(lat_lon_box, f"{self.ns}rotation")
                 rotation.text = self._rotation
 
         return element
@@ -1287,21 +1287,21 @@ class GroundOverlay(_Overlay):
         altitude_mode = element.find(f"{self.ns}altitudeMode")
         if altitude_mode is not None:
             self.altitude_mode = altitude_mode.text
-        LatLonBox = element.find(f"{self.ns}LatLonBox")
-        if LatLonBox is not None:
-            north = LatLonBox.find(f"{self.ns}north")
+        lat_lon_box = element.find(f"{self.ns}LatLonBox")
+        if lat_lon_box is not None:
+            north = lat_lon_box.find(f"{self.ns}north")
             if north is not None:
                 self.north = north.text
-            south = LatLonBox.find(f"{self.ns}south")
+            south = lat_lon_box.find(f"{self.ns}south")
             if south is not None:
                 self.south = south.text
-            east = LatLonBox.find(f"{self.ns}east")
+            east = lat_lon_box.find(f"{self.ns}east")
             if east is not None:
                 self.east = east.text
-            west = LatLonBox.find(f"{self.ns}west")
+            west = lat_lon_box.find(f"{self.ns}west")
             if west is not None:
                 self.west = west.text
-            rotation = LatLonBox.find(f"{self.ns}rotation")
+            rotation = lat_lon_box.find(f"{self.ns}rotation")
             if rotation is not None:
                 self.rotation = rotation.text
 
@@ -2030,10 +2030,10 @@ class Camera(_AbstractView):
     #   absolute -
     #       Interprets the <altitude> as a value in meters above sea level.
 
-    # TODO: <gx:altitudeMode>
 
     def __init__(
-        self, ns=None,
+        self, 
+        ns=None,
         id=None,
         longitude=None,
         latitude=None,
@@ -2041,7 +2041,7 @@ class Camera(_AbstractView):
         heading=None,
         tilt=None,
         roll=None,
-        altitude_mode="relativeToGround"
+        altitude_mode="relativeToGround",
     ):
         super().__init__(ns, id)
         self._longitude = longitude
@@ -2139,9 +2139,9 @@ class Camera(_AbstractView):
         if mode in ("relativeToGround", "clampToGround", "absolute"):
             self._altitude_mode = str(mode)
         else:
-            # self._altitude_mode = "relativeToGround"
-            raise ValueError(
-                "altitude_mode must be one of " "relativeToGround, clampToGround, absolute")
+            self._altitude_mode = "relativeToGround"
+            # raise ValueError(
+            #     "altitude_mode must be one of " "relativeToGround, clampToGround, absolute")
 
     def from_element(self, element):
         super().from_element(element)
@@ -2166,30 +2166,35 @@ class Camera(_AbstractView):
         altitude_mode = element.find(f"{self.ns}altitudeMode")
         if altitude_mode is not None:
             self.altitude_mode = altitude_mode.text
+        else:
+            altitude_mode = element.find(f"{gx.NS}altitudeMode")
+            self.altitude_mode = altitude_mode.text
 
     def etree_element(self):
         element = super().etree_element()
         if self.longitude:
             longitude = etree.SubElement(element, f"{self.ns}longitude")
-            longitude.text = self._longitude
+            longitude.text = self.longitude
         if self.latitude:
             latitude = etree.SubElement(element, f"{self.ns}latitude")
             latitude.text = self.latitude
         if self.altitude:
             altitude = etree.SubElement(element, f"{self.ns}altitude")
-            altitude.text = self._altitude
+            altitude.text = self.altitude
         if self.heading:
             heading = etree.SubElement(element, f"{self.ns}heading")
-            heading.text = self._heading
+            heading.text = self.heading
         if self.tilt:
             tilt = etree.SubElement(element, f"{self.ns}tilt")
-            tilt.text = self._tilt
+            tilt.text = self.tilt
         if self.roll:
             roll = etree.SubElement(element, f"{self.ns}roll")
-            roll.text = self._roll
-        if self.altitude_mode:
+            roll.text = self.roll
+        if self.altitude_mode in ("clampedToGround", "relativeToGround", "absolute"):
             altitude_mode = etree.SubElement(element, f"{self.ns}altitudeMode")
-            altitude_mode.text = self._altitude_mode
+        elif self.altitude_mode in ("clampedToSeaFloor", "relativeToSeaFloor"):  
+            altitude_mode = etree.SubElement(element, f"{gx.NS}altitudeMode")
+        altitude_mode.text = self.altitude_mode
         return element
 
 
@@ -2319,12 +2324,12 @@ class LookAt(_AbstractView):
 
     @altitude_mode.setter
     def altitude_mode(self, mode):
-        if mode in ("relativeToGround", "clampToGround", "absolute"):
+        if mode in ("relativeToGround", "clampToGround", "absolute", "relativeToSeaFloor", "clampToSeaFloor"):
             self._altitude_mode = str(mode)
         else:
             #self._altitude_mode = "relativeToGround"
             raise ValueError(
-                "altitude_mode must be one of " "relativeToGround, clampToGround, absolute")
+                "altitude_mode must be one of " "relativeToGround, clampToGround, absolute, relativeToSeaFloor, clampToSeaFloor")
 
     def from_element(self, element):
         super().from_element(element)
@@ -2349,6 +2354,9 @@ class LookAt(_AbstractView):
         altitude_mode = element.find(f"{self.ns}altitudeMode")
         if altitude_mode is not None:
             self.altitude_mode = altitude_mode.text
+        else:
+            altitude_mode = element.find(f"{gx.NS}altitudeMode")
+            self.altitude_mode = altitude_mode.text
 
     def etree_element(self):
         element = super().etree_element()
@@ -2370,9 +2378,11 @@ class LookAt(_AbstractView):
         if self.range:
             range = etree.SubElement(element, f"{self.ns}range")
             range.text = self._range
-        if self.altitude_mode:
+        if self.altitude_mode in ("clampedToGround", "relativeToGround", "absolute"):
             altitude_mode = etree.SubElement(element, f"{self.ns}altitudeMode")
-            altitude_mode.text = self._altitude_mode
+        elif self.altitude_mode in ("clampedToSeaFloor", "relativeToSeaFloor"):  
+            altitude_mode = etree.SubElement(element, f"{gx.NS}altitudeMode")
+        altitude_mode.text = self.altitude_mode
         return element
 
 
