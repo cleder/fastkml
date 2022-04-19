@@ -1924,9 +1924,9 @@ class _AbstractView(_BaseObject):
             self._gx_timespan.begin = [dt, None]
         else:
             self._gx_timespan.begin[0] = dt
-        if self._timestamp is not None:
+        if self._gx_timestamp is not None:
             logger.warning("Setting a TimeSpan, TimeStamp deleted")
-            self._timestamp = None
+            self._gx_timestamp = None
 
     @property
     def end(self):
@@ -1934,15 +1934,15 @@ class _AbstractView(_BaseObject):
 
     @end.setter
     def end(self, dt):
-        if self._timespan is None:
-            self._timespan = TimeSpan(end=dt)
-        elif self._timespan.end is None:
-            self._timespan.end = [dt, None]
+        if self._gx_timespan is None:
+            self._gx_timespan = TimeSpan(end=dt)
+        elif self._gx_timespan.end is None:
+            self._gx_timespan.end = [dt, None]
         else:
-            self._timespan.end[0] = dt
-        if self._timestamp is not None:
+            self._gx_timespan.end[0] = dt
+        if self._gx_timestamp is not None:
             logger.warning("Setting a TimeSpan, TimeStamp deleted")
-            self._timestamp = None
+            self._gx_timestamp = None
 
     def from_element(self, element):
         super().from_element(element)
