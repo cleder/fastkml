@@ -2698,7 +2698,7 @@ def test_suite():
     suite.addTest(unittest.makeSuite(Force3DTestCase))
     suite.addTest(unittest.makeSuite(BaseOverlayTestCase))
     suite.addTest(unittest.makeSuite(GroundOverlayTestCase))
-    # suite.addTest(unittest.makeSuite(PhotoOverlayTestCase))
+    suite.addTest(unittest.makeSuite(PhotoOverlayTestCase))
     return suite
 
 

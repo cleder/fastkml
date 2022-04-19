@@ -28,7 +28,6 @@ import logging
 import urllib.parse as urlparse
 from datetime import date
 from datetime import datetime
-from xml.dom.expatbuilder import parseString
 
 # note that there are some ISO 8601 timeparsers at pypi
 # but in my tests all of them had some errors so we rely on the
@@ -131,11 +130,13 @@ class KML:
     def features(self):
         """iterate over features"""
         for feature in self._features:
-            if isinstance(feature, (Document, Folder, Placemark, GroundOverlay, PhotoOverlay)):
+            if isinstance(feature, (Document, Folder, Placemark,
+                                    GroundOverlay, PhotoOverlay)):
                 yield feature
             else:
                 raise TypeError(
-                    "Features must be instances of " "(Document, Folder, Placemark, GroundOverlay, PhotoOverlay)"
+                    "Features must be instances of "
+                    + "(Document, Folder, Placemark, GroundOverlay, PhotoOverlay)"
                 )
 
     def append(self, kmlobj):
@@ -144,7 +145,8 @@ class KML:
             self._features.append(kmlobj)
         else:
             raise TypeError(
-                "Features must be instances of (Document, Folder, Placemark, GroundOverlay, PhotoOverlay)"
+                "Features must be instances of (Document, Folder, "
+                + "Placemark, GroundOverlay, PhotoOverlay)"
             )
 
 
@@ -835,7 +837,8 @@ class PhotoOverlay(_Overlay):
     # just as it is for <Placemark>.
 
     _shape = "rectangle"
-    # The PhotoOverlay is projected onto the <shape>. The <shape> can be one of the following:
+    # The PhotoOverlay is projected onto the <shape>.
+    # The <shape> can be one of the following:
     #   rectangle (default) -
     #       for an ordinary photo
     #   cylinder -
@@ -1015,7 +1018,8 @@ class PhotoOverlay(_Overlay):
         if self._rotation:
             rotation = etree.SubElement(element, f"{self.ns}rotation")
             rotation.text = self._rotation
-        if all([self._leftFov, self._rightFov, self._bottomFov, self._topFov, self._near]):
+        if all([self._leftFov, self._rightFov, self._bottomFov,
+                self._topFov, self._near]):
             ViewVolume = etree.SubElement(element, f"{self.ns}ViewVolume")
             leftFov = etree.SubElement(ViewVolume, f"{self.ns}leftFov")
             leftFov.text = self._leftFov
@@ -1037,6 +1041,7 @@ class PhotoOverlay(_Overlay):
             maxHeight.text = self._maxHeight
             gridOrigin = etree.SubElement(ImagePyramid, f"{self.ns}gridOrigin")
             gridOrigin.text = self._gridOrigin
+        return element
 
     def from_element(self, element):
         super().from_element(element)
@@ -1276,7 +1281,6 @@ class GroundOverlay(_Overlay):
             if self._rotation:
                 rotation = etree.SubElement(lat_lon_box, f"{self.ns}rotation")
                 rotation.text = self._rotation
-
         return element
 
     def from_element(self, element):
@@ -1735,7 +1739,6 @@ class Schema(_BaseObject):
             if simple_field.get("displayName"):
                 dn = etree.SubElement(sf, f"{self.ns}displayName")
                 dn.text = simple_field["displayName"]
-
         return element
 
 
@@ -1881,7 +1884,6 @@ class _AbstractView(_BaseObject):
     """
 
     _gx_timespan = None
-
     _gx_timestamp = None
 
     def etree_element(self):
@@ -1892,17 +1894,18 @@ class _AbstractView(_BaseObject):
             element.append(self._gx_timespan.etree_element())
         elif self._timestamp is not None:
             element.append(self._gx_timestamp.etree_element())
+        return element
 
-    # @property
-    # def gx_timespan(self):
-    #     return self._gx_timespan
+    @property
+    def gx_timespan(self):
+        return self._gx_timespan
 
-    # @gx_timespan.setter
-    # def gx_timespan(self, dt):
-    #     self._timespan = None if dt is None else TimeSpan(timespan=dt)
-    #     if self._timespan is not None:
-    #         logger.warning("Setting a TimeSpan, TimeStamp deleted")
-    #         self._timespan = None
+    @gx_timespan.setter
+    def gx_timespan(self, dt):
+        self._gx_timespan = None if dt is None else TimeSpan(timespan=dt)
+        if self._gx_timespan is not None:
+            logger.warning("Setting a TimeSpan, TimeStamp deleted")
+            self._gx_timestamp = None
 
     @property
     def gx_timestamp(self):
@@ -1911,8 +1914,8 @@ class _AbstractView(_BaseObject):
     @gx_timestamp.setter
     def gx_timestamp(self, dt):
         self._gx_timestamp = None if dt is None else TimeStamp(timestamp=dt)
-        if self._gx_timespan is not None:
-            logger.warning("Setting a TimeSpan, TimeStamp deleted")
+        if self._gx_timestamp is not None:
+            logger.warning("Setting a TimeStamp, TimeSpan deleted")
             self._gx_timespan = None
 
     @property
@@ -1953,10 +1956,10 @@ class _AbstractView(_BaseObject):
         super().from_element(element)
         gx_timespan = element.find(f"{gx.NS}TimeSpan")
         if gx_timespan is not None:
-            self.gx_timespan = gx_timespan.text
+            self._gx_timespan = gx_timespan.text
         gx_timestamp = element.find(f"{gx.NS}TimeStamp")
         if gx_timestamp is not None:
-            self.gx_timestamp = gx_timestamp.text
+            self._gx_timestamp = gx_timestamp.text
 
     # TODO: <gx:ViewerOptions>
     # TODO: <gx:horizFov>
@@ -2030,9 +2033,8 @@ class Camera(_AbstractView):
     #   absolute -
     #       Interprets the <altitude> as a value in meters above sea level.
 
-
     def __init__(
-        self, 
+        self,
         ns=None,
         id=None,
         longitude=None,
@@ -2141,7 +2143,8 @@ class Camera(_AbstractView):
         else:
             self._altitude_mode = "relativeToGround"
             # raise ValueError(
-            #     "altitude_mode must be one of " "relativeToGround, clampToGround, absolute")
+            #     "altitude_mode must be one of " "relativeToGround,
+            #     clampToGround, absolute")
 
     def from_element(self, element):
         super().from_element(element)
@@ -2192,7 +2195,7 @@ class Camera(_AbstractView):
             roll.text = self.roll
         if self.altitude_mode in ("clampedToGround", "relativeToGround", "absolute"):
             altitude_mode = etree.SubElement(element, f"{self.ns}altitudeMode")
-        elif self.altitude_mode in ("clampedToSeaFloor", "relativeToSeaFloor"):  
+        elif self.altitude_mode in ("clampedToSeaFloor", "relativeToSeaFloor"):
             altitude_mode = etree.SubElement(element, f"{gx.NS}altitudeMode")
         altitude_mode.text = self.altitude_mode
         return element
@@ -2324,12 +2327,15 @@ class LookAt(_AbstractView):
 
     @altitude_mode.setter
     def altitude_mode(self, mode):
-        if mode in ("relativeToGround", "clampToGround", "absolute", "relativeToSeaFloor", "clampToSeaFloor"):
+        if mode in ("relativeToGround", "clampToGround", "absolute",
+                    "relativeToSeaFloor", "clampToSeaFloor"):
             self._altitude_mode = str(mode)
         else:
-            #self._altitude_mode = "relativeToGround"
-            raise ValueError(
-                "altitude_mode must be one of " "relativeToGround, clampToGround, absolute, relativeToSeaFloor, clampToSeaFloor")
+            self._altitude_mode = "relativeToGround"
+            # raise ValueError(
+            #     "altitude_mode must be one of "
+            #     + "relativeToGround, clampToGround, absolute, relativeToSeaFloor, clampToSeaFloor"
+            # )
 
     def from_element(self, element):
         super().from_element(element)
@@ -2348,9 +2354,9 @@ class LookAt(_AbstractView):
         tilt = element.find(f"{self.ns}tilt")
         if tilt is not None:
             self.tilt = tilt.text
-        range = element.find(f"{self.ns}range")
-        if range is not None:
-            self.range = range.text
+        range_var = element.find(f"{self.ns}range")
+        if range_var is not None:
+            self.range = range_var.text
         altitude_mode = element.find(f"{self.ns}altitudeMode")
         if altitude_mode is not None:
             self.altitude_mode = altitude_mode.text
@@ -2376,11 +2382,11 @@ class LookAt(_AbstractView):
             tilt = etree.SubElement(element, f"{self.ns}tilt")
             tilt.text = self._tilt
         if self.range:
-            range = etree.SubElement(element, f"{self.ns}range")
-            range.text = self._range
+            range_var = etree.SubElement(element, f"{self.ns}range")
+            range_var.text = self._range
         if self.altitude_mode in ("clampedToGround", "relativeToGround", "absolute"):
             altitude_mode = etree.SubElement(element, f"{self.ns}altitudeMode")
-        elif self.altitude_mode in ("clampedToSeaFloor", "relativeToSeaFloor"):  
+        elif self.altitude_mode in ("clampedToSeaFloor", "relativeToSeaFloor"):
             altitude_mode = etree.SubElement(element, f"{gx.NS}altitudeMode")
         altitude_mode.text = self.altitude_mode
         return element
