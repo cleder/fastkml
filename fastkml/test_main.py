@@ -2672,8 +2672,8 @@ class PhotoOverlayTestCase(unittest.TestCase):
             altitude=30,
             heading=40,
             tilt=50,
-            roll=60)
-
+            roll=60
+        )
         self.assertEqual(self.p.camera.longitude, 10)
         self.assertEqual(self.p.camera.latitude, 20)
         self.assertEqual(self.p.camera.altitude, 30)

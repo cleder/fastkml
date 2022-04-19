@@ -130,8 +130,9 @@ class KML:
     def features(self):
         """iterate over features"""
         for feature in self._features:
-            if isinstance(feature, (Document, Folder, Placemark,
-                                    GroundOverlay, PhotoOverlay)):
+            if isinstance(
+                feature, (Document, Folder, Placemark, GroundOverlay, PhotoOverlay)
+            ):
                 yield feature
             else:
                 raise TypeError(
@@ -141,7 +142,10 @@ class KML:
 
     def append(self, kmlobj):
         """append a feature"""
-        if isinstance(kmlobj, (Document, Folder, Placemark, GroundOverlay, PhotoOverlay)):
+        if isinstance(
+            kmlobj, (Document, Folder, Placemark,
+                     GroundOverlay, PhotoOverlay)
+        ):
             self._features.append(kmlobj)
         else:
             raise TypeError(
@@ -1018,8 +1022,9 @@ class PhotoOverlay(_Overlay):
         if self._rotation:
             rotation = etree.SubElement(element, f"{self.ns}rotation")
             rotation.text = self._rotation
-        if all([self._leftFov, self._rightFov, self._bottomFov,
-                self._topFov, self._near]):
+        if all(
+            [self._leftFov, self._rightFov, self._bottomFov, self._topFov, self._near]
+        ):
             ViewVolume = etree.SubElement(element, f"{self.ns}ViewVolume")
             leftFov = etree.SubElement(ViewVolume, f"{self.ns}leftFov")
             leftFov.text = self._leftFov
@@ -1890,22 +1895,11 @@ class _AbstractView(_BaseObject):
         element = super().etree_element()
         if (self._timespan is not None) and (self._timestamp is not None):
             raise ValueError("Either Timestamp or Timespan can be defined, not both")
-        elif self._timespan is not None:
+        if self._timespan is not None:
             element.append(self._gx_timespan.etree_element())
         elif self._timestamp is not None:
             element.append(self._gx_timestamp.etree_element())
         return element
-
-    @property
-    def gx_timespan(self):
-        return self._gx_timespan
-
-    @gx_timespan.setter
-    def gx_timespan(self, dt):
-        self._gx_timespan = None if dt is None else TimeSpan(timespan=dt)
-        if self._gx_timespan is not None:
-            logger.warning("Setting a TimeSpan, TimeStamp deleted")
-            self._gx_timestamp = None
 
     @property
     def gx_timestamp(self):
@@ -1920,8 +1914,7 @@ class _AbstractView(_BaseObject):
 
     @property
     def begin(self):
-        if self._gx_timespan is not None:
-            return self._gx_timespan.begin[0]
+        return self._gx_timespan.begin[0]
 
     @begin.setter
     def begin(self, dt):
@@ -1937,8 +1930,7 @@ class _AbstractView(_BaseObject):
 
     @property
     def end(self):
-        if self._gx_timespan is not None:
-            return self._gx_timespan.end[0]
+        return self._gx_timespan.end[0]
 
     @end.setter
     def end(self, dt):
@@ -2327,14 +2319,20 @@ class LookAt(_AbstractView):
 
     @altitude_mode.setter
     def altitude_mode(self, mode):
-        if mode in ("relativeToGround", "clampToGround", "absolute",
-                    "relativeToSeaFloor", "clampToSeaFloor"):
+        if mode in (
+            "relativeToGround",
+            "clampToGround",
+            "absolute",
+            "relativeToSeaFloor",
+            "clampToSeaFloor",
+        ):
             self._altitude_mode = str(mode)
         else:
             self._altitude_mode = "relativeToGround"
             # raise ValueError(
             #     "altitude_mode must be one of "
-            #     + "relativeToGround, clampToGround, absolute, relativeToSeaFloor, clampToSeaFloor"
+            #     + "relativeToGround, clampToGround, absolute,
+            #     + relativeToSeaFloor, clampToSeaFloor"
             # )
 
     def from_element(self, element):
@@ -2406,5 +2404,5 @@ __all__ = [
     "TimeSpan",
     "TimeStamp",
     "Camera",
-    "LookAt"
+    "LookAt",
 ]
