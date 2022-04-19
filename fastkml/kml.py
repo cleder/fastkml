@@ -421,8 +421,7 @@ class _Feature(_BaseObject):
         if not self._snippet:
             return
         if isinstance(self._snippet, dict):
-            text = self._snippet.get("text")
-            if text:
+            if text := self._snippet.get("text"):
                 assert isinstance(text, str)
                 max_lines = self._snippet.get("maxLines", None)
                 if max_lines is None:
@@ -725,9 +724,9 @@ class _Overlay(_Feature):
     def icon(self, url):
         if isinstance(url, str):
             if not url.startswith("<href>"):
-                url = "<href>" + url
+                url = f"<href>{url}"
             if not url.endswith("</href>"):
-                url = url + "</href>"
+                url = f"{url}</href>"
             self._icon = url
         elif url is None:
             self._icon = None
@@ -1532,7 +1531,7 @@ class _TimePrimitive(_BaseObject):
             year = int(datestr.split("-")[0])
             month = int(datestr.split("-")[1])
             dt = datetime(year, month, day)
-        elif len(datestr) in [8, 10]:
+        elif len(datestr) in {8, 10}:
             resolution = "date"
             dt = dateutil.parser.parse(datestr)
         elif len(datestr) > 10:
@@ -1550,10 +1549,7 @@ class _TimePrimitive(_BaseObject):
             elif resolution == "gYearMonth":
                 return dt.strftime("%Y-%m")
             elif resolution == "date":
-                if isinstance(dt, datetime):
-                    return dt.date().isoformat()
-                else:
-                    return dt.isoformat()
+                return dt.date().isoformat() if isinstance(dt, datetime) else dt.isoformat()
             elif resolution == "dateTime":
                 return dt.isoformat()
 
@@ -1612,13 +1608,11 @@ class TimeSpan(_TimePrimitive):
     def etree_element(self):
         element = super().etree_element()
         if self.begin is not None:
-            text = self.date_to_string(*self.begin)
-            if text:
+            if text := self.date_to_string(*self.begin):
                 begin = etree.SubElement(element, f"{self.ns}begin")
                 begin.text = text
         if self.end is not None:
-            text = self.date_to_string(*self.end)
-            if text:
+            if text := self.date_to_string(*self.end):
                 end = etree.SubElement(element, f"{self.ns}end")
                 end.text = text
         if self.begin == self.end is None:
@@ -2159,11 +2153,9 @@ class Camera(_AbstractView):
         if roll is not None:
             self.roll = roll.text
         altitude_mode = element.find(f"{self.ns}altitudeMode")
-        if altitude_mode is not None:
-            self.altitude_mode = altitude_mode.text
-        else:
+        if altitude_mode is None:
             altitude_mode = element.find(f"{gx.NS}altitudeMode")
-            self.altitude_mode = altitude_mode.text
+        self.altitude_mode = altitude_mode.text
 
     def etree_element(self):
         element = super().etree_element()
@@ -2356,11 +2348,9 @@ class LookAt(_AbstractView):
         if range_var is not None:
             self.range = range_var.text
         altitude_mode = element.find(f"{self.ns}altitudeMode")
-        if altitude_mode is not None:
-            self.altitude_mode = altitude_mode.text
-        else:
+        if altitude_mode is None:
             altitude_mode = element.find(f"{gx.NS}altitudeMode")
-            self.altitude_mode = altitude_mode.text
+        self.altitude_mode = altitude_mode.text
 
     def etree_element(self):
         element = super().etree_element()

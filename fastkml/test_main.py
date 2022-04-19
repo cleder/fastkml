@@ -54,7 +54,7 @@ class BaseClassesTestCase(unittest.TestCase):
         self.assertEqual(bo.id, None)
         self.assertEqual(bo.ns, "")
         self.assertRaises(NotImplementedError, bo.etree_element)
-        element = etree.Element(config.KMLNS + "Base")
+        element = etree.Element(f"{config.KMLNS}Base")
         self.assertRaises(TypeError, bo.from_element)
         self.assertRaises(TypeError, bo.from_element, element)
         bo.__name__ = "NotABaseObject"
