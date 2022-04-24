@@ -20,7 +20,6 @@ code Google Earth generates, you'll notice how styles are an important
 part of how your data is displayed.
 """
 
-import distutils
 import logging
 
 from fastkml.base import _BaseObject
@@ -362,19 +361,21 @@ class PolyStyle(_ColorStyle):
         return element
 
     def from_element(self, element):
+        def strtobool (val):
+            val = val.lower()
+            if val == 'false':
+                return 0
+            if val == 'true':
+                return 1
+            return int(float(val))
+
         super().from_element(element)
         fill = element.find(f"{self.ns}fill")
         if fill is not None:
-            try:
-                self.fill = distutils.util.strtobool(fill.text)
-            except ValueError:
-                self.fill = int(float(fill.text))
-        outline = element.find("%soutline" % self.ns)
+            self.fill = strtobool(fill.text)
+        outline = element.find(f"{self.ns}outline")
         if outline is not None:
-            try:
-                self.outline = distutils.util.strtobool(outline.text)
-            except ValueError:
-                self.outline = int(float(outline.text))
+            self.outline = strtobool(outline.text)
 
 
 class LabelStyle(_ColorStyle):
