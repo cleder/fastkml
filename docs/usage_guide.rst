@@ -104,7 +104,7 @@ You can create a KML object by reading a KML file as a string
     >>> from fastkml import kml
     
     #Read file into string and convert to UTF-8 (Python3 style)
-    >>> with open(kml_file, 'rt', encoding="utf-8") as myfile:
+    >>> with open(kml_file, 'rb') as myfile:
     ...     doc=myfile.read()
     
     # OR
