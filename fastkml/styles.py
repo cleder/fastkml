@@ -254,6 +254,7 @@ class IconStyle(_ColorStyle):
     # Default=0 (North).
     icon_href = None
     # An HTTP address or a local file specification used to load an icon.
+    hot_spot = None
 
     def __init__(
         self,
@@ -264,11 +265,13 @@ class IconStyle(_ColorStyle):
         scale=1.0,
         heading=None,
         icon_href=None,
+        hotSpot=None,
     ):
         super().__init__(ns, id, color, colorMode)
         self.scale = scale
         self.heading = heading
         self.icon_href = icon_href
+        self.hotSpot = hotSpot
 
     def etree_element(self):
         element = super().etree_element()
@@ -282,6 +285,12 @@ class IconStyle(_ColorStyle):
             icon = etree.SubElement(element, f"{self.ns}Icon")
             href = etree.SubElement(icon, f"{self.ns}href")
             href.text = self.icon_href
+        if self.hotSpot:
+            hotSpot = etree.SubElement(element, f"{self.ns}hotSpot")
+            hotSpot.attrib['x'] = str(self.hotSpot['x'])
+            hotSpot.attrib['y'] = str(self.hotSpot['y'])
+            hotSpot.attrib['xunits'] = str(self.hotSpot['xunits'])
+            hotSpot.attrib['yunits'] = str(self.hotSpot['yunits'])
         return element
 
     def from_element(self, element):
@@ -297,7 +306,10 @@ class IconStyle(_ColorStyle):
             href = icon.find(f"{self.ns}href")
             if href is not None:
                 self.icon_href = href.text
-
+        hotSpot = element.find(f"{self.ns}hotSpot")
+        if hotSpot is not None:
+            self.hotSpot = {'x': hotSpot.attrib['x'], 'y': hotSpot.attrib['y'],
+                'xunits': hotSpot.attrib['xunits'], 'yunits': hotSpot.attrib['yunits']}
 
 class LineStyle(_ColorStyle):
     """
