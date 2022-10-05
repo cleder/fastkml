@@ -41,7 +41,6 @@ import fastkml.gx as gx
 
 from .base import _BaseObject
 from .base import _XMLObject
-from .config import etree
 from .geometry import Geometry
 from .styles import Style
 from .styles import StyleMap
@@ -69,12 +68,12 @@ class KML:
 
     def from_string(self, xml_string):
         """create a KML object from a xml string"""
-        if config.LXML:
-            element = etree.fromstring(
-                xml_string, parser=etree.XMLParser(huge_tree=True, recover=True)
+        try:
+            element = config.etree.fromstring(
+                xml_string, parser=config.etree.XMLParser(huge_tree=True, recover=True)
             )
-        else:
-            element = etree.XML(xml_string)
+        except TypeError:
+            element = config.etree.XML(xml_string)
 
         if not element.tag.endswith("kml"):
             raise TypeError
@@ -101,24 +100,29 @@ class KML:
         # However, in this case the xlmns should still be mentioned on the kml
         # element, just without prefix.
         if not self.ns:
-            root = etree.Element(f"{self.ns}kml")
+            root = config.etree.Element(f"{self.ns}kml")
             root.set("xmlns", config.KMLNS[1:-1])
-        elif config.LXML:
-            root = etree.Element(f"{self.ns}kml", nsmap={None: self.ns[1:-1]})
         else:
-            root = etree.Element(f"{self.ns}kml")
+            try:
+                root = config.etree.Element(
+                    f"{self.ns}kml", nsmap={None: self.ns[1:-1]}
+                )
+            except TypeError:
+                root = config.etree.Element(f"{self.ns}kml")
         for feature in self.features():
             root.append(feature.etree_element())
         return root
 
     def to_string(self, prettyprint=False):
         """Return the KML Object as serialized xml"""
-        if config.LXML and prettyprint:
-            return etree.tostring(
-                self.etree_element(), encoding="utf-8", pretty_print=True
+        try:
+            return config.etree.tostring(
+                self.etree_element(),
+                encoding="UTF-8",
+                pretty_print=prettyprint,
             ).decode("UTF-8")
-        else:
-            return etree.tostring(self.etree_element(), encoding="utf-8").decode(
+        except TypeError:
+            return config.etree.tostring(self.etree_element(), encoding="UTF-8").decode(
                 "UTF-8"
             )
 
@@ -453,22 +457,22 @@ class _Feature(_BaseObject):
     def etree_element(self):
         element = super().etree_element()
         if self.name:
-            name = etree.SubElement(element, f"{self.ns}name")
+            name = config.etree.SubElement(element, f"{self.ns}name")
             name.text = self.name
         if self.description:
-            description = etree.SubElement(element, f"{self.ns}description")
+            description = config.etree.SubElement(element, f"{self.ns}description")
             description.text = self.description
-        visibility = etree.SubElement(element, f"{self.ns}visibility")
+        visibility = config.etree.SubElement(element, f"{self.ns}visibility")
         visibility.text = str(self.visibility)
         if self.isopen:
-            isopen = etree.SubElement(element, f"{self.ns}open")
+            isopen = config.etree.SubElement(element, f"{self.ns}open")
             isopen.text = str(self.isopen)
         if self._style_url is not None:
             element.append(self._style_url.etree_element())
         for style in self.styles():
             element.append(style.etree_element())
         if self.snippet:
-            snippet = etree.SubElement(element, f"{self.ns}Snippet")
+            snippet = config.etree.SubElement(element, f"{self.ns}Snippet")
             if isinstance(self.snippet, str):
                 snippet.text = self.snippet
             else:
@@ -489,10 +493,10 @@ class _Feature(_BaseObject):
         if self.extended_data is not None:
             element.append(self.extended_data.etree_element())
         if self._address is not None:
-            address = etree.SubElement(element, f"{self.ns}address")
+            address = config.etree.SubElement(element, f"{self.ns}address")
             address.text = self._address
         if self._phone_number is not None:
-            phone_number = etree.SubElement(element, f"{self.ns}phoneNumber")
+            phone_number = config.etree.SubElement(element, f"{self.ns}phoneNumber")
             phone_number.text = self._phone_number
         return element
 
@@ -692,13 +696,13 @@ class _Overlay(_Feature):
     def etree_element(self):
         element = super().etree_element()
         if self._color:
-            color = etree.SubElement(element, f"{self.ns}color")
+            color = config.etree.SubElement(element, f"{self.ns}color")
             color.text = self._color
         if self._draw_order:
-            draw_order = etree.SubElement(element, f"{self.ns}drawOrder")
+            draw_order = config.etree.SubElement(element, f"{self.ns}drawOrder")
             draw_order.text = self._draw_order
         if self._icon:
-            icon = etree.SubElement(element, f"{self.ns}icon")
+            icon = config.etree.SubElement(element, f"{self.ns}icon")
             icon.text = self._icon
         return element
 
@@ -877,23 +881,25 @@ class GroundOverlay(_Overlay):
     def etree_element(self):
         element = super().etree_element()
         if self._altitude:
-            altitude = etree.SubElement(element, f"{self.ns}altitude")
+            altitude = config.etree.SubElement(element, f"{self.ns}altitude")
             altitude.text = self._altitude
             if self._altitude_mode:
-                altitude_mode = etree.SubElement(element, f"{self.ns}altitudeMode")
+                altitude_mode = config.etree.SubElement(
+                    element, f"{self.ns}altitudeMode"
+                )
                 altitude_mode.text = self._altitude_mode
         if all([self._north, self._south, self._east, self._west]):
-            lat_lon_box = etree.SubElement(element, f"{self.ns}latLonBox")
-            north = etree.SubElement(lat_lon_box, f"{self.ns}north")
+            lat_lon_box = config.etree.SubElement(element, f"{self.ns}latLonBox")
+            north = config.etree.SubElement(lat_lon_box, f"{self.ns}north")
             north.text = self._north
-            south = etree.SubElement(lat_lon_box, f"{self.ns}south")
+            south = config.etree.SubElement(lat_lon_box, f"{self.ns}south")
             south.text = self._south
-            east = etree.SubElement(lat_lon_box, f"{self.ns}east")
+            east = config.etree.SubElement(lat_lon_box, f"{self.ns}east")
             east.text = self._east
-            west = etree.SubElement(lat_lon_box, f"{self.ns}west")
+            west = config.etree.SubElement(lat_lon_box, f"{self.ns}west")
             west.text = self._west
             if self._rotation:
-                rotation = etree.SubElement(lat_lon_box, f"{self.ns}rotation")
+                rotation = config.etree.SubElement(lat_lon_box, f"{self.ns}rotation")
                 rotation.text = self._rotation
 
         return element
@@ -1079,7 +1085,7 @@ class Placemark(_Feature):
             self._geometry = geom
             return
         logger.warning("No geometries found")
-        logger.debug("Problem with element: %", etree.tostring(element))
+        logger.debug("Problem with element: %", config.etree.tostring(element))
         # raise ValueError('No geometries found')
 
     def etree_element(self):
@@ -1160,10 +1166,11 @@ class _TimePrimitive(_BaseObject):
             elif resolution == "gYearMonth":
                 return dt.strftime("%Y-%m")
             elif resolution == "date":
-                if isinstance(dt, datetime):
-                    return dt.date().isoformat()
-                else:
-                    return dt.isoformat()
+                return (
+                    dt.date().isoformat()
+                    if isinstance(dt, datetime)
+                    else dt.isoformat()
+                )
             elif resolution == "dateTime":
                 return dt.isoformat()
 
@@ -1181,7 +1188,7 @@ class TimeStamp(_TimePrimitive):
 
     def etree_element(self):
         element = super().etree_element()
-        when = etree.SubElement(element, f"{self.ns}when")
+        when = config.etree.SubElement(element, f"{self.ns}when")
         when.text = self.date_to_string(*self.timestamp)
         return element
 
@@ -1224,12 +1231,12 @@ class TimeSpan(_TimePrimitive):
         if self.begin is not None:
             text = self.date_to_string(*self.begin)
             if text:
-                begin = etree.SubElement(element, f"{self.ns}begin")
+                begin = config.etree.SubElement(element, f"{self.ns}begin")
                 begin.text = text
         if self.end is not None:
             text = self.date_to_string(*self.end)
             if text:
-                end = etree.SubElement(element, f"{self.ns}end")
+                end = config.etree.SubElement(element, f"{self.ns}end")
                 end.text = text
         if self.begin == self.end is None:
             raise ValueError("Either begin, end or both must be set")
@@ -1348,11 +1355,11 @@ class Schema(_BaseObject):
         if self.name:
             element.set("name", self.name)
         for simple_field in self.simple_fields:
-            sf = etree.SubElement(element, f"{self.ns}SimpleField")
+            sf = config.etree.SubElement(element, f"{self.ns}SimpleField")
             sf.set("type", simple_field["type"])
             sf.set("name", simple_field["name"])
             if simple_field.get("displayName"):
-                dn = etree.SubElement(sf, f"{self.ns}displayName")
+                dn = config.etree.SubElement(sf, f"{self.ns}displayName")
                 dn.text = simple_field["displayName"]
 
         return element
@@ -1408,10 +1415,10 @@ class Data(_XMLObject):
     def etree_element(self):
         element = super().etree_element()
         element.set("name", self.name)
-        value = etree.SubElement(element, f"{self.ns}value")
+        value = config.etree.SubElement(element, f"{self.ns}value")
         value.text = self.value
         if self.display_name:
-            display_name = etree.SubElement(element, f"{self.ns}displayName")
+            display_name = config.etree.SubElement(element, f"{self.ns}displayName")
             display_name.text = self.display_name
         return element
 
@@ -1479,7 +1486,7 @@ class SchemaData(_XMLObject):
         element = super().etree_element()
         element.set("schemaUrl", self.schema_url)
         for data in self.data:
-            sd = etree.SubElement(element, f"{self.ns}SimpleData")
+            sd = config.etree.SubElement(element, f"{self.ns}SimpleData")
             sd.set("name", data["name"])
             sd.text = data["value"]
         return element

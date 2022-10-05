@@ -46,3 +46,11 @@ venv
 # editors
 .vscode/
 .idea/
+
+# typing
+.mypy_cache/
+.pyre/
+.watchmanconfig
+
+# misc
+.dccache
