@@ -293,13 +293,21 @@ class PolyStyle(_ColorStyle):
         return element
 
     def from_element(self, element: Element) -> None:
+        def strtobool(val: str) -> int:
+            val = val.lower()
+            if val == "false":
+                return 0
+            if val == "true":
+                return 1
+            return int(float(val))
+
         super().from_element(element)
         fill = element.find(f"{self.ns}fill")
         if fill is not None:
-            self.fill = int(float(fill.text))
+            self.fill = strtobool(fill.text)
         outline = element.find(f"{self.ns}outline")
         if outline is not None:
-            self.outline = int(float(outline.text))
+            self.outline = strtobool(outline.text)
 
 
 class LabelStyle(_ColorStyle):

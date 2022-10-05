@@ -1214,6 +1214,50 @@ class TestStyleFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
+    def test_polystyle_boolean_fill(self):
+        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+          <name>PolygonStyle.kml</name>
+          <open>1</open>
+          <Style id="examplePolyStyle">
+            <PolyStyle>
+              <fill>false</fill>
+            </PolyStyle>
+          </Style>
+        </Document>
+        </kml>"""
+
+        k = kml.KML()
+        k.from_string(doc)
+        style = list(list(list(k.features())[0].styles())[0].styles())[0]
+        self.assertIsInstance(style, styles.PolyStyle)
+        self.assertEqual(style.fill, 0)
+        k2 = kml.KML()
+        k2.from_string(k.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
+
+    def test_polystyle_boolean_outline(self):
+        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+          <name>PolygonStyle.kml</name>
+          <open>1</open>
+          <Style id="examplePolyStyle">
+            <PolyStyle>
+              <outline>false</outline>
+            </PolyStyle>
+          </Style>
+        </Document>
+        </kml>"""
+
+        k = kml.KML()
+        k.from_string(doc)
+        style = list(list(list(k.features())[0].styles())[0].styles())[0]
+        self.assertIsInstance(style, styles.PolyStyle)
+        self.assertEqual(style.outline, 0)
+        k2 = kml.KML()
+        k2.from_string(k.to_string())
+        self.assertEqual(k.to_string(), k2.to_string())
+
     def test_polystyle_float_fill(self):
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
