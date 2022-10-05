@@ -15,13 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the gx classes."""
-from typing import cast
-
-import pytest
-
-from fastkml import config
-from fastkml import gx
-from fastkml import types
 from fastkml.tests.base import Lxml
 from fastkml.tests.base import StdLibrary
 
