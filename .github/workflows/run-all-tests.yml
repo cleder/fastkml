@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11-dev']
 
     steps:
       - uses: actions/checkout@v2
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11-dev']
 
     steps:
       - uses: actions/checkout@v2
@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pypy-version: ['pypy-3.6', 'pypy-3.7', 'pypy-3.8']
+        pypy-version: ['pypy-3.7', 'pypy-3.8', 'pypy-3.9']
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.pypy-version }}
