@@ -136,8 +136,8 @@ def o_to_subelement_text(
                 obj.__class__.__name__,
             )
         else:
-            elem = config.etree.SubElement(
-                element,  # type: ignore[arg-type]
+            elem = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
                 f"{obj.ns}{kml_attr}",  # type: ignore[attr-defined]
             )
             elem.text = str(attribute)

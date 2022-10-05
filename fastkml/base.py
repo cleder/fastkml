@@ -43,14 +43,16 @@ class _XMLObject:
     def etree_element(self) -> Element:
         """Return the KML Object as an Element."""
         if self.__name__:
-            element = config.etree.Element(f"{self.ns}{self.__name__}")
+            element: Element = config.etree.Element(
+                f"{self.ns}{self.__name__}"
+            )  # type: ignore[attr-defined]
         else:
             raise NotImplementedError(
                 "Call of abstract base class, subclasses implement this!"
             )
         for mapping in self.kml_object_mapping:
             mapping["to_kml"](self, element, **mapping)
-        return element  # type: ignore [return-value]
+        return element
 
     def from_element(self, element: Element) -> None:
         """Load the KML Object from an Element."""
@@ -61,14 +63,16 @@ class _XMLObject:
 
     def from_string(self, xml_string: str) -> None:
         """Load the KML Object from serialized xml."""
-        self.from_element(cast(Element, config.etree.XML(xml_string)))
+        self.from_element(
+            cast(Element, config.etree.XML(xml_string))  # type: ignore[attr-defined]
+        )
 
     def to_string(self, prettyprint: bool = True) -> str:
         """Return the KML Object as serialized xml."""
         try:
             return cast(
                 str,
-                config.etree.tostring(  # type: ignore[call-overload]
+                config.etree.tostring(  # type: ignore[attr-defined]
                     self.etree_element(),
                     encoding="UTF-8",
                     pretty_print=prettyprint,
@@ -77,7 +81,7 @@ class _XMLObject:
         except TypeError:
             return cast(
                 str,
-                config.etree.tostring(  # type: ignore[call-overload]
+                config.etree.tostring(  # type: ignore[attr-defined]
                     self.etree_element(), encoding="UTF-8"
                 ).decode("UTF-8"),
             )
