@@ -43,9 +43,9 @@ class _XMLObject:
     def etree_element(self) -> Element:
         """Return the KML Object as an Element."""
         if self.__name__:
-            element: Element = config.etree.Element(
+            element: Element = config.etree.Element(  # type: ignore[attr-defined]
                 f"{self.ns}{self.__name__}"
-            )  # type: ignore[attr-defined]
+            )
         else:
             raise NotImplementedError(
                 "Call of abstract base class, subclasses implement this!"
