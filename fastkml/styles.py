@@ -363,9 +363,9 @@ class PolyStyle(_ColorStyle):
     def from_element(self, element):
         def strtobool(val):
             val = val.lower()
-            if val == 'false':
+            if val == "false":
                 return 0
-            if val == 'true':
+            if val == "true":
                 return 1
             return int(float(val))
 
