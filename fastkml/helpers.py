@@ -35,8 +35,7 @@ def o_to_attr(
     **kwargs: Any,
 ) -> None:
     """Set an attribute on an KML Element from an object attribute."""
-    attribute = getattr(obj, obj_attr)
-    if attribute:
+    if attribute := getattr(obj, obj_attr):
         element.set(kml_attr, str(attribute))
     elif required:
         logger.warning(
@@ -55,8 +54,7 @@ def o_from_attr(
     **kwargs: Any,
 ) -> None:
     """Set an attribute on self from an KML attribute."""
-    attribute = element.get(kml_attr)
-    if attribute:
+    if attribute := element.get(kml_attr):
         setattr(obj, obj_attr, attribute)
     elif required:
         logger.warning(
@@ -127,8 +125,7 @@ def o_to_subelement_text(
     **kwargs: Any,
 ) -> None:
     """Set the text of a SubElement from an object attribute."""
-    attribute = getattr(obj, obj_attr)
-    if attribute:
+    if attribute := getattr(obj, obj_attr):
         if validator is not None and not validator(attribute):
             logger.warning(
                 "Invalid value for attribute '%s' for '%s'",
