@@ -94,8 +94,8 @@ class TestBaseClasses:
         assert f.description is None
         assert f._style_url is None
         assert f._styles == []
-        assert f._time_span is None
-        assert f._time_stamp is None
+        assert f._timespan is None
+        assert f._timestamp is None
         # self.assertEqual(f.region, None)
         # self.assertEqual(f.extended_data, None)
 

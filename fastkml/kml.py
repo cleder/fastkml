@@ -313,8 +313,8 @@ class _Feature(_BaseObject):
 
     @time_stamp.setter
     def time_stamp(self, dt):
-        self._time_stamp = None if dt is None else TimeStamp(timestamp=dt)
-        if self._time_span is not None:
+        self._timestamp = None if dt is None else TimeStamp(timestamp=dt)
+        if self._timespan is not None:
             logger.warning("Setting a TimeStamp, TimeSpan deleted")
             self._timespan = None
 
