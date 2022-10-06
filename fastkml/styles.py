@@ -314,9 +314,7 @@ class PolyStyle(_ColorStyle):
             val = val.lower()
             if val == "false":
                 return 0
-            if val == "true":
-                return 1
-            return int(float(val))
+            return 1 if val == "true" else int(float(val))
 
         super().from_element(element)
         fill = element.find(f"{self.ns}fill")
