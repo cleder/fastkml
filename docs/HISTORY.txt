@@ -7,6 +7,8 @@ Changelog
 - Drop Python 2 support
 - Use pygeoif >=1.0
 - Drop shapely native support
+- Add type annotations
+- refactor
 
 
 0.12 (2020/09/23)
