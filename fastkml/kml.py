@@ -95,6 +95,11 @@ class KML:
             feature = Placemark(ns)
             feature.from_element(placemark)
             self.append(feature)
+        photo_overlays = element.findall(f"{ns}PhotoOverlay")
+        for photo_overlay in photo_overlays:
+            feature = PhotoOverlay(ns)
+            feature.from_element(photo_overlay)
+            self.append(feature)
 
     def etree_element(self):
         # self.ns may be empty, which leads to unprefixed kml elements.
@@ -125,20 +130,26 @@ class KML:
     def features(self):
         """iterate over features"""
         for feature in self._features:
-            if isinstance(feature, (Document, Folder, Placemark)):
+            if isinstance(
+                feature, (Document, Folder, Placemark, GroundOverlay, PhotoOverlay)
+            ):
                 yield feature
             else:
                 raise TypeError(
-                    "Features must be instances of " "(Document, Folder, Placemark)"
+                    "Features must be instances of "
+                    + "(Document, Folder, Placemark, GroundOverlay, PhotoOverlay)"
                 )
 
     def append(self, kmlobj):
         """append a feature"""
-        if isinstance(kmlobj, (Document, Folder, Placemark)):
+        if isinstance(
+            kmlobj, (Document, Folder, Placemark, GroundOverlay, PhotoOverlay)
+        ):
             self._features.append(kmlobj)
         else:
             raise TypeError(
-                "Features must be instances of (Document, Folder, Placemark)"
+                "Features must be instances of (Document, Folder, "
+                + "Placemark, GroundOverlay, PhotoOverlay)"
             )
 
 
@@ -224,10 +235,14 @@ class _Feature(_BaseObject):
     # Placemark, or ScreenOverlay—the value for the Feature's inline
     # style takes precedence over the value for the shared style.
 
-    _time_span = None
+    _timespan = None
     # Associates this Feature with a period of time.
-    _time_stamp = None
+    _timestamp = None
     # Associates this Feature with a point in time.
+
+    _camera = None
+
+    _look_at = None
 
     # TODO Region = None
     # Features and geometry associated with a Region are drawn only when
@@ -289,49 +304,67 @@ class _Feature(_BaseObject):
     @property
     def time_stamp(self):
         """This just returns the datetime portion of the timestamp"""
-        if self._time_stamp is not None:
-            return self._time_stamp.timestamp[0]
+        if self._timestamp is not None:
+            return self._timestamp.timestamp[0]
 
     @time_stamp.setter
     def time_stamp(self, dt):
         self._time_stamp = None if dt is None else TimeStamp(timestamp=dt)
         if self._time_span is not None:
             logger.warning("Setting a TimeStamp, TimeSpan deleted")
-            self._time_span = None
+            self._timespan = None
 
     @property
     def begin(self):
-        if self._time_span is not None:
-            return self._time_span.begin[0]
+        if self._timespan is not None:
+            return self._timespan.begin[0]
 
     @begin.setter
     def begin(self, dt):
-        if self._time_span is None:
-            self._time_span = TimeSpan(begin=dt)
-        elif self._time_span.begin is None:
-            self._time_span.begin = [dt, None]
+        if self._timespan is None:
+            self._timespan = TimeSpan(begin=dt)
+        elif self._timespan.begin is None:
+            self._timespan.begin = [dt, None]
         else:
-            self._time_span.begin[0] = dt
-        if self._time_stamp is not None:
+            self._timespan.begin[0] = dt
+        if self._timestamp is not None:
             logger.warning("Setting a TimeSpan, TimeStamp deleted")
-            self._time_stamp = None
+            self._timestamp = None
 
     @property
     def end(self):
-        if self._time_span is not None:
-            return self._time_span.end[0]
+        if self._timespan is not None:
+            return self._timespan.end[0]
 
     @end.setter
     def end(self, dt):
-        if self._time_span is None:
-            self._time_span = TimeSpan(end=dt)
-        elif self._time_span.end is None:
-            self._time_span.end = [dt, None]
+        if self._timespan is None:
+            self._timespan = TimeSpan(end=dt)
+        elif self._timespan.end is None:
+            self._timespan.end = [dt, None]
         else:
-            self._time_span.end[0] = dt
-        if self._time_stamp is not None:
+            self._timespan.end[0] = dt
+        if self._timestamp is not None:
             logger.warning("Setting a TimeSpan, TimeStamp deleted")
-            self._time_stamp = None
+            self._timestamp = None
+
+    @property
+    def camera(self):
+        return self._camera
+
+    @camera.setter
+    def camera(self, camera):
+        if isinstance(camera, Camera):
+            self._camera = camera
+
+    @property
+    def look_at(self):
+        return self._look_at
+
+    @look_at.setter
+    def look_at(self, look_at):
+        if isinstance(look_at, LookAt):
+            self._look_at = look_at
 
     @property
     def link(self):
@@ -458,6 +491,12 @@ class _Feature(_BaseObject):
         if self.description:
             description = etree.SubElement(element, f"{self.ns}description")
             description.text = self.description
+        if (self.camera is not None) and (self.look_at is not None):
+            raise ValueError("Either Camera or LookAt can be defined, not both")
+        if self.camera is not None:
+            element.append(self._camera.etree_element())
+        elif self.look_at is not None:
+            element.append(self._look_at.etree_element())
         visibility = etree.SubElement(element, f"{self.ns}visibility")
         visibility.text = str(self.visibility)
         if self.isopen:
@@ -476,12 +515,12 @@ class _Feature(_BaseObject):
                 snippet.text = self.snippet["text"]
                 if self.snippet.get("maxLines"):
                     snippet.set("maxLines", str(self.snippet["maxLines"]))
-        if (self._time_span is not None) and (self._time_stamp is not None):
+        if (self._timespan is not None) and (self._timestamp is not None):
             raise ValueError("Either Timestamp or Timespan can be defined, not both")
-        elif self._time_span is not None:
-            element.append(self._time_span.etree_element())
-        elif self._time_stamp is not None:
-            element.append(self._time_stamp.etree_element())
+        elif self._timespan is not None:
+            element.append(self._timespan.etree_element())
+        elif self._timestamp is not None:
+            element.append(self._timestamp.etree_element())
         if self._atom_link is not None:
             element.append(self._atom_link.etree_element())
         if self._atom_author is not None:
@@ -535,12 +574,12 @@ class _Feature(_BaseObject):
         if timespan is not None:
             s = TimeSpan(self.ns)
             s.from_element(timespan)
-            self._time_span = s
+            self._timespan = s
         timestamp = element.find(f"{self.ns}TimeStamp")
         if timestamp is not None:
             s = TimeStamp(self.ns)
             s.from_element(timestamp)
-            self._time_stamp = s
+            self._timestamp = s
         atom_link = element.find(f"{atom.NS}link")
         if atom_link is not None:
             s = atom.Link()
@@ -566,6 +605,11 @@ class _Feature(_BaseObject):
         phone_number = element.find(f"{self.ns}phoneNumber")
         if phone_number is not None:
             self.phone_number = phone_number.text
+        camera = element.find(f"{self.ns}Camera")
+        if camera is not None:
+            s = Camera(self.ns)
+            s.from_element(camera)
+            self.camera = s
 
 
 class _Container(_Feature):
@@ -715,12 +759,344 @@ class _Overlay(_Feature):
             self.icon = icon.text
 
 
+class PhotoOverlay(_Overlay):
+    """
+    The <PhotoOverlay> element allows you to geographically locate a photograph
+    on the Earth and to specify viewing parameters for this PhotoOverlay.
+    The PhotoOverlay can be a simple 2D rectangle, a partial or full cylinder,
+    or a sphere (for spherical panoramas). The overlay is placed at the
+    specified location and oriented toward the viewpoint.
+
+    Because <PhotoOverlay> is derived from <Feature>, it can contain one of
+    the two elements derived from <AbstractView>—either <Camera> or <LookAt>.
+    The Camera (or LookAt) specifies a viewpoint and a viewing direction (also
+    referred to as a view vector). The PhotoOverlay is positioned in relation
+    to the viewpoint. Specifically, the plane of a 2D rectangular image is
+    orthogonal (at right angles to) the view vector. The normal of this
+    plane—that is, its front, which is the part
+    with the photo—is oriented toward the viewpoint.
+
+    The URL for the PhotoOverlay image is specified in the <Icon> tag,
+    which is inherited from <Overlay>. The <Icon> tag must contain an <href>
+    element that specifies the image file to use for the PhotoOverlay.
+    In the case of a very large image, the <href> is a special URL that
+    indexes into a pyramid of images of varying resolutions (see ImagePyramid).
+    """
+
+    __name__ = "PhotoOverlay"
+
+    _rotation = None
+    # Adjusts how the photo is placed inside the field of view. This element is
+    # useful if your photo has been rotated and deviates slightly from a desired
+    # horizontal view.
+
+    # - ViewVolume -
+    # Defines how much of the current scene is visible. Specifying the field of
+    # view is analogous to specifying the lens opening in a physical camera.
+    # A small field of view, like a telephoto lens, focuses on a small part of
+    # the scene. A large field of view, like a wide-angle lens, focuses on a
+    # large part of the scene.
+
+    _leftFov = None
+    # Angle, in degrees, between the camera's viewing direction and the left side
+    # of the view volume.
+
+    _rightFov = None
+    # Angle, in degrees, between the camera's viewing direction and the right side
+    # of the view volume.
+
+    _bottomFov = None
+    # Angle, in degrees, between the camera's viewing direction and the bottom side
+    # of the view volume.
+
+    _topFov = None
+    # Angle, in degrees, between the camera's viewing direction and the top side
+    # of the view volume.
+
+    _near = None
+    # Measurement in meters along the viewing direction from the camera viewpoint
+    # to the PhotoOverlay shape.
+
+    _tileSize = "256"
+    # Size of the tiles, in pixels. Tiles must be square, and <tileSize> must
+    # be a power of 2. A tile size of 256 (the default) or 512 is recommended.
+    # The original image is divided into tiles of this size, at varying resolutions.
+
+    _maxWidth = None
+    # Width in pixels of the original image.
+
+    _maxHeight = None
+    # Height in pixels of the original image.
+
+    _gridOrigin = None
+    # Specifies where to begin numbering the tiles in each layer of the pyramid.
+    # A value of lowerLeft specifies that row 1, column 1 of each layer is in
+    # the bottom left corner of the grid.
+
+    _point = None
+    # The <Point> element acts as a <Point> inside a <Placemark> element.
+    # It draws an icon to mark the position of the PhotoOverlay.
+    # The icon drawn is specified by the <styleUrl> and <StyleSelector> fields,
+    # just as it is for <Placemark>.
+
+    _shape = "rectangle"
+    # The PhotoOverlay is projected onto the <shape>.
+    # The <shape> can be one of the following:
+    #   rectangle (default) -
+    #       for an ordinary photo
+    #   cylinder -
+    #       for panoramas, which can be either partial or full cylinders
+    #   sphere -
+    #       for spherical panoramas
+
+    @property
+    def rotation(self):
+        return self._rotation
+
+    @rotation.setter
+    def rotation(self, value):
+        if isinstance(value, (str, int, float)):
+            self._rotation = str(value)
+        elif value is None:
+            self._rotation = None
+        else:
+            raise ValueError
+
+    @property
+    def leftFov(self):
+        return self._leftFov
+
+    @leftFov.setter
+    def leftFov(self, value):
+        if isinstance(value, (str, int, float)):
+            self._leftFov = str(value)
+        elif value is None:
+            self._leftFov = None
+        else:
+            raise ValueError
+
+    @property
+    def rightFov(self):
+        return self._rightFov
+
+    @rightFov.setter
+    def rightFov(self, value):
+        if isinstance(value, (str, int, float)):
+            self._rightFov = str(value)
+        elif value is None:
+            self._rightFov = None
+        else:
+            raise ValueError
+
+    @property
+    def bottomFov(self):
+        return self._bottomFov
+
+    @bottomFov.setter
+    def bottomFov(self, value):
+        if isinstance(value, (str, int, float)):
+            self._bottomFov = str(value)
+        elif value is None:
+            self._bottomFov = None
+        else:
+            raise ValueError
+
+    @property
+    def topFov(self):
+        return self._topFov
+
+    @topFov.setter
+    def topFov(self, value):
+        if isinstance(value, (str, int, float)):
+            self._topFov = str(value)
+        elif value is None:
+            self._topFov = None
+        else:
+            raise ValueError
+
+    @property
+    def near(self):
+        return self._near
+
+    @near.setter
+    def near(self, value):
+        if isinstance(value, (str, int, float)):
+            self._near = str(value)
+        elif value is None:
+            self._near = None
+        else:
+            raise ValueError
+
+    @property
+    def tileSize(self):
+        return self._tileSize
+
+    @tileSize.setter
+    def tileSize(self, value):
+        if isinstance(value, (str, int, float)):
+            self._tileSize = str(value)
+        elif value is None:
+            self._tileSize = None
+        else:
+            raise ValueError
+
+    @property
+    def maxWidth(self):
+        return self._maxWidth
+
+    @maxWidth.setter
+    def maxWidth(self, value):
+        if isinstance(value, (str, int, float)):
+            self._maxWidth = str(value)
+        elif value is None:
+            self._maxWidth = None
+        else:
+            raise ValueError
+
+    @property
+    def maxHeight(self):
+        return self._maxHeight
+
+    @maxHeight.setter
+    def maxHeight(self, value):
+        if isinstance(value, (str, int, float)):
+            self._maxHeight = str(value)
+        elif value is None:
+            self._maxHeight = None
+        else:
+            raise ValueError
+
+    @property
+    def gridOrigin(self):
+        return self._gridOrigin
+
+    @gridOrigin.setter
+    def gridOrigin(self, value):
+        if value in ("lowerLeft", "upperLeft"):
+            self._gridOrigin = str(value)
+        elif value is None:
+            self._gridOrigin = None
+        else:
+            raise ValueError
+
+    @property
+    def point(self):
+        return self._point
+
+    @point.setter
+    def point(self, value):
+        if isinstance(value, (str, tuple)):
+            self._point = str(value)
+        else:
+            raise ValueError
+
+    @property
+    def shape(self):
+        return self._shape
+
+    @shape.setter
+    def shape(self, value):
+        if value in ("rectangle", "cylinder", "sphere"):
+            self._shape = str(value)
+        elif value is None:
+            self._shape = None
+        else:
+            raise ValueError("Shape must be one of " "rectangle, cylinder, sphere")
+
+    def ViewVolume(self, leftFov, rightFov, bottomFov, topFov, near):
+        self.leftFov = leftFov
+        self.rightFov = rightFov
+        self.bottomFov = bottomFov
+        self.topFov = topFov
+        self.near = near
+
+    def ImagePyramid(self, tileSize, maxWidth, maxHeight, gridOrigin):
+        self.tileSize = tileSize
+        self.maxWidth = maxWidth
+        self.maxHeight = maxHeight
+        self.gridOrigin = gridOrigin
+
+    def etree_element(self):
+        element = super().etree_element()
+        if self._rotation:
+            rotation = etree.SubElement(element, f"{self.ns}rotation")
+            rotation.text = self._rotation
+        if all(
+            [self._leftFov, self._rightFov, self._bottomFov, self._topFov, self._near]
+        ):
+            ViewVolume = etree.SubElement(element, f"{self.ns}ViewVolume")
+            leftFov = etree.SubElement(ViewVolume, f"{self.ns}leftFov")
+            leftFov.text = self._leftFov
+            rightFov = etree.SubElement(ViewVolume, f"{self.ns}rightFov")
+            rightFov.text = self._rightFov
+            bottomFov = etree.SubElement(ViewVolume, f"{self.ns}bottomFov")
+            bottomFov.text = self._bottomFov
+            topFov = etree.SubElement(ViewVolume, f"{self.ns}topFov")
+            topFov.text = self._topFov
+            near = etree.SubElement(ViewVolume, f"{self.ns}near")
+            near.text = self._near
+        if all([self._tileSize, self._maxWidth, self._maxHeight, self._gridOrigin]):
+            ImagePyramid = etree.SubElement(element, f"{self.ns}ImagePyramid")
+            tileSize = etree.SubElement(ImagePyramid, f"{self.ns}tileSize")
+            tileSize.text = self._tileSize
+            maxWidth = etree.SubElement(ImagePyramid, f"{self.ns}maxWidth")
+            maxWidth.text = self._maxWidth
+            maxHeight = etree.SubElement(ImagePyramid, f"{self.ns}maxHeight")
+            maxHeight.text = self._maxHeight
+            gridOrigin = etree.SubElement(ImagePyramid, f"{self.ns}gridOrigin")
+            gridOrigin.text = self._gridOrigin
+        return element
+
+    def from_element(self, element):
+        super().from_element(element)
+        rotation = element.find(f"{self.ns}rotation")
+        if rotation is not None:
+            self.rotation = rotation.text
+        ViewVolume = element.find(f"{self.ns}ViewVolume")
+        if ViewVolume is not None:
+            leftFov = ViewVolume.find(f"{self.ns}leftFov")
+            if leftFov is not None:
+                self.leftFov = leftFov.text
+            rightFov = ViewVolume.find(f"{self.ns}rightFov")
+            if rightFov is not None:
+                self.rightFov = rightFov.text
+            bottomFov = ViewVolume.find(f"{self.ns}bottomFov")
+            if bottomFov is not None:
+                self.bottomFov = bottomFov.text
+            topFov = ViewVolume.find(f"{self.ns}topFov")
+            if topFov is not None:
+                self.topFov = topFov.text
+            near = ViewVolume.find(f"{self.ns}near")
+            if near is not None:
+                self.near = near.text
+        ImagePyramid = element.find(f"{self.ns}ImagePyramid")
+        if ImagePyramid is not None:
+            tileSize = ImagePyramid.find(f"{self.ns}tileSize")
+            if tileSize is not None:
+                self.tileSize = tileSize.text
+            maxWidth = ImagePyramid.find(f"{self.ns}maxWidth")
+            if maxWidth is not None:
+                self.maxWidth = maxWidth.text
+            maxHeight = ImagePyramid.find(f"{self.ns}maxHeight")
+            if maxHeight is not None:
+                self.maxHeight = maxHeight.text
+            gridOrigin = ImagePyramid.find(f"{self.ns}gridOrigin")
+            if gridOrigin is not None:
+                self.gridOrigin = gridOrigin.text
+        Point = element.find(f"{self.ns}Point")
+        if Point is not None:
+            self.point = Point.text
+        shape = element.find(f"{self.ns}shape")
+        if shape is not None:
+            self.shape = shape.text
+
+
 class GroundOverlay(_Overlay):
     """
     This element draws an image overlay draped onto the terrain. The <href>
     child of <Icon> specifies the image to be used as the overlay. This file
-    can be either on a local file system or on a web server. If this element is
-    omitted or contains no <href>, a rectangle is drawn using the color and
+    can be either on a local file system or on a web server. If this element
+    is omitted or contains no <href>, a rectangle is drawn using the color and
     LatLonBox bounds defined by the ground overlay.
     """
 
@@ -867,12 +1243,26 @@ class GroundOverlay(_Overlay):
             raise ValueError
 
     def lat_lon_box(self, north, south, east, west, rotation=0):
-        # TODO: Check for bounds (0:+/-90 or 0:+/-180 degrees)
-        self.north = north
-        self.south = south
-        self.east = east
-        self.west = west
-        self.rotation = rotation
+        if -90 <= float(north) <= 90:
+            self.north = north
+        else:
+            raise ValueError
+        if -90 <= float(south) <= 90:
+            self.south = south
+        else:
+            raise ValueError
+        if -180 <= float(east) <= 180:
+            self.east = east
+        else:
+            raise ValueError
+        if -180 <= float(east) <= 180:
+            self.west = west
+        else:
+            raise ValueError
+        if -180 <= float(east) <= 180:
+            self.rotation = rotation
+        else:
+            raise ValueError
 
     def etree_element(self):
         element = super().etree_element()
@@ -883,7 +1273,7 @@ class GroundOverlay(_Overlay):
                 altitude_mode = etree.SubElement(element, f"{self.ns}altitudeMode")
                 altitude_mode.text = self._altitude_mode
         if all([self._north, self._south, self._east, self._west]):
-            lat_lon_box = etree.SubElement(element, f"{self.ns}latLonBox")
+            lat_lon_box = etree.SubElement(element, f"{self.ns}LatLonBox")
             north = etree.SubElement(lat_lon_box, f"{self.ns}north")
             north.text = self._north
             south = etree.SubElement(lat_lon_box, f"{self.ns}south")
@@ -895,7 +1285,6 @@ class GroundOverlay(_Overlay):
             if self._rotation:
                 rotation = etree.SubElement(lat_lon_box, f"{self.ns}rotation")
                 rotation.text = self._rotation
-
         return element
 
     def from_element(self, element):
@@ -905,7 +1294,7 @@ class GroundOverlay(_Overlay):
             self.altitude = altitude.text
         altitude_mode = element.find(f"{self.ns}altitudeMode")
         if altitude_mode is not None:
-            self.altitudeMode = altitude_mode.text
+            self.altitude_mode = altitude_mode.text
         lat_lon_box = element.find(f"{self.ns}LatLonBox")
         if lat_lon_box is not None:
             north = lat_lon_box.find(f"{self.ns}north")
@@ -1354,7 +1743,6 @@ class Schema(_BaseObject):
             if simple_field.get("displayName"):
                 dn = etree.SubElement(sf, f"{self.ns}displayName")
                 dn.text = simple_field["displayName"]
-
         return element
 
 
@@ -1493,11 +1881,520 @@ class SchemaData(_XMLObject):
             self.append_data(sd.get("name"), sd.text)
 
 
+class _AbstractView(_BaseObject):
+    """
+    This is an abstract element and cannot be used directly in a KML file.
+    This element is extended by the <Camera> and <LookAt> elements.
+    """
+
+    _gx_timespan = None
+    _gx_timestamp = None
+
+    def etree_element(self):
+        element = super().etree_element()
+        if (self._timespan is not None) and (self._timestamp is not None):
+            raise ValueError("Either Timestamp or Timespan can be defined, not both")
+        if self._timespan is not None:
+            element.append(self._gx_timespan.etree_element())
+        elif self._timestamp is not None:
+            element.append(self._gx_timestamp.etree_element())
+        return element
+
+    @property
+    def gx_timestamp(self):
+        return self._gx_timestamp
+
+    @gx_timestamp.setter
+    def gx_timestamp(self, dt):
+        self._gx_timestamp = None if dt is None else TimeStamp(timestamp=dt)
+        if self._gx_timestamp is not None:
+            logger.warning("Setting a TimeStamp, TimeSpan deleted")
+            self._gx_timespan = None
+
+    @property
+    def begin(self):
+        return self._gx_timespan.begin[0]
+
+    @begin.setter
+    def begin(self, dt):
+        if self._gx_timespan is None:
+            self._gx_timespan = TimeSpan(begin=dt)
+        elif self._gx_timespan.begin is None:
+            self._gx_timespan.begin = [dt, None]
+        else:
+            self._gx_timespan.begin[0] = dt
+        if self._gx_timestamp is not None:
+            logger.warning("Setting a TimeSpan, TimeStamp deleted")
+            self._gx_timestamp = None
+
+    @property
+    def end(self):
+        return self._gx_timespan.end[0]
+
+    @end.setter
+    def end(self, dt):
+        if self._gx_timespan is None:
+            self._gx_timespan = TimeSpan(end=dt)
+        elif self._gx_timespan.end is None:
+            self._gx_timespan.end = [dt, None]
+        else:
+            self._gx_timespan.end[0] = dt
+        if self._gx_timestamp is not None:
+            logger.warning("Setting a TimeSpan, TimeStamp deleted")
+            self._gx_timestamp = None
+
+    def from_element(self, element):
+        super().from_element(element)
+        gx_timespan = element.find(f"{gx.NS}TimeSpan")
+        if gx_timespan is not None:
+            self._gx_timespan = gx_timespan.text
+        gx_timestamp = element.find(f"{gx.NS}TimeStamp")
+        if gx_timestamp is not None:
+            self._gx_timestamp = gx_timestamp.text
+
+    # TODO: <gx:ViewerOptions>
+    # TODO: <gx:horizFov>
+
+
+class Camera(_AbstractView):
+    """
+    Defines the virtual camera that views the scene. This element defines
+    the position of the camera relative to the Earth's surface as well
+    as the viewing direction of the camera. The camera position is defined
+    by <longitude>, <latitude>, <altitude>, and either <altitudeMode> or
+    <gx:altitudeMode>. The viewing direction of the camera is defined by
+    <heading>, <tilt>, and <roll>. <Camera> can be a child element of any
+    Feature or of <NetworkLinkControl>. A parent element cannot contain both a
+    <Camera> and a <LookAt> at the same time.
+
+    <Camera> provides full six-degrees-of-freedom control over the view,
+    so you can position the Camera in space and then rotate it around the
+    X, Y, and Z axes. Most importantly, you can tilt the camera view so that
+    you're looking above the horizon into the sky.
+
+    <Camera> can also contain a TimePrimitive (<gx:TimeSpan> or <gx:TimeStamp>).
+    Time values in Camera affect historical imagery, sunlight, and the display of
+    time-stamped features. For more information, read Time with AbstractViews in
+    the Time and Animation chapter of the Developer's Guide.
+    """
+
+    __name__ = "Camera"
+
+    _longitude = None
+    # Longitude of the virtual camera (eye point). Angular distance in degrees,
+    # relative to the Prime Meridian. Values west of the Meridian range from
+    # −180 to 0 degrees. Values east of the Meridian range from 0 to 180 degrees.
+
+    _latitude = None
+    # Latitude of the virtual camera. Degrees north or south of the Equator
+    # (0 degrees). Values range from −90 degrees to 90 degrees.
+
+    _altitude = None
+    # Distance of the camera from the earth's surface, in meters. Interpreted
+    # according to the Camera's <altitudeMode> or <gx:altitudeMode>.
+
+    _heading = None
+    # Direction (azimuth) of the camera, in degrees. Default=0 (true North).
+    # (See diagram.) Values range from 0 to 360 degrees.
+
+    _tilt = None
+    # Rotation, in degrees, of the camera around the X axis. A value of 0
+    # indicates that the view is aimed straight down toward the earth (the
+    # most common case). A value for 90 for <tilt> indicates that the view
+    # is aimed toward the horizon. Values greater than 90 indicate that the
+    # view is pointed up into the sky. Values for <tilt> are clamped at +180
+    # degrees.
+
+    _roll = None
+    # Rotation, in degrees, of the camera around the Z axis. Values range from
+    # −180 to +180 degrees.
+
+    _altitude_mode = "relativeToGround"
+    # Specifies how the <altitude> specified for the Camera is interpreted.
+    # Possible values are as follows:
+    #   relativeToGround -
+    #       (default) Interprets the <altitude> as a value in meters above the
+    #       ground. If the point is over water, the <altitude> will be
+    #       interpreted as a value in meters above sea level. See
+    #       <gx:altitudeMode> below to specify points relative to the sea floor.
+    #   clampToGround -
+    #       For a camera, this setting also places the camera relativeToGround,
+    #       since putting the camera exactly at terrain height would mean that
+    #       the eye would intersect the terrain (and the view would be blocked).
+    #   absolute -
+    #       Interprets the <altitude> as a value in meters above sea level.
+
+    def __init__(
+        self,
+        ns=None,
+        id=None,
+        longitude=None,
+        latitude=None,
+        altitude=None,
+        heading=None,
+        tilt=None,
+        roll=None,
+        altitude_mode="relativeToGround",
+    ):
+        super().__init__(ns, id)
+        self._longitude = longitude
+        self._latitude = latitude
+        self._altitude = altitude
+        self._heading = heading
+        self._tilt = tilt
+        self._roll = roll
+        self._altitude_mode = altitude_mode
+
+    @property
+    def longitude(self):
+        return self._longitude
+
+    @longitude.setter
+    def longitude(self, value):
+        if isinstance(value, (str, int, float)) and (-180 <= float(value) <= 180):
+            self._longitude = str(value)
+        elif value is None:
+            self._longitude = None
+        else:
+            raise ValueError
+
+    @property
+    def latitude(self):
+        return self._latitude
+
+    @latitude.setter
+    def latitude(self, value):
+        if isinstance(value, (str, int, float)) and (-90 <= float(value) <= 90):
+            self._latitude = str(value)
+        elif value is None:
+            self._latitude = None
+        else:
+            raise ValueError
+
+    @property
+    def altitude(self):
+        return self._altitude
+
+    @altitude.setter
+    def altitude(self, value):
+        if isinstance(value, (str, int, float)):
+            self._altitude = str(value)
+        elif value is None:
+            self._altitude = None
+        else:
+            raise ValueError
+
+    @property
+    def heading(self):
+        return self._heading
+
+    @heading.setter
+    def heading(self, value):
+        if isinstance(value, (str, int, float)) and (-180 <= float(value) <= 180):
+            self._heading = str(value)
+        elif value is None:
+            self._heading = None
+        else:
+            raise ValueError
+
+    @property
+    def tilt(self):
+        return self._tilt
+
+    @tilt.setter
+    def tilt(self, value):
+        if isinstance(value, (str, int, float)) and (0 <= float(value) <= 180):
+            self._tilt = str(value)
+        elif value is None:
+            self._tilt = None
+        else:
+            raise ValueError
+
+    @property
+    def roll(self):
+        return self._roll
+
+    @roll.setter
+    def roll(self, value):
+        if isinstance(value, (str, int, float)) and (-180 <= float(value) <= 180):
+            self._roll = str(value)
+        elif value is None:
+            self._roll = None
+        else:
+            raise ValueError
+
+    @property
+    def altitude_mode(self):
+        return self._altitude_mode
+
+    @altitude_mode.setter
+    def altitude_mode(self, mode):
+        if mode in ("relativeToGround", "clampToGround", "absolute"):
+            self._altitude_mode = str(mode)
+        else:
+            self._altitude_mode = "relativeToGround"
+            # raise ValueError(
+            #     "altitude_mode must be one of " "relativeToGround,
+            #     clampToGround, absolute")
+
+    def from_element(self, element):
+        super().from_element(element)
+        longitude = element.find(f"{self.ns}longitude")
+        if longitude is not None:
+            self.longitude = longitude.text
+        latitude = element.find(f"{self.ns}latitude")
+        if latitude is not None:
+            self.latitude = latitude.text
+        altitude = element.find(f"{self.ns}altitude")
+        if altitude is not None:
+            self.altitude = altitude.text
+        heading = element.find(f"{self.ns}heading")
+        if heading is not None:
+            self.heading = heading.text
+        tilt = element.find(f"{self.ns}tilt")
+        if tilt is not None:
+            self.tilt = tilt.text
+        roll = element.find(f"{self.ns}roll")
+        if roll is not None:
+            self.roll = roll.text
+        altitude_mode = element.find(f"{self.ns}altitudeMode")
+        if altitude_mode is not None:
+            self.altitude_mode = altitude_mode.text
+        else:
+            altitude_mode = element.find(f"{gx.NS}altitudeMode")
+            self.altitude_mode = altitude_mode.text
+
+    def etree_element(self):
+        element = super().etree_element()
+        if self.longitude:
+            longitude = etree.SubElement(element, f"{self.ns}longitude")
+            longitude.text = self.longitude
+        if self.latitude:
+            latitude = etree.SubElement(element, f"{self.ns}latitude")
+            latitude.text = self.latitude
+        if self.altitude:
+            altitude = etree.SubElement(element, f"{self.ns}altitude")
+            altitude.text = self.altitude
+        if self.heading:
+            heading = etree.SubElement(element, f"{self.ns}heading")
+            heading.text = self.heading
+        if self.tilt:
+            tilt = etree.SubElement(element, f"{self.ns}tilt")
+            tilt.text = self.tilt
+        if self.roll:
+            roll = etree.SubElement(element, f"{self.ns}roll")
+            roll.text = self.roll
+        if self.altitude_mode in ("clampedToGround", "relativeToGround", "absolute"):
+            altitude_mode = etree.SubElement(element, f"{self.ns}altitudeMode")
+        elif self.altitude_mode in ("clampedToSeaFloor", "relativeToSeaFloor"):
+            altitude_mode = etree.SubElement(element, f"{gx.NS}altitudeMode")
+        altitude_mode.text = self.altitude_mode
+        return element
+
+
+class LookAt(_AbstractView):
+
+    _longitude = None
+    # Longitude of the point the camera is looking at. Angular distance in
+    # degrees, relative to the Prime Meridian. Values west of the Meridian
+    # range from −180 to 0 degrees. Values east of the Meridian range from
+    # 0 to 180 degrees.
+
+    _latitude = None
+    # Latitude of the point the camera is looking at. Degrees north or south
+    # of the Equator (0 degrees). Values range from −90 degrees to 90 degrees.
+
+    _altitude = None
+    # Distance from the earth's surface, in meters. Interpreted according to
+    # the LookAt's altitude mode.
+
+    _heading = None
+    # Direction (that is, North, South, East, West), in degrees. Default=0
+    # (North). (See diagram below.) Values range from 0 to 360 degrees.
+
+    _tilt = None
+    # Angle between the direction of the LookAt position and the normal to the
+    #  surface of the earth. (See diagram below.) Values range from 0 to 90
+    # degrees. Values for <tilt> cannot be negative. A <tilt> value of 0
+    # degrees indicates viewing from directly above. A <tilt> value of 90
+    # degrees indicates viewing along the horizon.
+
+    _range = None
+    # Distance in meters from the point specified by <longitude>, <latitude>,
+    # and <altitude> to the LookAt position. (See diagram below.)
+
+    _altitude_mode = None
+    # Specifies how the <altitude> specified for the LookAt point is
+    # interpreted. Possible values are as follows:
+    #   clampToGround -
+    #       (default) Indicates to ignore the <altitude> specification and
+    #       place the LookAt position on the ground.
+    #   relativeToGround -
+    #       Interprets the <altitude> as a value in meters above the ground.
+    #   absolute -
+    #       Interprets the <altitude> as a value in meters above sea level.
+
+    @property
+    def longitude(self):
+        return self._longitude
+
+    @longitude.setter
+    def longitude(self, value):
+        if isinstance(value, (str, int, float)) and (-180 <= float(value) <= 180):
+            self._longitude = str(value)
+        elif value is None:
+            self._longitude = None
+        else:
+            raise ValueError
+
+    @property
+    def latitude(self):
+        return self._latitude
+
+    @latitude.setter
+    def latitude(self, value):
+        if isinstance(value, (str, int, float)) and (-90 <= float(value) <= 90):
+            self._latitude = str(value)
+        elif value is None:
+            self._latitude = None
+        else:
+            raise ValueError
+
+    @property
+    def altitude(self):
+        return self._altitude
+
+    @altitude.setter
+    def altitude(self, value):
+        if isinstance(value, (str, int, float)):
+            self._altitude = str(value)
+        elif value is None:
+            self._altitude = None
+        else:
+            raise ValueError
+
+    @property
+    def heading(self):
+        return self._heading
+
+    @heading.setter
+    def heading(self, value):
+        if isinstance(value, (str, int, float)):
+            self._heading = str(value)
+        elif value is None:
+            self._heading = None
+        else:
+            raise ValueError
+
+    @property
+    def tilt(self):
+        return self._tilt
+
+    @tilt.setter
+    def tilt(self, value):
+        if isinstance(value, (str, int, float)) and (0 <= float(value) <= 90):
+            self._tilt = str(value)
+        elif value is None:
+            self._tilt = None
+        else:
+            raise ValueError
+
+    @property
+    def range(self):
+        return self._range
+
+    @range.setter
+    def range(self, value):
+        if isinstance(value, (str, int, float)):
+            self._range = str(value)
+        elif value is None:
+            self._range = None
+        else:
+            raise ValueError
+
+    @property
+    def altitude_mode(self):
+        return self._altitude_mode
+
+    @altitude_mode.setter
+    def altitude_mode(self, mode):
+        if mode in (
+            "relativeToGround",
+            "clampToGround",
+            "absolute",
+            "relativeToSeaFloor",
+            "clampToSeaFloor",
+        ):
+            self._altitude_mode = str(mode)
+        else:
+            self._altitude_mode = "relativeToGround"
+            # raise ValueError(
+            #     "altitude_mode must be one of "
+            #     + "relativeToGround, clampToGround, absolute,
+            #     + relativeToSeaFloor, clampToSeaFloor"
+            # )
+
+    def from_element(self, element):
+        super().from_element(element)
+        longitude = element.find(f"{self.ns}longitude")
+        if longitude is not None:
+            self.longitude = longitude.text
+        latitude = element.find(f"{self.ns}latitude")
+        if latitude is not None:
+            self.latitude = latitude.text
+        altitude = element.find(f"{self.ns}altitude")
+        if altitude is not None:
+            self.altitude = altitude.text
+        heading = element.find(f"{self.ns}heading")
+        if heading is not None:
+            self.heading = heading.text
+        tilt = element.find(f"{self.ns}tilt")
+        if tilt is not None:
+            self.tilt = tilt.text
+        range_var = element.find(f"{self.ns}range")
+        if range_var is not None:
+            self.range = range_var.text
+        altitude_mode = element.find(f"{self.ns}altitudeMode")
+        if altitude_mode is not None:
+            self.altitude_mode = altitude_mode.text
+        else:
+            altitude_mode = element.find(f"{gx.NS}altitudeMode")
+            self.altitude_mode = altitude_mode.text
+
+    def etree_element(self):
+        element = super().etree_element()
+        if self.longitude:
+            longitude = etree.SubElement(element, f"{self.ns}longitude")
+            longitude.text = self._longitude
+        if self.latitude:
+            latitude = etree.SubElement(element, f"{self.ns}latitude")
+            latitude.text = self.latitude
+        if self.altitude:
+            altitude = etree.SubElement(element, f"{self.ns}altitude")
+            altitude.text = self._altitude
+        if self.heading:
+            heading = etree.SubElement(element, f"{self.ns}heading")
+            heading.text = self._heading
+        if self.tilt:
+            tilt = etree.SubElement(element, f"{self.ns}tilt")
+            tilt.text = self._tilt
+        if self.range:
+            range_var = etree.SubElement(element, f"{self.ns}range")
+            range_var.text = self._range
+        if self.altitude_mode in ("clampedToGround", "relativeToGround", "absolute"):
+            altitude_mode = etree.SubElement(element, f"{self.ns}altitudeMode")
+        elif self.altitude_mode in ("clampedToSeaFloor", "relativeToSeaFloor"):
+            altitude_mode = etree.SubElement(element, f"{gx.NS}altitudeMode")
+        altitude_mode.text = self.altitude_mode
+        return element
+
+
 __all__ = [
     "Data",
     "Document",
     "ExtendedData",
     "Folder",
+    "PhotoOverlay",
     "GroundOverlay",
     "KML",
     "Placemark",
@@ -1505,4 +2402,6 @@ __all__ = [
     "SchemaData",
     "TimeSpan",
     "TimeStamp",
+    "Camera",
+    "LookAt",
 ]
