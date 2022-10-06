@@ -7,12 +7,12 @@ from setuptools.command.test import test as TestCommand
 
 
 class PyTest(TestCommand):
-    def finalize_options(self):
+    def finalize_options(self) -> None:
         TestCommand.finalize_options(self)
         self.test_args = []
         self.test_suite = True
 
-    def run_tests(self):
+    def run_tests(self) -> None:
         # import here, cause outside the eggs aren't loaded
         import pytest
 
@@ -22,7 +22,7 @@ class PyTest(TestCommand):
 
 setup(
     name="fastkml",
-    version="1.0.alpha.0",
+    version="1.0.alpha.2",
     description="Fast KML processing in python",
     long_description=(
         open("README.rst").read()
@@ -34,7 +34,6 @@ setup(
         "Topic :: Scientific/Engineering :: GIS",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
@@ -42,7 +41,7 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
         # "Development Status :: 5 - Production/Stable",
-        "Development Status :: 3 - Alpha"
+        "Development Status :: 3 - Alpha",
         "Operating System :: OS Independent",
     ],  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     keywords="GIS KML Google Maps OpenLayers",
@@ -55,10 +54,13 @@ setup(
     zip_safe=False,
     tests_require=["pytest"],
     cmdclass={"test": PyTest},
+    python_requires=">=3.7",
     install_requires=[
         # -*- Extra requirements: -*-
-        "pygeoif>=1.0b1",
+        "pygeoif>=1.0.0",
         "python-dateutil",
+        "setuptools",
+        "typing_extensions",
     ],
     entry_points="""
     # -*- Entry points: -*-

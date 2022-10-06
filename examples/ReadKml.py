@@ -32,7 +32,7 @@ doc = """<?xml version="1.0" encoding="UTF-8"?>
 k = kml.KML()
 
 # Read in the KML string
-k.from_string(doc)
+k.from_string(doc.encode("utf-8"))
 
 # Next we perform some simple sanity checks
 

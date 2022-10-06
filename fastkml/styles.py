@@ -1,4 +1,4 @@
-# Copyright (C) 2012  Christian Ledermann
+# Copyright (C) 2012 - 2022  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -21,9 +21,16 @@ part of how your data is displayed.
 """
 
 import logging
+from typing import Iterable
+from typing import Iterator
+from typing import List
+from typing import Optional
+from typing import Type
+from typing import Union
 
+from fastkml import config
 from fastkml.base import _BaseObject
-from fastkml.config import etree
+from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
 
@@ -38,19 +45,25 @@ class StyleUrl(_BaseObject):
     __name__ = "styleUrl"
     url = None
 
-    def __init__(self, ns=None, id=None, url=None):
-        super().__init__(ns, id)
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        url: Optional[str] = None,
+    ) -> None:
+        super().__init__(ns, id, target_id)
         self.url = url
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
+        element = super().etree_element()
         if self.url:
-            element = super().etree_element()
             element.text = self.url
-            return element
         else:
-            raise ValueError("No url given for styleUrl")
+            logger.warning("StyleUrl is missing required url.")
+        return element
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         self.url = element.text
 
@@ -65,136 +78,6 @@ class _StyleSelector(_BaseObject):
     """
 
 
-class Style(_StyleSelector):
-    """
-    A Style defines an addressable style group that can be referenced
-    by StyleMaps and Features. Styles affect how Geometry is presented
-    in the 3D viewer and how Features appear in the Places panel of the
-    List view. Shared styles are collected in a <Document> and must have
-    an id defined for them so that they can be referenced by the
-    individual Features that use them.
-    """
-
-    __name__ = "Style"
-    _styles = None
-
-    def __init__(self, ns=None, id=None, styles=None):
-        super().__init__(ns, id)
-        self._styles = []
-        if styles:
-            for style in styles:
-                self.append_style(style)
-
-    def append_style(self, style):
-        if isinstance(style, (_ColorStyle, BalloonStyle)):
-            self._styles.append(style)
-        else:
-            raise TypeError
-
-    def styles(self):
-        for style in self._styles:
-            if isinstance(style, (_ColorStyle, BalloonStyle)):
-                yield style
-            else:
-                raise TypeError
-
-    def from_element(self, element):
-        super().from_element(element)
-        style = element.find(f"{self.ns}IconStyle")
-        if style is not None:
-            thestyle = IconStyle(self.ns)
-            thestyle.from_element(style)
-            self.append_style(thestyle)
-        style = element.find(f"{self.ns}LineStyle")
-        if style is not None:
-            thestyle = LineStyle(self.ns)
-            thestyle.from_element(style)
-            self.append_style(thestyle)
-        style = element.find(f"{self.ns}PolyStyle")
-        if style is not None:
-            thestyle = PolyStyle(self.ns)
-            thestyle.from_element(style)
-            self.append_style(thestyle)
-        style = element.find(f"{self.ns}LabelStyle")
-        if style is not None:
-            thestyle = LabelStyle(self.ns)
-            thestyle.from_element(style)
-            self.append_style(thestyle)
-        style = element.find(f"{self.ns}BalloonStyle")
-        if style is not None:
-            thestyle = BalloonStyle(self.ns)
-            thestyle.from_element(style)
-            self.append_style(thestyle)
-
-    def etree_element(self):
-        element = super().etree_element()
-        for style in self.styles():
-            element.append(style.etree_element())
-        return element
-
-
-class StyleMap(_StyleSelector):
-    """
-    A <StyleMap> maps between two different Styles. Typically a
-    <StyleMap> element is used to provide separate normal and highlighted
-    styles for a placemark, so that the highlighted version appears when
-    the user mouses over the icon in Google Earth.
-    """
-
-    __name__ = "StyleMap"
-    normal = None
-    highlight = None
-
-    def __init__(self, ns=None, id=None, normal=None, highlight=None):
-        super().__init__(ns, id)
-        self.normal = normal
-        self.highlight = highlight
-
-    def from_element(self, element):
-        super().from_element(element)
-        pairs = element.findall(f"{self.ns}Pair")
-        for pair in pairs:
-            key = pair.find(f"{self.ns}key")
-            style = pair.find(f"{self.ns}Style")
-            style_url = pair.find(f"{self.ns}styleUrl")
-            if key.text == "highlight":
-                if style is not None:
-                    highlight = Style(self.ns)
-                    highlight.from_element(style)
-                elif style_url is not None:
-                    highlight = StyleUrl(self.ns)
-                    highlight.from_element(style_url)
-                else:
-                    raise ValueError
-                self.highlight = highlight
-            elif key.text == "normal":
-                if style is not None:
-                    normal = Style(self.ns)
-                    normal.from_element(style)
-                elif style_url is not None:
-                    normal = StyleUrl(self.ns)
-                    normal.from_element(style_url)
-                else:
-                    raise ValueError
-                self.normal = normal
-            else:
-                raise ValueError
-
-    def etree_element(self):
-        element = super().etree_element()
-        if self.normal and isinstance(self.normal, (Style, StyleUrl)):
-            pair = etree.SubElement(element, f"{self.ns}Pair")
-            key = etree.SubElement(pair, f"{self.ns}key")
-            key.text = "normal"
-            pair.append(self.normal.etree_element())
-        if self.highlight and isinstance(self.highlight, (Style, StyleUrl)):
-            pair = etree.SubElement(element, f"{self.ns}Pair")
-            key = etree.SubElement(pair, f"{self.ns}key")
-            key.text = "highlight"
-            pair.append(self.highlight.etree_element())
-        return element
-
-
 class _ColorStyle(_BaseObject):
     """
     abstract element; do not create.
@@ -205,7 +88,6 @@ class _ColorStyle(_BaseObject):
     """
 
     id = None
-    ns = None
     color = None
     # Color and opacity (alpha) values are expressed in hexadecimal notation.
     # The range of values for any one color is 0 to 255 (00 to ff).
@@ -213,31 +95,44 @@ class _ColorStyle(_BaseObject):
     # The order of expression is aabbggrr, where aa=alpha (00 to ff);
     # bb=blue (00 to ff); gg=green (00 to ff); rr=red (00 to ff).
 
-    colorMode = None
+    color_mode = None
     # Values for <colorMode> are normal (no effect) and random.
     # A value of random applies a random linear scale to the base <color>
 
-    def __init__(self, ns=None, id=None, color=None, colorMode=None):
-        super().__init__(ns, id)
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        color: Optional[str] = None,
+        color_mode: Optional[str] = None,
+    ) -> None:
+        super().__init__(ns, id, target_id)
         self.color = color
-        self.colorMode = colorMode
+        self.color_mode = color_mode
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self.color:
-            color = etree.SubElement(element, f"{self.ns}color")
+            color = config.etree.SubElement(
+                element,  # type: ignore[arg-type]
+                f"{self.ns}color",
+            )
             color.text = self.color
-        if self.colorMode:
-            colorMode = etree.SubElement(element, f"{self.ns}colorMode")
-            colorMode.text = self.colorMode
+        if self.color_mode:
+            color_mode = config.etree.SubElement(
+                element,  # type: ignore[arg-type]
+                f"{self.ns}colorMode",
+            )
+            color_mode.text = self.color_mode
         return element
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
 
         super().from_element(element)
-        colorMode = element.find(f"{self.ns}colorMode")
-        if colorMode is not None:
-            self.colorMode = colorMode.text
+        color_mode = element.find(f"{self.ns}colorMode")
+        if color_mode is not None:
+            self.color_mode = color_mode.text
         color = element.find(f"{self.ns}color")
         if color is not None:
             self.color = color.text
@@ -254,37 +149,59 @@ class IconStyle(_ColorStyle):
     # Default=0 (North).
     icon_href = None
     # An HTTP address or a local file specification used to load an icon.
+    hot_spot = None
 
     def __init__(
         self,
-        ns=None,
-        id=None,
-        color=None,
-        colorMode=None,
-        scale=1.0,
-        heading=None,
-        icon_href=None,
-    ):
-        super().__init__(ns, id, color, colorMode)
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        color: Optional[str] = None,
+        color_mode: Optional[str] = None,
+        scale: float = 1.0,
+        heading: Optional[float] = None,
+        icon_href: Optional[str] = None,
+        hotSpot=None,
+    ) -> None:
+        super().__init__(ns, id, target_id, color, color_mode)
         self.scale = scale
         self.heading = heading
         self.icon_href = icon_href
+        self.hotSpot = hotSpot
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self.scale is not None:
-            scale = etree.SubElement(element, f"{self.ns}scale")
+            scale = config.etree.SubElement(
+                element,  # type: ignore[arg-type]
+                f"{self.ns}scale",
+            )
             scale.text = str(self.scale)
-        if self.heading:
-            heading = etree.SubElement(element, f"{self.ns}heading")
+        if self.heading is not None:
+            heading = config.etree.SubElement(
+                element,  # type: ignore[arg-type]
+                f"{self.ns}heading",
+            )
             heading.text = str(self.heading)
         if self.icon_href:
-            icon = etree.SubElement(element, f"{self.ns}Icon")
-            href = etree.SubElement(icon, f"{self.ns}href")
+            icon = config.etree.SubElement(
+                element,  # type: ignore[arg-type]
+                f"{self.ns}Icon",
+            )
+            href = config.etree.SubElement(
+                icon,
+                f"{self.ns}href",
+            )
             href.text = self.icon_href
+        if self.hotSpot:
+            hotSpot = config.etree.SubElement(element, f"{self.ns}hotSpot")
+            hotSpot.attrib["x"] = str(self.hotSpot["x"])
+            hotSpot.attrib["y"] = str(self.hotSpot["y"])
+            hotSpot.attrib["xunits"] = str(self.hotSpot["xunits"])
+            hotSpot.attrib["yunits"] = str(self.hotSpot["yunits"])
         return element
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         scale = element.find(f"{self.ns}scale")
         if scale is not None:
@@ -297,6 +214,14 @@ class IconStyle(_ColorStyle):
             href = icon.find(f"{self.ns}href")
             if href is not None:
                 self.icon_href = href.text
+        hotSpot = element.find(f"{self.ns}hotSpot")
+        if hotSpot is not None:
+            self.hotSpot = {
+                "x": hotSpot.attrib["x"],
+                "y": hotSpot.attrib["y"],
+                "xunits": hotSpot.attrib["xunits"],
+                "yunits": hotSpot.attrib["yunits"],
+            }
 
 
 class LineStyle(_ColorStyle):
@@ -311,18 +236,29 @@ class LineStyle(_ColorStyle):
     width = 1.0
     # Width of the line, in pixels.
 
-    def __init__(self, ns=None, id=None, color=None, colorMode=None, width=1):
-        super().__init__(ns, id, color, colorMode)
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        color: Optional[str] = None,
+        color_mode: Optional[str] = None,
+        width: Union[int, float] = 1,
+    ) -> None:
+        super().__init__(ns, id, target_id, color, color_mode)
         self.width = width
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self.width is not None:
-            width = etree.SubElement(element, f"{self.ns}width")
+            width = config.etree.SubElement(
+                element,  # type: ignore[arg-type]
+                f"{self.ns}width",
+            )
             width.text = str(self.width)
         return element
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         width = element.find(f"{self.ns}width")
         if width is not None:
@@ -343,52 +279,86 @@ class PolyStyle(_ColorStyle):
     # Boolean value. Specifies whether to outline the polygon.
     # Polygon outlines use the current LineStyle.
 
-    def __init__(self, ns=None, id=None, color=None, colorMode=None, fill=1, outline=1):
-        super().__init__(ns, id, color, colorMode)
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        color: Optional[str] = None,
+        color_mode: Optional[str] = None,
+        fill: int = 1,
+        outline: int = 1,
+    ) -> None:
+        super().__init__(ns, id, target_id, color, color_mode)
         self.fill = fill
         self.outline = outline
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self.fill is not None:
-            fill = etree.SubElement(element, f"{self.ns}fill")
+            fill = config.etree.SubElement(
+                element,  # type: ignore[arg-type]
+                f"{self.ns}fill",
+            )
             fill.text = str(self.fill)
         if self.outline is not None:
-            outline = etree.SubElement(element, f"{self.ns}outline")
+            outline = config.etree.SubElement(
+                element,  # type: ignore[arg-type]
+                f"{self.ns}outline",
+            )
             outline.text = str(self.outline)
         return element
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
+        def strtobool(val: str) -> int:
+            val = val.lower()
+            if val == "false":
+                return 0
+            if val == "true":
+                return 1
+            return int(float(val))
+
         super().from_element(element)
         fill = element.find(f"{self.ns}fill")
         if fill is not None:
-            self.fill = int(float(fill.text))
+            self.fill = strtobool(fill.text)
         outline = element.find(f"{self.ns}outline")
         if outline is not None:
-            self.outline = int(float(outline.text))
+            self.outline = strtobool(outline.text)
 
 
 class LabelStyle(_ColorStyle):
     """
-    Specifies how the <name> of a Feature is drawn in the 3D viewer
+    Specifies how the <name> of a Feature is drawn in the 3D viewer.
     """
 
     __name__ = "LabelStyle"
     scale = 1.0
     # Resizes the label.
 
-    def __init__(self, ns=None, id=None, color=None, colorMode=None, scale=1.0):
-        super().__init__(ns, id, color, colorMode)
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        color: Optional[str] = None,
+        color_mode: Optional[str] = None,
+        scale: float = 1.0,
+    ) -> None:
+        super().__init__(ns, id, target_id, color, color_mode)
         self.scale = scale
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self.scale is not None:
-            scale = etree.SubElement(element, f"{self.ns}scale")
+            scale = config.etree.SubElement(
+                element,  # type: ignore[arg-type]
+                f"{self.ns}scale",
+            )
             scale.text = str(self.scale)
         return element
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         scale = element.find(f"{self.ns}scale")
         if scale is not None:
@@ -402,7 +372,7 @@ class BalloonStyle(_BaseObject):
 
     __name__ = "BalloonStyle"
 
-    bgColor = None
+    bg_color = None
     # Background color of the balloon (optional). Color and opacity (alpha)
     # values are expressed in hexadecimal notation. The range of values for
     # any one color is 0 to 255 (00 to ff). The order of expression is
@@ -416,7 +386,7 @@ class BalloonStyle(_BaseObject):
     # Note: The use of the <color> element within <BalloonStyle> has been
     # deprecated. Use <bgColor> instead.
 
-    textColor = None
+    text_color = None
     # Foreground color for text. The default is black (ff000000).
 
     text = None
@@ -439,7 +409,7 @@ class BalloonStyle(_BaseObject):
     # in the Feature elements that use this BalloonStyle:
     # <text>This is $[name], whose description is:<br/>$[description]</text>
 
-    displayMode = None
+    display_mode = None
     # If <displayMode> is default, Google Earth uses the information supplied
     # in <text> to create a balloon . If <displayMode> is hide, Google Earth
     # does not display the balloon. In Google Earth, clicking the List View
@@ -448,50 +418,221 @@ class BalloonStyle(_BaseObject):
 
     def __init__(
         self,
-        ns=None,
-        id=None,
-        bgColor=None,
-        textColor=None,
-        text=None,
-        displayMode=None,
-    ):
-        super().__init__(ns, id)
-        self.bgColor = bgColor
-        self.textColor = textColor
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        bg_color: Optional[str] = None,
+        text_color: Optional[str] = None,
+        text: Optional[str] = None,
+        display_mode: Optional[str] = None,
+    ) -> None:
+        super().__init__(ns, id, target_id)
+        self.bg_color = bg_color
+        self.text_color = text_color
         self.text = text
-        self.displayMode = displayMode
+        self.display_mode = display_mode
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
-        bgColor = element.find(f"{self.ns}bgColor")
-        if bgColor is not None:
-            self.bgColor = bgColor.text
+        bg_color = element.find(f"{self.ns}bgColor")
+        if bg_color is not None:
+            self.bg_color = bg_color.text
         else:
-            bgColor = element.find(f"{self.ns}color")
-            if bgColor is not None:
-                self.bgColor = bgColor.text
-        textColor = element.find(f"{self.ns}textColor")
-        if textColor is not None:
-            self.textColor = textColor.text
+            bg_color = element.find(f"{self.ns}color")  # type: ignore[unreachable]
+            if bg_color is not None:
+                self.bg_color = bg_color.text
+        text_color = element.find(f"{self.ns}textColor")
+        if text_color is not None:
+            self.text_color = text_color.text
         text = element.find(f"{self.ns}text")
         if text is not None:
             self.text = text.text
-        displayMode = element.find(f"{self.ns}displayMode")
-        if displayMode is not None:
-            self.displayMode = displayMode.text
+        display_mode = element.find(f"{self.ns}displayMode")
+        if display_mode is not None:
+            self.display_mode = display_mode.text
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
-        if self.bgColor is not None:
-            elem = etree.SubElement(element, f"{self.ns}bgColor")
-            elem.text = self.bgColor
-        if self.textColor is not None:
-            elem = etree.SubElement(element, f"{self.ns}textColor")
-            elem.text = self.textColor
+        if self.bg_color is not None:
+            elem = config.etree.SubElement(
+                element,  # type: ignore[arg-type]
+                f"{self.ns}bgColor",
+            )
+            elem.text = self.bg_color
+        if self.text_color is not None:
+            elem = config.etree.SubElement(
+                element,  # type: ignore[arg-type]
+                f"{self.ns}textColor",
+            )
+            elem.text = self.text_color
         if self.text is not None:
-            elem = etree.SubElement(element, f"{self.ns}text")
+            elem = config.etree.SubElement(
+                element,  # type: ignore[arg-type]
+                f"{self.ns}text",
+            )
             elem.text = self.text
-        if self.displayMode is not None:
-            elem = etree.SubElement(element, f"{self.ns}displayMode")
-            elem.text = self.displayMode
+        if self.display_mode is not None:
+            elem = config.etree.SubElement(
+                element,  # type: ignore[arg-type]
+                f"{self.ns}displayMode",
+            )
+            elem.text = self.display_mode
         return element
+
+
+AnyStyle = Union[BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle]
+
+
+class Style(_StyleSelector):
+    """
+    A Style defines an addressable style group that can be referenced
+    by StyleMaps and Features. Styles affect how Geometry is presented
+    in the 3D viewer and how Features appear in the Places panel of the
+    List view. Shared styles are collected in a <Document> and must have
+    an id defined for them so that they can be referenced by the
+    individual Features that use them.
+    """
+
+    __name__ = "Style"
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        styles: Optional[Iterable[AnyStyle]] = None,
+    ) -> None:
+        super().__init__(ns, id, target_id)
+        self._styles: List[AnyStyle] = []
+        if styles:
+            for style in styles:
+                self.append_style(style)
+
+    def append_style(
+        self,
+        style: AnyStyle,
+    ) -> None:
+        if isinstance(style, (_ColorStyle, BalloonStyle)):
+            self._styles.append(style)
+        else:
+            raise TypeError
+
+    def styles(
+        self,
+    ) -> Iterator[AnyStyle]:
+        for style in self._styles:
+            if isinstance(style, (_ColorStyle, BalloonStyle)):
+                yield style
+            else:
+                raise TypeError
+
+    def _get_style(self, element: Element, style_class: Type[AnyStyle]) -> None:
+        style = element.find(f"{self.ns}{style_class.__name__}")
+        if style is not None:
+            thestyle = style_class(self.ns)
+            thestyle.from_element(style)
+            self.append_style(thestyle)
+
+    def from_element(self, element: Element) -> None:
+        super().from_element(element)
+        for style in [BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle]:
+            self._get_style(element, style)
+
+    def etree_element(self) -> Element:
+        element = super().etree_element()
+        for style in self.styles():
+            element.append(style.etree_element())
+        return element
+
+
+class StyleMap(_StyleSelector):
+    """
+    A <StyleMap> maps between two different Styles. Typically a
+    <StyleMap> element is used to provide separate normal and highlighted
+    styles for a placemark, so that the highlighted version appears when
+    the user mouses over the icon in Google Earth.
+    """
+
+    __name__ = "StyleMap"
+    normal = None
+    highlight = None
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        normal: Optional[Union[Style, StyleUrl]] = None,
+        highlight: Optional[Union[Style, StyleUrl]] = None,
+    ) -> None:
+        super().__init__(ns, id, target_id)
+        self.normal = normal
+        self.highlight = highlight
+
+    def from_element(self, element: Element) -> None:
+        super().from_element(element)
+        pairs = element.findall(f"{self.ns}Pair")
+        for pair in pairs:
+            key = pair.find(f"{self.ns}key")
+            style = pair.find(f"{self.ns}Style")
+            style_url = pair.find(f"{self.ns}styleUrl")
+            if key.text == "highlight":
+                if style is not None:
+                    highlight = Style(self.ns)
+                    highlight.from_element(style)
+                elif style_url is not None:  # type: ignore[unreachable]
+                    highlight = StyleUrl(self.ns)
+                    highlight.from_element(style_url)
+                else:
+                    raise ValueError
+                self.highlight = highlight
+            elif key.text == "normal":
+                if style is not None:
+                    normal = Style(self.ns)
+                    normal.from_element(style)
+                elif style_url is not None:  # type: ignore[unreachable]
+                    normal = StyleUrl(self.ns)
+                    normal.from_element(style_url)
+                else:
+                    raise ValueError
+                self.normal = normal
+            else:
+                raise ValueError
+
+    def etree_element(self) -> Element:
+        element = super().etree_element()
+        if self.normal and isinstance(self.normal, (Style, StyleUrl)):
+            pair = config.etree.SubElement(
+                element,  # type: ignore[arg-type]
+                f"{self.ns}Pair",
+            )
+            key = config.etree.SubElement(
+                pair,
+                f"{self.ns}key",
+            )
+            key.text = "normal"
+            pair.append(self.normal.etree_element())  # type: ignore[arg-type]
+        if self.highlight and isinstance(self.highlight, (Style, StyleUrl)):
+            pair = config.etree.SubElement(
+                element,  # type: ignore[arg-type]
+                f"{self.ns}Pair",
+            )
+            key = config.etree.SubElement(
+                pair,
+                f"{self.ns}key",
+            )
+            key.text = "highlight"
+            pair.append(self.highlight.etree_element())  # type: ignore[arg-type]
+        return element
+
+
+__all__ = [
+    "BalloonStyle",
+    "IconStyle",
+    "LabelStyle",
+    "LineStyle",
+    "PolyStyle",
+    "Style",
+    "StyleMap",
+    "StyleUrl",
+]

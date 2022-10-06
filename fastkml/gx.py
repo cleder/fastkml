@@ -129,3 +129,6 @@ class GxGeometry(Geometry):
             return [
                 [float(c) for c in coord.text.strip().split()] for coord in coordinates
             ]
+
+
+__all__ = ["GxGeometry"]
