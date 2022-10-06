@@ -1261,11 +1261,11 @@ class GroundOverlay(_Overlay):
             self.east = east
         else:
             raise ValueError
-        if -180 <= float(east) <= 180:
+        if -180 <= float(west) <= 180:
             self.west = west
         else:
             raise ValueError
-        if -180 <= float(east) <= 180:
+        if -180 <= float(rotation) <= 180:
             self.rotation = rotation
         else:
             raise ValueError
