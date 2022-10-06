@@ -12,7 +12,7 @@ jobs:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11-dev']
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.1.0
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -32,7 +32,7 @@ jobs:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11-dev']
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.1.0
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -57,7 +57,7 @@ jobs:
         python-version: ['3.9']
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.1.0
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -86,7 +86,7 @@ jobs:
       matrix:
         pypy-version: ['pypy-3.7', 'pypy-3.8', 'pypy-3.9']
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.1.0
       - name: Set up Python ${{ matrix.pypy-version }}
         uses: actions/setup-python@v4
         with:
@@ -104,7 +104,7 @@ jobs:
     name: Build and publish to PyPI and TestPyPI
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v3.1.0
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
