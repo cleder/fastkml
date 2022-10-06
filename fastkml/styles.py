@@ -26,8 +26,9 @@ from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Type
-from typing import TypedDict
 from typing import Union
+
+from typing_extensions import TypedDict
 
 from fastkml import config
 from fastkml.base import _BaseObject
