@@ -801,19 +801,19 @@ class PhotoOverlay(_Overlay):
     # the scene. A large field of view, like a wide-angle lens, focuses on a
     # large part of the scene.
 
-    _leftFov = None
+    _left_fow = None
     # Angle, in degrees, between the camera's viewing direction and the left side
     # of the view volume.
 
-    _rightFov = None
+    _right_fov = None
     # Angle, in degrees, between the camera's viewing direction and the right side
     # of the view volume.
 
-    _bottomFov = None
+    _bottom_fov = None
     # Angle, in degrees, between the camera's viewing direction and the bottom side
     # of the view volume.
 
-    _topFov = None
+    _top_fov = None
     # Angle, in degrees, between the camera's viewing direction and the top side
     # of the view volume.
 
@@ -821,18 +821,18 @@ class PhotoOverlay(_Overlay):
     # Measurement in meters along the viewing direction from the camera viewpoint
     # to the PhotoOverlay shape.
 
-    _tileSize = "256"
+    _tile_size = "256"
     # Size of the tiles, in pixels. Tiles must be square, and <tileSize> must
     # be a power of 2. A tile size of 256 (the default) or 512 is recommended.
     # The original image is divided into tiles of this size, at varying resolutions.
 
-    _maxWidth = None
+    _max_width = None
     # Width in pixels of the original image.
 
-    _maxHeight = None
+    _max_height = None
     # Height in pixels of the original image.
 
-    _gridOrigin = None
+    _grid_origin = None
     # Specifies where to begin numbering the tiles in each layer of the pyramid.
     # A value of lowerLeft specifies that row 1, column 1 of each layer is in
     # the bottom left corner of the grid.
@@ -867,54 +867,54 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def leftFov(self):
-        return self._leftFov
+    def left_fov(self):
+        return self._left_fow
 
-    @leftFov.setter
-    def leftFov(self, value):
+    @left_fov.setter
+    def left_fov(self, value):
         if isinstance(value, (str, int, float)):
-            self._leftFov = str(value)
+            self._left_fow = str(value)
         elif value is None:
-            self._leftFov = None
+            self._left_fow = None
         else:
             raise ValueError
 
     @property
-    def rightFov(self):
-        return self._rightFov
+    def right_fov(self):
+        return self._right_fov
 
-    @rightFov.setter
-    def rightFov(self, value):
+    @right_fov.setter
+    def right_fov(self, value):
         if isinstance(value, (str, int, float)):
-            self._rightFov = str(value)
+            self._right_fov = str(value)
         elif value is None:
-            self._rightFov = None
+            self._right_fov = None
         else:
             raise ValueError
 
     @property
-    def bottomFov(self):
-        return self._bottomFov
+    def bottom_fov(self):
+        return self._bottom_fov
 
-    @bottomFov.setter
-    def bottomFov(self, value):
+    @bottom_fov.setter
+    def bottom_fov(self, value):
         if isinstance(value, (str, int, float)):
-            self._bottomFov = str(value)
+            self._bottom_fov = str(value)
         elif value is None:
-            self._bottomFov = None
+            self._bottom_fov = None
         else:
             raise ValueError
 
     @property
-    def topFov(self):
-        return self._topFov
+    def top_fov(self):
+        return self._top_fov
 
-    @topFov.setter
-    def topFov(self, value):
+    @top_fov.setter
+    def top_fov(self, value):
         if isinstance(value, (str, int, float)):
-            self._topFov = str(value)
+            self._top_fov = str(value)
         elif value is None:
-            self._topFov = None
+            self._top_fov = None
         else:
             raise ValueError
 
@@ -932,54 +932,54 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def tileSize(self):
-        return self._tileSize
+    def tile_size(self):
+        return self._tile_size
 
-    @tileSize.setter
-    def tileSize(self, value):
+    @tile_size.setter
+    def tile_size(self, value):
         if isinstance(value, (str, int, float)):
-            self._tileSize = str(value)
+            self._tile_size = str(value)
         elif value is None:
-            self._tileSize = None
+            self._tile_size = None
         else:
             raise ValueError
 
     @property
-    def maxWidth(self):
-        return self._maxWidth
+    def max_width(self):
+        return self._max_width
 
-    @maxWidth.setter
-    def maxWidth(self, value):
+    @max_width.setter
+    def max_width(self, value):
         if isinstance(value, (str, int, float)):
-            self._maxWidth = str(value)
+            self._max_width = str(value)
         elif value is None:
-            self._maxWidth = None
+            self._max_width = None
         else:
             raise ValueError
 
     @property
-    def maxHeight(self):
-        return self._maxHeight
+    def max_height(self):
+        return self._max_height
 
-    @maxHeight.setter
-    def maxHeight(self, value):
+    @max_height.setter
+    def max_height(self, value):
         if isinstance(value, (str, int, float)):
-            self._maxHeight = str(value)
+            self._max_height = str(value)
         elif value is None:
-            self._maxHeight = None
+            self._max_height = None
         else:
             raise ValueError
 
     @property
-    def gridOrigin(self):
-        return self._gridOrigin
+    def grid_origin(self):
+        return self._grid_origin
 
-    @gridOrigin.setter
-    def gridOrigin(self, value):
+    @grid_origin.setter
+    def grid_origin(self, value):
         if value in ("lowerLeft", "upperLeft"):
-            self._gridOrigin = str(value)
+            self._grid_origin = str(value)
         elif value is None:
-            self._gridOrigin = None
+            self._grid_origin = None
         else:
             raise ValueError
 
@@ -1007,18 +1007,18 @@ class PhotoOverlay(_Overlay):
         else:
             raise ValueError("Shape must be one of " "rectangle, cylinder, sphere")
 
-    def ViewVolume(self, leftFov, rightFov, bottomFov, topFov, near):
-        self.leftFov = leftFov
-        self.rightFov = rightFov
-        self.bottomFov = bottomFov
-        self.topFov = topFov
+    def view_volume(self, left_fov, right_fov, bottom_fov, top_fov, near):
+        self.left_fov = left_fov
+        self.right_fov = right_fov
+        self.bottom_fov = bottom_fov
+        self.top_fov = top_fov
         self.near = near
 
-    def ImagePyramid(self, tileSize, maxWidth, maxHeight, gridOrigin):
-        self.tileSize = tileSize
-        self.maxWidth = maxWidth
-        self.maxHeight = maxHeight
-        self.gridOrigin = gridOrigin
+    def image_pyramid(self, tile_size, max_width, max_height, grid_origin):
+        self.tile_size = tile_size
+        self.max_width = max_width
+        self.max_height = max_height
+        self.grid_origin = grid_origin
 
     def etree_element(self):
         element = super().etree_element()
@@ -1026,29 +1026,35 @@ class PhotoOverlay(_Overlay):
             rotation = config.etree.SubElement(element, f"{self.ns}rotation")
             rotation.text = self._rotation
         if all(
-            [self._leftFov, self._rightFov, self._bottomFov, self._topFov, self._near]
+            [
+                self._left_fow,
+                self._right_fov,
+                self._bottom_fov,
+                self._top_fov,
+                self._near,
+            ]
         ):
-            ViewVolume = config.etree.SubElement(element, f"{self.ns}ViewVolume")
-            leftFov = config.etree.SubElement(ViewVolume, f"{self.ns}leftFov")
-            leftFov.text = self._leftFov
-            rightFov = config.etree.SubElement(ViewVolume, f"{self.ns}rightFov")
-            rightFov.text = self._rightFov
-            bottomFov = config.etree.SubElement(ViewVolume, f"{self.ns}bottomFov")
-            bottomFov.text = self._bottomFov
-            topFov = config.etree.SubElement(ViewVolume, f"{self.ns}topFov")
-            topFov.text = self._topFov
-            near = config.etree.SubElement(ViewVolume, f"{self.ns}near")
+            view_volume = config.etree.SubElement(element, f"{self.ns}ViewVolume")
+            left_fov = config.etree.SubElement(view_volume, f"{self.ns}leftFov")
+            left_fov.text = self._left_fow
+            right_fov = config.etree.SubElement(view_volume, f"{self.ns}rightFov")
+            right_fov.text = self._right_fov
+            bottom_fov = config.etree.SubElement(view_volume, f"{self.ns}bottomFov")
+            bottom_fov.text = self._bottom_fov
+            top_fov = config.etree.SubElement(view_volume, f"{self.ns}topFov")
+            top_fov.text = self._top_fov
+            near = config.etree.SubElement(view_volume, f"{self.ns}near")
             near.text = self._near
-        if all([self._tileSize, self._maxWidth, self._maxHeight, self._gridOrigin]):
-            ImagePyramid = config.etree.SubElement(element, f"{self.ns}ImagePyramid")
-            tileSize = config.etree.SubElement(ImagePyramid, f"{self.ns}tileSize")
-            tileSize.text = self._tileSize
-            maxWidth = config.etree.SubElement(ImagePyramid, f"{self.ns}maxWidth")
-            maxWidth.text = self._maxWidth
-            maxHeight = config.etree.SubElement(ImagePyramid, f"{self.ns}maxHeight")
-            maxHeight.text = self._maxHeight
-            gridOrigin = config.etree.SubElement(ImagePyramid, f"{self.ns}gridOrigin")
-            gridOrigin.text = self._gridOrigin
+        if all([self._tile_size, self._max_width, self._max_height, self._grid_origin]):
+            image_pyramid = config.etree.SubElement(element, f"{self.ns}ImagePyramid")
+            tile_size = config.etree.SubElement(image_pyramid, f"{self.ns}tileSize")
+            tile_size.text = self._tile_size
+            max_width = config.etree.SubElement(image_pyramid, f"{self.ns}maxWidth")
+            max_width.text = self._max_width
+            max_height = config.etree.SubElement(image_pyramid, f"{self.ns}maxHeight")
+            max_height.text = self._max_height
+            grid_origin = config.etree.SubElement(image_pyramid, f"{self.ns}gridOrigin")
+            grid_origin.text = self._grid_origin
         return element
 
     def from_element(self, element):
@@ -1056,40 +1062,40 @@ class PhotoOverlay(_Overlay):
         rotation = element.find(f"{self.ns}rotation")
         if rotation is not None:
             self.rotation = rotation.text
-        ViewVolume = element.find(f"{self.ns}ViewVolume")
-        if ViewVolume is not None:
-            leftFov = ViewVolume.find(f"{self.ns}leftFov")
-            if leftFov is not None:
-                self.leftFov = leftFov.text
-            rightFov = ViewVolume.find(f"{self.ns}rightFov")
-            if rightFov is not None:
-                self.rightFov = rightFov.text
-            bottomFov = ViewVolume.find(f"{self.ns}bottomFov")
-            if bottomFov is not None:
-                self.bottomFov = bottomFov.text
-            topFov = ViewVolume.find(f"{self.ns}topFov")
-            if topFov is not None:
-                self.topFov = topFov.text
-            near = ViewVolume.find(f"{self.ns}near")
+        view_volume = element.find(f"{self.ns}ViewVolume")
+        if view_volume is not None:
+            left_fov = view_volume.find(f"{self.ns}leftFov")
+            if left_fov is not None:
+                self.left_fov = left_fov.text
+            right_fov = view_volume.find(f"{self.ns}rightFov")
+            if right_fov is not None:
+                self.right_fov = right_fov.text
+            bottom_fov = view_volume.find(f"{self.ns}bottomFov")
+            if bottom_fov is not None:
+                self.bottom_fov = bottom_fov.text
+            top_fov = view_volume.find(f"{self.ns}topFov")
+            if top_fov is not None:
+                self.top_fov = top_fov.text
+            near = view_volume.find(f"{self.ns}near")
             if near is not None:
                 self.near = near.text
-        ImagePyramid = element.find(f"{self.ns}ImagePyramid")
-        if ImagePyramid is not None:
-            tileSize = ImagePyramid.find(f"{self.ns}tileSize")
-            if tileSize is not None:
-                self.tileSize = tileSize.text
-            maxWidth = ImagePyramid.find(f"{self.ns}maxWidth")
-            if maxWidth is not None:
-                self.maxWidth = maxWidth.text
-            maxHeight = ImagePyramid.find(f"{self.ns}maxHeight")
-            if maxHeight is not None:
-                self.maxHeight = maxHeight.text
-            gridOrigin = ImagePyramid.find(f"{self.ns}gridOrigin")
-            if gridOrigin is not None:
-                self.gridOrigin = gridOrigin.text
-        Point = element.find(f"{self.ns}Point")
-        if Point is not None:
-            self.point = Point.text
+        image_pyramid = element.find(f"{self.ns}ImagePyramid")
+        if image_pyramid is not None:
+            tile_size = image_pyramid.find(f"{self.ns}tileSize")
+            if tile_size is not None:
+                self.tile_size = tile_size.text
+            max_width = image_pyramid.find(f"{self.ns}maxWidth")
+            if max_width is not None:
+                self.max_width = max_width.text
+            max_height = image_pyramid.find(f"{self.ns}maxHeight")
+            if max_height is not None:
+                self.max_height = max_height.text
+            grid_origin = image_pyramid.find(f"{self.ns}gridOrigin")
+            if grid_origin is not None:
+                self.grid_origin = grid_origin.text
+        point = element.find(f"{self.ns}Point")
+        if point is not None:
+            self.point = point.text
         shape = element.find(f"{self.ns}shape")
         if shape is not None:
             self.shape = shape.text

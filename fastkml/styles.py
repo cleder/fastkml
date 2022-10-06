@@ -26,6 +26,7 @@ from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Type
+from typing import TypedDict
 from typing import Union
 
 from fastkml import config
@@ -138,6 +139,13 @@ class _ColorStyle(_BaseObject):
             self.color = color.text
 
 
+class HotSpot(TypedDict):
+    x: float
+    y: float
+    xunits: str  # pixels, fraction, insetPixels
+    yunits: str
+
+
 class IconStyle(_ColorStyle):
     """Specifies how icons for point Placemarks are drawn"""
 
@@ -161,13 +169,13 @@ class IconStyle(_ColorStyle):
         scale: float = 1.0,
         heading: Optional[float] = None,
         icon_href: Optional[str] = None,
-        hotSpot=None,
+        hot_spot: HotSpot = None,
     ) -> None:
         super().__init__(ns, id, target_id, color, color_mode)
         self.scale = scale
         self.heading = heading
         self.icon_href = icon_href
-        self.hotSpot = hotSpot
+        self.hot_spot = hot_spot
 
     def etree_element(self) -> Element:
         element = super().etree_element()
@@ -193,12 +201,12 @@ class IconStyle(_ColorStyle):
                 f"{self.ns}href",
             )
             href.text = self.icon_href
-        if self.hotSpot:
-            hotSpot = config.etree.SubElement(element, f"{self.ns}hotSpot")
-            hotSpot.attrib["x"] = str(self.hotSpot["x"])
-            hotSpot.attrib["y"] = str(self.hotSpot["y"])
-            hotSpot.attrib["xunits"] = str(self.hotSpot["xunits"])
-            hotSpot.attrib["yunits"] = str(self.hotSpot["yunits"])
+        if self.hot_spot:
+            hot_spot = config.etree.SubElement(element, f"{self.ns}hotSpot")
+            hot_spot.attrib["x"] = str(self.hot_spot["x"])
+            hot_spot.attrib["y"] = str(self.hot_spot["y"])
+            hot_spot.attrib["xunits"] = str(self.hot_spot["xunits"])
+            hot_spot.attrib["yunits"] = str(self.hot_spot["yunits"])
         return element
 
     def from_element(self, element: Element) -> None:
@@ -214,13 +222,13 @@ class IconStyle(_ColorStyle):
             href = icon.find(f"{self.ns}href")
             if href is not None:
                 self.icon_href = href.text
-        hotSpot = element.find(f"{self.ns}hotSpot")
-        if hotSpot is not None:
-            self.hotSpot = {
-                "x": hotSpot.attrib["x"],
-                "y": hotSpot.attrib["y"],
-                "xunits": hotSpot.attrib["xunits"],
-                "yunits": hotSpot.attrib["yunits"],
+        hot_spot = element.find(f"{self.ns}hotSpot")
+        if hot_spot is not None:
+            self.hot_spot: HotSpot = {
+                "x": hot_spot.attrib["x"],
+                "y": hot_spot.attrib["y"],
+                "xunits": hot_spot.attrib["xunits"],
+                "yunits": hot_spot.attrib["yunits"],
             }
 
 
