@@ -184,14 +184,14 @@ class _Feature(_BaseObject):
         self.extended_data = extended_data
 
     @property
-    def style_url(self):
+    def style_url(self) -> Optional[str]:
         """Returns the url only, not a full StyleUrl object.
         if you need the full StyleUrl object use _style_url"""
         if isinstance(self._style_url, StyleUrl):
             return self._style_url.url
 
     @style_url.setter
-    def style_url(self, styleurl):
+    def style_url(self, styleurl: Union[str, StyleUrl, None]) -> None:
         """you may pass a StyleUrl Object, a string or None"""
         if isinstance(styleurl, StyleUrl):
             self._style_url = styleurl
