@@ -845,7 +845,7 @@ class Icon(_BaseObject):
             raise ValueError
 
     def etree_element(self):
-        element = super(Icon, self).etree_element()
+        element = super().etree_element()
 
         if self._href:
             href = config.etree.SubElement(element, f"{self.ns}href")
