@@ -77,13 +77,19 @@ located at http://developers.google.com/kml/schema/kml22gx.xsd.
 """
 
 import logging
+from typing import List
+from typing import Optional
+from typing import Union
+from typing import cast
 
 from pygeoif.geometry import GeometryCollection
 from pygeoif.geometry import LineString
 from pygeoif.geometry import MultiLineString
+from pygeoif.types import PointType
 
-from .config import GXNS as NS
-from .geometry import Geometry
+from fastkml.config import GXNS as NS
+from fastkml.geometry import Geometry
+from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
 
@@ -91,9 +97,9 @@ logger = logging.getLogger(__name__)
 class GxGeometry(Geometry):
     def __init__(
         self,
-        ns=None,
-        id=None,
-    ):
+        ns: None = None,
+        id: None = None,
+    ) -> None:
         """
         gxgeometry: a read-only subclass of geometry supporting gx: features,
         like gx:Track
@@ -101,34 +107,47 @@ class GxGeometry(Geometry):
         super().__init__(ns, id)
         self.ns = NS if ns is None else ns
 
-    def _get_geometry(self, element):
+    def _get_geometry(self, element: Element) -> Optional[LineString]:
         # Track
         if element.tag == (f"{self.ns}Track"):
             coords = self._get_coordinates(element)
             self._get_geometry_spec(element)
-            return LineString(coords)
+            return LineString(
+                coords,
+            )
+        return None
 
-    def _get_multigeometry(self, element):
+    def _get_multigeometry(
+        self,
+        element: Element,
+    ) -> Union[MultiLineString, GeometryCollection, None]:
         # MultiTrack
         geoms = []
         if element.tag == (f"{self.ns}MultiTrack"):
             tracks = element.findall(f"{self.ns}Track")
             for track in tracks:
                 self._get_geometry_spec(track)
-                geoms.append(LineString(self._get_coordinates(track)))
+                geoms.append(
+                    LineString(
+                        self._get_coordinates(track),
+                    )
+                )
 
         geom_types = {geom.geom_type for geom in geoms}
         if len(geom_types) > 1:
             return GeometryCollection(geoms)
         if "LineString" in geom_types:
             return MultiLineString.from_linestrings(*geoms)
+        return None
 
-    def _get_coordinates(self, element):
+    def _get_coordinates(self, element: Element) -> List[PointType]:
         coordinates = element.findall(f"{self.ns}coord")
         if coordinates is not None:
             return [
-                [float(c) for c in coord.text.strip().split()] for coord in coordinates
+                cast(PointType, tuple(float(c) for c in coord.text.strip().split()))
+                for coord in coordinates
             ]
+        return []  # type: ignore[unreachable]
 
 
 __all__ = ["GxGeometry"]

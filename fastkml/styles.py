@@ -54,7 +54,7 @@ class StyleUrl(_BaseObject):
         target_id: Optional[str] = None,
         url: Optional[str] = None,
     ) -> None:
-        super().__init__(ns, id, target_id)
+        super().__init__(ns=ns, id=id, target_id=target_id)
         self.url = url
 
     def etree_element(self) -> Element:
@@ -109,21 +109,21 @@ class _ColorStyle(_BaseObject):
         color: Optional[str] = None,
         color_mode: Optional[str] = None,
     ) -> None:
-        super().__init__(ns, id, target_id)
+        super().__init__(ns=ns, id=id, target_id=target_id)
         self.color = color
         self.color_mode = color_mode
 
     def etree_element(self) -> Element:
         element = super().etree_element()
         if self.color:
-            color = config.etree.SubElement(
-                element,  # type: ignore[arg-type]
+            color = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
                 f"{self.ns}color",
             )
             color.text = self.color
         if self.color_mode:
-            color_mode = config.etree.SubElement(
-                element,  # type: ignore[arg-type]
+            color_mode = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
                 f"{self.ns}colorMode",
             )
             color_mode.text = self.color_mode
@@ -170,9 +170,12 @@ class IconStyle(_ColorStyle):
         scale: float = 1.0,
         heading: Optional[float] = None,
         icon_href: Optional[str] = None,
-        hot_spot: HotSpot = None,
+        hot_spot: Optional[HotSpot] = None,
     ) -> None:
-        super().__init__(ns, id, target_id, color, color_mode)
+        super().__init__(
+            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode
+        )
+
         self.scale = scale
         self.heading = heading
         self.icon_href = icon_href
@@ -181,29 +184,31 @@ class IconStyle(_ColorStyle):
     def etree_element(self) -> Element:
         element = super().etree_element()
         if self.scale is not None:
-            scale = config.etree.SubElement(
-                element,  # type: ignore[arg-type]
+            scale = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
                 f"{self.ns}scale",
             )
             scale.text = str(self.scale)
         if self.heading is not None:
-            heading = config.etree.SubElement(
-                element,  # type: ignore[arg-type]
+            heading = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
                 f"{self.ns}heading",
             )
             heading.text = str(self.heading)
         if self.icon_href:
-            icon = config.etree.SubElement(
-                element,  # type: ignore[arg-type]
+            icon = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
                 f"{self.ns}Icon",
             )
-            href = config.etree.SubElement(
+            href = config.etree.SubElement(  # type: ignore[attr-defined]
                 icon,
                 f"{self.ns}href",
             )
             href.text = self.icon_href
         if self.hot_spot:
-            hot_spot = config.etree.SubElement(element, f"{self.ns}hotSpot")
+            hot_spot = config.etree.SubElement(  # type: ignore[attr-defined]
+                element, f"{self.ns}hotSpot"
+            )
             hot_spot.attrib["x"] = str(self.hot_spot["x"])
             hot_spot.attrib["y"] = str(self.hot_spot["y"])
             hot_spot.attrib["xunits"] = str(self.hot_spot["xunits"])
@@ -225,11 +230,11 @@ class IconStyle(_ColorStyle):
                 self.icon_href = href.text
         hot_spot = element.find(f"{self.ns}hotSpot")
         if hot_spot is not None:
-            self.hot_spot: HotSpot = {
-                "x": hot_spot.attrib["x"],
-                "y": hot_spot.attrib["y"],
-                "xunits": hot_spot.attrib["xunits"],
-                "yunits": hot_spot.attrib["yunits"],
+            self.hot_spot: HotSpot = {  # type: ignore[no-redef]
+                "x": hot_spot.attrib["x"],  # type: ignore[attr-defined]
+                "y": hot_spot.attrib["y"],  # type: ignore[attr-defined]
+                "xunits": hot_spot.attrib["xunits"],  # type: ignore[attr-defined]
+                "yunits": hot_spot.attrib["yunits"],  # type: ignore[attr-defined]
             }
 
 
@@ -254,14 +259,16 @@ class LineStyle(_ColorStyle):
         color_mode: Optional[str] = None,
         width: Union[int, float] = 1,
     ) -> None:
-        super().__init__(ns, id, target_id, color, color_mode)
+        super().__init__(
+            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode
+        )
         self.width = width
 
     def etree_element(self) -> Element:
         element = super().etree_element()
         if self.width is not None:
-            width = config.etree.SubElement(
-                element,  # type: ignore[arg-type]
+            width = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
                 f"{self.ns}width",
             )
             width.text = str(self.width)
@@ -298,21 +305,23 @@ class PolyStyle(_ColorStyle):
         fill: int = 1,
         outline: int = 1,
     ) -> None:
-        super().__init__(ns, id, target_id, color, color_mode)
+        super().__init__(
+            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode
+        )
         self.fill = fill
         self.outline = outline
 
     def etree_element(self) -> Element:
         element = super().etree_element()
         if self.fill is not None:
-            fill = config.etree.SubElement(
-                element,  # type: ignore[arg-type]
+            fill = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
                 f"{self.ns}fill",
             )
             fill.text = str(self.fill)
         if self.outline is not None:
-            outline = config.etree.SubElement(
-                element,  # type: ignore[arg-type]
+            outline = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
                 f"{self.ns}outline",
             )
             outline.text = str(self.outline)
@@ -354,14 +363,16 @@ class LabelStyle(_ColorStyle):
         color_mode: Optional[str] = None,
         scale: float = 1.0,
     ) -> None:
-        super().__init__(ns, id, target_id, color, color_mode)
+        super().__init__(
+            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode
+        )
         self.scale = scale
 
     def etree_element(self) -> Element:
         element = super().etree_element()
         if self.scale is not None:
-            scale = config.etree.SubElement(
-                element,  # type: ignore[arg-type]
+            scale = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
                 f"{self.ns}scale",
             )
             scale.text = str(self.scale)
@@ -435,7 +446,7 @@ class BalloonStyle(_BaseObject):
         text: Optional[str] = None,
         display_mode: Optional[str] = None,
     ) -> None:
-        super().__init__(ns, id, target_id)
+        super().__init__(ns=ns, id=id, target_id=target_id)
         self.bg_color = bg_color
         self.text_color = text_color
         self.text = text
@@ -463,26 +474,26 @@ class BalloonStyle(_BaseObject):
     def etree_element(self) -> Element:
         element = super().etree_element()
         if self.bg_color is not None:
-            elem = config.etree.SubElement(
-                element,  # type: ignore[arg-type]
+            elem = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
                 f"{self.ns}bgColor",
             )
             elem.text = self.bg_color
         if self.text_color is not None:
-            elem = config.etree.SubElement(
-                element,  # type: ignore[arg-type]
+            elem = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
                 f"{self.ns}textColor",
             )
             elem.text = self.text_color
         if self.text is not None:
-            elem = config.etree.SubElement(
-                element,  # type: ignore[arg-type]
+            elem = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
                 f"{self.ns}text",
             )
             elem.text = self.text
         if self.display_mode is not None:
-            elem = config.etree.SubElement(
-                element,  # type: ignore[arg-type]
+            elem = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
                 f"{self.ns}displayMode",
             )
             elem.text = self.display_mode
@@ -611,27 +622,27 @@ class StyleMap(_StyleSelector):
     def etree_element(self) -> Element:
         element = super().etree_element()
         if self.normal and isinstance(self.normal, (Style, StyleUrl)):
-            pair = config.etree.SubElement(
-                element,  # type: ignore[arg-type]
+            pair = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
                 f"{self.ns}Pair",
             )
-            key = config.etree.SubElement(
+            key = config.etree.SubElement(  # type: ignore[attr-defined]
                 pair,
                 f"{self.ns}key",
             )
             key.text = "normal"
-            pair.append(self.normal.etree_element())  # type: ignore[arg-type]
+            pair.append(self.normal.etree_element())
         if self.highlight and isinstance(self.highlight, (Style, StyleUrl)):
-            pair = config.etree.SubElement(
-                element,  # type: ignore[arg-type]
+            pair = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
                 f"{self.ns}Pair",
             )
-            key = config.etree.SubElement(
+            key = config.etree.SubElement(  # type: ignore[attr-defined]
                 pair,
                 f"{self.ns}key",
             )
             key.text = "highlight"
-            pair.append(self.highlight.etree_element())  # type: ignore[arg-type]
+            pair.append(self.highlight.etree_element())
         return element
 
 
