@@ -14,7 +14,6 @@ exclude = ["**/node_modules",
     "**/__pycache__",
     ".pytype",
     ".pyre",
-    "fastkml/test_main.py"
 ]
 
 [tool.mypy]
@@ -40,7 +39,5 @@ show_error_codes = true
 # mypy per-module options:
 
 [[tool.mypy.overrides]]
-module = [
-    "fastkml.kml",
-    "fastkml.tests.oldunit_test", "fastkml.tests.config_test"]
+module = ["fastkml.tests.oldunit_test", "fastkml.tests.config_test"]
 ignore_errors = true
