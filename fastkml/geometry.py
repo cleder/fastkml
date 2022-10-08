@@ -139,8 +139,8 @@ class Geometry(_BaseObject):
                 "absolute",
             ]
             if self.altitude_mode != "clampToGround":
-                am_element = config.etree.SubElement(
-                    element, f"{self.ns}altitudeMode"  # type: ignore[arg-type]
+                am_element = config.etree.SubElement(  # type: ignore[attr-defined]
+                    element, f"{self.ns}altitudeMode"
                 )
                 am_element.text = self.altitude_mode
 
@@ -152,8 +152,8 @@ class Geometry(_BaseObject):
         ]:
             et_element = cast(
                 Element,
-                config.etree.SubElement(
-                    element, f"{self.ns}extrude"  # type: ignore[arg-type]
+                config.etree.SubElement(  # type: ignore[attr-defined]
+                    element, f"{self.ns}extrude"
                 ),
             )
             et_element.text = "1"
@@ -162,7 +162,10 @@ class Geometry(_BaseObject):
         self,
         coordinates: Sequence[PointType],
     ) -> Element:
-        element = cast(Element, config.etree.Element(f"{self.ns}coordinates"))
+        element = cast(
+            Element,
+            config.etree.Element(f"{self.ns}coordinates"),  # type: ignore[attr-defined]
+        )
         if len(coordinates[0]) == 2:
             if config.FORCE3D:  # and not clampToGround:
                 tuples = (f"{c[0]:f},{c[1]:f},0.000000" for c in coordinates)
@@ -187,8 +190,8 @@ class Geometry(_BaseObject):
             "clampToGround",
             "clampToSeaFloor",
         ]:
-            ts_element = config.etree.SubElement(
-                element, f"{self.ns}tessellate"  # type: ignore[arg-type]
+            ts_element = config.etree.SubElement(  # type: ignore[attr-defined]
+                element, f"{self.ns}tessellate"
             )
             ts_element.text = "1"
         return self._extracted_from__etree_linearring_5(linestring, element)
@@ -208,8 +211,8 @@ class Geometry(_BaseObject):
         element = self._extrude_and_altitude_mode("Polygon")
         outer_boundary = cast(
             Element,
-            config.etree.SubElement(
-                element,  # type: ignore[arg-type]
+            config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
                 f"{self.ns}outerBoundaryIs",
             ),
         )
@@ -217,8 +220,8 @@ class Geometry(_BaseObject):
         for ib in polygon.interiors:
             inner_boundary = cast(
                 Element,
-                config.etree.SubElement(
-                    element,  # type: ignore[arg-type]
+                config.etree.SubElement(  # type: ignore[attr-defined]
+                    element,
                     f"{self.ns}innerBoundaryIs",
                 ),
             )
@@ -226,40 +229,65 @@ class Geometry(_BaseObject):
         return element
 
     def _extrude_and_altitude_mode(self, kml_geometry: str) -> Element:
-        result = cast(Element, config.etree.Element(f"{self.ns}{kml_geometry}"))
+        result = cast(
+            Element,
+            config.etree.Element(  # type: ignore[attr-defined]
+                f"{self.ns}{kml_geometry}"
+            ),
+        )
         self._set_extrude(result)
         self._set_altitude_mode(result)
         return result
 
     def _etree_multipoint(self, points: MultiPoint) -> Element:
-        element = cast(Element, config.etree.Element(f"{self.ns}MultiGeometry"))
+        element = cast(
+            Element,
+            config.etree.Element(  # type: ignore[attr-defined]
+                f"{self.ns}MultiGeometry"
+            ),
+        )
         for point in points.geoms:
             element.append(self._etree_point(point))
         return element
 
     def _etree_multilinestring(self, linestrings: MultiLineString) -> Element:
-        element = cast(Element, config.etree.Element(f"{self.ns}MultiGeometry"))
+        element = cast(
+            Element,
+            config.etree.Element(  # type: ignore[attr-defined]
+                f"{self.ns}MultiGeometry"
+            ),
+        )
         for linestring in linestrings.geoms:
             element.append(self._etree_linestring(linestring))
         return element
 
     def _etree_multipolygon(self, polygons: MultiPolygon) -> Element:
-        element = cast(Element, config.etree.Element(f"{self.ns}MultiGeometry"))
+        element = cast(
+            Element,
+            config.etree.Element(  # type: ignore[attr-defined]
+                f"{self.ns}MultiGeometry"
+            ),
+        )
         for polygon in polygons.geoms:
             element.append(self._etree_polygon(polygon))
         return element
 
     def _etree_collection(self, features: GeometryCollection) -> Element:
-        element = cast(Element, config.etree.Element(f"{self.ns}MultiGeometry"))
+        element = cast(
+            Element,
+            config.etree.Element(  # type: ignore[attr-defined]
+                f"{self.ns}MultiGeometry"
+            ),
+        )
         for feature in features.geoms:
             if feature.geom_type == "Point":
-                element.append(self._etree_point(feature))
+                element.append(self._etree_point(cast(Point, feature)))
             elif feature.geom_type == "LinearRing":
-                element.append(self._etree_linearring(feature))
+                element.append(self._etree_linearring(cast(LinearRing, feature)))
             elif feature.geom_type == "LineString":
-                element.append(self._etree_linestring(feature))
+                element.append(self._etree_linestring(cast(LineString, feature)))
             elif feature.geom_type == "Polygon":
-                element.append(self._etree_polygon(feature))
+                element.append(self._etree_polygon(cast(Polygon, feature)))
             else:
                 raise ValueError("Illegal geometry type.")
         return element
@@ -295,7 +323,7 @@ class Geometry(_BaseObject):
                 et = False
             self.extrude = et
         else:
-            self.extrude = False
+            self.extrude = False  # type: ignore[unreachable]
         tessellate = element.find(f"{self.ns}tessellate")
         if tessellate is not None:
             try:
@@ -304,7 +332,7 @@ class Geometry(_BaseObject):
                 te = False
             self.tessellate = te
         else:
-            self.tessellate = False
+            self.tessellate = False  # type: ignore[unreachable]
         altitude_mode = element.find(f"{self.ns}altitudeMode")
         if altitude_mode is not None:
             am = altitude_mode.text.strip()
@@ -318,7 +346,7 @@ class Geometry(_BaseObject):
             else:
                 self.altitude_mode = None
         else:
-            self.altitude_mode = None
+            self.altitude_mode = None  # type: ignore[unreachable]
 
     def _get_coordinates(self, element: Element) -> List[PointType]:
         coordinates = element.find(f"{self.ns}coordinates")
@@ -341,7 +369,7 @@ class Geometry(_BaseObject):
         if lr is not None:
             coords = self._get_coordinates(lr)
             return LinearRing(coords)
-        return None
+        return None  # type: ignore[unreachable]
 
     def _get_geometry(self, element: Element) -> Optional[GeometryType]:
         # Point, LineString,
@@ -372,9 +400,9 @@ class Geometry(_BaseObject):
             return LinearRing(coords)
         return None
 
-    def _get_multigeometry(self, element: Element) -> Optional[GeometryType]:
+    def _get_multigeometry(self, element: Element) -> Optional[MultiGeometryType]:
         # MultiGeometry
-        geoms: List[AnyGeometryType] = []
+        geoms: List[Union[AnyGeometryType, None]] = []
         if element.tag == f"{self.ns}MultiGeometry":
             points = element.findall(f"{self.ns}Point")
             for point in points:
@@ -389,29 +417,43 @@ class Geometry(_BaseObject):
                 self._get_geometry_spec(polygon)
                 outer_boundary = polygon.find(f"{self.ns}outerBoundaryIs")
                 ob = self._get_linear_ring(outer_boundary)
+                if not ob:
+                    continue
                 inner_boundaries = polygon.findall(f"{self.ns}innerBoundaryIs")
-                ibs = [
+                inner_bs = [
                     self._get_linear_ring(inner_boundary)
                     for inner_boundary in inner_boundaries
                 ]
+                ibs: List[LinearRing] = [ib for ib in inner_bs if ib]
                 geoms.append(Polygon.from_linear_rings(ob, *ibs))
             linearings = element.findall(f"{self.ns}LinearRing")
             if linearings:
                 for lr in linearings:
                     self._get_geometry_spec(lr)
                     geoms.append(LinearRing(self._get_coordinates(lr)))
-        if geoms:
-            geom_types = {geom.geom_type for geom in geoms}
+        clean_geoms: List[AnyGeometryType] = [g for g in geoms if g]
+        if clean_geoms:
+            geom_types = {geom.geom_type for geom in clean_geoms}
             if len(geom_types) > 1:
-                return GeometryCollection(geoms)
+                return GeometryCollection(
+                    clean_geoms,  # type: ignore[arg-type]
+                )
             if "Point" in geom_types:
-                return MultiPoint.from_points(*geoms)
+                return MultiPoint.from_points(
+                    *clean_geoms,  # type: ignore[arg-type]
+                )
             elif "LineString" in geom_types:
-                return MultiLineString.from_linestrings(*geoms)
+                return MultiLineString.from_linestrings(
+                    *clean_geoms,  # type: ignore[arg-type]
+                )
             elif "Polygon" in geom_types:
-                return MultiPolygon.from_polygons(*geoms)
+                return MultiPolygon.from_polygons(
+                    *clean_geoms,  # type: ignore[arg-type]
+                )
             elif "LinearRing" in geom_types:
-                return GeometryCollection(geoms)
+                return GeometryCollection(
+                    clean_geoms,  # type: ignore[arg-type]
+                )
         return None
 
     def from_element(self, element: Element) -> None:
