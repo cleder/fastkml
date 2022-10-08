@@ -2226,33 +2226,6 @@ class TestBaseOverlay:
         with pytest.raises(ValueError):
             o.draw_order = object()
 
-    def test_icon_without_tag(self):
-        o = kml._Overlay(name="An Overlay")
-        o.icon = "http://example.com/"
-        assert o.icon == "<href>http://example.com/</href>"
-
-    def test_icon_with_open_tag(self):
-        o = kml._Overlay(name="An Overlay")
-        o.icon = "<href>http://example.com/"
-        assert o.icon == "<href>http://example.com/</href>"
-
-    def test_icon_with_close_tag(self):
-        o = kml._Overlay(name="An Overlay")
-        o.icon = "http://example.com/</href>"
-        assert o.icon == "<href>http://example.com/</href>"
-
-    def test_icon_with_tag(self):
-        o = kml._Overlay(name="An Overlay")
-        o.icon = "<href>http://example.com/</href>"
-        assert o.icon == "<href>http://example.com/</href>"
-
-    def test_icon_to_none(self):
-        o = kml._Overlay(name="An Overlay")
-        o.icon = "<href>http://example.com/</href>"
-        assert o.icon == "<href>http://example.com/</href>"
-        o.icon = None
-        assert o.icon is None
-
     def test_icon_raise_exception(self):
         o = kml._Overlay(name="An Overlay")
         with pytest.raises(ValueError):
@@ -2411,7 +2384,8 @@ class TestGroundOverlayString:
 
     def test_to_string(self):
         g = kml.GroundOverlay()
-        g.icon = "http://example.com"
+        icon = kml.Icon(href="http://example.com")
+        g.icon = icon
         g.draw_order = 1
         g.color = "00010203"
 
@@ -2421,7 +2395,9 @@ class TestGroundOverlayString:
             "<kml:visibility>1</kml:visibility>"
             "<kml:color>00010203</kml:color>"
             "<kml:drawOrder>1</kml:drawOrder>"
-            "<kml:icon>&lt;href&gt;http://example.com&lt;/href&gt;</kml:icon>"
+            "<kml:Icon>"
+            "<kml:href>http://example.com</kml:href>"
+            "</kml:Icon>"
             "</kml:GroundOverlay>"
         )
 

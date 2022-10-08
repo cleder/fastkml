@@ -28,6 +28,7 @@ import logging
 import urllib.parse as urlparse
 from datetime import date
 from datetime import datetime
+from typing import Optional
 
 # note that there are some ISO 8601 timeparsers at pypi
 # but in my tests all of them had some errors so we rely on the
@@ -269,15 +270,16 @@ class _Feature(_BaseObject):
 
     def __init__(
         self,
-        ns=None,
-        id=None,
-        name=None,
-        description=None,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
         styles=None,
-        style_url=None,
+        style_url: Optional[str] = None,
         extended_data=None,
     ):
-        super().__init__(ns, id)
+        super().__init__(ns=ns, id=id, target_id=target_id)
         self.name = name
         self.description = description
         self.style_url = style_url
@@ -618,6 +620,304 @@ class _Feature(_BaseObject):
             self.camera = s
 
 
+class Icon(_BaseObject):
+    """
+    Represents an <Icon> element used in Overlays.
+
+    Defines an image associated with an Icon style or overlay.
+    The required <href> child element defines the location
+    of the image to be used as the overlay or as the icon for the placemark.
+    This location can either be on a local file system or a remote web server.
+    The <gx:x>, <gx:y>, <gx:w>, and <gx:h> elements are used to select one
+    icon from an image that contains multiple icons
+    (often referred to as an icon palette).
+    """
+
+    __name__ = "Icon"
+
+    _href = None
+    _refresh_mode: str = None
+    _refresh_interval = None
+    _view_refresh_mode = None
+    _view_refresh_time = None
+    _view_bound_scale = None
+    _view_format = None
+    _http_query = None
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        href: Optional[str] = None,
+        refresh_mode: Optional[str] = None,
+        refresh_interval: Optional[float] = None,
+        view_refresh_mode: Optional[str] = None,
+        view_refresh_time: Optional[float] = None,
+        view_bound_scale: Optional[float] = None,
+        view_format: Optional[str] = None,
+        http_query: Optional[str] = None,
+    ) -> None:
+        """Initialize the KML Icon Object."""
+        super().__init__(ns=ns, id=id, target_id=target_id)
+        self._href = href
+        self._refresh_mode = refresh_mode
+        self._refresh_interval = refresh_interval
+        self._view_refresh_mode = view_refresh_mode
+        self._view_refresh_time = view_refresh_time
+        self._view_bound_scale = view_bound_scale
+        self._view_format = view_format
+        self._http_query = http_query
+
+    @property
+    def href(self) -> Optional[str]:
+        """An HTTP address or a local file specification used to load an icon."""
+        return self._href
+
+    @href.setter
+    def href(self, href) -> None:
+        if isinstance(href, str):
+            self._href = href
+        elif href is None:
+            self._href = None
+        else:
+            raise ValueError
+
+    @property
+    def refresh_mode(self) -> Optional[str]:
+        """
+        Specifies a time-based refresh mode.
+
+        Can be one of the following:
+          - onChange - refresh when the file is loaded and whenever the Link
+            parameters change (the default).
+          - onInterval - refresh every n seconds (specified in <refreshInterval>).
+          - onExpire - refresh the file when the expiration time is reached.
+        """
+        return self._refresh_mode
+
+    @refresh_mode.setter
+    def refresh_mode(self, refresh_mode) -> None:
+        if isinstance(refresh_mode, str):
+            self._refresh_mode = refresh_mode
+        elif refresh_mode is None:
+            self._refresh_mode = None
+        else:
+            raise ValueError
+
+    @property
+    def refresh_interval(self) -> Optional[float]:
+        """Indicates to refresh the file every n seconds."""
+        return self._refresh_interval
+
+    @refresh_interval.setter
+    def refresh_interval(self, refresh_interval: float) -> None:
+        if isinstance(refresh_interval, str):
+            self._refresh_interval = refresh_interval
+        elif refresh_interval is None:
+            self._refresh_interval = None
+        else:
+            raise ValueError
+
+    @property
+    def view_refresh_mode(self):
+        """
+        Specifies how the link is refreshed when the "camera" changes.
+
+        Can be one of the following:
+         - never (default) - Ignore changes in the view.
+           Also ignore <viewFormat> parameters, if any.
+         - onStop - Refresh the file n seconds after movement stops,
+           where n is specified in <viewRefreshTime>.
+         - onRequest - Refresh the file only when the user explicitly requests it.
+           (For example, in Google Earth, the user right-clicks and selects Refresh
+            in the Context menu.)
+          - onRegion - Refresh the file when the Region becomes active.
+        """
+        return self._view_refresh_mode
+
+    @view_refresh_mode.setter
+    def view_refresh_mode(self, view_refresh_mode):
+        if isinstance(view_refresh_mode, str):
+            self._view_refresh_mode = view_refresh_mode
+        elif view_refresh_mode is None:
+            self._view_refresh_mode = None
+        else:
+            raise ValueError
+
+    @property
+    def view_refresh_time(self):
+        """
+        After camera movement stops, specifies the number of seconds to
+        wait before refreshing the view.
+        """
+        return self._view_refresh_time
+
+    @view_refresh_time.setter
+    def view_refresh_time(self, view_refresh_time):
+        if isinstance(view_refresh_time, str):
+            self._view_refresh_time = view_refresh_time
+        elif view_refresh_time is None:
+            self._view_refresh_time = None
+        else:
+            raise ValueError
+
+    @property
+    def view_bound_scale(self):
+        """
+        Scales the BBOX parameters before sending them to the server.
+
+        A value less than 1 specifies to use less than the full view (screen).
+        A value greater than 1 specifies to fetch an area that extends beyond
+        the edges of the current view.
+        """
+        return self._view_bound_scale
+
+    @view_bound_scale.setter
+    def view_bound_scale(self, view_bound_scale):
+        if isinstance(view_bound_scale, str):
+            self._view_bound_scale = view_bound_scale
+        elif view_bound_scale is None:
+            self._view_bound_scale = None
+        else:
+            raise ValueError
+
+    @property
+    def view_format(self):
+        """
+        Specifies the format of the query string that is appended to the
+        Link's <href> before the file is fetched.
+        (If the <href> specifies a local file, this element is ignored.)
+
+        This information matches the Web Map Service (WMS) bounding box specification.
+        If you specify an empty <viewFormat> tag, no information is appended to the
+        query string.
+        You can also specify a custom set of viewing parameters to add to the query
+        string. If you supply a format string, it is used instead of the BBOX
+        information. If you also want the BBOX information, you need to add those
+        parameters along with the custom parameters.
+        You can use any of the following parameters in your format string:
+         - [lookatLon], [lookatLat] - longitude and latitude of the point that
+           <LookAt> is viewing
+         - [lookatRange], [lookatTilt], [lookatHeading] - values used by the
+           <LookAt> element (see descriptions of <range>, <tilt>, and <heading>
+           in <LookAt>)
+         - [lookatTerrainLon], [lookatTerrainLat], [lookatTerrainAlt] - point on the
+           terrain in degrees/meters that <LookAt> is viewing
+         - [cameraLon], [cameraLat], [cameraAlt] - degrees/meters of the eyepoint for
+           the camera
+         - [horizFov], [vertFov] - horizontal, vertical field of view for the camera
+         - [horizPixels], [vertPixels] - size in pixels of the 3D viewer
+         - [terrainEnabled] - indicates whether the 3D viewer is showing terrain (1)
+           or not (0)
+        """
+        return self._view_format
+
+    @view_format.setter
+    def view_format(self, view_format):
+        if isinstance(view_format, str):
+            self._view_format = view_format
+        elif view_format is None:
+            self._view_format = None
+        else:
+            raise ValueError
+
+    @property
+    def http_query(self):
+        """
+        Appends information to the query string, based on the parameters specified.
+
+        The following parameters are supported:
+         - [clientVersion]
+         - [kmlVersion]
+         - [clientName]
+         - [language]
+        """
+        return self._http_query
+
+    @http_query.setter
+    def http_query(self, http_query):
+        if isinstance(http_query, str):
+            self._http_query = http_query
+        elif http_query is None:
+            self._http_query = None
+        else:
+            raise ValueError
+
+    def etree_element(self):
+        element = super(Icon, self).etree_element()
+
+        if self._href:
+            href = config.etree.SubElement(element, f"{self.ns}href")
+            href.text = self._href
+        if self._refresh_mode:
+            refresh_mode = config.etree.SubElement(element, f"{self.ns}refreshMode")
+            refresh_mode.text = self._refresh_mode
+        if self._refresh_interval:
+            refresh_interval = config.etree.SubElement(
+                element, f"{self.ns}refreshInterval"
+            )
+            refresh_interval.text = self._refresh_interval
+        if self._view_refresh_mode:
+            view_refresh_mode = config.etree.SubElement(
+                element, f"{self.ns}viewRefreshMode"
+            )
+            view_refresh_mode.text = self._view_refresh_mode
+        if self._view_refresh_time:
+            view_refresh_time = config.etree.SubElement(
+                element, f"{self.ns}viewRefreshTime"
+            )
+            view_refresh_time.text = self._view_refresh_time
+        if self._view_bound_scale:
+            view_bound_scale = config.etree.SubElement(
+                element, f"{self.ns}viewBoundScale"
+            )
+            view_bound_scale.text = self._view_bound_scale
+        if self._view_format:
+            view_format = config.etree.SubElement(element, f"{self.ns}viewFormat")
+            view_format.text = self._view_format
+        if self._http_query:
+            http_query = config.etree.SubElement(element, f"{self.ns}httpQuery")
+            http_query.text = self._http_query
+
+        return element
+
+    def from_element(self, element):
+        super().from_element(element)
+
+        href = element.find(f"{self.ns}href")
+        if href is not None:
+            self.href = href.text
+
+        refresh_mode = element.find(f"{self.ns}refreshMode")
+        if refresh_mode is not None:
+            self.refresh_mode = refresh_mode.text
+
+        refresh_interval = element.find(f"{self.ns}refreshInterval")
+        if refresh_interval is not None:
+            self.refresh_interval = refresh_interval.text
+
+        view_refresh_mode = element.find(f"{self.ns}viewRefreshMode")
+        if view_refresh_mode is not None:
+            self.view_refresh_mode = view_refresh_mode.text
+
+        view_refresh_time = element.find(f"{self.ns}viewRefreshTime")
+        if view_refresh_time is not None:
+            self.view_refresh_time = view_refresh_time.text
+
+        view_bound_scale = element.find(f"{self.ns}viewBoundScale")
+        if view_bound_scale is not None:
+            self.view_bound_scale = view_bound_scale.text
+
+        view_format = element.find(f"{self.ns}viewFormat")
+        if view_format is not None:
+            self.view_format = view_format.text
+
+        http_query = element.find(f"{self.ns}httpQuery")
+        if http_query is not None:
+            self.http_query = http_query.text
+
+
 class _Container(_Feature):
     """
     abstract element; do not create
@@ -631,10 +931,26 @@ class _Container(_Feature):
     _features = []
 
     def __init__(
-        self, ns=None, id=None, name=None, description=None, styles=None, style_url=None
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        styles=None,
+        style_url: Optional[str] = None,
+        features=None,
     ):
-        super().__init__(ns, id, name, description, styles, style_url)
-        self._features = []
+        super().__init__(
+            ns=ns,
+            id=id,
+            target_id=target_id,
+            name=name,
+            description=description,
+            styles=styles,
+            style_url=style_url,
+        )
+        self._features = features or []
 
     def features(self):
         """iterate over features"""
@@ -694,9 +1010,26 @@ class _Overlay(_Feature):
     # the color and size defined by the ground or screen overlay.
 
     def __init__(
-        self, ns=None, id=None, name=None, description=None, styles=None, style_url=None
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        styles=None,
+        style_url: Optional[str] = None,
+        icon: Optional[Icon] = None,
     ):
-        super().__init__(ns, id, name, description, styles, style_url)
+        super().__init__(
+            ns=ns,
+            id=id,
+            target_id=target_id,
+            name=name,
+            description=description,
+            styles=styles,
+            style_url=style_url,
+        )
+        self._icon = icon
 
     @property
     def color(self):
@@ -746,8 +1079,7 @@ class _Overlay(_Feature):
             draw_order = config.etree.SubElement(element, f"{self.ns}drawOrder")
             draw_order.text = self._draw_order
         if self._icon:
-            icon = config.etree.SubElement(element, f"{self.ns}icon")
-            icon.text = self._icon
+            element.append(self._icon.etree_element())
         return element
 
     def from_element(self, element):
@@ -758,7 +1090,7 @@ class _Overlay(_Feature):
         draw_order = element.find(f"{self.ns}drawOrder")
         if draw_order is not None:
             self.draw_order = draw_order.text
-        icon = element.find(f"{self.ns}icon")
+        icon = element.find(f"{self.ns}Icon")
         if icon is not None:
             s = Icon(self.ns)
             s.from_element(icon)
@@ -1894,198 +2226,6 @@ class SchemaData(_XMLObject):
         simple_data = element.findall(f"{self.ns}SimpleData")
         for sd in simple_data:
             self.append_data(sd.get("name"), sd.text)
-
-
-class Icon(_BaseObject):
-    """Represents an <Icon> element used in Overlays"""
-
-    __name__ = "Icon"
-
-    _href = None
-    _refresh_mode = None
-    _refresh_interval = None
-    _view_refresh_mode = None
-    _view_refresh_time = None
-    _view_bound_scale = None
-    _view_format = None
-    _http_query = None
-
-    @property
-    def href(self):
-        return self._href
-
-    @href.setter
-    def href(self, href):
-        if isinstance(href, str):
-            self._href = href
-        elif href is None:
-            self._href = None
-        else:
-            raise ValueError
-
-    @property
-    def refresh_mode(self):
-        return self._refresh_mode
-
-    @refresh_mode.setter
-    def refresh_mode(self, refresh_mode):
-        if isinstance(refresh_mode, str):
-            self._refresh_mode = refresh_mode
-        elif refresh_mode is None:
-            self._refresh_mode = None
-        else:
-            raise ValueError
-
-    @property
-    def refresh_interval(self):
-        return self._refresh_interval
-
-    @refresh_interval.setter
-    def refresh_interval(self, refresh_interval):
-        if isinstance(refresh_interval, str):
-            self._refresh_interval = refresh_interval
-        elif refresh_interval is None:
-            self._refresh_interval = None
-        else:
-            raise ValueError
-
-    @property
-    def view_refresh_mode(self):
-        return self._view_refresh_mode
-
-    @view_refresh_mode.setter
-    def view_refresh_mode(self, view_refresh_mode):
-        if isinstance(view_refresh_mode, str):
-            self._view_refresh_mode = view_refresh_mode
-        elif view_refresh_mode is None:
-            self._view_refresh_mode = None
-        else:
-            raise ValueError
-
-    @property
-    def view_refresh_time(self):
-        return self._view_refresh_time
-
-    @view_refresh_time.setter
-    def view_refresh_time(self, view_refresh_time):
-        if isinstance(view_refresh_time, str):
-            self._view_refresh_time = view_refresh_time
-        elif view_refresh_time is None:
-            self._view_refresh_time = None
-        else:
-            raise ValueError
-
-    @property
-    def view_bound_scale(self):
-        return self._view_bound_scale
-
-    @view_bound_scale.setter
-    def view_bound_scale(self, view_bound_scale):
-        if isinstance(view_bound_scale, str):
-            self._view_bound_scale = view_bound_scale
-        elif view_bound_scale is None:
-            self._view_bound_scale = None
-        else:
-            raise ValueError
-
-    @property
-    def view_format(self):
-        return self._view_format
-
-    @view_format.setter
-    def view_format(self, view_format):
-        if isinstance(view_format, str):
-            self._view_format = view_format
-        elif view_format is None:
-            self._view_format = None
-        else:
-            raise ValueError
-
-    @property
-    def http_query(self):
-        return self._http_query
-
-    @http_query.setter
-    def http_query(self, http_query):
-        if isinstance(http_query, str):
-            self._http_query = http_query
-        elif http_query is None:
-            self._http_query = None
-        else:
-            raise ValueError
-
-    def etree_element(self):
-        element = super(Icon, self).etree_element()
-
-        if self._href:
-            href = config.etree.SubElement(element, f"{self.ns}href")
-            href.text = self._href
-        if self._refresh_mode:
-            refresh_mode = config.etree.SubElement(element, f"{self.ns}refreshMode")
-            refresh_mode.text = self._refresh_mode
-        if self._refresh_interval:
-            refresh_interval = config.etree.SubElement(
-                element, f"{self.ns}refreshInterval"
-            )
-            refresh_interval.text = self._refresh_interval
-        if self._view_refresh_mode:
-            view_refresh_mode = config.etree.SubElement(
-                element, f"{self.ns}viewRefreshMode"
-            )
-            view_refresh_mode.text = self._view_refresh_mode
-        if self._view_refresh_time:
-            view_refresh_time = config.etree.SubElement(
-                element, f"{self.ns}viewRefreshTime"
-            )
-            view_refresh_time.text = self._view_refresh_time
-        if self._view_bound_scale:
-            view_bound_scale = config.etree.SubElement(
-                element, f"{self.ns}viewBoundScale"
-            )
-            view_bound_scale.text = self._view_bound_scale
-        if self._view_format:
-            view_format = config.etree.SubElement(element, f"{self.ns}viewFormat")
-            view_format.text = self._view_format
-        if self._http_query:
-            http_query = config.etree.SubElement(element, f"{self.ns}httpQuery")
-            http_query.text = self._http_query
-
-        return element
-
-    def from_element(self, element):
-        super(Icon, self).from_element(element)
-
-        href = element.find(f"{self.ns}href")
-        if href is not None:
-            self.href = href.text
-
-        refresh_mode = element.find(f"{self.ns}refreshMode")
-        if refresh_mode is not None:
-            self.refresh_mode = refresh_mode.text
-
-        refresh_interval = element.find(f"{self.ns}refreshInterval")
-        if refresh_interval is not None:
-            self.refresh_interval = refresh_interval.text
-
-        view_refresh_mode = element.find(f"{self.ns}viewRefreshMode")
-        if view_refresh_mode is not None:
-            self.view_refresh_mode = view_refresh_mode.text
-
-        view_refresh_time = element.find(f"{self.ns}viewRefreshTime")
-        if view_refresh_time is not None:
-            self.view_refresh_time = view_refresh_time.text
-
-        view_bound_scale = element.find(f"{self.ns}viewBoundScale")
-        if view_bound_scale is not None:
-            self.view_bound_scale = view_bound_scale.text
-
-        view_format = element.find(f"{self.ns}viewFormat")
-        if view_format is not None:
-            self.view_format = view_format.text
-
-        http_query = element.find(f"{self.ns}httpQuery")
-        if http_query is not None:
-            self.http_query = http_query.text
 
 
 class _AbstractView(_BaseObject):
