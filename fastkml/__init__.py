@@ -27,27 +27,27 @@ provides.
 from pkg_resources import DistributionNotFound
 from pkg_resources import get_distribution
 
-from .atom import Author
-from .atom import Contributor
-from .atom import Link
-from .kml import KML
-from .kml import Data
-from .kml import Document
-from .kml import ExtendedData
-from .kml import Folder
-from .kml import Placemark
-from .kml import Schema
-from .kml import SchemaData
-from .kml import TimeSpan
-from .kml import TimeStamp
-from .styles import BalloonStyle
-from .styles import IconStyle
-from .styles import LabelStyle
-from .styles import LineStyle
-from .styles import PolyStyle
-from .styles import Style
-from .styles import StyleMap
-from .styles import StyleUrl
+from fastkml.atom import Author
+from fastkml.atom import Contributor
+from fastkml.atom import Link
+from fastkml.data import Data
+from fastkml.data import ExtendedData
+from fastkml.data import Schema
+from fastkml.data import SchemaData
+from fastkml.kml import KML
+from fastkml.kml import Document
+from fastkml.kml import Folder
+from fastkml.kml import Placemark
+from fastkml.kml import TimeSpan
+from fastkml.kml import TimeStamp
+from fastkml.styles import BalloonStyle
+from fastkml.styles import IconStyle
+from fastkml.styles import LabelStyle
+from fastkml.styles import LineStyle
+from fastkml.styles import PolyStyle
+from fastkml.styles import Style
+from fastkml.styles import StyleMap
+from fastkml.styles import StyleUrl
 
 try:
     __version__ = get_distribution("fastkml").version
