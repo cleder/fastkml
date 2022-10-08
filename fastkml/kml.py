@@ -28,7 +28,10 @@ import logging
 import urllib.parse as urlparse
 from datetime import date
 from datetime import datetime
+from typing import Iterator
+from typing import List
 from typing import Optional
+from typing import Union
 
 # note that there are some ISO 8601 timeparsers at pypi
 # but in my tests all of them had some errors so we rely on the
@@ -39,125 +42,16 @@ import dateutil.parser
 import fastkml.atom as atom
 import fastkml.config as config
 import fastkml.gx as gx
-
-from .base import _BaseObject
-from .base import _XMLObject
-from .geometry import Geometry
-from .styles import Style
-from .styles import StyleMap
-from .styles import StyleUrl
-from .styles import _StyleSelector
+from fastkml.base import _BaseObject
+from fastkml.base import _XMLObject
+from fastkml.geometry import Geometry
+from fastkml.styles import Style
+from fastkml.styles import StyleMap
+from fastkml.styles import StyleUrl
+from fastkml.styles import _StyleSelector
+from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
-
-
-class KML:
-    """represents a KML File"""
-
-    _features = []
-    ns = None
-
-    def __init__(self, ns=None):
-        """The namespace (ns) may be empty ('') if the 'kml:' prefix is
-        undesired. Note that all child elements like Document or Placemark need
-        to be initialized with empty namespace as well in this case.
-
-        """
-        self._features = []
-
-        self.ns = config.KMLNS if ns is None else ns
-
-    def from_string(self, xml_string):
-        """create a KML object from a xml string"""
-        try:
-            element = config.etree.fromstring(
-                xml_string, parser=config.etree.XMLParser(huge_tree=True, recover=True)
-            )
-        except TypeError:
-            element = config.etree.XML(xml_string)
-
-        if not element.tag.endswith("kml"):
-            raise TypeError
-
-        ns = element.tag.rstrip("kml")
-        documents = element.findall(f"{ns}Document")
-        for document in documents:
-            feature = Document(ns)
-            feature.from_element(document)
-            self.append(feature)
-        folders = element.findall(f"{ns}Folder")
-        for folder in folders:
-            feature = Folder(ns)
-            feature.from_element(folder)
-            self.append(feature)
-        placemarks = element.findall(f"{ns}Placemark")
-        for placemark in placemarks:
-            feature = Placemark(ns)
-            feature.from_element(placemark)
-            self.append(feature)
-        groundoverlays = element.findall(f"{ns}GroundOverlay")
-        for groundoverlay in groundoverlays:
-            feature = GroundOverlay(ns)
-            feature.from_element(groundoverlay)
-            self.append(feature)
-        photo_overlays = element.findall(f"{ns}PhotoOverlay")
-        for photo_overlay in photo_overlays:
-            feature = PhotoOverlay(ns)
-            feature.from_element(photo_overlay)
-            self.append(feature)
-
-    def etree_element(self):
-        # self.ns may be empty, which leads to unprefixed kml elements.
-        # However, in this case the xlmns should still be mentioned on the kml
-        # element, just without prefix.
-        if not self.ns:
-            root = config.etree.Element(f"{self.ns}kml")
-            root.set("xmlns", config.KMLNS[1:-1])
-        else:
-            try:
-                root = config.etree.Element(
-                    f"{self.ns}kml", nsmap={None: self.ns[1:-1]}
-                )
-            except TypeError:
-                root = config.etree.Element(f"{self.ns}kml")
-        for feature in self.features():
-            root.append(feature.etree_element())
-        return root
-
-    def to_string(self, prettyprint=False):
-        """Return the KML Object as serialized xml"""
-        try:
-            return config.etree.tostring(
-                self.etree_element(),
-                encoding="UTF-8",
-                pretty_print=prettyprint,
-            ).decode("UTF-8")
-        except TypeError:
-            return config.etree.tostring(self.etree_element(), encoding="UTF-8").decode(
-                "UTF-8"
-            )
-
-    def features(self):
-        """iterate over features"""
-        for feature in self._features:
-            if isinstance(feature, (Document, Folder, Placemark, _Overlay)):
-
-                yield feature
-            else:
-                raise TypeError(
-                    "Features must be instances of "
-                    "(Document, Folder, Placemark, Overlay)"
-                )
-
-    def append(self, kmlobj):
-        """append a feature"""
-
-        if isinstance(kmlobj, (Document, Folder, Placemark, _Overlay)):
-            self._features.append(kmlobj)
-        else:
-            raise TypeError(
-                "Features must be instances of (Document, Folder, Placemark, Overlay)"
-            )
 
 
 class _Feature(_BaseObject):
@@ -275,10 +169,10 @@ class _Feature(_BaseObject):
         target_id: Optional[str] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
-        styles=None,
+        styles: Optional[List[Style]] = None,
         style_url: Optional[str] = None,
-        extended_data=None,
-    ):
+        extended_data: None = None,
+    ) -> None:
         super().__init__(ns=ns, id=id, target_id=target_id)
         self.name = name
         self.description = description
@@ -408,14 +302,14 @@ class _Feature(_BaseObject):
         else:
             raise TypeError
 
-    def append_style(self, style):
+    def append_style(self, style: Union[Style, StyleMap]) -> None:
         """append a style to the feature"""
         if isinstance(style, _StyleSelector):
             self._styles.append(style)
         else:
             raise TypeError
 
-    def styles(self):
+    def styles(self) -> Iterator[Union[Style, StyleMap]]:
         """iterate over the styles of this feature"""
         for style in self._styles:
             if isinstance(style, _StyleSelector):
@@ -491,7 +385,7 @@ class _Feature(_BaseObject):
         else:
             raise ValueError
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self.name:
             name = config.etree.SubElement(element, f"{self.ns}name")
@@ -543,7 +437,7 @@ class _Feature(_BaseObject):
             phone_number.text = self._phone_number
         return element
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         name = element.find(f"{self.ns}name")
         if name is not None:
@@ -844,7 +738,7 @@ class Icon(_BaseObject):
         else:
             raise ValueError
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
 
         if self._href:
@@ -882,7 +776,7 @@ class Icon(_BaseObject):
 
         return element
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
 
         href = element.find(f"{self.ns}href")
@@ -946,10 +840,10 @@ class _Container(_Feature):
         target_id: Optional[str] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
-        styles=None,
+        styles: Optional[List[Style]] = None,
         style_url: Optional[str] = None,
-        features=None,
-    ):
+        features: None = None,
+    ) -> None:
         super().__init__(
             ns=ns,
             id=id,
@@ -961,7 +855,7 @@ class _Container(_Feature):
         )
         self._features = features or []
 
-    def features(self):
+    def features(self) -> Iterator[_Feature]:
         """iterate over features"""
         for feature in self._features:
             if isinstance(feature, (Folder, Placemark, Document, _Overlay)):
@@ -972,13 +866,13 @@ class _Container(_Feature):
                     "(Folder, Placemark, Document, Overlay)"
                 )
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         for feature in self.features():
             element.append(feature.etree_element())
         return element
 
-    def append(self, kmlobj):
+    def append(self, kmlobj: _Feature) -> None:
         """append a feature"""
         if isinstance(kmlobj, (Folder, Placemark, Document, _Overlay)):
             self._features.append(kmlobj)
@@ -1025,10 +919,10 @@ class _Overlay(_Feature):
         target_id: Optional[str] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
-        styles=None,
+        styles: None = None,
         style_url: Optional[str] = None,
         icon: Optional[Icon] = None,
-    ):
+    ) -> None:
         super().__init__(
             ns=ns,
             id=id,
@@ -1079,7 +973,7 @@ class _Overlay(_Feature):
         else:
             raise ValueError
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self._color:
             color = config.etree.SubElement(element, f"{self.ns}color")
@@ -1091,7 +985,7 @@ class _Overlay(_Feature):
             element.append(self._icon.etree_element())
         return element
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         color = element.find(f"{self.ns}color")
         if color is not None:
@@ -1595,7 +1489,9 @@ class GroundOverlay(_Overlay):
         else:
             raise ValueError
 
-    def lat_lon_box(self, north, south, east, west, rotation=0):
+    def lat_lon_box(
+        self, north: int, south: int, east: int, west: int, rotation: int = 0
+    ) -> None:
         if -90 <= float(north) <= 90:
             self.north = north
         else:
@@ -1617,7 +1513,7 @@ class GroundOverlay(_Overlay):
         else:
             raise ValueError
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self._altitude:
             altitude = config.etree.SubElement(element, f"{self.ns}altitude")
@@ -1642,7 +1538,7 @@ class GroundOverlay(_Overlay):
                 rotation.text = self._rotation
         return element
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         altitude = element.find(f"{self.ns}altitude")
         if altitude is not None:
@@ -1679,11 +1575,11 @@ class Document(_Container):
     __name__ = "Document"
     _schemata = None
 
-    def schemata(self):
+    def schemata(self) -> None:
         if self._schemata:
             yield from self._schemata
 
-    def append_schema(self, schema):
+    def append_schema(self, schema: "Schema") -> None:
         if self._schemata is None:
             self._schemata = []
         if isinstance(schema, Schema):
@@ -1692,7 +1588,7 @@ class Document(_Container):
             s = Schema(schema)
             self._schemata.append(s)
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         documents = element.findall(f"{self.ns}Document")
         for document in documents:
@@ -1715,14 +1611,14 @@ class Document(_Container):
             s.from_element(schema)
             self.append_schema(s)
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self._schemata is not None:
             for schema in self._schemata:
                 element.append(schema.etree_element())
         return element
 
-    def get_style_by_url(self, style_url):
+    def get_style_by_url(self, style_url: str) -> Union[Style, StyleMap]:
         id = urlparse.urlparse(style_url).fragment
         for style in self.styles():
             if style.id == id:
@@ -1737,7 +1633,7 @@ class Folder(_Container):
 
     __name__ = "Folder"
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         folders = element.findall(f"{self.ns}Folder")
         for folder in folders:
@@ -1778,7 +1674,7 @@ class Placemark(_Feature):
         else:
             self._geometry = Geometry(ns=self.ns, geometry=geometry)
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         point = element.find(f"{self.ns}Point")
         if point is not None:
@@ -1826,7 +1722,7 @@ class Placemark(_Feature):
         logger.debug("Problem with element: %", config.etree.tostring(element))
         # raise ValueError('No geometries found')
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self._geometry is not None:
             element.append(self._geometry.etree_element())
@@ -1853,7 +1749,11 @@ class _TimePrimitive(_BaseObject):
 
     RESOLUTIONS = ["gYear", "gYearMonth", "date", "dateTime"]
 
-    def get_resolution(self, dt, resolution=None):
+    def get_resolution(
+        self,
+        dt: Optional[Union[date, datetime]],
+        resolution: Optional[str] = None,
+    ) -> Optional[str]:
         if resolution:
             if resolution not in self.RESOLUTIONS:
                 raise ValueError
@@ -1867,7 +1767,7 @@ class _TimePrimitive(_BaseObject):
             resolution = None
         return resolution
 
-    def parse_str(self, datestr):
+    def parse_str(self, datestr: str) -> List[Union[datetime, str]]:
         resolution = "dateTime"
         year = 0
         month = 1
@@ -1896,7 +1796,11 @@ class _TimePrimitive(_BaseObject):
             raise ValueError
         return [dt, resolution]
 
-    def date_to_string(self, dt, resolution=None):
+    def date_to_string(
+        self,
+        dt: Optional[Union[date, datetime]],
+        resolution: Optional[str] = None,
+    ) -> Optional[str]:
         if isinstance(dt, (date, datetime)):
             resolution = self.get_resolution(dt, resolution)
             if resolution == "gYear":
@@ -1919,18 +1823,24 @@ class TimeStamp(_TimePrimitive):
     __name__ = "TimeStamp"
     timestamp = None
 
-    def __init__(self, ns=None, id=None, timestamp=None, resolution=None):
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        id: None = None,
+        timestamp: Optional[Union[date, datetime]] = None,
+        resolution: None = None,
+    ) -> None:
         super().__init__(ns, id)
         resolution = self.get_resolution(timestamp, resolution)
         self.timestamp = [timestamp, resolution]
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         when = config.etree.SubElement(element, f"{self.ns}when")
         when.text = self.date_to_string(*self.timestamp)
         return element
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         when = element.find(f"{self.ns}when")
         if when is not None:
@@ -1945,8 +1855,14 @@ class TimeSpan(_TimePrimitive):
     end = None
 
     def __init__(
-        self, ns=None, id=None, begin=None, begin_res=None, end=None, end_res=None
-    ):
+        self,
+        ns: Optional[str] = None,
+        id: None = None,
+        begin: Optional[Union[date, datetime]] = None,
+        begin_res: None = None,
+        end: Optional[Union[date, datetime]] = None,
+        end_res: None = None,
+    ) -> None:
         super().__init__(ns, id)
         if begin:
             resolution = self.get_resolution(begin, begin_res)
@@ -1955,7 +1871,7 @@ class TimeSpan(_TimePrimitive):
             resolution = self.get_resolution(end, end_res)
             self.end = [end, resolution]
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         begin = element.find(f"{self.ns}begin")
         if begin is not None:
@@ -1964,7 +1880,7 @@ class TimeSpan(_TimePrimitive):
         if end is not None:
             self.end = self.parse_str(end.text)
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self.begin is not None:
             text = self.date_to_string(*self.begin)
@@ -1998,7 +1914,13 @@ class Schema(_BaseObject):
     # omitted, the field is ignored.
     name = None
 
-    def __init__(self, ns=None, id=None, name=None, fields=None):
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        name: None = None,
+        fields: None = None,
+    ) -> None:
         if id is None:
             raise ValueError("Id is required for schema")
         super().__init__(ns, id)
@@ -2033,7 +1955,7 @@ class Schema(_BaseObject):
         else:
             raise ValueError("Fields must be of type list, tuple or dict")
 
-    def append(self, type, name, display_name=None):
+    def append(self, type: str, name: str, display_name: Optional[str] = None) -> None:
         """
         append a field.
         The declaration of the custom field, must specify both the type
@@ -2076,7 +1998,7 @@ class Schema(_BaseObject):
             {"type": type, "name": name, "displayName": display_name}
         )
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         self.name = element.get("name")
         simple_fields = element.findall(f"{self.ns}SimpleField")
@@ -2088,7 +2010,7 @@ class Schema(_BaseObject):
             sfdisplay_name = display_name.text if display_name is not None else None
             self.append(sftype, sfname, sfdisplay_name)
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self.name:
             element.set("name", self.name)
@@ -2102,6 +2024,45 @@ class Schema(_BaseObject):
         return element
 
 
+class Data(_XMLObject):
+    """Represents an untyped name/value pair with optional display name."""
+
+    __name__ = "Data"
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name: Optional[str] = None,
+        value: Optional[str] = None,
+        display_name: Optional[str] = None,
+    ) -> None:
+        super().__init__(ns)
+
+        self.name = name
+        self.value = value
+        self.display_name = display_name
+
+    def etree_element(self) -> Element:
+        element = super().etree_element()
+        element.set("name", self.name)
+        value = config.etree.SubElement(element, f"{self.ns}value")
+        value.text = self.value
+        if self.display_name:
+            display_name = config.etree.SubElement(element, f"{self.ns}displayName")
+            display_name.text = self.display_name
+        return element
+
+    def from_element(self, element: Element) -> None:
+        super().from_element(element)
+        self.name = element.get("name")
+        tmp_value = element.find(f"{self.ns}value")
+        if tmp_value is not None:
+            self.value = tmp_value.text
+        display_name = element.find(f"{self.ns}displayName")
+        if display_name is not None:
+            self.display_name = display_name.text
+
+
 class ExtendedData(_XMLObject):
     """Represents a list of untyped name/value pairs. See docs:
 
@@ -2112,17 +2073,19 @@ class ExtendedData(_XMLObject):
 
     __name__ = "ExtendedData"
 
-    def __init__(self, ns=None, elements=None):
+    def __init__(
+        self, ns: Optional[str] = None, elements: Optional[List[Data]] = None
+    ) -> None:
         super().__init__(ns)
         self.elements = elements or []
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         for subelement in self.elements:
             element.append(subelement.etree_element())
         return element
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         self.elements = []
         untyped_data = element.findall(f"{self.ns}Data")
@@ -2135,39 +2098,6 @@ class ExtendedData(_XMLObject):
             el = SchemaData(self.ns, "dummy")
             el.from_element(sd)
             self.elements.append(el)
-
-
-class Data(_XMLObject):
-    """Represents an untyped name/value pair with optional display name."""
-
-    __name__ = "Data"
-
-    def __init__(self, ns=None, name=None, value=None, display_name=None):
-        super().__init__(ns)
-
-        self.name = name
-        self.value = value
-        self.display_name = display_name
-
-    def etree_element(self):
-        element = super().etree_element()
-        element.set("name", self.name)
-        value = config.etree.SubElement(element, f"{self.ns}value")
-        value.text = self.value
-        if self.display_name:
-            display_name = config.etree.SubElement(element, f"{self.ns}displayName")
-            display_name.text = self.display_name
-        return element
-
-    def from_element(self, element):
-        super().from_element(element)
-        self.name = element.get("name")
-        tmp_value = element.find(f"{self.ns}value")
-        if tmp_value is not None:
-            self.value = tmp_value.text
-        display_name = element.find(f"{self.ns}displayName")
-        if display_name is not None:
-            self.display_name = display_name.text
 
 
 class SchemaData(_XMLObject):
@@ -2187,7 +2117,12 @@ class SchemaData(_XMLObject):
     schema_url = None
     _data = None
 
-    def __init__(self, ns=None, schema_url=None, data=None):
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        schema_url: Optional[str] = None,
+        data: None = None,
+    ) -> None:
         super().__init__(ns)
         if (not isinstance(schema_url, str)) or (not schema_url):
             raise ValueError("required parameter schema_url missing")
@@ -2213,13 +2148,13 @@ class SchemaData(_XMLObject):
         else:
             raise TypeError("data must be of type tuple or list")
 
-    def append_data(self, name, value):
+    def append_data(self, name: str, value: Union[int, str]) -> None:
         if isinstance(name, str) and name:
             self._data.append({"name": name, "value": value})
         else:
             raise TypeError("name must be a nonempty string")
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         element.set("schemaUrl", self.schema_url)
         for data in self.data:
@@ -2228,7 +2163,7 @@ class SchemaData(_XMLObject):
             sd.text = data["value"]
         return element
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         self.data = []
         self.schema_url = element.get("schemaUrl")
@@ -2382,16 +2317,16 @@ class Camera(_AbstractView):
 
     def __init__(
         self,
-        ns=None,
-        id=None,
-        longitude=None,
-        latitude=None,
-        altitude=None,
-        heading=None,
-        tilt=None,
-        roll=None,
-        altitude_mode="relativeToGround",
-    ):
+        ns: None = None,
+        id: None = None,
+        longitude: Optional[int] = None,
+        latitude: Optional[int] = None,
+        altitude: Optional[int] = None,
+        heading: Optional[int] = None,
+        tilt: Optional[int] = None,
+        roll: Optional[int] = None,
+        altitude_mode: str = "relativeToGround",
+    ) -> None:
         super().__init__(ns, id)
         self._longitude = longitude
         self._latitude = latitude
@@ -2743,6 +2678,115 @@ class LookAt(_AbstractView):
             altitude_mode = config.etree.SubElement(element, f"{gx.NS}altitudeMode")
         altitude_mode.text = self.altitude_mode
         return element
+
+
+class KML:
+    """represents a KML File"""
+
+    _features = []
+    ns = None
+
+    def __init__(self, ns: Optional[str] = None) -> None:
+        """The namespace (ns) may be empty ('') if the 'kml:' prefix is
+        undesired. Note that all child elements like Document or Placemark need
+        to be initialized with empty namespace as well in this case.
+
+        """
+        self._features = []
+
+        self.ns = config.KMLNS if ns is None else ns
+
+    def from_string(self, xml_string: str) -> None:
+        """create a KML object from a xml string"""
+        try:
+            element = config.etree.fromstring(
+                xml_string, parser=config.etree.XMLParser(huge_tree=True, recover=True)
+            )
+        except TypeError:
+            element = config.etree.XML(xml_string)
+
+        if not element.tag.endswith("kml"):
+            raise TypeError
+
+        ns = element.tag.rstrip("kml")
+        documents = element.findall(f"{ns}Document")
+        for document in documents:
+            feature = Document(ns)
+            feature.from_element(document)
+            self.append(feature)
+        folders = element.findall(f"{ns}Folder")
+        for folder in folders:
+            feature = Folder(ns)
+            feature.from_element(folder)
+            self.append(feature)
+        placemarks = element.findall(f"{ns}Placemark")
+        for placemark in placemarks:
+            feature = Placemark(ns)
+            feature.from_element(placemark)
+            self.append(feature)
+        groundoverlays = element.findall(f"{ns}GroundOverlay")
+        for groundoverlay in groundoverlays:
+            feature = GroundOverlay(ns)
+            feature.from_element(groundoverlay)
+            self.append(feature)
+        photo_overlays = element.findall(f"{ns}PhotoOverlay")
+        for photo_overlay in photo_overlays:
+            feature = PhotoOverlay(ns)
+            feature.from_element(photo_overlay)
+            self.append(feature)
+
+    def etree_element(self) -> Element:
+        # self.ns may be empty, which leads to unprefixed kml elements.
+        # However, in this case the xlmns should still be mentioned on the kml
+        # element, just without prefix.
+        if not self.ns:
+            root = config.etree.Element(f"{self.ns}kml")
+            root.set("xmlns", config.KMLNS[1:-1])
+        else:
+            try:
+                root = config.etree.Element(
+                    f"{self.ns}kml", nsmap={None: self.ns[1:-1]}
+                )
+            except TypeError:
+                root = config.etree.Element(f"{self.ns}kml")
+        for feature in self.features():
+            root.append(feature.etree_element())
+        return root
+
+    def to_string(self, prettyprint: bool = False) -> str:
+        """Return the KML Object as serialized xml"""
+        try:
+            return config.etree.tostring(
+                self.etree_element(),
+                encoding="UTF-8",
+                pretty_print=prettyprint,
+            ).decode("UTF-8")
+        except TypeError:
+            return config.etree.tostring(self.etree_element(), encoding="UTF-8").decode(
+                "UTF-8"
+            )
+
+    def features(self) -> Iterator[Union[Folder, Document, Placemark]]:
+        """iterate over features"""
+        for feature in self._features:
+            if isinstance(feature, (Document, Folder, Placemark, _Overlay)):
+
+                yield feature
+            else:
+                raise TypeError(
+                    "Features must be instances of "
+                    "(Document, Folder, Placemark, Overlay)"
+                )
+
+    def append(self, kmlobj: Union[Folder, Document, Placemark]) -> None:
+        """append a feature"""
+
+        if isinstance(kmlobj, (Document, Folder, Placemark, _Overlay)):
+            self._features.append(kmlobj)
+        else:
+            raise TypeError(
+                "Features must be instances of (Document, Folder, Placemark, Overlay)"
+            )
 
 
 __all__ = [
