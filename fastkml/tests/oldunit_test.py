@@ -64,9 +64,9 @@ class TestBaseClasses:
         bo.ns = ""
         bo.id = None
         assert bo.id is None
-        assert bo.ns == ""
+        assert not bo.ns
         pytest.raises(NotImplementedError, bo.etree_element)
-        element = config.etree.Element(config.KMLNS + "Base")
+        element = config.etree.Element(f"{config.KMLNS}Base")
         pytest.raises(TypeError, bo.from_element)
         pytest.raises(TypeError, bo.from_element, element)
         bo.__name__ = "NotABaseObject"
@@ -132,7 +132,7 @@ class TestBuildKml:
     def test_kml(self):
         """kml file without contents"""
         k = kml.KML()
-        assert len(list(k.features())) == 0
+        assert not list(k.features())
         assert (
             str(k.to_string())[:51]
             == '<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2" />'[:51]
@@ -176,13 +176,13 @@ class TestBuildKml:
         ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         pytest.raises(ValueError, kml.Schema, ns)
         s = kml.Schema(ns, "some_id")
-        assert len(list(s.simple_fields)) == 0
+        assert not list(s.simple_fields)
         s.append("int", "Integer", "An Integer")
         assert list(s.simple_fields)[0]["type"] == "int"
         assert list(s.simple_fields)[0]["name"] == "Integer"
         assert list(s.simple_fields)[0]["displayName"] == "An Integer"
         s.simple_fields = None
-        assert len(list(s.simple_fields)) == 0
+        assert not list(s.simple_fields)
         pytest.raises(TypeError, s.append, ("none", "Integer", "An Integer"))
         # pytest.raises(
         #     TypeError, s.simple_fields, ("none", "Integer", "An Integer"),
@@ -2350,11 +2350,11 @@ class TestGroundOverlay:
         self.g.west = ""
         self.g.rotation = ""
 
-        assert self.g.north == ""
-        assert self.g.south == ""
-        assert self.g.east == ""
-        assert self.g.west == ""
-        assert self.g.rotation == ""
+        assert not self.g.north
+        assert not self.g.south
+        assert not self.g.east
+        assert not self.g.west
+        assert not self.g.rotation
 
     def test_latlonbox_none(self):
         self.g.north = None
