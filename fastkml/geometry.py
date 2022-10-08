@@ -426,13 +426,11 @@ class Geometry(_BaseObject):
                 ]
                 ibs: List[LinearRing] = [ib for ib in inner_bs if ib]
                 geoms.append(Polygon.from_linear_rings(ob, *ibs))
-            linearings = element.findall(f"{self.ns}LinearRing")
-            if linearings:
+            if linearings := element.findall(f"{self.ns}LinearRing"):
                 for lr in linearings:
                     self._get_geometry_spec(lr)
                     geoms.append(LinearRing(self._get_coordinates(lr)))
-        clean_geoms: List[AnyGeometryType] = [g for g in geoms if g]
-        if clean_geoms:
+        if clean_geoms := [g for g in geoms if g]:
             geom_types = {geom.geom_type for geom in clean_geoms}
             if len(geom_types) > 1:
                 return GeometryCollection(
