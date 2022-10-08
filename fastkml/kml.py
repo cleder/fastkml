@@ -711,8 +711,8 @@ class Icon(_BaseObject):
         return self._refresh_interval
 
     @refresh_interval.setter
-    def refresh_interval(self, refresh_interval: float) -> None:
-        if isinstance(refresh_interval, str):
+    def refresh_interval(self, refresh_interval: Optional[float]) -> None:
+        if isinstance(refresh_interval, float):
             self._refresh_interval = refresh_interval
         elif refresh_interval is None:
             self._refresh_interval = None
@@ -754,8 +754,8 @@ class Icon(_BaseObject):
         return self._view_refresh_time
 
     @view_refresh_time.setter
-    def view_refresh_time(self, view_refresh_time):
-        if isinstance(view_refresh_time, str):
+    def view_refresh_time(self, view_refresh_time: Optional[float]):
+        if isinstance(view_refresh_time, float):
             self._view_refresh_time = view_refresh_time
         elif view_refresh_time is None:
             self._view_refresh_time = None
@@ -763,7 +763,7 @@ class Icon(_BaseObject):
             raise ValueError
 
     @property
-    def view_bound_scale(self):
+    def view_bound_scale(self) -> Optional[float]:
         """
         Scales the BBOX parameters before sending them to the server.
 
@@ -774,8 +774,8 @@ class Icon(_BaseObject):
         return self._view_bound_scale
 
     @view_bound_scale.setter
-    def view_bound_scale(self, view_bound_scale):
-        if isinstance(view_bound_scale, str):
+    def view_bound_scale(self, view_bound_scale: Optional[float]) -> None:
+        if isinstance(view_bound_scale, float):
             self._view_bound_scale = view_bound_scale
         elif view_bound_scale is None:
             self._view_bound_scale = None
@@ -857,7 +857,7 @@ class Icon(_BaseObject):
             refresh_interval = config.etree.SubElement(
                 element, f"{self.ns}refreshInterval"
             )
-            refresh_interval.text = self._refresh_interval
+            refresh_interval.text = str(self._refresh_interval)
         if self._view_refresh_mode:
             view_refresh_mode = config.etree.SubElement(
                 element, f"{self.ns}viewRefreshMode"
@@ -867,12 +867,12 @@ class Icon(_BaseObject):
             view_refresh_time = config.etree.SubElement(
                 element, f"{self.ns}viewRefreshTime"
             )
-            view_refresh_time.text = self._view_refresh_time
+            view_refresh_time.text = str(self._view_refresh_time)
         if self._view_bound_scale:
             view_bound_scale = config.etree.SubElement(
                 element, f"{self.ns}viewBoundScale"
             )
-            view_bound_scale.text = self._view_bound_scale
+            view_bound_scale.text = str(self._view_bound_scale)
         if self._view_format:
             view_format = config.etree.SubElement(element, f"{self.ns}viewFormat")
             view_format.text = self._view_format
@@ -895,7 +895,10 @@ class Icon(_BaseObject):
 
         refresh_interval = element.find(f"{self.ns}refreshInterval")
         if refresh_interval is not None:
-            self.refresh_interval = refresh_interval.text
+            try:
+                self.refresh_interval = float(refresh_interval.text)
+            except ValueError:
+                self.refresh_interval = None
 
         view_refresh_mode = element.find(f"{self.ns}viewRefreshMode")
         if view_refresh_mode is not None:
@@ -903,11 +906,17 @@ class Icon(_BaseObject):
 
         view_refresh_time = element.find(f"{self.ns}viewRefreshTime")
         if view_refresh_time is not None:
-            self.view_refresh_time = view_refresh_time.text
+            try:
+                self.view_refresh_time = float(view_refresh_time.text)
+            except ValueError:
+                self.view_refresh_time = None
 
         view_bound_scale = element.find(f"{self.ns}viewBoundScale")
         if view_bound_scale is not None:
-            self.view_bound_scale = view_bound_scale.text
+            try:
+                self.view_bound_scale = float(view_bound_scale.text)
+            except ValueError:
+                self.view_bound_scale = None
 
         view_format = element.find(f"{self.ns}viewFormat")
         if view_format is not None:
