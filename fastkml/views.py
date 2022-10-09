@@ -289,11 +289,9 @@ class Camera(_AbstractView):
         if roll is not None:
             self.roll = roll.text
         altitude_mode = element.find(f"{self.ns}altitudeMode")
-        if altitude_mode is not None:
-            self.altitude_mode = altitude_mode.text
-        else:
+        if altitude_mode is None:
             altitude_mode = element.find(f"{gx.NS}altitudeMode")
-            self.altitude_mode = altitude_mode.text
+        self.altitude_mode = altitude_mode.text
 
     def etree_element(self) -> Element:
         element = super().etree_element()
@@ -486,11 +484,9 @@ class LookAt(_AbstractView):
         if range_var is not None:
             self.range = range_var.text
         altitude_mode = element.find(f"{self.ns}altitudeMode")
-        if altitude_mode is not None:
-            self.altitude_mode = altitude_mode.text
-        else:
+        if altitude_mode is None:
             altitude_mode = element.find(f"{gx.NS}altitudeMode")
-            self.altitude_mode = altitude_mode.text
+        self.altitude_mode = altitude_mode.text
 
     def etree_element(self):
         element = super().etree_element()

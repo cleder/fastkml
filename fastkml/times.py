@@ -71,7 +71,7 @@ class _TimePrimitive(_BaseObject):
             year = int(datestr.split("-")[0])
             month = int(datestr.split("-")[1])
             dt = datetime(year, month, day)
-        elif len(datestr) in [8, 10]:
+        elif len(datestr) in {8, 10}:
             resolution = "date"
             dt = dateutil.parser.parse(datestr)
         elif len(datestr) > 10:
@@ -168,13 +168,11 @@ class TimeSpan(_TimePrimitive):
     def etree_element(self) -> Element:
         element = super().etree_element()
         if self.begin is not None:
-            text = self.date_to_string(*self.begin)
-            if text:
+            if text := self.date_to_string(*self.begin):
                 begin = config.etree.SubElement(element, f"{self.ns}begin")
                 begin.text = text
         if self.end is not None:
-            text = self.date_to_string(*self.end)
-            if text:
+            if text := self.date_to_string(*self.end):
                 end = config.etree.SubElement(element, f"{self.ns}end")
                 end.text = text
         if self.begin == self.end is None:
