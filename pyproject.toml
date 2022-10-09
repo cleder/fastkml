@@ -39,5 +39,8 @@ show_error_codes = true
 # mypy per-module options:
 
 [[tool.mypy.overrides]]
-module = ["fastkml.tests.oldunit_test", "fastkml.tests.config_test"]
+module = [
+    "fastkml.kml", "fastkml.data", "fastkml.views", "fastkml.times",
+    "fastkml.tests.oldunit_test", "fastkml.tests.config_test"
+]
 ignore_errors = true
