@@ -100,6 +100,7 @@ class _TimePrimitive(_BaseObject):
                 )
             elif resolution == "dateTime":
                 return dt.isoformat()
+        return None
 
 
 class TimeStamp(_TimePrimitive):
@@ -113,7 +114,7 @@ class TimeStamp(_TimePrimitive):
         ns: Optional[str] = None,
         id: None = None,
         timestamp: Optional[Union[date, datetime]] = None,
-        resolution: None = None,
+        resolution: Optional[str] = None,
     ) -> None:
         super().__init__(ns, id)
         resolution = self.get_resolution(timestamp, resolution)
@@ -121,7 +122,9 @@ class TimeStamp(_TimePrimitive):
 
     def etree_element(self) -> Element:
         element = super().etree_element()
-        when = config.etree.SubElement(element, f"{self.ns}when")
+        when = config.etree.SubElement(  # type: ignore[attr-defined]
+            element, f"{self.ns}when"
+        )
         when.text = self.date_to_string(*self.timestamp)
         return element
 
