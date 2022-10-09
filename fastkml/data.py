@@ -1,11 +1,20 @@
 from typing import List
 from typing import Optional
+from typing import Tuple
 from typing import Union
+
+from typing_extensions import TypedDict
 
 import fastkml.config as config
 from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
 from fastkml.types import Element
+
+
+class SimpleField(TypedDict):
+    name: str
+    type: str
+    displayName: str
 
 
 class Schema(_BaseObject):
@@ -28,17 +37,18 @@ class Schema(_BaseObject):
         self,
         ns: Optional[str] = None,
         id: Optional[str] = None,
-        name: None = None,
+        target_id: Optional[str] = None,
+        name: Optional[str] = None,
         fields: None = None,
     ) -> None:
         if id is None:
             raise ValueError("Id is required for schema")
-        super().__init__(ns, id)
+        super().__init__(ns=ns, id=id, target_id=target_id)
         self.simple_fields = fields
         self.name = name
 
     @property
-    def simple_fields(self):
+    def simple_fields(self) -> Tuple[SimpleField, ...]:
         return tuple(
             {
                 "type": simple_field["type"],
