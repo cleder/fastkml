@@ -14,7 +14,7 @@ from fastkml.types import Element
 class SimpleField(TypedDict):
     name: str
     type: str
-    displayName: str
+    displayName: str  # nqa: N815
 
 
 class Schema(_BaseObject):
