@@ -1,4 +1,4 @@
-# Copyright (C) 2012  Christian Ledermann
+# Copyright (C) 2012 -2022 Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -34,12 +34,11 @@ from fastkml.data import Data
 from fastkml.data import ExtendedData
 from fastkml.data import Schema
 from fastkml.data import SchemaData
+from fastkml.gx import GxGeometry
 from fastkml.kml import KML
 from fastkml.kml import Document
 from fastkml.kml import Folder
 from fastkml.kml import Placemark
-from fastkml.kml import TimeSpan
-from fastkml.kml import TimeStamp
 from fastkml.styles import BalloonStyle
 from fastkml.styles import IconStyle
 from fastkml.styles import LabelStyle
@@ -48,6 +47,8 @@ from fastkml.styles import PolyStyle
 from fastkml.styles import Style
 from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
+from fastkml.times import TimeSpan
+from fastkml.times import TimeStamp
 
 try:
     __version__ = get_distribution("fastkml").version
@@ -63,6 +64,7 @@ __all__ = [
     "TimeStamp",
     "ExtendedData",
     "Data",
+    "GxGeometry",
     "Schema",
     "SchemaData",
     "StyleUrl",
