@@ -37,6 +37,7 @@ from typing import Optional
 from typing import Tuple
 
 from fastkml.base import _XMLObject
+from fastkml.config import ATOMNS as NS
 from fastkml.helpers import o_from_attr
 from fastkml.helpers import o_from_subelement_text
 from fastkml.helpers import o_int_from_attr
@@ -44,8 +45,6 @@ from fastkml.helpers import o_to_attr
 from fastkml.helpers import o_to_subelement_text
 from fastkml.types import Element
 from fastkml.types import KmlObjectMap
-
-from .config import ATOMNS as NS
 
 logger = logging.getLogger(__name__)
 regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
