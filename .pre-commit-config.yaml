@@ -20,6 +20,19 @@ repos:
       - id: pretty-format-json
       - id: requirements-txt-fixer
       - id: trailing-whitespace
+  - repo: https://github.com/ikamensh/flynt/
+    rev: "0.76"
+    hooks:
+      - id: flynt
+  - repo: https://github.com/MarcoGorelli/absolufy-imports
+    rev: v0.3.1
+    hooks:
+      - id: absolufy-imports
+  - repo: https://github.com/hakancelikdev/unimport
+    rev: 0.12.1
+    hooks:
+      - id: unimport
+        args: [--remove, --include-star-import, --ignore-init, --gitignore]
   - repo: https://github.com/psf/black
     rev: 22.10.0
     hooks:

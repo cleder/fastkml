@@ -21,11 +21,10 @@ from typing import Tuple
 from typing import cast
 
 from fastkml import config
+from fastkml.helpers import o_from_attr
+from fastkml.helpers import o_to_attr
 from fastkml.types import Element
 from fastkml.types import KmlObjectMap
-
-from .helpers import o_from_attr
-from .helpers import o_to_attr
 
 logger = logging.getLogger(__name__)
 
