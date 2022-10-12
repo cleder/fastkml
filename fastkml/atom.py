@@ -1,4 +1,4 @@
-# Copyright (C) 2012  Christian Ledermann
+# Copyright (C) 2012 - 2021  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -33,17 +33,30 @@ This library only implements a subset of Atom that is useful with KML
 
 import logging
 import re
+from typing import Optional
+from typing import Tuple
 
-from .config import ATOMNS as NS
-from .config import LXML
-from .config import etree
+from fastkml.base import _XMLObject
+from fastkml.config import ATOMNS as NS
+from fastkml.helpers import o_from_attr
+from fastkml.helpers import o_from_subelement_text
+from fastkml.helpers import o_int_from_attr
+from fastkml.helpers import o_to_attr
+from fastkml.helpers import o_to_subelement_text
+from fastkml.types import Element
+from fastkml.types import KmlObjectMap
 
 logger = logging.getLogger(__name__)
-regex = r"^[a-zA-Z0-9._%-]+@([a-zA-Z0-9-]+\.)*[a-zA-Z]{2,4}$"
-check_email = re.compile(regex).match
+regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+email_match = re.compile(regex).match
 
 
-class Link:
+def check_email(email: str) -> bool:
+    """Check if the email address is valid."""
+    return bool(email_match(email))
+
+
+class Link(_XMLObject):
     """
     Identifies a related Web page. The type of relation is defined by
     the rel attribute. A feed is limited to one alternate per type and
@@ -53,8 +66,58 @@ class Link:
     title, and length.
     """
 
-    __name__ = "Link"
-    ns = None
+    __name__ = "link"
+
+    kml_object_mapping: Tuple[KmlObjectMap, ...] = (
+        {
+            "kml_attr": "href",
+            "obj_attr": "href",
+            "from_kml": o_from_attr,
+            "to_kml": o_to_attr,
+            "required": True,
+            "validator": None,
+        },
+        {
+            "kml_attr": "rel",
+            "obj_attr": "rel",
+            "from_kml": o_from_attr,
+            "to_kml": o_to_attr,
+            "required": False,
+            "validator": None,
+        },
+        {
+            "kml_attr": "type",
+            "obj_attr": "type",
+            "from_kml": o_from_attr,
+            "to_kml": o_to_attr,
+            "required": False,
+            "validator": None,
+        },
+        {
+            "kml_attr": "hreflang",
+            "obj_attr": "hreflang",
+            "from_kml": o_from_attr,
+            "to_kml": o_to_attr,
+            "required": False,
+            "validator": None,
+        },
+        {
+            "kml_attr": "title",
+            "obj_attr": "title",
+            "from_kml": o_from_attr,
+            "to_kml": o_to_attr,
+            "required": False,
+            "validator": None,
+        },
+        {
+            "kml_attr": "length",
+            "obj_attr": "length",
+            "from_kml": o_int_from_attr,
+            "to_kml": o_to_attr,
+            "required": False,
+            "validator": None,
+        },
+    )
 
     href = None
     # href is the URI of the referenced resource
@@ -85,15 +148,15 @@ class Link:
 
     def __init__(
         self,
-        ns=None,
-        href=None,
-        rel=None,
-        type=None,
-        hreflang=None,
-        title=None,
-        length=None,
-    ):
-        self.ns = NS if ns is None else ns
+        ns: Optional[str] = None,
+        href: Optional[str] = None,
+        rel: Optional[str] = None,
+        type: Optional[str] = None,
+        hreflang: Optional[str] = None,
+        title: Optional[str] = None,
+        length: Optional[int] = None,
+    ) -> None:
+        self.ns: str = NS if ns is None else ns
         self.href = href
         self.rel = rel
         self.type = type
@@ -101,140 +164,94 @@ class Link:
         self.title = title
         self.length = length
 
-    def from_string(self, xml_string):
-        self.from_element(etree.XML(xml_string))
+    def from_element(self, element: Element) -> None:
+        super().from_element(element)
 
-    def from_element(self, element):
-        if self.ns + self.__name__.lower() != element.tag:
-            raise TypeError
-        if element.get("href"):
-            self.href = element.get("href")
-        else:
-            logger.critical("required attribute href missing")
-            raise TypeError
-        if element.get("rel"):
-            self.rel = element.get("rel")
-        if element.get("type"):
-            self.type = element.get("type")
-        if element.get("hreflang"):
-            self.hreflang = element.get("hreflang")
-        if element.get("title"):
-            self.title = element.get("title")
-        if element.get("length"):
-            self.length = element.get("length")
-
-    def etree_element(self):
-        element = etree.Element(self.ns + self.__name__.lower())
-        if self.href:
-            element.set("href", self.href)
-        else:
-            raise ValueError("required attribute href missing")
-        if self.rel:
-            element.set("rel", self.rel)
-        if self.type:
-            element.set("type", self.type)
-        if self.hreflang:
-            element.set("hreflang", self.hreflang)
-        if self.title:
-            element.set("title", self.title)
-        if self.length:
-            element.set("length", self.length)
-        return element
-
-    def to_string(self, prettyprint=True):
-        """Return the ATOM Object as serialized xml"""
-        if LXML and prettyprint:
-            return etree.tostring(
-                self.etree_element(), encoding="utf-8", pretty_print=True
-            ).decode("UTF-8")
-        else:
-            return etree.tostring(self.etree_element(), encoding="utf-8").decode(
-                "UTF-8"
-            )
+    def etree_element(self) -> Element:
+        return super().etree_element()
 
 
-class _Person:
+class _Person(_XMLObject):
     """
     <author> and <contributor> describe a person, corporation, or similar
     entity. It has one required element, name, and two optional elements:
     uri, email.
     """
 
-    __name__ = None
-    ns = None
+    __name__ = ""
+    kml_object_mapping: Tuple[KmlObjectMap, ...] = (
+        {
+            "kml_attr": "name",
+            "obj_attr": "name",
+            "from_kml": o_from_subelement_text,
+            "to_kml": o_to_subelement_text,
+            "required": True,
+            "validator": None,
+        },
+        {
+            "kml_attr": "uri",
+            "obj_attr": "uri",
+            "from_kml": o_from_subelement_text,
+            "to_kml": o_to_subelement_text,
+            "required": False,
+            "validator": None,
+        },
+        {
+            "kml_attr": "email",
+            "obj_attr": "email",
+            "from_kml": o_from_subelement_text,
+            "to_kml": o_to_subelement_text,
+            "required": False,
+            "validator": check_email,
+        },
+    )
 
-    name = None
+    name: Optional[str] = None
     # conveys a human-readable name for the person.
 
-    uri = None
+    uri: Optional[str] = None
     # contains a home page for the person.
 
-    email = None
+    email: Optional[str] = None
     # contains an email address for the person.
 
-    def __init__(self, ns=None, name=None, uri=None, email=None):
-        self.ns = NS if ns is None else ns
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name: Optional[str] = None,
+        uri: Optional[str] = None,
+        email: Optional[str] = None,
+    ) -> None:
+        self.ns: str = NS if ns is None else ns
         self.name = name
         self.uri = uri
         self.email = email
 
-    def etree_element(self):
-        element = etree.Element(self.ns + self.__name__.lower())
-        if self.name:
-            name = etree.SubElement(element, f"{self.ns}name")
-            name.text = self.name
-        # else:
-        #    logger.critical('No Name for person defined')
-        #    raise TypeError
-        if self.uri:
-            # XXX validate uri
-            uri = etree.SubElement(element, f"{self.ns}uri")
-            uri.text = self.uri
-        if self.email and check_email(self.email):
-            email = etree.SubElement(element, f"{self.ns}email")
-            email.text = self.email
-        return element
+    def etree_element(self) -> Element:
+        return super().etree_element()
 
-    def from_string(self, xml_string):
-        self.from_element(etree.XML(xml_string))
-
-    def from_element(self, element):
-        if self.ns + self.__name__.lower() != element.tag:
-            raise TypeError
-        name = element.find(f"{self.ns}name")
-        if name is not None:
-            self.name = name.text
-        uri = element.find(f"{self.ns}uri")
-        if uri is not None:
-            self.uri = uri.text
-        email = element.find(f"{self.ns}email")
-        if email is not None and check_email(email.text):
-            self.email = email.text
-
-    def to_string(self, prettyprint=True):
-        """Return the ATOM Object as serialized xml"""
-        if LXML and prettyprint:
-            return etree.tostring(
-                self.etree_element(), encoding="utf-8", pretty_print=True
-            ).decode("UTF-8")
-        else:
-            return etree.tostring(self.etree_element(), encoding="utf-8").decode(
-                "UTF-8"
-            )
+    def from_element(self, element: Element) -> None:
+        super().from_element(element)
 
 
 class Author(_Person):
-    """Names one author of the feed/entry. A feed/entry may have
-    multiple authors."""
+    """
+    Return the names one author of the feed/entry.
 
-    __name__ = "Author"
+    A feed/entry may have multiple authors.
+    """
+
+    __name__ = "author"
 
 
 class Contributor(_Person):
-    """Names one contributor to the feed/entry. A feed/entry may have
-    multiple contributor elements."""
+    """
+    Return the names one contributor to the feed/entry.
 
-    __name__ = "Contributor"
+    A feed/entry may have multiple contributor elements.
+    """
+
+    __name__ = "contributor"
 
 
 __all__ = ["Author", "Contributor", "Link"]

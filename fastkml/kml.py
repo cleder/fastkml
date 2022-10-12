@@ -26,120 +26,31 @@ http://schemas.opengis.net/kml/.
 """
 import logging
 import urllib.parse as urlparse
-from datetime import date
-from datetime import datetime
-
-# note that there are some ISO 8601 timeparsers at pypi
-# but in my tests all of them had some errors so we rely on the
-# tried and tested dateutil here which is more stable. As a side effect
-# we can also parse non ISO compliant dateTimes
-import dateutil.parser
+from typing import Iterator
+from typing import List
+from typing import Optional
+from typing import Union
 
 import fastkml.atom as atom
 import fastkml.config as config
 import fastkml.gx as gx
-
-from .base import _BaseObject
-from .base import _XMLObject
-from .config import etree
-from .geometry import Geometry
-from .styles import Style
-from .styles import StyleMap
-from .styles import StyleUrl
-from .styles import _StyleSelector
+from fastkml.base import _BaseObject
+from fastkml.data import Data
+from fastkml.data import ExtendedData
+from fastkml.data import Schema
+from fastkml.data import SchemaData
+from fastkml.geometry import Geometry
+from fastkml.styles import Style
+from fastkml.styles import StyleMap
+from fastkml.styles import StyleUrl
+from fastkml.styles import _StyleSelector
+from fastkml.times import TimeSpan
+from fastkml.times import TimeStamp
+from fastkml.types import Element
+from fastkml.views import Camera
+from fastkml.views import LookAt
 
 logger = logging.getLogger(__name__)
-
-
-class KML:
-    """represents a KML File"""
-
-    _features = []
-    ns = None
-
-    def __init__(self, ns=None):
-        """The namespace (ns) may be empty ('') if the 'kml:' prefix is
-        undesired. Note that all child elements like Document or Placemark need
-        to be initialized with empty namespace as well in this case.
-
-        """
-        self._features = []
-
-        self.ns = config.KMLNS if ns is None else ns
-
-    def from_string(self, xml_string):
-        """create a KML object from a xml string"""
-        if config.LXML:
-            element = etree.fromstring(
-                xml_string, parser=etree.XMLParser(huge_tree=True, recover=True)
-            )
-        else:
-            element = etree.XML(xml_string)
-
-        if not element.tag.endswith("kml"):
-            raise TypeError
-
-        ns = element.tag.rstrip("kml")
-        documents = element.findall(f"{ns}Document")
-        for document in documents:
-            feature = Document(ns)
-            feature.from_element(document)
-            self.append(feature)
-        folders = element.findall(f"{ns}Folder")
-        for folder in folders:
-            feature = Folder(ns)
-            feature.from_element(folder)
-            self.append(feature)
-        placemarks = element.findall(f"{ns}Placemark")
-        for placemark in placemarks:
-            feature = Placemark(ns)
-            feature.from_element(placemark)
-            self.append(feature)
-
-    def etree_element(self):
-        # self.ns may be empty, which leads to unprefixed kml elements.
-        # However, in this case the xlmns should still be mentioned on the kml
-        # element, just without prefix.
-        if not self.ns:
-            root = etree.Element(f"{self.ns}kml")
-            root.set("xmlns", config.KMLNS[1:-1])
-        elif config.LXML:
-            root = etree.Element(f"{self.ns}kml", nsmap={None: self.ns[1:-1]})
-        else:
-            root = etree.Element(f"{self.ns}kml")
-        for feature in self.features():
-            root.append(feature.etree_element())
-        return root
-
-    def to_string(self, prettyprint=False):
-        """Return the KML Object as serialized xml"""
-        if config.LXML and prettyprint:
-            return etree.tostring(
-                self.etree_element(), encoding="utf-8", pretty_print=True
-            ).decode("UTF-8")
-        else:
-            return etree.tostring(self.etree_element(), encoding="utf-8").decode(
-                "UTF-8"
-            )
-
-    def features(self):
-        """iterate over features"""
-        for feature in self._features:
-            if isinstance(feature, (Document, Folder, Placemark)):
-                yield feature
-            else:
-                raise TypeError(
-                    "Features must be instances of " "(Document, Folder, Placemark)"
-                )
-
-    def append(self, kmlobj):
-        """append a feature"""
-        if isinstance(kmlobj, (Document, Folder, Placemark)):
-            self._features.append(kmlobj)
-        else:
-            raise TypeError(
-                "Features must be instances of (Document, Folder, Placemark)"
-            )
 
 
 class _Feature(_BaseObject):
@@ -183,7 +94,7 @@ class _Feature(_BaseObject):
     # You can use the <address> tag to specify the location of a point
     # instead of using latitude and longitude coordinates.
 
-    _phoneNumber = None
+    _phone_number = None
     # A string value representing a telephone number.
     # This element is used by Google Maps Mobile only.
 
@@ -204,7 +115,7 @@ class _Feature(_BaseObject):
     description = None
     # User-supplied content that appears in the description balloon.
 
-    _styleUrl = None
+    _style_url = None
     # URL of a <Style> or <StyleMap> defined in a Document.
     # If the style is in the same file, use a # reference.
     # If the style is defined in an external file, use a full URL
@@ -224,10 +135,14 @@ class _Feature(_BaseObject):
     # Placemark, or ScreenOverlay—the value for the Feature's inline
     # style takes precedence over the value for the shared style.
 
-    _time_span = None
+    _timespan = None
     # Associates this Feature with a period of time.
-    _time_stamp = None
+    _timestamp = None
     # Associates this Feature with a point in time.
+
+    _camera = None
+
+    _look_at = None
 
     # TODO Region = None
     # Features and geometry associated with a Region are drawn only when
@@ -248,18 +163,19 @@ class _Feature(_BaseObject):
 
     def __init__(
         self,
-        ns=None,
-        id=None,
-        name=None,
-        description=None,
-        styles=None,
-        styleUrl=None,
-        extended_data=None,
-    ):
-        super().__init__(ns, id)
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        styles: Optional[List[Style]] = None,
+        style_url: Optional[str] = None,
+        extended_data: None = None,
+    ) -> None:
+        super().__init__(ns=ns, id=id, target_id=target_id)
         self.name = name
         self.description = description
-        self.styleUrl = styleUrl
+        self.style_url = style_url
         self._styles = []
         if styles:
             for style in styles:
@@ -267,71 +183,89 @@ class _Feature(_BaseObject):
         self.extended_data = extended_data
 
     @property
-    def styleUrl(self):
+    def style_url(self) -> Optional[str]:
         """Returns the url only, not a full StyleUrl object.
-        if you need the full StyleUrl object use _styleUrl"""
-        if isinstance(self._styleUrl, StyleUrl):
-            return self._styleUrl.url
+        if you need the full StyleUrl object use _style_url"""
+        if isinstance(self._style_url, StyleUrl):
+            return self._style_url.url
 
-    @styleUrl.setter
-    def styleUrl(self, styleurl):
+    @style_url.setter
+    def style_url(self, styleurl: Union[str, StyleUrl, None]) -> None:
         """you may pass a StyleUrl Object, a string or None"""
         if isinstance(styleurl, StyleUrl):
-            self._styleUrl = styleurl
+            self._style_url = styleurl
         elif isinstance(styleurl, str):
             s = StyleUrl(self.ns, url=styleurl)
-            self._styleUrl = s
+            self._style_url = s
         elif styleurl is None:
-            self._styleUrl = None
+            self._style_url = None
         else:
             raise ValueError
 
     @property
-    def timeStamp(self):
+    def time_stamp(self):
         """This just returns the datetime portion of the timestamp"""
-        if self._time_stamp is not None:
-            return self._time_stamp.timestamp[0]
+        if self._timestamp is not None:
+            return self._timestamp.timestamp[0]
 
-    @timeStamp.setter
-    def timeStamp(self, dt):
-        self._time_stamp = None if dt is None else TimeStamp(timestamp=dt)
-        if self._time_span is not None:
+    @time_stamp.setter
+    def time_stamp(self, dt):
+        self._timestamp = None if dt is None else TimeStamp(timestamp=dt)
+        if self._timespan is not None:
             logger.warning("Setting a TimeStamp, TimeSpan deleted")
-            self._time_span = None
+            self._timespan = None
 
     @property
     def begin(self):
-        if self._time_span is not None:
-            return self._time_span.begin[0]
+        if self._timespan is not None:
+            return self._timespan.begin[0]
 
     @begin.setter
     def begin(self, dt):
-        if self._time_span is None:
-            self._time_span = TimeSpan(begin=dt)
-        elif self._time_span.begin is None:
-            self._time_span.begin = [dt, None]
+        if self._timespan is None:
+            self._timespan = TimeSpan(begin=dt)
+        elif self._timespan.begin is None:
+            self._timespan.begin = [dt, None]
         else:
-            self._time_span.begin[0] = dt
-        if self._time_stamp is not None:
+            self._timespan.begin[0] = dt
+        if self._timestamp is not None:
             logger.warning("Setting a TimeSpan, TimeStamp deleted")
-            self._time_stamp = None
+            self._timestamp = None
 
     @property
     def end(self):
-        if self._time_span is not None:
-            return self._time_span.end[0]
+        if self._timespan is not None:
+            return self._timespan.end[0]
 
     @end.setter
     def end(self, dt):
-        if self._time_span is None:
-            self._time_span = TimeSpan(end=dt)
-        elif self._time_span.end is None:
-            self._time_span.end = [dt, None]
+        if self._timespan is None:
+            self._timespan = TimeSpan(end=dt)
+        elif self._timespan.end is None:
+            self._timespan.end = [dt, None]
         else:
-            self._time_span.end[0] = dt
-        if self._time_stamp is not None:
+            self._timespan.end[0] = dt
+        if self._timestamp is not None:
             logger.warning("Setting a TimeSpan, TimeStamp deleted")
-            self._time_stamp = None
+            self._timestamp = None
+
+    @property
+    def camera(self):
+        return self._camera
+
+    @camera.setter
+    def camera(self, camera):
+        if isinstance(camera, Camera):
+            self._camera = camera
+
+    @property
+    def look_at(self):
+        return self._look_at
+
+    @look_at.setter
+    def look_at(self, look_at):
+        if isinstance(look_at, LookAt):
+            self._look_at = look_at
 
     @property
     def link(self):
@@ -367,14 +301,14 @@ class _Feature(_BaseObject):
         else:
             raise TypeError
 
-    def append_style(self, style):
+    def append_style(self, style: Union[Style, StyleMap]) -> None:
         """append a style to the feature"""
         if isinstance(style, _StyleSelector):
             self._styles.append(style)
         else:
             raise TypeError
 
-    def styles(self):
+    def styles(self) -> Iterator[Union[Style, StyleMap]]:
         """iterate over the styles of this feature"""
         for style in self._styles:
             if isinstance(style, _StyleSelector):
@@ -437,38 +371,44 @@ class _Feature(_BaseObject):
             raise ValueError
 
     @property
-    def phoneNumber(self):
-        if self._phoneNumber:
-            return self._phoneNumber
+    def phone_number(self):
+        if self._phone_number:
+            return self._phone_number
 
-    @phoneNumber.setter
-    def phoneNumber(self, phoneNumber):
-        if isinstance(phoneNumber, str):
-            self._phoneNumber = phoneNumber
-        elif phoneNumber is None:
-            self._phoneNumber = None
+    @phone_number.setter
+    def phone_number(self, phone_number):
+        if isinstance(phone_number, str):
+            self._phone_number = phone_number
+        elif phone_number is None:
+            self._phone_number = None
         else:
             raise ValueError
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self.name:
-            name = etree.SubElement(element, f"{self.ns}name")
+            name = config.etree.SubElement(element, f"{self.ns}name")
             name.text = self.name
         if self.description:
-            description = etree.SubElement(element, f"{self.ns}description")
+            description = config.etree.SubElement(element, f"{self.ns}description")
             description.text = self.description
-        visibility = etree.SubElement(element, f"{self.ns}visibility")
+        if (self.camera is not None) and (self.look_at is not None):
+            raise ValueError("Either Camera or LookAt can be defined, not both")
+        if self.camera is not None:
+            element.append(self._camera.etree_element())
+        elif self.look_at is not None:
+            element.append(self._look_at.etree_element())
+        visibility = config.etree.SubElement(element, f"{self.ns}visibility")
         visibility.text = str(self.visibility)
         if self.isopen:
-            isopen = etree.SubElement(element, f"{self.ns}open")
+            isopen = config.etree.SubElement(element, f"{self.ns}open")
             isopen.text = str(self.isopen)
-        if self._styleUrl is not None:
-            element.append(self._styleUrl.etree_element())
+        if self._style_url is not None:
+            element.append(self._style_url.etree_element())
         for style in self.styles():
             element.append(style.etree_element())
         if self.snippet:
-            snippet = etree.SubElement(element, f"{self.ns}Snippet")
+            snippet = config.etree.SubElement(element, f"{self.ns}Snippet")
             if isinstance(self.snippet, str):
                 snippet.text = self.snippet
             else:
@@ -476,12 +416,12 @@ class _Feature(_BaseObject):
                 snippet.text = self.snippet["text"]
                 if self.snippet.get("maxLines"):
                     snippet.set("maxLines", str(self.snippet["maxLines"]))
-        if (self._time_span is not None) and (self._time_stamp is not None):
+        if (self._timespan is not None) and (self._timestamp is not None):
             raise ValueError("Either Timestamp or Timespan can be defined, not both")
-        elif self._time_span is not None:
-            element.append(self._time_span.etree_element())
-        elif self._time_stamp is not None:
-            element.append(self._time_stamp.etree_element())
+        elif self._timespan is not None:
+            element.append(self._timespan.etree_element())
+        elif self._timestamp is not None:
+            element.append(self._timestamp.etree_element())
         if self._atom_link is not None:
             element.append(self._atom_link.etree_element())
         if self._atom_author is not None:
@@ -489,14 +429,14 @@ class _Feature(_BaseObject):
         if self.extended_data is not None:
             element.append(self.extended_data.etree_element())
         if self._address is not None:
-            address = etree.SubElement(element, f"{self.ns}address")
+            address = config.etree.SubElement(element, f"{self.ns}address")
             address.text = self._address
-        if self._phoneNumber is not None:
-            phoneNumber = etree.SubElement(element, f"{self.ns}phoneNumber")
-            phoneNumber.text = self._phoneNumber
+        if self._phone_number is not None:
+            phone_number = config.etree.SubElement(element, f"{self.ns}phoneNumber")
+            phone_number.text = self._phone_number
         return element
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         name = element.find(f"{self.ns}name")
         if name is not None:
@@ -524,7 +464,7 @@ class _Feature(_BaseObject):
         if style_url is not None:
             s = StyleUrl(self.ns)
             s.from_element(style_url)
-            self._styleUrl = s
+            self._style_url = s
         snippet = element.find(f"{self.ns}Snippet")
         if snippet is not None:
             _snippet = {"text": snippet.text}
@@ -535,12 +475,12 @@ class _Feature(_BaseObject):
         if timespan is not None:
             s = TimeSpan(self.ns)
             s.from_element(timespan)
-            self._time_span = s
+            self._timespan = s
         timestamp = element.find(f"{self.ns}TimeStamp")
         if timestamp is not None:
             s = TimeStamp(self.ns)
             s.from_element(timestamp)
-            self._time_stamp = s
+            self._timestamp = s
         atom_link = element.find(f"{atom.NS}link")
         if atom_link is not None:
             s = atom.Link()
@@ -563,9 +503,321 @@ class _Feature(_BaseObject):
         address = element.find(f"{self.ns}address")
         if address is not None:
             self.address = address.text
-        phoneNumber = element.find(f"{self.ns}phoneNumber")
-        if phoneNumber is not None:
-            self.phoneNumber = phoneNumber.text
+        phone_number = element.find(f"{self.ns}phoneNumber")
+        if phone_number is not None:
+            self.phone_number = phone_number.text
+        camera = element.find(f"{self.ns}Camera")
+        if camera is not None:
+            s = Camera(self.ns)
+            s.from_element(camera)
+            self.camera = s
+
+
+class Icon(_BaseObject):
+    """
+    Represents an <Icon> element used in Overlays.
+
+    Defines an image associated with an Icon style or overlay.
+    The required <href> child element defines the location
+    of the image to be used as the overlay or as the icon for the placemark.
+    This location can either be on a local file system or a remote web server.
+    The <gx:x>, <gx:y>, <gx:w>, and <gx:h> elements are used to select one
+    icon from an image that contains multiple icons
+    (often referred to as an icon palette).
+    """
+
+    __name__ = "Icon"
+
+    _href = None
+    _refresh_mode: str = None
+    _refresh_interval = None
+    _view_refresh_mode = None
+    _view_refresh_time = None
+    _view_bound_scale = None
+    _view_format = None
+    _http_query = None
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        href: Optional[str] = None,
+        refresh_mode: Optional[str] = None,
+        refresh_interval: Optional[float] = None,
+        view_refresh_mode: Optional[str] = None,
+        view_refresh_time: Optional[float] = None,
+        view_bound_scale: Optional[float] = None,
+        view_format: Optional[str] = None,
+        http_query: Optional[str] = None,
+    ) -> None:
+        """Initialize the KML Icon Object."""
+        super().__init__(ns=ns, id=id, target_id=target_id)
+        self._href = href
+        self._refresh_mode = refresh_mode
+        self._refresh_interval = refresh_interval
+        self._view_refresh_mode = view_refresh_mode
+        self._view_refresh_time = view_refresh_time
+        self._view_bound_scale = view_bound_scale
+        self._view_format = view_format
+        self._http_query = http_query
+
+    @property
+    def href(self) -> Optional[str]:
+        """An HTTP address or a local file specification used to load an icon."""
+        return self._href
+
+    @href.setter
+    def href(self, href) -> None:
+        if isinstance(href, str):
+            self._href = href
+        elif href is None:
+            self._href = None
+        else:
+            raise ValueError
+
+    @property
+    def refresh_mode(self) -> Optional[str]:
+        """
+        Specifies a time-based refresh mode.
+
+        Can be one of the following:
+          - onChange - refresh when the file is loaded and whenever the Link
+            parameters change (the default).
+          - onInterval - refresh every n seconds (specified in <refreshInterval>).
+          - onExpire - refresh the file when the expiration time is reached.
+        """
+        return self._refresh_mode
+
+    @refresh_mode.setter
+    def refresh_mode(self, refresh_mode) -> None:
+        if isinstance(refresh_mode, str):
+            self._refresh_mode = refresh_mode
+        elif refresh_mode is None:
+            self._refresh_mode = None
+        else:
+            raise ValueError
+
+    @property
+    def refresh_interval(self) -> Optional[float]:
+        """Indicates to refresh the file every n seconds."""
+        return self._refresh_interval
+
+    @refresh_interval.setter
+    def refresh_interval(self, refresh_interval: Optional[float]) -> None:
+        if isinstance(refresh_interval, float):
+            self._refresh_interval = refresh_interval
+        elif refresh_interval is None:
+            self._refresh_interval = None
+        else:
+            raise ValueError
+
+    @property
+    def view_refresh_mode(self):
+        """
+        Specifies how the link is refreshed when the "camera" changes.
+
+        Can be one of the following:
+         - never (default) - Ignore changes in the view.
+           Also ignore <viewFormat> parameters, if any.
+         - onStop - Refresh the file n seconds after movement stops,
+           where n is specified in <viewRefreshTime>.
+         - onRequest - Refresh the file only when the user explicitly requests it.
+           (For example, in Google Earth, the user right-clicks and selects Refresh
+            in the Context menu.)
+          - onRegion - Refresh the file when the Region becomes active.
+        """
+        return self._view_refresh_mode
+
+    @view_refresh_mode.setter
+    def view_refresh_mode(self, view_refresh_mode):
+        if isinstance(view_refresh_mode, str):
+            self._view_refresh_mode = view_refresh_mode
+        elif view_refresh_mode is None:
+            self._view_refresh_mode = None
+        else:
+            raise ValueError
+
+    @property
+    def view_refresh_time(self):
+        """
+        After camera movement stops, specifies the number of seconds to
+        wait before refreshing the view.
+        """
+        return self._view_refresh_time
+
+    @view_refresh_time.setter
+    def view_refresh_time(self, view_refresh_time: Optional[float]):
+        if isinstance(view_refresh_time, float):
+            self._view_refresh_time = view_refresh_time
+        elif view_refresh_time is None:
+            self._view_refresh_time = None
+        else:
+            raise ValueError
+
+    @property
+    def view_bound_scale(self) -> Optional[float]:
+        """
+        Scales the BBOX parameters before sending them to the server.
+
+        A value less than 1 specifies to use less than the full view (screen).
+        A value greater than 1 specifies to fetch an area that extends beyond
+        the edges of the current view.
+        """
+        return self._view_bound_scale
+
+    @view_bound_scale.setter
+    def view_bound_scale(self, view_bound_scale: Optional[float]) -> None:
+        if isinstance(view_bound_scale, float):
+            self._view_bound_scale = view_bound_scale
+        elif view_bound_scale is None:
+            self._view_bound_scale = None
+        else:
+            raise ValueError
+
+    @property
+    def view_format(self):
+        """
+        Specifies the format of the query string that is appended to the
+        Link's <href> before the file is fetched.
+        (If the <href> specifies a local file, this element is ignored.)
+
+        This information matches the Web Map Service (WMS) bounding box specification.
+        If you specify an empty <viewFormat> tag, no information is appended to the
+        query string.
+        You can also specify a custom set of viewing parameters to add to the query
+        string. If you supply a format string, it is used instead of the BBOX
+        information. If you also want the BBOX information, you need to add those
+        parameters along with the custom parameters.
+        You can use any of the following parameters in your format string:
+         - [lookatLon], [lookatLat] - longitude and latitude of the point that
+           <LookAt> is viewing
+         - [lookatRange], [lookatTilt], [lookatHeading] - values used by the
+           <LookAt> element (see descriptions of <range>, <tilt>, and <heading>
+           in <LookAt>)
+         - [lookatTerrainLon], [lookatTerrainLat], [lookatTerrainAlt] - point on the
+           terrain in degrees/meters that <LookAt> is viewing
+         - [cameraLon], [cameraLat], [cameraAlt] - degrees/meters of the eyepoint for
+           the camera
+         - [horizFov], [vertFov] - horizontal, vertical field of view for the camera
+         - [horizPixels], [vertPixels] - size in pixels of the 3D viewer
+         - [terrainEnabled] - indicates whether the 3D viewer is showing terrain (1)
+           or not (0)
+        """
+        return self._view_format
+
+    @view_format.setter
+    def view_format(self, view_format):
+        if isinstance(view_format, str):
+            self._view_format = view_format
+        elif view_format is None:
+            self._view_format = None
+        else:
+            raise ValueError
+
+    @property
+    def http_query(self):
+        """
+        Appends information to the query string, based on the parameters specified.
+
+        The following parameters are supported:
+         - [clientVersion]
+         - [kmlVersion]
+         - [clientName]
+         - [language]
+        """
+        return self._http_query
+
+    @http_query.setter
+    def http_query(self, http_query):
+        if isinstance(http_query, str):
+            self._http_query = http_query
+        elif http_query is None:
+            self._http_query = None
+        else:
+            raise ValueError
+
+    def etree_element(self) -> Element:
+        element = super().etree_element()
+
+        if self._href:
+            href = config.etree.SubElement(element, f"{self.ns}href")
+            href.text = self._href
+        if self._refresh_mode:
+            refresh_mode = config.etree.SubElement(element, f"{self.ns}refreshMode")
+            refresh_mode.text = self._refresh_mode
+        if self._refresh_interval:
+            refresh_interval = config.etree.SubElement(
+                element, f"{self.ns}refreshInterval"
+            )
+            refresh_interval.text = str(self._refresh_interval)
+        if self._view_refresh_mode:
+            view_refresh_mode = config.etree.SubElement(
+                element, f"{self.ns}viewRefreshMode"
+            )
+            view_refresh_mode.text = self._view_refresh_mode
+        if self._view_refresh_time:
+            view_refresh_time = config.etree.SubElement(
+                element, f"{self.ns}viewRefreshTime"
+            )
+            view_refresh_time.text = str(self._view_refresh_time)
+        if self._view_bound_scale:
+            view_bound_scale = config.etree.SubElement(
+                element, f"{self.ns}viewBoundScale"
+            )
+            view_bound_scale.text = str(self._view_bound_scale)
+        if self._view_format:
+            view_format = config.etree.SubElement(element, f"{self.ns}viewFormat")
+            view_format.text = self._view_format
+        if self._http_query:
+            http_query = config.etree.SubElement(element, f"{self.ns}httpQuery")
+            http_query.text = self._http_query
+
+        return element
+
+    def from_element(self, element: Element) -> None:
+        super().from_element(element)
+
+        href = element.find(f"{self.ns}href")
+        if href is not None:
+            self.href = href.text
+
+        refresh_mode = element.find(f"{self.ns}refreshMode")
+        if refresh_mode is not None:
+            self.refresh_mode = refresh_mode.text
+
+        refresh_interval = element.find(f"{self.ns}refreshInterval")
+        if refresh_interval is not None:
+            try:
+                self.refresh_interval = float(refresh_interval.text)
+            except ValueError:
+                self.refresh_interval = None
+
+        view_refresh_mode = element.find(f"{self.ns}viewRefreshMode")
+        if view_refresh_mode is not None:
+            self.view_refresh_mode = view_refresh_mode.text
+
+        view_refresh_time = element.find(f"{self.ns}viewRefreshTime")
+        if view_refresh_time is not None:
+            try:
+                self.view_refresh_time = float(view_refresh_time.text)
+            except ValueError:
+                self.view_refresh_time = None
+
+        view_bound_scale = element.find(f"{self.ns}viewBoundScale")
+        if view_bound_scale is not None:
+            try:
+                self.view_bound_scale = float(view_bound_scale.text)
+            except ValueError:
+                self.view_bound_scale = None
+
+        view_format = element.find(f"{self.ns}viewFormat")
+        if view_format is not None:
+            self.view_format = view_format.text
+
+        http_query = element.find(f"{self.ns}httpQuery")
+        if http_query is not None:
+            self.http_query = http_query.text
 
 
 class _Container(_Feature):
@@ -581,34 +833,52 @@ class _Container(_Feature):
     _features = []
 
     def __init__(
-        self, ns=None, id=None, name=None, description=None, styles=None, styleUrl=None
-    ):
-        super().__init__(ns, id, name, description, styles, styleUrl)
-        self._features = []
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        styles: Optional[List[Style]] = None,
+        style_url: Optional[str] = None,
+        features: None = None,
+    ) -> None:
+        super().__init__(
+            ns=ns,
+            id=id,
+            target_id=target_id,
+            name=name,
+            description=description,
+            styles=styles,
+            style_url=style_url,
+        )
+        self._features = features or []
 
-    def features(self):
+    def features(self) -> Iterator[_Feature]:
         """iterate over features"""
         for feature in self._features:
-            if isinstance(feature, (Folder, Placemark, Document)):
+            if isinstance(feature, (Folder, Placemark, Document, _Overlay)):
                 yield feature
             else:
                 raise TypeError(
-                    "Features must be instances of " "(Folder, Placemark, Document)"
+                    "Features must be instances of "
+                    "(Folder, Placemark, Document, Overlay)"
                 )
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         for feature in self.features():
             element.append(feature.etree_element())
         return element
 
-    def append(self, kmlobj):
+    def append(self, kmlobj: _Feature) -> None:
         """append a feature"""
-        if isinstance(kmlobj, (Folder, Placemark, Document)):
+        if isinstance(kmlobj, (Folder, Placemark, Document, _Overlay)):
             self._features.append(kmlobj)
         else:
             raise TypeError(
-                "Features must be instances of " "(Folder, Placemark, Document)"
+                "Features must be instances of "
+                "(Folder, Placemark, Document, Overlay)"
             )
         assert kmlobj != self
 
@@ -625,11 +895,11 @@ class _Overlay(_Feature):
 
     _color = None
     # Color values expressed in hexadecimal notation, including opacity (alpha)
-    # values. The order of expression is alpOverlayha, blue, green, red
+    # values. The order of expression is alphaOverlay, blue, green, red
     # (AABBGGRR). The range of values for any one color is 0 to 255 (00 to ff).
     # For opacity, 00 is fully transparent and ff is fully opaque.
 
-    _drawOrder = None
+    _draw_order = None
     # Defines the stacking order for the images in overlapping overlays.
     # Overlays with higher <drawOrder> values are drawn on top of those with
     # lower <drawOrder> values.
@@ -642,9 +912,26 @@ class _Overlay(_Feature):
     # the color and size defined by the ground or screen overlay.
 
     def __init__(
-        self, ns=None, id=None, name=None, description=None, styles=None, styleUrl=None
-    ):
-        super().__init__(ns, id, name, description, styles, styleUrl)
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        styles: None = None,
+        style_url: Optional[str] = None,
+        icon: Optional[Icon] = None,
+    ) -> None:
+        super().__init__(
+            ns=ns,
+            id=id,
+            target_id=target_id,
+            name=name,
+            description=description,
+            styles=styles,
+            style_url=style_url,
+        )
+        self._icon = icon
 
     @property
     def color(self):
@@ -660,15 +947,15 @@ class _Overlay(_Feature):
             raise ValueError
 
     @property
-    def drawOrder(self):
-        return self._drawOrder
+    def draw_order(self):
+        return self._draw_order
 
-    @drawOrder.setter
-    def drawOrder(self, value):
+    @draw_order.setter
+    def draw_order(self, value):
         if isinstance(value, (str, int, float)):
-            self._drawOrder = str(value)
+            self._draw_order = str(value)
         elif value is None:
-            self._drawOrder = None
+            self._draw_order = None
         else:
             raise ValueError
 
@@ -677,50 +964,385 @@ class _Overlay(_Feature):
         return self._icon
 
     @icon.setter
-    def icon(self, url):
-        if isinstance(url, str):
-            if not url.startswith("<href>"):
-                url = "<href>" + url
-            if not url.endswith("</href>"):
-                url = url + "</href>"
-            self._icon = url
-        elif url is None:
+    def icon(self, value):
+        if isinstance(value, Icon):
+            self._icon = value
+        elif value is None:
             self._icon = None
         else:
             raise ValueError
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self._color:
-            color = etree.SubElement(element, f"{self.ns}color")
+            color = config.etree.SubElement(element, f"{self.ns}color")
             color.text = self._color
-        if self._drawOrder:
-            drawOrder = etree.SubElement(element, f"{self.ns}drawOrder")
-            drawOrder.text = self._drawOrder
+        if self._draw_order:
+            draw_order = config.etree.SubElement(element, f"{self.ns}drawOrder")
+            draw_order.text = self._draw_order
         if self._icon:
-            icon = etree.SubElement(element, f"{self.ns}icon")
-            icon.text = self._icon
+            element.append(self._icon.etree_element())
         return element
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         color = element.find(f"{self.ns}color")
         if color is not None:
             self.color = color.text
-        drawOrder = element.find(f"{self.ns}drawOrder")
-        if drawOrder is not None:
-            self.drawOrder = drawOrder.text
-        icon = element.find(f"{self.ns}icon")
+        draw_order = element.find(f"{self.ns}drawOrder")
+        if draw_order is not None:
+            self.draw_order = draw_order.text
+        icon = element.find(f"{self.ns}Icon")
         if icon is not None:
-            self.icon = icon.text
+            s = Icon(self.ns)
+            s.from_element(icon)
+            self._icon = s
+
+
+class PhotoOverlay(_Overlay):
+    """
+    The <PhotoOverlay> element allows you to geographically locate a photograph
+    on the Earth and to specify viewing parameters for this PhotoOverlay.
+    The PhotoOverlay can be a simple 2D rectangle, a partial or full cylinder,
+    or a sphere (for spherical panoramas). The overlay is placed at the
+    specified location and oriented toward the viewpoint.
+
+    Because <PhotoOverlay> is derived from <Feature>, it can contain one of
+    the two elements derived from <AbstractView>—either <Camera> or <LookAt>.
+    The Camera (or LookAt) specifies a viewpoint and a viewing direction (also
+    referred to as a view vector). The PhotoOverlay is positioned in relation
+    to the viewpoint. Specifically, the plane of a 2D rectangular image is
+    orthogonal (at right angles to) the view vector. The normal of this
+    plane—that is, its front, which is the part
+    with the photo—is oriented toward the viewpoint.
+
+    The URL for the PhotoOverlay image is specified in the <Icon> tag,
+    which is inherited from <Overlay>. The <Icon> tag must contain an <href>
+    element that specifies the image file to use for the PhotoOverlay.
+    In the case of a very large image, the <href> is a special URL that
+    indexes into a pyramid of images of varying resolutions (see ImagePyramid).
+    """
+
+    __name__ = "PhotoOverlay"
+
+    _rotation = None
+    # Adjusts how the photo is placed inside the field of view. This element is
+    # useful if your photo has been rotated and deviates slightly from a desired
+    # horizontal view.
+
+    # - ViewVolume -
+    # Defines how much of the current scene is visible. Specifying the field of
+    # view is analogous to specifying the lens opening in a physical camera.
+    # A small field of view, like a telephoto lens, focuses on a small part of
+    # the scene. A large field of view, like a wide-angle lens, focuses on a
+    # large part of the scene.
+
+    _left_fow = None
+    # Angle, in degrees, between the camera's viewing direction and the left side
+    # of the view volume.
+
+    _right_fov = None
+    # Angle, in degrees, between the camera's viewing direction and the right side
+    # of the view volume.
+
+    _bottom_fov = None
+    # Angle, in degrees, between the camera's viewing direction and the bottom side
+    # of the view volume.
+
+    _top_fov = None
+    # Angle, in degrees, between the camera's viewing direction and the top side
+    # of the view volume.
+
+    _near = None
+    # Measurement in meters along the viewing direction from the camera viewpoint
+    # to the PhotoOverlay shape.
+
+    _tile_size = "256"
+    # Size of the tiles, in pixels. Tiles must be square, and <tileSize> must
+    # be a power of 2. A tile size of 256 (the default) or 512 is recommended.
+    # The original image is divided into tiles of this size, at varying resolutions.
+
+    _max_width = None
+    # Width in pixels of the original image.
+
+    _max_height = None
+    # Height in pixels of the original image.
+
+    _grid_origin = None
+    # Specifies where to begin numbering the tiles in each layer of the pyramid.
+    # A value of lowerLeft specifies that row 1, column 1 of each layer is in
+    # the bottom left corner of the grid.
+
+    _point = None
+    # The <Point> element acts as a <Point> inside a <Placemark> element.
+    # It draws an icon to mark the position of the PhotoOverlay.
+    # The icon drawn is specified by the <styleUrl> and <StyleSelector> fields,
+    # just as it is for <Placemark>.
+
+    _shape = "rectangle"
+    # The PhotoOverlay is projected onto the <shape>.
+    # The <shape> can be one of the following:
+    #   rectangle (default) -
+    #       for an ordinary photo
+    #   cylinder -
+    #       for panoramas, which can be either partial or full cylinders
+    #   sphere -
+    #       for spherical panoramas
+
+    @property
+    def rotation(self):
+        return self._rotation
+
+    @rotation.setter
+    def rotation(self, value):
+        if isinstance(value, (str, int, float)):
+            self._rotation = str(value)
+        elif value is None:
+            self._rotation = None
+        else:
+            raise ValueError
+
+    @property
+    def left_fov(self):
+        return self._left_fow
+
+    @left_fov.setter
+    def left_fov(self, value):
+        if isinstance(value, (str, int, float)):
+            self._left_fow = str(value)
+        elif value is None:
+            self._left_fow = None
+        else:
+            raise ValueError
+
+    @property
+    def right_fov(self):
+        return self._right_fov
+
+    @right_fov.setter
+    def right_fov(self, value):
+        if isinstance(value, (str, int, float)):
+            self._right_fov = str(value)
+        elif value is None:
+            self._right_fov = None
+        else:
+            raise ValueError
+
+    @property
+    def bottom_fov(self):
+        return self._bottom_fov
+
+    @bottom_fov.setter
+    def bottom_fov(self, value):
+        if isinstance(value, (str, int, float)):
+            self._bottom_fov = str(value)
+        elif value is None:
+            self._bottom_fov = None
+        else:
+            raise ValueError
+
+    @property
+    def top_fov(self):
+        return self._top_fov
+
+    @top_fov.setter
+    def top_fov(self, value):
+        if isinstance(value, (str, int, float)):
+            self._top_fov = str(value)
+        elif value is None:
+            self._top_fov = None
+        else:
+            raise ValueError
+
+    @property
+    def near(self):
+        return self._near
+
+    @near.setter
+    def near(self, value):
+        if isinstance(value, (str, int, float)):
+            self._near = str(value)
+        elif value is None:
+            self._near = None
+        else:
+            raise ValueError
+
+    @property
+    def tile_size(self):
+        return self._tile_size
+
+    @tile_size.setter
+    def tile_size(self, value):
+        if isinstance(value, (str, int, float)):
+            self._tile_size = str(value)
+        elif value is None:
+            self._tile_size = None
+        else:
+            raise ValueError
+
+    @property
+    def max_width(self):
+        return self._max_width
+
+    @max_width.setter
+    def max_width(self, value):
+        if isinstance(value, (str, int, float)):
+            self._max_width = str(value)
+        elif value is None:
+            self._max_width = None
+        else:
+            raise ValueError
+
+    @property
+    def max_height(self):
+        return self._max_height
+
+    @max_height.setter
+    def max_height(self, value):
+        if isinstance(value, (str, int, float)):
+            self._max_height = str(value)
+        elif value is None:
+            self._max_height = None
+        else:
+            raise ValueError
+
+    @property
+    def grid_origin(self):
+        return self._grid_origin
+
+    @grid_origin.setter
+    def grid_origin(self, value):
+        if value in ("lowerLeft", "upperLeft"):
+            self._grid_origin = str(value)
+        elif value is None:
+            self._grid_origin = None
+        else:
+            raise ValueError
+
+    @property
+    def point(self):
+        return self._point
+
+    @point.setter
+    def point(self, value):
+        if isinstance(value, (str, tuple)):
+            self._point = str(value)
+        else:
+            raise ValueError
+
+    @property
+    def shape(self):
+        return self._shape
+
+    @shape.setter
+    def shape(self, value):
+        if value in ("rectangle", "cylinder", "sphere"):
+            self._shape = str(value)
+        elif value is None:
+            self._shape = None
+        else:
+            raise ValueError("Shape must be one of " "rectangle, cylinder, sphere")
+
+    def view_volume(self, left_fov, right_fov, bottom_fov, top_fov, near):
+        self.left_fov = left_fov
+        self.right_fov = right_fov
+        self.bottom_fov = bottom_fov
+        self.top_fov = top_fov
+        self.near = near
+
+    def image_pyramid(self, tile_size, max_width, max_height, grid_origin):
+        self.tile_size = tile_size
+        self.max_width = max_width
+        self.max_height = max_height
+        self.grid_origin = grid_origin
+
+    def etree_element(self):
+        element = super().etree_element()
+        if self._rotation:
+            rotation = config.etree.SubElement(element, f"{self.ns}rotation")
+            rotation.text = self._rotation
+        if all(
+            [
+                self._left_fow,
+                self._right_fov,
+                self._bottom_fov,
+                self._top_fov,
+                self._near,
+            ]
+        ):
+            view_volume = config.etree.SubElement(element, f"{self.ns}ViewVolume")
+            left_fov = config.etree.SubElement(view_volume, f"{self.ns}leftFov")
+            left_fov.text = self._left_fow
+            right_fov = config.etree.SubElement(view_volume, f"{self.ns}rightFov")
+            right_fov.text = self._right_fov
+            bottom_fov = config.etree.SubElement(view_volume, f"{self.ns}bottomFov")
+            bottom_fov.text = self._bottom_fov
+            top_fov = config.etree.SubElement(view_volume, f"{self.ns}topFov")
+            top_fov.text = self._top_fov
+            near = config.etree.SubElement(view_volume, f"{self.ns}near")
+            near.text = self._near
+        if all([self._tile_size, self._max_width, self._max_height, self._grid_origin]):
+            image_pyramid = config.etree.SubElement(element, f"{self.ns}ImagePyramid")
+            tile_size = config.etree.SubElement(image_pyramid, f"{self.ns}tileSize")
+            tile_size.text = self._tile_size
+            max_width = config.etree.SubElement(image_pyramid, f"{self.ns}maxWidth")
+            max_width.text = self._max_width
+            max_height = config.etree.SubElement(image_pyramid, f"{self.ns}maxHeight")
+            max_height.text = self._max_height
+            grid_origin = config.etree.SubElement(image_pyramid, f"{self.ns}gridOrigin")
+            grid_origin.text = self._grid_origin
+        return element
+
+    def from_element(self, element):
+        super().from_element(element)
+        rotation = element.find(f"{self.ns}rotation")
+        if rotation is not None:
+            self.rotation = rotation.text
+        view_volume = element.find(f"{self.ns}ViewVolume")
+        if view_volume is not None:
+            left_fov = view_volume.find(f"{self.ns}leftFov")
+            if left_fov is not None:
+                self.left_fov = left_fov.text
+            right_fov = view_volume.find(f"{self.ns}rightFov")
+            if right_fov is not None:
+                self.right_fov = right_fov.text
+            bottom_fov = view_volume.find(f"{self.ns}bottomFov")
+            if bottom_fov is not None:
+                self.bottom_fov = bottom_fov.text
+            top_fov = view_volume.find(f"{self.ns}topFov")
+            if top_fov is not None:
+                self.top_fov = top_fov.text
+            near = view_volume.find(f"{self.ns}near")
+            if near is not None:
+                self.near = near.text
+        image_pyramid = element.find(f"{self.ns}ImagePyramid")
+        if image_pyramid is not None:
+            tile_size = image_pyramid.find(f"{self.ns}tileSize")
+            if tile_size is not None:
+                self.tile_size = tile_size.text
+            max_width = image_pyramid.find(f"{self.ns}maxWidth")
+            if max_width is not None:
+                self.max_width = max_width.text
+            max_height = image_pyramid.find(f"{self.ns}maxHeight")
+            if max_height is not None:
+                self.max_height = max_height.text
+            grid_origin = image_pyramid.find(f"{self.ns}gridOrigin")
+            if grid_origin is not None:
+                self.grid_origin = grid_origin.text
+        point = element.find(f"{self.ns}Point")
+        if point is not None:
+            self.point = point.text
+        shape = element.find(f"{self.ns}shape")
+        if shape is not None:
+            self.shape = shape.text
 
 
 class GroundOverlay(_Overlay):
     """
     This element draws an image overlay draped onto the terrain. The <href>
     child of <Icon> specifies the image to be used as the overlay. This file
-    can be either on a local file system or on a web server. If this element is
-    omitted or contains no <href>, a rectangle is drawn using the color and
+    can be either on a local file system or on a web server. If this element
+    is omitted or contains no <href>, a rectangle is drawn using the color and
     LatLonBox bounds defined by the ground overlay.
     """
 
@@ -730,7 +1352,7 @@ class GroundOverlay(_Overlay):
     # Specifies the distance above the earth's surface, in meters, and is
     # interpreted according to the altitude mode.
 
-    _altitudeMode = "clampToGround"
+    _altitude_mode = "clampToGround"
     # Specifies how the <altitude> is interpreted. Possible values are:
     #   clampToGround -
     #       (default) Indicates to ignore the altitude specification and drape
@@ -775,7 +1397,7 @@ class GroundOverlay(_Overlay):
 
     # TODO: <gx:LatLonQuad>
     # Used for nonrectangular quadrilateral ground overlays.
-    _latLonQuad = None
+    _lat_lon_quad = None
 
     @property
     def altitude(self):
@@ -791,15 +1413,15 @@ class GroundOverlay(_Overlay):
             raise ValueError
 
     @property
-    def altitudeMode(self):
-        return self._altitudeMode
+    def altitude_mode(self):
+        return self._altitude_mode
 
-    @altitudeMode.setter
-    def altitudeMode(self, mode):
+    @altitude_mode.setter
+    def altitude_mode(self, mode):
         if mode in ("clampToGround", "absolute"):
-            self._altitudeMode = str(mode)
+            self._altitude_mode = str(mode)
         else:
-            self._altitudeMode = "clampToGround"
+            self._altitude_mode = "clampToGround"
 
     @property
     def north(self):
@@ -866,61 +1488,78 @@ class GroundOverlay(_Overlay):
         else:
             raise ValueError
 
-    def latLonBox(self, north, south, east, west, rotation=0):
-        # TODO: Check for bounds (0:+/-90 or 0:+/-180 degrees)
-        self.north = north
-        self.south = south
-        self.east = east
-        self.west = west
-        self.rotation = rotation
+    def lat_lon_box(
+        self, north: int, south: int, east: int, west: int, rotation: int = 0
+    ) -> None:
+        if -90 <= float(north) <= 90:
+            self.north = north
+        else:
+            raise ValueError
+        if -90 <= float(south) <= 90:
+            self.south = south
+        else:
+            raise ValueError
+        if -180 <= float(east) <= 180:
+            self.east = east
+        else:
+            raise ValueError
+        if -180 <= float(west) <= 180:
+            self.west = west
+        else:
+            raise ValueError
+        if -180 <= float(rotation) <= 180:
+            self.rotation = rotation
+        else:
+            raise ValueError
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self._altitude:
-            altitude = etree.SubElement(element, f"{self.ns}altitude")
+            altitude = config.etree.SubElement(element, f"{self.ns}altitude")
             altitude.text = self._altitude
-            if self._altitudeMode:
-                altitudeMode = etree.SubElement(element, f"{self.ns}altitudeMode")
-                altitudeMode.text = self._altitudeMode
+            if self._altitude_mode:
+                altitude_mode = config.etree.SubElement(
+                    element, f"{self.ns}altitudeMode"
+                )
+                altitude_mode.text = self._altitude_mode
         if all([self._north, self._south, self._east, self._west]):
-            latLonBox = etree.SubElement(element, f"{self.ns}latLonBox")
-            north = etree.SubElement(latLonBox, f"{self.ns}north")
+            lat_lon_box = config.etree.SubElement(element, f"{self.ns}LatLonBox")
+            north = config.etree.SubElement(lat_lon_box, f"{self.ns}north")
             north.text = self._north
-            south = etree.SubElement(latLonBox, f"{self.ns}south")
+            south = config.etree.SubElement(lat_lon_box, f"{self.ns}south")
             south.text = self._south
-            east = etree.SubElement(latLonBox, f"{self.ns}east")
+            east = config.etree.SubElement(lat_lon_box, f"{self.ns}east")
             east.text = self._east
-            west = etree.SubElement(latLonBox, f"{self.ns}west")
+            west = config.etree.SubElement(lat_lon_box, f"{self.ns}west")
             west.text = self._west
             if self._rotation:
-                rotation = etree.SubElement(latLonBox, f"{self.ns}rotation")
+                rotation = config.etree.SubElement(lat_lon_box, f"{self.ns}rotation")
                 rotation.text = self._rotation
-
         return element
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         altitude = element.find(f"{self.ns}altitude")
         if altitude is not None:
             self.altitude = altitude.text
-        altitudeMode = element.find(f"{self.ns}altitudeMode")
-        if altitudeMode is not None:
-            self.altitudeMode = altitudeMode.text
-        latLonBox = element.find(f"{self.ns}latLonBox")
-        if latLonBox is not None:
-            north = latLonBox.find(f"{self.ns}north")
+        altitude_mode = element.find(f"{self.ns}altitudeMode")
+        if altitude_mode is not None:
+            self.altitude_mode = altitude_mode.text
+        lat_lon_box = element.find(f"{self.ns}LatLonBox")
+        if lat_lon_box is not None:
+            north = lat_lon_box.find(f"{self.ns}north")
             if north is not None:
                 self.north = north.text
-            south = latLonBox.find(f"{self.ns}south")
+            south = lat_lon_box.find(f"{self.ns}south")
             if south is not None:
                 self.south = south.text
-            east = latLonBox.find(f"{self.ns}east")
+            east = lat_lon_box.find(f"{self.ns}east")
             if east is not None:
                 self.east = east.text
-            west = latLonBox.find(f"{self.ns}west")
+            west = lat_lon_box.find(f"{self.ns}west")
             if west is not None:
                 self.west = west.text
-            rotation = latLonBox.find(f"{self.ns}rotation")
+            rotation = lat_lon_box.find(f"{self.ns}rotation")
             if rotation is not None:
                 self.rotation = rotation.text
 
@@ -935,11 +1574,11 @@ class Document(_Container):
     __name__ = "Document"
     _schemata = None
 
-    def schemata(self):
+    def schemata(self) -> None:
         if self._schemata:
             yield from self._schemata
 
-    def append_schema(self, schema):
+    def append_schema(self, schema: "Schema") -> None:
         if self._schemata is None:
             self._schemata = []
         if isinstance(schema, Schema):
@@ -948,7 +1587,7 @@ class Document(_Container):
             s = Schema(schema)
             self._schemata.append(s)
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         documents = element.findall(f"{self.ns}Document")
         for document in documents:
@@ -971,15 +1610,15 @@ class Document(_Container):
             s.from_element(schema)
             self.append_schema(s)
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self._schemata is not None:
             for schema in self._schemata:
                 element.append(schema.etree_element())
         return element
 
-    def get_style_by_url(self, styleUrl):
-        id = urlparse.urlparse(styleUrl).fragment
+    def get_style_by_url(self, style_url: str) -> Union[Style, StyleMap]:
+        id = urlparse.urlparse(style_url).fragment
         for style in self.styles():
             if style.id == id:
                 return style
@@ -993,7 +1632,7 @@ class Folder(_Container):
 
     __name__ = "Folder"
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         folders = element.findall(f"{self.ns}Folder")
         for folder in folders:
@@ -1034,7 +1673,7 @@ class Placemark(_Feature):
         else:
             self._geometry = Geometry(ns=self.ns, geometry=geometry)
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         point = element.find(f"{self.ns}Point")
         if point is not None:
@@ -1079,10 +1718,10 @@ class Placemark(_Feature):
             self._geometry = geom
             return
         logger.warning("No geometries found")
-        logger.debug("Problem with element: %", etree.tostring(element))
+        logger.debug("Problem with element: %", config.etree.tostring(element))
         # raise ValueError('No geometries found')
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self._geometry is not None:
             element.append(self._geometry.etree_element())
@@ -1091,406 +1730,113 @@ class Placemark(_Feature):
         return element
 
 
-class _TimePrimitive(_BaseObject):
-    """The dateTime is defined according to XML Schema time.
-    The value can be expressed as yyyy-mm-ddThh:mm:sszzzzzz, where T is
-    the separator between the date and the time, and the time zone is
-    either Z (for UTC) or zzzzzz, which represents ±hh:mm in relation to
-    UTC. Additionally, the value can be expressed as a date only.
+class KML:
+    """represents a KML File"""
 
-    The precision of the dateTime is dictated by the dateTime value
-    which can be one of the following:
+    _features = []
+    ns = None
 
-    - dateTime gives second resolution
-    - date gives day resolution
-    - gYearMonth gives month resolution
-    - gYear gives year resolution
-    """
+    def __init__(self, ns: Optional[str] = None) -> None:
+        """The namespace (ns) may be empty ('') if the 'kml:' prefix is
+        undesired. Note that all child elements like Document or Placemark need
+        to be initialized with empty namespace as well in this case.
 
-    RESOLUTIONS = ["gYear", "gYearMonth", "date", "dateTime"]
-
-    def get_resolution(self, dt, resolution=None):
-        if resolution:
-            if resolution not in self.RESOLUTIONS:
-                raise ValueError
-            else:
-                return resolution
-        elif isinstance(dt, datetime):
-            resolution = "dateTime"
-        elif isinstance(dt, date):
-            resolution = "date"
-        else:
-            resolution = None
-        return resolution
-
-    def parse_str(self, datestr):
-        resolution = "dateTime"
-        year = 0
-        month = 1
-        day = 1
-        if len(datestr) == 4:
-            resolution = "gYear"
-            year = int(datestr)
-            dt = datetime(year, month, day)
-        elif len(datestr) == 6:
-            resolution = "gYearMonth"
-            year = int(datestr[:4])
-            month = int(datestr[-2:])
-            dt = datetime(year, month, day)
-        elif len(datestr) == 7:
-            resolution = "gYearMonth"
-            year = int(datestr.split("-")[0])
-            month = int(datestr.split("-")[1])
-            dt = datetime(year, month, day)
-        elif len(datestr) in [8, 10]:
-            resolution = "date"
-            dt = dateutil.parser.parse(datestr)
-        elif len(datestr) > 10:
-            resolution = "dateTime"
-            dt = dateutil.parser.parse(datestr)
-        else:
-            raise ValueError
-        return [dt, resolution]
-
-    def date_to_string(self, dt, resolution=None):
-        if isinstance(dt, (date, datetime)):
-            resolution = self.get_resolution(dt, resolution)
-            if resolution == "gYear":
-                return dt.strftime("%Y")
-            elif resolution == "gYearMonth":
-                return dt.strftime("%Y-%m")
-            elif resolution == "date":
-                if isinstance(dt, datetime):
-                    return dt.date().isoformat()
-                else:
-                    return dt.isoformat()
-            elif resolution == "dateTime":
-                return dt.isoformat()
-
-
-class TimeStamp(_TimePrimitive):
-    """Represents a single moment in time."""
-
-    __name__ = "TimeStamp"
-    timestamp = None
-
-    def __init__(self, ns=None, id=None, timestamp=None, resolution=None):
-        super().__init__(ns, id)
-        resolution = self.get_resolution(timestamp, resolution)
-        self.timestamp = [timestamp, resolution]
-
-    def etree_element(self):
-        element = super().etree_element()
-        when = etree.SubElement(element, f"{self.ns}when")
-        when.text = self.date_to_string(*self.timestamp)
-        return element
-
-    def from_element(self, element):
-        super().from_element(element)
-        when = element.find(f"{self.ns}when")
-        if when is not None:
-            self.timestamp = self.parse_str(when.text)
-
-
-class TimeSpan(_TimePrimitive):
-    """Represents an extent in time bounded by begin and end dateTimes."""
-
-    __name__ = "TimeSpan"
-    begin = None
-    end = None
-
-    def __init__(
-        self, ns=None, id=None, begin=None, begin_res=None, end=None, end_res=None
-    ):
-        super().__init__(ns, id)
-        if begin:
-            resolution = self.get_resolution(begin, begin_res)
-            self.begin = [begin, resolution]
-        if end:
-            resolution = self.get_resolution(end, end_res)
-            self.end = [end, resolution]
-
-    def from_element(self, element):
-        super().from_element(element)
-        begin = element.find(f"{self.ns}begin")
-        if begin is not None:
-            self.begin = self.parse_str(begin.text)
-        end = element.find(f"{self.ns}end")
-        if end is not None:
-            self.end = self.parse_str(end.text)
-
-    def etree_element(self):
-        element = super().etree_element()
-        if self.begin is not None:
-            text = self.date_to_string(*self.begin)
-            if text:
-                begin = etree.SubElement(element, f"{self.ns}begin")
-                begin.text = text
-        if self.end is not None:
-            text = self.date_to_string(*self.end)
-            if text:
-                end = etree.SubElement(element, f"{self.ns}end")
-                end.text = text
-        if self.begin == self.end is None:
-            raise ValueError("Either begin, end or both must be set")
-        # TODO test if end > begin
-        return element
-
-
-class Schema(_BaseObject):
-    """
-    Specifies a custom KML schema that is used to add custom data to
-    KML Features.
-    The "id" attribute is required and must be unique within the KML file.
-    <Schema> is always a child of <Document>.
-    """
-
-    __name__ = "Schema"
-
-    _simple_fields = None
-    # The declaration of the custom fields, each of which must specify both the
-    # type and the name of this field. If either the type or the name is
-    # omitted, the field is ignored.
-    name = None
-
-    def __init__(self, ns=None, id=None, name=None, fields=None):
-        if id is None:
-            raise ValueError("Id is required for schema")
-        super().__init__(ns, id)
-        self.simple_fields = fields
-        self.name = name
-
-    @property
-    def simple_fields(self):
-        return tuple(
-            {
-                "type": simple_field["type"],
-                "name": simple_field["name"],
-                "displayName": simple_field.get("displayName"),
-            }
-            for simple_field in self._simple_fields
-            if simple_field.get("type") and simple_field.get("name")
-        )
-
-    @simple_fields.setter
-    def simple_fields(self, fields):
-        self._simple_fields = []
-        if isinstance(fields, dict):
-            self.append(**fields)
-        elif isinstance(fields, (list, tuple)):
-            for field in fields:
-                if isinstance(field, (list, tuple)):
-                    self.append(*field)
-                elif isinstance(field, dict):
-                    self.append(**field)
-        elif fields is None:
-            self._simple_fields = []
-        else:
-            raise ValueError("Fields must be of type list, tuple or dict")
-
-    def append(self, type, name, displayName=None):
         """
-        append a field.
-        The declaration of the custom field, must specify both the type
-        and the name of this field.
-        If either the type or the name is omitted, the field is ignored.
+        self._features = []
 
-        The type can be one of the following:
-            string
-            int
-            uint
-            short
-            ushort
-            float
-            double
-            bool
+        self.ns = config.KMLNS if ns is None else ns
 
-        <displayName>
-        The name, if any, to be used when the field name is displayed to
-        the Google Earth user. Use the [CDATA] element to escape standard
-        HTML markup.
-        """
-        allowed_types = [
-            "string",
-            "int",
-            "uint",
-            "short",
-            "ushort",
-            "float",
-            "double",
-            "bool",
-        ]
-        if type not in allowed_types:
-            raise TypeError(
-                f"{name} has the type {type} which is invalid. "
-                + "The type must be one of "
-                + "'string', 'int', 'uint', 'short', "
-                + "'ushort', 'float', 'double', 'bool'"
+    def from_string(self, xml_string: str) -> None:
+        """create a KML object from a xml string"""
+        try:
+            element = config.etree.fromstring(
+                xml_string, parser=config.etree.XMLParser(huge_tree=True, recover=True)
             )
-        self._simple_fields.append(
-            {"type": type, "name": name, "displayName": displayName}
-        )
+        except TypeError:
+            element = config.etree.XML(xml_string)
 
-    def from_element(self, element):
-        super().from_element(element)
-        self.name = element.get("name")
-        simple_fields = element.findall(f"{self.ns}SimpleField")
-        self.simple_fields = None
-        for simple_field in simple_fields:
-            sfname = simple_field.get("name")
-            sftype = simple_field.get("type")
-            display_name = simple_field.find(f"{self.ns}displayName")
-            sfdisplay_name = display_name.text if display_name is not None else None
-            self.append(sftype, sfname, sfdisplay_name)
+        if not element.tag.endswith("kml"):
+            raise TypeError
 
-    def etree_element(self):
-        element = super().etree_element()
-        if self.name:
-            element.set("name", self.name)
-        for simple_field in self.simple_fields:
-            sf = etree.SubElement(element, f"{self.ns}SimpleField")
-            sf.set("type", simple_field["type"])
-            sf.set("name", simple_field["name"])
-            if simple_field.get("displayName"):
-                dn = etree.SubElement(sf, f"{self.ns}displayName")
-                dn.text = simple_field["displayName"]
+        ns = element.tag.rstrip("kml")
+        documents = element.findall(f"{ns}Document")
+        for document in documents:
+            feature = Document(ns)
+            feature.from_element(document)
+            self.append(feature)
+        folders = element.findall(f"{ns}Folder")
+        for folder in folders:
+            feature = Folder(ns)
+            feature.from_element(folder)
+            self.append(feature)
+        placemarks = element.findall(f"{ns}Placemark")
+        for placemark in placemarks:
+            feature = Placemark(ns)
+            feature.from_element(placemark)
+            self.append(feature)
+        groundoverlays = element.findall(f"{ns}GroundOverlay")
+        for groundoverlay in groundoverlays:
+            feature = GroundOverlay(ns)
+            feature.from_element(groundoverlay)
+            self.append(feature)
+        photo_overlays = element.findall(f"{ns}PhotoOverlay")
+        for photo_overlay in photo_overlays:
+            feature = PhotoOverlay(ns)
+            feature.from_element(photo_overlay)
+            self.append(feature)
 
-        return element
-
-
-class ExtendedData(_XMLObject):
-    """Represents a list of untyped name/value pairs. See docs:
-
-    -> 'Adding Untyped Name/Value Pairs'
-       https://developers.google.com/kml/documentation/extendeddata
-
-    """
-
-    __name__ = "ExtendedData"
-
-    def __init__(self, ns=None, elements=None):
-        super().__init__(ns)
-        self.elements = elements or []
-
-    def etree_element(self):
-        element = super().etree_element()
-        for subelement in self.elements:
-            element.append(subelement.etree_element())
-        return element
-
-    def from_element(self, element):
-        super().from_element(element)
-        self.elements = []
-        untyped_data = element.findall(f"{self.ns}Data")
-        for ud in untyped_data:
-            el = Data(self.ns)
-            el.from_element(ud)
-            self.elements.append(el)
-        typed_data = element.findall(f"{self.ns}SchemaData")
-        for sd in typed_data:
-            el = SchemaData(self.ns, "dummy")
-            el.from_element(sd)
-            self.elements.append(el)
-
-
-class Data(_XMLObject):
-    """Represents an untyped name/value pair with optional display name."""
-
-    __name__ = "Data"
-
-    def __init__(self, ns=None, name=None, value=None, display_name=None):
-        super().__init__(ns)
-
-        self.name = name
-        self.value = value
-        self.display_name = display_name
-
-    def etree_element(self):
-        element = super().etree_element()
-        element.set("name", self.name)
-        value = etree.SubElement(element, f"{self.ns}value")
-        value.text = self.value
-        if self.display_name:
-            display_name = etree.SubElement(element, f"{self.ns}displayName")
-            display_name.text = self.display_name
-        return element
-
-    def from_element(self, element):
-        super().from_element(element)
-        self.name = element.get("name")
-        tmp_value = element.find(f"{self.ns}value")
-        if tmp_value is not None:
-            self.value = tmp_value.text
-        display_name = element.find(f"{self.ns}displayName")
-        if display_name is not None:
-            self.display_name = display_name.text
-
-
-class SchemaData(_XMLObject):
-    """
-    <SchemaData schemaUrl="anyURI">
-    This element is used in conjunction with <Schema> to add typed
-    custom data to a KML Feature. The Schema element (identified by the
-    schemaUrl attribute) declares the custom data type. The actual data
-    objects ("instances" of the custom data) are defined using the
-    SchemaData element.
-    The <schemaURL> can be a full URL, a reference to a Schema ID defined
-    in an external KML file, or a reference to a Schema ID defined
-    in the same KML file.
-    """
-
-    __name__ = "SchemaData"
-    schema_url = None
-    _data = None
-
-    def __init__(self, ns=None, schema_url=None, data=None):
-        super().__init__(ns)
-        if (not isinstance(schema_url, str)) or (not schema_url):
-            raise ValueError("required parameter schema_url missing")
-        self.schema_url = schema_url
-        self._data = []
-        self.data = data
-
-    @property
-    def data(self):
-        return tuple(self._data)
-
-    @data.setter
-    def data(self, data):
-        if isinstance(data, (tuple, list)):
-            self._data = []
-            for d in data:
-                if isinstance(d, (tuple, list)):
-                    self.append_data(*d)
-                elif isinstance(d, dict):
-                    self.append_data(**d)
-        elif data is None:
-            self._data = []
+    def etree_element(self) -> Element:
+        # self.ns may be empty, which leads to unprefixed kml elements.
+        # However, in this case the xlmns should still be mentioned on the kml
+        # element, just without prefix.
+        if not self.ns:
+            root = config.etree.Element(f"{self.ns}kml")
+            root.set("xmlns", config.KMLNS[1:-1])
         else:
-            raise TypeError("data must be of type tuple or list")
+            try:
+                root = config.etree.Element(
+                    f"{self.ns}kml", nsmap={None: self.ns[1:-1]}
+                )
+            except TypeError:
+                root = config.etree.Element(f"{self.ns}kml")
+        for feature in self.features():
+            root.append(feature.etree_element())
+        return root
 
-    def append_data(self, name, value):
-        if isinstance(name, str) and name:
-            self._data.append({"name": name, "value": value})
+    def to_string(self, prettyprint: bool = False) -> str:
+        """Return the KML Object as serialized xml"""
+        try:
+            return config.etree.tostring(
+                self.etree_element(),
+                encoding="UTF-8",
+                pretty_print=prettyprint,
+            ).decode("UTF-8")
+        except TypeError:
+            return config.etree.tostring(self.etree_element(), encoding="UTF-8").decode(
+                "UTF-8"
+            )
+
+    def features(self) -> Iterator[Union[Folder, Document, Placemark]]:
+        """iterate over features"""
+        for feature in self._features:
+            if isinstance(feature, (Document, Folder, Placemark, _Overlay)):
+
+                yield feature
+            else:
+                raise TypeError(
+                    "Features must be instances of "
+                    "(Document, Folder, Placemark, Overlay)"
+                )
+
+    def append(self, kmlobj: Union[Folder, Document, Placemark]) -> None:
+        """append a feature"""
+
+        if isinstance(kmlobj, (Document, Folder, Placemark, _Overlay)):
+            self._features.append(kmlobj)
         else:
-            raise TypeError("name must be a nonempty string")
-
-    def etree_element(self):
-        element = super().etree_element()
-        element.set("schemaUrl", self.schema_url)
-        for data in self.data:
-            sd = etree.SubElement(element, f"{self.ns}SimpleData")
-            sd.set("name", data["name"])
-            sd.text = data["value"]
-        return element
-
-    def from_element(self, element):
-        super().from_element(element)
-        self.data = []
-        self.schema_url = element.get("schemaUrl")
-        simple_data = element.findall(f"{self.ns}SimpleData")
-        for sd in simple_data:
-            self.append_data(sd.get("name"), sd.text)
+            raise TypeError(
+                "Features must be instances of (Document, Folder, Placemark, Overlay)"
+            )
 
 
 __all__ = [
@@ -1498,6 +1844,7 @@ __all__ = [
     "Document",
     "ExtendedData",
     "Folder",
+    "PhotoOverlay",
     "GroundOverlay",
     "KML",
     "Placemark",
@@ -1505,4 +1852,6 @@ __all__ = [
     "SchemaData",
     "TimeSpan",
     "TimeStamp",
+    "Camera",
+    "LookAt",
 ]

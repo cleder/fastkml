@@ -1,4 +1,4 @@
-# Copyright (C) 2012  Christian Ledermann
+# Copyright (C) 2012 - 2021  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -15,32 +15,63 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Frequently used constants and configuration options"""
-
 import logging
 import warnings
+from types import ModuleType
 
-try:
+__all__ = [
+    "ATOMNS",
+    "DEFAULT_NAME_SPACES",
+    "FORCE3D",
+    "GXNS",
+    "KMLNS",
+    "register_namespaces",
+    "set_default_namespaces",
+    "set_etree_implementation",
+]
+
+try:  # pragma: no cover
     from lxml import etree
 
-    LXML = True
-except ImportError:
+except ImportError:  # pragma: no cover
     warnings.warn("Package `lxml` missing. Pretty print will be disabled")
-    import xml.etree.ElementTree as etree
+    import xml.etree.ElementTree as etree  # type: ignore[no-redef] # noqa: N813
 
-    LXML = False
 
 logger = logging.getLogger(__name__)
+
+
+def set_etree_implementation(implementation: ModuleType) -> None:
+    """Set the etree implementation to use."""
+    global etree
+    etree = implementation
 
 
 KMLNS = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
 ATOMNS = "{http://www.w3.org/2005/Atom}"  # noqa: FS003
 GXNS = "{http://www.google.com/kml/ext/2.2}"  # noqa: FS003
 
-if hasattr(etree, "register_namespace"):
-    etree.register_namespace("kml", KMLNS[1:-1])
-    etree.register_namespace("atom", ATOMNS[1:-1])
-    etree.register_namespace("gx", GXNS[1:-1])
+DEFAULT_NAME_SPACES = {
+    "kml": KMLNS[1:-1],
+    "atom": ATOMNS[1:-1],
+    "gx": GXNS[1:-1],
+}
+
+
+def register_namespaces(**namespaces: str) -> None:
+    """Register namespaces for use in etree.ElementTree.parse()."""
+    try:
+        for prefix, uri in namespaces.items():
+            etree.register_namespace(prefix, uri)
+    except AttributeError:  # pragma: no cover
+        logger.warning("Namespaces were not registered.")
+
+
+def set_default_namespaces() -> None:
+    """Register the default namespaces for use in etree.ElementTree.parse()."""
+    register_namespaces(**DEFAULT_NAME_SPACES)
+
+
+set_default_namespaces()
 
 FORCE3D = False
-
-__all__ = ["ATOMNS", "FORCE3D", "GXNS", "KMLNS", "LXML"]

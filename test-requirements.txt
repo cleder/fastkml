@@ -1,14 +1,21 @@
 -r requirements.txt
 -r doc-requirements.txt
-pytest
-pytest-cov
+black
 flake8
-flake8-dunder-all
+# flake8-dunder-all
 flake8-isort
 flake8-logging-format
 flake8-use-fstring
-black
 isort
-radon
 lizard
+lxml-stubs
+mypy
+pep8-naming
+pre-commit
+pytest
+pytest-cov
+pytest-randomly
+radon
+types-python-dateutil
+types-setuptools
 yamllint
