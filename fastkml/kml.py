@@ -321,8 +321,7 @@ class _Feature(_BaseObject):
         if not self._snippet:
             return
         if isinstance(self._snippet, dict):
-            text = self._snippet.get("text")
-            if text:
+            if text := self._snippet.get("text"):
                 assert isinstance(text, str)
                 max_lines = self._snippet.get("maxLines", None)
                 if max_lines is None:
