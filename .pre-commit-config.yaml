@@ -34,11 +34,11 @@ repos:
       - id: unimport
         args: [--remove, --include-star-import, --ignore-init, --gitignore]
   - repo: https://github.com/psf/black
-    rev: 22.8.0
+    rev: 22.10.0
     hooks:
       - id: black
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.9.2
+  - repo: https://github.com/PyCQA/flake8
+    rev: 5.0.4
     hooks:
       - id: flake8
   - repo: https://github.com/pycqa/isort
