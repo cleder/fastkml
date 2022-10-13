@@ -1,3 +1,4 @@
+from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
@@ -17,12 +18,12 @@ class SimpleField(TypedDict):
     displayName: Optional[str]  # noqa: N815
 
 
-SimpleFields = List[dict[str, Union[str, str]]]
+SimpleFields = List[Dict[str, Union[str, str]]]
 SimpleFieldsInput = Optional[
     Union[
-        List[Union[dict[str, str], List[dict[str, str]]]],
-        Tuple[Union[dict[str, str], Tuple[dict[str, str]]]],
-        dict[str, str],
+        List[Union[Dict[str, str], List[Dict[str, str]]]],
+        Tuple[Union[Dict[str, str], Tuple[Dict[str, str]]]],
+        Dict[str, str],
     ]
 ]
 SimpleFieldsOutput = Tuple[SimpleField, ...]
@@ -83,7 +84,7 @@ class Schema(_BaseObject):
         elif fields is None:
             self._simple_fields = []
         else:
-            raise ValueError("Fields must be of type list, tuple or dict")
+            raise ValueError("Fields must be of type list, tuple or Dict")
 
     def append(self, type: str, name: str, display_name: Optional[str] = None) -> None:
         """
@@ -233,13 +234,13 @@ class ExtendedData(_XMLObject):
 
 SchemaDataInput = Optional[
     Union[
-        List[Union[dict[str, str], List[dict[str, Union[int, str]]]]],
-        Tuple[Union[dict[str, str], Tuple[dict[str, Union[int, str]]]]],
-        dict[str, Union[int, str]],
+        List[Union[Dict[str, str], List[Dict[str, Union[int, str]]]]],
+        Tuple[Union[Dict[str, str], Tuple[Dict[str, Union[int, str]]]]],
+        Dict[str, Union[int, str]],
     ]
 ]
-SchemaDataType = List[dict[str, Union[int, str]]]
-SchemaDataOutput = Tuple[dict[str, Union[int, str]], ...]
+SchemaDataType = List[Dict[str, Union[int, str]]]
+SchemaDataOutput = Tuple[Dict[str, Union[int, str]], ...]
 
 
 class SchemaData(_XMLObject):
@@ -261,7 +262,7 @@ class SchemaData(_XMLObject):
         self,
         ns: Optional[str] = None,
         schema_url: Optional[str] = None,
-        data: Optional[List[dict[str, str]]] = None,
+        data: Optional[List[Dict[str, str]]] = None,
     ) -> None:
         super().__init__(ns)
         if (not isinstance(schema_url, str)) or (not schema_url):
