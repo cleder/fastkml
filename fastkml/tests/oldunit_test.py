@@ -194,12 +194,12 @@ class TestBuildKml:
         assert list(s.simple_fields)[0]["name"] == "Integer"
         assert list(s.simple_fields)[0]["displayName"] == "An Integer"
         s.simple_fields = [["float", "Float"], fields]
-        assert list(s.simple_fields)[0]["type"] == "float"
-        assert list(s.simple_fields)[0]["name"] == "Float"
-        assert list(s.simple_fields)[0]["displayName"] is None
-        assert list(s.simple_fields)[1]["type"] == "int"
-        assert list(s.simple_fields)[1]["name"] == "Integer"
-        assert list(s.simple_fields)[1]["displayName"] == "An Integer"
+        assert list(s.simple_fields)[0]["type"] == "int"
+        assert list(s.simple_fields)[0]["name"] == "Integer"
+        assert list(s.simple_fields)[0]["displayName"] == "An Integer"
+        assert list(s.simple_fields)[1]["type"] == "float"
+        assert list(s.simple_fields)[1]["name"] == "Float"
+        assert list(s.simple_fields)[1]["displayName"] is None
 
     def test_schema_data(self):
         ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
