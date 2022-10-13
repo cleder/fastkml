@@ -6,9 +6,9 @@ from typing import Union
 
 from typing_extensions import TypedDict
 
-import fastkml.config as config
 from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
+from fastkml.config import etree  # type: ignore[attr-defined]
 from fastkml.types import Element
 
 
@@ -145,11 +145,11 @@ class Schema(_BaseObject):
         if self.name:
             element.set("name", self.name)
         for simple_field in self.simple_fields:
-            sf = config.etree.SubElement(element, f"{self.ns}SimpleField")  # type: ignore[attr-defined]
+            sf = etree.SubElement(element, f"{self.ns}SimpleField")
             sf.set("type", simple_field["type"])
             sf.set("name", simple_field["name"])
             if simple_field.get("displayName"):
-                dn = config.etree.SubElement(sf, f"{self.ns}displayName")  # type: ignore[attr-defined]
+                dn = etree.SubElement(sf, f"{self.ns}displayName")
                 dn.text = simple_field["displayName"]
         return element
 
@@ -175,10 +175,10 @@ class Data(_XMLObject):
     def etree_element(self) -> Element:
         element = super().etree_element()
         element.set("name", self.name or "")
-        value = config.etree.SubElement(element, f"{self.ns}value")  # type: ignore[attr-defined]
+        value = etree.SubElement(element, f"{self.ns}value")
         value.text = self.value
         if self.display_name:
-            display_name = config.etree.SubElement(element, f"{self.ns}displayName")  # type: ignore[attr-defined]
+            display_name = etree.SubElement(element, f"{self.ns}displayName")
             display_name.text = self.display_name
         return element
 
@@ -299,7 +299,7 @@ class SchemaData(_XMLObject):
         element = super().etree_element()
         element.set("schemaUrl", self.schema_url)
         for data in self.data:
-            sd = config.etree.SubElement(element, f"{self.ns}SimpleData")  # type: ignore[attr-defined]
+            sd = etree.SubElement(element, f"{self.ns}SimpleData")
             sd.set("name", data["name"])
             sd.text = data["value"]
         return element
