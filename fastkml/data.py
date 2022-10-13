@@ -84,7 +84,7 @@ class Schema(_BaseObject):
         elif fields is None:
             self._simple_fields = []
         else:
-            raise ValueError("Fields must be of type list, tuple or Dict")
+            raise ValueError("Fields must be of type list, tuple or dict")
 
     def append(self, type: str, name: str, display_name: Optional[str] = None) -> None:
         """
