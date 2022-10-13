@@ -14,7 +14,18 @@ from fastkml.types import Element
 class SimpleField(TypedDict):
     name: str
     type: str
-    displayName: str  # noqa: N815
+    displayName: Optional[str]  # noqa: N815
+
+
+SimpleFields = List[dict[str, Union[str, str]]]
+SimpleFieldsInput = Optional[
+    Union[
+        List[Union[dict[str, str], List[dict[str, str]]]],
+        Tuple[Union[dict[str, str], Tuple[dict[str, str]]]],
+        dict[str, str],
+    ]
+]
+SimpleFieldsOutput = Tuple[SimpleField, ...]
 
 
 class Schema(_BaseObject):
@@ -27,7 +38,6 @@ class Schema(_BaseObject):
 
     __name__ = "Schema"
 
-    _simple_fields = None
     # The declaration of the custom fields, each of which must specify both the
     # type and the name of this field. If either the type or the name is
     # omitted, the field is ignored.
@@ -39,29 +49,29 @@ class Schema(_BaseObject):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
-        fields: None = None,
+        fields: SimpleFieldsInput = None,
     ) -> None:
         if id is None:
             raise ValueError("Id is required for schema")
         super().__init__(ns=ns, id=id, target_id=target_id)
-        self.simple_fields = fields
         self.name = name
+        self._simple_fields: SimpleFields = []
+        self.simple_fields = fields  # type: ignore[assignment]
 
     @property
-    def simple_fields(self) -> Tuple[SimpleField, ...]:
+    def simple_fields(self) -> SimpleFieldsOutput:
         return tuple(
-            {
-                "type": simple_field["type"],
-                "name": simple_field["name"],
-                "displayName": simple_field.get("displayName"),
-            }
+            SimpleField(
+                type=simple_field.get("type", ""),
+                name=simple_field.get("name", ""),
+                displayName=simple_field.get("displayName") or None,
+            )
             for simple_field in self._simple_fields
             if simple_field.get("type") and simple_field.get("name")
         )
 
     @simple_fields.setter
-    def simple_fields(self, fields):
-        self._simple_fields = []
+    def simple_fields(self, fields: SimpleFieldsInput) -> None:
         if isinstance(fields, dict):
             self.append(**fields)
         elif isinstance(fields, (list, tuple)):
@@ -115,14 +125,13 @@ class Schema(_BaseObject):
                 "'ushort', 'float', 'double', 'bool'"
             )
         self._simple_fields.append(
-            {"type": type, "name": name, "displayName": display_name}
+            {"type": type, "name": name, "displayName": display_name or ""}
         )
 
     def from_element(self, element: Element) -> None:
         super().from_element(element)
         self.name = element.get("name")
         simple_fields = element.findall(f"{self.ns}SimpleField")
-        self.simple_fields = None
         for simple_field in simple_fields:
             sfname = simple_field.get("name")
             sftype = simple_field.get("type")
@@ -135,11 +144,11 @@ class Schema(_BaseObject):
         if self.name:
             element.set("name", self.name)
         for simple_field in self.simple_fields:
-            sf = config.etree.SubElement(element, f"{self.ns}SimpleField")
+            sf = config.etree.SubElement(element, f"{self.ns}SimpleField")  # type: ignore[attr-defined]
             sf.set("type", simple_field["type"])
             sf.set("name", simple_field["name"])
             if simple_field.get("displayName"):
-                dn = config.etree.SubElement(sf, f"{self.ns}displayName")
+                dn = config.etree.SubElement(sf, f"{self.ns}displayName")  # type: ignore[attr-defined]
                 dn.text = simple_field["displayName"]
         return element
 
@@ -164,11 +173,11 @@ class Data(_XMLObject):
 
     def etree_element(self) -> Element:
         element = super().etree_element()
-        element.set("name", self.name)
-        value = config.etree.SubElement(element, f"{self.ns}value")
+        element.set("name", self.name or "")
+        value = config.etree.SubElement(element, f"{self.ns}value")  # type: ignore[attr-defined]
         value.text = self.value
         if self.display_name:
-            display_name = config.etree.SubElement(element, f"{self.ns}displayName")
+            display_name = config.etree.SubElement(element, f"{self.ns}displayName")  # type: ignore[attr-defined]
             display_name.text = self.display_name
         return element
 
@@ -194,7 +203,9 @@ class ExtendedData(_XMLObject):
     __name__ = "ExtendedData"
 
     def __init__(
-        self, ns: Optional[str] = None, elements: Optional[List[Data]] = None
+        self,
+        ns: Optional[str] = None,
+        elements: Optional[List[Union[Data, "SchemaData"]]] = None,
     ) -> None:
         super().__init__(ns)
         self.elements = elements or []
@@ -210,14 +221,25 @@ class ExtendedData(_XMLObject):
         self.elements = []
         untyped_data = element.findall(f"{self.ns}Data")
         for ud in untyped_data:
-            el = Data(self.ns)
-            el.from_element(ud)
-            self.elements.append(el)
+            el_data = Data(self.ns)
+            el_data.from_element(ud)
+            self.elements.append(el_data)
         typed_data = element.findall(f"{self.ns}SchemaData")
         for sd in typed_data:
-            el = SchemaData(self.ns, "dummy")
-            el.from_element(sd)
-            self.elements.append(el)
+            el_schema_data = SchemaData(self.ns, "dummy")
+            el_schema_data.from_element(sd)
+            self.elements.append(el_schema_data)
+
+
+SchemaDataInput = Optional[
+    Union[
+        List[Union[dict[str, str], List[dict[str, Union[int, str]]]]],
+        Tuple[Union[dict[str, str], Tuple[dict[str, Union[int, str]]]]],
+        dict[str, Union[int, str]],
+    ]
+]
+SchemaDataType = List[dict[str, Union[int, str]]]
+SchemaDataOutput = Tuple[dict[str, Union[int, str]], ...]
 
 
 class SchemaData(_XMLObject):
@@ -234,28 +256,26 @@ class SchemaData(_XMLObject):
     """
 
     __name__ = "SchemaData"
-    schema_url = None
-    _data = None
 
     def __init__(
         self,
         ns: Optional[str] = None,
         schema_url: Optional[str] = None,
-        data: None = None,
+        data: Optional[List[dict[str, str]]] = None,
     ) -> None:
         super().__init__(ns)
         if (not isinstance(schema_url, str)) or (not schema_url):
             raise ValueError("required parameter schema_url missing")
         self.schema_url = schema_url
-        self._data = []
-        self.data = data
+        self._data: SchemaDataType = []
+        self.data = data  # type: ignore[assignment]
 
     @property
-    def data(self):
+    def data(self) -> SchemaDataOutput:
         return tuple(self._data)
 
     @data.setter
-    def data(self, data):
+    def data(self, data: SchemaDataInput) -> None:
         if isinstance(data, (tuple, list)):
             self._data = []
             for d in data:
@@ -278,14 +298,14 @@ class SchemaData(_XMLObject):
         element = super().etree_element()
         element.set("schemaUrl", self.schema_url)
         for data in self.data:
-            sd = config.etree.SubElement(element, f"{self.ns}SimpleData")
+            sd = config.etree.SubElement(element, f"{self.ns}SimpleData")  # type: ignore[attr-defined]
             sd.set("name", data["name"])
             sd.text = data["value"]
         return element
 
     def from_element(self, element: Element) -> None:
         super().from_element(element)
-        self.data = []
+        self.data = []  # type: ignore[assignment]
         self.schema_url = element.get("schemaUrl")
         simple_data = element.findall(f"{self.ns}SimpleData")
         for sd in simple_data:
