@@ -18,7 +18,7 @@ class SimpleField(TypedDict):
     displayName: Optional[str]  # noqa: N815
 
 
-SimpleFields = List[Dict[str, Union[str, str]]]
+SimpleFields = List[Dict[str, str]]
 SimpleFieldsInput = Optional[
     Union[
         List[Union[Dict[str, str], List[Dict[str, str]]]],
