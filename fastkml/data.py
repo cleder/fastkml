@@ -6,9 +6,9 @@ from typing import Union
 
 from typing_extensions import TypedDict
 
+from fastkml import config as config
 from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
-from fastkml.config import etree  # type: ignore[attr-defined]
 from fastkml.types import Element
 
 
@@ -145,11 +145,15 @@ class Schema(_BaseObject):
         if self.name:
             element.set("name", self.name)
         for simple_field in self.simple_fields:
-            sf = etree.SubElement(element, f"{self.ns}SimpleField")
+            sf = config.etree.SubElement(  # type: ignore[attr-defined]
+                element, f"{self.ns}SimpleField"
+            )
             sf.set("type", simple_field["type"])
             sf.set("name", simple_field["name"])
             if simple_field.get("displayName"):
-                dn = etree.SubElement(sf, f"{self.ns}displayName")
+                dn = config.etree.SubElement(  # type: ignore[attr-defined]
+                    sf, f"{self.ns}displayName"
+                )
                 dn.text = simple_field["displayName"]
         return element
 
@@ -175,10 +179,14 @@ class Data(_XMLObject):
     def etree_element(self) -> Element:
         element = super().etree_element()
         element.set("name", self.name or "")
-        value = etree.SubElement(element, f"{self.ns}value")
+        value = config.etree.SubElement(  # type: ignore[attr-defined]
+            element, f"{self.ns}value"
+        )
         value.text = self.value
         if self.display_name:
-            display_name = etree.SubElement(element, f"{self.ns}displayName")
+            display_name = config.etree.SubElement(  # type: ignore[attr-defined]
+                element, f"{self.ns}displayName"
+            )
             display_name.text = self.display_name
         return element
 
@@ -299,7 +307,9 @@ class SchemaData(_XMLObject):
         element = super().etree_element()
         element.set("schemaUrl", self.schema_url)
         for data in self.data:
-            sd = etree.SubElement(element, f"{self.ns}SimpleData")
+            sd = config.etree.SubElement(  # type: ignore[attr-defined]
+                element, f"{self.ns}SimpleData"
+            )
             sd.set("name", data["name"])
             sd.text = data["value"]
         return element
