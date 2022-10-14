@@ -3,6 +3,7 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
+from typing import overload
 
 from typing_extensions import TypedDict
 
@@ -19,12 +20,11 @@ class SimpleField(TypedDict):
 
 
 SimpleFields = List[Dict[str, str]]
+SimpleFieldsListInput = List[Union[Dict[str, str], List[Dict[str, str]]]]
+SimpleFieldsTupleInput = Tuple[Union[Dict[str, str], Tuple[Dict[str, str]]]]
+SimpleFieldsDictInput = Dict[str, str]
 SimpleFieldsInput = Optional[
-    Union[
-        List[Union[Dict[str, str], List[Dict[str, str]]]],
-        Tuple[Union[Dict[str, str], Tuple[Dict[str, str]]]],
-        Dict[str, str],
-    ]
+    Union[SimpleFieldsListInput, SimpleFieldsTupleInput, SimpleFieldsDictInput]
 ]
 SimpleFieldsOutput = Tuple[SimpleField, ...]
 
@@ -70,6 +70,21 @@ class Schema(_BaseObject):
             for simple_field in self._simple_fields
             if simple_field.get("type") and simple_field.get("name")
         )
+
+    @simple_fields.setter
+    @overload
+    def simple_fields(self, fields: SimpleFieldsListInput) -> None:
+        ...
+
+    @simple_fields.setter
+    @overload
+    def simple_fields(self, fields: SimpleFieldsTupleInput) -> None:
+        ...
+
+    @simple_fields.setter
+    @overload
+    def simple_fields(self, fields: SimpleFieldsDictInput) -> None:
+        ...
 
     @simple_fields.setter
     def simple_fields(self, fields: SimpleFieldsInput) -> None:
@@ -240,14 +255,17 @@ class ExtendedData(_XMLObject):
             self.elements.append(el_schema_data)
 
 
+SchemaDataType = List[Dict[str, Union[int, str]]]
+SchemaDataListInput = List[Union[Dict[str, str], SchemaDataType]]
+SchemaDataTupleInput = Tuple[Union[Dict[str, str], Tuple[Dict[str, Union[int, str]]]]]
+SchemaDataDictInput = Dict[str, Union[int, str]]
 SchemaDataInput = Optional[
     Union[
-        List[Union[Dict[str, str], List[Dict[str, Union[int, str]]]]],
-        Tuple[Union[Dict[str, str], Tuple[Dict[str, Union[int, str]]]]],
-        Dict[str, Union[int, str]],
+        SchemaDataListInput,
+        SchemaDataTupleInput,
+        SchemaDataDictInput,
     ]
 ]
-SchemaDataType = List[Dict[str, Union[int, str]]]
 SchemaDataOutput = Tuple[Dict[str, Union[int, str]], ...]
 
 
@@ -282,6 +300,21 @@ class SchemaData(_XMLObject):
     @property
     def data(self) -> SchemaDataOutput:
         return tuple(self._data)
+
+    @data.setter
+    @overload
+    def data(self, data: SchemaDataListInput) -> None:
+        ...
+
+    @data.setter
+    @overload
+    def data(self, data: SchemaDataTupleInput) -> None:
+        ...
+
+    @data.setter
+    @overload
+    def data(self, data: SchemaDataDictInput) -> None:
+        ...
 
     @data.setter
     def data(self, data: SchemaDataInput) -> None:
