@@ -7,7 +7,7 @@ from typing import overload
 
 from typing_extensions import TypedDict
 
-from fastkml import config as config
+import fastkml.config as config
 from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
 from fastkml.types import Element
