@@ -29,7 +29,7 @@ repos:
     hooks:
       - id: absolufy-imports
   - repo: https://github.com/hakancelikdev/unimport
-    rev: 0dc8d609eb670eeb3335958acddcb6059cc4b8dd
+    rev: a56235171fc28dff6a879c377bb7392679552671
     hooks:
       - id: unimport
         args: [--remove, --include-star-import, --ignore-init, --gitignore]
