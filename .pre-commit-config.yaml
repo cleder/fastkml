@@ -29,12 +29,12 @@ repos:
     hooks:
       - id: absolufy-imports
   - repo: https://github.com/hakancelikdev/unimport
-    rev: a56235171fc28dff6a879c377bb7392679552671
+    rev: 004b5dd0c8112330275beb52c4ccfce016a4b945
     hooks:
       - id: unimport
         args: [--remove, --include-star-import, --ignore-init, --gitignore]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.2.0
+    rev: v3.2.2
     hooks:
       - id: pyupgrade
         args: ["--py3-plus", "--py37-plus"]
