@@ -27,7 +27,7 @@ from fastkml.tests.base import StdLibrary
 class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
 
-    def test_create_camera(self):
+    def test_create_camera(self) -> None:
         """Test the creation of a camera."""
         time_span = times.TimeSpan(
             id="time-span-id",
@@ -60,7 +60,7 @@ class TestStdLibrary(StdLibrary):
         assert camera.begin == datetime.datetime(2019, 1, 1)
         assert camera.end == datetime.datetime(2019, 1, 2)
 
-    def test_camera_read(self):
+    def test_camera_read(self) -> None:
         """Test the reading of a camera."""
         camera_xml = (
             '<kml:Camera xmlns:kml="http://www.opengis.net/kml/2.2" '
@@ -94,7 +94,7 @@ class TestStdLibrary(StdLibrary):
         assert camera.begin == datetime.datetime(2019, 1, 1)
         assert camera.end == datetime.datetime(2019, 1, 2)
 
-    def test_create_look_at(self):
+    def test_create_look_at(self) -> None:
         time_stamp = times.TimeStamp(
             id="time-span-id",
             timestamp=datetime.datetime(2019, 1, 1),
@@ -124,7 +124,7 @@ class TestStdLibrary(StdLibrary):
         assert look_at.begin is None
         assert look_at.end is None
 
-    def test_look_at_read(self):
+    def test_look_at_read(self) -> None:
         look_at_xml = (
             '<kml:LookAt xmlns:kml="http://www.opengis.net/kml/2.2" id="look-at-id" '
             'targetId="target-look-at-id">'

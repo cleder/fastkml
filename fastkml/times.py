@@ -112,11 +112,12 @@ class TimeStamp(_TimePrimitive):
     def __init__(
         self,
         ns: Optional[str] = None,
-        id: None = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
         timestamp: Optional[Union[date, datetime]] = None,
         resolution: Optional[str] = None,
     ) -> None:
-        super().__init__(ns, id)
+        super().__init__(ns=ns, id=id, target_id=target_id)
         resolution = self.get_resolution(timestamp, resolution)
         self.timestamp = [timestamp, resolution]
 
@@ -145,13 +146,14 @@ class TimeSpan(_TimePrimitive):
     def __init__(
         self,
         ns: Optional[str] = None,
-        id: None = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
         begin: Optional[Union[date, datetime]] = None,
         begin_res: None = None,
         end: Optional[Union[date, datetime]] = None,
         end_res: None = None,
     ) -> None:
-        super().__init__(ns, id)
+        super().__init__(ns=ns, id=id, target_id=target_id)
         if begin:
             resolution = self.get_resolution(begin, begin_res)
             self.begin = [begin, resolution]
