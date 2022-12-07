@@ -100,9 +100,7 @@ class _AbstractView(_BaseObject):
 
     @property
     def begin(self):
-        if self._timespan is None:
-            return None
-        return self._timespan.begin[0]
+        return None if self._timespan is None else self._timespan.begin[0]
 
     @begin.setter
     def begin(self, dt) -> None:
@@ -229,11 +227,9 @@ class _AbstractView(_BaseObject):
         if tilt is not None:
             self.tilt = tilt.text
         altitude_mode = element.find(f"{self.ns}altitudeMode")
-        if altitude_mode is not None:
-            self.altitude_mode = altitude_mode.text
-        else:
+        if altitude_mode is None:
             altitude_mode = element.find(f"{gx.NS}altitudeMode")
-            self.altitude_mode = altitude_mode.text
+        self.altitude_mode = altitude_mode.text
         timespan = element.find(f"{self.ns}TimeSpan")
         if timespan is not None:
             s = TimeSpan(self.ns)
