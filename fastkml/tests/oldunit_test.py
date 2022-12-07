@@ -23,6 +23,7 @@ from dateutil.tz import tzutc
 from fastkml import atom
 from fastkml import base
 from fastkml import config
+from fastkml import data
 from fastkml import kml
 from fastkml import styles
 from fastkml.geometry import Geometry
@@ -64,9 +65,9 @@ class TestBaseClasses:
         bo.ns = ""
         bo.id = None
         assert bo.id is None
-        assert bo.ns == ""
+        assert not bo.ns
         pytest.raises(NotImplementedError, bo.etree_element)
-        element = config.etree.Element(config.KMLNS + "Base")
+        element = config.etree.Element(f"{config.KMLNS}Base")
         pytest.raises(TypeError, bo.from_element)
         pytest.raises(TypeError, bo.from_element, element)
         bo.__name__ = "NotABaseObject"
@@ -132,7 +133,7 @@ class TestBuildKml:
     def test_kml(self):
         """kml file without contents"""
         k = kml.KML()
-        assert len(list(k.features())) == 0
+        assert not list(k.features())
         assert (
             str(k.to_string())[:51]
             == '<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2" />'[:51]
@@ -176,13 +177,13 @@ class TestBuildKml:
         ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         pytest.raises(ValueError, kml.Schema, ns)
         s = kml.Schema(ns, "some_id")
-        assert len(list(s.simple_fields)) == 0
+        assert not list(s.simple_fields)
         s.append("int", "Integer", "An Integer")
         assert list(s.simple_fields)[0]["type"] == "int"
         assert list(s.simple_fields)[0]["name"] == "Integer"
         assert list(s.simple_fields)[0]["displayName"] == "An Integer"
         s.simple_fields = None
-        assert len(list(s.simple_fields)) == 0
+        assert not list(s.simple_fields)
         pytest.raises(TypeError, s.append, ("none", "Integer", "An Integer"))
         # pytest.raises(
         #     TypeError, s.simple_fields, ("none", "Integer", "An Integer"),
@@ -194,26 +195,26 @@ class TestBuildKml:
         assert list(s.simple_fields)[0]["name"] == "Integer"
         assert list(s.simple_fields)[0]["displayName"] == "An Integer"
         s.simple_fields = [["float", "Float"], fields]
-        assert list(s.simple_fields)[0]["type"] == "float"
-        assert list(s.simple_fields)[0]["name"] == "Float"
-        assert list(s.simple_fields)[0]["displayName"] is None
-        assert list(s.simple_fields)[1]["type"] == "int"
-        assert list(s.simple_fields)[1]["name"] == "Integer"
-        assert list(s.simple_fields)[1]["displayName"] == "An Integer"
+        assert list(s.simple_fields)[0]["type"] == "int"
+        assert list(s.simple_fields)[0]["name"] == "Integer"
+        assert list(s.simple_fields)[0]["displayName"] == "An Integer"
+        assert list(s.simple_fields)[1]["type"] == "float"
+        assert list(s.simple_fields)[1]["name"] == "Float"
+        assert list(s.simple_fields)[1]["displayName"] is None
 
     def test_schema_data(self):
         ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
-        pytest.raises(ValueError, kml.SchemaData, ns)
-        pytest.raises(ValueError, kml.SchemaData, ns, "")
-        sd = kml.SchemaData(ns, "#default")
+        pytest.raises(ValueError, data.SchemaData, ns)
+        pytest.raises(ValueError, data.SchemaData, ns, "")
+        sd = data.SchemaData(ns, "#default")
         sd.append_data("text", "Some Text")
         assert len(sd.data) == 1
         sd.append_data(value=1, name="Integer")
         assert len(sd.data) == 2
         assert sd.data[0] == {"value": "Some Text", "name": "text"}
         assert sd.data[1] == {"value": 1, "name": "Integer"}
-        data = (("text", "Some new Text"), {"value": 2, "name": "Integer"})
-        sd.data = data
+        new_data = (("text", "Some new Text"), {"value": 2, "name": "Integer"})
+        sd.data = new_data
         assert len(sd.data) == 2
         assert sd.data[0] == {"value": "Some new Text", "name": "text"}
         assert sd.data[1] == {"value": 2, "name": "Integer"}
@@ -226,8 +227,8 @@ class TestBuildKml:
         p.geometry = Point(0.0, 0.0, 0.0)
         p.extended_data = kml.ExtendedData(
             elements=[
-                kml.Data(name="info", value="so much to see"),
-                kml.Data(name="weather", display_name="Weather", value="blue skies"),
+                data.Data(name="info", value="so much to see"),
+                data.Data(name="weather", display_name="Weather", value="blue skies"),
             ]
         )
 
@@ -254,12 +255,12 @@ class TestBuildKml:
 
         d = kml.Document(ns, "docid", "doc name", "doc description")
         d.extended_data = kml.ExtendedData(
-            elements=[kml.Data(name="type", value="Document")]
+            elements=[data.Data(name="type", value="Document")]
         )
 
         f = kml.Folder(ns, "fid", "f name", "f description")
         f.extended_data = kml.ExtendedData(
-            elements=[kml.Data(name="type", value="Folder")]
+            elements=[data.Data(name="type", value="Folder")]
         )
 
         k.append(d)
@@ -798,13 +799,13 @@ class TestKmlFromString:
           <SimpleData name="ElevationGain">10</SimpleData>
         </SchemaData>"""
 
-        sd = kml.SchemaData(ns="", schema_url="#default")
+        sd = data.SchemaData(ns="", schema_url="#default")
         sd.from_string(doc)
         assert sd.schema_url == "#TrailHeadTypeId"
         assert sd.data[0] == {"name": "TrailHeadName", "value": "Pi in the sky"}
         assert sd.data[1] == {"name": "TrailLength", "value": "3.14159"}
         assert sd.data[2] == {"name": "ElevationGain", "value": "10"}
-        sd1 = kml.SchemaData(ns="", schema_url="#default")
+        sd1 = data.SchemaData(ns="", schema_url="#default")
         sd1.from_string(sd.to_string())
         assert sd1.schema_url == "#TrailHeadTypeId"
         assert sd.to_string() == sd1.to_string()
@@ -2350,11 +2351,11 @@ class TestGroundOverlay:
         self.g.west = ""
         self.g.rotation = ""
 
-        assert self.g.north == ""
-        assert self.g.south == ""
-        assert self.g.east == ""
-        assert self.g.west == ""
-        assert self.g.rotation == ""
+        assert not self.g.north
+        assert not self.g.south
+        assert not self.g.east
+        assert not self.g.west
+        assert not self.g.rotation
 
     def test_latlonbox_none(self):
         self.g.north = None
@@ -2568,23 +2569,23 @@ class TestPhotoOverlay:
 
     def test_camera_altitude_int(self):
         self.p.camera.altitude = 123
-        assert self.p.camera.altitude == "123"
+        assert self.p.camera.altitude == 123
 
     def test_camera_altitude_float(self):
         self.p.camera.altitude = 123.4
-        assert self.p.camera.altitude == "123.4"
+        assert self.p.camera.altitude == 123.4
 
     def test_camera_altitude_string(self):
-        self.p.camera.altitude = "123"
-        assert self.p.camera.altitude == "123"
+        self.p.camera.altitude = 123
+        assert self.p.camera.altitude == 123
 
     def test_camera_altitude_value_error(self):
         with pytest.raises(ValueError):
             self.p.camera.altitude = object()
 
     def test_camera_altitude_none(self):
-        self.p.camera.altitude = "123"
-        assert self.p.camera.altitude == "123"
+        self.p.camera.altitude = 123
+        assert self.p.camera.altitude == 123
         self.p.camera.altitude = None
         assert self.p.camera.altitude is None
 

@@ -35,10 +35,8 @@ import fastkml.atom as atom
 import fastkml.config as config
 import fastkml.gx as gx
 from fastkml.base import _BaseObject
-from fastkml.data import Data
 from fastkml.data import ExtendedData
 from fastkml.data import Schema
-from fastkml.data import SchemaData
 from fastkml.geometry import Geometry
 from fastkml.styles import Style
 from fastkml.styles import StyleMap
@@ -1840,18 +1838,11 @@ class KML:
 
 
 __all__ = [
-    "Data",
     "Document",
-    "ExtendedData",
     "Folder",
+    "Icon",
     "PhotoOverlay",
     "GroundOverlay",
     "KML",
     "Placemark",
-    "Schema",
-    "SchemaData",
-    "TimeSpan",
-    "TimeStamp",
-    "Camera",
-    "LookAt",
 ]

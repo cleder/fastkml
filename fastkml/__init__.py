@@ -49,6 +49,8 @@ from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
 from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
+from fastkml.views import Camera
+from fastkml.views import LookAt
 
 try:
     __version__ = get_distribution("fastkml").version
@@ -78,4 +80,6 @@ __all__ = [
     "Link",
     "Author",
     "Contributor",
+    "Camera",
+    "LookAt",
 ]
