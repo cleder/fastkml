@@ -71,7 +71,7 @@ class _TimePrimitive(_BaseObject):
             year = int(datestr.split("-")[0])
             month = int(datestr.split("-")[1])
             dt = datetime(year, month, day)
-        elif len(datestr) in [8, 10]:
+        elif len(datestr) in {8, 10}:
             resolution = "date"
             dt = dateutil.parser.parse(datestr)
         elif len(datestr) > 10:
