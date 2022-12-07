@@ -59,6 +59,7 @@ class TestStdLibrary(StdLibrary):
         assert camera.target_id == "target-cam-id"
         assert camera.begin == datetime.datetime(2019, 1, 1)
         assert camera.end == datetime.datetime(2019, 1, 2)
+        assert camera.to_string()
 
     def test_camera_read(self) -> None:
         """Test the reading of a camera."""
@@ -123,6 +124,7 @@ class TestStdLibrary(StdLibrary):
         assert look_at.timestamp == datetime.datetime(2019, 1, 1)
         assert look_at.begin is None
         assert look_at.end is None
+        assert look_at.to_string()
 
     def test_look_at_read(self) -> None:
         look_at_xml = (
