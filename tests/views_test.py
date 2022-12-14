@@ -20,8 +20,8 @@ import datetime
 
 from fastkml import times
 from fastkml import views
-from fastkml.tests.base import Lxml
-from fastkml.tests.base import StdLibrary
+from tests.base import Lxml
+from tests.base import StdLibrary
 
 
 class TestStdLibrary(StdLibrary):

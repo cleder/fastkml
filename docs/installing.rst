@@ -1,7 +1,7 @@
 Installation
 ============
 
-fastkml works with CPython and Pypy version 3.6+ and is
+fastkml works with CPython and Pypy version 3.7+ and is
 continually tested for these version.
 Jython and IronPython are not tested but *should* work.
 
@@ -10,7 +10,7 @@ Jython and IronPython are not tested but *should* work.
 
 fastkml works on Unix/Linux, OS X, and Windows.
 
-Install it with ``pip install fastkml`` or ``easy_install fastkml``.
+Install it with ``pip install fastkml``.
 
 If you use fastkml extensively or need to process big KML files, consider
 installing lxml_ as it speeds up processing.

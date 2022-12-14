@@ -22,8 +22,8 @@ import pytest
 from fastkml import base
 from fastkml import config
 from fastkml import types
-from fastkml.tests.base import Lxml
-from fastkml.tests.base import StdLibrary
+from tests.base import Lxml
+from tests.base import StdLibrary
 
 
 class TestStdLibrary(StdLibrary):

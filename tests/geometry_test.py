@@ -14,9 +14,9 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-"""Test the gx classes."""
-from fastkml.tests.base import Lxml
-from fastkml.tests.base import StdLibrary
+"""Test the geometry classes."""
+from tests.base import Lxml
+from tests.base import StdLibrary
 
 
 class TestStdLibrary(StdLibrary):

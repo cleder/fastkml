@@ -1,8 +1,8 @@
 """Date and time handling in KML."""
 from datetime import date
 from datetime import datetime
-from typing import List
 from typing import Optional
+from typing import Tuple
 from typing import Union
 
 # note that there are some ISO 8601 timeparsers at pypi
@@ -52,7 +52,7 @@ class _TimePrimitive(_BaseObject):
             resolution = None
         return resolution
 
-    def parse_str(self, datestr: str) -> List[Union[datetime, str]]:
+    def parse_str(self, datestr: str) -> Tuple[datetime, str]:
         resolution = "dateTime"
         year = 0
         month = 1
@@ -79,7 +79,7 @@ class _TimePrimitive(_BaseObject):
             dt = dateutil.parser.parse(datestr)
         else:
             raise ValueError
-        return [dt, resolution]
+        return dt, resolution
 
     def date_to_string(
         self,
@@ -107,7 +107,7 @@ class TimeStamp(_TimePrimitive):
     """Represents a single moment in time."""
 
     __name__ = "TimeStamp"
-    timestamp = None
+    timestamp: Optional[Tuple[datetime, str]] = None
 
     def __init__(
         self,
@@ -119,7 +119,7 @@ class TimeStamp(_TimePrimitive):
     ) -> None:
         super().__init__(ns=ns, id=id, target_id=target_id)
         resolution = self.get_resolution(timestamp, resolution)
-        self.timestamp = [timestamp, resolution]
+        self.timestamp = (timestamp, resolution)
 
     def etree_element(self) -> Element:
         element = super().etree_element()
