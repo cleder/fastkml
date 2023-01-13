@@ -33,39 +33,66 @@ class TestDateTime(StdLibrary):
 
     def test_kml_datetime_year(self):
         dt = datetime.datetime(2000, 1, 1)
+
         kdt = KmlDateTime(dt, DateTimeResolution.year)
+
         assert kdt.resolution == DateTimeResolution.year
         assert str(kdt) == "2000"
+        assert bool(kdt)
 
     def test_kml_datetime_year_month(self):
         dt = datetime.datetime(2000, 3, 1)
+
         kdt = KmlDateTime(dt, DateTimeResolution.year_month)
+
         assert kdt.resolution == DateTimeResolution.year_month
         assert str(kdt) == "2000-03"
+        assert bool(kdt)
 
     def test_kml_datetime_date(self):
         dt = datetime.datetime.now()
+
         kdt = KmlDateTime(dt, DateTimeResolution.date)
+
         assert kdt.resolution == DateTimeResolution.date
         assert str(kdt) == dt.date().isoformat()
+        assert bool(kdt)
 
     def test_kml_datetime_date_implicit(self):
         dt = datetime.date.today()
+
         kdt = KmlDateTime(dt)
+
         assert kdt.resolution == DateTimeResolution.date
         assert str(kdt) == dt.isoformat()
+        assert bool(kdt)
 
     def test_kml_datetime_datetime(self):
         dt = datetime.datetime.now()
+
         kdt = KmlDateTime(dt, DateTimeResolution.datetime)
+
         assert kdt.resolution == DateTimeResolution.datetime
         assert str(kdt) == dt.isoformat()
+        assert bool(kdt)
 
     def test_kml_datetime_datetime_implicit(self):
         dt = datetime.datetime.now()
+
         kdt = KmlDateTime(dt)
+
         assert kdt.resolution == DateTimeResolution.datetime
         assert str(kdt) == dt.isoformat()
+        assert bool(kdt)
+
+    def test_kml_datetime_no_datetime(self):
+        """When we pass dt as None bool() should return False."""
+        kdt = KmlDateTime(None)
+
+        assert kdt.resolution == DateTimeResolution.date
+        assert not bool(kdt)
+        with pytest.raises(AttributeError):
+            str(kdt)
 
 
 class TestStdLibrary(StdLibrary):
