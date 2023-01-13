@@ -61,7 +61,7 @@ class TestStdLibrary(StdLibrary):
         assert kdt.resolution == DateTimeResolution.datetime
         assert str(kdt) == dt.isoformat()
 
-    def test_kml_datetime_datetime_impicit(self):
+    def test_kml_datetime_datetime_implicit(self):
         dt = datetime.datetime.now()
         kdt = KmlDateTime(dt)
         assert kdt.resolution == DateTimeResolution.datetime
