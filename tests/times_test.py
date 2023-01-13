@@ -168,6 +168,13 @@ class TestDateTime(StdLibrary):
         assert dt.resolution == DateTimeResolution.datetime
         assert dt.dt == datetime.datetime(1997, 7, 16, 7, 30, 15)
 
+    def test_parse_datetime_empty(self):
+        assert KmlDateTime.parse("") is None
+
+    def test_parse_year_month_5(self):
+        """Test that a single digit month is invalid."""
+        assert KmlDateTime.parse("19973") is None
+
 
 class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
