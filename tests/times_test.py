@@ -94,6 +94,80 @@ class TestDateTime(StdLibrary):
         with pytest.raises(AttributeError):
             str(kdt)
 
+    def test_parse_year(self):
+        dt = KmlDateTime.parse("2000")
+
+        assert dt.resolution == DateTimeResolution.year
+        assert dt.dt == datetime.datetime(2000, 1, 1)
+
+    def test_parse_year_0(self):
+        with pytest.raises(ValueError):
+            KmlDateTime.parse("0000")
+
+    def test_parse_year_month(self):
+        dt = KmlDateTime.parse("2000-03")
+
+        assert dt.resolution == DateTimeResolution.year_month
+        assert dt.dt == datetime.datetime(2000, 3, 1)
+
+    def test_parse_year_month_no_dash(self):
+        dt = KmlDateTime.parse("200004")
+
+        assert dt.resolution == DateTimeResolution.year_month
+        assert dt.dt == datetime.datetime(2000, 4, 1)
+
+    def test_parse_year_month_0(self):
+        with pytest.raises(ValueError):
+            KmlDateTime.parse("2000-00")
+
+    def test_parse_year_month_13(self):
+        with pytest.raises(ValueError):
+            KmlDateTime.parse("2000-13")
+
+    def test_parse_year_month_day(self):
+        dt = KmlDateTime.parse("2000-03-01")
+
+        assert dt.resolution == DateTimeResolution.date
+        assert dt.dt == datetime.datetime(2000, 3, 1)
+
+    def test_parse_year_month_day_no_dash(self):
+        dt = KmlDateTime.parse("20000401")
+
+        assert dt.resolution == DateTimeResolution.date
+        assert dt.dt == datetime.datetime(2000, 4, 1)
+
+    def test_parse_year_month_day_0(self):
+        with pytest.raises(ValueError):
+            KmlDateTime.parse("2000-05-00")
+
+    def test_parse_datetime_utc(self):
+        dt = KmlDateTime.parse("1997-07-16T07:30:15Z")
+
+        assert dt.resolution == DateTimeResolution.datetime
+        assert dt.dt == datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc())
+
+    def test_parse_datetime_with_tz(self):
+        dt = KmlDateTime.parse("1997-07-16T07:30:15+01:00")
+
+        assert dt.resolution == DateTimeResolution.datetime
+        assert dt.dt == datetime.datetime(
+            1997, 7, 16, 7, 30, 15, tzinfo=tzoffset(None, 3600)
+        )
+
+    def test_parse_datetime_with_tz_no_colon(self):
+        dt = KmlDateTime.parse("1997-07-16T07:30:15+0100")
+
+        assert dt.resolution == DateTimeResolution.datetime
+        assert dt.dt == datetime.datetime(
+            1997, 7, 16, 7, 30, 15, tzinfo=tzoffset(None, 3600)
+        )
+
+    def test_parse_datetime_no_tz(self):
+        dt = KmlDateTime.parse("1997-07-16T07:30:15")
+
+        assert dt.resolution == DateTimeResolution.datetime
+        assert dt.dt == datetime.datetime(1997, 7, 16, 7, 30, 15)
+
 
 class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
