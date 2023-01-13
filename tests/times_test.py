@@ -1,4 +1,4 @@
-# Copyright (C) 2022  Christian Ledermann
+# Copyright (C) 2022 - 2023 Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -28,17 +28,17 @@ from tests.base import Lxml
 from tests.base import StdLibrary
 
 
-class TestStdLibrary(StdLibrary):
-    """Test with the standard library."""
+class TestDateTime:
+    """KmlDateTime implementation is independent of XML parser."""
 
     def test_kml_datetime_year(self):
-        dt = datetime.datetime(2000, 1, 1, tzinfo=tzutc())
+        dt = datetime.datetime(2000, 1, 1)
         kdt = KmlDateTime(dt, DateTimeResolution.year)
         assert kdt.resolution == DateTimeResolution.year
         assert str(kdt) == "2000"
 
     def test_kml_datetime_year_month(self):
-        dt = datetime.datetime(2000, 3, 1, tzinfo=tzutc())
+        dt = datetime.datetime(2000, 3, 1)
         kdt = KmlDateTime(dt, DateTimeResolution.year_month)
         assert kdt.resolution == DateTimeResolution.year_month
         assert str(kdt) == "2000-03"
@@ -66,6 +66,10 @@ class TestStdLibrary(StdLibrary):
         kdt = KmlDateTime(dt)
         assert kdt.resolution == DateTimeResolution.datetime
         assert str(kdt) == dt.isoformat()
+
+
+class TestStdLibrary(StdLibrary):
+    """Test with the standard library."""
 
     def test_timestamp(self):
         now = datetime.datetime.now()
