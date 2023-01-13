@@ -1,4 +1,5 @@
 """Date and time handling in KML."""
+import re
 from datetime import date
 from datetime import datetime
 from typing import Optional
@@ -14,6 +15,12 @@ import dateutil.parser
 import fastkml.config as config
 from fastkml.base import _BaseObject
 from fastkml.types import Element
+
+# regular expression to parse a gYearMonth string
+# year and month may be separated by a dash or not
+# year is always 4 digits, month is always 2 digits
+# capture groups are named year and month, the dash is not captured
+year_month = re.compile(r"^(?P<year>\d{4})(?:-?)(?P<month>\d{2})$")
 
 
 class _TimePrimitive(_BaseObject):
@@ -53,33 +60,20 @@ class _TimePrimitive(_BaseObject):
         return resolution
 
     def parse_str(self, datestr: str) -> Tuple[datetime, str]:
-        resolution = "dateTime"
-        year = 0
-        month = 1
-        day = 1
         if len(datestr) == 4:
-            resolution = "gYear"
             year = int(datestr)
-            dt = datetime(year, month, day)
-        elif len(datestr) == 6:
-            resolution = "gYearMonth"
-            year = int(datestr[:4])
-            month = int(datestr[-2:])
-            dt = datetime(year, month, day)
-        elif len(datestr) == 7:
-            resolution = "gYearMonth"
-            year = int(datestr.split("-")[0])
-            month = int(datestr.split("-")[1])
-            dt = datetime(year, month, day)
-        elif len(datestr) in [8, 10]:
-            resolution = "date"
-            dt = dateutil.parser.parse(datestr)
-        elif len(datestr) > 10:
-            resolution = "dateTime"
-            dt = dateutil.parser.parse(datestr)
-        else:
-            raise ValueError
-        return dt, resolution
+            return datetime(year, 1, 1), "gYear"
+        if len(datestr) in {6, 7}:
+            ym = year_month.match(datestr)
+            if ym:
+                year = int(ym.group("year"))
+                month = int(ym.group("month"))
+                return datetime(year, month, 1), "gYearMonth"
+        if len(datestr) in {8, 10}:  # 8 is YYYYMMDDS
+            return dateutil.parser.parse(datestr), "date"
+        if len(datestr) > 10:
+            return dateutil.parser.parse(datestr), "dateTime"
+        raise ValueError
 
     def date_to_string(
         self,
