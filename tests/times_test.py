@@ -22,12 +22,50 @@ from dateutil.tz import tzoffset
 from dateutil.tz import tzutc
 
 import fastkml as kml
+from fastkml.enums import DateTimeResolution
+from fastkml.times import KmlDateTime
 from tests.base import Lxml
 from tests.base import StdLibrary
 
 
 class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
+
+    def test_kml_datetime_year(self):
+        dt = datetime.datetime(2000, 1, 1, tzinfo=tzutc())
+        kdt = KmlDateTime(dt, DateTimeResolution.year)
+        assert kdt.resolution == DateTimeResolution.year
+        assert str(kdt) == "2000"
+
+    def test_kml_datetime_year_month(self):
+        dt = datetime.datetime(2000, 3, 1, tzinfo=tzutc())
+        kdt = KmlDateTime(dt, DateTimeResolution.year_month)
+        assert kdt.resolution == DateTimeResolution.year_month
+        assert str(kdt) == "2000-03"
+
+    def test_kml_datetime_date(self):
+        dt = datetime.datetime.now()
+        kdt = KmlDateTime(dt, DateTimeResolution.date)
+        assert kdt.resolution == DateTimeResolution.date
+        assert str(kdt) == dt.date().isoformat()
+
+    def test_kml_datetime_date_implicit(self):
+        dt = datetime.date.today()
+        kdt = KmlDateTime(dt)
+        assert kdt.resolution == DateTimeResolution.date
+        assert str(kdt) == dt.isoformat()
+
+    def test_kml_datetime_datetime(self):
+        dt = datetime.datetime.now()
+        kdt = KmlDateTime(dt, DateTimeResolution.datetime)
+        assert kdt.resolution == DateTimeResolution.datetime
+        assert str(kdt) == dt.isoformat()
+
+    def test_kml_datetime_datetime_impicit(self):
+        dt = datetime.datetime.now()
+        kdt = KmlDateTime(dt)
+        assert kdt.resolution == DateTimeResolution.datetime
+        assert str(kdt) == dt.isoformat()
 
     def test_timestamp(self):
         now = datetime.datetime.now()
