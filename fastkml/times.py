@@ -1,3 +1,18 @@
+# Copyright (C) 2012 - 2023  Christian Ledermann
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Date and time handling in KML."""
 import re
 from datetime import date
@@ -14,12 +29,12 @@ import dateutil.parser
 
 import fastkml.config as config
 from fastkml.base import _BaseObject
+from fastkml.enums import DateTimeResolution
 from fastkml.types import Element
 
 # regular expression to parse a gYearMonth string
 # year and month may be separated by a dash or not
 # year is always 4 digits, month is always 2 digits
-# capture groups are named year and month, the dash is not captured
 year_month = re.compile(r"^(?P<year>\d{4})(?:-?)(?P<month>\d{2})$")
 
 
@@ -59,73 +74,69 @@ class KmlDateTime:
     def __init__(
         self,
         dt: Union[date, datetime],
-        resolution: Optional[str] = None,
+        resolution: Optional[DateTimeResolution] = None,
     ):
         """Initialize a KmlDateTime object."""
         self.dt = dt
         self.resolution = resolution
         if resolution is None:
             # sourcery skip: swap-if-expression
-            self.resolution = "date" if not isinstance(dt, datetime) else "dateTime"
+            self.resolution = (
+                DateTimeResolution.date
+                if not isinstance(dt, datetime)
+                else DateTimeResolution.datetime
+            )
+
+    def __bool__(self) -> bool:
+        """Return True if the date or datetime is valid."""
+        return isinstance(self.dt, date)
 
     def __str__(self) -> str:
         """Return the KML DateTime string representation of the object."""
-        if self.resolution == "gYear":
+        if self.resolution == DateTimeResolution.year:
             return self.dt.strftime("%Y")
-        if self.resolution == "gYearMonth":
+        if self.resolution == DateTimeResolution.year_month:
             return self.dt.strftime("%Y-%m")
-        if self.resolution == "date":
+        if self.resolution == DateTimeResolution.date:
             return (
                 self.dt.date().isoformat()
                 if isinstance(self.dt, datetime)
                 else self.dt.isoformat()
             )
-        if self.resolution == "dateTime":
+        if self.resolution == DateTimeResolution.datetime:
             return self.dt.isoformat()
         raise ValueError
 
     @classmethod
-    def parse(cls, datestr: str) -> "KmlDateTime":
+    def parse(cls, datestr: str) -> Optional["KmlDateTime"]:
         """Parse a KML DateTime string into a KmlDateTime object."""
         resolution = None
         dt = None
         if len(datestr) == 4:
             year = int(datestr)
             dt = datetime(year, 1, 1)
-            resolution = "gYear"
+            resolution = DateTimeResolution.year
         elif len(datestr) in {6, 7}:
             ym = year_month.match(datestr)
             if ym:
                 year = int(ym.group("year"))
                 month = int(ym.group("month"))
                 dt = datetime(year, month, 1)
-                resolution = "gYearMonth"
+                resolution = DateTimeResolution.year_month
         elif len(datestr) in {8, 10}:  # 8 is YYYYMMDDS
             dt = dateutil.parser.parse(datestr)
-            resolution = "date"
+            resolution = DateTimeResolution.date
         elif len(datestr) > 10:
             dt = dateutil.parser.parse(datestr)
-            resolution = "dateTime"
-        if dt is None:
-            raise ValueError
-        return cls(dt, resolution)
+            resolution = DateTimeResolution.datetime
+        return cls(dt, resolution) if dt else None
 
 
 class _TimePrimitive(_BaseObject):
-    """The dateTime is defined according to XML Schema time.
-    The value can be expressed as yyyy-mm-ddThh:mm:sszzzzzz, where T is
-    the separator between the date and the time, and the time zone is
-    either Z (for UTC) or zzzzzz, which represents ±hh:mm in relation to
-    UTC. Additionally, the value can be expressed as a date only.
+    """
+    This is an abstract element and cannot be used directly in a KML file.
 
-    The precision of the dateTime is dictated by the dateTime value
-    which can be one of the following:
-
-    - dateTime gives second resolution
-    - date gives day resolution
-    - gYearMonth gives month resolution
-    - gYear gives year resolution
-
+    This element is extended by the <TimeSpan> and <TimeStamp> elements.
     https://developers.google.com/kml/documentation/kmlreference#timeprimitive
     """
 
@@ -136,6 +147,7 @@ class _TimePrimitive(_BaseObject):
         dt: Optional[Union[date, datetime]],
         resolution: Optional[str] = None,
     ) -> Optional[str]:
+        # XXX deprecated use KmlDateTime
         if resolution:
             if resolution not in self.RESOLUTIONS:
                 raise ValueError
@@ -150,6 +162,7 @@ class _TimePrimitive(_BaseObject):
         return resolution
 
     def parse_str(self, datestr: str) -> Tuple[datetime, str]:
+        # XXX deprecated use KmlDateTime.parse
         if len(datestr) == 4:
             year = int(datestr)
             return datetime(year, 1, 1), "gYear"
@@ -170,6 +183,7 @@ class _TimePrimitive(_BaseObject):
         dt: Optional[Union[date, datetime]],
         resolution: Optional[str] = None,
     ) -> Optional[str]:
+        # XXX deprecated use KmlDateTime.__str__
         if isinstance(dt, (date, datetime)):
             resolution = self.get_resolution(dt, resolution)
             if resolution == "gYear":
