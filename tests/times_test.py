@@ -28,7 +28,7 @@ from tests.base import Lxml
 from tests.base import StdLibrary
 
 
-class TestDateTime:
+class TestDateTime(StdLibrary):
     """KmlDateTime implementation is independent of XML parser."""
 
     def test_kml_datetime_year(self):
