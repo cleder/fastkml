@@ -38,11 +38,11 @@ from fastkml.base import _BaseObject
 from fastkml.data import ExtendedData
 from fastkml.data import Schema
 from fastkml.geometry import Geometry
+from fastkml.mixins import TimeMixin
 from fastkml.styles import Style
 from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
 from fastkml.styles import _StyleSelector
-from fastkml.times import KmlDateTime
 from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
 from fastkml.types import Element
@@ -52,7 +52,7 @@ from fastkml.views import LookAt
 logger = logging.getLogger(__name__)
 
 
-class _Feature(_BaseObject):
+class _Feature(TimeMixin, _BaseObject):
     """
     abstract element; do not create
     subclasses are:
@@ -200,55 +200,6 @@ class _Feature(_BaseObject):
             self._style_url = None
         else:
             raise ValueError
-
-    @property
-    def time_stamp(self) -> Optional[TimeStamp]:
-        """This just returns the datetime portion of the timestamp"""
-        if self._timestamp:
-            return self._timestamp
-
-    @time_stamp.setter
-    def time_stamp(self, timestamp: Optional[TimeStamp]) -> None:
-        self._timestamp = timestamp
-        if self._timespan is None:
-            return
-        if timestamp:
-            logger.warning("Setting a TimeStamp, TimeSpan deleted")
-            self._timespan = None
-
-    @property
-    def begin(self) -> Optional[KmlDateTime]:
-        if self._timespan is not None:
-            return self._timespan.begin
-
-    @begin.setter
-    def begin(self, dt: Optional[KmlDateTime]):
-        if self._timespan is None:
-            self._timespan = TimeSpan(begin=dt)
-        elif dt is None and self._timespan.end is None:
-            self._timespan = None
-        else:
-            self._timespan.begin = dt
-        if self._timespan and self._timestamp:
-            logger.warning("Setting a TimeSpan, TimeStamp deleted")
-            self._timestamp = None
-
-    @property
-    def end(self) -> Optional[KmlDateTime]:
-        if self._timespan is not None:
-            return self._timespan.end
-
-    @end.setter
-    def end(self, dt: Optional[KmlDateTime]):
-        if self._timespan is None:
-            self._timespan = TimeSpan(end=dt)
-        elif dt is None and self._timespan.begin is None:
-            self._timespan = None
-        else:
-            self._timespan.end = dt
-        if self._timespan and self._timestamp:
-            logger.warning("Setting a TimeSpan, TimeStamp deleted")
-            self._timestamp = None
 
     @property
     def camera(self):
