@@ -105,6 +105,8 @@ class Geometry(_BaseObject):
                     3 meters above sea level, the placemark will appear
                     elevated above the terrain by 7 meters. A typical use
                     of this mode is for aircraft placement.
+
+        https://developers.google.com/kml/documentation/kmlreference#geometry
         """
         super().__init__(ns, id)
         self.extrude = extrude

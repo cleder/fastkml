@@ -22,7 +22,7 @@ class PyTest(TestCommand):
 
 setup(
     name="fastkml",
-    version="1.0.alpha.3",
+    version="1.0.alpha.4",
     description="Fast KML processing in python",
     long_description=(
         open("README.rst").read()
@@ -38,6 +38,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
         # "Development Status :: 5 - Production/Stable",

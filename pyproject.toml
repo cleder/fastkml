@@ -40,7 +40,7 @@ show_error_codes = true
 
 [[tool.mypy.overrides]]
 module = [
-    "fastkml.kml", "fastkml.views", "fastkml.times",
+    "fastkml.kml", "fastkml.views",
     "fastkml.tests.oldunit_test", "fastkml.tests.config_test"
 ]
 ignore_errors = true

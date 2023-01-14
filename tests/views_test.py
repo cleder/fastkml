@@ -20,8 +20,8 @@ import datetime
 
 from fastkml import times
 from fastkml import views
-from fastkml.tests.base import Lxml
-from fastkml.tests.base import StdLibrary
+from tests.base import Lxml
+from tests.base import StdLibrary
 
 
 class TestStdLibrary(StdLibrary):
@@ -31,8 +31,8 @@ class TestStdLibrary(StdLibrary):
         """Test the creation of a camera."""
         time_span = times.TimeSpan(
             id="time-span-id",
-            begin=datetime.datetime(2019, 1, 1),
-            end=datetime.datetime(2019, 1, 2),
+            begin=times.KmlDateTime(datetime.datetime(2019, 1, 1)),
+            end=times.KmlDateTime(datetime.datetime(2019, 1, 2)),
         )
 
         camera = views.Camera(
@@ -57,8 +57,8 @@ class TestStdLibrary(StdLibrary):
         assert camera.longitude == 60
         assert camera.id == "cam-id"
         assert camera.target_id == "target-cam-id"
-        assert camera.begin == datetime.datetime(2019, 1, 1)
-        assert camera.end == datetime.datetime(2019, 1, 2)
+        assert camera.begin == times.KmlDateTime(datetime.datetime(2019, 1, 1))
+        assert camera.end == times.KmlDateTime(datetime.datetime(2019, 1, 2))
         assert camera.to_string()
 
     def test_camera_read(self) -> None:
@@ -92,13 +92,13 @@ class TestStdLibrary(StdLibrary):
         assert camera.longitude == 60
         assert camera.id == "cam-id"
         assert camera.target_id == "target-cam-id"
-        assert camera.begin == datetime.datetime(2019, 1, 1)
-        assert camera.end == datetime.datetime(2019, 1, 2)
+        assert camera.begin == times.KmlDateTime(datetime.datetime(2019, 1, 1))
+        assert camera.end == times.KmlDateTime(datetime.datetime(2019, 1, 2))
 
     def test_create_look_at(self) -> None:
         time_stamp = times.TimeStamp(
             id="time-span-id",
-            timestamp=datetime.datetime(2019, 1, 1),
+            timestamp=times.KmlDateTime(datetime.datetime(2019, 1, 1)),
         )
 
         look_at = views.LookAt(
@@ -121,7 +121,7 @@ class TestStdLibrary(StdLibrary):
         assert look_at.longitude == 60
         assert look_at.id == "look-at-id"
         assert look_at.target_id == "target-look-at-id"
-        assert look_at.timestamp == datetime.datetime(2019, 1, 1)
+        assert look_at._timestamp.timestamp.dt == datetime.datetime(2019, 1, 1)
         assert look_at.begin is None
         assert look_at.end is None
         assert look_at.to_string()
@@ -153,7 +153,7 @@ class TestStdLibrary(StdLibrary):
         assert look_at.longitude == 60
         assert look_at.id == "look-at-id"
         assert look_at.target_id == "target-look-at-id"
-        assert look_at.timestamp == datetime.datetime(2019, 1, 1)
+        assert look_at._timestamp.timestamp.dt == datetime.datetime(2019, 1, 1)
         assert look_at.begin is None
         assert look_at.end is None
 

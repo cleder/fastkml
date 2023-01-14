@@ -5,6 +5,7 @@ from typing import Union
 import fastkml.config as config
 import fastkml.gx as gx
 from fastkml.base import _BaseObject
+from fastkml.mixins import TimeMixin
 from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
 from fastkml.types import Element
@@ -12,30 +13,30 @@ from fastkml.types import Element
 logger = logging.getLogger(__name__)
 
 
-class _AbstractView(_BaseObject):
+class _AbstractView(TimeMixin, _BaseObject):
     """
     This is an abstract element and cannot be used directly in a KML file.
     This element is extended by the <Camera> and <LookAt> elements.
     """
 
-    _longitude = None
+    _longitude: Optional[float] = None
     # Longitude of the virtual camera (eye point). Angular distance in degrees,
     # relative to the Prime Meridian. Values west of the Meridian range from
     # −180 to 0 degrees. Values east of the Meridian range from 0 to 180 degrees.
 
-    _latitude = None
+    _latitude: Optional[float] = None
     # Latitude of the virtual camera. Degrees north or south of the Equator
     # (0 degrees). Values range from −90 degrees to 90 degrees.
 
-    _altitude = None
+    _altitude: Optional[float] = None
     # Distance of the camera from the earth's surface, in meters. Interpreted
     # according to the Camera's <altitudeMode> or <gx:altitudeMode>.
 
-    _heading = None
+    _heading: Optional[float] = None
     # Direction (azimuth) of the camera, in degrees. Default=0 (true North).
     # (See diagram.) Values range from 0 to 360 degrees.
 
-    _tilt = None
+    _tilt: Optional[float] = None
     # Rotation, in degrees, of the camera around the X axis. A value of 0
     # indicates that the view is aimed straight down toward the earth (the
     # most common case). A value for 90 for <tilt> indicates that the view
@@ -43,7 +44,7 @@ class _AbstractView(_BaseObject):
     # view is pointed up into the sky. Values for <tilt> are clamped at +180
     # degrees.
 
-    _altitude_mode = "relativeToGround"
+    _altitude_mode: str = "relativeToGround"
     # Specifies how the <altitude> specified for the Camera is interpreted.
     # Possible values are as follows:
     #   relativeToGround -
@@ -57,9 +58,6 @@ class _AbstractView(_BaseObject):
     #       the eye would intersect the terrain (and the view would be blocked).
     #   absolute -
     #       Interprets the <altitude> as a value in meters above sea level.
-
-    _timespan = None
-    _timestamp = None
 
     def __init__(
         self,
@@ -85,52 +83,6 @@ class _AbstractView(_BaseObject):
             self._timespan = time_primitive
         elif isinstance(time_primitive, TimeStamp):
             self._timestamp = time_primitive
-
-    @property
-    def timestamp(self):
-        if self._timestamp is not None:
-            return self._timestamp.timestamp[0]
-
-    @timestamp.setter
-    def timestamp(self, dt):
-        self._timestamp = None if dt is None else TimeStamp(timestamp=dt)
-        if self._timestamp is not None:
-            logger.warning("Setting a TimeStamp, TimeSpan deleted")
-            self._timespan = None
-
-    @property
-    def begin(self):
-        if self._timespan is None:
-            return None
-        return self._timespan.begin[0]
-
-    @begin.setter
-    def begin(self, dt) -> None:
-        if self._timespan is None:
-            self._timespan = TimeSpan(begin=dt)
-        elif self._timespan.begin is None:
-            self._timespan.begin = [dt, None]
-        else:
-            self._timespan.begin[0] = dt
-        if self._timestamp is not None:
-            logger.warning("Setting a TimeSpan, TimeStamp deleted")
-            self._timestamp = None
-
-    @property
-    def end(self):
-        return None if self._timespan is None else self._timespan.end[0]
-
-    @end.setter
-    def end(self, dt):
-        if self._timespan is None:
-            self._timespan = TimeSpan(end=dt)
-        elif self._timespan.end is None:
-            self._timespan.end = [dt, None]
-        else:
-            self._timespan.end[0] = dt
-        if self._timestamp is not None:
-            logger.warning("Setting a TimeSpan, TimeStamp deleted")
-            self._timestamp = None
 
     @property
     def longitude(self) -> Optional[float]:
@@ -202,16 +154,16 @@ class _AbstractView(_BaseObject):
         return self._altitude_mode
 
     @altitude_mode.setter
-    def altitude_mode(self, mode) -> None:
-        if mode in ("relativeToGround", "clampToGround", "absolute"):
-            self._altitude_mode = str(mode)
+    def altitude_mode(self, mode: str) -> None:
+        if mode in {"relativeToGround", "clampToGround", "absolute"}:
+            self._altitude_mode = mode
         else:
             self._altitude_mode = "relativeToGround"
             # raise ValueError(
             #     "altitude_mode must be one of " "relativeToGround,
             #     clampToGround, absolute")
 
-    def from_element(self, element):
+    def from_element(self, element: Element):
         super().from_element(element)
         longitude = element.find(f"{self.ns}longitude")
         if longitude is not None:
@@ -229,11 +181,9 @@ class _AbstractView(_BaseObject):
         if tilt is not None:
             self.tilt = tilt.text
         altitude_mode = element.find(f"{self.ns}altitudeMode")
-        if altitude_mode is not None:
-            self.altitude_mode = altitude_mode.text
-        else:
+        if altitude_mode is None:
             altitude_mode = element.find(f"{gx.NS}altitudeMode")
-            self.altitude_mode = altitude_mode.text
+        self.altitude_mode = altitude_mode.text
         timespan = element.find(f"{self.ns}TimeSpan")
         if timespan is not None:
             s = TimeSpan(self.ns)
@@ -245,7 +195,7 @@ class _AbstractView(_BaseObject):
             s.from_element(timestamp)
             self._timestamp = s
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self.longitude:
             longitude = config.etree.SubElement(element, f"{self.ns}longitude")
@@ -303,7 +253,7 @@ class Camera(_AbstractView):
 
     __name__ = "Camera"
 
-    _roll = None
+    _roll: Optional[float] = None
     # Rotation, in degrees, of the camera around the Z axis. Values range from
     # −180 to +180 degrees.
 
@@ -335,7 +285,7 @@ class Camera(_AbstractView):
         )
         self._roll = roll
 
-    def from_element(self, element) -> None:
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         roll = element.find(f"{self.ns}roll")
         if roll is not None:
@@ -366,7 +316,7 @@ class LookAt(_AbstractView):
 
     __name__ = "LookAt"
 
-    _range = None
+    _range: Optional[float] = None
     # Distance in meters from the point specified by <longitude>, <latitude>,
     # and <altitude> to the LookAt position. (See diagram below.)
 
@@ -399,11 +349,11 @@ class LookAt(_AbstractView):
         self._range = range
 
     @property
-    def range(self):
+    def range(self) -> Optional[float]:
         return self._range
 
     @range.setter
-    def range(self, value):
+    def range(self, value) -> None:
         if isinstance(value, (str, int, float)):
             self._range = float(value)
         elif value is None:
@@ -411,13 +361,13 @@ class LookAt(_AbstractView):
         else:
             raise ValueError
 
-    def from_element(self, element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         range_var = element.find(f"{self.ns}range")
         if range_var is not None:
             self.range = range_var.text
 
-    def etree_element(self):
+    def etree_element(self) -> Element:
         element = super().etree_element()
         if self.range:
             range_var = config.etree.SubElement(element, f"{self.ns}range")

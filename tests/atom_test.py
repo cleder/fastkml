@@ -17,8 +17,8 @@
 """Test the Atom classes."""
 
 from fastkml import atom
-from fastkml.tests.base import Lxml
-from fastkml.tests.base import StdLibrary
+from tests.base import Lxml
+from tests.base import StdLibrary
 
 
 class TestStdLibrary(StdLibrary):
