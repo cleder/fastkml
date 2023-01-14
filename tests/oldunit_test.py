@@ -16,6 +16,14 @@
 import xml.etree.ElementTree
 
 import pytest
+from pygeoif.geometry import GeometryCollection
+from pygeoif.geometry import LinearRing
+from pygeoif.geometry import LineString
+from pygeoif.geometry import MultiLineString
+from pygeoif.geometry import MultiPoint
+from pygeoif.geometry import MultiPolygon
+from pygeoif.geometry import Point
+from pygeoif.geometry import Polygon
 
 from fastkml import atom
 from fastkml import base
@@ -24,14 +32,6 @@ from fastkml import data
 from fastkml import kml
 from fastkml import styles
 from fastkml.geometry import Geometry
-from fastkml.geometry import GeometryCollection
-from fastkml.geometry import LinearRing
-from fastkml.geometry import LineString
-from fastkml.geometry import MultiLineString
-from fastkml.geometry import MultiPoint
-from fastkml.geometry import MultiPolygon
-from fastkml.geometry import Point
-from fastkml.geometry import Polygon
 from fastkml.gx import GxGeometry
 
 try:
