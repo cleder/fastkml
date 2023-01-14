@@ -201,15 +201,17 @@ class _Feature(_BaseObject):
             raise ValueError
 
     @property
-    def time_stamp(self):
+    def time_stamp(self) -> Optional[TimeStamp]:
         """This just returns the datetime portion of the timestamp"""
-        if self._timestamp is not None:
-            return self._timestamp.timestamp[0]
+        if self._timestamp:
+            return self._timestamp
 
     @time_stamp.setter
-    def time_stamp(self, dt):
-        self._timestamp = None if dt is None else TimeStamp(timestamp=dt)
-        if self._timespan is not None:
+    def time_stamp(self, timestamp: Optional[TimeStamp]) -> None:
+        self._timestamp = timestamp
+        if self._timespan is None:
+            return
+        if timestamp:
             logger.warning("Setting a TimeStamp, TimeSpan deleted")
             self._timespan = None
 

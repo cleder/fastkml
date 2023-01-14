@@ -98,7 +98,7 @@ class TestStdLibrary(StdLibrary):
     def test_create_look_at(self) -> None:
         time_stamp = times.TimeStamp(
             id="time-span-id",
-            timestamp=datetime.datetime(2019, 1, 1),
+            timestamp=times.KmlDateTime(datetime.datetime(2019, 1, 1)),
         )
 
         look_at = views.LookAt(
@@ -121,7 +121,7 @@ class TestStdLibrary(StdLibrary):
         assert look_at.longitude == 60
         assert look_at.id == "look-at-id"
         assert look_at.target_id == "target-look-at-id"
-        assert look_at.timestamp == datetime.datetime(2019, 1, 1)
+        assert look_at.timestamp.timestamp.dt == datetime.datetime(2019, 1, 1)
         assert look_at.begin is None
         assert look_at.end is None
         assert look_at.to_string()
@@ -153,7 +153,7 @@ class TestStdLibrary(StdLibrary):
         assert look_at.longitude == 60
         assert look_at.id == "look-at-id"
         assert look_at.target_id == "target-look-at-id"
-        assert look_at.timestamp == datetime.datetime(2019, 1, 1)
+        assert look_at.timestamp.timestamp.dt == datetime.datetime(2019, 1, 1)
         assert look_at.begin is None
         assert look_at.end is None
 

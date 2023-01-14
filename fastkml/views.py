@@ -88,14 +88,12 @@ class _AbstractView(_BaseObject):
             self._timestamp = time_primitive
 
     @property
-    def timestamp(self) -> Optional[datetime.datetime]:
-        if self._timestamp is not None:
-            return self._timestamp.timestamp[0]
-        return None
+    def timestamp(self) -> TimeStamp:
+        return self._timestamp
 
     @timestamp.setter
-    def timestamp(self, dt: datetime.datetime) -> None:
-        self._timestamp = None if dt is None else TimeStamp(timestamp=dt)
+    def timestamp(self, timestamp: Optional[TimeStamp]) -> None:
+        self._timestamp = timestamp
         if self._timestamp is not None:
             logger.warning("Setting a TimeStamp, TimeSpan deleted")
             self._timespan = None

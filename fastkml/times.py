@@ -91,6 +91,14 @@ class KmlDateTime:
         """Return True if the date or datetime is valid."""
         return isinstance(self.dt, date)
 
+    def __eq__(self, other: object) -> bool:
+        """Return True if the two objects are equal."""
+        return (
+            self.dt == other.dt and self.resolution == other.resolution
+            if isinstance(other, KmlDateTime)
+            else False
+        )
+
     def __str__(self) -> str:
         """Return the KML DateTime string representation of the object."""
         if self.resolution == DateTimeResolution.year:
@@ -123,7 +131,7 @@ class KmlDateTime:
                 month = int(ym.group("month"))
                 dt = datetime(year, month, 1)
                 resolution = DateTimeResolution.year_month
-        elif len(datestr) in {8, 10}:  # 8 is YYYYMMDDS
+        elif len(datestr) in {8, 10}:  # 8 is YYYYMMDD, 10 is YYYY-MM-DD
             dt = dateutil.parser.parse(datestr)
             resolution = DateTimeResolution.date
         elif len(datestr) > 10:
@@ -212,26 +220,24 @@ class TimeStamp(_TimePrimitive):
         ns: Optional[str] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        timestamp: Optional[Union[date, datetime]] = None,
-        resolution: Optional[str] = None,
+        timestamp: Optional[KmlDateTime] = None,
     ) -> None:
         super().__init__(ns=ns, id=id, target_id=target_id)
-        resolution = self.get_resolution(timestamp, resolution)
-        self.timestamp = (timestamp, resolution)
+        self.timestamp = timestamp
 
     def etree_element(self) -> Element:
         element = super().etree_element()
         when = config.etree.SubElement(  # type: ignore[attr-defined]
             element, f"{self.ns}when"
         )
-        when.text = self.date_to_string(*self.timestamp)
+        when.text = str(self.timestamp)
         return element
 
     def from_element(self, element: Element) -> None:
         super().from_element(element)
         when = element.find(f"{self.ns}when")
         if when is not None:
-            self.timestamp = self.parse_str(when.text)
+            self.timestamp = KmlDateTime.parse(when.text)
 
 
 class TimeSpan(_TimePrimitive):

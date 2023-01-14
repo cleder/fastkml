@@ -181,33 +181,17 @@ class TestStdLibrary(StdLibrary):
 
     def test_timestamp(self):
         now = datetime.datetime.now()
-        ts = kml.TimeStamp(timestamp=now)
-        assert ts.timestamp == (now, "dateTime")
+        dt = KmlDateTime(now)
+        ts = kml.TimeStamp(timestamp=dt)
+        assert ts.timestamp.dt == now
+        assert ts.timestamp.resolution == DateTimeResolution.datetime
         assert "TimeStamp>" in str(ts.to_string())
         assert "when>" in str(ts.to_string())
         assert now.isoformat() in str(ts.to_string())
-        y2k = datetime.date(2000, 1, 1)
+        y2k = KmlDateTime(datetime.date(2000, 1, 1))
         ts = kml.TimeStamp(timestamp=y2k)
-        assert ts.timestamp == (y2k, "date")
+        assert ts.timestamp == y2k
         assert "2000-01-01" in str(ts.to_string())
-
-    def test_timestamp_resolution(self):
-        now = datetime.datetime.now()
-        ts = kml.TimeStamp(timestamp=now)
-        assert now.isoformat() in str(ts.to_string())
-        ts.timestamp = (now, "date")
-        assert now.date().isoformat() in str(ts.to_string())
-        assert now.isoformat() not in str(ts.to_string())
-        year = str(now.year)
-        ym = now.strftime("%Y-%m")
-        ts.timestamp = (now, "gYearMonth")
-        assert ym in str(ts.to_string())
-        assert now.date().isoformat() not in str(ts.to_string())
-        ts.timestamp = (now, "gYear")
-        assert year in str(ts.to_string())
-        assert ym not in str(ts.to_string())
-        ts.timestamp = None
-        pytest.raises(TypeError, ts.to_string)
 
     def test_timespan(self):
         now = datetime.datetime.now()
@@ -229,12 +213,12 @@ class TestStdLibrary(StdLibrary):
     def test_feature_timestamp(self):
         now = datetime.datetime.now()
         f = kml.Document()
-        f.time_stamp = now
-        assert f.time_stamp == now
+        f.time_stamp = kml.TimeStamp(timestamp=KmlDateTime(now))
+        assert f.time_stamp.timestamp == KmlDateTime(now)
         assert now.isoformat() in str(f.to_string())
         assert "TimeStamp>" in str(f.to_string())
         assert "when>" in str(f.to_string())
-        f.time_stamp = now.date()
+        f.time_stamp = kml.TimeStamp(timestamp=KmlDateTime(now.date()))
         assert now.date().isoformat() in str(f.to_string())
         assert now.isoformat() not in str(f.to_string())
         f.time_stamp = None
@@ -276,7 +260,7 @@ class TestStdLibrary(StdLibrary):
         assert "TimeStamp>" not in str(f.to_string())
         assert "when>" not in str(f.to_string())
         # when we set a timestamp an existing timespan will be deleted
-        f.time_stamp = now
+        f.time_stamp = kml.TimeStamp(timestamp=KmlDateTime(now))
         assert now.isoformat() in str(f.to_string())
         assert "TimeStamp>" in str(f.to_string())
         assert "when>" in str(f.to_string())
@@ -309,8 +293,8 @@ class TestStdLibrary(StdLibrary):
         """
 
         ts.from_string(doc)
-        assert ts.timestamp[1] == "gYear"
-        assert ts.timestamp[0] == datetime.datetime(1997, 1, 1, 0, 0)
+        assert ts.timestamp.resolution == DateTimeResolution.year
+        assert ts.timestamp.dt == datetime.datetime(1997, 1, 1, 0, 0)
         doc = """
         <TimeStamp>
           <when>1997-07</when>
@@ -318,8 +302,8 @@ class TestStdLibrary(StdLibrary):
         """
 
         ts.from_string(doc)
-        assert ts.timestamp[1] == "gYearMonth"
-        assert ts.timestamp[0] == datetime.datetime(1997, 7, 1, 0, 0)
+        assert ts.timestamp.resolution == DateTimeResolution.year_month
+        assert ts.timestamp.dt == datetime.datetime(1997, 7, 1, 0, 0)
         doc = """
         <TimeStamp>
           <when>199808</when>
@@ -327,8 +311,8 @@ class TestStdLibrary(StdLibrary):
         """
 
         ts.from_string(doc)
-        assert ts.timestamp[1] == "gYearMonth"
-        assert ts.timestamp[0] == datetime.datetime(1998, 8, 1, 0, 0)
+        assert ts.timestamp.resolution == DateTimeResolution.year_month
+        assert ts.timestamp.dt == datetime.datetime(1998, 8, 1, 0, 0)
         doc = """
         <TimeStamp>
           <when>1997-07-16</when>
@@ -336,8 +320,8 @@ class TestStdLibrary(StdLibrary):
         """
 
         ts.from_string(doc)
-        assert ts.timestamp[1] == "date"
-        assert ts.timestamp[0] == datetime.datetime(1997, 7, 16, 0, 0)
+        assert ts.timestamp.resolution == DateTimeResolution.date
+        assert ts.timestamp.dt == datetime.datetime(1997, 7, 16, 0, 0)
         # dateTime (YYYY-MM-DDThh:mm:ssZ)
         # Here, T is the separator between the calendar and the hourly notation
         # of time, and Z indicates UTC. (Seconds are required.)
@@ -348,8 +332,8 @@ class TestStdLibrary(StdLibrary):
         """
 
         ts.from_string(doc)
-        assert ts.timestamp[1] == "dateTime"
-        assert ts.timestamp[0] == datetime.datetime(
+        assert ts.timestamp.resolution == DateTimeResolution.datetime
+        assert ts.timestamp.dt == datetime.datetime(
             1997, 7, 16, 7, 30, 15, tzinfo=tzutc()
         )
         doc = """
@@ -359,8 +343,8 @@ class TestStdLibrary(StdLibrary):
         """
 
         ts.from_string(doc)
-        assert ts.timestamp[1] == "dateTime"
-        assert ts.timestamp[0] == datetime.datetime(
+        assert ts.timestamp.resolution == DateTimeResolution.datetime
+        assert ts.timestamp.dt == datetime.datetime(
             1997, 7, 16, 10, 30, 15, tzinfo=tzoffset(None, 10800)
         )
 
