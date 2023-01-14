@@ -213,12 +213,12 @@ class TestStdLibrary(StdLibrary):
     def test_feature_timestamp(self):
         now = datetime.datetime.now()
         f = kml.Document()
-        f.time_stamp = kml.TimeStamp(timestamp=KmlDateTime(now))
-        assert f.time_stamp.timestamp == KmlDateTime(now)
+        f.time_stamp = KmlDateTime(now)
+        assert f.time_stamp.dt == now
         assert now.isoformat() in str(f.to_string())
         assert "TimeStamp>" in str(f.to_string())
         assert "when>" in str(f.to_string())
-        f.time_stamp = kml.TimeStamp(timestamp=KmlDateTime(now.date()))
+        f.time_stamp = KmlDateTime(now.date())
         assert now.date().isoformat() in str(f.to_string())
         assert now.isoformat() not in str(f.to_string())
         f.time_stamp = None
@@ -260,7 +260,7 @@ class TestStdLibrary(StdLibrary):
         assert "TimeStamp>" not in str(f.to_string())
         assert "when>" not in str(f.to_string())
         # when we set a timestamp an existing timespan will be deleted
-        f.time_stamp = kml.TimeStamp(timestamp=KmlDateTime(now))
+        f.time_stamp = KmlDateTime(now)
         assert now.isoformat() in str(f.to_string())
         assert "TimeStamp>" in str(f.to_string())
         assert "when>" in str(f.to_string())

@@ -30,17 +30,21 @@ class TimeMixin:
     _timestamp: Optional[TimeStamp] = None
 
     @property
-    def time_stamp(self) -> Optional[TimeStamp]:
+    def time_stamp(self) -> Optional[KmlDateTime]:
         """This just returns the datetime portion of the timestamp"""
-        if self._timestamp:
-            return self._timestamp
+        if self._timestamp is not None:
+            return self._timestamp.timestamp
+        return None
 
     @time_stamp.setter
-    def time_stamp(self, timestamp: Optional[TimeStamp]) -> None:
-        self._timestamp = timestamp
-        if self._timespan is None:
-            return
-        if timestamp:
+    def time_stamp(self, timestamp: Optional[KmlDateTime]) -> None:
+        if self._timestamp is None:
+            self._timestamp = TimeStamp(timestamp=timestamp)
+        elif timestamp is None:
+            self._timestamp = None
+        else:
+            self._timestamp.timestamp = timestamp
+        if self._timespan and self._timestamp:
             logger.warning("Setting a TimeStamp, TimeSpan deleted")
             self._timespan = None
 
@@ -48,9 +52,10 @@ class TimeMixin:
     def begin(self) -> Optional[KmlDateTime]:
         if self._timespan is not None:
             return self._timespan.begin
+        return None
 
     @begin.setter
-    def begin(self, dt: Optional[KmlDateTime]):
+    def begin(self, dt: Optional[KmlDateTime]) -> None:
         if self._timespan is None:
             self._timespan = TimeSpan(begin=dt)
         elif dt is None and self._timespan.end is None:
@@ -65,9 +70,10 @@ class TimeMixin:
     def end(self) -> Optional[KmlDateTime]:
         if self._timespan is not None:
             return self._timespan.end
+        return None
 
     @end.setter
-    def end(self, dt: Optional[KmlDateTime]):
+    def end(self, dt: Optional[KmlDateTime]) -> None:
         if self._timespan is None:
             self._timespan = TimeSpan(end=dt)
         elif dt is None and self._timespan.begin is None:
