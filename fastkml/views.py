@@ -1,4 +1,3 @@
-import datetime
 import logging
 from typing import Optional
 from typing import Union
@@ -6,6 +5,7 @@ from typing import Union
 import fastkml.config as config
 import fastkml.gx as gx
 from fastkml.base import _BaseObject
+from fastkml.times import KmlDateTime
 from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
 from fastkml.types import Element
@@ -99,36 +99,36 @@ class _AbstractView(_BaseObject):
             self._timespan = None
 
     @property
-    def begin(self) -> Optional[datetime.datetime]:
-        if self._timespan is None:
-            return None
-        return self._timespan.begin[0]
+    def begin(self) -> Optional[KmlDateTime]:
+        if self._timespan is not None:
+            return self._timespan.begin
 
     @begin.setter
-    def begin(self, dt) -> None:
+    def begin(self, dt: Optional[KmlDateTime]):
         if self._timespan is None:
             self._timespan = TimeSpan(begin=dt)
-        elif self._timespan.begin is None:
-            self._timespan.begin = [dt, None]
+        elif dt is None and self._timespan.end is None:
+            self._timespan = None
         else:
-            self._timespan.begin[0] = dt
-        if self._timestamp is not None:
+            self._timespan.begin = dt
+        if self._timespan and self._timestamp:
             logger.warning("Setting a TimeSpan, TimeStamp deleted")
             self._timestamp = None
 
     @property
-    def end(self) -> Optional[datetime.datetime]:
-        return None if self._timespan is None else self._timespan.end[0]
+    def end(self) -> Optional[KmlDateTime]:
+        if self._timespan is not None:
+            return self._timespan.end
 
     @end.setter
-    def end(self, dt) -> None:
+    def end(self, dt: Optional[KmlDateTime]):
         if self._timespan is None:
             self._timespan = TimeSpan(end=dt)
-        elif self._timespan.end is None:
-            self._timespan.end = [dt, None]
+        elif dt is None and self._timespan.begin is None:
+            self._timespan = None
         else:
-            self._timespan.end[0] = dt
-        if self._timestamp is not None:
+            self._timespan.end = dt
+        if self._timespan and self._timestamp:
             logger.warning("Setting a TimeSpan, TimeStamp deleted")
             self._timestamp = None
 

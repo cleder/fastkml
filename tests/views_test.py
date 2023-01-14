@@ -31,8 +31,8 @@ class TestStdLibrary(StdLibrary):
         """Test the creation of a camera."""
         time_span = times.TimeSpan(
             id="time-span-id",
-            begin=datetime.datetime(2019, 1, 1),
-            end=datetime.datetime(2019, 1, 2),
+            begin=times.KmlDateTime(datetime.datetime(2019, 1, 1)),
+            end=times.KmlDateTime(datetime.datetime(2019, 1, 2)),
         )
 
         camera = views.Camera(
@@ -57,8 +57,8 @@ class TestStdLibrary(StdLibrary):
         assert camera.longitude == 60
         assert camera.id == "cam-id"
         assert camera.target_id == "target-cam-id"
-        assert camera.begin == datetime.datetime(2019, 1, 1)
-        assert camera.end == datetime.datetime(2019, 1, 2)
+        assert camera.begin == times.KmlDateTime(datetime.datetime(2019, 1, 1))
+        assert camera.end == times.KmlDateTime(datetime.datetime(2019, 1, 2))
         assert camera.to_string()
 
     def test_camera_read(self) -> None:
@@ -92,8 +92,8 @@ class TestStdLibrary(StdLibrary):
         assert camera.longitude == 60
         assert camera.id == "cam-id"
         assert camera.target_id == "target-cam-id"
-        assert camera.begin == datetime.datetime(2019, 1, 1)
-        assert camera.end == datetime.datetime(2019, 1, 2)
+        assert camera.begin == times.KmlDateTime(datetime.datetime(2019, 1, 1))
+        assert camera.end == times.KmlDateTime(datetime.datetime(2019, 1, 2))
 
     def test_create_look_at(self) -> None:
         time_stamp = times.TimeStamp(

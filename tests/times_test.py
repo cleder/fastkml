@@ -194,19 +194,19 @@ class TestStdLibrary(StdLibrary):
         assert "2000-01-01" in str(ts.to_string())
 
     def test_timespan(self):
-        now = datetime.datetime.now()
-        y2k = datetime.datetime(2000, 1, 1)
+        now = KmlDateTime(datetime.datetime.now())
+        y2k = KmlDateTime(datetime.datetime(2000, 1, 1))
         ts = kml.TimeSpan(end=now, begin=y2k)
-        assert ts.end == [now, "dateTime"]
-        assert ts.begin == [y2k, "dateTime"]
+        assert ts.end == now
+        assert ts.begin == y2k
         assert "TimeSpan>" in str(ts.to_string())
         assert "begin>" in str(ts.to_string())
         assert "end>" in str(ts.to_string())
-        assert now.isoformat() in str(ts.to_string())
-        assert y2k.isoformat() in str(ts.to_string())
+        assert now.dt.isoformat() in str(ts.to_string())
+        assert y2k.dt.isoformat() in str(ts.to_string())
         ts.end = None
-        assert now.isoformat() not in str(ts.to_string())
-        assert y2k.isoformat() in str(ts.to_string())
+        assert now.dt.isoformat() not in str(ts.to_string())
+        assert y2k.dt.isoformat() in str(ts.to_string())
         ts.begin = None
         pytest.raises(ValueError, ts.to_string)
 
@@ -226,12 +226,12 @@ class TestStdLibrary(StdLibrary):
 
     def test_feature_timespan(self):
         now = datetime.datetime.now()
-        y2k = datetime.date(2000, 1, 1)
+        y2k = datetime.datetime(2000, 1, 1)
         f = kml.Document()
-        f.begin = y2k
-        f.end = now
-        assert f.begin == y2k
-        assert f.end == now
+        f.begin = KmlDateTime(y2k)
+        f.end = KmlDateTime(now)
+        assert f.begin == KmlDateTime(y2k)
+        assert f.end == KmlDateTime(now)
         assert now.isoformat() in str(f.to_string())
         assert "2000-01-01" in str(f.to_string())
         assert "TimeSpan>" in str(f.to_string())
@@ -250,8 +250,8 @@ class TestStdLibrary(StdLibrary):
         now = datetime.datetime.now()
         y2k = datetime.date(2000, 1, 1)
         f = kml.Document()
-        f.begin = y2k
-        f.end = now
+        f.begin = KmlDateTime(y2k)
+        f.end = KmlDateTime(now)
         assert now.isoformat() in str(f.to_string())
         assert "2000-01-01" in str(f.to_string())
         assert "TimeSpan>" in str(f.to_string())
@@ -358,10 +358,10 @@ class TestStdLibrary(StdLibrary):
         """
 
         ts.from_string(doc)
-        assert ts.begin[1] == "date"
-        assert ts.begin[0] == datetime.datetime(1876, 8, 1, 0, 0)
-        assert ts.end[1] == "dateTime"
-        assert ts.end[0] == datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc())
+        assert ts.begin.resolution == DateTimeResolution.date
+        assert ts.begin.dt == datetime.datetime(1876, 8, 1, 0, 0)
+        assert ts.end.resolution == DateTimeResolution.datetime
+        assert ts.end.dt == datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc())
 
     def test_featurefromstring(self):
         d = kml.Document(ns="")

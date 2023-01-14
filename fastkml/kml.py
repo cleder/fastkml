@@ -42,6 +42,7 @@ from fastkml.styles import Style
 from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
 from fastkml.styles import _StyleSelector
+from fastkml.times import KmlDateTime
 from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
 from fastkml.types import Element
@@ -216,36 +217,36 @@ class _Feature(_BaseObject):
             self._timespan = None
 
     @property
-    def begin(self):
+    def begin(self) -> Optional[KmlDateTime]:
         if self._timespan is not None:
-            return self._timespan.begin[0]
+            return self._timespan.begin
 
     @begin.setter
-    def begin(self, dt):
+    def begin(self, dt: Optional[KmlDateTime]):
         if self._timespan is None:
             self._timespan = TimeSpan(begin=dt)
-        elif self._timespan.begin is None:
-            self._timespan.begin = [dt, None]
+        elif dt is None and self._timespan.end is None:
+            self._timespan = None
         else:
-            self._timespan.begin[0] = dt
-        if self._timestamp is not None:
+            self._timespan.begin = dt
+        if self._timespan and self._timestamp:
             logger.warning("Setting a TimeSpan, TimeStamp deleted")
             self._timestamp = None
 
     @property
-    def end(self):
+    def end(self) -> Optional[KmlDateTime]:
         if self._timespan is not None:
-            return self._timespan.end[0]
+            return self._timespan.end
 
     @end.setter
-    def end(self, dt):
+    def end(self, dt: Optional[KmlDateTime]):
         if self._timespan is None:
             self._timespan = TimeSpan(end=dt)
-        elif self._timespan.end is None:
-            self._timespan.end = [dt, None]
+        elif dt is None and self._timespan.begin is None:
+            self._timespan = None
         else:
-            self._timespan.end[0] = dt
-        if self._timestamp is not None:
+            self._timespan.end = dt
+        if self._timespan and self._timestamp:
             logger.warning("Setting a TimeSpan, TimeStamp deleted")
             self._timestamp = None
 

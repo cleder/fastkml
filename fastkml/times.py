@@ -18,7 +18,6 @@ import re
 from datetime import date
 from datetime import datetime
 from typing import Optional
-from typing import Tuple
 from typing import Union
 
 # note that there are some ISO 8601 timeparsers at pypi
@@ -99,6 +98,10 @@ class KmlDateTime:
             else False
         )
 
+    def __repr__(self) -> str:
+        """Return a string representation of the object."""
+        return f"{self.__class__.__name__}({self.dt!r}, {self.resolution})"
+
     def __str__(self) -> str:
         """Return the KML DateTime string representation of the object."""
         if self.resolution == DateTimeResolution.year:
@@ -148,72 +151,11 @@ class _TimePrimitive(_BaseObject):
     https://developers.google.com/kml/documentation/kmlreference#timeprimitive
     """
 
-    RESOLUTIONS = ["gYear", "gYearMonth", "date", "dateTime"]
-
-    def get_resolution(
-        self,
-        dt: Optional[Union[date, datetime]],
-        resolution: Optional[str] = None,
-    ) -> Optional[str]:
-        # XXX deprecated use KmlDateTime
-        if resolution:
-            if resolution not in self.RESOLUTIONS:
-                raise ValueError
-            else:
-                return resolution
-        elif isinstance(dt, datetime):
-            resolution = "dateTime"
-        elif isinstance(dt, date):
-            resolution = "date"
-        else:
-            resolution = None
-        return resolution
-
-    def parse_str(self, datestr: str) -> Tuple[datetime, str]:
-        # XXX deprecated use KmlDateTime.parse
-        if len(datestr) == 4:
-            year = int(datestr)
-            return datetime(year, 1, 1), "gYear"
-        if len(datestr) in {6, 7}:
-            ym = year_month.match(datestr)
-            if ym:
-                year = int(ym.group("year"))
-                month = int(ym.group("month"))
-                return datetime(year, month, 1), "gYearMonth"
-        if len(datestr) in {8, 10}:  # 8 is YYYYMMDDS
-            return dateutil.parser.parse(datestr), "date"
-        if len(datestr) > 10:
-            return dateutil.parser.parse(datestr), "dateTime"
-        raise ValueError
-
-    def date_to_string(
-        self,
-        dt: Optional[Union[date, datetime]],
-        resolution: Optional[str] = None,
-    ) -> Optional[str]:
-        # XXX deprecated use KmlDateTime.__str__
-        if isinstance(dt, (date, datetime)):
-            resolution = self.get_resolution(dt, resolution)
-            if resolution == "gYear":
-                return dt.strftime("%Y")
-            elif resolution == "gYearMonth":
-                return dt.strftime("%Y-%m")
-            elif resolution == "date":
-                return (
-                    dt.date().isoformat()
-                    if isinstance(dt, datetime)
-                    else dt.isoformat()
-                )
-            elif resolution == "dateTime":
-                return dt.isoformat()
-        return None
-
 
 class TimeStamp(_TimePrimitive):
     """Represents a single moment in time."""
 
     __name__ = "TimeStamp"
-    timestamp: Optional[Tuple[datetime, str]] = None
 
     def __init__(
         self,
@@ -244,47 +186,45 @@ class TimeSpan(_TimePrimitive):
     """Represents an extent in time bounded by begin and end dateTimes."""
 
     __name__ = "TimeSpan"
-    begin = None
-    end = None
 
     def __init__(
         self,
         ns: Optional[str] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        begin: Optional[Union[date, datetime]] = None,
-        begin_res: None = None,
-        end: Optional[Union[date, datetime]] = None,
-        end_res: None = None,
+        begin: Optional[KmlDateTime] = None,
+        end: Optional[KmlDateTime] = None,
     ) -> None:
         super().__init__(ns=ns, id=id, target_id=target_id)
-        if begin:
-            resolution = self.get_resolution(begin, begin_res)
-            self.begin = [begin, resolution]
-        if end:
-            resolution = self.get_resolution(end, end_res)
-            self.end = [end, resolution]
+        self.begin = begin
+        self.end = end
 
     def from_element(self, element: Element) -> None:
         super().from_element(element)
         begin = element.find(f"{self.ns}begin")
         if begin is not None:
-            self.begin = self.parse_str(begin.text)
+            self.begin = KmlDateTime.parse(begin.text)
         end = element.find(f"{self.ns}end")
         if end is not None:
-            self.end = self.parse_str(end.text)
+            self.end = KmlDateTime.parse(end.text)
 
     def etree_element(self) -> Element:
         element = super().etree_element()
         if self.begin is not None:
-            text = self.date_to_string(*self.begin)
+            text = str(self.begin)
             if text:
-                begin = config.etree.SubElement(element, f"{self.ns}begin")
+                begin = config.etree.SubElement(  # type: ignore[attr-defined]
+                    element,
+                    f"{self.ns}begin",
+                )
                 begin.text = text
         if self.end is not None:
-            text = self.date_to_string(*self.end)
+            text = str(self.end)
             if text:
-                end = config.etree.SubElement(element, f"{self.ns}end")
+                end = config.etree.SubElement(  # type: ignore[attr-defined]
+                    element,
+                    f"{self.ns}end",
+                )
                 end.text = text
         if self.begin == self.end is None:
             raise ValueError("Either begin, end or both must be set")
