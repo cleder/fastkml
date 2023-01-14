@@ -29,6 +29,7 @@ from pygeoif.types import PointType
 
 from fastkml import config
 from fastkml.base import _BaseObject
+from fastkml.enums import AltitudeMode
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
@@ -46,7 +47,7 @@ class Geometry(_BaseObject):
     geometry = None
     extrude = False
     tessellate = False
-    altitude_mode = None
+    altitude_mode = Optional[AltitudeMode]
 
     def __init__(
         self,
@@ -56,7 +57,7 @@ class Geometry(_BaseObject):
         geometry: Optional[Any] = None,
         extrude: bool = False,
         tessellate: bool = False,
-        altitude_mode: Optional[str] = None,
+        altitude_mode: Optional[AltitudeMode] = None,
     ) -> None:
         """
         geometry: a geometry that implements the __geo_interface__ convention
@@ -131,22 +132,22 @@ class Geometry(_BaseObject):
     def _set_altitude_mode(self, element: Element) -> None:
         if self.altitude_mode:
             # XXX add 'relativeToSeaFloor', 'clampToSeaFloor',
-            assert self.altitude_mode in [
-                "clampToGround",
-                "relativeToGround",
-                "absolute",
-            ]
-            if self.altitude_mode != "clampToGround":
-                am_element = config.etree.SubElement(  # type: ignore[attr-defined]
-                    element, f"{self.ns}altitudeMode"
-                )
-                am_element.text = self.altitude_mode
+            # assert self.altitude_mode in [
+            #     "clampToGround",
+            #     "relativeToGround",
+            #     "absolute",
+            # ]
+            # if self.altitude_mode != "clampToGround":
+            am_element = config.etree.SubElement(  # type: ignore[attr-defined]
+                element, f"{self.ns}altitudeMode"
+            )
+            am_element.text = self.altitude_mode.value
 
     def _set_extrude(self, element: Element) -> None:
         if self.extrude and self.altitude_mode in [
-            "relativeToGround",
-            # 'relativeToSeaFloor',
-            "absolute",
+            AltitudeMode.relative_to_ground,
+            AltitudeMode.relative_to_sea_floor,
+            AltitudeMode.absolute,
         ]:
             et_element = cast(
                 Element,
@@ -165,10 +166,7 @@ class Geometry(_BaseObject):
             config.etree.Element(f"{self.ns}coordinates"),  # type: ignore[attr-defined]
         )
         if len(coordinates[0]) == 2:
-            if config.FORCE3D:  # and not clampToGround:
-                tuples = (f"{c[0]:f},{c[1]:f},0.000000" for c in coordinates)
-            else:
-                tuples = (f"{c[0]:f},{c[1]:f}" for c in coordinates)
+            tuples = (f"{c[0]:f},{c[1]:f}" for c in coordinates)
         elif len(coordinates[0]) == 3:
             tuples = (
                 f"{c[0]:f},{c[1]:f},{c[2]:f}" for c in coordinates  # type: ignore[misc]
@@ -180,7 +178,9 @@ class Geometry(_BaseObject):
 
     def _etree_point(self, point: geo.Point) -> Element:
         element = self._extrude_and_altitude_mode("Point")
-        return self._extracted_from__etree_linearring_5(point, element)
+        coords = list(point.coords)
+        element.append(self._etree_coordinates(coords))
+        return element
 
     def _etree_linestring(self, linestring: geo.LineString) -> Element:
         element = self._extrude_and_altitude_mode("LineString")
@@ -192,16 +192,13 @@ class Geometry(_BaseObject):
                 element, f"{self.ns}tessellate"
             )
             ts_element.text = "1"
-        return self._extracted_from__etree_linearring_5(linestring, element)
+        coords = list(linestring.coords)
+        element.append(self._etree_coordinates(coords))
+        return element
 
     def _etree_linearring(self, linearring: geo.LinearRing) -> Element:
         element = self._extrude_and_altitude_mode("LinearRing")
-        return self._extracted_from__etree_linearring_5(linearring, element)
-
-    def _extracted_from__etree_linearring_5(
-        self, arg0: Union[geo.LineString, geo.LinearRing, geo.Point], element: Element
-    ) -> Element:
-        coords = list(arg0.coords)
+        coords = list(linearring.coords)
         element.append(self._etree_coordinates(coords))
         return element
 

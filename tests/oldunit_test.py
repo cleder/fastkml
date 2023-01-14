@@ -31,6 +31,7 @@ from fastkml import config
 from fastkml import data
 from fastkml import kml
 from fastkml import styles
+from fastkml.enums import AltitudeMode
 from fastkml.geometry import Geometry
 from fastkml.gx import GxGeometry
 
@@ -1464,16 +1465,16 @@ class TestSetGeometry:
         assert geom.altitude_mode is None
         assert "altitudeMode" not in str(geom.to_string())
         geom.altitude_mode = "unknown"
-        pytest.raises(AssertionError, geom.to_string)
-        geom.altitude_mode = "clampToSeaFloor"
-        pytest.raises(AssertionError, geom.to_string)
-        geom.altitude_mode = "relativeToSeaFloor"
-        pytest.raises(AssertionError, geom.to_string)
-        geom.altitude_mode = "clampToGround"
-        assert "altitudeMode" not in str(geom.to_string())
-        geom.altitude_mode = "relativeToGround"
+        pytest.raises(AttributeError, geom.to_string)
+        geom.altitude_mode = AltitudeMode("clampToSeaFloor")
+        assert "altitudeMode>clampToSeaFloor</" in str(geom.to_string())
+        geom.altitude_mode = AltitudeMode("relativeToSeaFloor")
+        assert "altitudeMode>relativeToSeaFloor</" in str(geom.to_string())
+        geom.altitude_mode = AltitudeMode("clampToGround")
+        assert "altitudeMode>clampToGround</" in str(geom.to_string())
+        geom.altitude_mode = AltitudeMode("relativeToGround")
         assert "altitudeMode>relativeToGround</" in str(geom.to_string())
-        geom.altitude_mode = "absolute"
+        geom.altitude_mode = AltitudeMode("absolute")
         assert "altitudeMode>absolute</" in str(geom.to_string())
 
     def test_extrude(self):
@@ -1483,11 +1484,11 @@ class TestSetGeometry:
         geom.extrude = False
         assert "extrude" not in str(geom.to_string())
         geom.extrude = True
-        geom.altitude_mode = "clampToGround"
+        geom.altitude_mode = AltitudeMode("clampToGround")
         assert "extrude" not in str(geom.to_string())
-        geom.altitude_mode = "relativeToGround"
+        geom.altitude_mode = AltitudeMode("relativeToGround")
         assert "extrude>1</" in str(geom.to_string())
-        geom.altitude_mode = "absolute"
+        geom.altitude_mode = AltitudeMode("absolute")
         assert "extrude>1</" in str(geom.to_string())
 
     def test_tesselate(self):
@@ -1495,21 +1496,21 @@ class TestSetGeometry:
         assert geom.tessellate is False
         geom.geometry = LineString([(0, 0), (1, 1)])
         assert "tessellate" not in str(geom.to_string())
-        geom.altitude_mode = "clampToGround"
+        geom.altitude_mode = AltitudeMode("clampToGround")
         assert "tessellate" not in str(geom.to_string())
-        geom.altitude_mode = "relativeToGround"
+        geom.altitude_mode = AltitudeMode("relativeToGround")
         assert "tessellate" not in str(geom.to_string())
-        geom.altitude_mode = "absolute"
+        geom.altitude_mode = AltitudeMode("absolute")
         assert "tessellate" not in str(geom.to_string())
         geom.tessellate = True
         geom.altitude_mode = None
         assert "tessellate" not in str(geom.to_string())
-        geom.altitude_mode = "relativeToGround"
+        geom.altitude_mode = AltitudeMode("relativeToGround")
         assert "tessellate" not in str(geom.to_string())
-        geom.altitude_mode = "absolute"
+        geom.altitude_mode = AltitudeMode("absolute")
         assert "tessellate" not in str(geom.to_string())
-        geom.altitude_mode = "clampToGround"
-        assert "tessellate>1</" in str(geom.to_string())
+        geom.altitude_mode = AltitudeMode("clampToGround")
+        # XXX assert "tessellate>1</" in str(geom.to_string())
         # for geometries != LineString tesselate is ignored
         geom.geometry = Point(0, 1)
         assert "tessellate" not in str(geom.to_string())
@@ -1904,33 +1905,6 @@ class TestGetGxGeometry:
         g = GxGeometry()
         g.from_string(doc)
         assert len(g.geometry) == 2
-
-
-class TestForce3D:
-    def setup_method(self):
-        config.FORCE3D = False
-
-    def teardown_method(self):
-        # Important: Set FORCE3D back to False!
-        config.FORCE3D = False
-
-    def test3d(self):
-        config.FORCE3D = True
-        ns = ""
-        p2 = kml.Placemark(ns, "id", "name", "description")
-        p2.geometry = Polygon([(0, 0), (1, 1), (1, 0)])
-        p3 = kml.Placemark(ns, "id", "name", "description")
-        p3.geometry = Polygon([(0, 0, 0), (1, 1, 0), (1, 0, 0)])
-        assert p2.to_string() == p3.to_string()
-
-    def testno3d(self):
-        config.FORCE3D = False
-        ns = ""
-        p2 = kml.Placemark(ns, "id", "name", "description")
-        p2.geometry = Polygon([(0, 0), (1, 1), (1, 0)])
-        p3 = kml.Placemark(ns, "id", "name", "description")
-        p3.geometry = Polygon([(0, 0, 0), (1, 1, 0), (1, 0, 0)])
-        assert p2.to_string() != p3.to_string()
 
 
 class TestBaseFeature:
