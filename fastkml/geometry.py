@@ -23,15 +23,8 @@ from typing import Sequence
 from typing import Union
 from typing import cast
 
+import pygeoif.geometry as geo
 from pygeoif.factories import shape
-from pygeoif.geometry import GeometryCollection
-from pygeoif.geometry import LinearRing
-from pygeoif.geometry import LineString
-from pygeoif.geometry import MultiLineString
-from pygeoif.geometry import MultiPoint
-from pygeoif.geometry import MultiPolygon
-from pygeoif.geometry import Point
-from pygeoif.geometry import Polygon
 from pygeoif.types import PointType
 
 from fastkml import config
@@ -40,8 +33,10 @@ from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
 
-GeometryType = Union[Polygon, LineString, LinearRing, Point]
-MultiGeometryType = Union[MultiPoint, MultiLineString, MultiPolygon, GeometryCollection]
+GeometryType = Union[geo.Polygon, geo.LineString, geo.LinearRing, geo.Point]
+MultiGeometryType = Union[
+    geo.MultiPoint, geo.MultiLineString, geo.MultiPolygon, geo.GeometryCollection
+]
 AnyGeometryType = Union[GeometryType, MultiGeometryType]
 
 
@@ -117,14 +112,14 @@ class Geometry(_BaseObject):
             if isinstance(
                 geometry,
                 (
-                    Point,
-                    LineString,
-                    Polygon,
-                    MultiPoint,
-                    MultiLineString,
-                    MultiPolygon,
-                    LinearRing,
-                    GeometryCollection,
+                    geo.Point,
+                    geo.LineString,
+                    geo.Polygon,
+                    geo.MultiPoint,
+                    geo.MultiLineString,
+                    geo.MultiPolygon,
+                    geo.LinearRing,
+                    geo.GeometryCollection,
                 ),
             ):
                 self.geometry = geometry
@@ -183,11 +178,11 @@ class Geometry(_BaseObject):
         element.text = " ".join(tuples)
         return element
 
-    def _etree_point(self, point: Point) -> Element:
+    def _etree_point(self, point: geo.Point) -> Element:
         element = self._extrude_and_altitude_mode("Point")
         return self._extracted_from__etree_linearring_5(point, element)
 
-    def _etree_linestring(self, linestring: LineString) -> Element:
+    def _etree_linestring(self, linestring: geo.LineString) -> Element:
         element = self._extrude_and_altitude_mode("LineString")
         if self.tessellate and self.altitude_mode in [
             "clampToGround",
@@ -199,18 +194,18 @@ class Geometry(_BaseObject):
             ts_element.text = "1"
         return self._extracted_from__etree_linearring_5(linestring, element)
 
-    def _etree_linearring(self, linearring: LinearRing) -> Element:
+    def _etree_linearring(self, linearring: geo.LinearRing) -> Element:
         element = self._extrude_and_altitude_mode("LinearRing")
         return self._extracted_from__etree_linearring_5(linearring, element)
 
     def _extracted_from__etree_linearring_5(
-        self, arg0: Union[LineString, LinearRing, Point], element: Element
+        self, arg0: Union[geo.LineString, geo.LinearRing, geo.Point], element: Element
     ) -> Element:
         coords = list(arg0.coords)
         element.append(self._etree_coordinates(coords))
         return element
 
-    def _etree_polygon(self, polygon: Polygon) -> Element:
+    def _etree_polygon(self, polygon: geo.Polygon) -> Element:
         element = self._extrude_and_altitude_mode("Polygon")
         outer_boundary = cast(
             Element,
@@ -242,7 +237,7 @@ class Geometry(_BaseObject):
         self._set_altitude_mode(result)
         return result
 
-    def _etree_multipoint(self, points: MultiPoint) -> Element:
+    def _etree_multipoint(self, points: geo.MultiPoint) -> Element:
         element = cast(
             Element,
             config.etree.Element(  # type: ignore[attr-defined]
@@ -253,7 +248,7 @@ class Geometry(_BaseObject):
             element.append(self._etree_point(point))
         return element
 
-    def _etree_multilinestring(self, linestrings: MultiLineString) -> Element:
+    def _etree_multilinestring(self, linestrings: geo.MultiLineString) -> Element:
         element = cast(
             Element,
             config.etree.Element(  # type: ignore[attr-defined]
@@ -264,7 +259,7 @@ class Geometry(_BaseObject):
             element.append(self._etree_linestring(linestring))
         return element
 
-    def _etree_multipolygon(self, polygons: MultiPolygon) -> Element:
+    def _etree_multipolygon(self, polygons: geo.MultiPolygon) -> Element:
         element = cast(
             Element,
             config.etree.Element(  # type: ignore[attr-defined]
@@ -275,7 +270,7 @@ class Geometry(_BaseObject):
             element.append(self._etree_polygon(polygon))
         return element
 
-    def _etree_collection(self, features: GeometryCollection) -> Element:
+    def _etree_collection(self, features: geo.GeometryCollection) -> Element:
         element = cast(
             Element,
             config.etree.Element(  # type: ignore[attr-defined]
@@ -284,33 +279,33 @@ class Geometry(_BaseObject):
         )
         for feature in features.geoms:
             if feature.geom_type == "Point":
-                element.append(self._etree_point(cast(Point, feature)))
+                element.append(self._etree_point(cast(geo.Point, feature)))
             elif feature.geom_type == "LinearRing":
-                element.append(self._etree_linearring(cast(LinearRing, feature)))
+                element.append(self._etree_linearring(cast(geo.LinearRing, feature)))
             elif feature.geom_type == "LineString":
-                element.append(self._etree_linestring(cast(LineString, feature)))
+                element.append(self._etree_linestring(cast(geo.LineString, feature)))
             elif feature.geom_type == "Polygon":
-                element.append(self._etree_polygon(cast(Polygon, feature)))
+                element.append(self._etree_polygon(cast(geo.Polygon, feature)))
             else:
                 raise ValueError("Illegal geometry type.")
         return element
 
     def etree_element(self) -> Element:
-        if isinstance(self.geometry, Point):
+        if isinstance(self.geometry, geo.Point):
             return self._etree_point(self.geometry)
-        elif isinstance(self.geometry, LinearRing):
+        elif isinstance(self.geometry, geo.LinearRing):
             return self._etree_linearring(self.geometry)
-        elif isinstance(self.geometry, LineString):
+        elif isinstance(self.geometry, geo.LineString):
             return self._etree_linestring(self.geometry)
-        elif isinstance(self.geometry, Polygon):
+        elif isinstance(self.geometry, geo.Polygon):
             return self._etree_polygon(self.geometry)
-        elif isinstance(self.geometry, MultiPoint):
+        elif isinstance(self.geometry, geo.MultiPoint):
             return self._etree_multipoint(self.geometry)
-        elif isinstance(self.geometry, MultiLineString):
+        elif isinstance(self.geometry, geo.MultiLineString):
             return self._etree_multilinestring(self.geometry)
-        elif isinstance(self.geometry, MultiPolygon):
+        elif isinstance(self.geometry, geo.MultiPolygon):
             return self._etree_multipolygon(self.geometry)
-        elif isinstance(self.geometry, GeometryCollection):
+        elif isinstance(self.geometry, geo.GeometryCollection):
             return self._etree_collection(self.geometry)
         else:
             raise ValueError("Illegal geometry type.")
@@ -366,12 +361,12 @@ class Geometry(_BaseObject):
                 for latlon in latlons
             ]
 
-    def _get_linear_ring(self, element: Element) -> Optional[LinearRing]:
+    def _get_linear_ring(self, element: Element) -> Optional[geo.LinearRing]:
         # LinearRing in polygon
         lr = element.find(f"{self.ns}LinearRing")
         if lr is not None:
             coords = self._get_coordinates(lr)
-            return LinearRing(coords)
+            return geo.LinearRing(coords)
         return None  # type: ignore[unreachable]
 
     def _get_geometry(self, element: Element) -> Optional[GeometryType]:
@@ -380,11 +375,11 @@ class Geometry(_BaseObject):
         if element.tag == f"{self.ns}Point":
             coords = self._get_coordinates(element)
             self._get_geometry_spec(element)
-            return Point.from_coordinates(coords)
+            return geo.Point.from_coordinates(coords)
         if element.tag == f"{self.ns}LineString":
             coords = self._get_coordinates(element)
             self._get_geometry_spec(element)
-            return LineString(coords)
+            return geo.LineString(coords)
         if element.tag == f"{self.ns}Polygon":
             self._get_geometry_spec(element)
             outer_boundary = element.find(f"{self.ns}outerBoundaryIs")
@@ -396,11 +391,11 @@ class Geometry(_BaseObject):
                 self._get_linear_ring(inner_boundary)
                 for inner_boundary in inner_boundaries
             ]
-            return Polygon.from_linear_rings(ob, *[b for b in ibs if b])
+            return geo.Polygon.from_linear_rings(ob, *[b for b in ibs if b])
         if element.tag == f"{self.ns}LinearRing":
             coords = self._get_coordinates(element)
             self._get_geometry_spec(element)
-            return LinearRing(coords)
+            return geo.LinearRing(coords)
         return None
 
     def _get_multigeometry(self, element: Element) -> Optional[MultiGeometryType]:
@@ -410,11 +405,11 @@ class Geometry(_BaseObject):
             points = element.findall(f"{self.ns}Point")
             for point in points:
                 self._get_geometry_spec(point)
-                geoms.append(Point.from_coordinates(self._get_coordinates(point)))
+                geoms.append(geo.Point.from_coordinates(self._get_coordinates(point)))
             linestrings = element.findall(f"{self.ns}LineString")
             for ls in linestrings:
                 self._get_geometry_spec(ls)
-                geoms.append(LineString(self._get_coordinates(ls)))
+                geoms.append(geo.LineString(self._get_coordinates(ls)))
             polygons = element.findall(f"{self.ns}Polygon")
             for polygon in polygons:
                 self._get_geometry_spec(polygon)
@@ -427,34 +422,34 @@ class Geometry(_BaseObject):
                     self._get_linear_ring(inner_boundary)
                     for inner_boundary in inner_boundaries
                 ]
-                ibs: List[LinearRing] = [ib for ib in inner_bs if ib]
-                geoms.append(Polygon.from_linear_rings(ob, *ibs))
+                ibs: List[geo.LinearRing] = [ib for ib in inner_bs if ib]
+                geoms.append(geo.Polygon.from_linear_rings(ob, *ibs))
             linearings = element.findall(f"{self.ns}LinearRing")
             if linearings:
                 for lr in linearings:
                     self._get_geometry_spec(lr)
-                    geoms.append(LinearRing(self._get_coordinates(lr)))
+                    geoms.append(geo.LinearRing(self._get_coordinates(lr)))
         clean_geoms: List[AnyGeometryType] = [g for g in geoms if g]
         if clean_geoms:
             geom_types = {geom.geom_type for geom in clean_geoms}
             if len(geom_types) > 1:
-                return GeometryCollection(
+                return geo.GeometryCollection(
                     clean_geoms,  # type: ignore[arg-type]
                 )
             if "Point" in geom_types:
-                return MultiPoint.from_points(
+                return geo.MultiPoint.from_points(
                     *clean_geoms,  # type: ignore[arg-type]
                 )
             elif "LineString" in geom_types:
-                return MultiLineString.from_linestrings(
+                return geo.MultiLineString.from_linestrings(
                     *clean_geoms,  # type: ignore[arg-type]
                 )
             elif "Polygon" in geom_types:
-                return MultiPolygon.from_polygons(
+                return geo.MultiPolygon.from_polygons(
                     *clean_geoms,  # type: ignore[arg-type]
                 )
             elif "LinearRing" in geom_types:
-                return GeometryCollection(
+                return geo.GeometryCollection(
                     clean_geoms,  # type: ignore[arg-type]
                 )
         return None
