@@ -51,7 +51,7 @@ class TestBaseClasses:
         config.set_etree_implementation(xml.etree.ElementTree)
         config.set_default_namespaces()
 
-    def test_base_object(self):
+    def test_base_object(self) -> None:
         bo = base._BaseObject(id="id0")
         assert bo.id == "id0"
         assert bo.ns == config.KMLNS
@@ -78,7 +78,7 @@ class TestBaseClasses:
         assert not bo.etree_element(), None
         assert len(bo.to_string()) > 1
 
-    def test_feature(self):
+    def test_feature(self) -> None:
         f = kml._Feature(name="A Feature")
         pytest.raises(NotImplementedError, f.etree_element)
         assert f.name == "A Feature"
@@ -102,7 +102,7 @@ class TestBaseClasses:
         assert "Feature>" in str(f.to_string())
         assert "#default" in str(f.to_string())
 
-    def test_container(self):
+    def test_container(self) -> None:
         f = kml._Container(name="A Container")
         # apparently you can add documents to containes
         # d = kml.Document()
@@ -111,7 +111,7 @@ class TestBaseClasses:
         f.append(p)
         pytest.raises(NotImplementedError, f.etree_element)
 
-    def test_overlay(self):
+    def test_overlay(self) -> None:
         o = kml._Overlay(name="An Overlay")
         assert o._color is None
         assert o._draw_order is None
@@ -127,7 +127,7 @@ class TestBuildKml:
         config.set_etree_implementation(xml.etree.ElementTree)
         config.set_default_namespaces()
 
-    def test_kml(self):
+    def test_kml(self) -> None:
         """kml file without contents"""
         k = kml.KML()
         assert not list(k.features())
@@ -139,7 +139,7 @@ class TestBuildKml:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_folder(self):
+    def test_folder(self) -> None:
         """KML file with folders"""
         ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         k = kml.KML()
@@ -156,7 +156,7 @@ class TestBuildKml:
         k2.from_string(s)
         assert s == k2.to_string()
 
-    def test_placemark(self):
+    def test_placemark(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         k = kml.KML(ns=ns)
         p = kml.Placemark(ns, "id", "name", "description")
@@ -170,7 +170,7 @@ class TestBuildKml:
         k2.from_string(k.to_string(prettyprint=True))
         assert k.to_string() == k2.to_string()
 
-    def test_schema(self):
+    def test_schema(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         pytest.raises(ValueError, kml.Schema, ns)
         s = kml.Schema(ns, "some_id")
@@ -199,7 +199,7 @@ class TestBuildKml:
         assert list(s.simple_fields)[1]["name"] == "Float"
         assert list(s.simple_fields)[1]["displayName"] is None
 
-    def test_schema_data(self):
+    def test_schema_data(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         pytest.raises(ValueError, data.SchemaData, ns)
         pytest.raises(ValueError, data.SchemaData, ns, "")
@@ -216,7 +216,7 @@ class TestBuildKml:
         assert sd.data[0] == {"value": "Some new Text", "name": "text"}
         assert sd.data[1] == {"value": 2, "name": "Integer"}
 
-    def test_untyped_extended_data(self):
+    def test_untyped_extended_data(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         k = kml.KML(ns=ns)
 
@@ -246,7 +246,7 @@ class TestBuildKml:
         assert extended_data.elements[1].value == "blue skies"
         assert extended_data.elements[1].display_name == "Weather"
 
-    def test_untyped_extended_data_nested(self):
+    def test_untyped_extended_data_nested(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         k = kml.KML(ns=ns)
 
@@ -275,7 +275,7 @@ class TestBuildKml:
         assert folder_data.elements[0].name == "type"
         assert folder_data.elements[0].value == "Folder"
 
-    def test_document(self):
+    def test_document(self) -> None:
         k = kml.KML()
         ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
         d = kml.Document(ns, "docid", "doc name", "doc description")
@@ -298,7 +298,7 @@ class TestBuildKml:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_author(self):
+    def test_author(self) -> None:
         d = kml.Document()
         d.author = "Christian Ledermann"
         assert "Christian Ledermann" in str(d.to_string())
@@ -316,7 +316,7 @@ class TestBuildKml:
         assert d.to_string() == d2.to_string()
         d.author = None
 
-    def test_link(self):
+    def test_link(self) -> None:
         d = kml.Document()
         d.link = "http://localhost"
         assert "http://localhost" in str(d.to_string())
@@ -329,14 +329,14 @@ class TestBuildKml:
         assert d.to_string() == d2.to_string()
         d.link = None
 
-    def test_address(self):
+    def test_address(self) -> None:
         address = "1600 Amphitheatre Parkway, Mountain View, CA 94043, USA"
         d = kml.Document()
         d.address = address
         assert address in str(d.to_string())
         assert "address>" in str(d.to_string())
 
-    def test_phone_number(self):
+    def test_phone_number(self) -> None:
         phone = "+1 234 567 8901"
         d = kml.Document()
         d.phone_number = phone
@@ -345,7 +345,7 @@ class TestBuildKml:
 
 
 class TestKmlFromString:
-    def test_document(self):
+    def test_document(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document targetId="someTargetId">
           <name>Document.kml</name>
@@ -380,7 +380,7 @@ class TestKmlFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_document_booleans(self):
+    def test_document_booleans(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document targetId="someTargetId">
           <name>Document.kml</name>
@@ -406,7 +406,7 @@ class TestKmlFromString:
         assert list(k.features())[0].visibility == 0
         assert list(k.features())[0].isopen == 0
 
-    def test_folders(self):
+    def test_folders(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Folder>
           <name>Folder.kml</name>
@@ -455,7 +455,7 @@ class TestKmlFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_placemark(self):
+    def test_placemark(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
           <Placemark>
             <name>Simple placemark</name>
@@ -475,7 +475,7 @@ class TestKmlFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_extended_data(self):
+    def test_extended_data(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
           <Placemark>
             <name>Simple placemark</name>
@@ -523,7 +523,7 @@ class TestKmlFromString:
         assert sd.data[0]["name"] == "TrailHeadName"
         assert sd.data[1]["value"] == "347.45"
 
-    def test_polygon(self):
+    def test_polygon(self) -> None:
         doc = """
         <kml xmlns="http://www.opengis.net/kml/2.2">
           <Placemark>
@@ -647,7 +647,7 @@ class TestKmlFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_multipoints(self):
+    def test_multipoints(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Placemark id="feat_2">
             <name>MultiPoint</name>
@@ -701,7 +701,7 @@ class TestKmlFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_multilinestrings(self):
+    def test_multilinestrings(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Placemark>
           <name>Dnipro (Dnieper)</name>
@@ -722,7 +722,7 @@ class TestKmlFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_multipolygon(self):
+    def test_multipolygon(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Placemark>
           <name>Italy</name>
@@ -737,10 +737,10 @@ class TestKmlFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_atom(self):
+    def test_atom(self) -> None:
         pass
 
-    def test_schema(self):
+    def test_schema(self) -> None:
         doc = """<Schema name="TrailHeadType" id="TrailHeadTypeId">
             <SimpleField type="string" name="TrailHeadName">
               <displayName><![CDATA[<b>Trail Head Name</b>]]></displayName>
@@ -789,7 +789,7 @@ class TestKmlFromString:
         assert "SimpleField" in k1.to_string()
         assert k1.to_string() == k.to_string()
 
-    def test_schema_data(self):
+    def test_schema_data(self) -> None:
         doc = """<SchemaData schemaUrl="#TrailHeadTypeId">
           <SimpleData name="TrailHeadName">Pi in the sky</SimpleData>
           <SimpleData name="TrailLength">3.14159</SimpleData>
@@ -807,7 +807,7 @@ class TestKmlFromString:
         assert sd1.schema_url == "#TrailHeadTypeId"
         assert sd.to_string() == sd1.to_string()
 
-    def test_snippet(self):
+    def test_snippet(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Placemark>
         <Snippet maxLines="2" >Short Desc</Snippet>
@@ -827,11 +827,11 @@ class TestKmlFromString:
         assert "maxLines" not in k.to_string()
         assert "Diffrent Snippet" in k.to_string()
 
-    def test_from_wrong_string(self):
+    def test_from_wrong_string(self) -> None:
         doc = kml.KML()
         pytest.raises(TypeError, doc.from_string, "<xml></xml>")
 
-    def test_from_string_with_unbound_prefix(self):
+    def test_from_string_with_unbound_prefix(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Placemark>
         <ExtendedData>
@@ -847,7 +847,7 @@ class TestKmlFromString:
         k = kml.KML()
         pytest.raises(xml.etree.ElementTree.ParseError, k.from_string, doc)
 
-    def test_address(self):
+    def test_address(self) -> None:
         doc = kml.Document()
 
         doc.from_string(
@@ -865,7 +865,7 @@ class TestKmlFromString:
         doc2.from_string(doc.to_string())
         assert doc.to_string() == doc2.to_string()
 
-    def test_phone_number(self):
+    def test_phone_number(self) -> None:
         doc = kml.Document()
 
         doc.from_string(
@@ -883,7 +883,7 @@ class TestKmlFromString:
         doc2.from_string(doc.to_string())
         assert doc.to_string() == doc2.to_string()
 
-    def test_groundoverlay(self):
+    def test_groundoverlay(self) -> None:
         doc = kml.KML()
 
         doc.from_string(
@@ -916,7 +916,7 @@ class TestKmlFromString:
         doc2.from_string(doc.to_string())
         assert doc.to_string() == doc2.to_string()
 
-    def test_linarring_placemark(self):
+    def test_linarring_placemark(self) -> None:
         doc = kml.KML()
         doc.from_string(
             """<kml xmlns="http://www.opengis.net/kml/2.2">
@@ -933,7 +933,7 @@ class TestKmlFromString:
 
 
 class TestStyle:
-    def test_styleurl(self):
+    def test_styleurl(self) -> None:
         f = kml.Document()
         f.style_url = "#somestyle"
         assert f.style_url == "#somestyle"
@@ -946,7 +946,7 @@ class TestStyle:
         f2.from_string(f.to_string())
         assert f.to_string() == f2.to_string()
 
-    def test_style(self):
+    def test_style(self) -> None:
         lstyle = styles.LineStyle(color="red", width=2.0)
         style = styles.Style(styles=[lstyle])
         f = kml.Document(styles=[style])
@@ -954,15 +954,15 @@ class TestStyle:
         f2.from_string(f.to_string(prettyprint=True))
         assert f.to_string() == f2.to_string()
 
-    def test_polystyle_fill(self):
+    def test_polystyle_fill(self) -> None:
         styles.PolyStyle()
 
-    def test_polystyle_outline(self):
+    def test_polystyle_outline(self) -> None:
         styles.PolyStyle()
 
 
 class TestStyleUsage:
-    def test_create_document_style(self):
+    def test_create_document_style(self) -> None:
         style = styles.Style(styles=[styles.PolyStyle(color="7f000000")])
 
         doc = kml.Document(styles=[style])
@@ -990,7 +990,7 @@ class TestStyleUsage:
         assert doc2.to_string() == doc3.to_string()
         assert doc.to_string() == doc3.to_string()
 
-    def test_create_placemark_style(self):
+    def test_create_placemark_style(self) -> None:
         style = styles.Style(styles=[styles.PolyStyle(color="7f000000")])
 
         place = kml.Placemark(styles=[style])
@@ -1019,7 +1019,7 @@ class TestStyleUsage:
 
 
 class TestStyleFromString:
-    def test_styleurl(self):
+    def test_styleurl(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
           <name>Document.kml</name>
@@ -1036,7 +1036,7 @@ class TestStyleFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_balloonstyle(self):
+    def test_balloonstyle(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
           <name>Document.kml</name>
@@ -1078,7 +1078,7 @@ class TestStyleFromString:
         k2.from_string(k.to_string())
         assert k2.to_string() == k.to_string()
 
-    def test_balloonstyle_old_color(self):
+    def test_balloonstyle_old_color(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
           <name>Document.kml</name>
@@ -1102,7 +1102,7 @@ class TestStyleFromString:
         k2.from_string(k.to_string())
         assert k2.to_string() == k.to_string()
 
-    def test_labelstyle(self):
+    def test_labelstyle(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
           <name>Document.kml</name>
@@ -1127,7 +1127,7 @@ class TestStyleFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_iconstyle(self):
+    def test_iconstyle(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
            <Style id="randomColorIcon">
@@ -1159,7 +1159,7 @@ class TestStyleFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_linestyle(self):
+    def test_linestyle(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
           <name>LineStyle.kml</name>
@@ -1185,7 +1185,7 @@ class TestStyleFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_polystyle(self):
+    def test_polystyle(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
           <name>PolygonStyle.kml</name>
@@ -1212,7 +1212,7 @@ class TestStyleFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_polystyle_boolean_fill(self):
+    def test_polystyle_boolean_fill(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
           <name>PolygonStyle.kml</name>
@@ -1234,7 +1234,7 @@ class TestStyleFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_polystyle_boolean_outline(self):
+    def test_polystyle_boolean_outline(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
           <name>PolygonStyle.kml</name>
@@ -1256,7 +1256,7 @@ class TestStyleFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_polystyle_float_fill(self):
+    def test_polystyle_float_fill(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
           <name>PolygonStyle.kml</name>
@@ -1278,7 +1278,7 @@ class TestStyleFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_polystyle_float_outline(self):
+    def test_polystyle_float_outline(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
           <name>PolygonStyle.kml</name>
@@ -1300,7 +1300,7 @@ class TestStyleFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_styles(self):
+    def test_styles(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
           <!-- Begin Style Definitions -->
@@ -1339,7 +1339,7 @@ class TestStyleFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_stylemapurl(self):
+    def test_stylemapurl(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
           <StyleMap id="styleMapExample">
@@ -1368,7 +1368,7 @@ class TestStyleFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_stylemapstyles(self):
+    def test_stylemapstyles(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
           <StyleMap id="styleMapExample">
@@ -1414,7 +1414,7 @@ class TestStyleFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_get_style_by_url(self):
+    def test_get_style_by_url(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document>
           <name>Document.kml</name>
@@ -1458,7 +1458,7 @@ class TestStyleFromString:
 
 
 class TestSetGeometry:
-    def test_point(self):
+    def test_point(self) -> None:
         p = Point(0, 1)
         g = Geometry(geometry=p)
         assert g.geometry == p
@@ -1467,7 +1467,7 @@ class TestSetGeometry:
         assert "Point" in str(g.to_string())
         assert "coordinates>0.000000,1.000000</" in str(g.to_string())
 
-    def test_linestring(self):
+    def test_linestring(self) -> None:
         l = LineString([(0, 0), (1, 1)])
         g = Geometry(geometry=l)
         assert g.geometry == l
@@ -1477,7 +1477,7 @@ class TestSetGeometry:
         g2.from_string(g.to_string())
         assert g.to_string() == g2.to_string()
 
-    def test_linearring(self):
+    def test_linearring(self) -> None:
         l = LinearRing([(0, 0), (1, 0), (1, 1), (0, 0)])
         g = Geometry(geometry=l)
         assert g.geometry == l
@@ -1487,7 +1487,7 @@ class TestSetGeometry:
             in str(g.to_string())
         )
 
-    def test_polygon(self):
+    def test_polygon(self) -> None:
         # without holes
         l = Polygon([(0, 0), (1, 0), (1, 1), (0, 0)])
         g = Geometry(geometry=l)
@@ -1520,7 +1520,7 @@ class TestSetGeometry:
             in str(g.to_string())
         )
 
-    def test_multipoint(self):
+    def test_multipoint(self) -> None:
         p0 = Point(0, 1)
         p1 = Point(1, 1)
         g = Geometry(geometry=MultiPoint.from_points(p0, p1))
@@ -1529,7 +1529,7 @@ class TestSetGeometry:
         assert "coordinates>0.000000,1.000000</" in str(g.to_string())
         assert "coordinates>1.000000,1.000000</" in str(g.to_string())
 
-    def test_multilinestring(self):
+    def test_multilinestring(self) -> None:
         l0 = LineString([(0, 0), (1, 0)])
         l1 = LineString([(0, 1), (1, 1)])
         g = Geometry(geometry=MultiLineString.from_linestrings(l0, l1))
@@ -1538,7 +1538,7 @@ class TestSetGeometry:
         assert "coordinates>0.000000,0.000000 1.000000,0.000000</" in str(g.to_string())
         assert "coordinates>0.000000,1.000000 1.000000,1.000000</" in str(g.to_string())
 
-    def test_multipolygon(self):
+    def test_multipolygon(self) -> None:
         # with holes
         p0 = Polygon(
             [(-1, -1), (2, -1), (2, 2), (-1, -1)], [[(0, 0), (1, 0), (1, 1), (0, 0)]]
@@ -1564,7 +1564,7 @@ class TestSetGeometry:
             in str(g.to_string())
         )
 
-    def test_geometrycollection(self):
+    def test_geometrycollection(self) -> None:
         po = Polygon([(3, 0), (4, 0), (4, 1), (3, 0)])
         lr = LinearRing([(0, -1), (1, -1), (1, 1), (0, -1)])
         ls = LineString([(0, 0), (1, 1)])
@@ -1591,7 +1591,7 @@ class TestSetGeometry:
 
 
 class TestGetGxGeometry:
-    def test_track(self):
+    def test_track(self) -> None:
         doc = """<gx:Track xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
             <when>2020-01-01T00:00:00Z</when>
             <when>2020-01-01T00:10:00Z</when>
@@ -1607,7 +1607,7 @@ class TestGetGxGeometry:
             "coordinates": ((0.0, 0.0), (1.0, 1.0)),
         }
 
-    def test_multitrack(self):
+    def test_multitrack(self) -> None:
         doc = """
         <gx:MultiTrack xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
           <gx:Track>
@@ -1631,126 +1631,126 @@ class TestGetGxGeometry:
 
 
 class TestBaseFeature:
-    def test_address_string(self):
+    def test_address_string(self) -> None:
         f = kml._Feature()
         address = "1600 Amphitheatre Parkway, Mountain View, CA 94043, USA"
         f.address = address
         assert f.address == address
 
-    def test_address_none(self):
+    def test_address_none(self) -> None:
         f = kml._Feature()
         f.address = None
         assert f.address is None
 
-    def test_address_value_error(self):
+    def test_address_value_error(self) -> None:
         f = kml._Feature()
         with pytest.raises(ValueError):
             f.address = 123
 
-    def test_phone_number_string(self):
+    def test_phone_number_string(self) -> None:
         f = kml._Feature()
         f.phone_number = "+1-234-567-8901"
         assert f.phone_number == "+1-234-567-8901"
 
-    def test_phone_number_none(self):
+    def test_phone_number_none(self) -> None:
         f = kml._Feature()
         f.phone_number = None
         assert f.phone_number is None
 
-    def test_phone_number_value_error(self):
+    def test_phone_number_value_error(self) -> None:
         f = kml._Feature()
         with pytest.raises(ValueError):
             f.phone_number = 123
 
 
 class TestBaseOverlay:
-    def test_color_string(self):
+    def test_color_string(self) -> None:
         o = kml._Overlay(name="An Overlay")
         o.color = "00010203"
         assert o.color == "00010203"
 
-    def test_color_none(self):
+    def test_color_none(self) -> None:
         o = kml._Overlay(name="An Overlay")
         o.color = "00010203"
         assert o.color == "00010203"
         o.color = None
         assert o.color is None
 
-    def test_color_value_error(self):
+    def test_color_value_error(self) -> None:
         o = kml._Overlay(name="An Overlay")
         with pytest.raises(ValueError):
             o.color = object()
 
-    def test_draw_order_string(self):
+    def test_draw_order_string(self) -> None:
         o = kml._Overlay(name="An Overlay")
         o.draw_order = "1"
         assert o.draw_order == "1"
 
-    def test_draw_order_int(self):
+    def test_draw_order_int(self) -> None:
         o = kml._Overlay(name="An Overlay")
         o.draw_order = 1
         assert o.draw_order == "1"
 
-    def test_draw_order_none(self):
+    def test_draw_order_none(self) -> None:
         o = kml._Overlay(name="An Overlay")
         o.draw_order = "1"
         assert o.draw_order == "1"
         o.draw_order = None
         assert o.draw_order is None
 
-    def test_draw_order_value_error(self):
+    def test_draw_order_value_error(self) -> None:
         o = kml._Overlay(name="An Overlay")
         with pytest.raises(ValueError):
             o.draw_order = object()
 
-    def test_icon_raise_exception(self):
+    def test_icon_raise_exception(self) -> None:
         o = kml._Overlay(name="An Overlay")
         with pytest.raises(ValueError):
             o.icon = 12345
 
 
 class TestGroundOverlay:
-    def setup_method(self):
+    def setup_method(self) -> None:
         self.g = kml.GroundOverlay()
 
-    def test_altitude_int(self):
+    def test_altitude_int(self) -> None:
         self.g.altitude = 123
         assert self.g.altitude == "123"
 
-    def test_altitude_float(self):
+    def test_altitude_float(self) -> None:
         self.g.altitude = 123.4
         assert self.g.altitude == "123.4"
 
-    def test_altitude_string(self):
+    def test_altitude_string(self) -> None:
         self.g.altitude = "123"
         assert self.g.altitude == "123"
 
-    def test_altitude_value_error(self):
+    def test_altitude_value_error(self) -> None:
         with pytest.raises(ValueError):
             self.g.altitude = object()
 
-    def test_altitude_none(self):
+    def test_altitude_none(self) -> None:
         self.g.altitude = "123"
         assert self.g.altitude == "123"
         self.g.altitude = None
         assert self.g.altitude is None
 
-    def test_altitude_mode_default(self):
+    def test_altitude_mode_default(self) -> None:
         assert self.g.altitude_mode == "clampToGround"
 
-    def test_altitude_mode_error(self):
+    def test_altitude_mode_error(self) -> None:
         self.g.altitude_mode = ""
         assert self.g.altitude_mode == "clampToGround"
 
-    def test_altitude_mode_clamp(self):
+    def test_altitude_mode_clamp(self) -> None:
         self.g.altitude_mode = "clampToGround"
         assert self.g.altitude_mode == "clampToGround"
 
-    def test_altitude_mode_absolute(self):
+    def test_altitude_mode_absolute(self) -> None:
         self.g.altitude_mode = "absolute"
         assert self.g.altitude_mode == "absolute"
 
-    def test_latlonbox_function(self):
+    def test_latlonbox_function(self) -> None:
         self.g.lat_lon_box(10, 20, 30, 40, 50)
 
         assert self.g.north == "10"
@@ -1759,7 +1759,7 @@ class TestGroundOverlay:
         assert self.g.west == "40"
         assert self.g.rotation == "50"
 
-    def test_latlonbox_string(self):
+    def test_latlonbox_string(self) -> None:
         self.g.north = "10"
         self.g.south = "20"
         self.g.east = "30"
@@ -1772,7 +1772,7 @@ class TestGroundOverlay:
         assert self.g.west == "40"
         assert self.g.rotation == "50"
 
-    def test_latlonbox_int(self):
+    def test_latlonbox_int(self) -> None:
         self.g.north = 10
         self.g.south = 20
         self.g.east = 30
@@ -1785,7 +1785,7 @@ class TestGroundOverlay:
         assert self.g.west == "40"
         assert self.g.rotation == "50"
 
-    def test_latlonbox_float(self):
+    def test_latlonbox_float(self) -> None:
         self.g.north = 10.0
         self.g.south = 20.0
         self.g.east = 30.0
@@ -1798,7 +1798,7 @@ class TestGroundOverlay:
         assert self.g.west == "40.0"
         assert self.g.rotation == "50.0"
 
-    def test_latlonbox_value_error(self):
+    def test_latlonbox_value_error(self) -> None:
         with pytest.raises(ValueError):
             self.g.north = object()
 
@@ -1820,7 +1820,7 @@ class TestGroundOverlay:
         assert self.g.west is None
         assert self.g.rotation is None
 
-    def test_latlonbox_empty_string(self):
+    def test_latlonbox_empty_string(self) -> None:
         self.g.north = ""
         self.g.south = ""
         self.g.east = ""
@@ -1833,7 +1833,7 @@ class TestGroundOverlay:
         assert not self.g.west
         assert not self.g.rotation
 
-    def test_latlonbox_none(self):
+    def test_latlonbox_none(self) -> None:
         self.g.north = None
         self.g.south = None
         self.g.east = None
@@ -1848,7 +1848,7 @@ class TestGroundOverlay:
 
 
 class TestGroundOverlayString:
-    def test_default_to_string(self):
+    def test_default_to_string(self) -> None:
         g = kml.GroundOverlay()
 
         expected = kml.GroundOverlay()
@@ -1859,7 +1859,7 @@ class TestGroundOverlayString:
         )
         assert g.to_string() == expected.to_string()
 
-    def test_to_string(self):
+    def test_to_string(self) -> None:
         g = kml.GroundOverlay()
         icon = kml.Icon(href="http://example.com")
         g.icon = icon
@@ -1880,7 +1880,7 @@ class TestGroundOverlayString:
 
         assert g.to_string() == expected.to_string()
 
-    def test_altitude_from_int(self):
+    def test_altitude_from_int(self) -> None:
         g = kml.GroundOverlay()
         g.altitude = 123
 
@@ -1895,7 +1895,7 @@ class TestGroundOverlayString:
 
         assert g.to_string() == expected.to_string()
 
-    def test_altitude_from_float(self):
+    def test_altitude_from_float(self) -> None:
         g = kml.GroundOverlay()
         g.altitude = 123.4
 
@@ -1910,7 +1910,7 @@ class TestGroundOverlayString:
 
         assert g.to_string() == expected.to_string()
 
-    def test_altitude_from_string(self):
+    def test_altitude_from_string(self) -> None:
         g = kml.GroundOverlay()
         g.altitude = "123.4"
 
@@ -1925,7 +1925,7 @@ class TestGroundOverlayString:
 
         assert g.to_string() == expected.to_string()
 
-    def test_altitude_mode_absolute(self):
+    def test_altitude_mode_absolute(self) -> None:
         g = kml.GroundOverlay()
         g.altitude = "123.4"
         g.altitude_mode = "absolute"
@@ -1941,7 +1941,7 @@ class TestGroundOverlayString:
 
         assert g.to_string() == expected.to_string()
 
-    def test_altitude_mode_unknown_string(self):
+    def test_altitude_mode_unknown_string(self) -> None:
         g = kml.GroundOverlay()
         g.altitude = "123.4"
         g.altitudeMode = "unknown string"
@@ -1957,7 +1957,7 @@ class TestGroundOverlayString:
 
         assert g.to_string() == expected.to_string()
 
-    def test_altitude_mode_value(self):
+    def test_altitude_mode_value(self) -> None:
         g = kml.GroundOverlay()
         g.altitude = "123.4"
         g.altitudeMode = 1234
@@ -1973,7 +1973,7 @@ class TestGroundOverlayString:
 
         assert g.to_string() == expected.to_string()
 
-    def test_latlonbox_no_rotation(self):
+    def test_latlonbox_no_rotation(self) -> None:
         g = kml.GroundOverlay()
         g.lat_lon_box(10, 20, 30, 40)
 
@@ -1993,7 +1993,7 @@ class TestGroundOverlayString:
 
         assert g.to_string() == expected.to_string()
 
-    def test_latlonbox_rotation(self):
+    def test_latlonbox_rotation(self) -> None:
         g = kml.GroundOverlay()
         g.lat_lon_box(10, 20, 30, 40, 50)
 
@@ -2013,7 +2013,7 @@ class TestGroundOverlayString:
 
         assert g.to_string() == expected.to_string()
 
-    def test_latlonbox_nswer(self):
+    def test_latlonbox_nswer(self) -> None:
         g = kml.GroundOverlay()
         g.north = 10
         g.south = 20
@@ -2039,48 +2039,48 @@ class TestGroundOverlayString:
 
 
 class TestPhotoOverlay:
-    def setup_method(self):
+    def setup_method(self) -> None:
         self.p = kml.PhotoOverlay()
         self.p.camera = kml.Camera()
 
-    def test_camera_altitude_int(self):
+    def test_camera_altitude_int(self) -> None:
         self.p.camera.altitude = 123
         assert self.p.camera.altitude == 123
 
-    def test_camera_altitude_float(self):
+    def test_camera_altitude_float(self) -> None:
         self.p.camera.altitude = 123.4
         assert self.p.camera.altitude == 123.4
 
-    def test_camera_altitude_string(self):
+    def test_camera_altitude_string(self) -> None:
         self.p.camera.altitude = 123
         assert self.p.camera.altitude == 123
 
-    def test_camera_altitude_value_error(self):
+    def test_camera_altitude_value_error(self) -> None:
         with pytest.raises(ValueError):
             self.p.camera.altitude = object()
 
-    def test_camera_altitude_none(self):
+    def test_camera_altitude_none(self) -> None:
         self.p.camera.altitude = 123
         assert self.p.camera.altitude == 123
         self.p.camera.altitude = None
         assert self.p.camera.altitude is None
 
-    def test_camera_altitude_mode_default(self):
+    def test_camera_altitude_mode_default(self) -> None:
         assert self.p.camera.altitude_mode == "relativeToGround"
 
-    def test_camera_altitude_mode_error(self):
+    def test_camera_altitude_mode_error(self) -> None:
         self.p.camera.altitude_mode = ""
         assert self.p.camera.altitude_mode == "relativeToGround"
 
-    def test_camera_altitude_mode_clamp(self):
+    def test_camera_altitude_mode_clamp(self) -> None:
         self.p.camera.altitude_mode = "clampToGround"
         assert self.p.camera.altitude_mode == "clampToGround"
 
-    def test_camera_altitude_mode_absolute(self):
+    def test_camera_altitude_mode_absolute(self) -> None:
         self.p.camera.altitude_mode = "absolute"
         assert self.p.camera.altitude_mode == "absolute"
 
-    def test_camera_initialization(self):
+    def test_camera_initialization(self) -> None:
         self.p.camera = kml.Camera(
             longitude=10, latitude=20, altitude=30, heading=40, tilt=50, roll=60
         )

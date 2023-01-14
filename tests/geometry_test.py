@@ -89,7 +89,7 @@ class TestStdLibrary(StdLibrary):
 
 
 class TestGetGeometry(StdLibrary):
-    def test_altitude_mode(self):
+    def test_altitude_mode(self) -> None:
         doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:coordinates>0.000000,1.000000</kml:coordinates>
           <kml:altitudeMode>clampToGround</kml:altitudeMode>
@@ -100,7 +100,7 @@ class TestGetGeometry(StdLibrary):
         g.from_string(doc)
         assert g.altitude_mode == AltitudeMode("clampToGround")
 
-    def test_extrude(self):
+    def test_extrude(self) -> None:
         doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:coordinates>0.000000,1.000000</kml:coordinates>
           <kml:extrude>1</kml:extrude>
@@ -111,7 +111,7 @@ class TestGetGeometry(StdLibrary):
         g.from_string(doc)
         assert g.extrude is True
 
-    def test_tesselate(self):
+    def test_tesselate(self) -> None:
         doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:coordinates>0.000000,1.000000</kml:coordinates>
           <kml:tessellate>1</kml:tessellate>
@@ -122,7 +122,7 @@ class TestGetGeometry(StdLibrary):
         g.from_string(doc)
         assert g.tessellate is True
 
-    def test_point(self):
+    def test_point(self) -> None:
         doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:coordinates>0.000000,1.000000</kml:coordinates>
         </kml:Point>"""
@@ -135,7 +135,7 @@ class TestGetGeometry(StdLibrary):
             "coordinates": (0.0, 1.0),
         }
 
-    def test_linestring(self):
+    def test_linestring(self) -> None:
         doc = """<kml:LineString xmlns:kml="http://www.opengis.net/kml/2.2">
             <kml:coordinates>0.000000,0.000000 1.000000,1.000000</kml:coordinates>
         </kml:LineString>"""
@@ -148,9 +148,10 @@ class TestGetGeometry(StdLibrary):
             "coordinates": ((0.0, 0.0), (1.0, 1.0)),
         }
 
-    def test_linearring(self):
+    def test_linearring(self) -> None:
         doc = """<kml:LinearRing xmlns:kml="http://www.opengis.net/kml/2.2">
-          <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</kml:coordinates>
+          <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000
+          0.000000,0.000000</kml:coordinates>
         </kml:LinearRing>
         """
 
@@ -162,11 +163,12 @@ class TestGetGeometry(StdLibrary):
             "coordinates": ((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0)),
         }
 
-    def test_polygon(self):
+    def test_polygon(self) -> None:
         doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:outerBoundaryIs>
             <kml:LinearRing>
-              <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</kml:coordinates>
+              <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000
+              0.000000,0.000000</kml:coordinates>
             </kml:LinearRing>
           </kml:outerBoundaryIs>
         </kml:Polygon>
@@ -182,12 +184,14 @@ class TestGetGeometry(StdLibrary):
         doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:outerBoundaryIs>
             <kml:LinearRing>
-              <kml:coordinates>-1.000000,-1.000000 2.000000,-1.000000 2.000000,2.000000 -1.000000,-1.000000</kml:coordinates>
+              <kml:coordinates>-1.000000,-1.000000 2.000000,-1.000000 2.000000,2.000000
+              -1.000000,-1.000000</kml:coordinates>
             </kml:LinearRing>
           </kml:outerBoundaryIs>
           <kml:innerBoundaryIs>
             <kml:LinearRing>
-              <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</kml:coordinates>
+              <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000
+              0.000000,0.000000</kml:coordinates>
             </kml:LinearRing>
           </kml:innerBoundaryIs>
         </kml:Polygon>
@@ -203,7 +207,7 @@ class TestGetGeometry(StdLibrary):
             ),
         }
 
-    def test_multipoint(self):
+    def test_multipoint(self) -> None:
         doc = """
         <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:Point>
@@ -219,7 +223,7 @@ class TestGetGeometry(StdLibrary):
         g.from_string(doc)
         assert len(g.geometry) == 2
 
-    def test_multilinestring(self):
+    def test_multilinestring(self) -> None:
         doc = """
         <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:LineString>
@@ -235,25 +239,28 @@ class TestGetGeometry(StdLibrary):
         g.from_string(doc)
         assert len(g.geometry) == 2
 
-    def test_multipolygon(self):
+    def test_multipolygon(self) -> None:
         doc = """
         <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:Polygon>
             <kml:outerBoundaryIs>
               <kml:LinearRing>
-                <kml:coordinates>-1.000000,-1.000000 2.000000,-1.000000 2.000000,2.000000 -1.000000,-1.000000</kml:coordinates>
+                <kml:coordinates>-1.000000,-1.000000 2.000000,-1.000000
+                2.000000,2.000000 -1.000000,-1.000000</kml:coordinates>
               </kml:LinearRing>
             </kml:outerBoundaryIs>
             <kml:innerBoundaryIs>
               <kml:LinearRing>
-                <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</kml:coordinates>
+                <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000
+                0.000000,0.000000</kml:coordinates>
               </kml:LinearRing>
             </kml:innerBoundaryIs>
           </kml:Polygon>
           <kml:Polygon>
             <kml:outerBoundaryIs>
               <kml:LinearRing>
-                <kml:coordinates>3.000000,0.000000 4.000000,0.000000 4.000000,1.000000 3.000000,0.000000</kml:coordinates>
+                <kml:coordinates>3.000000,0.000000 4.000000,0.000000 4.000000,1.000000
+                3.000000,0.000000</kml:coordinates>
               </kml:LinearRing>
             </kml:outerBoundaryIs>
           </kml:Polygon>
@@ -264,7 +271,7 @@ class TestGetGeometry(StdLibrary):
         g.from_string(doc)
         assert len(g.geometry) == 2
 
-    def test_geometrycollection(self):
+    def test_geometrycollection(self) -> None:
         doc = """
         <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:Polygon>
