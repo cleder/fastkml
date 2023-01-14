@@ -1,5 +1,6 @@
 import logging
 from typing import Optional
+from typing import SupportsFloat
 from typing import Union
 
 import fastkml.config as config
@@ -89,7 +90,7 @@ class _AbstractView(TimeMixin, _BaseObject):
         return self._longitude
 
     @longitude.setter
-    def longitude(self, value) -> None:
+    def longitude(self, value: Optional[SupportsFloat]) -> None:
         if isinstance(value, (str, int, float)) and (-180 <= float(value) <= 180):
             self._longitude = float(value)
         elif value is None:
@@ -102,7 +103,7 @@ class _AbstractView(TimeMixin, _BaseObject):
         return self._latitude
 
     @latitude.setter
-    def latitude(self, value) -> None:
+    def latitude(self, value: Optional[SupportsFloat]) -> None:
         if isinstance(value, (str, int, float)) and (-90 <= float(value) <= 90):
             self._latitude = float(value)
         elif value is None:
@@ -115,7 +116,7 @@ class _AbstractView(TimeMixin, _BaseObject):
         return self._altitude
 
     @altitude.setter
-    def altitude(self, value) -> None:
+    def altitude(self, value: Optional[SupportsFloat]) -> None:
         if isinstance(value, (str, int, float)):
             self._altitude = float(value)
         elif value is None:
@@ -128,7 +129,7 @@ class _AbstractView(TimeMixin, _BaseObject):
         return self._heading
 
     @heading.setter
-    def heading(self, value) -> None:
+    def heading(self, value: Optional[SupportsFloat]) -> None:
         if isinstance(value, (str, int, float)) and (-180 <= float(value) <= 180):
             self._heading = float(value)
         elif value is None:
@@ -141,7 +142,7 @@ class _AbstractView(TimeMixin, _BaseObject):
         return self._tilt
 
     @tilt.setter
-    def tilt(self, value) -> None:
+    def tilt(self, value: Optional[SupportsFloat]) -> None:
         if isinstance(value, (str, int, float)) and (0 <= float(value) <= 180):
             self._tilt = float(value)
         elif value is None:
