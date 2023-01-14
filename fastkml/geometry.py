@@ -57,6 +57,7 @@ class Geometry(_BaseObject):
         self,
         ns: Optional[str] = None,
         id: Optional[str] = None,
+        target_id: Optional[str] = None,
         geometry: Optional[Any] = None,
         extrude: bool = False,
         tessellate: bool = False,
@@ -108,7 +109,7 @@ class Geometry(_BaseObject):
 
         https://developers.google.com/kml/documentation/kmlreference#geometry
         """
-        super().__init__(ns, id)
+        super().__init__(ns=ns, id=id, target_id=target_id)
         self.extrude = extrude
         self.tessellate = tessellate
         self.altitude_mode = altitude_mode
@@ -470,4 +471,21 @@ class Geometry(_BaseObject):
                 logger.warning("No geometries found")
 
 
-__all__ = ["Geometry"]
+class Point(Geometry):
+    ...
+
+
+class LineString(Geometry):
+    ...
+
+
+class LinearRing(Geometry):
+    ...
+
+
+class Polygon(Geometry):
+    ...
+
+
+class MultiGeometry(Geometry):
+    ...

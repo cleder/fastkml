@@ -1631,7 +1631,7 @@ class TestSetGeometry:
         #     po.__geo_interface__, p.__geo_interface__,
         #     ls.__geo_interface__, lr.__geo_interface__]}
         g = Geometry(geometry=GeometryCollection([po, p, ls, lr]))
-        # g1 = Geometry(geometry=as_shape(geo_if))
+        # g1 = Geometry(geometry=shape(geo_if))
         # self.assertEqual(g1.__geo_interface__, g.__geo_interface__)
         assert "MultiGeometry" in str(g.to_string())
         assert "Polygon" in str(g.to_string())
