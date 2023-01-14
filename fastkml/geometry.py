@@ -131,7 +131,6 @@ class Geometry(_BaseObject):
 
     def _set_altitude_mode(self, element: Element) -> None:
         if self.altitude_mode:
-            # XXX add 'relativeToSeaFloor', 'clampToSeaFloor',
             # assert self.altitude_mode in [
             #     "clampToGround",
             #     "relativeToGround",
@@ -331,14 +330,9 @@ class Geometry(_BaseObject):
         altitude_mode = element.find(f"{self.ns}altitudeMode")
         if altitude_mode is not None:
             am = altitude_mode.text.strip()
-            if am in [
-                "clampToGround",
-                # 'relativeToSeaFloor', 'clampToSeaFloor',
-                "relativeToGround",
-                "absolute",
-            ]:
-                self.altitude_mode = am
-            else:
+            try:
+                self.altitude_mode = AltitudeMode(am)
+            except ValueError:
                 self.altitude_mode = None
         else:
             self.altitude_mode = None  # type: ignore[unreachable]
