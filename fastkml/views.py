@@ -155,8 +155,8 @@ class _AbstractView(TimeMixin, _BaseObject):
 
     @altitude_mode.setter
     def altitude_mode(self, mode: str) -> None:
-        if mode in ("relativeToGround", "clampToGround", "absolute"):
-            self._altitude_mode = str(mode)
+        if mode in {"relativeToGround", "clampToGround", "absolute"}:
+            self._altitude_mode = mode
         else:
             self._altitude_mode = "relativeToGround"
             # raise ValueError(
@@ -181,11 +181,9 @@ class _AbstractView(TimeMixin, _BaseObject):
         if tilt is not None:
             self.tilt = tilt.text
         altitude_mode = element.find(f"{self.ns}altitudeMode")
-        if altitude_mode is not None:
-            self.altitude_mode = altitude_mode.text
-        else:
+        if altitude_mode is None:
             altitude_mode = element.find(f"{gx.NS}altitudeMode")
-            self.altitude_mode = altitude_mode.text
+        self.altitude_mode = altitude_mode.text
         timespan = element.find(f"{self.ns}TimeSpan")
         if timespan is not None:
             s = TimeSpan(self.ns)

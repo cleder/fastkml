@@ -32,9 +32,7 @@ class TimeMixin:
     @property
     def time_stamp(self) -> Optional[KmlDateTime]:
         """This just returns the datetime portion of the timestamp"""
-        if self._timestamp is not None:
-            return self._timestamp.timestamp
-        return None
+        return self._timestamp.timestamp if self._timestamp is not None else None
 
     @time_stamp.setter
     def time_stamp(self, timestamp: Optional[KmlDateTime]) -> None:
@@ -50,9 +48,7 @@ class TimeMixin:
 
     @property
     def begin(self) -> Optional[KmlDateTime]:
-        if self._timespan is not None:
-            return self._timespan.begin
-        return None
+        return self._timespan.begin if self._timespan is not None else None
 
     @begin.setter
     def begin(self, dt: Optional[KmlDateTime]) -> None:
@@ -68,9 +64,7 @@ class TimeMixin:
 
     @property
     def end(self) -> Optional[KmlDateTime]:
-        if self._timespan is not None:
-            return self._timespan.end
-        return None
+        return self._timespan.end if self._timespan is not None else None
 
     @end.setter
     def end(self, dt: Optional[KmlDateTime]) -> None:
