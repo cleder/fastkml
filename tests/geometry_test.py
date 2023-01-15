@@ -470,13 +470,25 @@ class TestPoint(StdLibrary):
             )
 
     def test_from_string_empty_coordinates(self) -> None:
-        """Test the from_string method."""
         with pytest.raises(
             KMLParseError,
             match=r"Invalid coordinates in <Point\s*><coordinates\s*/></Point>",
         ):
             Point.class_from_string(
                 "<Point><coordinates/></Point>",
+                ns="",
+            )
+
+    def test_from_string_invalid_coordinates(self) -> None:
+        with pytest.raises(
+            KMLParseError,
+            match=(
+                r"Invalid coordinates in <Point\s*>"
+                "<coordinates>1</coordinates></Point>"
+            ),
+        ):
+            Point.class_from_string(
+                "<Point><coordinates>1</coordinates></Point>",
                 ns="",
             )
 

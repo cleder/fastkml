@@ -713,7 +713,7 @@ class Point(_Geometry):
         coords = cls._get_coordinates(ns=ns, element=element)
         try:
             return geo.Point.from_coordinates(coords)
-        except IndexError as e:
+        except (IndexError, TypeError) as e:
             error = config.etree.tostring(  # type: ignore[attr-defined]
                 element,
                 encoding="UTF-8",
