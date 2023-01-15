@@ -457,6 +457,201 @@ class Geometry(_BaseObject):
                 logger.warning("No geometries found")
 
 
+class _Geometry(_BaseObject):
+    """Baseclass with common methods for all geometry objects.
+
+    Attributes: extrude: boolean --> Specifies whether to connect the feature to
+                                     the ground with a line.
+                tessellate: boolean -->  Specifies whether to allow the LineString
+                                         to follow the terrain.
+                altitudeMode: --> Specifies how altitude components in the <coordinates>
+                                  element are interpreted.
+
+    """
+
+    __namespace: str = config.KMLNS
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        extrude: bool = False,
+        tessellate: bool = False,
+        altitude_mode: Optional[AltitudeMode] = None,
+    ) -> None:
+        """
+
+        Args:
+            ns: Namespace of the object
+            id: Id of the object
+            target_id: Target id of the object
+            extrude: Specifies whether to connect the feature to the ground with a line.
+            tessellate: Specifies whether to allow the LineString to follow the terrain.
+            altitude_mode: Specifies how altitude components in the <coordinates>
+                           element are interpreted.
+        """
+        super().__init__(ns=ns, id=id, target_id=target_id)
+        self._extrude = extrude
+        self._tessellate = tessellate
+        self._altitude_mode = altitude_mode
+
+    @property
+    def extrude(self) -> bool:
+        return self._extrude
+
+    @extrude.setter
+    def extrude(self, extrude: bool) -> None:
+        self._extrude = extrude
+
+    @property
+    def tessellate(self) -> bool:
+        return self._tessellate
+
+    @tessellate.setter
+    def tessellate(self, tessellate: bool) -> None:
+        self._tessellate = tessellate
+
+    @property
+    def altitude_mode(self) -> Optional[AltitudeMode]:
+        return self._altitude_mode
+
+    @altitude_mode.setter
+    def altitude_mode(self, altitude_mode: Optional[AltitudeMode]) -> None:
+        self._altitude_mode = altitude_mode
+
+    def _etree_coordinates(
+        self,
+        coordinates: Sequence[PointType],
+    ) -> Element:
+        element = cast(
+            Element,
+            config.etree.Element(f"{self.ns}coordinates"),  # type: ignore[attr-defined]
+        )
+        if len(coordinates[0]) == 2:
+            tuples = (f"{c[0]:f},{c[1]:f}" for c in coordinates)
+        elif len(coordinates[0]) == 3:
+            tuples = (
+                f"{c[0]:f},{c[1]:f},{c[2]:f}" for c in coordinates  # type: ignore[misc]
+            )
+        else:
+            raise ValueError("Invalid dimensions")
+        element.text = " ".join(tuples)
+        return element
+
+    @classmethod
+    def _get_element_ns(cls, ns: Optional[str]) -> str:
+        if ns is None:
+            return cls.__namespace
+        return ns
+
+    @classmethod
+    def _get_element_id(cls, element: Element) -> str:
+        return element.get("id") or ""
+
+    @classmethod
+    def _get_element_target_id(cls, element: Element) -> str:
+        return element.get("targetId") or ""
+
+    @classmethod
+    def _get_element_extrude(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+    ) -> bool:
+        extrude = element.find(f"{ns}extrude")
+        if extrude is None:
+            return False
+        try:
+            return bool(int(extrude.text.strip()))
+        except ValueError:
+            return False
+
+    @classmethod
+    def _get_element_tessellate(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+    ) -> bool:
+        tessellate = element.find(f"{ns}tessellate")
+        if tessellate is not None:
+            try:
+                return bool(int(tessellate.text.strip()))
+            except ValueError:
+                return False
+        return False
+
+    @classmethod
+    def _get_element_altitude_mode(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+    ) -> Optional[AltitudeMode]:
+        altitude_mode = element.find(f"{ns}altitudeMode")
+        if altitude_mode is not None:
+            try:
+                return AltitudeMode(altitude_mode.text.strip())
+            except ValueError:
+                return None
+        return None
+
+    @classmethod
+    def class_from_element(
+        cls,
+        *,
+        ns: Optional[str],
+        element: Element,
+    ) -> "_Geometry":
+        """Creates a geometry object from an etree element.
+
+        Args:
+            element: etree element
+
+        Returns:
+            Geometry object
+        """
+        ns = cls._get_element_ns(ns)
+        id = cls._get_element_id(ns=ns, element=element)
+        target_id = cls._get_element_target_id(ns=ns, element=element)
+        extrude = cls._get_element_extrude(ns=ns, element=element)
+        tessellate = cls._get_element_tessellate(ns=ns, element=element)
+        altitude_mode = cls._get_element_altitude_mode(ns=ns, element=element)
+        return cls(
+            ns=ns,
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+        )
+
+    @classmethod
+    def class_from_string(
+        cls,
+        *,
+        ns: Optional[str],
+        string: str,
+    ) -> "_Geometry":
+        """Creates a geometry object from a string.
+
+        Args:
+            string: String representation of the geometry object
+
+        Returns:
+            Geometry object
+        """
+        return cls.from_element(
+            ns=ns,
+            element=cast(
+                Element,
+                config.etree.fromstring(string),
+            ),
+        )
+
+
 class Point(Geometry):
     ...
 

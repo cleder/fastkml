@@ -458,7 +458,7 @@ class BalloonStyle(_BaseObject):
         if bg_color is not None:
             self.bg_color = bg_color.text
         else:
-            bg_color = element.find(f"{self.ns}color")  # type: ignore[unreachable]
+            bg_color = element.find(f"{self.ns}color")
             if bg_color is not None:
                 self.bg_color = bg_color.text
         text_color = element.find(f"{self.ns}textColor")
@@ -596,12 +596,14 @@ class StyleMap(_StyleSelector):
             key = pair.find(f"{self.ns}key")
             style = pair.find(f"{self.ns}Style")
             style_url = pair.find(f"{self.ns}styleUrl")
-            if key.text == "highlight":
+            if key is None:
+                raise ValueError
+            elif key.text == "highlight":
                 if style is not None:
                     highlight = Style(self.ns)
                     highlight.from_element(style)
-                elif style_url is not None:  # type: ignore[unreachable]
-                    highlight = StyleUrl(self.ns)
+                elif style_url is not None:
+                    highlight = StyleUrl(self.ns)  # type: ignore[assignment]
                     highlight.from_element(style_url)
                 else:
                     raise ValueError
@@ -610,8 +612,8 @@ class StyleMap(_StyleSelector):
                 if style is not None:
                     normal = Style(self.ns)
                     normal.from_element(style)
-                elif style_url is not None:  # type: ignore[unreachable]
-                    normal = StyleUrl(self.ns)
+                elif style_url is not None:
+                    normal = StyleUrl(self.ns)  # type: ignore[assignment]
                     normal.from_element(style_url)
                 else:
                     raise ValueError
