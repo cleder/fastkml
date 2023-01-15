@@ -22,6 +22,7 @@ from typing import Optional
 from typing import Sequence
 from typing import Union
 from typing import cast
+from typing import no_type_check
 
 import pygeoif.geometry as geo
 from pygeoif.factories import shape
@@ -317,7 +318,7 @@ class Geometry(_BaseObject):
                 et = False
             self.extrude = et
         else:
-            self.extrude = False  # type: ignore[unreachable]
+            self.extrude = False
         tessellate = element.find(f"{self.ns}tessellate")
         if tessellate is not None:
             try:
@@ -326,7 +327,7 @@ class Geometry(_BaseObject):
                 te = False
             self.tessellate = te
         else:
-            self.tessellate = False  # type: ignore[unreachable]
+            self.tessellate = False
         altitude_mode = element.find(f"{self.ns}altitudeMode")
         if altitude_mode is not None:
             am = altitude_mode.text.strip()
@@ -335,8 +336,9 @@ class Geometry(_BaseObject):
             except ValueError:
                 self.altitude_mode = None
         else:
-            self.altitude_mode = None  # type: ignore[unreachable]
+            self.altitude_mode = None
 
+    @no_type_check
     def _get_coordinates(self, element: Element) -> List[PointType]:
         coordinates = element.find(f"{self.ns}coordinates")
         if coordinates is not None:
@@ -358,8 +360,9 @@ class Geometry(_BaseObject):
         if lr is not None:
             coords = self._get_coordinates(lr)
             return geo.LinearRing(coords)
-        return None  # type: ignore[unreachable]
+        return None
 
+    @no_type_check
     def _get_geometry(self, element: Element) -> Optional[GeometryType]:
         # Point, LineString,
         # Polygon, LinearRing
@@ -389,6 +392,7 @@ class Geometry(_BaseObject):
             return geo.LinearRing(coords)
         return None
 
+    @no_type_check
     def _get_multigeometry(self, element: Element) -> Optional[MultiGeometryType]:
         # MultiGeometry
         geoms: List[Union[AnyGeometryType, None]] = []
@@ -425,23 +429,23 @@ class Geometry(_BaseObject):
             geom_types = {geom.geom_type for geom in clean_geoms}
             if len(geom_types) > 1:
                 return geo.GeometryCollection(
-                    clean_geoms,  # type: ignore[arg-type]
+                    clean_geoms,
                 )
             if "Point" in geom_types:
                 return geo.MultiPoint.from_points(
-                    *clean_geoms,  # type: ignore[arg-type]
+                    *clean_geoms,
                 )
             elif "LineString" in geom_types:
                 return geo.MultiLineString.from_linestrings(
-                    *clean_geoms,  # type: ignore[arg-type]
+                    *clean_geoms,
                 )
             elif "Polygon" in geom_types:
                 return geo.MultiPolygon.from_polygons(
-                    *clean_geoms,  # type: ignore[arg-type]
+                    *clean_geoms,
                 )
             elif "LinearRing" in geom_types:
                 return geo.GeometryCollection(
-                    clean_geoms,  # type: ignore[arg-type]
+                    clean_geoms,
                 )
         return None
 
@@ -473,6 +477,7 @@ class _Geometry(_BaseObject):
 
     def __init__(
         self,
+        *,
         ns: Optional[str] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
@@ -537,6 +542,41 @@ class _Geometry(_BaseObject):
         else:
             raise ValueError("Invalid dimensions")
         element.text = " ".join(tuples)
+        return element
+
+    def _set_altitude_mode(self, element: Element) -> None:
+        if self.altitude_mode:
+            am_element = config.etree.SubElement(  # type: ignore[attr-defined]
+                element, f"{self.ns}altitudeMode"
+            )
+            am_element.text = self.altitude_mode.value  # type: ignore[attr-defined]
+
+    def _set_extrude(self, element: Element) -> None:
+        if self.extrude is not None:
+            et_element = cast(
+                Element,
+                config.etree.SubElement(  # type: ignore[attr-defined]
+                    element, f"{self.ns}extrude"
+                ),
+            )
+            et_element.text = str(int(self.extrude))
+
+    def _set_tessellate(self, element: Element) -> None:
+        if self.tessellate is not None:
+            t_element = cast(
+                Element,
+                config.etree.SubElement(  # type: ignore[attr-defined]
+                    element, f"{self.ns}tessellate"
+                ),
+            )
+            t_element.text = str(int(self.tessellate))
+
+    def etree_element(self) -> Element:
+        self.__name__ = self.__class__.__name__
+        element = super().etree_element()
+        self._set_extrude(element)
+        self._set_altitude_mode(element)
+        self._set_tessellate(element)
         return element
 
     @classmethod
@@ -613,9 +653,8 @@ class _Geometry(_BaseObject):
         Returns:
             Geometry object
         """
-        ns = cls._get_element_ns(ns)
-        id = cls._get_element_id(ns=ns, element=element)
-        target_id = cls._get_element_target_id(ns=ns, element=element)
+        id = cls._get_element_id(element=element)
+        target_id = cls._get_element_target_id(element=element)
         extrude = cls._get_element_extrude(ns=ns, element=element)
         tessellate = cls._get_element_tessellate(ns=ns, element=element)
         altitude_mode = cls._get_element_altitude_mode(ns=ns, element=element)
@@ -631,9 +670,9 @@ class _Geometry(_BaseObject):
     @classmethod
     def class_from_string(
         cls,
-        *,
-        ns: Optional[str],
         string: str,
+        *,
+        ns: Optional[str] = None,
     ) -> "_Geometry":
         """Creates a geometry object from a string.
 
@@ -643,11 +682,12 @@ class _Geometry(_BaseObject):
         Returns:
             Geometry object
         """
-        return cls.from_element(
+        ns = cls._get_element_ns(ns)
+        return cls.class_from_element(
             ns=ns,
             element=cast(
                 Element,
-                config.etree.fromstring(string),
+                config.etree.fromstring(string),  # type: ignore[attr-defined]
             ),
         )
 

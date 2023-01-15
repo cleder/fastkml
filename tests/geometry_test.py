@@ -22,6 +22,7 @@ from pygeoif.geometry import Polygon
 
 from fastkml.geometry import AltitudeMode
 from fastkml.geometry import Geometry
+from fastkml.geometry import _Geometry
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -313,9 +314,125 @@ class TestGetGeometry(StdLibrary):
         assert g.geometry.geom_type == "GeometryCollection"
 
 
+class TestGeometry(StdLibrary):
+    """Test the _Geometry class."""
+
+    def test_init(self) -> None:
+        """Test the init method."""
+        g = _Geometry()
+
+        assert g.ns == "{http://www.opengis.net/kml/2.2}"
+        assert g.target_id is None
+        assert g.id is None
+        assert g.extrude is False
+        assert g.altitude_mode is None
+        assert g.tessellate is False
+
+    def test_init_with_args(self) -> None:
+        """Test the init method with arguments."""
+        g = _Geometry(
+            ns="",
+            target_id="target_id",
+            id="id",
+            extrude=True,
+            altitude_mode=AltitudeMode.clamp_to_ground,
+            tessellate=True,
+        )
+
+        assert g.ns == ""
+        assert g.target_id == "target_id"
+        assert g.id == "id"
+        assert g.extrude is True
+        assert g.altitude_mode == AltitudeMode.clamp_to_ground
+        assert g.tessellate is True
+
+    def test_to_string(self) -> None:
+        """Test the to_string method."""
+        g = _Geometry()
+
+        assert "http://www.opengis.net/kml/2.2" in g.to_string()
+        assert "targetId=" not in g.to_string()
+        assert "id=" not in g.to_string()
+        assert "extrude>0</" in g.to_string()
+        assert "altitudeMode" not in g.to_string()
+        assert "tessellate>0<" in g.to_string()
+
+    def test_to_string_with_args(self) -> None:
+        """Test the to_string method."""
+        g = _Geometry(
+            ns="{http://www.opengis.net/kml/2.3}",
+            target_id="target_id",
+            id="my-id",
+            extrude=True,
+            altitude_mode=AltitudeMode.relative_to_ground,
+            tessellate=True,
+        )
+
+        assert "http://www.opengis.net/kml/2.3" in g.to_string()
+        assert 'targetId="target_id"' in g.to_string()
+        assert 'id="my-id"' in g.to_string()
+        assert "extrude>1</" in g.to_string()
+        assert "altitudeMode>relativeToGround<" in g.to_string()
+        assert "tessellate>1<" in g.to_string()
+        # assert not g.to_string()
+
+    def test_from_string(self) -> None:
+        """Test the from_string method."""
+        g = _Geometry.class_from_string(
+            '<_Geometry id="my-id" targetId="target_id">'
+            "<extrude>1</extrude>"
+            "<altitudeMode>relativeToGround</altitudeMode>"
+            "<tessellate>1</tessellate>"
+            "</_Geometry>",
+            ns="",
+        )
+
+        assert g.ns == ""
+        assert g.target_id == "target_id"
+        assert g.id == "my-id"
+        assert g.extrude is True
+        assert g.altitude_mode == AltitudeMode.relative_to_ground
+        assert g.tessellate is True
+
+    def test_from_minimal_string(self) -> None:
+        g = _Geometry.class_from_string(
+            "<_Geometry/>",
+            ns="",
+        )
+
+        assert g.ns == ""
+        assert g.target_id == ""
+        assert g.id == ""
+        assert g.extrude is False
+        assert g.altitude_mode is None
+        assert g.tessellate is False
+
+    def test_from_string_omitting_ns(self) -> None:
+        """Test the from_string method."""
+        g = _Geometry.class_from_string(
+            '<kml:_Geometry xmlns:kml="http://www.opengis.net/kml/2.2" '
+            'id="my-id" targetId="target_id">'
+            "<kml:extrude>1</kml:extrude>"
+            "<kml:altitudeMode>relativeToGround</kml:altitudeMode>"
+            "<kml:tessellate>1</kml:tessellate>"
+            "</kml:_Geometry>",
+        )
+
+        assert g.ns == "{http://www.opengis.net/kml/2.2}"
+        assert g.target_id == "target_id"
+        assert g.id == "my-id"
+        assert g.extrude is True
+        assert g.altitude_mode == AltitudeMode.relative_to_ground
+        assert g.tessellate is True
+
+
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
 
 
 class TestGetGeometryLxml(Lxml, TestGetGeometry):
+    """Test with lxml."""
+
+
+class TestGeometryLxml(Lxml, TestGeometry):
     """Test with lxml."""

@@ -5,6 +5,9 @@ Remove all unused type ignores from source files.
 Usage:
     remove_unused_type_ignores.py [--error-file = FILE]
     or read errors from STDIN.
+
+Example:
+    mypy fastkml | python remove_unused_type_ignores.py
 """
 import sys
 
@@ -37,13 +40,12 @@ def generate(error_file):
         line = source[int(line_number) - 1]
         if "# type: ignore" in line:
             column = line.find("# type: ignore")
-            line = line[:column]
+            line = line[:column] + "\n"
             click.echo(f"Removed type ignore from {filename}:{line_number}")
             click.echo(line)
             source[int(line_number) - 1] = line
-            # with open(filename, "wt") as source_file:
-            #     source_file.writelines(source)
-    click.echo("#Write something")
+            with open(filename, "w") as dest_file:
+                dest_file.writelines(source)
     ...
 
 
