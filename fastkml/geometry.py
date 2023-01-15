@@ -32,6 +32,7 @@ from pygeoif.types import PointType
 from fastkml import config
 from fastkml.base import _BaseObject
 from fastkml.enums import AltitudeMode
+from fastkml.exceptions import KMLParseError
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
@@ -580,15 +581,23 @@ class _Geometry(_BaseObject):
 
     @classmethod
     def _get_coordinates(cls, *, ns: str, element: Element) -> List[PointType]:
+        """
+        Get coordinates from element.
+
+        Coordinates can be any number of tuples separated by a space (potentially any
+        number of whitespace characters).
+        Values in tuples should be separated by commas with no spaces.
+
+        https://developers.google.com/kml/documentation/kmlreference#coordinates
+        """
         coordinates = element.find(f"{ns}coordinates")
         if coordinates is not None:
-            # https://developers.google.com/kml/documentation/kmlreference#coordinates
-            # Coordinates can be any number of tuples separated by a
-            # space (potentially any number of whitespace characters).
-            # Values in tuples should be separated by commas with no
-            # spaces. Clean up badly formatted tuples by stripping
+            # Clean up badly formatted tuples by stripping
             # space following commas.
-            latlons = re.sub(r", +", ",", coordinates.text.strip()).split()
+            try:
+                latlons = re.sub(r", +", ",", coordinates.text.strip()).split()
+            except AttributeError:
+                return []
             return [
                 cast(PointType, tuple(float(c) for c in latlon.split(",")))
                 for latlon in latlons
@@ -666,9 +675,6 @@ class _Geometry(_BaseObject):
 
 
 class Point(_Geometry):
-
-    __element_name = "Point"
-
     def __init__(
         self,
         *,
@@ -705,7 +711,14 @@ class Point(_Geometry):
         element: Element,
     ) -> geo.Point:
         coords = cls._get_coordinates(ns=ns, element=element)
-        return geo.Point.from_coordinates(coords)
+        try:
+            return geo.Point.from_coordinates(coords)
+        except IndexError as e:
+            error = config.etree.tostring(  # type: ignore[attr-defined]
+                element,
+                encoding="UTF-8",
+            ).decode("UTF-8")
+            raise KMLParseError(f"Invalid coordinates in {error}") from e
 
     @classmethod
     def _get_point_kwargs(

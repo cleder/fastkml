@@ -18,6 +18,7 @@
 import pygeoif.geometry as geo
 import pytest
 
+from fastkml.exceptions import KMLParseError
 from fastkml.geometry import AltitudeMode
 from fastkml.geometry import Geometry
 from fastkml.geometry import Point
@@ -459,6 +460,25 @@ class TestPoint(StdLibrary):
         assert point.altitude_mode is None
         assert point.extrude is False
         assert point.tessellate is False
+
+    def test_empty_from_string(self) -> None:
+        """Test the from_string method."""
+        with pytest.raises(KMLParseError, match=r"Invalid coordinates in <Point\s*/>"):
+            Point.class_from_string(
+                "<Point/>",
+                ns="",
+            )
+
+    def test_from_string_empty_coordinates(self) -> None:
+        """Test the from_string method."""
+        with pytest.raises(
+            KMLParseError,
+            match=r"Invalid coordinates in <Point\s*><coordinates\s*/></Point>",
+        ):
+            Point.class_from_string(
+                "<Point><coordinates/></Point>",
+                ns="",
+            )
 
 
 class TestLxml(Lxml, TestStdLibrary):
