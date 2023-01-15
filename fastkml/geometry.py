@@ -549,7 +549,7 @@ class _Geometry(_BaseObject):
             am_element = config.etree.SubElement(  # type: ignore[attr-defined]
                 element, f"{self.ns}altitudeMode"
             )
-            am_element.text = self.altitude_mode.value  # type: ignore[attr-defined]
+            am_element.text = self.altitude_mode.value
 
     def _set_extrude(self, element: Element) -> None:
         if self.extrude is not None:
@@ -642,7 +642,7 @@ class _Geometry(_BaseObject):
     def class_from_element(
         cls,
         *,
-        ns: Optional[str],
+        ns: str,
         element: Element,
     ) -> "_Geometry":
         """Creates a geometry object from an etree element.
