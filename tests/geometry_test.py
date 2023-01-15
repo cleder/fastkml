@@ -15,13 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the geometry classes."""
+import pygeoif.geometry as geo
 import pytest
-from pygeoif.geometry import LineString
-from pygeoif.geometry import Point
-from pygeoif.geometry import Polygon
 
 from fastkml.geometry import AltitudeMode
 from fastkml.geometry import Geometry
+from fastkml.geometry import Point
 from fastkml.geometry import _Geometry
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -32,7 +31,7 @@ class TestStdLibrary(StdLibrary):
 
     def test_altitude_mode(self) -> None:
         geom = Geometry()
-        geom.geometry = Point(0, 1)
+        geom.geometry = geo.Point(0, 1)
         assert geom.altitude_mode is None
         assert "altitudeMode" not in str(geom.to_string())
         geom.altitude_mode = "unknown"
@@ -51,7 +50,7 @@ class TestStdLibrary(StdLibrary):
     def test_extrude(self) -> None:
         geom = Geometry()
         assert geom.extrude is False
-        geom.geometry = Point(0, 1)
+        geom.geometry = geo.Point(0, 1)
         geom.extrude = False
         assert "extrude" not in str(geom.to_string())
         geom.extrude = True
@@ -65,7 +64,7 @@ class TestStdLibrary(StdLibrary):
     def test_tesselate(self) -> None:
         geom = Geometry()
         assert geom.tessellate is False
-        geom.geometry = LineString([(0, 0), (1, 1)])
+        geom.geometry = geo.LineString([(0, 0), (1, 1)])
         assert "tessellate" not in str(geom.to_string())
         geom.altitude_mode = AltitudeMode("clampToGround")
         assert "tessellate" not in str(geom.to_string())
@@ -83,9 +82,9 @@ class TestStdLibrary(StdLibrary):
         geom.altitude_mode = AltitudeMode("clampToGround")
         # XXX assert "tessellate>1</" in str(geom.to_string())
         # for geometries != LineString tesselate is ignored
-        geom.geometry = Point(0, 1)
+        geom.geometry = geo.Point(0, 1)
         assert "tessellate" not in str(geom.to_string())
-        geom.geometry = Polygon([(0, 0), (1, 0), (1, 1), (0, 0)])
+        geom.geometry = geo.Polygon([(0, 0), (1, 0), (1, 1), (0, 0)])
         assert "tessellate" not in str(geom.to_string())
 
 
@@ -426,6 +425,42 @@ class TestGeometry(StdLibrary):
         assert g.tessellate is True
 
 
+class TestPoint(StdLibrary):
+    """Test the Point class."""
+
+    def test_init(self) -> None:
+        """Test the init method."""
+        p = geo.Point(1, 2)
+
+        point = Point(geometry=p)
+
+        assert point.geometry == p
+        assert point.altitude_mode is None
+        assert point.extrude is False
+
+    def test_to_string(self) -> None:
+        """Test the to_string method."""
+        p = geo.Point(1, 2)
+
+        point = Point(geometry=p)
+
+        assert "Point" in point.to_string()
+        assert "coordinates>1.000000,2.000000</" in point.to_string()
+
+    def test_from_string(self) -> None:
+        """Test the from_string method."""
+        point = Point.class_from_string(
+            '<Point xmlns="http://www.opengis.net/kml/2.2">'
+            "<coordinates>1.000000,2.000000</coordinates>"
+            "</Point>"
+        )
+
+        assert point.geometry == geo.Point(1, 2)
+        assert point.altitude_mode is None
+        assert point.extrude is False
+        assert point.tessellate is False
+
+
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
 
@@ -435,4 +470,8 @@ class TestGetGeometryLxml(Lxml, TestGetGeometry):
 
 
 class TestGeometryLxml(Lxml, TestGeometry):
+    """Test with lxml."""
+
+
+class TestPointLxml(Lxml, TestPoint):
     """Test with lxml."""

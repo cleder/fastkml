@@ -17,6 +17,7 @@
 import logging
 import re
 from typing import Any
+from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Sequence
@@ -473,8 +474,6 @@ class _Geometry(_BaseObject):
 
     """
 
-    __namespace: str = config.KMLNS
-
     def __init__(
         self,
         *,
@@ -580,21 +579,24 @@ class _Geometry(_BaseObject):
         return element
 
     @classmethod
-    def _get_element_ns(cls, ns: Optional[str]) -> str:
-        if ns is None:
-            return cls.__namespace
-        return ns
+    def _get_coordinates(cls, *, ns: str, element: Element) -> List[PointType]:
+        coordinates = element.find(f"{ns}coordinates")
+        if coordinates is not None:
+            # https://developers.google.com/kml/documentation/kmlreference#coordinates
+            # Coordinates can be any number of tuples separated by a
+            # space (potentially any number of whitespace characters).
+            # Values in tuples should be separated by commas with no
+            # spaces. Clean up badly formatted tuples by stripping
+            # space following commas.
+            latlons = re.sub(r", +", ",", coordinates.text.strip()).split()
+            return [
+                cast(PointType, tuple(float(c) for c in latlon.split(",")))
+                for latlon in latlons
+            ]
+        return []
 
     @classmethod
-    def _get_element_id(cls, element: Element) -> str:
-        return element.get("id") or ""
-
-    @classmethod
-    def _get_element_target_id(cls, element: Element) -> str:
-        return element.get("targetId") or ""
-
-    @classmethod
-    def _get_element_extrude(
+    def _get_extrude(
         cls,
         *,
         ns: str,
@@ -609,7 +611,7 @@ class _Geometry(_BaseObject):
             return False
 
     @classmethod
-    def _get_element_tessellate(
+    def _get_tessellate(
         cls,
         *,
         ns: str,
@@ -624,7 +626,7 @@ class _Geometry(_BaseObject):
         return False
 
     @classmethod
-    def _get_element_altitude_mode(
+    def _get_altitude_mode(
         cls,
         *,
         ns: str,
@@ -639,26 +641,46 @@ class _Geometry(_BaseObject):
         return None
 
     @classmethod
-    def class_from_element(
+    def _get_geometry_kwargs(
         cls,
         *,
         ns: str,
         element: Element,
-    ) -> "_Geometry":
-        """Creates a geometry object from an etree element.
+    ) -> Dict[str, Any]:
+        return {
+            "extrude": cls._get_extrude(ns=ns, element=element),
+            "tessellate": cls._get_tessellate(ns=ns, element=element),
+            "altitude_mode": cls._get_altitude_mode(ns=ns, element=element),
+        }
 
-        Args:
-            element: etree element
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(ns=ns, element=element)
+        kwargs.update(cls._get_geometry_kwargs(ns=ns, element=element))
+        return kwargs
 
-        Returns:
-            Geometry object
-        """
-        id = cls._get_element_id(element=element)
-        target_id = cls._get_element_target_id(element=element)
-        extrude = cls._get_element_extrude(ns=ns, element=element)
-        tessellate = cls._get_element_tessellate(ns=ns, element=element)
-        altitude_mode = cls._get_element_altitude_mode(ns=ns, element=element)
-        return cls(
+
+class Point(_Geometry):
+
+    __element_name = "Point"
+
+    def __init__(
+        self,
+        *,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        extrude: bool = False,
+        tessellate: bool = False,
+        altitude_mode: Optional[AltitudeMode] = None,
+        geometry: geo.Point,
+    ) -> None:
+        super().__init__(
             ns=ns,
             id=id,
             target_id=target_id,
@@ -666,34 +688,44 @@ class _Geometry(_BaseObject):
             tessellate=tessellate,
             altitude_mode=altitude_mode,
         )
+        self.geometry = geometry
+
+    def etree_element(self) -> Element:
+        self.__name__ = self.__class__.__name__
+        element = super().etree_element()
+        coords = self.geometry.coords
+        element.append(self._etree_coordinates(coords))
+        return element
 
     @classmethod
-    def class_from_string(
+    def _get_geometry(
         cls,
-        string: str,
         *,
-        ns: Optional[str] = None,
-    ) -> "_Geometry":
-        """Creates a geometry object from a string.
+        ns: str,
+        element: Element,
+    ) -> geo.Point:
+        coords = cls._get_coordinates(ns=ns, element=element)
+        return geo.Point.from_coordinates(coords)
 
-        Args:
-            string: String representation of the geometry object
+    @classmethod
+    def _get_point_kwargs(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+    ) -> Dict[str, Any]:
+        return {"geometry": cls._get_geometry(ns=ns, element=element)}
 
-        Returns:
-            Geometry object
-        """
-        ns = cls._get_element_ns(ns)
-        return cls.class_from_element(
-            ns=ns,
-            element=cast(
-                Element,
-                config.etree.fromstring(string),  # type: ignore[attr-defined]
-            ),
-        )
-
-
-class Point(Geometry):
-    ...
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(ns=ns, element=element)
+        kwargs.update(cls._get_point_kwargs(ns=ns, element=element))
+        return kwargs
 
 
 class LineString(Geometry):
