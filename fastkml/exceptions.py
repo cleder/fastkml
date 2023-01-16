@@ -22,3 +22,7 @@ class FastKMLError(Exception):
 
 class KMLParseError(FastKMLError):
     """Raised when there is an error parsing KML."""
+
+
+class KMLWriteError(FastKMLError):
+    """Raised when there is an error writing KML."""

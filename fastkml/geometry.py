@@ -33,6 +33,7 @@ from fastkml import config
 from fastkml.base import _BaseObject
 from fastkml.enums import AltitudeMode
 from fastkml.exceptions import KMLParseError
+from fastkml.exceptions import KMLWriteError
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
@@ -540,7 +541,7 @@ class _Geometry(_BaseObject):
                 f"{c[0]:f},{c[1]:f},{c[2]:f}" for c in coordinates  # type: ignore[misc]
             )
         else:
-            raise ValueError("Invalid dimensions")
+            raise KMLWriteError(f"Invalid dimensions in coordinates '{coordinates}'")
         element.text = " ".join(tuples)
         return element
 

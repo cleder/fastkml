@@ -19,6 +19,7 @@ import pygeoif.geometry as geo
 import pytest
 
 from fastkml.exceptions import KMLParseError
+from fastkml.exceptions import KMLWriteError
 from fastkml.geometry import AltitudeMode
 from fastkml.geometry import Geometry
 from fastkml.geometry import Point
@@ -474,7 +475,9 @@ class TestPoint(StdLibrary):
         """Test the to_string method."""
         point = Point(geometry=geo.Point(None, None))  # type: ignore
 
-        with pytest.raises(ValueError, match="Invalid dimensions"):
+        with pytest.raises(
+            KMLWriteError, match=r"Invalid dimensions in coordinates '\(\(\),\)'"
+        ):
             point.to_string()
 
     def test_from_string(self) -> None:
