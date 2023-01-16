@@ -26,6 +26,7 @@ from typing_extensions import TypedDict
 import fastkml.config as config
 from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
+from fastkml.enums import Verbosity
 from fastkml.types import Element
 
 
@@ -171,7 +172,11 @@ class Schema(_BaseObject):
             sfdisplay_name = display_name.text if display_name is not None else None
             self.append(sftype, sfname, sfdisplay_name)
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         if self.name:
             element.set("name", self.name)
@@ -207,7 +212,11 @@ class Data(_XMLObject):
         self.value = value
         self.display_name = display_name
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         element.set("name", self.name or "")
         value = config.etree.SubElement(  # type: ignore[attr-defined]
@@ -250,7 +259,11 @@ class ExtendedData(_XMLObject):
         super().__init__(ns)
         self.elements = elements or []
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         for subelement in self.elements:
             element.append(subelement.etree_element())
@@ -352,7 +365,11 @@ class SchemaData(_XMLObject):
         else:
             raise TypeError("name must be a nonempty string")
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         element.set("schemaUrl", self.schema_url)
         for data in self.data:

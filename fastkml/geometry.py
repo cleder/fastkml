@@ -32,6 +32,7 @@ from pygeoif.types import PointType
 from fastkml import config
 from fastkml.base import _BaseObject
 from fastkml.enums import AltitudeMode
+from fastkml.enums import Verbosity
 from fastkml.exceptions import KMLParseError
 from fastkml.exceptions import KMLWriteError
 from fastkml.types import Element
@@ -290,7 +291,11 @@ class Geometry(_BaseObject):
                 raise ValueError("Illegal geometry type.")
         return element
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         if isinstance(self.geometry, geo.Point):
             return self._etree_point(self.geometry)
         elif isinstance(self.geometry, geo.LinearRing):
@@ -572,7 +577,11 @@ class _Geometry(_BaseObject):
             )
             t_element.text = str(int(self.tessellate))
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         self.__name__ = self.__class__.__name__
         element = super().etree_element()
         self._set_extrude(element)
@@ -697,7 +706,11 @@ class Point(_Geometry):
         )
         self.geometry = geometry
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         self.__name__ = self.__class__.__name__
         element = super().etree_element()
         coords = self.geometry.coords

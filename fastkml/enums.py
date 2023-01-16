@@ -17,6 +17,14 @@ from enum import Enum
 from enum import unique
 
 
+class Verbosity(Enum):
+    """Enum to represent the different verbosity levels."""
+
+    quiet = 0
+    normal = 1
+    verbose = 2
+
+
 @unique
 class DateTimeResolution(Enum):
     """Enum to represent the different date time resolutions."""

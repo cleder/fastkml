@@ -23,6 +23,7 @@ from typing import Tuple
 from typing import cast
 
 from fastkml import config
+from fastkml.enums import Verbosity
 from fastkml.helpers import o_from_attr
 from fastkml.helpers import o_to_attr
 from fastkml.types import Element
@@ -42,7 +43,11 @@ class _XMLObject:
         """Initialize the XML Object."""
         self.ns: str = config.KMLNS if ns is None else ns
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         """Return the KML Object as an Element."""
         if self.__name__:
             element: Element = config.etree.Element(  # type: ignore[attr-defined]
@@ -69,13 +74,22 @@ class _XMLObject:
             cast(Element, config.etree.XML(xml_string))  # type: ignore[attr-defined]
         )
 
-    def to_string(self, prettyprint: bool = True) -> str:
+    def to_string(
+        self,
+        *,
+        prettyprint: bool = True,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> str:
         """Return the KML Object as serialized xml."""
         try:
             return cast(
                 str,
                 config.etree.tostring(  # type: ignore[attr-defined]
-                    self.etree_element(),
+                    self.etree_element(
+                        precision=precision,
+                        verbosity=verbosity,
+                    ),
                     encoding="UTF-8",
                     pretty_print=prettyprint,
                 ).decode("UTF-8"),
@@ -188,7 +202,11 @@ class _BaseObject(_XMLObject):
         self.id = id
         self.target_id = target_id
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         """Return the KML Object as an Element."""
         return super().etree_element()
 

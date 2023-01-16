@@ -37,6 +37,7 @@ import fastkml.gx as gx
 from fastkml.base import _BaseObject
 from fastkml.data import ExtendedData
 from fastkml.data import Schema
+from fastkml.enums import Verbosity
 from fastkml.geometry import Geometry
 from fastkml.mixins import TimeMixin
 from fastkml.styles import Style
@@ -336,7 +337,11 @@ class _Feature(TimeMixin, _BaseObject):
         else:
             raise ValueError
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         if self.name:
             name = config.etree.SubElement(element, f"{self.ns}name")
@@ -689,7 +694,11 @@ class Icon(_BaseObject):
         else:
             raise ValueError
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
 
         if self._href:
@@ -817,7 +826,11 @@ class _Container(_Feature):
                     "(Folder, Placemark, Document, Overlay)"
                 )
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         for feature in self.features():
             element.append(feature.etree_element())
@@ -924,7 +937,11 @@ class _Overlay(_Feature):
         else:
             raise ValueError
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         if self._color:
             color = config.etree.SubElement(element, f"{self.ns}color")
@@ -1208,7 +1225,11 @@ class PhotoOverlay(_Overlay):
         self.max_height = max_height
         self.grid_origin = grid_origin
 
-    def etree_element(self):
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ):
         element = super().etree_element()
         if self._rotation:
             rotation = config.etree.SubElement(element, f"{self.ns}rotation")
@@ -1464,7 +1485,11 @@ class GroundOverlay(_Overlay):
         else:
             raise ValueError
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         if self._altitude:
             altitude = config.etree.SubElement(element, f"{self.ns}altitude")
@@ -1562,7 +1587,11 @@ class Document(_Container):
             s.from_element(schema)
             self.append_schema(s)
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         if self._schemata is not None:
             for schema in self._schemata:
@@ -1673,7 +1702,11 @@ class Placemark(_Feature):
         logger.debug("Problem with element: %", config.etree.tostring(element))
         # raise ValueError('No geometries found')
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         if self._geometry is not None:
             element.append(self._geometry.etree_element())
@@ -1737,7 +1770,11 @@ class KML:
             feature.from_element(photo_overlay)
             self.append(feature)
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         # self.ns may be empty, which leads to unprefixed kml elements.
         # However, in this case the xlmns should still be mentioned on the kml
         # element, just without prefix.

@@ -32,6 +32,7 @@ from typing_extensions import TypedDict
 
 from fastkml import config
 from fastkml.base import _BaseObject
+from fastkml.enums import Verbosity
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
@@ -57,7 +58,11 @@ class StyleUrl(_BaseObject):
         super().__init__(ns=ns, id=id, target_id=target_id)
         self.url = url
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         if self.url:
             element.text = self.url
@@ -113,7 +118,11 @@ class _ColorStyle(_BaseObject):
         self.color = color
         self.color_mode = color_mode
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         if self.color:
             color = config.etree.SubElement(  # type: ignore[attr-defined]
@@ -181,7 +190,11 @@ class IconStyle(_ColorStyle):
         self.icon_href = icon_href
         self.hot_spot = hot_spot
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         if self.scale is not None:
             scale = config.etree.SubElement(  # type: ignore[attr-defined]
@@ -264,7 +277,11 @@ class LineStyle(_ColorStyle):
         )
         self.width = width
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         if self.width is not None:
             width = config.etree.SubElement(  # type: ignore[attr-defined]
@@ -311,7 +328,11 @@ class PolyStyle(_ColorStyle):
         self.fill = fill
         self.outline = outline
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         if self.fill is not None:
             fill = config.etree.SubElement(  # type: ignore[attr-defined]
@@ -368,7 +389,11 @@ class LabelStyle(_ColorStyle):
         )
         self.scale = scale
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         if self.scale is not None:
             scale = config.etree.SubElement(  # type: ignore[attr-defined]
@@ -471,7 +496,11 @@ class BalloonStyle(_BaseObject):
         if display_mode is not None:
             self.display_mode = display_mode.text
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         if self.bg_color is not None:
             elem = config.etree.SubElement(  # type: ignore[attr-defined]
@@ -558,7 +587,11 @@ class Style(_StyleSelector):
         for style in [BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle]:
             self._get_style(element, style)
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         for style in self.styles():
             element.append(style.etree_element())
@@ -621,7 +654,11 @@ class StyleMap(_StyleSelector):
             else:
                 raise ValueError
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         element = super().etree_element()
         if self.normal and isinstance(self.normal, (Style, StyleUrl)):
             pair = config.etree.SubElement(  # type: ignore[attr-defined]
