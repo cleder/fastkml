@@ -8,6 +8,11 @@ Usage:
 
 Example:
     mypy fastkml | python remove_unused_type_ignores.py
+
+    or
+
+    mypy fastkml > errors.txt
+    python remove_unused_type_ignores.py --error-file errors.txt
 """
 import sys
 
@@ -21,8 +26,9 @@ import click
     type=click.File("rt"),
     default=sys.stdin,
 )
-def generate(error_file):
-    """Read the file, and remove unused ignores from the source."""
+def remove(error_file):
+    """Remove unused ignores from the source files."""
+    line_count = 0
     for errors in error_file.readlines():
         parts = errors.split(":", 3)
         if len(parts) != 4:
@@ -40,14 +46,16 @@ def generate(error_file):
         line = source[int(line_number) - 1]
         if "# type: ignore" in line:
             column = line.find("# type: ignore")
-            line = line[:column] + "\n"
-            click.echo(f"Removed type ignore from {filename}:{line_number}")
-            click.echo(line)
-            source[int(line_number) - 1] = line
+            new_line = line[:column] + "\n"
+            click.echo(f"Removed '# type ignore' from {filename}:{line_number}")
+            click.echo(f"-{line.rstrip()}")
+            click.echo(f"+{new_line.rstrip()}")
+            line_count += 1
+            source[int(line_number) - 1] = new_line
             with open(filename, "w") as dest_file:
                 dest_file.writelines(source)
-    ...
+    click.echo(f"Removed {line_count} '# type ignore's.")
 
 
 if __name__ == "__main__":
-    generate()
+    remove()

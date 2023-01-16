@@ -394,6 +394,28 @@ class TestGeometry(StdLibrary):
         assert g.altitude_mode == AltitudeMode.relative_to_ground
         assert g.tessellate is True
 
+    def test_from_string_invalid_altitude_mode(self) -> None:
+        """Test the from_string method."""
+        g = _Geometry.class_from_string(
+            '<_Geometry id="my-id" targetId="target_id">'
+            "<altitudeMode>relative</altitudeMode>"
+            "</_Geometry>",
+            ns="",
+        )
+
+        assert g.altitude_mode is None
+
+    def test_from_string_invalid_extrude(self) -> None:
+        """Test the from_string method."""
+        g = _Geometry.class_from_string(
+            '<_Geometry id="my-id" targetId="target_id">'
+            "<extrude>true</extrude>"
+            "</_Geometry>",
+            ns="",
+        )
+
+        assert g.extrude is False
+
     def test_from_minimal_string(self) -> None:
         g = _Geometry.class_from_string(
             "<_Geometry/>",
@@ -447,6 +469,13 @@ class TestPoint(StdLibrary):
 
         assert "Point" in point.to_string()
         assert "coordinates>1.000000,2.000000</" in point.to_string()
+
+    def test_to_string_empty_geometry(self) -> None:
+        """Test the to_string method."""
+        point = Point(geometry=geo.Point(None, None))  # type: ignore
+
+        with pytest.raises(ValueError, match="Invalid dimensions"):
+            point.to_string()
 
     def test_from_string(self) -> None:
         """Test the from_string method."""
