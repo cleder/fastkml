@@ -173,7 +173,7 @@ class Link(_XMLObject):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        return super().etree_element()
+        return super().etree_element(precision=precision, verbosity=verbosity)
 
 
 class _Person(_XMLObject):
@@ -237,7 +237,7 @@ class _Person(_XMLObject):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        return super().etree_element()
+        return super().etree_element(precision=precision, verbosity=verbosity)
 
     def from_element(self, element: Element) -> None:
         super().from_element(element)

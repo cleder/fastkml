@@ -342,7 +342,7 @@ class _Feature(TimeMixin, _BaseObject):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.name:
             name = config.etree.SubElement(element, f"{self.ns}name")
             name.text = self.name
@@ -699,7 +699,7 @@ class Icon(_BaseObject):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
 
         if self._href:
             href = config.etree.SubElement(element, f"{self.ns}href")
@@ -831,7 +831,7 @@ class _Container(_Feature):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         for feature in self.features():
             element.append(feature.etree_element())
         return element
@@ -942,7 +942,7 @@ class _Overlay(_Feature):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self._color:
             color = config.etree.SubElement(element, f"{self.ns}color")
             color.text = self._color
@@ -1230,7 +1230,7 @@ class PhotoOverlay(_Overlay):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ):
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self._rotation:
             rotation = config.etree.SubElement(element, f"{self.ns}rotation")
             rotation.text = self._rotation
@@ -1490,7 +1490,7 @@ class GroundOverlay(_Overlay):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self._altitude:
             altitude = config.etree.SubElement(element, f"{self.ns}altitude")
             altitude.text = self._altitude
@@ -1592,7 +1592,7 @@ class Document(_Container):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self._schemata is not None:
             for schema in self._schemata:
                 element.append(schema.etree_element())
@@ -1707,7 +1707,7 @@ class Placemark(_Feature):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self._geometry is not None:
             element.append(self._geometry.etree_element())
         else:

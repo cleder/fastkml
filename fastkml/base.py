@@ -208,7 +208,7 @@ class _BaseObject(_XMLObject):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         """Return the KML Object as an Element."""
-        return super().etree_element()
+        return super().etree_element(precision=precision, verbosity=verbosity)
 
     def from_element(self, element: Element) -> None:
         """Load the KML Object from an Element."""

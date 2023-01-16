@@ -583,7 +583,7 @@ class _Geometry(_BaseObject):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         self.__name__ = self.__class__.__name__
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         self._set_extrude(element)
         self._set_altitude_mode(element)
         self._set_tessellate(element)
@@ -712,7 +712,7 @@ class Point(_Geometry):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         self.__name__ = self.__class__.__name__
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         coords = self.geometry.coords
         element.append(self._etree_coordinates(coords))
         return element

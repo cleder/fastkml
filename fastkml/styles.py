@@ -63,7 +63,7 @@ class StyleUrl(_BaseObject):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.url:
             element.text = self.url
         else:
@@ -123,7 +123,7 @@ class _ColorStyle(_BaseObject):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.color:
             color = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -195,7 +195,7 @@ class IconStyle(_ColorStyle):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.scale is not None:
             scale = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -282,7 +282,7 @@ class LineStyle(_ColorStyle):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.width is not None:
             width = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -333,7 +333,7 @@ class PolyStyle(_ColorStyle):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.fill is not None:
             fill = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -394,7 +394,7 @@ class LabelStyle(_ColorStyle):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.scale is not None:
             scale = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -501,7 +501,7 @@ class BalloonStyle(_BaseObject):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.bg_color is not None:
             elem = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -592,7 +592,7 @@ class Style(_StyleSelector):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         for style in self.styles():
             element.append(style.etree_element())
         return element
@@ -659,7 +659,7 @@ class StyleMap(_StyleSelector):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.normal and isinstance(self.normal, (Style, StyleUrl)):
             pair = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,

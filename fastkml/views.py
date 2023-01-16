@@ -202,7 +202,7 @@ class _AbstractView(TimeMixin, _BaseObject):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.longitude:
             longitude = config.etree.SubElement(element, f"{self.ns}longitude")
             longitude.text = str(self.longitude)
@@ -302,7 +302,7 @@ class Camera(_AbstractView):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.roll:
             roll = config.etree.SubElement(element, f"{self.ns}roll")
             roll.text = str(self.roll)
@@ -382,7 +382,7 @@ class LookAt(_AbstractView):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.range:
             range_var = config.etree.SubElement(element, f"{self.ns}range")
             range_var.text = str(self._range)

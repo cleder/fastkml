@@ -177,7 +177,7 @@ class Schema(_BaseObject):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.name:
             element.set("name", self.name)
         for simple_field in self.simple_fields:
@@ -217,7 +217,7 @@ class Data(_XMLObject):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         element.set("name", self.name or "")
         value = config.etree.SubElement(  # type: ignore[attr-defined]
             element, f"{self.ns}value"
@@ -264,7 +264,7 @@ class ExtendedData(_XMLObject):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         for subelement in self.elements:
             element.append(subelement.etree_element())
         return element
@@ -370,7 +370,7 @@ class SchemaData(_XMLObject):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element()
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         element.set("schemaUrl", self.schema_url)
         for data in self.data:
             sd = config.etree.SubElement(  # type: ignore[attr-defined]
