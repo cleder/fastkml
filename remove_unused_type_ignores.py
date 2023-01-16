@@ -15,18 +15,40 @@ Example:
     python remove_unused_type_ignores.py --error-file errors.txt
 """
 import sys
+from typing import IO
 
 import click
 
 
+@click.group()
+def cli():
+    pass
+
+
 @click.command()
 @click.option(
-    "--error-file",
-    help="Filename of the mypy error messages, omit to read from STDIN.",
+    "--dry-run", is_flag=True, default=False, help="Do not write changes to disk."
+)
+@click.argument(
+    "error_file",
     type=click.File("rt"),
     default=sys.stdin,
 )
-def remove(error_file):
+def add(dry_run, error_file):
+    """Add missing type ignores to the source files."""
+    click.echo("Add missing type ignores to the source files.")
+
+
+@click.command()
+@click.option(
+    "--dry-run", is_flag=True, default=False, help="Do not write changes to disk."
+)
+@click.argument(
+    "error_file",
+    type=click.File("rt"),
+    default=sys.stdin,
+)
+def remove(dry_run: bool, error_file: IO[str]) -> None:
     """Remove unused ignores from the source files."""
     line_count = 0
     for errors in error_file.readlines():
@@ -52,10 +74,15 @@ def remove(error_file):
             click.echo(f"+{new_line.rstrip()}")
             line_count += 1
             source[int(line_number) - 1] = new_line
-            with open(filename, "w") as dest_file:
-                dest_file.writelines(source)
+            if not dry_run:
+                with open(filename, "w") as dest_file:
+                    dest_file.writelines(source)
     click.echo(f"Removed {line_count} '# type ignore's.")
+    if dry_run:
+        click.echo("Dry run, no changes were written to disk.")
 
 
 if __name__ == "__main__":
-    remove()
+    cli.add_command(add)
+    cli.add_command(remove)
+    cli()
