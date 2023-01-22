@@ -73,7 +73,8 @@ jobs:
         run: |
           flake8 fastkml examples docs
           black --check fastkml examples docs
-          yamllint .github/workflows/
+          yamllint .github/
+          yamllint .*.yaml
       - name: Check complexity
         run: |
           radon cc --min B fastkml
