@@ -74,7 +74,7 @@ jobs:
           flake8 fastkml examples docs
           black --check fastkml examples docs
           yamllint .github/
-          yamllint .*.yaml
+          yamllint .*.y*ml
       - name: Check complexity
         run: |
           radon cc --min B fastkml
