@@ -42,10 +42,9 @@ class TestStdLibrary(StdLibrary):
         obj = base._BaseObject(ns="", id="id-0", target_id="target-id-0")
         obj.__name__ = "test"
 
-        assert (
-            obj.to_string().replace(" ", "").replace("\n", "")
-            == '<testid="id-0"targetId="target-id-0"/>'
-        )
+        assert obj.to_string().replace(" ", "").replace(
+            "\n", ""
+        ) == '<test id="id-0" targetId="target-id-0" />'.replace(" ", "")
 
     def test_from_string(self) -> None:
         be = base._BaseObject()
