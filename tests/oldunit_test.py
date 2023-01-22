@@ -28,7 +28,6 @@ from pygeoif.geometry import Polygon
 from fastkml import atom
 from fastkml import base
 from fastkml import config
-from fastkml import data
 from fastkml import kml
 from fastkml import styles
 from fastkml.geometry import Geometry
@@ -370,54 +369,6 @@ class TestKmlFromString:
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_extended_data(self) -> None:
-        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
-          <Placemark>
-            <name>Simple placemark</name>
-            <description></description>
-            <Point>
-              <coordinates>-122.0822035425683,37.42228990140251,0</coordinates>
-            </Point>
-            <ExtendedData>
-              <Data name="holeNumber">
-                <displayName><![CDATA[
-                    <b>This is hole </b>
-                ]]></displayName>
-                <value>1</value>
-              </Data>
-              <Data name="holePar">
-                <displayName><![CDATA[
-                  <i>The par for this hole is </i>
-                ]]></displayName>
-                <value>4</value>
-              </Data>
-              <SchemaData schemaUrl="#TrailHeadTypeId">
-                <SimpleData name="TrailHeadName">Mount Everest</SimpleData>
-                <SimpleData name="TrailLength">347.45</SimpleData>
-                <SimpleData name="ElevationGain">10000</SimpleData>
-              </SchemaData>
-            </ExtendedData>
-          </Placemark>
-        </kml>"""
-
-        k = kml.KML()
-        k.from_string(doc)
-
-        extended_data = list(k.features())[0].extended_data
-
-        assert extended_data.elements[0].name == "holeNumber"
-        assert extended_data.elements[0].value == "1"
-        assert "<b>This is hole </b>" in extended_data.elements[0].display_name
-
-        assert extended_data.elements[1].name == "holePar"
-        assert extended_data.elements[1].value == "4"
-        assert (
-            "<i>The par for this hole is </i>" in extended_data.elements[1].display_name
-        )
-        sd = extended_data.elements[2]
-        assert sd.data[0]["name"] == "TrailHeadName"
-        assert sd.data[1]["value"] == "347.45"
-
     def test_polygon(self) -> None:
         doc = """
         <kml xmlns="http://www.opengis.net/kml/2.2">
@@ -683,24 +634,6 @@ class TestKmlFromString:
         assert "Schema" in k1.to_string()
         assert "SimpleField" in k1.to_string()
         assert k1.to_string() == k.to_string()
-
-    def test_schema_data(self) -> None:
-        doc = """<SchemaData schemaUrl="#TrailHeadTypeId">
-          <SimpleData name="TrailHeadName">Pi in the sky</SimpleData>
-          <SimpleData name="TrailLength">3.14159</SimpleData>
-          <SimpleData name="ElevationGain">10</SimpleData>
-        </SchemaData>"""
-
-        sd = data.SchemaData(ns="", schema_url="#default")
-        sd.from_string(doc)
-        assert sd.schema_url == "#TrailHeadTypeId"
-        assert sd.data[0] == {"name": "TrailHeadName", "value": "Pi in the sky"}
-        assert sd.data[1] == {"name": "TrailLength", "value": "3.14159"}
-        assert sd.data[2] == {"name": "ElevationGain", "value": "10"}
-        sd1 = data.SchemaData(ns="", schema_url="#default")
-        sd1.from_string(sd.to_string())
-        assert sd1.schema_url == "#TrailHeadTypeId"
-        assert sd.to_string() == sd1.to_string()
 
     def test_snippet(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
