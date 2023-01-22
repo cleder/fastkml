@@ -43,7 +43,7 @@ enable_error_code = [
 
 [[tool.mypy.overrides]]
 module = [
-    "fastkml.kml",
+    "fastkml.kml", "fastkml.views",
     "fastkml.tests.oldunit_test", "fastkml.tests.config_test"
 ]
 ignore_errors = true

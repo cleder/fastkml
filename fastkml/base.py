@@ -18,7 +18,6 @@
 import logging
 from typing import Any
 from typing import Dict
-from typing import Final
 from typing import Optional
 from typing import Tuple
 from typing import cast
@@ -36,8 +35,8 @@ logger = logging.getLogger(__name__)
 class _XMLObject:
     """XML Baseclass."""
 
-    _namespaces: Final[Tuple[str, ...]] = ("",)
-    _node_name: Final[str] = ""
+    _namespaces: Tuple[str, ...] = ("",)
+    _node_name: str = ""
     __name__ = ""
     kml_object_mapping: Tuple[KmlObjectMap, ...] = ()
 
@@ -45,14 +44,18 @@ class _XMLObject:
         """Initialize the XML Object."""
         self.ns: str = self._namespaces[0] if ns is None else ns
 
-    def __eq__(self, other: "_XMLObject") -> bool:
-        equal = True
-        if self.ns == "":
-            equal = other.ns == self.ns or other.ns in self._namespaces
-        return equal and self._node_name == other._node_name
+    def __eq__(self, other: object) -> bool:
+        """Compare two XML Objects."""
+        if not isinstance(other, self.__class__):
+            return False
+        return (
+            other.ns == self.ns or other.ns in self._namespaces
+            if self.ns == ""
+            else True
+        )
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.ns})"
+        return f"{self.__class__.__name__}(ns={self.ns})"
 
     def etree_element(
         self,
@@ -115,7 +118,7 @@ class _XMLObject:
 
     @classmethod
     def _get_ns(cls, ns: Optional[str]) -> str:
-        return cls._namespace if ns is None else ns
+        return cls._namespaces[0] if ns is None else ns
 
     @classmethod
     def _get_kwargs(
@@ -123,6 +126,7 @@ class _XMLObject:
         *,
         ns: str,
         element: Element,
+        strict: bool,
     ) -> Dict[str, Any]:
         """Returns a dictionary of kwargs for the class constructor."""
         kwargs: Dict[str, Any] = {}
@@ -134,9 +138,10 @@ class _XMLObject:
         *,
         ns: str,
         element: Element,
+        strict: bool,
     ) -> "_XMLObject":
         """Creates an XML object from an etree element."""
-        kwargs = cls._get_kwargs(ns=ns, element=element)
+        kwargs = cls._get_kwargs(ns=ns, element=element, strict=strict)
         return cls(
             ns=ns,
             **kwargs,
@@ -148,6 +153,7 @@ class _XMLObject:
         string: str,
         *,
         ns: Optional[str] = None,
+        strict: bool = True,
     ) -> "_XMLObject":
         """Creates a geometry object from a string.
 
@@ -160,6 +166,7 @@ class _XMLObject:
         ns = cls._get_ns(ns)
         return cls.class_from_element(
             ns=ns,
+            strict=strict,
             element=cast(
                 Element,
                 config.etree.fromstring(string),  # type: ignore[attr-defined]
@@ -180,7 +187,7 @@ class _BaseObject(_XMLObject):
     """
 
     _namespace = config.KMLNS
-    _namespaces: Final[Tuple[str, ...]] = (config.KMLNS,)
+    _namespaces: Tuple[str, ...] = (config.KMLNS,)
 
     id = None
     target_id = None
@@ -214,7 +221,8 @@ class _BaseObject(_XMLObject):
         self.id = id
         self.target_id = target_id
 
-    def __eq__(self, other: "_BaseObject") -> bool:
+    def __eq__(self, other: object) -> bool:
+        assert isinstance(other, self.__class__)
         return (
             super().__eq__(other)
             and self.id == other.id
@@ -253,6 +261,7 @@ class _BaseObject(_XMLObject):
         *,
         ns: str,
         element: Element,
+        strict: bool,
     ) -> Dict[str, Any]:
         return {
             "id": cls._get_id(element=element),

@@ -347,7 +347,9 @@ class Geometry(_BaseObject):
             self.altitude_mode = None
 
     @no_type_check
-    def _get_coordinates(self, element: Element) -> List[PointType]:
+    def _get_coordinates(
+        self, element: Element, strict: bool = False
+    ) -> List[PointType]:
         coordinates = element.find(f"{self.ns}coordinates")
         if coordinates is not None:
             # https://developers.google.com/kml/documentation/kmlreference#coordinates
@@ -507,6 +509,17 @@ class _Geometry(_BaseObject):
         self._tessellate = tessellate
         self._altitude_mode = altitude_mode
 
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"extrude={self.extrude!r}, "
+            f"tessellate={self.tessellate!r}, "
+            f"altitude_mode={self.altitude_mode!r})"
+        )
+
     @property
     def extrude(self) -> bool:
         return self._extrude
@@ -590,7 +603,9 @@ class _Geometry(_BaseObject):
         return element
 
     @classmethod
-    def _get_coordinates(cls, *, ns: str, element: Element) -> List[PointType]:
+    def _get_coordinates(
+        cls, *, ns: str, element: Element, strict: bool
+    ) -> List[PointType]:
         """
         Get coordinates from element.
 
@@ -620,6 +635,7 @@ class _Geometry(_BaseObject):
         *,
         ns: str,
         element: Element,
+        strict: bool,
     ) -> bool:
         extrude = element.find(f"{ns}extrude")
         if extrude is None:
@@ -635,6 +651,7 @@ class _Geometry(_BaseObject):
         *,
         ns: str,
         element: Element,
+        strict: bool,
     ) -> bool:
         tessellate = element.find(f"{ns}tessellate")
         if tessellate is not None:
@@ -650,6 +667,7 @@ class _Geometry(_BaseObject):
         *,
         ns: str,
         element: Element,
+        strict: bool,
     ) -> Optional[AltitudeMode]:
         altitude_mode = element.find(f"{ns}altitudeMode")
         if altitude_mode is not None:
@@ -665,11 +683,14 @@ class _Geometry(_BaseObject):
         *,
         ns: str,
         element: Element,
+        strict: bool,
     ) -> Dict[str, Any]:
         return {
-            "extrude": cls._get_extrude(ns=ns, element=element),
-            "tessellate": cls._get_tessellate(ns=ns, element=element),
-            "altitude_mode": cls._get_altitude_mode(ns=ns, element=element),
+            "extrude": cls._get_extrude(ns=ns, element=element, strict=strict),
+            "tessellate": cls._get_tessellate(ns=ns, element=element, strict=strict),
+            "altitude_mode": cls._get_altitude_mode(
+                ns=ns, element=element, strict=strict
+            ),
         }
 
     @classmethod
@@ -678,9 +699,10 @@ class _Geometry(_BaseObject):
         *,
         ns: str,
         element: Element,
+        strict: bool,
     ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(ns=ns, element=element)
-        kwargs.update(cls._get_geometry_kwargs(ns=ns, element=element))
+        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs.update(cls._get_geometry_kwargs(ns=ns, element=element, strict=strict))
         return kwargs
 
 
@@ -706,6 +728,19 @@ class Point(_Geometry):
         )
         self.geometry = geometry
 
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"extrude={self.extrude!r}, "
+            f"tessellate={self.tessellate!r}, "
+            f"altitude_mode={self.altitude_mode!r}, "
+            f"geometry={self.geometry!r}"
+            f")"
+        )
+
     def etree_element(
         self,
         precision: Optional[int] = None,
@@ -723,8 +758,9 @@ class Point(_Geometry):
         *,
         ns: str,
         element: Element,
+        strict: bool,
     ) -> geo.Point:
-        coords = cls._get_coordinates(ns=ns, element=element)
+        coords = cls._get_coordinates(ns=ns, element=element, strict=strict)
         try:
             return geo.Point.from_coordinates(coords)
         except (IndexError, TypeError) as e:
@@ -740,8 +776,9 @@ class Point(_Geometry):
         *,
         ns: str,
         element: Element,
+        strict: bool,
     ) -> Dict[str, Any]:
-        return {"geometry": cls._get_geometry(ns=ns, element=element)}
+        return {"geometry": cls._get_geometry(ns=ns, element=element, strict=strict)}
 
     @classmethod
     def _get_kwargs(
@@ -749,9 +786,10 @@ class Point(_Geometry):
         *,
         ns: str,
         element: Element,
+        strict: bool,
     ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(ns=ns, element=element)
-        kwargs.update(cls._get_point_kwargs(ns=ns, element=element))
+        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs.update(cls._get_point_kwargs(ns=ns, element=element, strict=strict))
         return kwargs
 
 
