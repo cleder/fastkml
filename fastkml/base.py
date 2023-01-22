@@ -43,6 +43,12 @@ class _XMLObject:
         """Initialize the XML Object."""
         self.ns: str = config.KMLNS if ns is None else ns
 
+    def __eq__(self, other: "_XMLObject") -> bool:
+        return self.ns == other.ns  # XXX also check for nodename
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.ns})"
+
     def etree_element(
         self,
         precision: Optional[int] = None,
@@ -201,6 +207,18 @@ class _BaseObject(_XMLObject):
         super().__init__(ns)
         self.id = id
         self.target_id = target_id
+
+    def __eq__(self, other: "_BaseObject") -> bool:
+        return (
+            super().__eq__(other)
+            and self.id == other.id
+            and self.target_id == other.target_id
+        )
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}(id={self.id!r}, target_id={self.target_id!r})"
+        )
 
     def etree_element(
         self,
