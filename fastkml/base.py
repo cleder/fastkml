@@ -57,6 +57,9 @@ class _XMLObject:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(ns={self.ns})"
 
+    def __str__(self) -> str:
+        return self.to_string()
+
     def etree_element(
         self,
         precision: Optional[int] = None,
@@ -248,11 +251,11 @@ class _BaseObject(_XMLObject):
         super().from_element(element)
 
     @classmethod
-    def _get_id(cls, element: Element) -> str:
+    def _get_id(cls, element: Element, strict: bool) -> str:
         return element.get("id") or ""
 
     @classmethod
-    def _get_target_id(cls, element: Element) -> str:
+    def _get_target_id(cls, element: Element, strict: bool) -> str:
         return element.get("targetId") or ""
 
     @classmethod
@@ -264,6 +267,6 @@ class _BaseObject(_XMLObject):
         strict: bool,
     ) -> Dict[str, Any]:
         return {
-            "id": cls._get_id(element=element),
-            "target_id": cls._get_target_id(element=element),
+            "id": cls._get_id(element=element, strict=strict),
+            "target_id": cls._get_target_id(element=element, strict=strict),
         }
