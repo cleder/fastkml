@@ -38,6 +38,15 @@ class TestStdLibrary(StdLibrary):
             == '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" targetId="target-id-0" />'
         )
 
+    def test_to_str_empty_ns(self) -> None:
+        obj = base._BaseObject(ns="", id="id-0", target_id="target-id-0")
+        obj.__name__ = "test"
+
+        assert (
+            obj.to_string().replace(' ', '').replace('\n', '')
+            == '<testid="id-0"targetId="target-id-0"/>'
+        )
+
     def test_from_string(self) -> None:
         be = base._BaseObject()
         be.__name__ = "test"

@@ -838,6 +838,8 @@ class _Container(_Feature):
 
     def append(self, kmlobj: _Feature) -> None:
         """append a feature"""
+        if id(kmlobj) == id(self):
+            raise ValueError("Cannot append self")
         if isinstance(kmlobj, (Folder, Placemark, Document, _Overlay)):
             self._features.append(kmlobj)
         else:
@@ -845,7 +847,7 @@ class _Container(_Feature):
                 "Features must be instances of "
                 "(Folder, Placemark, Document, Overlay)"
             )
-        assert kmlobj != self
+
 
 
 class _Overlay(_Feature):
@@ -1819,7 +1821,8 @@ class KML:
 
     def append(self, kmlobj: Union[Folder, Document, Placemark]) -> None:
         """append a feature"""
-
+        if id(kmlobj) == id(self):
+            raise ValueError("Cannot append self")
         if isinstance(kmlobj, (Document, Folder, Placemark, _Overlay)):
             self._features.append(kmlobj)
         else:
