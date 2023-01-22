@@ -18,9 +18,10 @@
 import logging
 from typing import Any
 from typing import Dict
+from typing import Final
 from typing import Optional
 from typing import Tuple
-from typing import cast, Final
+from typing import cast
 
 from fastkml import config
 from fastkml.enums import Verbosity
@@ -35,7 +36,7 @@ logger = logging.getLogger(__name__)
 class _XMLObject:
     """XML Baseclass."""
 
-    _namespaces: Final[Tuple[str, ...]] = ("", )
+    _namespaces: Final[Tuple[str, ...]] = ("",)
     _node_name: Final[str] = ""
     __name__ = ""
     kml_object_mapping: Tuple[KmlObjectMap, ...] = ()
@@ -46,7 +47,7 @@ class _XMLObject:
 
     def __eq__(self, other: "_XMLObject") -> bool:
         equal = True
-        if self.ns == '':
+        if self.ns == "":
             equal = other.ns == self.ns or other.ns in self._namespaces
         return equal and self._node_name == other._node_name
 
@@ -179,7 +180,7 @@ class _BaseObject(_XMLObject):
     """
 
     _namespace = config.KMLNS
-    _namespaces: Final[Tuple[str, ...]] = (config.KMLNS, )
+    _namespaces: Final[Tuple[str, ...]] = (config.KMLNS,)
 
     id = None
     target_id = None

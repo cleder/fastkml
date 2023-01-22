@@ -170,7 +170,6 @@ class TestBuildKml:
         k2.from_string(k.to_string(prettyprint=True))
         assert k.to_string() == k2.to_string()
 
-
     def test_document(self) -> None:
         k = kml.KML()
         ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003

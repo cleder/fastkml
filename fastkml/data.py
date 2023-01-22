@@ -213,7 +213,8 @@ class Data(_XMLObject):
         self.display_name = display_name
 
     def __repr__(self) -> str:
-        return (f"{self.__class__.__name__}("
+        return (
+            f"{self.__class__.__name__}("
             f"ns='{self.ns}',"
             f"name='{self.name}', value='{self.value}'"
             f"display_name='{self.display_name}')"
@@ -278,7 +279,6 @@ class ExtendedData(_XMLObject):
 
     def from_element(self, element: Element) -> None:
         super().from_element(element)
-        import pdb; pdb.set_trace()
         self.elements = []
         untyped_data = element.findall(f"{self.ns}Data")
         for ud in untyped_data:

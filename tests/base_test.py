@@ -43,7 +43,7 @@ class TestStdLibrary(StdLibrary):
         obj.__name__ = "test"
 
         assert (
-            obj.to_string().replace(' ', '').replace('\n', '')
+            obj.to_string().replace(" ", "").replace("\n", "")
             == '<testid="id-0"targetId="target-id-0"/>'
         )
 
