@@ -793,17 +793,100 @@ class Point(_Geometry):
         return kwargs
 
 
-class LineString(Geometry):
+class LineString(_Geometry):
+    def __init__(
+        self,
+        *,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        extrude: bool = False,
+        tessellate: bool = False,
+        altitude_mode: Optional[AltitudeMode] = None,
+        geometry: geo.LineString,
+    ) -> None:
+        super().__init__(
+            ns=ns,
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+        )
+        self.geometry = geometry
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"extrude={self.extrude!r}, "
+            f"tessellate={self.tessellate!r}, "
+            f"altitude_mode={self.altitude_mode!r}, "
+            f"geometry={self.geometry!r}"
+            f")"
+        )
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        self.__name__ = self.__class__.__name__
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        coords = self.geometry.coords
+        element.append(self._etree_coordinates(coords))
+        return element
+
+    @classmethod
+    def _get_geometry(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> geo.LineString:
+        coords = cls._get_coordinates(ns=ns, element=element, strict=strict)
+        try:
+            return geo.LineString.from_coordinates(coords)
+        except (IndexError, TypeError) as e:
+            error = config.etree.tostring(  # type: ignore[attr-defined]
+                element,
+                encoding="UTF-8",
+            ).decode("UTF-8")
+            raise KMLParseError(f"Invalid coordinates in {error}") from e
+
+    @classmethod
+    def _get_linestring_kwargs(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        return {"geometry": cls._get_geometry(ns=ns, element=element, strict=strict)}
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs.update(cls._get_linestring_kwargs(ns=ns, element=element, strict=strict))
+        return kwargs
+
+
+class LinearRing(_Geometry):
     ...
 
 
-class LinearRing(Geometry):
+class Polygon(_Geometry):
     ...
 
 
-class Polygon(Geometry):
-    ...
-
-
-class MultiGeometry(Geometry):
+class MultiGeometry(_Geometry):
     ...
