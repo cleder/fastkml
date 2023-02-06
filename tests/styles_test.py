@@ -92,7 +92,6 @@ class TestStdLibrary(StdLibrary):
         assert icons.heading == 20.0
 
     def test_line_style(self) -> None:
-
         lines = styles.LineStyle(
             id="id-0",
             target_id="target-0",
