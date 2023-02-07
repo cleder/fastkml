@@ -1772,7 +1772,6 @@ class KML:
         """iterate over features"""
         for feature in self._features:
             if isinstance(feature, (Document, Folder, Placemark, _Overlay)):
-
                 yield feature
             else:
                 raise TypeError(
