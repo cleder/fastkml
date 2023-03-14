@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Add Custom Data"""
+import logging
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -27,6 +28,8 @@ import fastkml.config as config
 from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
 from fastkml.types import Element
+
+logger = logging.getLogger(__name__)
 
 
 class SimpleField(TypedDict):
@@ -150,7 +153,7 @@ class Schema(_BaseObject):
             "bool",
         ]
         if type not in allowed_types:
-            raise TypeError(
+            logger.warning(
                 f"{name} has the type {type} which is invalid. "
                 "The type must be one of "
                 "'string', 'int', 'uint', 'short', "

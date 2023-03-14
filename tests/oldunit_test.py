@@ -198,6 +198,8 @@ class TestBuildKml:
         assert list(s.simple_fields)[1]["type"] == "float"
         assert list(s.simple_fields)[1]["name"] == "Float"
         assert list(s.simple_fields)[1]["displayName"] is None
+        # 'long' is an invalid value, logs a warning but does not error
+        s.append("long", "Long", "A Long")
 
     def test_schema_data(self):
         ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
