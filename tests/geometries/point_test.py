@@ -15,6 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the geometry classes."""
+from typing import cast
+
 import pygeoif.geometry as geo
 import pytest
 
@@ -58,10 +60,13 @@ class TestPoint(StdLibrary):
 
     def test_from_string(self) -> None:
         """Test the from_string method."""
-        point = Point.class_from_string(
-            '<Point xmlns="http://www.opengis.net/kml/2.2">'
-            "<coordinates>1.000000,2.000000</coordinates>"
-            "</Point>"
+        point = cast(
+            Point,
+            Point.class_from_string(
+                '<Point xmlns="http://www.opengis.net/kml/2.2">'
+                "<coordinates>1.000000,2.000000</coordinates>"
+                "</Point>"
+            ),
         )
 
         assert point.geometry == geo.Point(1, 2)

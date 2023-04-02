@@ -15,6 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the geometry classes."""
+from typing import cast
+
 import pygeoif.geometry as geo
 
 from fastkml.geometry import LineString
@@ -47,14 +49,17 @@ class TestLineString(StdLibrary):
 
     def test_from_string(self) -> None:
         """Test the from_string method."""
-        linestring = LineString.class_from_string(
-            '<LineString xmlns="http://www.opengis.net/kml/2.2">'
-            "<extrude>1</extrude>"
-            "<tessellate>1</tessellate>"
-            "<coordinates>"
-            "-122.364383,37.824664,0 -122.364152,37.824322,0"
-            "</coordinates>"
-            "</LineString>"
+        linestring = cast(
+            LineString,
+            LineString.class_from_string(
+                '<LineString xmlns="http://www.opengis.net/kml/2.2">'
+                "<extrude>1</extrude>"
+                "<tessellate>1</tessellate>"
+                "<coordinates>"
+                "-122.364383,37.824664,0 -122.364152,37.824322,0"
+                "</coordinates>"
+                "</LineString>"
+            ),
         )
 
         assert linestring.geometry == geo.LineString(

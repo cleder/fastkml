@@ -15,6 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the geometry classes."""
+from typing import cast
+
 import pygeoif.geometry as geo
 
 from fastkml.geometry import LinearRing
@@ -47,11 +49,14 @@ class TestLinearRing(StdLibrary):
 
     def test_from_string(self) -> None:
         """Test the from_string method."""
-        linear_ring = LinearRing.class_from_string(
-            '<kml:LinearRing xmlns:kml="http://www.opengis.net/kml/2.2">'
-            "<kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 "
-            "0.000000,0.000000</kml:coordinates>"
-            "</kml:LinearRing>"
+        linear_ring = cast(
+            LinearRing,
+            LinearRing.class_from_string(
+                '<kml:LinearRing xmlns:kml="http://www.opengis.net/kml/2.2">'
+                "<kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.0,1.0 "
+                "0.000000,0.000000</kml:coordinates>"
+                "</kml:LinearRing>"
+            ),
         )
 
         assert linear_ring.geometry == geo.LinearRing(((0, 0), (1, 0), (1, 1), (0, 0)))

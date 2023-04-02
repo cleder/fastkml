@@ -912,7 +912,7 @@ class LinearRing(LineString):
     ) -> geo.LinearRing:
         coords = cls._get_coordinates(ns=ns, element=element, strict=strict)
         try:
-            return geo.LinearRing.from_coordinates(coords)
+            return cast(geo.LinearRing, geo.LinearRing.from_coordinates(coords))
         except (IndexError, TypeError) as e:
             error = config.etree.tostring(  # type: ignore[attr-defined]
                 element,
