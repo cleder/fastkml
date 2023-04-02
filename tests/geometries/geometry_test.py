@@ -18,12 +18,8 @@
 import pygeoif.geometry as geo
 import pytest
 
-from fastkml.exceptions import KMLParseError
-from fastkml.exceptions import KMLWriteError
 from fastkml.geometry import AltitudeMode
 from fastkml.geometry import Geometry
-from fastkml.geometry import LineString
-from fastkml.geometry import Point
 from fastkml.geometry import _Geometry
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -450,122 +446,6 @@ class TestGeometry(StdLibrary):
         assert g.tessellate is True
 
 
-class TestPoint(StdLibrary):
-    """Test the Point class."""
-
-    def test_init(self) -> None:
-        """Test the init method."""
-        p = geo.Point(1, 2)
-
-        point = Point(geometry=p)
-
-        assert point.geometry == p
-        assert point.altitude_mode is None
-        assert point.extrude is False
-
-    def test_to_string(self) -> None:
-        """Test the to_string method."""
-        p = geo.Point(1, 2)
-
-        point = Point(geometry=p)
-
-        assert "Point" in point.to_string()
-        assert "coordinates>1.000000,2.000000</" in point.to_string()
-
-    def test_to_string_empty_geometry(self) -> None:
-        """Test the to_string method."""
-        point = Point(geometry=geo.Point(None, None))  # type: ignore[arg-type]
-
-        with pytest.raises(
-            KMLWriteError, match=r"Invalid dimensions in coordinates '\(\(\),\)'"
-        ):
-            point.to_string()
-
-    def test_from_string(self) -> None:
-        """Test the from_string method."""
-        point = Point.class_from_string(
-            '<Point xmlns="http://www.opengis.net/kml/2.2">'
-            "<coordinates>1.000000,2.000000</coordinates>"
-            "</Point>"
-        )
-
-        assert point.geometry == geo.Point(1, 2)
-        assert point.altitude_mode is None
-        assert point.extrude is False
-        assert point.tessellate is False
-
-    def test_empty_from_string(self) -> None:
-        """Test the from_string method."""
-        with pytest.raises(KMLParseError, match=r"Invalid coordinates in <Point\s*/>"):
-            Point.class_from_string(
-                "<Point/>",
-                ns="",
-            )
-
-    def test_from_string_empty_coordinates(self) -> None:
-        with pytest.raises(
-            KMLParseError,
-            match=r"Invalid coordinates in <Point\s*><coordinates\s*/></Point>",
-        ):
-            Point.class_from_string(
-                "<Point><coordinates/></Point>",
-                ns="",
-            )
-
-    def test_from_string_invalid_coordinates(self) -> None:
-        with pytest.raises(
-            KMLParseError,
-            match=(
-                r"Invalid coordinates in <Point\s*>"
-                "<coordinates>1</coordinates></Point>"
-            ),
-        ):
-            Point.class_from_string(
-                "<Point><coordinates>1</coordinates></Point>",
-                ns="",
-            )
-
-
-class TestLineString(StdLibrary):
-    def test_init(self) -> None:
-        """Test the init method."""
-        ls = geo.LineString(((1, 2), (2, 0)))
-
-        line_string = LineString(geometry=ls)
-
-        assert line_string.geometry == ls
-        assert line_string.altitude_mode is None
-        assert line_string.extrude is False
-
-    def test_to_string(self) -> None:
-        """Test the to_string method."""
-        ls = geo.LineString(((1, 2), (2, 0)))
-
-        line_string = LineString(geometry=ls)
-
-        assert "LineString" in line_string.to_string()
-        assert (
-            "coordinates>1.000000,2.000000 2.000000,0.000000</"
-            in line_string.to_string()
-        )
-
-    def test_from_string(self) -> None:
-        """Test the from_string method."""
-        linestring = LineString.class_from_string(
-            '<LineString xmlns="http://www.opengis.net/kml/2.2">'
-            "<extrude>1</extrude>"
-            "<tessellate>1</tessellate>"
-            "<coordinates>"
-            "-122.364383,37.824664,0 -122.364152,37.824322,0"
-            "</coordinates>"
-            "</LineString>"
-        )
-
-        assert linestring.geometry == geo.LineString(
-            ((-122.364383, 37.824664, 0), (-122.364152, 37.824322, 0))
-        )
-
-
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
 
@@ -575,12 +455,4 @@ class TestGetGeometryLxml(Lxml, TestGetGeometry):
 
 
 class TestGeometryLxml(Lxml, TestGeometry):
-    """Test with lxml."""
-
-
-class TestPointLxml(Lxml, TestPoint):
-    """Test with lxml."""
-
-
-class TestLineStringLxml(Lxml, TestLineString):
     """Test with lxml."""

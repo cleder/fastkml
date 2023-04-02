@@ -880,8 +880,45 @@ class LineString(_Geometry):
         return kwargs
 
 
-class LinearRing(_Geometry):
-    ...
+class LinearRing(LineString):
+    def __init__(
+        self,
+        *,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        extrude: bool = False,
+        tessellate: bool = False,
+        altitude_mode: Optional[AltitudeMode] = None,
+        geometry: geo.LinearRing,
+    ) -> None:
+        super().__init__(
+            ns=ns,
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+
+    @classmethod
+    def _get_geometry(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> geo.LinearRing:
+        coords = cls._get_coordinates(ns=ns, element=element, strict=strict)
+        try:
+            return geo.LinearRing.from_coordinates(coords)
+        except (IndexError, TypeError) as e:
+            error = config.etree.tostring(  # type: ignore[attr-defined]
+                element,
+                encoding="UTF-8",
+            ).decode("UTF-8")
+            raise KMLParseError(f"Invalid coordinates in {error}") from e
 
 
 class Polygon(_Geometry):
