@@ -412,7 +412,7 @@ class TestGeometry(StdLibrary):
             ns="",
         )
 
-        assert g.extrude is False
+        assert g.extrude is None
 
     def test_from_minimal_string(self) -> None:
         g = _Geometry.class_from_string(
@@ -423,7 +423,7 @@ class TestGeometry(StdLibrary):
         assert g.ns == ""
         assert g.target_id == ""
         assert g.id == ""
-        assert g.extrude is False
+        assert g.extrude is None
         assert g.altitude_mode is None
         assert g.tessellate is False
 

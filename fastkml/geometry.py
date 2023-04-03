@@ -16,6 +16,7 @@
 
 import logging
 import re
+from functools import partial
 from typing import Any
 from typing import Dict
 from typing import List
@@ -489,9 +490,10 @@ class _Geometry(_BaseObject):
         ns: Optional[str] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        extrude: bool = False,
-        tessellate: bool = False,
+        extrude: Optional[bool] = False,
+        tessellate: Optional[bool] = False,
         altitude_mode: Optional[AltitudeMode] = None,
+        geometry: Optional[GeometryType] = None,
     ) -> None:
         """
 
@@ -508,6 +510,7 @@ class _Geometry(_BaseObject):
         self._extrude = extrude
         self._tessellate = tessellate
         self._altitude_mode = altitude_mode
+        self.geometry = geometry
 
     def __repr__(self) -> str:
         return (
@@ -517,7 +520,9 @@ class _Geometry(_BaseObject):
             f"target_id={self.target_id!r}, "
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
-            f"altitude_mode={self.altitude_mode!r})"
+            f"altitude_mode={self.altitude_mode!r} "
+            f"geometry={self.geometry!r}"
+            f")"
         )
 
     @property
@@ -636,14 +641,13 @@ class _Geometry(_BaseObject):
         ns: str,
         element: Element,
         strict: bool,
-    ) -> bool:
+    ) -> Optional[bool]:
         extrude = element.find(f"{ns}extrude")
-        if extrude is None:
-            return False
         try:
             return bool(int(extrude.text.strip()))
-        except ValueError:
-            return False
+        except (ValueError, AttributeError):
+            pass
+        return None
 
     @classmethod
     def _get_tessellate(
@@ -725,20 +729,7 @@ class Point(_Geometry):
             extrude=extrude,
             tessellate=tessellate,
             altitude_mode=altitude_mode,
-        )
-        self.geometry = geometry
-
-    def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}("
-            f"ns={self.ns!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
-            f"extrude={self.extrude!r}, "
-            f"tessellate={self.tessellate!r}, "
-            f"altitude_mode={self.altitude_mode!r}, "
-            f"geometry={self.geometry!r}"
-            f")"
+            geometry=geometry,
         )
 
     def etree_element(
@@ -748,6 +739,7 @@ class Point(_Geometry):
     ) -> Element:
         self.__name__ = self.__class__.__name__
         element = super().etree_element(precision=precision, verbosity=verbosity)
+        assert isinstance(self.geometry, geo.Point)
         coords = self.geometry.coords
         element.append(self._etree_coordinates(coords))
         return element
@@ -812,20 +804,7 @@ class LineString(_Geometry):
             extrude=extrude,
             tessellate=tessellate,
             altitude_mode=altitude_mode,
-        )
-        self.geometry = geometry
-
-    def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}("
-            f"ns={self.ns!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
-            f"extrude={self.extrude!r}, "
-            f"tessellate={self.tessellate!r}, "
-            f"altitude_mode={self.altitude_mode!r}, "
-            f"geometry={self.geometry!r}"
-            f")"
+            geometry=geometry,
         )
 
     def etree_element(
@@ -835,6 +814,7 @@ class LineString(_Geometry):
     ) -> Element:
         self.__name__ = self.__class__.__name__
         element = super().etree_element(precision=precision, verbosity=verbosity)
+        assert isinstance(self.geometry, geo.LineString)
         coords = self.geometry.coords
         element.append(self._etree_coordinates(coords))
         return element
@@ -922,7 +902,80 @@ class LinearRing(LineString):
 
 
 class Polygon(_Geometry):
-    ...
+    def __init__(
+        self,
+        *,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        extrude: bool = False,
+        tessellate: bool = False,
+        altitude_mode: Optional[AltitudeMode] = None,
+        geometry: geo.Polygon,
+    ) -> None:
+        super().__init__(
+            ns=ns,
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+
+    @classmethod
+    def _get_geometry(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> geo.LinearRing:
+        coords = cls._get_coordinates(ns=ns, element=element, strict=strict)
+        try:
+            return cast(geo.LinearRing, geo.LinearRing.from_coordinates(coords))
+        except (IndexError, TypeError) as e:
+            error = config.etree.tostring(  # type: ignore[attr-defined]
+                element,
+                encoding="UTF-8",
+            ).decode("UTF-8")
+            raise KMLParseError(f"Invalid coordinates in {error}") from e
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        self.__name__ = self.__class__.__name__
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        assert isinstance(self.geometry, geo.Polygon)
+        linear_ring = partial(LinearRing, ns=self.ns, extrude=None, tessellate=None)
+        outer_boundary = cast(
+            Element,
+            config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}outerBoundaryIs",
+            ),
+        )
+        outer_boundary.append(
+            linear_ring(geometry=self.geometry.exterior).etree_element(
+                precision=precision, verbosity=verbosity
+            )
+        )
+        for interior in self.geometry.interiors:
+            inner_boundary = cast(
+                Element,
+                config.etree.SubElement(  # type: ignore[attr-defined]
+                    element,
+                    f"{self.ns}innerBoundaryIs",
+                ),
+            )
+            inner_boundary.append(
+                linear_ring(geometry=interior).etree_element(
+                    precision=precision, verbosity=verbosity
+                )
+            )
+        return element
 
 
 class MultiGeometry(_Geometry):

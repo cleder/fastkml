@@ -71,7 +71,7 @@ class TestPoint(StdLibrary):
 
         assert point.geometry == geo.Point(1, 2)
         assert point.altitude_mode is None
-        assert point.extrude is False
+        assert point.extrude is None
         assert point.tessellate is False
 
     def test_empty_from_string(self) -> None:
