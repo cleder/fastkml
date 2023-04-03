@@ -498,7 +498,7 @@ class _Geometry(_BaseObject):
         extrude: Optional[bool] = False,
         tessellate: Optional[bool] = False,
         altitude_mode: Optional[AltitudeMode] = None,
-        geometry: Optional[GeometryType] = None,
+        geometry: Optional[AnyGeometryType] = None,
     ) -> None:
         """
 
@@ -1031,4 +1031,93 @@ class Polygon(_Geometry):
 
 
 class MultiGeometry(_Geometry):
-    ...
+    map_to_kml = {
+        geo.Point: Point,
+        geo.LineString: LineString,
+        geo.LinearRing: LinearRing,
+        geo.Polygon: Polygon,
+    }
+    multi_geometries = (
+        geo.MultiPoint,
+        geo.MultiLineString,
+        geo.MultiPolygon,
+        geo.GeometryCollection,
+    )
+
+    def __init__(
+        self,
+        *,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        extrude: Optional[bool] = False,
+        tessellate: Optional[bool] = False,
+        altitude_mode: Optional[AltitudeMode] = None,
+        geometry: MultiGeometryType,
+    ) -> None:
+        super().__init__(
+            ns=ns,
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        self.__name__ = self.__class__.__name__
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        assert isinstance(self.geometry, geo._MultiGeometry)
+        _map_to_kml = {mg: self.__class__ for mg in self.multi_geometries}
+        _map_to_kml.update(self.map_to_kml)
+
+        for geometry in self.geometry.geoms:
+            geometry_class = _map_to_kml[type(geometry)]
+            element.append(
+                geometry_class(
+                    ns=self.ns,
+                    extrude=None,
+                    tessellate=None,
+                    altitude_mode=None,
+                    geometry=geometry,  # type: ignore[arg-type]
+                ).etree_element(precision=precision, verbosity=verbosity)
+            )
+        return element
+
+    @classmethod
+    def _get_multigeometry_kwargs(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        geometries = []
+        allowed_geometries = (cls,) + tuple(cls.map_to_kml.values())
+        for g in allowed_geometries:
+            for e in element.findall(f"{ns}{g.__name__}"):
+                geometry = g._get_geometry(  # type: ignore[attr-defined]
+                    ns=ns, element=e, strict=strict
+                )
+                if geometry is not None:
+                    geometries.append(geometry)
+        return {"geometry": geo.GeometryCollection(geometries)}
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs.update(
+            cls._get_multigeometry_kwargs(ns=ns, element=element, strict=strict)
+        )
+        return kwargs
