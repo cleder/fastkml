@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
+import contextlib
 import logging
 import re
 from functools import partial
@@ -114,7 +115,7 @@ class Geometry(_BaseObject):
         super().__init__(ns=ns, id=id, target_id=target_id)
         self.extrude = extrude
         self.tessellate = tessellate
-        self.altitude_mode = altitude_mode
+        self.altitude_mode = altitude_mode  # type: ignore[assignment]
         if geometry:
             if isinstance(
                 geometry,
@@ -149,7 +150,7 @@ class Geometry(_BaseObject):
             am_element.text = self.altitude_mode.value  # type: ignore[attr-defined]
 
     def _set_extrude(self, element: Element) -> None:
-        if self.extrude and self.altitude_mode in [
+        if self.extrude and self.altitude_mode in [  # type: ignore[comparison-overlap]
             AltitudeMode.relative_to_ground,
             AltitudeMode.relative_to_sea_floor,
             AltitudeMode.absolute,
@@ -189,10 +190,14 @@ class Geometry(_BaseObject):
 
     def _etree_linestring(self, linestring: geo.LineString) -> Element:
         element = self._extrude_and_altitude_mode("LineString")
-        if self.tessellate and self.altitude_mode in [
-            "clampToGround",
-            "clampToSeaFloor",
-        ]:
+        if (
+            self.tessellate
+            and self.altitude_mode
+            in [  # type: ignore[comparison-overlap]
+                "clampToGround",
+                "clampToSeaFloor",
+            ]
+        ):
             ts_element = config.etree.SubElement(  # type: ignore[attr-defined]
                 element, f"{self.ns}tessellate"
             )
@@ -341,11 +346,11 @@ class Geometry(_BaseObject):
         if altitude_mode is not None:
             am = altitude_mode.text.strip()
             try:
-                self.altitude_mode = AltitudeMode(am)
+                self.altitude_mode = AltitudeMode(am)  # type: ignore[assignment]
             except ValueError:
-                self.altitude_mode = None
+                self.altitude_mode = None  # type: ignore[assignment]
         else:
-            self.altitude_mode = None
+            self.altitude_mode = None  # type: ignore[assignment]
 
     @no_type_check
     def _get_coordinates(
@@ -526,7 +531,7 @@ class _Geometry(_BaseObject):
         )
 
     @property
-    def extrude(self) -> bool:
+    def extrude(self) -> Optional[bool]:
         return self._extrude
 
     @extrude.setter
@@ -534,7 +539,7 @@ class _Geometry(_BaseObject):
         self._extrude = extrude
 
     @property
-    def tessellate(self) -> bool:
+    def tessellate(self) -> Optional[bool]:
         return self._tessellate
 
     @tessellate.setter
@@ -643,10 +648,10 @@ class _Geometry(_BaseObject):
         strict: bool,
     ) -> Optional[bool]:
         extrude = element.find(f"{ns}extrude")
-        try:
+        if extrude is None:
+            return None
+        with contextlib.suppress(ValueError, AttributeError):
             return bool(int(extrude.text.strip()))
-        except (ValueError, AttributeError):
-            pass
         return None
 
     @classmethod
