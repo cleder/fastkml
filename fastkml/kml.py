@@ -453,10 +453,6 @@ class _Feature(TimeMixin, _BaseObject):
             x = ExtendedData(self.ns)
             x.from_element(extended_data)
             self.extended_data = x
-            # else:
-            #    logger.warning(
-            #        'arbitrary or typed extended data is not yet supported'
-            #    )
         address = element.find(f"{self.ns}address")
         if address is not None:
             self.address = address.text
