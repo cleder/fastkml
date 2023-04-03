@@ -720,8 +720,8 @@ class Point(_Geometry):
         ns: Optional[str] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        extrude: bool = False,
-        tessellate: bool = False,
+        extrude: Optional[bool] = False,
+        tessellate: Optional[bool] = False,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: geo.Point,
     ) -> None:
@@ -795,8 +795,8 @@ class LineString(_Geometry):
         ns: Optional[str] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        extrude: bool = False,
-        tessellate: bool = False,
+        extrude: Optional[bool] = False,
+        tessellate: Optional[bool] = False,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: geo.LineString,
     ) -> None:
@@ -870,8 +870,8 @@ class LinearRing(LineString):
         ns: Optional[str] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        extrude: bool = False,
-        tessellate: bool = False,
+        extrude: Optional[bool] = False,
+        tessellate: Optional[bool] = False,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: geo.LinearRing,
     ) -> None:
@@ -911,8 +911,8 @@ class Polygon(_Geometry):
         ns: Optional[str] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        extrude: bool = False,
-        tessellate: bool = False,
+        extrude: Optional[bool] = False,
+        tessellate: Optional[bool] = False,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: geo.Polygon,
     ) -> None:
