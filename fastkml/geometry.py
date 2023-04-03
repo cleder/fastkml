@@ -980,6 +980,55 @@ class Polygon(_Geometry):
             )
         return element
 
+    @classmethod
+    def _get_polygon_kwargs(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        outer_boundary = element.find(f"{ns}outerBoundaryIs")
+        if outer_boundary is None:
+            error = config.etree.tostring(  # type: ignore[attr-defined]
+                element,
+                encoding="UTF-8",
+            ).decode("UTF-8")
+            raise KMLParseError(f"Missing outerBoundaryIs in {error}")
+        outer_ring = outer_boundary.find(f"{ns}LinearRing")
+        if outer_ring is None:
+            error = config.etree.tostring(  # type: ignore[attr-defined]
+                element,
+                encoding="UTF-8",
+            ).decode("UTF-8")
+            raise KMLParseError(f"Missing LinearRing in {error}")
+        exterior = cls._get_geometry(ns=ns, element=outer_ring, strict=strict)
+        interiors = []
+        for inner_boundary in element.findall(f"{ns}innerBoundaryIs"):
+            inner_ring = inner_boundary.find(f"{ns}LinearRing")
+            if inner_ring is None:
+                error = config.etree.tostring(  # type: ignore[attr-defined]
+                    element,
+                    encoding="UTF-8",
+                ).decode("UTF-8")
+                raise KMLParseError(f"Missing LinearRing in {error}")
+            interiors.append(
+                cls._get_geometry(ns=ns, element=inner_ring, strict=strict)
+            )
+        return {"geometry": geo.Polygon.from_linear_rings(exterior, *interiors)}
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs.update(cls._get_polygon_kwargs(ns=ns, element=element, strict=strict))
+        return kwargs
+
 
 class MultiGeometry(_Geometry):
     ...

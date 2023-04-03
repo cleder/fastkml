@@ -15,6 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the geometry classes."""
+from typing import cast
+
 import pygeoif.geometry as geo
 
 from fastkml.geometry import Polygon
@@ -59,6 +61,45 @@ class TestStdLibrary(StdLibrary):
             "0.100000,0.100000 0.100000,0.900000 0.900000,0.900000 "
             "0.900000,0.100000 0.100000,0.100000"
         ) in polygon.to_string()
+
+    def test_from_string_exterior_only(self):
+        """Test exterior only."""
+        doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:outerBoundaryIs>
+            <kml:LinearRing>
+              <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000
+              0.000000,0.000000</kml:coordinates>
+            </kml:LinearRing>
+          </kml:outerBoundaryIs>
+        </kml:Polygon>"""
+
+        polygon2 = cast(Polygon, Polygon.class_from_string(doc))
+
+        assert polygon2.geometry == geo.Polygon([(0, 0), (1, 0), (1, 1), (0, 0)])
+
+    def test_from_string_exterior_interior(self):
+        doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:outerBoundaryIs>
+            <kml:LinearRing>
+              <kml:coordinates>-1.000000,-1.000000 2.000000,-1.000000 2.000000,2.000000
+              -1.000000,-1.000000</kml:coordinates>
+            </kml:LinearRing>
+          </kml:outerBoundaryIs>
+          <kml:innerBoundaryIs>
+            <kml:LinearRing>
+              <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000
+              0.000000,0.000000</kml:coordinates>
+            </kml:LinearRing>
+          </kml:innerBoundaryIs>
+        </kml:Polygon>
+        """
+
+        polygon2 = cast(Polygon, Polygon.class_from_string(doc))
+
+        assert polygon2.geometry == geo.Polygon(
+            [(-1, -1), (2, -1), (2, 2), (-1, -1)],
+            [[(0, 0), (1, 0), (1, 1), (0, 0)]],
+        )
 
 
 class TestLxml(Lxml, TestStdLibrary):
