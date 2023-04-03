@@ -139,7 +139,6 @@ class _ColorStyle(_BaseObject):
         return element
 
     def from_element(self, element: Element) -> None:
-
         super().from_element(element)
         color_mode = element.find(f"{self.ns}colorMode")
         if color_mode is not None:

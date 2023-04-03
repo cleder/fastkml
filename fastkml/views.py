@@ -323,7 +323,6 @@ class Camera(_AbstractView):
 
 
 class LookAt(_AbstractView):
-
     __name__ = "LookAt"
 
     _range: Optional[float] = None

@@ -454,7 +454,7 @@ class _Feature(TimeMixin, _BaseObject):
             x.from_element(extended_data)
             self.extended_data = x
             # else:
-            #    logger.warn(
+            #    logger.warning(
             #        'arbitrary or typed extended data is not yet supported'
             #    )
         address = element.find(f"{self.ns}address")
@@ -1810,7 +1810,6 @@ class KML:
         """iterate over features"""
         for feature in self._features:
             if isinstance(feature, (Document, Folder, Placemark, _Overlay)):
-
                 yield feature
             else:
                 raise TypeError(

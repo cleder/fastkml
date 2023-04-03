@@ -13,7 +13,6 @@ def print_child_features(element):
 
 
 if __name__ == "__main__":
-
     fname = "KML_Samples.kml"
 
     k = kml.KML()

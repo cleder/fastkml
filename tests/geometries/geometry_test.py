@@ -425,7 +425,7 @@ class TestGeometry(StdLibrary):
         assert g.id == ""
         assert g.extrude is None
         assert g.altitude_mode is None
-        assert g.tessellate is False
+        assert g.tessellate is None
 
     def test_from_string_omitting_ns(self) -> None:
         """Test the from_string method."""

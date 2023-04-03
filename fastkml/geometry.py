@@ -661,14 +661,13 @@ class _Geometry(_BaseObject):
         ns: str,
         element: Element,
         strict: bool,
-    ) -> bool:
+    ) -> Optional[bool]:
         tessellate = element.find(f"{ns}tessellate")
-        if tessellate is not None:
-            try:
-                return bool(int(tessellate.text.strip()))
-            except ValueError:
-                return False
-        return False
+        if tessellate is None:
+            return None
+        with contextlib.suppress(ValueError):
+            return bool(int(tessellate.text.strip()))
+        return None
 
     @classmethod
     def _get_altitude_mode(
@@ -679,11 +678,10 @@ class _Geometry(_BaseObject):
         strict: bool,
     ) -> Optional[AltitudeMode]:
         altitude_mode = element.find(f"{ns}altitudeMode")
-        if altitude_mode is not None:
-            try:
-                return AltitudeMode(altitude_mode.text.strip())
-            except ValueError:
-                return None
+        if altitude_mode is None:
+            return None
+        with contextlib.suppress(ValueError):
+            return AltitudeMode(altitude_mode.text.strip())
         return None
 
     @classmethod
