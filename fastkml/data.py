@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Add Custom Data"""
+import logging
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -28,6 +29,8 @@ from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
 from fastkml.enums import Verbosity
 from fastkml.types import Element
+
+logger = logging.getLogger(__name__)
 
 
 class SimpleField(TypedDict):
@@ -55,11 +58,6 @@ class Schema(_BaseObject):
     """
 
     __name__ = "Schema"
-
-    # The declaration of the custom fields, each of which must specify both the
-    # type and the name of this field. If either the type or the name is
-    # omitted, the field is ignored.
-    name = None
 
     def __init__(
         self,
@@ -151,7 +149,7 @@ class Schema(_BaseObject):
             "bool",
         ]
         if type not in allowed_types:
-            raise TypeError(
+            logger.warning(
                 f"{name} has the type {type} which is invalid. "
                 "The type must be one of "
                 "'string', 'int', 'uint', 'short', "

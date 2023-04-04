@@ -21,7 +21,7 @@ repos:
       - id: requirements-txt-fixer
       - id: trailing-whitespace
   - repo: https://github.com/ikamensh/flynt/
-    rev: "0.77"
+    rev: "0.78"
     hooks:
       - id: flynt
   - repo: https://github.com/MarcoGorelli/absolufy-imports
@@ -29,7 +29,7 @@ repos:
     hooks:
       - id: absolufy-imports
   - repo: https://github.com/hakancelikdev/unimport
-    rev: 33ead41ee30f1d323a9c2fcfd0114297efbbc4d5
+    rev: 0.15.0
     hooks:
       - id: unimport
         args: [--remove, --include-star-import, --ignore-init, --gitignore]
@@ -38,14 +38,18 @@ repos:
     hooks:
       - id: pyupgrade
         args: ["--py3-plus", "--py37-plus"]
-  - repo: https://github.com/pycqa/isort
-    rev: 5.11.4
-    hooks:
-      - id: isort
   - repo: https://github.com/psf/black
-    rev: 22.12.0
+    rev: 23.3.0
     hooks:
       - id: black
+  - repo: https://github.com/PyCQA/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: 'v0.0.259'
     hooks:
