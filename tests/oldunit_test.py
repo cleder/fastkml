@@ -1867,6 +1867,53 @@ class TestGetGeometry:
         assert len(g.geometry) == 2
         assert g.geometry.geom_type == "GeometryCollection"
 
+    def test_nested_multigeometry(self):
+        doc = """<kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark>
+          <MultiGeometry>
+            <Polygon>
+              <outerBoundaryIs>
+                <LinearRing>
+                  <coordinates>
+                    -122.366278,37.818844,0 -122.365248,37.819267,0 -122.365640,37.819875,0 -122.366278,37.818844,0
+                  </coordinates>
+                </LinearRing>
+              </outerBoundaryIs>
+            </Polygon>
+            <Point>
+              <coordinates>-122.365,37.819,0</coordinates>
+            </Point>
+            <MultiGeometry>
+              <LineString>
+                <coordinates>
+                  -122.365278,37.819000,0 -122.365248,37.819267,0
+                </coordinates>
+              </LineString>
+              <Polygon>
+                <outerBoundaryIs>
+                  <LinearRing>
+                    <coordinates>
+                      -122.365248,37.819267,0 -122.365640,37.819875,0 -122.366278,37.818844,0 -122.365248,37.819267,0
+                    </coordinates>
+                  </LinearRing>
+                </outerBoundaryIs>
+              </Polygon>
+            </MultiGeometry>
+          </MultiGeometry>
+        </Placemark></Document></kml>
+        """
+
+        k = kml.KML()
+        k.from_string(doc)
+        placemark = list(list(k.features())[0].features())[0]
+
+        first_multigeometry = placemark.geometry
+        assert len(list(first_multigeometry.geoms)) == 3
+
+        second_multigeometry = [
+            g for g in first_multigeometry.geoms if g.geom_type == "GeometryCollection"
+        ][0]
+        assert len(list(second_multigeometry.geoms)) == 2
+
 
 class TestGetGxGeometry:
     def test_track(self):

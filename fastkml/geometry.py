@@ -406,6 +406,11 @@ class Geometry(_BaseObject):
         # MultiGeometry
         geoms: List[Union[AnyGeometryType, None]] = []
         if element.tag == f"{self.ns}MultiGeometry":
+            multigeometries = element.findall(f"{self.ns}MultiGeometry")
+            for multigeometry in multigeometries:
+                geom = Geometry(ns=self.ns)
+                geom.from_element(multigeometry)
+                geoms.append(geom.geometry)
             points = element.findall(f"{self.ns}Point")
             for point in points:
                 self._get_geometry_spec(point)
