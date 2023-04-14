@@ -79,14 +79,24 @@ class _XMLObject:
         return element
 
     def from_element(self, element: Element) -> None:
-        """Load the KML Object from an Element."""
+        """
+        Load the KML Object from an Element.
+
+        This implementation is deprecated and will be replaced by class_from_element
+        making it a classmethod.
+        """
         if f"{self.ns}{self.__name__}" != element.tag:
             raise TypeError("Call of abstract base class, subclasses implement this!")
         for mapping in self.kml_object_mapping:
             mapping["from_kml"](self, element, **mapping)
 
     def from_string(self, xml_string: str) -> None:
-        """Load the KML Object from serialized xml."""
+        """
+        Load the KML Object from serialized xml.
+
+        This implementation is deprecated and will be replaced by class_from_string
+        making it a classmethod.
+        """
         self.from_element(
             cast(Element, config.etree.XML(xml_string))  # type: ignore[attr-defined]
         )
@@ -266,6 +276,7 @@ class _BaseObject(_XMLObject):
         element: Element,
         strict: bool,
     ) -> Dict[str, Any]:
+        """Get the keyword arguments to build the object from an element."""
         return {
             "id": cls._get_id(element=element, strict=strict),
             "target_id": cls._get_target_id(element=element, strict=strict),

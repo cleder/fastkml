@@ -49,7 +49,7 @@ AnyGeometryType = Union[GeometryType, MultiGeometryType]
 
 
 class Geometry(_BaseObject):
-    """ """
+    """Deprecated: to be replaced by the subclasses of _Geometry."""
 
     geometry = None
     extrude = False
