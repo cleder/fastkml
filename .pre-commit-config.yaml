@@ -34,7 +34,7 @@ repos:
       - id: unimport
         args: [--remove, --include-star-import, --ignore-init, --gitignore]
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.4.0
+    rev: v3.6.0
     hooks:
       - id: pyupgrade
         args: ["--py3-plus", "--py37-plus"]
