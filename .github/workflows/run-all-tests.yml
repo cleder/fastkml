@@ -46,7 +46,7 @@ jobs:
         run: |
           pytest tests --cov=fastkml --cov=tests --cov-fail-under=88 --cov-report=xml
       - name: "Upload coverage to Codecov"
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
 
