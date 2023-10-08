@@ -376,7 +376,7 @@ class Geometry(_BaseObject):
         if lr is not None:
             coords = self._get_coordinates(lr)
             return geo.LinearRing(coords)
-        return None  # type: ignore[unreachable]
+        return None
 
     @no_type_check
     def _get_geometry(self, element: Element) -> Optional[GeometryType]:
@@ -450,23 +450,23 @@ class Geometry(_BaseObject):
             geom_types = {geom.geom_type for geom in clean_geoms}
             if len(geom_types) > 1:
                 return geo.GeometryCollection(
-                    clean_geoms,  # type: ignore[arg-type]
+                    clean_geoms,
                 )
             if "Point" in geom_types:
                 return geo.MultiPoint.from_points(
-                    *clean_geoms,  # type: ignore[arg-type]
+                    *clean_geoms,
                 )
             elif "LineString" in geom_types:
                 return geo.MultiLineString.from_linestrings(
-                    *clean_geoms,  # type: ignore[arg-type]
+                    *clean_geoms,
                 )
             elif "Polygon" in geom_types:
                 return geo.MultiPolygon.from_polygons(
-                    *clean_geoms,  # type: ignore[arg-type]
+                    *clean_geoms,
                 )
             elif "LinearRing" in geom_types:
                 return geo.GeometryCollection(
-                    clean_geoms,  # type: ignore[arg-type]
+                    clean_geoms,
                 )
         return None
 
