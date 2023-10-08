@@ -1381,6 +1381,319 @@ class TestSetGeometry:
         assert "coordinates>0.000000,1.000000</" in str(g.to_string())
 
 
+def test_nested_multigeometry():
+    doc = """<kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark>
+          <MultiGeometry>
+            <Polygon>
+              <outerBoundaryIs>
+                <LinearRing>
+                  <coordinates>
+                    -122.366278,37.818844,0 -122.365248,37.819267,0 -122.365640,37.819875,0 -122.366278,37.818844,0
+                  </coordinates>
+                </LinearRing>
+              </outerBoundaryIs>
+            </Polygon>
+            <Point>
+              <coordinates>-122.365,37.819,0</coordinates>
+            </Point>
+            <MultiGeometry>
+              <LineString>
+                <coordinates>
+                  -122.365278,37.819000,0 -122.365248,37.819267,0
+                </coordinates>
+              </LineString>
+              <Polygon>
+                <outerBoundaryIs>
+                  <LinearRing>
+                    <coordinates>
+                      -122.365248,37.819267,0 -122.365640,37.819875,0 -122.366278,37.818844,0 -122.365248,37.819267,0
+                    </coordinates>
+                  </LinearRing>
+                </outerBoundaryIs>
+              </Polygon>
+            </MultiGeometry>
+          </MultiGeometry>
+        </Placemark></Document></kml>
+        """
+
+    k = kml.KML()
+    k.from_string(doc)
+    placemark = list(list(k.features())[0].features())[0]
+
+    first_multigeometry = placemark.geometry
+    assert len(list(first_multigeometry.geoms)) == 3
+
+    second_multigeometry = [
+        g for g in first_multigeometry.geoms if g.geom_type == "GeometryCollection"
+    ][0]
+    assert len(list(second_multigeometry.geoms)) == 2
+
+
+class TestGetGeometry:
+    def test_altitude_mode(self):
+        doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:coordinates>0.000000,1.000000</kml:coordinates>
+          <kml:altitudeMode>clampToGround</kml:altitudeMode>
+        </kml:Point>"""
+
+        g = Geometry()
+        assert g.altitude_mode is None
+        g.from_string(doc)
+        assert g.altitude_mode.value == "clampToGround"
+
+    def test_extrude(self):
+        doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:coordinates>0.000000,1.000000</kml:coordinates>
+          <kml:extrude>1</kml:extrude>
+        </kml:Point>"""
+
+        g = Geometry()
+        assert g.extrude is False
+        g.from_string(doc)
+        assert g.extrude is True
+
+    def test_tesselate(self):
+        doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:coordinates>0.000000,1.000000</kml:coordinates>
+          <kml:tessellate>1</kml:tessellate>
+        </kml:Point>"""
+
+        g = Geometry()
+        assert g.tessellate is False
+        g.from_string(doc)
+        assert g.tessellate is True
+
+    def test_point(self):
+        doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:coordinates>0.000000,1.000000</kml:coordinates>
+        </kml:Point>"""
+
+        g = Geometry()
+        g.from_string(doc)
+        assert g.geometry.__geo_interface__ == {
+            "type": "Point",
+            "bbox": (0.0, 1.0, 0.0, 1.0),
+            "coordinates": (0.0, 1.0),
+        }
+
+    def test_linestring(self):
+        doc = """<kml:LineString xmlns:kml="http://www.opengis.net/kml/2.2">
+            <kml:coordinates>0.000000,0.000000 1.000000,1.000000</kml:coordinates>
+        </kml:LineString>"""
+
+        g = Geometry()
+        g.from_string(doc)
+        assert g.geometry.__geo_interface__ == {
+            "type": "LineString",
+            "bbox": (0.0, 0.0, 1.0, 1.0),
+            "coordinates": ((0.0, 0.0), (1.0, 1.0)),
+        }
+
+    def test_linearring(self):
+        doc = """<kml:LinearRing xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</kml:coordinates>
+        </kml:LinearRing>
+        """
+
+        g = Geometry()
+        g.from_string(doc)
+        assert g.geometry.__geo_interface__ == {
+            "type": "LinearRing",
+            "bbox": (0.0, 0.0, 1.0, 1.0),
+            "coordinates": ((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0)),
+        }
+
+    def test_polygon(self):
+        doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:outerBoundaryIs>
+            <kml:LinearRing>
+              <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</kml:coordinates>
+            </kml:LinearRing>
+          </kml:outerBoundaryIs>
+        </kml:Polygon>
+        """
+
+        g = Geometry()
+        g.from_string(doc)
+        assert g.geometry.__geo_interface__ == {
+            "type": "Polygon",
+            "bbox": (0.0, 0.0, 1.0, 1.0),
+            "coordinates": (((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0)),),
+        }
+        doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:outerBoundaryIs>
+            <kml:LinearRing>
+              <kml:coordinates>-1.000000,-1.000000 2.000000,-1.000000 2.000000,2.000000 -1.000000,-1.000000</kml:coordinates>
+            </kml:LinearRing>
+          </kml:outerBoundaryIs>
+          <kml:innerBoundaryIs>
+            <kml:LinearRing>
+              <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</kml:coordinates>
+            </kml:LinearRing>
+          </kml:innerBoundaryIs>
+        </kml:Polygon>
+        """
+
+        g.from_string(doc)
+        assert g.geometry.__geo_interface__ == {
+            "type": "Polygon",
+            "bbox": (-1.0, -1.0, 2.0, 2.0),
+            "coordinates": (
+                ((-1.0, -1.0), (2.0, -1.0), (2.0, 2.0), (-1.0, -1.0)),
+                ((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0)),
+            ),
+        }
+
+    def test_multipoint(self):
+        doc = """
+        <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:Point>
+            <kml:coordinates>0.000000,1.000000</kml:coordinates>
+          </kml:Point>
+          <kml:Point>
+            <kml:coordinates>1.000000,1.000000</kml:coordinates>
+          </kml:Point>
+        </kml:MultiGeometry>
+        """
+
+        g = Geometry()
+        g.from_string(doc)
+        assert len(g.geometry) == 2
+
+    def test_multilinestring(self):
+        doc = """
+        <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:LineString>
+            <kml:coordinates>0.000000,0.000000 1.000000,0.000000</kml:coordinates>
+          </kml:LineString>
+          <kml:LineString>
+            <kml:coordinates>0.000000,1.000000 1.000000,1.000000</kml:coordinates>
+          </kml:LineString>
+        </kml:MultiGeometry>
+        """
+
+        g = Geometry()
+        g.from_string(doc)
+        assert len(g.geometry) == 2
+
+    def test_multipolygon(self):
+        doc = """
+        <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:Polygon>
+            <kml:outerBoundaryIs>
+              <kml:LinearRing>
+                <kml:coordinates>-1.000000,-1.000000 2.000000,-1.000000 2.000000,2.000000 -1.000000,-1.000000</kml:coordinates>
+              </kml:LinearRing>
+            </kml:outerBoundaryIs>
+            <kml:innerBoundaryIs>
+              <kml:LinearRing>
+                <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000 0.000000,0.000000</kml:coordinates>
+              </kml:LinearRing>
+            </kml:innerBoundaryIs>
+          </kml:Polygon>
+          <kml:Polygon>
+            <kml:outerBoundaryIs>
+              <kml:LinearRing>
+                <kml:coordinates>3.000000,0.000000 4.000000,0.000000 4.000000,1.000000 3.000000,0.000000</kml:coordinates>
+              </kml:LinearRing>
+            </kml:outerBoundaryIs>
+          </kml:Polygon>
+        </kml:MultiGeometry>
+        """
+
+        g = Geometry()
+        g.from_string(doc)
+        assert len(g.geometry) == 2
+
+    def test_geometrycollection(self):
+        doc = """
+        <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:Polygon>
+            <kml:outerBoundaryIs>
+              <kml:LinearRing>
+                <kml:coordinates>3,0 4,0 4,1 3,0</kml:coordinates>
+              </kml:LinearRing>
+            </kml:outerBoundaryIs>
+          </kml:Polygon>
+          <kml:Point>
+            <kml:coordinates>0.000000,1.000000</kml:coordinates>
+          </kml:Point>
+          <kml:LineString>
+            <kml:coordinates>0.000000,0.000000 1.000000,1.000000</kml:coordinates>
+          </kml:LineString>
+          <kml:LinearRing>
+            <kml:coordinates>0.0,0.0 1.0,0.0 1.0,1.0 0.0,1.0 0.0,0.0</kml:coordinates>
+          </kml:LinearRing>
+        </kml:MultiGeometry>
+        """
+
+        g = Geometry()
+        g.from_string(doc)
+        assert len(g.geometry) == 4
+        doc = """
+        <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:LinearRing>
+            <kml:coordinates>3.0,0.0 4.0,0.0 4.0,1.0 3.0,0.0</kml:coordinates>
+          </kml:LinearRing>
+          <kml:LinearRing>
+            <kml:coordinates>0.0,0.0 1.0,0.0 1.0,1.0 0.0,0.0</kml:coordinates>
+          </kml:LinearRing>
+        </kml:MultiGeometry>
+        """
+
+        g = Geometry()
+        g.from_string(doc)
+        assert len(g.geometry) == 2
+        assert g.geometry.geom_type == "GeometryCollection"
+
+    def test_nested_multigeometry(self):
+        doc = """<kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark>
+          <MultiGeometry>
+            <Polygon>
+              <outerBoundaryIs>
+                <LinearRing>
+                  <coordinates>
+                    -122.366278,37.818844,0 -122.365248,37.819267,0 -122.365640,37.819875,0 -122.366278,37.818844,0
+                  </coordinates>
+                </LinearRing>
+              </outerBoundaryIs>
+            </Polygon>
+            <Point>
+              <coordinates>-122.365,37.819,0</coordinates>
+            </Point>
+            <MultiGeometry>
+              <LineString>
+                <coordinates>
+                  -122.365278,37.819000,0 -122.365248,37.819267,0
+                </coordinates>
+              </LineString>
+              <Polygon>
+                <outerBoundaryIs>
+                  <LinearRing>
+                    <coordinates>
+                      -122.365248,37.819267,0 -122.365640,37.819875,0 -122.366278,37.818844,0 -122.365248,37.819267,0
+                    </coordinates>
+                  </LinearRing>
+                </outerBoundaryIs>
+              </Polygon>
+            </MultiGeometry>
+          </MultiGeometry>
+        </Placemark></Document></kml>
+        """
+
+        k = kml.KML()
+        k.from_string(doc)
+        placemark = list(list(k.features())[0].features())[0]
+
+        first_multigeometry = placemark.geometry
+        assert len(list(first_multigeometry.geoms)) == 3
+
+        second_multigeometry = [
+            g for g in first_multigeometry.geoms if g.geom_type == "GeometryCollection"
+        ][0]
+        assert len(list(second_multigeometry.geoms)) == 2
+
+
 class TestGetGxGeometry:
     def test_track(self) -> None:
         doc = """<gx:Track xmlns:kml="http://www.opengis.net/kml/2.2"

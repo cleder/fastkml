@@ -47,3 +47,7 @@ module = [
     "fastkml.tests.oldunit_test", "fastkml.tests.config_test"
 ]
 ignore_errors = true
+
+[tool.ruff]
+[tool.ruff.extend-per-file-ignores]
+"tests/oldunit_test.py" = ["E501"]

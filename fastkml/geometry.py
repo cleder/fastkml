@@ -376,7 +376,7 @@ class Geometry(_BaseObject):
         if lr is not None:
             coords = self._get_coordinates(lr)
             return geo.LinearRing(coords)
-        return None
+        return None  # type: ignore[unreachable]
 
     @no_type_check
     def _get_geometry(self, element: Element) -> Optional[GeometryType]:
@@ -413,6 +413,11 @@ class Geometry(_BaseObject):
         # MultiGeometry
         geoms: List[Union[AnyGeometryType, None]] = []
         if element.tag == f"{self.ns}MultiGeometry":
+            multigeometries = element.findall(f"{self.ns}MultiGeometry")
+            for multigeometry in multigeometries:
+                geom = Geometry(ns=self.ns)
+                geom.from_element(multigeometry)
+                geoms.append(geom.geometry)
             points = element.findall(f"{self.ns}Point")
             for point in points:
                 self._get_geometry_spec(point)
@@ -445,23 +450,23 @@ class Geometry(_BaseObject):
             geom_types = {geom.geom_type for geom in clean_geoms}
             if len(geom_types) > 1:
                 return geo.GeometryCollection(
-                    clean_geoms,
+                    clean_geoms,  # type: ignore[arg-type]
                 )
             if "Point" in geom_types:
                 return geo.MultiPoint.from_points(
-                    *clean_geoms,
+                    *clean_geoms,  # type: ignore[arg-type]
                 )
             elif "LineString" in geom_types:
                 return geo.MultiLineString.from_linestrings(
-                    *clean_geoms,
+                    *clean_geoms,  # type: ignore[arg-type]
                 )
             elif "Polygon" in geom_types:
                 return geo.MultiPolygon.from_polygons(
-                    *clean_geoms,
+                    *clean_geoms,  # type: ignore[arg-type]
                 )
             elif "LinearRing" in geom_types:
                 return geo.GeometryCollection(
-                    clean_geoms,
+                    clean_geoms,  # type: ignore[arg-type]
                 )
         return None
 
