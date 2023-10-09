@@ -150,10 +150,12 @@ class Schema(_BaseObject):
         ]
         if type not in allowed_types:
             logger.warning(
-                f"{name} has the type {type} which is invalid. "
+                "%s has the type %s which is invalid. "
                 "The type must be one of "
                 "'string', 'int', 'uint', 'short', "
-                "'ushort', 'float', 'double', 'bool'"
+                "'ushort', 'float', 'double', 'bool'",
+                name,
+                type,
             )
         self._simple_fields.append(
             {"type": type, "name": name, "displayName": display_name or ""}
