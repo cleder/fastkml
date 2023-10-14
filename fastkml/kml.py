@@ -39,6 +39,11 @@ from fastkml.data import ExtendedData
 from fastkml.data import Schema
 from fastkml.enums import Verbosity
 from fastkml.geometry import Geometry
+from fastkml.geometry import LinearRing
+from fastkml.geometry import LineString
+from fastkml.geometry import MultiGeometry
+from fastkml.geometry import Point
+from fastkml.geometry import Polygon
 from fastkml.mixins import TimeMixin
 from fastkml.styles import Style
 from fastkml.styles import StyleMap
@@ -1651,37 +1656,49 @@ class Placemark(_Feature):
         else:
             self._geometry = Geometry(ns=self.ns, geometry=geometry)
 
-    def from_element(self, element: Element) -> None:
+    def from_element(self, element: Element, strict=False) -> None:
         super().from_element(element)
         point = element.find(f"{self.ns}Point")
         if point is not None:
-            geom = Geometry(ns=self.ns)
-            geom.from_element(point)
-            self._geometry = geom
+            self._geometry = Point.class_from_element(
+                ns=self.ns,
+                element=point,
+                strict=strict,
+            )
             return
         line = element.find(f"{self.ns}LineString")
         if line is not None:
-            geom = Geometry(ns=self.ns)
-            geom.from_element(line)
-            self._geometry = geom
+            self._geometry = LineString.class_from_element(
+                ns=self.ns,
+                element=line,
+                strict=strict,
+            )
             return
         polygon = element.find(f"{self.ns}Polygon")
         if polygon is not None:
-            geom = Geometry(ns=self.ns)
-            geom.from_element(polygon)
-            self._geometry = geom
+            self._geometry = Polygon.class_from_element(
+                ns=self.ns,
+                element=polygon,
+                strict=strict,
+            )
             return
         linearring = element.find(f"{self.ns}LinearRing")
         if linearring is not None:
-            geom = Geometry(ns=self.ns)
-            geom.from_element(linearring)
-            self._geometry = geom
+            self._geometry = LinearRing.class_from_element(
+                ns=self.ns,
+                element=linearring,
+                strict=strict,
+            )
             return
         multigeometry = element.find(f"{self.ns}MultiGeometry")
         if multigeometry is not None:
             geom = Geometry(ns=self.ns)
             geom.from_element(multigeometry)
-            self._geometry = geom
+            self._geometry = MultiGeometry.class_from_element(
+                ns=self.ns,
+                element=multigeometry,
+                strict=strict,
+            )
             return
         track = element.find(f"{self.ns}Track")
         if track is not None:
