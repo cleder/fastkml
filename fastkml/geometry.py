@@ -17,6 +17,7 @@
 import contextlib
 import logging
 import re
+import warnings
 from functools import partial
 from typing import Any
 from typing import Dict
@@ -112,6 +113,10 @@ class Geometry(_BaseObject):
 
         https://developers.google.com/kml/documentation/kmlreference#geometry
         """
+        warnings.warn(
+            "Geometry is deprecated. Use the subclasses of _Geometry instead.",
+            DeprecationWarning,
+        )
         super().__init__(ns=ns, id=id, target_id=target_id)
         self.extrude = extrude
         self.tessellate = tessellate
@@ -302,6 +307,11 @@ class Geometry(_BaseObject):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
+        warnings.warn(
+            "Geometry.etree_element is deprecated. "
+            "Use the subclasses of _Geometry instead.",
+            DeprecationWarning,
+        )
         if isinstance(self.geometry, geo.Point):
             return self._etree_point(self.geometry)
         elif isinstance(self.geometry, geo.LinearRing):
@@ -471,6 +481,11 @@ class Geometry(_BaseObject):
         return None
 
     def from_element(self, element: Element) -> None:
+        warnings.warn(
+            "Geometry.from_element is deprecated. "
+            "Use the subclasses of _Geometry instead.",
+            DeprecationWarning,
+        )
         geom = self._get_geometry(element)
         if geom is not None:
             self.geometry = geom
