@@ -15,11 +15,13 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the geometry classes."""
-import pygeoif.geometry as geo
-import pytest
 
 from fastkml.geometry import AltitudeMode
-from fastkml.geometry import Geometry
+from fastkml.geometry import LinearRing
+from fastkml.geometry import LineString
+from fastkml.geometry import MultiGeometry
+from fastkml.geometry import Point
+from fastkml.geometry import Polygon
 from fastkml.geometry import _Geometry
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -27,64 +29,6 @@ from tests.base import StdLibrary
 
 class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
-
-    def test_altitude_mode(self) -> None:
-        geom = Geometry()
-        geom.geometry = geo.Point(0, 1)
-        assert geom.altitude_mode is None
-        assert "altitudeMode" not in str(geom.to_string())
-        geom.altitude_mode = "unknown"
-        pytest.raises(AttributeError, geom.to_string)
-        geom.altitude_mode = AltitudeMode("clampToSeaFloor")
-        assert "altitudeMode>clampToSeaFloor</" in str(geom.to_string())
-        geom.altitude_mode = AltitudeMode("relativeToSeaFloor")
-        assert "altitudeMode>relativeToSeaFloor</" in str(geom.to_string())
-        geom.altitude_mode = AltitudeMode("clampToGround")
-        assert "altitudeMode>clampToGround</" in str(geom.to_string())
-        geom.altitude_mode = AltitudeMode("relativeToGround")
-        assert "altitudeMode>relativeToGround</" in str(geom.to_string())
-        geom.altitude_mode = AltitudeMode("absolute")
-        assert "altitudeMode>absolute</" in str(geom.to_string())
-
-    def test_extrude(self) -> None:
-        geom = Geometry()
-        assert geom.extrude is False
-        geom.geometry = geo.Point(0, 1)
-        geom.extrude = False
-        assert "extrude" not in str(geom.to_string())
-        geom.extrude = True
-        geom.altitude_mode = AltitudeMode("clampToGround")
-        assert "extrude" not in str(geom.to_string())
-        geom.altitude_mode = AltitudeMode("relativeToGround")
-        assert "extrude>1</" in str(geom.to_string())
-        geom.altitude_mode = AltitudeMode("absolute")
-        assert "extrude>1</" in str(geom.to_string())
-
-    def test_tesselate(self) -> None:
-        geom = Geometry()
-        assert geom.tessellate is False
-        geom.geometry = geo.LineString([(0, 0), (1, 1)])
-        assert "tessellate" not in str(geom.to_string())
-        geom.altitude_mode = AltitudeMode("clampToGround")
-        assert "tessellate" not in str(geom.to_string())
-        geom.altitude_mode = AltitudeMode("relativeToGround")
-        assert "tessellate" not in str(geom.to_string())
-        geom.altitude_mode = AltitudeMode("absolute")
-        assert "tessellate" not in str(geom.to_string())
-        geom.tessellate = True
-        geom.altitude_mode = None
-        assert "tessellate" not in str(geom.to_string())
-        geom.altitude_mode = AltitudeMode("relativeToGround")
-        assert "tessellate" not in str(geom.to_string())
-        geom.altitude_mode = AltitudeMode("absolute")
-        assert "tessellate" not in str(geom.to_string())
-        geom.altitude_mode = AltitudeMode("clampToGround")
-        # XXX assert "tessellate>1</" in str(geom.to_string())
-        # for geometries != LineString tesselate is ignored
-        geom.geometry = geo.Point(0, 1)
-        assert "tessellate" not in str(geom.to_string())
-        geom.geometry = geo.Polygon([(0, 0), (1, 0), (1, 1), (0, 0)])
-        assert "tessellate" not in str(geom.to_string())
 
 
 class TestGetGeometry(StdLibrary):
@@ -94,9 +38,8 @@ class TestGetGeometry(StdLibrary):
           <kml:altitudeMode>clampToGround</kml:altitudeMode>
         </kml:Point>"""
 
-        g = Geometry()
-        assert g.altitude_mode is None
-        g.from_string(doc)
+        g = Point.class_from_string(doc)
+
         assert g.altitude_mode == AltitudeMode("clampToGround")
 
     def test_extrude(self) -> None:
@@ -105,9 +48,8 @@ class TestGetGeometry(StdLibrary):
           <kml:extrude>1</kml:extrude>
         </kml:Point>"""
 
-        g = Geometry()
-        assert g.extrude is False
-        g.from_string(doc)
+        g = Point.class_from_string(doc)
+
         assert g.extrude is True
 
     def test_tesselate(self) -> None:
@@ -116,9 +58,8 @@ class TestGetGeometry(StdLibrary):
           <kml:tessellate>1</kml:tessellate>
         </kml:Point>"""
 
-        g = Geometry()
-        assert g.tessellate is False
-        g.from_string(doc)
+        g = Point.class_from_string(doc)
+
         assert g.tessellate is True
 
     def test_point(self) -> None:
@@ -126,8 +67,8 @@ class TestGetGeometry(StdLibrary):
           <kml:coordinates>0.000000,1.000000</kml:coordinates>
         </kml:Point>"""
 
-        g = Geometry()
-        g.from_string(doc)
+        g = Point.class_from_string(doc)
+
         assert g.geometry.__geo_interface__ == {
             "type": "Point",
             "bbox": (0.0, 1.0, 0.0, 1.0),
@@ -139,8 +80,8 @@ class TestGetGeometry(StdLibrary):
             <kml:coordinates>0.000000,0.000000 1.000000,1.000000</kml:coordinates>
         </kml:LineString>"""
 
-        g = Geometry()
-        g.from_string(doc)
+        g = LineString.class_from_string(doc)
+
         assert g.geometry.__geo_interface__ == {
             "type": "LineString",
             "bbox": (0.0, 0.0, 1.0, 1.0),
@@ -154,8 +95,8 @@ class TestGetGeometry(StdLibrary):
         </kml:LinearRing>
         """
 
-        g = Geometry()
-        g.from_string(doc)
+        g = LinearRing.class_from_string(doc)
+
         assert g.geometry.__geo_interface__ == {
             "type": "LinearRing",
             "bbox": (0.0, 0.0, 1.0, 1.0),
@@ -173,13 +114,15 @@ class TestGetGeometry(StdLibrary):
         </kml:Polygon>
         """
 
-        g = Geometry()
-        g.from_string(doc)
+        g = Polygon.class_from_string(doc)
+
         assert g.geometry.__geo_interface__ == {
             "type": "Polygon",
             "bbox": (0.0, 0.0, 1.0, 1.0),
             "coordinates": (((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0)),),
         }
+
+    def test_polygon_with_inner_boundary(self) -> None:
         doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:outerBoundaryIs>
             <kml:LinearRing>
@@ -196,7 +139,8 @@ class TestGetGeometry(StdLibrary):
         </kml:Polygon>
         """
 
-        g.from_string(doc)
+        g = Polygon.class_from_string(doc)
+
         assert g.geometry.__geo_interface__ == {
             "type": "Polygon",
             "bbox": (-1.0, -1.0, 2.0, 2.0),
@@ -218,8 +162,8 @@ class TestGetGeometry(StdLibrary):
         </kml:MultiGeometry>
         """
 
-        g = Geometry()
-        g.from_string(doc)
+        g = MultiGeometry.class_from_string(doc)
+
         assert len(g.geometry) == 2
 
     def test_multilinestring(self) -> None:
@@ -234,8 +178,8 @@ class TestGetGeometry(StdLibrary):
         </kml:MultiGeometry>
         """
 
-        g = Geometry()
-        g.from_string(doc)
+        g = MultiGeometry.class_from_string(doc)
+
         assert len(g.geometry) == 2
 
     def test_multipolygon(self) -> None:
@@ -266,8 +210,8 @@ class TestGetGeometry(StdLibrary):
         </kml:MultiGeometry>
         """
 
-        g = Geometry()
-        g.from_string(doc)
+        g = MultiGeometry.class_from_string(doc)
+
         assert len(g.geometry) == 2
 
     def test_geometrycollection(self) -> None:
@@ -292,9 +236,11 @@ class TestGetGeometry(StdLibrary):
         </kml:MultiGeometry>
         """
 
-        g = Geometry()
-        g.from_string(doc)
+        g = MultiGeometry.class_from_string(doc)
+
         assert len(g.geometry) == 4
+
+    def test_geometrycollection_with_linearring(self) -> None:
         doc = """
         <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:LinearRing>
@@ -306,8 +252,8 @@ class TestGetGeometry(StdLibrary):
         </kml:MultiGeometry>
         """
 
-        g = Geometry()
-        g.from_string(doc)
+        g = MultiGeometry.class_from_string(doc)
+
         assert len(g.geometry) == 2
         assert g.geometry.geom_type == "GeometryCollection"
 
