@@ -97,8 +97,8 @@ logger = logging.getLogger(__name__)
 class GxGeometry(Geometry):
     def __init__(
         self,
-        ns: None = None,
-        id: None = None,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
     ) -> None:
         """
         gxgeometry: a read-only subclass of geometry supporting gx: features,

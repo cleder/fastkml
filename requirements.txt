@@ -1,3 +1,4 @@
 # Base package requirements
-pygeoif>=1.0.0
+pygeoif>=1.1.0
 python-dateutil
+typing_extensions
