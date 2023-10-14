@@ -35,6 +35,9 @@ warn_unreachable = true
 warn_no_return = true
 warn_return_any = true
 show_error_codes = true
+enable_error_code = [
+    "ignore-without-code"
+]
 
 # mypy per-module options:
 
@@ -44,3 +47,8 @@ module = [
     "fastkml.tests.oldunit_test", "fastkml.tests.config_test"
 ]
 ignore_errors = true
+
+[tool.ruff]
+[tool.ruff.extend-per-file-ignores]
+"tests/oldunit_test.py" = ["E501"]
+"setup.py" = ["E501"]

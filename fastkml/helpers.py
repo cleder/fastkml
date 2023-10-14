@@ -109,7 +109,7 @@ def o_from_subelement_text(
             )
         else:
             setattr(obj, obj_attr, elem.text)
-    elif required:  # type: ignore[unreachable]
+    elif required:
         logger.warning(
             "Required attribute '%s' for '%s' missing.",
             kml_attr,

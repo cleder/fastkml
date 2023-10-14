@@ -6,6 +6,7 @@ from typing import Union
 import fastkml.config as config
 import fastkml.gx as gx
 from fastkml.base import _BaseObject
+from fastkml.enums import Verbosity
 from fastkml.mixins import TimeMixin
 from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
@@ -196,8 +197,12 @@ class _AbstractView(TimeMixin, _BaseObject):
             s.from_element(timestamp)
             self._timestamp = s
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.longitude:
             longitude = config.etree.SubElement(element, f"{self.ns}longitude")
             longitude.text = str(self.longitude)
@@ -292,8 +297,12 @@ class Camera(_AbstractView):
         if roll is not None:
             self.roll = roll.text
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.roll:
             roll = config.etree.SubElement(element, f"{self.ns}roll")
             roll.text = str(self.roll)
@@ -367,8 +376,12 @@ class LookAt(_AbstractView):
         if range_var is not None:
             self.range = range_var.text
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.range:
             range_var = config.etree.SubElement(element, f"{self.ns}range")
             range_var.text = str(self._range)

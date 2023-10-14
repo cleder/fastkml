@@ -38,6 +38,7 @@ from typing import Tuple
 
 from fastkml.base import _XMLObject
 from fastkml.config import ATOMNS as NS
+from fastkml.enums import Verbosity
 from fastkml.helpers import o_from_attr
 from fastkml.helpers import o_from_subelement_text
 from fastkml.helpers import o_int_from_attr
@@ -167,8 +168,12 @@ class Link(_XMLObject):
     def from_element(self, element: Element) -> None:
         super().from_element(element)
 
-    def etree_element(self) -> Element:
-        return super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        return super().etree_element(precision=precision, verbosity=verbosity)
 
 
 class _Person(_XMLObject):
@@ -227,8 +232,12 @@ class _Person(_XMLObject):
         self.uri = uri
         self.email = email
 
-    def etree_element(self) -> Element:
-        return super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        return super().etree_element(precision=precision, verbosity=verbosity)
 
     def from_element(self, element: Element) -> None:
         super().from_element(element)
