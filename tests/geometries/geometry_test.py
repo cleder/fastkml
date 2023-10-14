@@ -27,10 +27,6 @@ from tests.base import Lxml
 from tests.base import StdLibrary
 
 
-class TestStdLibrary(StdLibrary):
-    """Test with the standard library."""
-
-
 class TestGetGeometry(StdLibrary):
     def test_altitude_mode(self) -> None:
         doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
@@ -390,10 +386,6 @@ class TestGeometry(StdLibrary):
         assert g.extrude is True
         assert g.altitude_mode == AltitudeMode.relative_to_ground
         assert g.tessellate is True
-
-
-class TestLxml(Lxml, TestStdLibrary):
-    """Test with lxml."""
 
 
 class TestGetGeometryLxml(Lxml, TestGetGeometry):

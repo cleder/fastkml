@@ -1,4 +1,4 @@
-# Copyright (C) 2012 - 2022 Christian Ledermann
+# Copyright (C) 2012 - 2023 Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -75,20 +75,21 @@ Elements that currently use the gx prefix are:
 The complete XML schema for elements in this extension namespace is
 located at http://developers.google.com/kml/schema/kml22gx.xsd.
 """
-
+import datetime
 import logging
 from typing import List
 from typing import Optional
+from typing import Sequence
 from typing import Union
 from typing import cast
 
-from pygeoif.geometry import GeometryCollection
-from pygeoif.geometry import LineString
-from pygeoif.geometry import MultiLineString
+import pygeoif.geometry as geo
 from pygeoif.types import PointType
 
 from fastkml.config import GXNS as NS
+from fastkml.enums import AltitudeMode
 from fastkml.geometry import Geometry
+from fastkml.geometry import _Geometry
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
@@ -107,12 +108,12 @@ class GxGeometry(Geometry):
         super().__init__(ns, id)
         self.ns = NS if ns is None else ns
 
-    def _get_geometry(self, element: Element) -> Optional[LineString]:
+    def _get_geometry(self, element: Element) -> Optional[geo.LineString]:
         # Track
         if element.tag == (f"{self.ns}Track"):
             coords = self._get_coordinates(element)
             self._get_geometry_spec(element)
-            return LineString(
+            return geo.LineString(
                 coords,
             )
         return None
@@ -120,7 +121,7 @@ class GxGeometry(Geometry):
     def _get_multigeometry(
         self,
         element: Element,
-    ) -> Union[MultiLineString, GeometryCollection, None]:
+    ) -> Union[geo.MultiLineString, geo.GeometryCollection, None]:
         # MultiTrack
         geoms = []
         if element.tag == (f"{self.ns}MultiTrack"):
@@ -128,16 +129,16 @@ class GxGeometry(Geometry):
             for track in tracks:
                 self._get_geometry_spec(track)
                 geoms.append(
-                    LineString(
+                    geo.LineString(
                         self._get_coordinates(track),
                     )
                 )
 
         geom_types = {geom.geom_type for geom in geoms}
         if len(geom_types) > 1:
-            return GeometryCollection(geoms)
+            return geo.GeometryCollection(geoms)
         if "LineString" in geom_types:
-            return MultiLineString.from_linestrings(*geoms)
+            return geo.MultiLineString.from_linestrings(*geoms)
         return None
 
     def _get_coordinates(self, element: Element) -> List[PointType]:
@@ -148,6 +149,44 @@ class GxGeometry(Geometry):
                 for coord in coordinates
             ]
         return []  # type: ignore[unreachable]
+
+
+class Track(_Geometry):
+    """
+    A track describes how an object moves through the world over a given time period.
+
+    This feature allows you to create one visible object in Google Earth
+    (either a Point icon or a Model) that encodes multiple positions for the same object
+    for multiple times. In Google Earth, the time slider allows the user to move the
+    view through time, which animates the position of the object.
+
+    Tracks are a more efficient mechanism for associating time data with visible
+    Features, since you create only one Feature, which can be associated with multiple
+    time elements as the object moves through space.
+    """
+
+    def __init__(
+        self,
+        *,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        extrude: Optional[bool] = False,
+        tessellate: Optional[bool] = False,
+        altitude_mode: Optional[AltitudeMode] = None,
+        geometry: Sequence[Optional[geo.Point]],
+        times: Optional[Sequence[Optional[datetime.datetime]]] = None,
+    ) -> None:
+        super().__init__(
+            ns=ns,
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+        self.times = times
 
 
 __all__ = ["GxGeometry"]

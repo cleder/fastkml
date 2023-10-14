@@ -518,7 +518,9 @@ class _Geometry(_BaseObject):
         extrude: Optional[bool] = False,
         tessellate: Optional[bool] = False,
         altitude_mode: Optional[AltitudeMode] = None,
-        geometry: Optional[AnyGeometryType] = None,
+        geometry: Union[
+            Optional[AnyGeometryType], Sequence[Optional[geo.Point]]
+        ] = None,
     ) -> None:
         """
 

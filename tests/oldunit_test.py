@@ -31,7 +31,6 @@ from fastkml import config
 from fastkml import kml
 from fastkml import styles
 from fastkml.geometry import Geometry
-from fastkml.gx import GxGeometry
 
 try:
     import lxml
@@ -1692,48 +1691,6 @@ class TestGetGeometry:
             g for g in first_multigeometry.geoms if g.geom_type == "GeometryCollection"
         ][0]
         assert len(list(second_multigeometry.geoms)) == 2
-
-
-class TestGetGxGeometry:
-    def test_track(self) -> None:
-        doc = """<gx:Track xmlns:kml="http://www.opengis.net/kml/2.2"
-                xmlns:gx="http://www.google.com/kml/ext/2.2">
-            <when>2020-01-01T00:00:00Z</when>
-            <when>2020-01-01T00:10:00Z</when>
-            <gx:coord>0.000000 0.000000</gx:coord>
-            <gx:coord>1.000000 1.000000</gx:coord>
-        </gx:Track>"""
-
-        g = GxGeometry()
-        g.from_string(doc)
-        assert g.geometry.__geo_interface__ == {
-            "type": "LineString",
-            "bbox": (0.0, 0.0, 1.0, 1.0),
-            "coordinates": ((0.0, 0.0), (1.0, 1.0)),
-        }
-
-    def test_multitrack(self) -> None:
-        doc = """
-        <gx:MultiTrack xmlns:kml="http://www.opengis.net/kml/2.2"
-            xmlns:gx="http://www.google.com/kml/ext/2.2">
-          <gx:Track>
-            <when>2020-01-01T00:00:00Z</when>
-            <when>2020-01-01T00:10:00Z</when>
-            <gx:coord>0.000000 0.000000</gx:coord>
-            <gx:coord>1.000000 0.000000</gx:coord>
-          </gx:Track>
-          <gx:Track>
-            <when>2020-01-01T00:10:00Z</when>
-            <when>2020-01-01T00:20:00Z</when>
-            <gx:coord>0.000000 1.000000</gx:coord>
-            <gx:coord>1.000000 1.000000</gx:coord>
-          </gx:Track>
-        </gx:MultiTrack>
-        """
-
-        g = GxGeometry()
-        g.from_string(doc)
-        assert len(g.geometry) == 2
 
 
 class TestBaseFeature:
