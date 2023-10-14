@@ -706,6 +706,16 @@ class _Geometry(_BaseObject):
         }
 
     @classmethod
+    def _get_geometry(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> Optional[AnyGeometryType]:
+        return None
+
+    @classmethod
     def _get_kwargs(
         cls,
         *,
@@ -715,6 +725,9 @@ class _Geometry(_BaseObject):
     ) -> Dict[str, Any]:
         kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
         kwargs.update(cls._get_geometry_kwargs(ns=ns, element=element, strict=strict))
+        kwargs.update(
+            {"geometry": cls._get_geometry(ns=ns, element=element, strict=strict)}
+        )
         return kwargs
 
 
@@ -770,28 +783,6 @@ class Point(_Geometry):
             ).decode("UTF-8")
             raise KMLParseError(f"Invalid coordinates in {error}") from e
 
-    @classmethod
-    def _get_point_kwargs(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        return {"geometry": cls._get_geometry(ns=ns, element=element, strict=strict)}
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
-        kwargs.update(cls._get_point_kwargs(ns=ns, element=element, strict=strict))
-        return kwargs
-
 
 class LineString(_Geometry):
     def __init__(
@@ -844,28 +835,6 @@ class LineString(_Geometry):
                 encoding="UTF-8",
             ).decode("UTF-8")
             raise KMLParseError(f"Invalid coordinates in {error}") from e
-
-    @classmethod
-    def _get_linestring_kwargs(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        return {"geometry": cls._get_geometry(ns=ns, element=element, strict=strict)}
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
-        kwargs.update(cls._get_linestring_kwargs(ns=ns, element=element, strict=strict))
-        return kwargs
 
 
 class LinearRing(LineString):
@@ -998,28 +967,6 @@ class Polygon(_Geometry):
             )
         return geo.Polygon.from_linear_rings(exterior, *interiors)
 
-    @classmethod
-    def _get_polygon_kwargs(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        return {"geometry": cls._get_geometry(ns=ns, element=element, strict=strict)}
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
-        kwargs.update(cls._get_polygon_kwargs(ns=ns, element=element, strict=strict))
-        return kwargs
-
 
 def create_multigeometry(
     geometries: Sequence[AnyGeometryType],
@@ -1123,27 +1070,3 @@ class MultiGeometry(_Geometry):
                 if geometry is not None:
                     geometries.append(geometry)
         return create_multigeometry(geometries)
-
-    @classmethod
-    def _get_multigeometry_kwargs(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        return {"geometry": cls._get_geometry(ns=ns, element=element, strict=strict)}
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
-        kwargs.update(
-            cls._get_multigeometry_kwargs(ns=ns, element=element, strict=strict)
-        )
-        return kwargs
