@@ -931,24 +931,6 @@ class Polygon(_Geometry):
             geometry=geometry,
         )
 
-    @classmethod
-    def _get_geometry(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> geo.LinearRing:
-        coords = cls._get_coordinates(ns=ns, element=element, strict=strict)
-        try:
-            return cast(geo.LinearRing, geo.LinearRing.from_coordinates(coords))
-        except (IndexError, TypeError) as e:
-            error = config.etree.tostring(  # type: ignore[attr-defined]
-                element,
-                encoding="UTF-8",
-            ).decode("UTF-8")
-            raise KMLParseError(f"Invalid coordinates in {error}") from e
-
     def etree_element(
         self,
         precision: Optional[int] = None,
@@ -986,13 +968,7 @@ class Polygon(_Geometry):
         return element
 
     @classmethod
-    def _get_polygon_kwargs(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
+    def _get_geometry(cls, *, ns: str, element: Element, strict: bool) -> geo.Polygon:
         outer_boundary = element.find(f"{ns}outerBoundaryIs")
         if outer_boundary is None:
             error = config.etree.tostring(  # type: ignore[attr-defined]
@@ -1007,7 +983,7 @@ class Polygon(_Geometry):
                 encoding="UTF-8",
             ).decode("UTF-8")
             raise KMLParseError(f"Missing LinearRing in {error}")
-        exterior = cls._get_geometry(ns=ns, element=outer_ring, strict=strict)
+        exterior = LinearRing._get_geometry(ns=ns, element=outer_ring, strict=strict)
         interiors = []
         for inner_boundary in element.findall(f"{ns}innerBoundaryIs"):
             inner_ring = inner_boundary.find(f"{ns}LinearRing")
@@ -1018,9 +994,19 @@ class Polygon(_Geometry):
                 ).decode("UTF-8")
                 raise KMLParseError(f"Missing LinearRing in {error}")
             interiors.append(
-                cls._get_geometry(ns=ns, element=inner_ring, strict=strict)
+                LinearRing._get_geometry(ns=ns, element=inner_ring, strict=strict)
             )
-        return {"geometry": geo.Polygon.from_linear_rings(exterior, *interiors)}
+        return geo.Polygon.from_linear_rings(exterior, *interiors)
+
+    @classmethod
+    def _get_polygon_kwargs(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        return {"geometry": cls._get_geometry(ns=ns, element=element, strict=strict)}
 
     @classmethod
     def _get_kwargs(
@@ -1035,12 +1021,43 @@ class Polygon(_Geometry):
         return kwargs
 
 
+def create_multigeometry(
+    geometries: Sequence[AnyGeometryType],
+) -> Optional[MultiGeometryType]:
+    """Create a MultiGeometry from a sequence of geometries.
+
+    Args:
+        geometries: Sequence of geometries.
+
+    Returns:
+        MultiGeometry
+
+    """
+    geom_types = {geom.geom_type for geom in geometries}
+    if not geom_types:
+        return None
+    if len(geom_types) == 1:
+        geom_type = geom_types.pop()
+        map_to_geometries = {
+            geo.Point.__name__: geo.MultiPoint.from_points,
+            geo.LineString.__name__: geo.MultiLineString.from_linestrings,
+            geo.Polygon.__name__: geo.MultiPolygon.from_polygons,
+        }
+        for geometry_name, constructor in map_to_geometries.items():
+            if geom_type == geometry_name:
+                return constructor(  # type: ignore[operator, no-any-return]
+                    *geometries,
+                )
+
+    return geo.GeometryCollection(geometries)
+
+
 class MultiGeometry(_Geometry):
     map_to_kml = {
         geo.Point: Point,
         geo.LineString: LineString,
-        geo.LinearRing: LinearRing,
         geo.Polygon: Polygon,
+        geo.LinearRing: LinearRing,
     }
     multi_geometries = (
         geo.MultiPoint,
@@ -1095,6 +1112,19 @@ class MultiGeometry(_Geometry):
         return element
 
     @classmethod
+    def _get_geometry(
+        cls, *, ns: str, element: Element, strict: bool
+    ) -> Optional[MultiGeometryType]:
+        geometries = []
+        allowed_geometries = (cls,) + tuple(cls.map_to_kml.values())
+        for g in allowed_geometries:
+            for e in element.findall(f"{ns}{g.__name__}"):
+                geometry = g._get_geometry(ns=ns, element=e, strict=strict)
+                if geometry is not None:
+                    geometries.append(geometry)
+        return create_multigeometry(geometries)
+
+    @classmethod
     def _get_multigeometry_kwargs(
         cls,
         *,
@@ -1102,16 +1132,7 @@ class MultiGeometry(_Geometry):
         element: Element,
         strict: bool,
     ) -> Dict[str, Any]:
-        geometries = []
-        allowed_geometries = (cls,) + tuple(cls.map_to_kml.values())
-        for g in allowed_geometries:
-            for e in element.findall(f"{ns}{g.__name__}"):
-                geometry = g._get_geometry(  # type: ignore[attr-defined]
-                    ns=ns, element=e, strict=strict
-                )
-                if geometry is not None:
-                    geometries.append(geometry)
-        return {"geometry": geo.GeometryCollection(geometries)}
+        return {"geometry": cls._get_geometry(ns=ns, element=element, strict=strict)}
 
     @classmethod
     def _get_kwargs(

@@ -17,6 +17,7 @@ from enum import Enum
 from enum import unique
 
 
+@unique
 class Verbosity(Enum):
     """Enum to represent the different verbosity levels."""
 

@@ -51,3 +51,4 @@ ignore_errors = true
 [tool.ruff]
 [tool.ruff.extend-per-file-ignores]
 "tests/oldunit_test.py" = ["E501"]
+"setup.py" = ["E501"]

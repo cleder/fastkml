@@ -46,6 +46,17 @@ class TestMultiPointStdLibrary(StdLibrary):
         assert "MultiGeometry>" in mg.to_string()
         assert "Point>" in mg.to_string()
 
+    def test_2_points_read(self) -> None:
+        xml = (
+            "<MultiGeometry><extrude>0</extrude><tessellate>0</tessellate>"
+            "<Point><coordinates>1.000000,2.000000</coordinates></Point>"
+            "<Point><coordinates>3.000000,4.000000</coordinates></Point></MultiGeometry>"
+        )
+
+        mg = MultiGeometry.class_from_string(xml, ns="")
+
+        assert mg.geometry == geo.MultiPoint([(1, 2), (3, 4)])
+
 
 class TestMultiLineStringStdLibrary(StdLibrary):
     def test_1_linestring(self):
@@ -68,6 +79,19 @@ class TestMultiLineStringStdLibrary(StdLibrary):
         assert "coordinates>5.000000,6.000000 7.000000,8.000000</" in mg.to_string()
         assert "MultiGeometry>" in mg.to_string()
         assert "LineString>" in mg.to_string()
+
+    def test_2_linestrings_read(self) -> None:
+        xml = (
+            "<MultiGeometry><extrude>0</extrude><tessellate>0</tessellate>"
+            "<LineString><coordinates>1.000000,2.000000 3.000000,4.000000</coordinates>"
+            "</LineString><LineString>"
+            "<coordinates>5.000000,6.000000 7.000000,8.000000</coordinates>"
+            "</LineString></MultiGeometry>"
+        )
+
+        mg = MultiGeometry.class_from_string(xml, ns="")
+
+        assert mg.geometry == geo.MultiLineString([[(1, 2), (3, 4)], [(5, 6), (7, 8)]])
 
 
 class TestMultiPolygonStdLibrary(StdLibrary):
@@ -142,6 +166,35 @@ class TestMultiPolygonStdLibrary(StdLibrary):
         assert "outerBoundaryIs>" in mg.to_string()
         assert "innerBoundaryIs>" in mg.to_string()
 
+    def test_2_polygons_read(self) -> None:
+        xml = (
+            "<MultiGeometry><extrude>0</extrude><tessellate>0</tessellate>"
+            "<Polygon><outerBoundaryIs><LinearRing>"
+            "<coordinates>0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
+            "1.000000,0.000000 0.000000,0.000000</coordinates>"
+            "</LinearRing></outerBoundaryIs>"
+            "<innerBoundaryIs><LinearRing>"
+            "<coordinates>0.100000,0.100000 0.100000,0.200000 0.200000,0.200000 "
+            "0.200000,0.100000 0.100000,0.100000</coordinates>"
+            "</LinearRing></innerBoundaryIs></Polygon>"
+            "<Polygon><outerBoundaryIs><LinearRing>"
+            "<coordinates>0.000000,0.000000 0.000000,2.000000 1.000000,1.000000 "
+            "1.000000,0.000000 0.000000,0.000000</coordinates>"
+            "</LinearRing></outerBoundaryIs></Polygon></MultiGeometry>"
+        )
+
+        mg = MultiGeometry.class_from_string(xml, ns="")
+
+        assert mg.geometry == geo.MultiPolygon(
+            [
+                (
+                    ((0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0.0)),
+                    [((0.1, 0.1), (0.1, 0.2), (0.2, 0.2), (0.2, 0.1))],
+                ),
+                (((0.0, 0.0), (0.0, 2.0), (1.0, 1.0), (1.0, 0.0)),),
+            ],
+        )
+
 
 class TestGeometryCollectionStdLibrary(StdLibrary):
     """Test heterogeneous geometry collections."""
@@ -201,6 +254,96 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
         assert "LinearRing>" in mg.to_string()
         assert "Polygon>" in mg.to_string()
         assert "MultiGeometry>" in mg.to_string()
+
+    def test_multi_geometries_read(self) -> None:
+        xml = (
+            "<MultiGeometry><extrude>0</extrude><tessellate>0</tessellate>"
+            "<MultiGeometry><Point><coordinates>1.000000,2.000000</coordinates></Point>"
+            "<LineString><coordinates>1.000000,2.000000 2.000000,0.000000</coordinates>"
+            "</LineString><LinearRing><coordinates>0.000000,0.000000 0.000000,1.000000 "
+            "1.000000,1.000000 1.000000,0.000000 0.000000,0.000000</coordinates>"
+            "</LinearRing><Polygon><outerBoundaryIs><LinearRing>"
+            "<coordinates>0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
+            "1.000000,0.000000 0.000000,0.000000</coordinates></LinearRing>"
+            "</outerBoundaryIs><innerBoundaryIs><LinearRing>"
+            "<coordinates>0.100000,0.100000 0.100000,0.900000 0.900000,0.900000 "
+            "0.900000,0.100000 0.100000,0.100000</coordinates></LinearRing>"
+            "</innerBoundaryIs></Polygon></MultiGeometry>"
+            "<MultiGeometry><Polygon><outerBoundaryIs><LinearRing>"
+            "<coordinates>0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
+            "1.000000,0.000000 0.000000,0.000000</coordinates></LinearRing>"
+            "</outerBoundaryIs><innerBoundaryIs><LinearRing>"
+            "<coordinates>0.100000,0.100000 0.100000,0.200000 0.200000,0.200000 "
+            "0.200000,0.100000 0.100000,0.100000</coordinates></LinearRing>"
+            "</innerBoundaryIs></Polygon>"
+            "<Polygon><outerBoundaryIs><LinearRing>"
+            "<coordinates>0.000000,0.000000 0.000000,2.000000 1.000000,1.000000 "
+            "1.000000,0.000000 0.000000,0.000000</coordinates></LinearRing>"
+            "</outerBoundaryIs></Polygon></MultiGeometry><MultiGeometry><LineString>"
+            "<coordinates>1.000000,2.000000 3.000000,4.000000</coordinates>"
+            "</LineString><LineString><coordinates>5.000000,6.000000 7.000000,8.000000"
+            "</coordinates></LineString></MultiGeometry></MultiGeometry>"
+        )
+
+        mg = MultiGeometry.class_from_string(xml, ns="")
+
+        assert mg.geometry == geo.GeometryCollection(
+            (
+                geo.GeometryCollection(
+                    (
+                        geo.Point(1.0, 2.0),
+                        geo.LineString(((1.0, 2.0), (2.0, 0.0))),
+                        geo.Polygon(
+                            (
+                                (0.0, 0.0),
+                                (0.0, 1.0),
+                                (1.0, 1.0),
+                                (1.0, 0.0),
+                                (0.0, 0.0),
+                            ),
+                            (
+                                (
+                                    (0.1, 0.1),
+                                    (0.1, 0.9),
+                                    (0.9, 0.9),
+                                    (0.9, 0.1),
+                                    (0.1, 0.1),
+                                ),
+                            ),
+                        ),
+                        geo.LinearRing(
+                            ((0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0.0), (0.0, 0.0))
+                        ),
+                    )
+                ),
+                geo.MultiPolygon(
+                    (
+                        (
+                            (
+                                (0.0, 0.0),
+                                (0.0, 1.0),
+                                (1.0, 1.0),
+                                (1.0, 0.0),
+                                (0.0, 0.0),
+                            ),
+                            (
+                                (
+                                    (0.1, 0.1),
+                                    (0.1, 0.2),
+                                    (0.2, 0.2),
+                                    (0.2, 0.1),
+                                    (0.1, 0.1),
+                                ),
+                            ),
+                        ),
+                        (((0.0, 0.0), (0.0, 2.0), (1.0, 1.0), (1.0, 0.0), (0.0, 0.0)),),
+                    )
+                ),
+                geo.MultiLineString(
+                    (((1.0, 2.0), (3.0, 4.0)), ((5.0, 6.0), (7.0, 8.0)))
+                ),
+            )
+        )
 
 
 class TestMultiPointLxml(Lxml, TestMultiPointStdLibrary):
