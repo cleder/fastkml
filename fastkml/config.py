@@ -51,11 +51,14 @@ KMLNS = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
 ATOMNS = "{http://www.w3.org/2005/Atom}"  # noqa: FS003
 GXNS = "{http://www.google.com/kml/ext/2.2}"  # noqa: FS003
 
-DEFAULT_NAME_SPACES = {
-    "kml": KMLNS[1:-1],
-    "atom": ATOMNS[1:-1],
-    "gx": GXNS[1:-1],
+NAME_SPACES = {
+    "kml": KMLNS,
+    "atom": ATOMNS,
+    "gx": GXNS,
 }
+
+
+DEFAULT_NAME_SPACES = {k: v[1:-1] for k, v in NAME_SPACES.items()}
 
 
 def register_namespaces(**namespaces: str) -> None:

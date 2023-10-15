@@ -34,7 +34,6 @@ from fastkml.data import Data
 from fastkml.data import ExtendedData
 from fastkml.data import Schema
 from fastkml.data import SchemaData
-from fastkml.gx import GxGeometry
 from fastkml.kml import KML
 from fastkml.kml import Document
 from fastkml.kml import Folder
@@ -66,7 +65,6 @@ __all__ = [
     "TimeStamp",
     "ExtendedData",
     "Data",
-    "GxGeometry",
     "Schema",
     "SchemaData",
     "StyleUrl",
