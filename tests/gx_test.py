@@ -55,14 +55,14 @@ class TestGetGxGeometry(StdLibrary):
         <gx:MultiTrack xmlns:kml="http://www.opengis.net/kml/2.2"
             xmlns:gx="http://www.google.com/kml/ext/2.2">
           <gx:Track>
-            <kml:when>2020-01-01T00:00:00Z</kml:when>
-            <kml:when>2020-01-01T00:10:00Z</kml:when>
+            <kml:when>2020-01-01T00:00:00+00:00</kml:when>
+            <kml:when>2020-01-01T00:10:00+00:00</kml:when>
             <gx:coord>0.000000 0.000000</gx:coord>
             <gx:coord>1.000000 0.000000</gx:coord>
           </gx:Track>
           <gx:Track>
-            <kml:when>2020-01-01T00:10:00Z</kml:when>
-            <kml:when>2020-01-01T00:20:00Z</kml:when>
+            <kml:when>2020-01-01T00:10:00+00:00</kml:when>
+            <kml:when>2020-01-01T00:20:00+00:00</kml:when>
             <gx:coord>0.000000 1.000000</gx:coord>
             <gx:coord>1.000000 1.000000</gx:coord>
           </gx:Track>
