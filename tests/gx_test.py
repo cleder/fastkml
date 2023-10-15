@@ -42,9 +42,8 @@ class TestGetGxGeometry(StdLibrary):
             <gx:coord>0.000000 0.000000</gx:coord>
             <gx:coord>1.000000 1.000000</gx:coord>
         </gx:Track>"""
+        g = Track.class_from_string(doc, ns="")
 
-        g = GxGeometry()
-        g.from_string(doc)
         assert g.geometry.__geo_interface__ == {
             "type": "LineString",
             "bbox": (0.0, 0.0, 1.0, 1.0),
