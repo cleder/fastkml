@@ -23,6 +23,7 @@ from dateutil.tz import tzutc
 from fastkml.enums import AltitudeMode
 from fastkml.gx import Angle
 from fastkml.gx import GxGeometry
+from fastkml.gx import MultiTrack
 from fastkml.gx import Track
 from fastkml.gx import TrackItem
 from tests.base import Lxml
@@ -253,6 +254,106 @@ class TestTrack(StdLibrary):
         )
 
 
+class TestMultiTrack(StdLibrary):
+    def test_from_multilinestring(self) -> None:
+        lines = geo.MultiLineString(
+            ([(0, 0), (1, 1), (1, 2), (2, 2)], [[0.0, 0.0], [1.0, 2.0]]),
+        )
+
+        mt = MultiTrack(geometry=lines, ns="")
+
+        assert repr(mt) == repr(
+            MultiTrack(
+                ns="",
+                id=None,
+                target_id=None,
+                extrude=False,
+                tessellate=False,
+                altitude_mode=None,
+                tracks=[
+                    Track(
+                        ns="",
+                        id=None,
+                        target_id=None,
+                        extrude=False,
+                        tessellate=False,
+                        altitude_mode=None,
+                        track_items=[
+                            TrackItem(when=None, coord=geo.Point(0, 0), angle=None),
+                            TrackItem(when=None, coord=geo.Point(1, 1), angle=None),
+                            TrackItem(when=None, coord=geo.Point(1, 2), angle=None),
+                            TrackItem(when=None, coord=geo.Point(2, 2), angle=None),
+                        ],
+                    ),
+                    Track(
+                        ns="",
+                        id=None,
+                        target_id=None,
+                        extrude=False,
+                        tessellate=False,
+                        altitude_mode=None,
+                        track_items=[
+                            TrackItem(when=None, coord=geo.Point(0.0, 0.0), angle=None),
+                            TrackItem(when=None, coord=geo.Point(1.0, 2.0), angle=None),
+                        ],
+                    ),
+                ],
+            )
+        )
+
+    def test_multitrack(self) -> None:
+        track = MultiTrack(
+            ns="",
+            interpolate=True,
+            tracks=[
+                Track(
+                    ns="",
+                    track_items=[
+                        TrackItem(when=None, coord=geo.Point(0, 0), angle=None),
+                        TrackItem(when=None, coord=geo.Point(1, 1), angle=None),
+                        TrackItem(when=None, coord=geo.Point(1, 2), angle=None),
+                        TrackItem(when=None, coord=geo.Point(2, 2), angle=None),
+                    ],
+                ),
+                Track(
+                    ns="",
+                    track_items=[
+                        TrackItem(
+                            when=datetime.datetime(
+                                2010, 5, 28, 2, 2, 55, tzinfo=tzutc()
+                            ),
+                            coord=geo.Point(-122.203451, 37.374706, 141.800003),
+                            angle=Angle(heading=1.0, tilt=2.0, roll=3.0),
+                        ),
+                        TrackItem(
+                            when=datetime.datetime(
+                                2010, 5, 28, 2, 2, 56, tzinfo=tzutc()
+                            ),
+                            coord=geo.Point(-122.203329, 37.37478, 141.199997),
+                            angle=Angle(heading=1.0, tilt=2.0, roll=3.0),
+                        ),
+                    ],
+                ),
+            ],
+        )
+
+        assert track.geometry == geo.MultiLineString(
+            (
+                ((0, 0), (1, 1), (1, 2), (2, 2)),
+                (
+                    (-122.203451, 37.374706, 141.800003),
+                    (-122.203329, 37.37478, 141.199997),
+                ),
+            )
+        )
+        assert "MultiTrack>" in track.to_string()
+        assert "interpolate>1</" in track.to_string()
+        assert "Track>" in track.to_string()
+        assert "coord>" in track.to_string()
+        assert "angles>" in track.to_string()
+        assert "when>" in track.to_string()
+
+
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
 
@@ -262,4 +363,8 @@ class TestLxmlGetGxGeometry(Lxml, TestGetGxGeometry):
 
 
 class TestLxmlTrack(Lxml, TestTrack):
+    """Test with lxml."""
+
+
+class TestLxmlMultiTrack(Lxml, TestMultiTrack):
     """Test with lxml."""

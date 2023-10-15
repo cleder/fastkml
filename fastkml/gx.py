@@ -252,9 +252,9 @@ class Track(_Geometry):
             raise ValueError("Cannot specify both geometry and track_items")
         if geometry:
             track_items = linestring_to_track_items(geometry)
-        self.track_items = track_items
-        if track_items:
+        elif track_items:
             geometry = track_items_to_geometry(track_items)
+        self.track_items = track_items
         super().__init__(
             ns=ns,
             id=id,
@@ -264,7 +264,6 @@ class Track(_Geometry):
             altitude_mode=altitude_mode,
             geometry=geometry,
         )
-        self.track_items
 
     def __repr__(self) -> str:
         return (
@@ -344,4 +343,84 @@ class Track(_Geometry):
         return kwargs
 
 
-__all__ = ["GxGeometry"]
+def multilinestring_to_tracks(
+    multilinestring: geo.MultiLineString, ns: Optional[str]
+) -> List[Track]:
+    return [Track(ns=ns, geometry=linestring) for linestring in multilinestring.geoms]
+
+
+def tracks_to_geometry(tracks: Sequence[Track]) -> geo.MultiLineString:
+    return geo.MultiLineString.from_linestrings(
+        *[cast(geo.LineString, track.geometry) for track in tracks if track.geometry]
+    )
+
+
+class MultiTrack(_Geometry):
+    def __init__(
+        self,
+        *,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        extrude: Optional[bool] = False,
+        tessellate: Optional[bool] = False,
+        altitude_mode: Optional[AltitudeMode] = None,
+        geometry: Optional[geo.MultiLineString] = None,
+        tracks: Optional[Sequence[Track]] = None,
+        interpolate: Optional[bool] = None,
+    ) -> None:
+        if geometry and tracks:
+            raise ValueError("Cannot specify both geometry and track_items")
+        if geometry:
+            tracks = multilinestring_to_tracks(geometry, ns=ns)
+        elif tracks:
+            geometry = tracks_to_geometry(tracks)
+        self.tracks = tracks
+        self.interpolate = interpolate
+        super().__init__(
+            ns=ns,
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"extrude={self.extrude!r}, "
+            f"tessellate={self.tessellate!r}, "
+            f"altitude_mode={self.altitude_mode}, "
+            f"tracks={self.tracks!r}"
+            f"interpolate={self.interpolate!r}"
+            ")"
+        )
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+        name_spaces: Optional[Dict[str, str]] = None,
+    ) -> Element:
+        self.__name__ = self.__class__.__name__
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        if self.interpolate is not None:
+            i_element = cast(
+                Element,
+                config.etree.SubElement(  # type: ignore[attr-defined]
+                    element, f"{self.ns}interpolate"
+                ),
+            )
+            i_element.text = str(int(self.interpolate))
+        for track in self.tracks:
+            element.append(
+                track.etree_element(
+                    precision=precision, verbosity=verbosity, name_spaces=name_spaces
+                )
+            )
+        return element
