@@ -75,8 +75,9 @@ class TestGetGxGeometry(StdLibrary):
             (((0.0, 0.0), (1.0, 0.0)), ((0.0, 1.0), (1.0, 1.0)))
         )
         assert "when>" in mt.to_string()
-        assert repr(mt) == repr(
-            MultiTrack(
+        assert (
+            mt.to_string()
+            == MultiTrack(
                 ns="",
                 id="",
                 target_id="",
@@ -134,7 +135,7 @@ class TestGetGxGeometry(StdLibrary):
                     ),
                 ],
                 interpolate=None,
-            )
+            ).to_string()
         )
 
 
