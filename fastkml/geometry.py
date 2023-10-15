@@ -547,7 +547,7 @@ class _Geometry(_BaseObject):
             f"target_id={self.target_id!r}, "
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
-            f"altitude_mode={self.altitude_mode!r} "
+            f"altitude_mode={self.altitude_mode} "
             f"geometry={self.geometry!r}"
             f")"
         )

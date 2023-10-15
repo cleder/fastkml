@@ -77,17 +77,24 @@ located at http://developers.google.com/kml/schema/kml22gx.xsd.
 """
 import datetime
 import logging
+from dataclasses import dataclass
+from itertools import zip_longest
+from typing import Any
+from typing import Dict
+from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Sequence
 from typing import Union
 from typing import cast
 
+import dateutil.parser
 import pygeoif.geometry as geo
 from pygeoif.types import PointType
 
-from fastkml.config import GXNS as NS
+import fastkml.config as config
 from fastkml.enums import AltitudeMode
+from fastkml.enums import Verbosity
 from fastkml.geometry import Geometry
 from fastkml.geometry import _Geometry
 from fastkml.types import Element
@@ -106,7 +113,7 @@ class GxGeometry(Geometry):
         like gx:Track
         """
         super().__init__(ns, id)
-        self.ns = NS if ns is None else ns
+        self.ns = config.GXNS if ns is None else ns
 
     def _get_geometry(self, element: Element) -> Optional[geo.LineString]:
         # Track
@@ -151,6 +158,72 @@ class GxGeometry(Geometry):
         return []  # type: ignore[unreachable]
 
 
+@dataclass(frozen=True)
+class Angle:
+    """
+    The gx:angles element specifies the heading, tilt, and roll.
+
+    The angles are specified in degrees, and the
+    default values are 0 (heading and tilt) and 0 (roll). The angles
+    are specified in the following order: heading, tilt, roll.
+    """
+
+    heading: float = 0.0
+    tilt: float = 0.0
+    roll: float = 0.0
+
+
+@dataclass(frozen=True)
+class TrackItem:
+    """
+    A track item describes an object moving through the world over a given time period.
+    """
+
+    when: Optional[datetime.datetime] = None
+    coord: Optional[geo.Point] = None
+    angle: Optional[Angle] = None
+
+    def etree_elements(
+        self,
+        *,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+        name_spaces: Optional[Dict[str, str]] = None,
+    ) -> Iterator[Element]:
+        name_spaces = name_spaces or {}
+        name_spaces = {**config.NAME_SPACES, **name_spaces}
+        element: Element = config.etree.Element(  # type: ignore[attr-defined]
+            f"{name_spaces.get('kml', '')}when"
+        )
+        if self.when:
+            element.text = self.when.isoformat()
+        yield element
+        element = config.etree.Element(  # type: ignore[attr-defined]
+            f"{name_spaces.get('gx', '')}coord"
+        )
+        if self.coord:
+            element.text = " ".join([str(c) for c in self.coord.coords[0]])
+        yield element
+        element = config.etree.Element(  # type: ignore[attr-defined]
+            f"{name_spaces.get('gx', '')}angles"
+        )
+        if self.angle:
+            element.text = " ".join(
+                [str(self.angle.heading), str(self.angle.tilt), str(self.angle.roll)]
+            )
+        yield element
+
+
+def track_items_to_geometry(track_items: Sequence[TrackItem]) -> geo.LineString:
+    return geo.LineString.from_points(
+        *[item.coord for item in track_items if item.coord is not None]
+    )
+
+
+def linestring_to_track_items(linestring: geo.LineString) -> List[TrackItem]:
+    return [TrackItem(coord=point) for point in linestring.geoms]
+
+
 class Track(_Geometry):
     """
     A track describes how an object moves through the world over a given time period.
@@ -174,9 +247,16 @@ class Track(_Geometry):
         extrude: Optional[bool] = False,
         tessellate: Optional[bool] = False,
         altitude_mode: Optional[AltitudeMode] = None,
-        geometry: Sequence[Optional[geo.Point]],
-        times: Optional[Sequence[Optional[datetime.datetime]]] = None,
+        geometry: Optional[geo.LineString] = None,
+        track_items: Optional[Sequence[TrackItem]] = None,
     ) -> None:
+        if geometry and track_items:
+            raise ValueError("Cannot specify both geometry and track_items")
+        if geometry:
+            track_items = linestring_to_track_items(geometry)
+        self.track_items = track_items
+        if track_items:
+            geometry = track_items_to_geometry(track_items)
         super().__init__(
             ns=ns,
             id=id,
@@ -186,7 +266,84 @@ class Track(_Geometry):
             altitude_mode=altitude_mode,
             geometry=geometry,
         )
-        self.times = times
+        self.track_items
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"extrude={self.extrude!r}, "
+            f"tessellate={self.tessellate!r}, "
+            f"altitude_mode={self.altitude_mode}, "
+            f"track_items={self.track_items!r}"
+            ")"
+        )
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+        name_spaces: Optional[Dict[str, str]] = None,
+    ) -> Element:
+        self.__name__ = self.__class__.__name__
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        if self.track_items:
+            for track_item in self.track_items:
+                for track_item_element in track_item.etree_elements(
+                    precision=precision, verbosity=verbosity, name_spaces=name_spaces
+                ):
+                    element.append(track_item_element)
+        return element
+
+    @classmethod
+    def track_items_kwargs_from_element(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> List[TrackItem]:
+        time_stamps: List[Optional[datetime.datetime]] = []
+        for time_stamp in element.findall(f"{config.KMLNS}when"):
+            if time_stamp is not None and time_stamp.text:
+                time_stamps.append(dateutil.parser.parse(time_stamp.text))
+            else:
+                time_stamps.append(None)
+        coords: List[Optional[geo.Point]] = []
+        for coord in element.findall(f"{config.GXNS}coord"):
+            if coord is not None and coord.text:
+                coords.append(
+                    geo.Point(*[float(c) for c in coord.text.strip().split()])
+                )
+            else:
+                coords.append(None)
+        angles: List[Optional[Angle]] = []
+        for angle in element.findall(f"{config.GXNS}angles"):
+            if angle is not None and angle.text:
+                angles.append(Angle(*[float(a) for a in angle.text.strip().split()]))
+            else:
+                angles.append(None)
+        track_items = [
+            TrackItem(when=when, coord=coord, angle=angle)
+            for when, coord, angle in zip_longest(time_stamps, coords, angles)
+        ]
+        return track_items
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs["track_items"] = cls.track_items_kwargs_from_element(
+            ns=ns, element=element, strict=strict
+        )
+        return kwargs
 
 
 __all__ = ["GxGeometry"]
