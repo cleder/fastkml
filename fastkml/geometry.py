@@ -609,6 +609,7 @@ class MultiGeometry(_Geometry):
         _map_to_kml.update(self.map_to_kml)
         if self.geometry is None:
             return element
+        assert isinstance(self.geometry, self.multi_geometries)
         for geometry in self.geometry.geoms:
             geometry_class = _map_to_kml[type(geometry)]
             element.append(
