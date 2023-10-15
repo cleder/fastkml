@@ -175,9 +175,7 @@ class Angle:
 
 @dataclass(frozen=True)
 class TrackItem:
-    """
-    A track item describes an object moving through the world over a given time period.
-    """
+    """A track item describes an objects position and heading at a specific time."""
 
     when: Optional[datetime.datetime] = None
     coord: Optional[geo.Point] = None
