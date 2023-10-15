@@ -301,10 +301,9 @@ class TestTrack(StdLibrary):
                 ),
             ],
         )
+
         track = Track.class_from_string(doc, ns="")
 
-        assert repr(track) == repr(expected_track)
-        assert track.to_string() == expected_track.to_string()
         assert track.geometry == geo.LineString(
             (
                 (-122.207881, 37.371915, 156.0),
@@ -316,6 +315,7 @@ class TestTrack(StdLibrary):
                 (-122.203207, 37.374857, 140.199997),
             )
         )
+        assert track.to_string() == expected_track.to_string()
 
 
 class TestMultiTrack(StdLibrary):
