@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test the gx classes."""
 import pytest
-from pygeoif import Point
 
 import fastkml as kml
 from fastkml import data
@@ -77,7 +76,6 @@ class TestStdLibrary(StdLibrary):
         k = kml.KML(ns=ns)
 
         p = kml.Placemark(ns, "id", "name", "description")
-        p.geometry = Point(0.0, 0.0, 0.0)
         p.extended_data = kml.ExtendedData(
             ns=ns,
             elements=[

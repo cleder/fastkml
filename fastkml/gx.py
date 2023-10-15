@@ -75,6 +75,7 @@ Elements that currently use the gx prefix are:
 The complete XML schema for elements in this extension namespace is
 located at http://developers.google.com/kml/schema/kml22gx.xsd.
 """
+import contextlib
 import datetime
 import logging
 from dataclasses import dataclass
@@ -85,77 +86,18 @@ from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Sequence
-from typing import Union
 from typing import cast
 
 import dateutil.parser
 import pygeoif.geometry as geo
-from pygeoif.types import PointType
 
 import fastkml.config as config
 from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
-from fastkml.geometry import Geometry
 from fastkml.geometry import _Geometry
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
-
-
-class GxGeometry(Geometry):
-    def __init__(
-        self,
-        ns: Optional[str] = None,
-        id: Optional[str] = None,
-    ) -> None:
-        """
-        gxgeometry: a read-only subclass of geometry supporting gx: features,
-        like gx:Track
-        """
-        super().__init__(ns, id)
-        self.ns = config.GXNS if ns is None else ns
-
-    def _get_geometry(self, element: Element) -> Optional[geo.LineString]:
-        # Track
-        if element.tag == (f"{self.ns}Track"):
-            coords = self._get_coordinates(element)
-            self._get_geometry_spec(element)
-            return geo.LineString(
-                coords,
-            )
-        return None
-
-    def _get_multigeometry(
-        self,
-        element: Element,
-    ) -> Union[geo.MultiLineString, geo.GeometryCollection, None]:
-        # MultiTrack
-        geoms = []
-        if element.tag == (f"{self.ns}MultiTrack"):
-            tracks = element.findall(f"{self.ns}Track")
-            for track in tracks:
-                self._get_geometry_spec(track)
-                geoms.append(
-                    geo.LineString(
-                        self._get_coordinates(track),
-                    )
-                )
-
-        geom_types = {geom.geom_type for geom in geoms}
-        if len(geom_types) > 1:
-            return geo.GeometryCollection(geoms)
-        if "LineString" in geom_types:
-            return geo.MultiLineString.from_linestrings(*geoms)
-        return None
-
-    def _get_coordinates(self, element: Element) -> List[PointType]:
-        coordinates = element.findall(f"{self.ns}coord")
-        if coordinates is not None:
-            return [
-                cast(PointType, tuple(float(c) for c in coord.text.strip().split()))
-                for coord in coordinates
-            ]
-        return []  # type: ignore[unreachable]
 
 
 @dataclass(frozen=True)
@@ -322,11 +264,10 @@ class Track(_Geometry):
                 angles.append(Angle(*[float(a) for a in angle.text.strip().split()]))
             else:
                 angles.append(None)
-        track_items = [
+        return [
             TrackItem(when=when, coord=coord, angle=angle)
             for when, coord, angle in zip_longest(time_stamps, coords, angles)
         ]
-        return track_items
 
     @classmethod
     def _get_kwargs(
@@ -396,7 +337,7 @@ class MultiTrack(_Geometry):
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
-            f"tracks={self.tracks!r}"
+            f"tracks={self.tracks!r}, "
             f"interpolate={self.interpolate!r}"
             ")"
         )
@@ -417,10 +358,63 @@ class MultiTrack(_Geometry):
                 ),
             )
             i_element.text = str(int(self.interpolate))
-        for track in self.tracks:
+        for track in self.tracks or []:
             element.append(
                 track.etree_element(
                     precision=precision, verbosity=verbosity, name_spaces=name_spaces
                 )
             )
         return element
+
+    @classmethod
+    def _get_interpolate(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> Optional[bool]:
+        interpolate = element.find(f"{ns}interpolate")
+        if interpolate is None:
+            return None
+        with contextlib.suppress(ValueError):
+            return bool(int(interpolate.text.strip()))
+        return None
+
+    @classmethod
+    def _get_track_kwargs_from_element(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> List[Track]:
+        return [
+            cast(
+                Track,
+                Track.class_from_element(
+                    ns=ns,
+                    element=track,
+                    strict=strict,
+                ),
+            )
+            for track in element.findall(f"{ns}Track")
+            if track is not None
+        ]
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs["interpolate"] = cls._get_interpolate(
+            ns=ns, element=element, strict=strict
+        )
+        kwargs["tracks"] = cls._get_track_kwargs_from_element(
+            ns=config.GXNS, element=element, strict=strict
+        )
+        return kwargs

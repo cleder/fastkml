@@ -22,7 +22,6 @@ from dateutil.tz import tzutc
 
 from fastkml.enums import AltitudeMode
 from fastkml.gx import Angle
-from fastkml.gx import GxGeometry
 from fastkml.gx import MultiTrack
 from fastkml.gx import Track
 from fastkml.gx import TrackItem
@@ -56,23 +55,87 @@ class TestGetGxGeometry(StdLibrary):
         <gx:MultiTrack xmlns:kml="http://www.opengis.net/kml/2.2"
             xmlns:gx="http://www.google.com/kml/ext/2.2">
           <gx:Track>
-            <when>2020-01-01T00:00:00Z</when>
-            <when>2020-01-01T00:10:00Z</when>
+            <kml:when>2020-01-01T00:00:00Z</kml:when>
+            <kml:when>2020-01-01T00:10:00Z</kml:when>
             <gx:coord>0.000000 0.000000</gx:coord>
             <gx:coord>1.000000 0.000000</gx:coord>
           </gx:Track>
           <gx:Track>
-            <when>2020-01-01T00:10:00Z</when>
-            <when>2020-01-01T00:20:00Z</when>
+            <kml:when>2020-01-01T00:10:00Z</kml:when>
+            <kml:when>2020-01-01T00:20:00Z</kml:when>
             <gx:coord>0.000000 1.000000</gx:coord>
             <gx:coord>1.000000 1.000000</gx:coord>
           </gx:Track>
         </gx:MultiTrack>
         """
 
-        g = GxGeometry()
-        g.from_string(doc)
-        assert len(g.geometry) == 2
+        mt = MultiTrack.class_from_string(doc, ns="")
+
+        assert mt.geometry == geo.MultiLineString(
+            (((0.0, 0.0), (1.0, 0.0)), ((0.0, 1.0), (1.0, 1.0)))
+        )
+        assert "when>" in mt.to_string()
+        assert repr(mt) == repr(
+            MultiTrack(
+                ns="",
+                id="",
+                target_id="",
+                extrude=None,
+                tessellate=None,
+                altitude_mode=None,
+                tracks=[
+                    Track(
+                        ns="{http://www.google.com/kml/ext/2.2}",
+                        id="",
+                        target_id="",
+                        extrude=None,
+                        tessellate=None,
+                        altitude_mode=None,
+                        track_items=[
+                            TrackItem(
+                                when=datetime.datetime(
+                                    2020, 1, 1, 0, 0, tzinfo=tzutc()
+                                ),
+                                coord=geo.Point(0.0, 0.0),
+                                angle=None,
+                            ),
+                            TrackItem(
+                                when=datetime.datetime(
+                                    2020, 1, 1, 0, 10, tzinfo=tzutc()
+                                ),
+                                coord=geo.Point(1.0, 0.0),
+                                angle=None,
+                            ),
+                        ],
+                    ),
+                    Track(
+                        ns="{http://www.google.com/kml/ext/2.2}",
+                        id="",
+                        target_id="",
+                        extrude=None,
+                        tessellate=None,
+                        altitude_mode=None,
+                        track_items=[
+                            TrackItem(
+                                when=datetime.datetime(
+                                    2020, 1, 1, 0, 10, tzinfo=tzutc()
+                                ),
+                                coord=geo.Point(0.0, 1.0),
+                                angle=None,
+                            ),
+                            TrackItem(
+                                when=datetime.datetime(
+                                    2020, 1, 1, 0, 20, tzinfo=tzutc()
+                                ),
+                                coord=geo.Point(1.0, 1.0),
+                                angle=None,
+                            ),
+                        ],
+                    ),
+                ],
+                interpolate=None,
+            )
+        )
 
 
 class TestTrack(StdLibrary):

@@ -38,7 +38,7 @@ from fastkml.base import _BaseObject
 from fastkml.data import ExtendedData
 from fastkml.data import Schema
 from fastkml.enums import Verbosity
-from fastkml.geometry import Geometry
+from fastkml.geometry import AnyGeometryType
 from fastkml.geometry import LinearRing
 from fastkml.geometry import LineString
 from fastkml.geometry import MultiGeometry
@@ -56,6 +56,16 @@ from fastkml.views import Camera
 from fastkml.views import LookAt
 
 logger = logging.getLogger(__name__)
+
+KmlGeometry = Union[
+    Point,
+    LineString,
+    LinearRing,
+    Polygon,
+    MultiGeometry,
+    gx.MultiTrack,
+    gx.Track,
+]
 
 
 class _Feature(TimeMixin, _BaseObject):
@@ -1645,16 +1655,35 @@ class Placemark(_Feature):
     __name__ = "Placemark"
     _geometry = None
 
-    @property
-    def geometry(self):
-        return self._geometry.geometry
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        styles: Optional[List[Style]] = None,
+        style_url: Optional[str] = None,
+        extended_data: None = None,
+        geometry: Optional[KmlGeometry] = None,
+    ) -> None:
+        super().__init__(
+            ns=ns,
+            id=id,
+            target_id=target_id,
+            name=name,
+            description=description,
+            styles=styles,
+            style_url=style_url,
+            extended_data=extended_data,
+        )
+        self._geometry = geometry
 
-    @geometry.setter
-    def geometry(self, geometry):
-        if isinstance(geometry, Geometry):
-            self._geometry = geometry
-        else:
-            self._geometry = Geometry(ns=self.ns, geometry=geometry)
+    @property
+    def geometry(self) -> Optional[AnyGeometryType]:
+        if self._geometry is not None:
+            return self._geometry.geometry
+        return None
 
     def from_element(self, element: Element, strict=False) -> None:
         super().from_element(element)
@@ -1692,8 +1721,6 @@ class Placemark(_Feature):
             return
         multigeometry = element.find(f"{self.ns}MultiGeometry")
         if multigeometry is not None:
-            geom = Geometry(ns=self.ns)
-            geom.from_element(multigeometry)
             self._geometry = MultiGeometry.class_from_element(
                 ns=self.ns,
                 element=multigeometry,
@@ -1702,15 +1729,19 @@ class Placemark(_Feature):
             return
         track = element.find(f"{self.ns}Track")
         if track is not None:
-            geom = gx.GxGeometry(ns=gx.NS)
-            geom.from_element(track)
-            self._geometry = geom
+            self._geometry = gx.Track.class_from_element(
+                ns=config.GXNS,
+                element=track,
+                strict=strict,
+            )
             return
         multitrack = element.find(f"{self.ns}MultiTrack")
-        if line is not None:
-            geom = gx.GxGeometry(ns=gx.NS)
-            geom.from_element(multitrack)
-            self._geometry = geom
+        if multitrack is not None:
+            self._geometry = gx.MultiTrack.class_from_element(
+                ns=config.GXNS,
+                element=multitrack,
+                strict=strict,
+            )
             return
         logger.warning("No geometries found")
         logger.debug("Problem with element: %", config.etree.tostring(element))
