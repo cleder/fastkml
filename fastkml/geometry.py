@@ -605,10 +605,10 @@ class MultiGeometry(_Geometry):
     ) -> Element:
         self.__name__ = self.__class__.__name__
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        assert isinstance(self.geometry, geo._MultiGeometry)
         _map_to_kml = {mg: self.__class__ for mg in self.multi_geometries}
         _map_to_kml.update(self.map_to_kml)
-
+        if self.geometry is None:
+            return element
         for geometry in self.geometry.geoms:
             geometry_class = _map_to_kml[type(geometry)]
             element.append(

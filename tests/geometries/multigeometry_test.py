@@ -345,6 +345,18 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
             )
         )
 
+    def test_empty_multi_geometries_read(self) -> None:
+        xml = (
+            "<MultiGeometry><extrude>0</extrude><tessellate>0</tessellate>"
+            "<MultiGeometry></MultiGeometry></MultiGeometry>"
+        )
+
+        mg = MultiGeometry.class_from_string(xml, ns="")
+
+        assert mg.geometry is None
+        assert "MultiGeometry>" in mg.to_string()
+        assert "coordinates>" not in mg.to_string()
+
 
 class TestMultiPointLxml(Lxml, TestMultiPointStdLibrary):
     """Test with lxml."""
