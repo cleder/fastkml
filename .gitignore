@@ -25,6 +25,7 @@ pip-log.txt
 
 # Unit/static test / coverage reports
 .coverage
+coverage.xml
 .tox
 .pytest_cache/
 nosetests.xml
