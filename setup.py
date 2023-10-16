@@ -61,8 +61,8 @@ setup(
         # -*- Extra requirements: -*-
         "pygeoif>=1.1.0",
         "python-dateutil",
-        "setuptools",
-        "typing_extensions",
+        "setuptools>=65.5.1",
+        "typing-extensions",
     ],
     entry_points="""
     # -*- Entry points: -*-
