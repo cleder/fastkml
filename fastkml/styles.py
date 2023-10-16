@@ -352,9 +352,7 @@ class PolyStyle(_ColorStyle):
             val = val.lower()
             if val == "false":
                 return 0
-            if val == "true":
-                return 1
-            return int(float(val))
+            return 1 if val == "true" else int(float(val))
 
         super().from_element(element)
         fill = element.find(f"{self.ns}fill")
@@ -628,7 +626,7 @@ class StyleMap(_StyleSelector):
             key = pair.find(f"{self.ns}key")
             style = pair.find(f"{self.ns}Style")
             style_url = pair.find(f"{self.ns}styleUrl")
-            if key is None:
+            if key is None or key.text not in ["highlight", "normal"]:
                 raise ValueError
             elif key.text == "highlight":
                 if style is not None:
@@ -640,7 +638,7 @@ class StyleMap(_StyleSelector):
                 else:
                     raise ValueError
                 self.highlight = highlight
-            elif key.text == "normal":
+            else:
                 if style is not None:
                     normal = Style(self.ns)
                     normal.from_element(style)
@@ -650,8 +648,6 @@ class StyleMap(_StyleSelector):
                 else:
                     raise ValueError
                 self.normal = normal
-            else:
-                raise ValueError
 
     def etree_element(
         self,

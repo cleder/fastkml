@@ -1681,9 +1681,7 @@ class Placemark(_Feature):
 
     @property
     def geometry(self) -> Optional[AnyGeometryType]:
-        if self._geometry is not None:
-            return self._geometry.geometry
-        return None
+        return self._geometry.geometry if self._geometry is not None else None
 
     def from_element(self, element: Element, strict=False) -> None:
         super().from_element(element)

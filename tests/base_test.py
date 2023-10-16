@@ -75,10 +75,7 @@ class TestStdLibrary(StdLibrary):
 
     def test_base_from_element_raises(self) -> None:
         be = base._BaseObject()
-        element = cast(
-            types.Element,
-            config.etree.Element(config.KMLNS + "Base"),  # type: ignore[attr-defined]
-        )
+        element = cast(types.Element, config.etree.Element(f"{config.KMLNS}Base"))
 
         with pytest.raises(TypeError):
             be.from_element(element=element)
