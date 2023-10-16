@@ -62,7 +62,7 @@ setup(
         "pygeoif>=1.1.0",
         "python-dateutil",
         "setuptools",
-        "typing-extensions",
+        "typing-extensions>4",
     ],
     entry_points="""
     # -*- Entry points: -*-

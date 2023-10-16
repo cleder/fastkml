@@ -101,6 +101,18 @@ class TestStdLibrary(StdLibrary):
             [[(0, 0), (1, 0), (1, 1), (0, 0)]],
         )
 
+    def test_empty_polygon(self):
+        """Test empty polygon."""
+        doc = (
+            "<Polygon><tessellate>1</tessellate><outerBoundaryIs>"
+            "<LinearRing><coordinates/></LinearRing></outerBoundaryIs></Polygon>"
+        )
+
+        polygon = cast(Polygon, Polygon.class_from_string(doc, ns=""))
+
+        assert not polygon.geometry
+        assert polygon.to_string()
+
 
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
