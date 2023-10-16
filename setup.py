@@ -45,7 +45,7 @@ setup(
         # "Development Status :: 5 - Production/Stable",
         "Development Status :: 3 - Alpha",
         "Operating System :: OS Independent",
-    ],  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+    ],
     keywords="GIS KML Google Maps OpenLayers",
     author="Christian Ledermann",
     author_email="christian.ledermann@gmail.com",
@@ -61,7 +61,7 @@ setup(
         # -*- Extra requirements: -*-
         "pygeoif>=1.1.0",
         "python-dateutil",
-        "setuptools>=65.5.1",
+        "setuptools",
         "typing-extensions",
     ],
     entry_points="""

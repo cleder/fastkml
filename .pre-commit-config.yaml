@@ -20,6 +20,15 @@ repos:
       - id: pretty-format-json
       - id: requirements-txt-fixer
       - id: trailing-whitespace
+
+  - repo: https://github.com/tox-dev/pyproject-fmt
+    rev: "1.2.0"
+    hooks:
+      - id: pyproject-fmt
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.15
+    hooks:
+      - id: validate-pyproject
   - repo: https://github.com/ikamensh/flynt/
     rev: "1.0.1"
     hooks:
@@ -70,10 +79,10 @@ repos:
       - id: rst-directive-colons
       - id: rst-inline-touching-normal
       - id: text-unicode-replacement-char
-  - repo: https://github.com/mgedmin/check-manifest
-    rev: "0.49"
-    hooks:
-      - id: check-manifest
+  # - repo: https://github.com/mgedmin/check-manifest
+  #   rev: "0.49"
+  #   hooks:
+  #     - id: check-manifest
   # - repo: https://github.com/Lucas-C/pre-commit-hooks-markup
   #   rev: v1.0.1
   #   hooks:

@@ -1,8 +1,7 @@
 include *.rst
 recursive-include docs *.txt
 recursive-exclude *.pyc *.pyo
-include docs/LICENSE.GPL
-exclude fastkml/.*
+include docs LICENSE.GPL
 include *.txt
 recursive-include docs *.py
 recursive-include docs *.rst
