@@ -26,14 +26,14 @@ class TestStdLibrary(StdLibrary):
 
     def test_atom_link_ns(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
-        l = atom.Link(ns=ns)
-        assert l.ns == ns
-        assert l.to_string().startswith(
+        link = atom.Link(ns=ns)
+        assert link.ns == ns
+        assert link.to_string().startswith(
             '<kml:link xmlns:kml="http://www.opengis.net/kml/2.2"'
         )
 
     def test_atom_link(self) -> None:
-        l = atom.Link(
+        link = atom.Link(
             href="#here",
             rel="alternate",
             type="text/html",
@@ -42,7 +42,7 @@ class TestStdLibrary(StdLibrary):
             length=3456,
         )
 
-        serialized = l.to_string()
+        serialized = link.to_string()
 
         assert '<atom:link xmlns:atom="http://www.w3.org/2005/Atom"' in serialized
         assert 'href="#here"' in serialized
@@ -53,27 +53,27 @@ class TestStdLibrary(StdLibrary):
         assert 'length="3456"' in serialized
 
     def test_atom_link_read(self) -> None:
-        l = atom.Link()
-        l.from_string(
+        link = atom.Link()
+        link.from_string(
             '<atom:link xmlns:atom="http://www.w3.org/2005/Atom" '
             'href="#here" rel="alternate" type="text/html" hreflang="en" '
             'title="Title" length="3456" />'
         )
-        assert l.href == "#here"
-        assert l.rel == "alternate"
-        assert l.type == "text/html"
-        assert l.hreflang == "en"
-        assert l.title == "Title"
-        assert l.length == 3456
+        assert link.href == "#here"
+        assert link.rel == "alternate"
+        assert link.type == "text/html"
+        assert link.hreflang == "en"
+        assert link.title == "Title"
+        assert link.length == 3456
 
     def test_atom_link_read_no_href(self) -> None:
-        l = atom.Link()
-        l.from_string(
+        link = atom.Link()
+        link.from_string(
             '<atom:link xmlns:atom="http://www.w3.org/2005/Atom" '
             'rel="alternate" type="text/html" hreflang="en" '
             'title="Title" length="3456" />'
         )
-        assert l.href is None
+        assert link.href is None
 
     def test_atom_person_ns(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
@@ -133,14 +133,14 @@ class TestStdLibrary(StdLibrary):
         assert a.to_string() == a2.to_string()
 
     def test_link_roundtrip(self) -> None:
-        l = atom.Link(href="http://localhost/", rel="alternate")
-        l.title = "Title"
-        l.type = "text/html"
-        l.hreflang = "en"
-        l.length = 4096
+        link = atom.Link(href="http://localhost/", rel="alternate")
+        link.title = "Title"
+        link.type = "text/html"
+        link.hreflang = "en"
+        link.length = 4096
         l2 = atom.Link()
-        l2.from_string(l.to_string())
-        assert l.to_string() == l2.to_string()
+        l2.from_string(link.to_string())
+        assert link.to_string() == l2.to_string()
 
 
 class TestLxml(Lxml, TestStdLibrary):

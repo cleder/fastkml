@@ -32,6 +32,7 @@ from typing_extensions import TypedDict
 
 from fastkml import config
 from fastkml.base import _BaseObject
+from fastkml.enums import Verbosity
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
@@ -57,8 +58,12 @@ class StyleUrl(_BaseObject):
         super().__init__(ns=ns, id=id, target_id=target_id)
         self.url = url
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.url:
             element.text = self.url
         else:
@@ -113,8 +118,12 @@ class _ColorStyle(_BaseObject):
         self.color = color
         self.color_mode = color_mode
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.color:
             color = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -130,7 +139,6 @@ class _ColorStyle(_BaseObject):
         return element
 
     def from_element(self, element: Element) -> None:
-
         super().from_element(element)
         color_mode = element.find(f"{self.ns}colorMode")
         if color_mode is not None:
@@ -181,8 +189,12 @@ class IconStyle(_ColorStyle):
         self.icon_href = icon_href
         self.hot_spot = hot_spot
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.scale is not None:
             scale = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -264,8 +276,12 @@ class LineStyle(_ColorStyle):
         )
         self.width = width
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.width is not None:
             width = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -311,8 +327,12 @@ class PolyStyle(_ColorStyle):
         self.fill = fill
         self.outline = outline
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.fill is not None:
             fill = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -368,8 +388,12 @@ class LabelStyle(_ColorStyle):
         )
         self.scale = scale
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.scale is not None:
             scale = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -458,7 +482,7 @@ class BalloonStyle(_BaseObject):
         if bg_color is not None:
             self.bg_color = bg_color.text
         else:
-            bg_color = element.find(f"{self.ns}color")  # type: ignore[unreachable]
+            bg_color = element.find(f"{self.ns}color")
             if bg_color is not None:
                 self.bg_color = bg_color.text
         text_color = element.find(f"{self.ns}textColor")
@@ -471,8 +495,12 @@ class BalloonStyle(_BaseObject):
         if display_mode is not None:
             self.display_mode = display_mode.text
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.bg_color is not None:
             elem = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -558,8 +586,12 @@ class Style(_StyleSelector):
         for style in [BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle]:
             self._get_style(element, style)
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         for style in self.styles():
             element.append(style.etree_element())
         return element
@@ -596,12 +628,14 @@ class StyleMap(_StyleSelector):
             key = pair.find(f"{self.ns}key")
             style = pair.find(f"{self.ns}Style")
             style_url = pair.find(f"{self.ns}styleUrl")
-            if key.text == "highlight":
+            if key is None:
+                raise ValueError
+            elif key.text == "highlight":
                 if style is not None:
                     highlight = Style(self.ns)
                     highlight.from_element(style)
-                elif style_url is not None:  # type: ignore[unreachable]
-                    highlight = StyleUrl(self.ns)
+                elif style_url is not None:
+                    highlight = StyleUrl(self.ns)  # type: ignore[assignment]
                     highlight.from_element(style_url)
                 else:
                     raise ValueError
@@ -610,8 +644,8 @@ class StyleMap(_StyleSelector):
                 if style is not None:
                     normal = Style(self.ns)
                     normal.from_element(style)
-                elif style_url is not None:  # type: ignore[unreachable]
-                    normal = StyleUrl(self.ns)
+                elif style_url is not None:
+                    normal = StyleUrl(self.ns)  # type: ignore[assignment]
                     normal.from_element(style_url)
                 else:
                     raise ValueError
@@ -619,8 +653,12 @@ class StyleMap(_StyleSelector):
             else:
                 raise ValueError
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.normal and isinstance(self.normal, (Style, StyleUrl)):
             pair = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,

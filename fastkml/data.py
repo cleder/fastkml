@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Add Custom Data"""
+import logging
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -26,7 +27,10 @@ from typing_extensions import TypedDict
 import fastkml.config as config
 from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
+from fastkml.enums import Verbosity
 from fastkml.types import Element
+
+logger = logging.getLogger(__name__)
 
 
 class SimpleField(TypedDict):
@@ -54,11 +58,6 @@ class Schema(_BaseObject):
     """
 
     __name__ = "Schema"
-
-    # The declaration of the custom fields, each of which must specify both the
-    # type and the name of this field. If either the type or the name is
-    # omitted, the field is ignored.
-    name = None
 
     def __init__(
         self,
@@ -150,11 +149,13 @@ class Schema(_BaseObject):
             "bool",
         ]
         if type not in allowed_types:
-            raise TypeError(
-                f"{name} has the type {type} which is invalid. "
+            logger.warning(
+                "%s has the type %s which is invalid. "
                 "The type must be one of "
                 "'string', 'int', 'uint', 'short', "
-                "'ushort', 'float', 'double', 'bool'"
+                "'ushort', 'float', 'double', 'bool'",
+                name,
+                type,
             )
         self._simple_fields.append(
             {"type": type, "name": name, "displayName": display_name or ""}
@@ -171,8 +172,12 @@ class Schema(_BaseObject):
             sfdisplay_name = display_name.text if display_name is not None else None
             self.append(sftype, sfname, sfdisplay_name)
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.name:
             element.set("name", self.name)
         for simple_field in self.simple_fields:
@@ -207,8 +212,20 @@ class Data(_XMLObject):
         self.value = value
         self.display_name = display_name
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"ns='{self.ns}',"
+            f"name='{self.name}', value='{self.value}'"
+            f"display_name='{self.display_name}')"
+        )
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         element.set("name", self.name or "")
         value = config.etree.SubElement(  # type: ignore[attr-defined]
             element, f"{self.ns}value"
@@ -250,8 +267,12 @@ class ExtendedData(_XMLObject):
         super().__init__(ns)
         self.elements = elements or []
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         for subelement in self.elements:
             element.append(subelement.etree_element())
         return element
@@ -352,8 +373,12 @@ class SchemaData(_XMLObject):
         else:
             raise TypeError("name must be a nonempty string")
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         element.set("schemaUrl", self.schema_url)
         for data in self.data:
             sd = config.etree.SubElement(  # type: ignore[attr-defined]

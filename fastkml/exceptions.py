@@ -1,4 +1,4 @@
-# Copyright (C) 2021  Christian Ledermann
+# Copyright (C) 2023  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -13,15 +13,16 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-
-"""Test the geometry classes."""
-from tests.base import Lxml
-from tests.base import StdLibrary
+"""Exceptions for the fastkml package."""
 
 
-class TestStdLibrary(StdLibrary):
-    """Test with the standard library."""
+class FastKMLError(Exception):
+    """Base class for all fastkml exceptions."""
 
 
-class TestLxml(Lxml, TestStdLibrary):
-    """Test with lxml."""
+class KMLParseError(FastKMLError):
+    """Raised when there is an error parsing KML."""
+
+
+class KMLWriteError(FastKMLError):
+    """Raised when there is an error writing KML."""

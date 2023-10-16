@@ -1,4 +1,4 @@
-# Copyright (C) 2021  Christian Ledermann
+# Copyright (C) 2021 - 2023  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -33,17 +33,28 @@ class TestStdLibrary(StdLibrary):
         obj = base._BaseObject(id="id-0", target_id="target-id-0")
         obj.__name__ = "test"
 
-        assert (
-            obj.to_string()
-            == '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" targetId="target-id-0" />'
+        assert obj.to_string() == (
+            '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" '
+            'id="id-0" targetId="target-id-0" />'
         )
+
+    def test_to_str_empty_ns(self) -> None:
+        obj = base._BaseObject(ns="", id="id-0", target_id="target-id-0")
+        obj.__name__ = "test"
+
+        assert obj.to_string().replace(" ", "").replace(
+            "\n", ""
+        ) == '<test id="id-0" targetId="target-id-0" />'.replace(" ", "")
 
     def test_from_string(self) -> None:
         be = base._BaseObject()
         be.__name__ = "test"
 
         be.from_string(
-            xml_string='<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" targetId="target-id-0" />'
+            xml_string=(
+                '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" '
+                'id="id-0" targetId="target-id-0" />'
+            )
         )
 
         assert be.id == "id-0"
@@ -64,7 +75,10 @@ class TestStdLibrary(StdLibrary):
 
     def test_base_from_element_raises(self) -> None:
         be = base._BaseObject()
-        element = cast(types.Element, config.etree.Element(config.KMLNS + "Base"))  # type: ignore[attr-defined]
+        element = cast(
+            types.Element,
+            config.etree.Element(config.KMLNS + "Base"),  # type: ignore[attr-defined]
+        )
 
         with pytest.raises(TypeError):
             be.from_element(element=element)
@@ -74,8 +88,22 @@ class TestStdLibrary(StdLibrary):
 
         with pytest.raises(TypeError):
             be.from_string(
-                xml_string='<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" />'
+                '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" />'
             )
+
+    def test_base_class_from_string(self) -> None:
+        be = base._BaseObject.class_from_string('<test id="id-0" targetId="td-00" />')
+
+        assert be.id == "id-0"
+        assert be.target_id == "td-00"
+        assert be.ns == "{http://www.opengis.net/kml/2.2}"
+
+    def test_base_class_from_empty_string(self) -> None:
+        be = base._BaseObject.class_from_string("<test/>")
+
+        assert be.id == ""
+        assert be.target_id == ""
+        assert be.ns == "{http://www.opengis.net/kml/2.2}"
 
 
 class TestLxml(Lxml, TestStdLibrary):
@@ -95,7 +123,10 @@ class TestLxml(Lxml, TestStdLibrary):
         be.__name__ = "test"
 
         be.from_string(
-            xml_string='<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" targetId="target-id-0"/>\n'
+            xml_string=(
+                '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" '
+                'id="id-0" targetId="target-id-0"/>\n'
+            )
         )
 
         assert be.id == "id-0"

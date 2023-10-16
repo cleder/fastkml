@@ -29,6 +29,7 @@ import dateutil.parser
 import fastkml.config as config
 from fastkml.base import _BaseObject
 from fastkml.enums import DateTimeResolution
+from fastkml.enums import Verbosity
 from fastkml.types import Element
 
 # regular expression to parse a gYearMonth string
@@ -167,8 +168,12 @@ class TimeStamp(_TimePrimitive):
         super().__init__(ns=ns, id=id, target_id=target_id)
         self.timestamp = timestamp
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         when = config.etree.SubElement(  # type: ignore[attr-defined]
             element, f"{self.ns}when"
         )
@@ -208,8 +213,12 @@ class TimeSpan(_TimePrimitive):
         if end is not None:
             self.end = KmlDateTime.parse(end.text)
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.begin is not None:
             text = str(self.begin)
             if text:

@@ -15,7 +15,7 @@ especially in the following ways:
 Pull Requests
 -------------
 
-Start by submitting a pull request on GitHub against the `develop` branch of the
+Start by submitting a pull request on GitHub against the ``develop`` branch of the
 repository. Your pull request should provide a good description of the change
 you are making, and/or the bug that you are fixing.
 
@@ -63,6 +63,15 @@ signifying that the code is working as expected on all configurations
 available.
 
 .. _tox: https://pypi.python.org/pypi/tox
+
+coverage
+~~~~~~~~
+
+You can also run the tests with coverage_ to see which lines are covered by the
+tests. This is useful for writing new tests to cover any uncovered lines::
+
+    pytest tests --cov=fastkml --cov=tests --cov-report=xml
+
 
 pre-commit
 ~~~~~~~~~~~

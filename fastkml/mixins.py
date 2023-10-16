@@ -25,7 +25,6 @@ logger = logging.getLogger(__name__)
 
 
 class TimeMixin:
-
     _timespan: Optional[TimeSpan] = None
     _timestamp: Optional[TimeStamp] = None
 

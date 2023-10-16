@@ -23,10 +23,14 @@ setup.cfg
 # Installer logs
 pip-log.txt
 
-# Unit test / coverage reports
+# Unit/static test / coverage reports
 .coverage
+coverage.xml
 .tox
+.pytest_cache/
 nosetests.xml
+.ruff_cache/
+monkeytype.sqlite3
 
 # Translations
 *.mo
@@ -51,6 +55,8 @@ venv
 .mypy_cache/
 .pyre/
 .watchmanconfig
+.pytype/
+
 
 # misc
 .dccache

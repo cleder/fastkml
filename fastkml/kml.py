@@ -37,7 +37,13 @@ import fastkml.gx as gx
 from fastkml.base import _BaseObject
 from fastkml.data import ExtendedData
 from fastkml.data import Schema
-from fastkml.geometry import Geometry
+from fastkml.enums import Verbosity
+from fastkml.geometry import AnyGeometryType
+from fastkml.geometry import LinearRing
+from fastkml.geometry import LineString
+from fastkml.geometry import MultiGeometry
+from fastkml.geometry import Point
+from fastkml.geometry import Polygon
 from fastkml.mixins import TimeMixin
 from fastkml.styles import Style
 from fastkml.styles import StyleMap
@@ -50,6 +56,16 @@ from fastkml.views import Camera
 from fastkml.views import LookAt
 
 logger = logging.getLogger(__name__)
+
+KmlGeometry = Union[
+    Point,
+    LineString,
+    LinearRing,
+    Polygon,
+    MultiGeometry,
+    gx.MultiTrack,
+    gx.Track,
+]
 
 
 class _Feature(TimeMixin, _BaseObject):
@@ -336,8 +352,12 @@ class _Feature(TimeMixin, _BaseObject):
         else:
             raise ValueError
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.name:
             name = config.etree.SubElement(element, f"{self.ns}name")
             name.text = self.name
@@ -448,10 +468,6 @@ class _Feature(TimeMixin, _BaseObject):
             x = ExtendedData(self.ns)
             x.from_element(extended_data)
             self.extended_data = x
-            # else:
-            #    logger.warn(
-            #        'arbitrary or typed extended data is not yet supported'
-            #    )
         address = element.find(f"{self.ns}address")
         if address is not None:
             self.address = address.text
@@ -689,8 +705,12 @@ class Icon(_BaseObject):
         else:
             raise ValueError
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
 
         if self._href:
             href = config.etree.SubElement(element, f"{self.ns}href")
@@ -817,14 +837,20 @@ class _Container(_Feature):
                     "(Folder, Placemark, Document, Overlay)"
                 )
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         for feature in self.features():
             element.append(feature.etree_element())
         return element
 
     def append(self, kmlobj: _Feature) -> None:
         """append a feature"""
+        if id(kmlobj) == id(self):
+            raise ValueError("Cannot append self")
         if isinstance(kmlobj, (Folder, Placemark, Document, _Overlay)):
             self._features.append(kmlobj)
         else:
@@ -832,7 +858,6 @@ class _Container(_Feature):
                 "Features must be instances of "
                 "(Folder, Placemark, Document, Overlay)"
             )
-        assert kmlobj != self
 
 
 class _Overlay(_Feature):
@@ -924,8 +949,12 @@ class _Overlay(_Feature):
         else:
             raise ValueError
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self._color:
             color = config.etree.SubElement(element, f"{self.ns}color")
             color.text = self._color
@@ -1208,8 +1237,12 @@ class PhotoOverlay(_Overlay):
         self.max_height = max_height
         self.grid_origin = grid_origin
 
-    def etree_element(self):
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ):
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self._rotation:
             rotation = config.etree.SubElement(element, f"{self.ns}rotation")
             rotation.text = self._rotation
@@ -1464,8 +1497,12 @@ class GroundOverlay(_Overlay):
         else:
             raise ValueError
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self._altitude:
             altitude = config.etree.SubElement(element, f"{self.ns}altitude")
             altitude.text = self._altitude
@@ -1562,8 +1599,12 @@ class Document(_Container):
             s.from_element(schema)
             self.append_schema(s)
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self._schemata is not None:
             for schema in self._schemata:
                 element.append(schema.etree_element())
@@ -1614,67 +1655,104 @@ class Placemark(_Feature):
     __name__ = "Placemark"
     _geometry = None
 
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        styles: Optional[List[Style]] = None,
+        style_url: Optional[str] = None,
+        extended_data: None = None,
+        geometry: Optional[KmlGeometry] = None,
+    ) -> None:
+        super().__init__(
+            ns=ns,
+            id=id,
+            target_id=target_id,
+            name=name,
+            description=description,
+            styles=styles,
+            style_url=style_url,
+            extended_data=extended_data,
+        )
+        self._geometry = geometry
+
     @property
-    def geometry(self):
-        return self._geometry.geometry
+    def geometry(self) -> Optional[AnyGeometryType]:
+        if self._geometry is not None:
+            return self._geometry.geometry
+        return None
 
-    @geometry.setter
-    def geometry(self, geometry):
-        if isinstance(geometry, Geometry):
-            self._geometry = geometry
-        else:
-            self._geometry = Geometry(ns=self.ns, geometry=geometry)
-
-    def from_element(self, element: Element) -> None:
+    def from_element(self, element: Element, strict=False) -> None:
         super().from_element(element)
         point = element.find(f"{self.ns}Point")
         if point is not None:
-            geom = Geometry(ns=self.ns)
-            geom.from_element(point)
-            self._geometry = geom
+            self._geometry = Point.class_from_element(
+                ns=self.ns,
+                element=point,
+                strict=strict,
+            )
             return
         line = element.find(f"{self.ns}LineString")
         if line is not None:
-            geom = Geometry(ns=self.ns)
-            geom.from_element(line)
-            self._geometry = geom
+            self._geometry = LineString.class_from_element(
+                ns=self.ns,
+                element=line,
+                strict=strict,
+            )
             return
         polygon = element.find(f"{self.ns}Polygon")
         if polygon is not None:
-            geom = Geometry(ns=self.ns)
-            geom.from_element(polygon)
-            self._geometry = geom
+            self._geometry = Polygon.class_from_element(
+                ns=self.ns,
+                element=polygon,
+                strict=strict,
+            )
             return
         linearring = element.find(f"{self.ns}LinearRing")
         if linearring is not None:
-            geom = Geometry(ns=self.ns)
-            geom.from_element(linearring)
-            self._geometry = geom
+            self._geometry = LinearRing.class_from_element(
+                ns=self.ns,
+                element=linearring,
+                strict=strict,
+            )
             return
         multigeometry = element.find(f"{self.ns}MultiGeometry")
         if multigeometry is not None:
-            geom = Geometry(ns=self.ns)
-            geom.from_element(multigeometry)
-            self._geometry = geom
+            self._geometry = MultiGeometry.class_from_element(
+                ns=self.ns,
+                element=multigeometry,
+                strict=strict,
+            )
             return
         track = element.find(f"{self.ns}Track")
         if track is not None:
-            geom = gx.GxGeometry(ns=gx.NS)
-            geom.from_element(track)
-            self._geometry = geom
+            self._geometry = gx.Track.class_from_element(
+                ns=config.GXNS,
+                element=track,
+                strict=strict,
+            )
             return
         multitrack = element.find(f"{self.ns}MultiTrack")
-        if line is not None:
-            geom = gx.GxGeometry(ns=gx.NS)
-            geom.from_element(multitrack)
-            self._geometry = geom
+        if multitrack is not None:
+            self._geometry = gx.MultiTrack.class_from_element(
+                ns=config.GXNS,
+                element=multitrack,
+                strict=strict,
+            )
             return
         logger.warning("No geometries found")
         logger.debug("Problem with element: %", config.etree.tostring(element))
         # raise ValueError('No geometries found')
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self._geometry is not None:
             element.append(self._geometry.etree_element())
         else:
@@ -1737,7 +1815,11 @@ class KML:
             feature.from_element(photo_overlay)
             self.append(feature)
 
-    def etree_element(self) -> Element:
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
         # self.ns may be empty, which leads to unprefixed kml elements.
         # However, in this case the xlmns should still be mentioned on the kml
         # element, just without prefix.
@@ -1772,7 +1854,6 @@ class KML:
         """iterate over features"""
         for feature in self._features:
             if isinstance(feature, (Document, Folder, Placemark, _Overlay)):
-
                 yield feature
             else:
                 raise TypeError(
@@ -1782,7 +1863,8 @@ class KML:
 
     def append(self, kmlobj: Union[Folder, Document, Placemark]) -> None:
         """append a feature"""
-
+        if id(kmlobj) == id(self):
+            raise ValueError("Cannot append self")
         if isinstance(kmlobj, (Document, Folder, Placemark, _Overlay)):
             self._features.append(kmlobj)
         else:

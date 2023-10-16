@@ -1,10 +1,12 @@
 import logging
 from typing import Optional
+from typing import SupportsFloat
 from typing import Union
 
 import fastkml.config as config
 import fastkml.gx as gx
 from fastkml.base import _BaseObject
+from fastkml.enums import Verbosity
 from fastkml.mixins import TimeMixin
 from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
@@ -89,7 +91,7 @@ class _AbstractView(TimeMixin, _BaseObject):
         return self._longitude
 
     @longitude.setter
-    def longitude(self, value) -> None:
+    def longitude(self, value: Optional[SupportsFloat]) -> None:
         if isinstance(value, (str, int, float)) and (-180 <= float(value) <= 180):
             self._longitude = float(value)
         elif value is None:
@@ -102,7 +104,7 @@ class _AbstractView(TimeMixin, _BaseObject):
         return self._latitude
 
     @latitude.setter
-    def latitude(self, value) -> None:
+    def latitude(self, value: Optional[SupportsFloat]) -> None:
         if isinstance(value, (str, int, float)) and (-90 <= float(value) <= 90):
             self._latitude = float(value)
         elif value is None:
@@ -115,7 +117,7 @@ class _AbstractView(TimeMixin, _BaseObject):
         return self._altitude
 
     @altitude.setter
-    def altitude(self, value) -> None:
+    def altitude(self, value: Optional[SupportsFloat]) -> None:
         if isinstance(value, (str, int, float)):
             self._altitude = float(value)
         elif value is None:
@@ -128,7 +130,7 @@ class _AbstractView(TimeMixin, _BaseObject):
         return self._heading
 
     @heading.setter
-    def heading(self, value) -> None:
+    def heading(self, value: Optional[SupportsFloat]) -> None:
         if isinstance(value, (str, int, float)) and (-180 <= float(value) <= 180):
             self._heading = float(value)
         elif value is None:
@@ -141,7 +143,7 @@ class _AbstractView(TimeMixin, _BaseObject):
         return self._tilt
 
     @tilt.setter
-    def tilt(self, value) -> None:
+    def tilt(self, value: Optional[SupportsFloat]) -> None:
         if isinstance(value, (str, int, float)) and (0 <= float(value) <= 180):
             self._tilt = float(value)
         elif value is None:
@@ -195,8 +197,12 @@ class _AbstractView(TimeMixin, _BaseObject):
             s.from_element(timestamp)
             self._timestamp = s
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.longitude:
             longitude = config.etree.SubElement(element, f"{self.ns}longitude")
             longitude.text = str(self.longitude)
@@ -291,8 +297,12 @@ class Camera(_AbstractView):
         if roll is not None:
             self.roll = roll.text
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.roll:
             roll = config.etree.SubElement(element, f"{self.ns}roll")
             roll.text = str(self.roll)
@@ -313,7 +323,6 @@ class Camera(_AbstractView):
 
 
 class LookAt(_AbstractView):
-
     __name__ = "LookAt"
 
     _range: Optional[float] = None
@@ -367,8 +376,12 @@ class LookAt(_AbstractView):
         if range_var is not None:
             self.range = range_var.text
 
-    def etree_element(self) -> Element:
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.range:
             range_var = config.etree.SubElement(element, f"{self.ns}range")
             range_var.text = str(self._range)

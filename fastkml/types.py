@@ -37,7 +37,7 @@ class Element(Protocol):
     def get(self, tag: str) -> str:
         """Get the value of the tag."""
 
-    def find(self, tag: str) -> "Element":
+    def find(self, tag: str) -> Optional["Element"]:
         """Find the first element with the given tag."""
 
     def findall(self, tag: str) -> Iterable["Element"]:
