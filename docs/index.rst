@@ -63,7 +63,7 @@ requirements, namely:
 * You can parse any KML snippet, it does not need to be a complete KML
   document.
 * It is fully tested and actively maintained.
-* Geometries are handled in the `__geo_interface__` standard.
+* Geometries are handled in the ``__geo_interface__`` standard.
 * Minimal dependencies, pure Python.
 * If available, lxml_ will be used to increase its speed.
 

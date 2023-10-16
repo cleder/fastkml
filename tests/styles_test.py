@@ -317,7 +317,8 @@ class TestStdLibrary(StdLibrary):
         style = styles.Style()
 
         style.from_string(
-            '<kml:Style xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" targetId="target-0">'
+            '<kml:Style xmlns:kml="http://www.opengis.net/kml/2.2" '
+            'id="id-0" targetId="target-0">'
             '<kml:IconStyle id="id-i0" targetId="target-i0">'
             "<kml:color>ff0000ff</kml:color>"
             "<kml:colorMode>random</kml:colorMode>"

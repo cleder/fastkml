@@ -33,9 +33,9 @@ class TestStdLibrary(StdLibrary):
         obj = base._BaseObject(id="id-0", target_id="target-id-0")
         obj.__name__ = "test"
 
-        assert (
-            obj.to_string()
-            == '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" targetId="target-id-0" />'
+        assert obj.to_string() == (
+            '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" '
+            'id="id-0" targetId="target-id-0" />'
         )
 
     def test_to_str_empty_ns(self) -> None:
@@ -51,7 +51,10 @@ class TestStdLibrary(StdLibrary):
         be.__name__ = "test"
 
         be.from_string(
-            xml_string='<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" targetId="target-id-0" />'
+            xml_string=(
+                '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" '
+                'id="id-0" targetId="target-id-0" />'
+            )
         )
 
         assert be.id == "id-0"
@@ -72,7 +75,10 @@ class TestStdLibrary(StdLibrary):
 
     def test_base_from_element_raises(self) -> None:
         be = base._BaseObject()
-        element = cast(types.Element, config.etree.Element(config.KMLNS + "Base"))  # type: ignore[attr-defined]
+        element = cast(
+            types.Element,
+            config.etree.Element(config.KMLNS + "Base"),  # type: ignore[attr-defined]
+        )
 
         with pytest.raises(TypeError):
             be.from_element(element=element)
@@ -82,7 +88,7 @@ class TestStdLibrary(StdLibrary):
 
         with pytest.raises(TypeError):
             be.from_string(
-                xml_string='<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" />'
+                '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" />'
             )
 
     def test_base_class_from_string(self) -> None:
@@ -117,7 +123,10 @@ class TestLxml(Lxml, TestStdLibrary):
         be.__name__ = "test"
 
         be.from_string(
-            xml_string='<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" targetId="target-id-0"/>\n'
+            xml_string=(
+                '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" '
+                'id="id-0" targetId="target-id-0"/>\n'
+            )
         )
 
         assert be.id == "id-0"
