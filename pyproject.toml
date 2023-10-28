@@ -73,6 +73,7 @@ keywords = [
 ]
 
 [project.urls]
+Documentation = "https://fastkml.readthedocs.org/"
 Homepage = "https://github.com/cleder/fastkml"
 
 [tool.check-manifest]
