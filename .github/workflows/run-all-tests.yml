@@ -51,6 +51,7 @@ jobs:
         with:
           fail_ci_if_error: true
           verbose: true
+          token: ${{ env.CODECOV_TOKEN }}
 
   static-tests:
     runs-on: ubuntu-latest
@@ -97,9 +98,10 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip wheel
+          pip install pytest
       - name: Test with pytest
         run: |
-          python setup.py test
+          pytest tests
 
   publish:
     if: "github.event_name == 'push' && github.repository == 'cleder/fastkml'"
