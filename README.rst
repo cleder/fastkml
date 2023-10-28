@@ -30,7 +30,7 @@ Fastkml is continually tested
     :target: http://codecov.io/github/cleder/fastkml?branch=main
     :alt: codecov.io
 
-.. image:: https://img.shields.io/badge/code+style-black-000000.svg
+.. image:: https://img.shields.io/badge/code-style-black-000000.svg
     :target: https://github.com/psf/black
     :alt: Black
 
@@ -43,6 +43,10 @@ Is Maintained and documented:
 .. image:: https://img.shields.io/pypi/status/fastkml.svg
     :target: https://pypi.python.org/pypi/fastkml/
     :alt: Development Status
+
+.. image:: https://img.shields.io/pypi/l/fastkml
+    :target: https://www.gnu.org/licenses/lgpl-3.0.en.html
+    :alt: LGPL - License
 
 .. image:: https://readthedocs.org/projects/fastkml/badge/
     :target: https://fastkml.readthedocs.org/
@@ -59,6 +63,12 @@ Is Maintained and documented:
 .. image:: https://img.shields.io/pypi/implementation/fastkml.svg
     :target: https://pypi.python.org/pypi/fastkml/
     :alt: Supported Python implementations
+
+.. image:: https://img.shields.io/librariesio/release/pypi/fastkml
+    :target: https://libraries.io/pypi/fastkml
+    :alt: Libraries.io dependency status for latest release
+
+
 
 Documentation
 =============
