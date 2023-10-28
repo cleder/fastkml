@@ -29,9 +29,11 @@ dependencies = [
     "typing-extensions>4",
 ]
 description = "Fast KML processing in python"
+dynamic = [
+    "version",
+]
 name = "fastkml"
 requires-python = ">=3.7"
-version = "1.0.alpha.6"
 
 [project.license]
 text = "LGPL"
@@ -57,7 +59,6 @@ tests = [
 typing = [
     "mypy",
     "types-python-dateutil",
-    "types-setuptools",
 ]
 
 [project.readme]
@@ -144,6 +145,9 @@ include = [
 [tool.setuptools]
 include-package-data = true
 zip-safe = false
+
+[tool.setuptools.dynamic.version]
+attr = "fastkml.about.__version__"
 
 [tool.setuptools.packages.find]
 exclude = [

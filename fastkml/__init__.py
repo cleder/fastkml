@@ -23,10 +23,7 @@ at documents that can be read from multiple clients such as openlayers and
 google maps rather than to give you all functionality that KML on google earth
 provides.
 """
-
-from pkg_resources import DistributionNotFound
-from pkg_resources import get_distribution
-
+from fastkml.about import __version__  # noqa: F401
 from fastkml.atom import Author
 from fastkml.atom import Contributor
 from fastkml.atom import Link
@@ -50,11 +47,6 @@ from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
 from fastkml.views import Camera
 from fastkml.views import LookAt
-
-try:
-    __version__ = get_distribution("fastkml").version
-except DistributionNotFound:
-    __version__ = "dev"
 
 __all__ = [
     "KML",
