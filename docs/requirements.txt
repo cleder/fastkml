@@ -1,3 +1,5 @@
 # Documentation Requirements
 Sphinx
+sphinx-autodoc-typehints
 sphinx-rtd-theme
+typing_extensions
