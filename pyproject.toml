@@ -1,3 +1,69 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools>=61.2",
+]
+
+[project]
+name = "fastkml"
+version = "1.0.alpha.6"
+description = "Fast KML processing in python"
+[project.readme]
+content-type = "text/x-rst"
+text = "Introduction\n============\nKML is an XML geospatial data format and an `OGC standard <https://www.ogc.org/search/content/kml>`_\nthat deserves a canonical python implementation.\nFastkml is a library to read, write and manipulate KML files. It aims to keep\nit simple and fast (using lxml_ if available). Fast refers to the time you\nspend to write and read KML files as well as the time you spend to get\nacquainted to the library or to create KML objects. It aims to provide all of\nthe functionality that KML clients such as `OpenLayers\n<http://openlayers.org/>`_, `Google Maps <http://maps.google.com/>`_, and\n`Google Earth <http://earth.google.com/>`_ provides.\nGeometries are handled as pygeoif_ objects.\n.. _pygeoif: http://pypi.python.org/pypi/pygeoif/\n.. _lxml: https://pypi.python.org/pypi/lxml\n.. _dateutils: https://pypi.python.org/pypi/dateutils\n.. _pip: https://pypi.python.org/pypi/pip\nFastkml is continually tested\n.. image:: https://github.com/cleder/fastkml/actions/workflows/run-all-tests.yml/badge.svg?branch=main\n:target: https://github.com/cleder/fastkml/actions/workflows/run-all-tests.yml\n:alt: Test\n.. image:: http://codecov.io/github/cleder/fastkml/coverage.svg?branch=main\n:target: http://codecov.io/github/cleder/fastkml?branch=main\n:alt: codecov.io\n.. image:: https://img.shields.io/badge/code+style-black-000000.svg\n:target: https://github.com/psf/black\n:alt: Black\nIs Maintained and documented:\n.. image:: https://img.shields.io/pypi/v/fastkml.svg\n:target: https://pypi.python.org/pypi/fastkml\n:alt: Latest PyPI version\n.. image:: https://img.shields.io/pypi/status/fastkml.svg\n:target: https://pypi.python.org/pypi/fastkml/\n:alt: Development Status\n.. image:: https://readthedocs.org/projects/fastkml/badge/\n:target: https://fastkml.readthedocs.org/\n:alt: Documentation\n.. image:: https://www.openhub.net/p/fastkml/widgets/project_thin_badge.gif\n:target: https://www.openhub.net/p/fastkml\n:alt: Statistics from OpenHub\n.. image:: https://img.shields.io/pypi/pyversions/fastkml.svg\n:target: https://pypi.python.org/pypi/fastkml/\n:alt: Supported Python versions\n.. image:: https://img.shields.io/pypi/implementation/fastkml.svg\n:target: https://pypi.python.org/pypi/fastkml/\n:alt: Supported Python implementations\nDocumentation\n=============\nYou can find all of the documentation for FastKML at `fastkml.readthedocs.org\n<https://fastkml.readthedocs.org>`_. If you find something that is missing,\nplease submit a pull request on `GitHub <https://github.com/cleder/fastkml>`_\nwith the improvement.\nHave a look at Aryan Guptas\n`The Definite Guide to FastKML. <https://medium.com/@wwaryan/the-definite-only-guide-to-fastkml-58b8e19b8454>`_\nAlternatives\n============\n`Keytree <https://github.com/Toblerity/keytree>`_ provides a less comprehensive, but more flexible\napproach.\nInstall\n========\nYou can install the package with ``pip install fastkml`` which will pull in all requirements.\nRequirements\n-------------\n* pygeoif_\n* dateutils_\nOptional\n---------\n* lxml_\nYou can install all of the requirements for working with FastKML by using\npip_::\npip install -r requirements.txt\nLimitations\n===========\n*Tesselate*, *Extrude* and *Altitude Mode* are assigned to a Geometry or\nGeometry collection (MultiGeometry). You cannot assign different values of\n*Tesselate*, *Extrude* or *Altitude Mode* on parts of a MultiGeometry.\nCurrently, the only major feature missing for the full Google Earth experience\nis the `gx extension\n<https://developers.google.com/kml/documentation/kmlreference#kmlextensions>`_.\nPlease submit a PR with the features you'd like to see implemented.\nChangelog\n=========\n1.0 (unreleased)\n-----------------\n- Drop Python 2 support\n- Use pygeoif >=1.0\n- Drop shapely native support\n- Add type annotations\n- refactor\n0.12 (2020/09/23)\n-----------------\n- add track and multi track [dericke]\n- remove travis, add github actions\n- raise error and debug log for no geometries found case [hyperknot]\n- protect AttributeError from data element without value [fpassaniti]\n- examples and fixes [heltonbiker]\n- improve documentation [whatnick]\n0.11.1 (2015/07/13)\n-------------------\n- add travis deploy to travis.yml\n0.11 (2015/07/10)\n-----------------\n-  handle coordinates tuples which contain spaces\n0.10 (2015/06/09)\n-----------------\n- Fix bug when the fill or outline attributes of a PolyStyle are float strings\n0.9 (2014/10/17)\n-----------------\n- Add tox.ini for running tests using tox [Ian Lee]\n- Add documentation, hosted at https://fastkml.readthedocs.org [Ian Lee]\n0.8 (2014/09/18)\n-----------------\n- Add support for address and phoneNumber [Ian Lee]\n- Add support for Ground Overlay kml [Ian Lee]\n0.7 (2014/08/01)\n----------------\n- Handle case where Document booleans (visibility,isopen) are 'true' or 'false' [jwhelland]\n- test case additions and lxml warning [Ian Lee]\n- pep8-ify source code (except test_main.py) [Ian Lee]\n- pyflakes-ify source code (except __init__.py) [Ian Lee]\n0.6 (2014/05/29)\n----------------\n- add Schema\n- add SchemaData\n- make use of lxmls default namespace\n0.5 (2013/10/23)\n-----------------\n- handle big files with huge_tree for lxml [Egil Moeller]\n- bugfixes\n0.4 (2013/09/05)\n-----------------\n- adds the ability to add untyped extended data / named value pairs [Denis Krienbuehl]\n0.3 (2012/11/15)\n-----------------\n- specify minor python versions tested with Travis CI\n- add support for tesselation, altitudeMode and extrude to Geometries\n- move implementation of geometry from kml.Placemark to geometry.Geometry\n- add support for heterogenous GeometryCollection\n- python 3 compatible\n- fix test for python 3\n- change license to LGPL\n- register namespaces for a more pleasant, human readable xml output\n0.2 (2012/07/27)\n-----------------\n- remove dependency on shapely\n- add more functionality\n0.1.1 (2012/06/29)\n------------------\n- add MANIFEST.in\n0.1 (2012/06/27)\n----------------\n- initial release"
+
+keywords = [
+  "GIS",
+  "Google",
+  "KML",
+  "Maps",
+  "OpenLayers",
+]
+[project.license]
+text = "LGPL"
+
+authors = [
+    { email = "christian.ledermann@gmail.com", name = "Christian Ledermann" },
+]
+requires-python = ">=3.7"
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: GIS",
+]
+dependencies = [
+  "pygeoif>=1.1",
+  "python-dateutil",
+  "setuptools",
+  "typing-extensions>4",
+]
+[project.optional-dependencies]
+testing = [
+  "pytest",
+]
+[project.urls]
+Homepage = "https://github.com/cleder/fastkml"
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.packages.find]
+exclude = [
+    "ez_setup",
+]
+namespaces = false
+
 [tool.ruff.extend-per-file-ignores]
 "setup.py" = [
     "E501",
