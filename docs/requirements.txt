@@ -1,5 +1,7 @@
+pygeoif>=1.1
+python-dateutil
 # Documentation Requirements
 Sphinx
 sphinx-autodoc-typehints
 sphinx-rtd-theme
-typing_extensions
+typing-extensions>4
