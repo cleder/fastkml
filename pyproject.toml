@@ -37,7 +37,7 @@ requires-python = ">=3.7"
 text = "LGPL"
 
 [project.optional-dependencies]
-testing = [
+tests = [
     "pytest",
 ]
 
