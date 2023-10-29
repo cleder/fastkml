@@ -59,9 +59,8 @@ def check_email(email: str) -> bool:
 
 class Link(_XMLObject):
     """
-    Identifies a related Web page. The type of relation is defined by
-    the rel attribute. A feed is limited to one alternate per type and
-    hreflang.
+    Identifies a related Web page. The rel attribute defines the type of relation.
+    A feed is limited to one alternate per type and hreflang.
     <link> is patterned after html's link element. It has one required
     attribute, href, and five optional attributes: rel, type, hreflang,
     title, and length.
