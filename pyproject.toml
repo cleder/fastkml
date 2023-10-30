@@ -24,8 +24,8 @@ classifiers = [
     "Topic :: Scientific/Engineering :: GIS",
 ]
 dependencies = [
+    "arrow",
     "pygeoif>=1.1",
-    "python-dateutil",
     "typing-extensions>4",
 ]
 description = "Fast KML processing in python"

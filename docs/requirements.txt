@@ -1,5 +1,5 @@
+arrow
 pygeoif>=1.1
-python-dateutil
 # Documentation Requirements
 Sphinx
 sphinx-autodoc-typehints

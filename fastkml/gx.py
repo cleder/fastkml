@@ -88,7 +88,7 @@ from typing import Optional
 from typing import Sequence
 from typing import cast
 
-import dateutil.parser
+import arrow
 import pygeoif.geometry as geo
 
 import fastkml.config as config
@@ -247,7 +247,7 @@ class Track(_Geometry):
         time_stamps: List[Optional[datetime.datetime]] = []
         for time_stamp in element.findall(f"{config.KMLNS}when"):
             if time_stamp is not None and time_stamp.text:
-                time_stamps.append(dateutil.parser.parse(time_stamp.text))
+                time_stamps.append(arrow.get(time_stamp.text).datetime)
             else:
                 time_stamps.append(None)
         coords: List[Optional[geo.Point]] = []

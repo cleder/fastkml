@@ -98,6 +98,7 @@ Requirements
 
 * pygeoif_
 * dateutils_
+* arrow_
 
 Optional
 ---------
