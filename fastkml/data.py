@@ -1,4 +1,4 @@
-# Copyright (C) 2022  Christian Ledermann
+# Copyright (C) 2022 - 2023  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -13,7 +13,10 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-"""Add Custom Data"""
+"""Add Custom Data
+
+https://developers.google.com/kml/documentation/extendeddata#example
+"""
 import logging
 from dataclasses import dataclass
 from typing import Any
@@ -24,7 +27,6 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 from typing import cast
-from typing import overload
 
 import fastkml.config as config
 from fastkml.base import _BaseObject
@@ -333,6 +335,12 @@ SchemaDataInput = Optional[
 SchemaDataOutput = Tuple[Dict[str, Union[int, str]], ...]
 
 
+@dataclass(frozen=True)
+class SimpleData:
+    name: str
+    value: Union[int, str, float, bool]
+
+
 class SchemaData(_XMLObject):
     """
     <SchemaData schemaUrl="anyURI">
@@ -352,53 +360,32 @@ class SchemaData(_XMLObject):
         self,
         ns: Optional[str] = None,
         schema_url: Optional[str] = None,
-        data: Optional[List[Dict[str, str]]] = None,
+        data: Optional[Iterable[SimpleData]] = None,
     ) -> None:
         super().__init__(ns)
         if (not isinstance(schema_url, str)) or (not schema_url):
             raise ValueError("required parameter schema_url missing")
         self.schema_url = schema_url
-        self._data: SchemaDataType = []
-        self.data = data  # type: ignore[assignment]
+        self._data = list(data) if data else []
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"ns='{self.ns}',"
+            f"schema_url='{self.schema_url}', "
+            f"data='{self.data}')"
+        )
 
     @property
-    def data(self) -> SchemaDataOutput:
+    def data(self) -> Tuple[SimpleData, ...]:
         return tuple(self._data)
 
     @data.setter
-    @overload
-    def data(self, data: SchemaDataListInput) -> None:
-        ...
+    def data(self, data: Iterable[SimpleData]) -> None:
+        self._data = list(data)
 
-    @data.setter
-    @overload
-    def data(self, data: SchemaDataTupleInput) -> None:
-        ...
-
-    @data.setter
-    @overload
-    def data(self, data: SchemaDataDictInput) -> None:
-        ...
-
-    @data.setter
-    def data(self, data: SchemaDataInput) -> None:
-        if isinstance(data, (tuple, list)):
-            self._data = []
-            for d in data:
-                if isinstance(d, (tuple, list)):
-                    self.append_data(*d)
-                elif isinstance(d, dict):
-                    self.append_data(**d)
-        elif data is None:
-            self._data = []
-        else:
-            raise TypeError("data must be of type tuple or list")
-
-    def append_data(self, name: str, value: Union[int, str]) -> None:
-        if isinstance(name, str) and name:
-            self._data.append({"name": name, "value": value})
-        else:
-            raise TypeError("name must be a nonempty string")
+    def append_data(self, data: SimpleData) -> None:
+        self._data.append(data)
 
     def etree_element(
         self,
@@ -411,8 +398,8 @@ class SchemaData(_XMLObject):
             sd = config.etree.SubElement(  # type: ignore[attr-defined]
                 element, f"{self.ns}SimpleData"
             )
-            sd.set("name", data["name"])
-            sd.text = data["value"]
+            sd.set("name", data.name)
+            sd.text = data.value
         return element
 
     def from_element(self, element: Element) -> None:
@@ -421,4 +408,21 @@ class SchemaData(_XMLObject):
         self.schema_url = element.get("schemaUrl")
         simple_data = element.findall(f"{self.ns}SimpleData")
         for sd in simple_data:
-            self.append_data(sd.get("name"), sd.text)
+            self.append_data(SimpleData(name=sd.get("name"), value=sd.text))
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs["schema_url"] = element.get("schemaUrl")
+        kwargs["data"] = [
+            SimpleData(name=sd.get("name"), value=sd.text)
+            for sd in element.findall(f"{ns}SimpleData")
+            if sd is not None
+        ]
+        return kwargs
