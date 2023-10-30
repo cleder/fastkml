@@ -26,7 +26,6 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
-from typing import cast
 
 import fastkml.config as config
 from fastkml.base import _BaseObject
@@ -41,12 +40,6 @@ __all__ = [
     "ExtendedData",
     "Schema",
     "SchemaData",
-    "SchemaDataDictInput",
-    "SchemaDataInput",
-    "SchemaDataListInput",
-    "SchemaDataOutput",
-    "SchemaDataTupleInput",
-    "SchemaDataType",
     "SimpleField",
 ]
 
@@ -132,17 +125,6 @@ class Schema(_BaseObject):
         """Append a field."""
         self._simple_fields.append(field)
 
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        self.name = element.get("name")
-        simple_fields = element.findall(f"{self.ns}SimpleField")
-        for simple_field in simple_fields:
-            sf_name = simple_field.get("name")
-            sf_type = simple_field.get("type")
-            display_name = simple_field.find(f"{self.ns}displayName")
-            sf_display_name = display_name.text if display_name is not None else None
-            self.append(SimpleField(sf_name, DataType(sf_type), sf_display_name))
-
     def etree_element(
         self,
         precision: Optional[int] = None,
@@ -177,13 +159,10 @@ class Schema(_BaseObject):
             return display_name.text if display_name is not None else None
 
         return [
-            cast(
-                SimpleField,
-                SimpleField(
-                    name=field.get("name"),
-                    type=DataType(field.get("type")),
-                    display_name=get_display_name(field),
-                ),
+            SimpleField(
+                name=field.get("name"),
+                type=DataType(field.get("type")),
+                display_name=get_display_name(field),
             )
             for field in element.findall(f"{ns}SimpleField")
             if field is not None
@@ -249,16 +228,6 @@ class Data(_XMLObject):
             display_name.text = self.display_name
         return element
 
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        self.name = element.get("name")
-        tmp_value = element.find(f"{self.ns}value")
-        if tmp_value is not None:
-            self.value = tmp_value.text
-        display_name = element.find(f"{self.ns}displayName")
-        if display_name is not None:
-            self.display_name = display_name.text
-
     @classmethod
     def _get_kwargs(
         cls,
@@ -276,63 +245,6 @@ class Data(_XMLObject):
         if display_name is not None:
             kwargs["display_name"] = display_name.text
         return kwargs
-
-
-class ExtendedData(_XMLObject):
-    """Represents a list of untyped name/value pairs. See docs:
-
-    -> 'Adding Untyped Name/Value Pairs'
-       https://developers.google.com/kml/documentation/extendeddata
-
-    """
-
-    __name__ = "ExtendedData"
-
-    def __init__(
-        self,
-        ns: Optional[str] = None,
-        elements: Optional[List[Union[Data, "SchemaData"]]] = None,
-    ) -> None:
-        super().__init__(ns)
-        self.elements = elements or []
-
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        for subelement in self.elements:
-            element.append(subelement.etree_element())
-        return element
-
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        self.elements = []
-        untyped_data = element.findall(f"{self.ns}Data")
-        for ud in untyped_data:
-            el_data = Data(self.ns)
-            el_data.from_element(ud)
-            self.elements.append(el_data)
-        typed_data = element.findall(f"{self.ns}SchemaData")
-        for sd in typed_data:
-            el_schema_data = SchemaData(self.ns, "dummy")
-            el_schema_data.from_element(sd)
-            self.elements.append(el_schema_data)
-
-
-SchemaDataType = List[Dict[str, Union[int, str]]]
-SchemaDataListInput = List[Union[Dict[str, str], SchemaDataType]]
-SchemaDataTupleInput = Tuple[Union[Dict[str, str], Tuple[Dict[str, Union[int, str]]]]]
-SchemaDataDictInput = Dict[str, Union[int, str]]
-SchemaDataInput = Optional[
-    Union[
-        SchemaDataListInput,
-        SchemaDataTupleInput,
-        SchemaDataDictInput,
-    ]
-]
-SchemaDataOutput = Tuple[Dict[str, Union[int, str]], ...]
 
 
 @dataclass(frozen=True)
@@ -402,14 +314,6 @@ class SchemaData(_XMLObject):
             sd.text = data.value
         return element
 
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        self.data = []  # type: ignore[assignment]
-        self.schema_url = element.get("schemaUrl")
-        simple_data = element.findall(f"{self.ns}SimpleData")
-        for sd in simple_data:
-            self.append_data(SimpleData(name=sd.get("name"), value=sd.text))
-
     @classmethod
     def _get_kwargs(
         cls,
@@ -425,4 +329,63 @@ class SchemaData(_XMLObject):
             for sd in element.findall(f"{ns}SimpleData")
             if sd is not None
         ]
+        return kwargs
+
+
+class ExtendedData(_XMLObject):
+    """Represents a list of untyped name/value pairs. See docs:
+
+    -> 'Adding Untyped Name/Value Pairs'
+       https://developers.google.com/kml/documentation/extendeddata
+
+    """
+
+    __name__ = "ExtendedData"
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        elements: Optional[Iterable[Union[Data, SchemaData]]] = None,
+    ) -> None:
+        super().__init__(ns)
+        self.elements = elements or []
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"ns='{self.ns}',"
+            f"elements='{self.elements}')"
+        )
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        for subelement in self.elements:
+            element.append(subelement.etree_element())
+        return element
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        elements = []
+        untyped_data = element.findall(f"{ns}Data")
+        for ud in untyped_data:
+            el_data = Data.class_from_element(ns=ns, element=ud, strict=strict)
+            elements.append(el_data)
+        typed_data = element.findall(f"{ns}SchemaData")
+        for sd in typed_data:
+            el_schema_data = SchemaData.class_from_element(
+                ns=ns, element=sd, strict=strict
+            )
+            elements.append(el_schema_data)
+        kwargs["elements"] = elements
         return kwargs

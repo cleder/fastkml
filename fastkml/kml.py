@@ -408,7 +408,7 @@ class _Feature(TimeMixin, _BaseObject):
             phone_number.text = self._phone_number
         return element
 
-    def from_element(self, element: Element) -> None:
+    def from_element(self, element: Element, strict: bool = False) -> None:
         super().from_element(element)
         name = element.find(f"{self.ns}name")
         if name is not None:
@@ -465,9 +465,11 @@ class _Feature(TimeMixin, _BaseObject):
             self._atom_author = s
         extended_data = element.find(f"{self.ns}ExtendedData")
         if extended_data is not None:
-            x = ExtendedData(self.ns)
-            x.from_element(extended_data)
-            self.extended_data = x
+            self.extended_data = ExtendedData.class_from_element(
+                ns=self.ns,
+                element=extended_data,
+                strict=strict,
+            )
         address = element.find(f"{self.ns}address")
         if address is not None:
             self.address = address.text
