@@ -130,11 +130,11 @@ class Schema(_BaseObject):
         self.name = element.get("name")
         simple_fields = element.findall(f"{self.ns}SimpleField")
         for simple_field in simple_fields:
-            sfname = simple_field.get("name")
-            sftype = simple_field.get("type")
+            sf_name = simple_field.get("name")
+            sf_type = simple_field.get("type")
             display_name = simple_field.find(f"{self.ns}displayName")
-            sfdisplay_name = display_name.text if display_name is not None else None
-            self.append(SimpleField(sfname, DataType(sftype), sfdisplay_name))
+            sf_display_name = display_name.text if display_name is not None else None
+            self.append(SimpleField(sf_name, DataType(sf_type), sf_display_name))
 
     def etree_element(
         self,

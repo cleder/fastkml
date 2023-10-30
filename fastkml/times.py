@@ -31,7 +31,9 @@ from fastkml.types import Element
 # regular expression to parse a gYearMonth string
 # year and month may be separated by a dash or not
 # year is always 4 digits, month is always 2 digits
-year_month = re.compile(r"^(?P<year>\d{4})(?:-?)(?P<month>\d{2})$")
+year_month_day = re.compile(
+    r"^(?P<year>\d{4})(?:-)?(?P<month>\d{2})?(?:-)?(?P<day>\d{2})?$"
+)
 
 
 class KmlDateTime:
@@ -120,20 +122,17 @@ class KmlDateTime:
         """Parse a KML DateTime string into a KmlDateTime object."""
         resolution = None
         dt = None
-        if len(datestr) == 4:
-            year = int(datestr)
-            dt = arrow.get(year, 1, 1).datetime
-            resolution = DateTimeResolution.year
-        elif len(datestr) in {6, 7}:
-            ym = year_month.match(datestr)
-            if ym:
-                year = int(ym.group("year"))
-                month = int(ym.group("month"))
-                dt = arrow.get(year, month, 1).datetime
-                resolution = DateTimeResolution.year_month
-        elif len(datestr) in {8, 10}:  # 8 is YYYYMMDD, 10 is YYYY-MM-DD
-            dt = arrow.get(datestr).datetime
+        year_month_day_match = year_month_day.match(datestr)
+        if year_month_day_match:
+            year = int(year_month_day_match.group("year"))
+            month = int(year_month_day_match.group("month") or 1)
+            day = int(year_month_day_match.group("day") or 1)
+            dt = arrow.get(year, month, day).datetime
             resolution = DateTimeResolution.date
+            if year_month_day_match.group("day") is None:
+                resolution = DateTimeResolution.year_month
+            if year_month_day_match.group("month") is None:
+                resolution = DateTimeResolution.year
         elif len(datestr) > 10:
             dt = arrow.get(datestr).datetime
             resolution = DateTimeResolution.datetime
