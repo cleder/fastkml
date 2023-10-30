@@ -237,6 +237,22 @@ class TestStdLibrary(StdLibrary):
         assert sd1.schema_url == "#TrailHeadTypeId"
         assert sd.to_string() == sd1.to_string()
 
+    def test_data_from_string(self) -> None:
+        doc = """<Data name="holeNumber">
+          <displayName><![CDATA[
+              <b>This is hole </b>
+          ]]></displayName>
+          <value>1</value>
+        </Data>"""
+
+        d = data.Data.class_from_string(doc, ns="")
+        assert d.name == "holeNumber"
+        assert d.value == "1"
+        assert "<b>This is hole </b>" in d.display_name
+        d1 = data.Data.class_from_string(d.to_string(), ns="")
+        assert d1.name == "holeNumber"
+        assert d.to_string() == d1.to_string()
+
 
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""

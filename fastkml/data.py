@@ -257,6 +257,24 @@ class Data(_XMLObject):
         if display_name is not None:
             self.display_name = display_name.text
 
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs["name"] = element.get("name")
+        value = element.find(f"{ns}value")
+        if value is not None:
+            kwargs["value"] = value.text
+        display_name = element.find(f"{ns}displayName")
+        if display_name is not None:
+            kwargs["display_name"] = display_name.text
+        return kwargs
+
 
 class ExtendedData(_XMLObject):
     """Represents a list of untyped name/value pairs. See docs:
