@@ -15,19 +15,21 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Add Custom Data"""
 import logging
+from dataclasses import dataclass
 from typing import Dict
+from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
 from typing import overload
 
-from typing_extensions import TypedDict
-
 import fastkml.config as config
 from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
+from fastkml.enums import DataType
 from fastkml.enums import Verbosity
+from fastkml.exceptions import KMLSchemaError
 from fastkml.types import Element
 
 __all__ = [
@@ -42,31 +44,38 @@ __all__ = [
     "SchemaDataTupleInput",
     "SchemaDataType",
     "SimpleField",
-    "SimpleFields",
-    "SimpleFieldsDictInput",
-    "SimpleFieldsInput",
-    "SimpleFieldsListInput",
-    "SimpleFieldsOutput",
-    "SimpleFieldsTupleInput",
 ]
 
 logger = logging.getLogger(__name__)
 
 
-class SimpleField(TypedDict):
+@dataclass(frozen=True)
+class SimpleField:
+    """
+    A SimpleField always has both name and type attributes.
+
+    The declaration of the custom field, must specify both the type
+    and the name of this field.
+    If either the type or the name is omitted, the field is ignored.
+
+    The type can be one of the following:
+     - string
+     - int
+     - uint
+     - short
+     - ushort
+     - float
+     - double
+     - bool
+
+    The displayName, if any, to be used when the field name is displayed to
+    the Google Earth user. Use the [CDATA] element to escape standard
+    HTML markup.
+    """
+
     name: str
-    type: str
-    displayName: Optional[str]  # noqa: N815
-
-
-SimpleFields = List[Dict[str, str]]
-SimpleFieldsListInput = List[Union[Dict[str, str], List[Dict[str, str]]]]
-SimpleFieldsTupleInput = Tuple[Union[Dict[str, str], Tuple[Dict[str, str]]]]
-SimpleFieldsDictInput = Dict[str, str]
-SimpleFieldsInput = Optional[
-    Union[SimpleFieldsListInput, SimpleFieldsTupleInput, SimpleFieldsDictInput]
-]
-SimpleFieldsOutput = Tuple[SimpleField, ...]
+    type: DataType
+    display_name: Optional[str] = None
 
 
 class Schema(_BaseObject):
@@ -85,101 +94,36 @@ class Schema(_BaseObject):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
-        fields: SimpleFieldsInput = None,
+        fields: Optional[Iterable[SimpleField]] = None,
     ) -> None:
         if id is None:
-            raise ValueError("Id is required for schema")
+            raise KMLSchemaError("Id is required for schema")
         super().__init__(ns=ns, id=id, target_id=target_id)
         self.name = name
-        self._simple_fields: SimpleFields = []
-        self.simple_fields = fields  # type: ignore[assignment]
+        self._simple_fields = list(fields) if fields else []
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name}, "
+            f"fields={self.simple_fields!r}"
+            ")"
+        )
 
     @property
-    def simple_fields(self) -> SimpleFieldsOutput:
-        return tuple(
-            SimpleField(
-                type=simple_field.get("type", ""),
-                name=simple_field.get("name", ""),
-                displayName=simple_field.get("displayName") or None,
-            )
-            for simple_field in self._simple_fields
-            if simple_field.get("type") and simple_field.get("name")
-        )
+    def simple_fields(self) -> Tuple[SimpleField, ...]:
+        return tuple(self._simple_fields)
 
     @simple_fields.setter
-    @overload
-    def simple_fields(self, fields: SimpleFieldsListInput) -> None:
-        ...
+    def simple_fields(self, fields: Iterable[SimpleField]) -> None:
+        self._simple_fields = list(fields)
 
-    @simple_fields.setter
-    @overload
-    def simple_fields(self, fields: SimpleFieldsTupleInput) -> None:
-        ...
-
-    @simple_fields.setter
-    @overload
-    def simple_fields(self, fields: SimpleFieldsDictInput) -> None:
-        ...
-
-    @simple_fields.setter
-    def simple_fields(self, fields: SimpleFieldsInput) -> None:
-        if isinstance(fields, dict):
-            self.append(**fields)
-        elif isinstance(fields, (list, tuple)):
-            for field in fields:
-                if isinstance(field, (list, tuple)):
-                    self.append(*field)
-                elif isinstance(field, dict):
-                    self.append(**field)
-        elif fields is None:
-            self._simple_fields = []
-        else:
-            raise ValueError("Fields must be of type list, tuple or dict")
-
-    def append(self, type: str, name: str, display_name: Optional[str] = None) -> None:
-        """
-        append a field.
-        The declaration of the custom field, must specify both the type
-        and the name of this field.
-        If either the type or the name is omitted, the field is ignored.
-
-        The type can be one of the following:
-            string
-            int
-            uint
-            short
-            ushort
-            float
-            double
-            bool
-
-        <displayName>
-        The name, if any, to be used when the field name is displayed to
-        the Google Earth user. Use the [CDATA] element to escape standard
-        HTML markup.
-        """
-        allowed_types = [
-            "string",
-            "int",
-            "uint",
-            "short",
-            "ushort",
-            "float",
-            "double",
-            "bool",
-        ]
-        if type not in allowed_types:
-            logger.warning(
-                "%s has the type %s which is invalid. "
-                "The type must be one of "
-                "'string', 'int', 'uint', 'short', "
-                "'ushort', 'float', 'double', 'bool'",
-                name,
-                type,
-            )
-        self._simple_fields.append(
-            {"type": type, "name": name, "displayName": display_name or ""}
-        )
+    def append(self, field: SimpleField) -> None:
+        """Append a field."""
+        self._simple_fields.append(field)
 
     def from_element(self, element: Element) -> None:
         super().from_element(element)
@@ -190,7 +134,7 @@ class Schema(_BaseObject):
             sftype = simple_field.get("type")
             display_name = simple_field.find(f"{self.ns}displayName")
             sfdisplay_name = display_name.text if display_name is not None else None
-            self.append(sftype, sfname, sfdisplay_name)
+            self.append(SimpleField(sfname, DataType(sftype), sfdisplay_name))
 
     def etree_element(
         self,
@@ -204,13 +148,13 @@ class Schema(_BaseObject):
             sf = config.etree.SubElement(  # type: ignore[attr-defined]
                 element, f"{self.ns}SimpleField"
             )
-            sf.set("type", simple_field["type"])
-            sf.set("name", simple_field["name"])
-            if simple_field.get("displayName"):
+            sf.set("type", simple_field.type.value)
+            sf.set("name", simple_field.name)
+            if simple_field.display_name:
                 dn = config.etree.SubElement(  # type: ignore[attr-defined]
                     sf, f"{self.ns}displayName"
                 )
-                dn.text = simple_field["displayName"]
+                dn.text = simple_field.display_name
         return element
 
 

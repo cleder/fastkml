@@ -17,7 +17,10 @@
 import pytest
 
 import fastkml as kml
+from fastkml import config
 from fastkml import data
+from fastkml.enums import DataType
+from fastkml.exceptions import KMLSchemaError
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -25,34 +28,72 @@ from tests.base import StdLibrary
 class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
 
+    def test_schema_requires_id(self) -> None:
+        pytest.raises(KMLSchemaError, kml.Schema, "")
+
     def test_schema(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
-        pytest.raises(ValueError, kml.Schema, ns)
         s = kml.Schema(ns, "some_id")
         assert not list(s.simple_fields)
-        s.append("int", "Integer", "An Integer")
-        assert list(s.simple_fields)[0]["type"] == "int"
-        assert list(s.simple_fields)[0]["name"] == "Integer"
-        assert list(s.simple_fields)[0]["displayName"] == "An Integer"
-        s.simple_fields = None
-        assert not list(s.simple_fields)
-        pytest.raises(TypeError, s.append, ("none", "Integer", "An Integer"))
-        # pytest.raises(
-        #     TypeError, s.simple_fields, ("none", "Integer", "An Integer"),
-        # )
-        # pytest.raises(TypeError, s.simple_fields, ("int", "Integer", "An Integer"))
+        field = data.SimpleField(
+            name="Integer", type=DataType.int_, display_name="An Integer"
+        )
+        s.append(field)
+        assert s.simple_fields[0] == field
+        s.simple_fields = []
+        assert not s.simple_fields
         fields = {"type": "int", "name": "Integer", "display_name": "An Integer"}
-        s.simple_fields = fields
-        assert list(s.simple_fields)[0]["type"] == "int"
-        assert list(s.simple_fields)[0]["name"] == "Integer"
-        assert list(s.simple_fields)[0]["displayName"] == "An Integer"
-        s.simple_fields = [["float", "Float"], fields]
-        assert list(s.simple_fields)[0]["type"] == "int"
-        assert list(s.simple_fields)[0]["name"] == "Integer"
-        assert list(s.simple_fields)[0]["displayName"] == "An Integer"
-        assert list(s.simple_fields)[1]["type"] == "float"
-        assert list(s.simple_fields)[1]["name"] == "Float"
-        assert list(s.simple_fields)[1]["displayName"] is None
+        s.simple_fields = (data.SimpleField(**fields),)
+        assert s.simple_fields[0] == data.SimpleField(**fields)
+
+    def test_schema_from_string(self) -> None:
+        doc = """<Schema name="TrailHeadType" id="TrailHeadTypeId">
+            <SimpleField type="string" name="TrailHeadName">
+              <displayName><![CDATA[<b>Trail Head Name</b>]]></displayName>
+            </SimpleField>
+            <SimpleField type="double" name="TrailLength">
+              <displayName><![CDATA[<i>The length in miles</i>]]></displayName>
+            </SimpleField>
+            <SimpleField type="int" name="ElevationGain">
+              <displayName><![CDATA[<i>change in altitude</i>]]></displayName>
+            </SimpleField>
+          </Schema> """
+
+        s = kml.Schema(ns="", id="default")
+        s.from_string(doc)
+        assert len(list(s.simple_fields)) == 3
+        assert s.simple_fields[0].type == DataType("string")
+        assert s.simple_fields[1].type == DataType("double")
+        assert s.simple_fields[2].type == DataType("int")
+        assert s.simple_fields[0].name == "TrailHeadName"
+        assert s.simple_fields[1].name == "TrailLength"
+        assert s.simple_fields[2].name == "ElevationGain"
+        assert s.simple_fields[0].display_name == "<b>Trail Head Name</b>"
+        assert s.simple_fields[1].display_name == "<i>The length in miles</i>"
+        assert s.simple_fields[2].display_name == "<i>change in altitude</i>"
+        s1 = kml.Schema(ns="", id="default")
+        s1.from_string(s.to_string())
+        assert len(s1.simple_fields) == 3
+        assert s1.simple_fields[0].type == DataType("string")
+        assert s1.simple_fields[1].name == "TrailLength"
+        assert s1.simple_fields[2].display_name == "<i>change in altitude</i>"
+        assert s.to_string() == s1.to_string()
+        doc1 = f"""<kml xmlns="http://www.opengis.net/kml/2.2">
+            <Document>
+            {doc}
+        </Document>
+        </kml>"""
+        k = kml.KML()
+        k.from_string(doc1)
+        d = list(k.features())[0]
+        s2 = list(d.schemata())[0]
+        s.ns = config.KMLNS
+        assert s.to_string() == s2.to_string()
+        k1 = kml.KML()
+        k1.from_string(k.to_string())
+        assert "Schema" in k1.to_string()
+        assert "SimpleField" in k1.to_string()
+        assert k1.to_string() == k.to_string()
 
     def test_schema_data(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003

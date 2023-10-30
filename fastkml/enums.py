@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 from enum import Enum
 from enum import unique
+from typing import Union
 
 __all__ = ["AltitudeMode", "DateTimeResolution", "Verbosity"]
 
@@ -84,3 +85,27 @@ class AltitudeMode(Enum):
     absolute = "absolute"
     clamp_to_sea_floor = "clampToSeaFloor"
     relative_to_sea_floor = "relativeToSeaFloor"
+
+
+@unique
+class DataType(Enum):
+    string = "string"
+    int_ = "int"
+    uint = "uint"
+    short = "short"
+    ushort = "ushort"
+    float_ = "float"
+    double = "double"
+    bool_ = "bool"
+
+    def convert(self, value: str) -> Union[str, int, float, bool]:
+        """Convert the data type to a python type."""
+        if self == DataType.string:
+            return str(value)
+        if self in {DataType.int_, DataType.uint, DataType.short, DataType.ushort}:
+            return int(value)
+        if self in {DataType.float_, DataType.double}:
+            return float(value)
+        if self == DataType.bool_:
+            return bool(int(value))
+        raise ValueError(f"Unknown data type {self}")

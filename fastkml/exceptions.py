@@ -28,4 +28,5 @@ class KMLWriteError(FastKMLError):
     """Raised when there is an error writing KML."""
 
 
-__all__ = ["FastKMLError", "KMLParseError", "KMLWriteError"]
+class KMLSchemaError(FastKMLError):
+    """Raised when there is an error with the KML Schema."""

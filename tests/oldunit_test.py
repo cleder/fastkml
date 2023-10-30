@@ -542,55 +542,6 @@ class TestKmlFromString:
     def test_atom(self) -> None:
         pass
 
-    def test_schema(self) -> None:
-        doc = """<Schema name="TrailHeadType" id="TrailHeadTypeId">
-            <SimpleField type="string" name="TrailHeadName">
-              <displayName><![CDATA[<b>Trail Head Name</b>]]></displayName>
-            </SimpleField>
-            <SimpleField type="double" name="TrailLength">
-              <displayName><![CDATA[<i>The length in miles</i>]]></displayName>
-            </SimpleField>
-            <SimpleField type="int" name="ElevationGain">
-              <displayName><![CDATA[<i>change in altitude</i>]]></displayName>
-            </SimpleField>
-          </Schema> """
-
-        s = kml.Schema(ns="", id="default")
-        s.from_string(doc)
-        assert len(list(s.simple_fields)) == 3
-        assert list(s.simple_fields)[0]["type"] == "string"
-        assert list(s.simple_fields)[1]["type"] == "double"
-        assert list(s.simple_fields)[2]["type"] == "int"
-        assert list(s.simple_fields)[0]["name"] == "TrailHeadName"
-        assert list(s.simple_fields)[1]["name"] == "TrailLength"
-        assert list(s.simple_fields)[2]["name"] == "ElevationGain"
-        assert list(s.simple_fields)[0]["displayName"] == "<b>Trail Head Name</b>"
-        assert list(s.simple_fields)[1]["displayName"] == "<i>The length in miles</i>"
-        assert list(s.simple_fields)[2]["displayName"] == "<i>change in altitude</i>"
-        s1 = kml.Schema(ns="", id="default")
-        s1.from_string(s.to_string())
-        assert len(list(s1.simple_fields)) == 3
-        assert list(s1.simple_fields)[0]["type"] == "string"
-        assert list(s1.simple_fields)[1]["name"] == "TrailLength"
-        assert list(s1.simple_fields)[2]["displayName"] == "<i>change in altitude</i>"
-        assert s.to_string() == s1.to_string()
-        doc1 = f"""<kml xmlns="http://www.opengis.net/kml/2.2">
-            <Document>
-            {doc}
-        </Document>
-        </kml>"""
-        k = kml.KML()
-        k.from_string(doc1)
-        d = list(k.features())[0]
-        s2 = list(d.schemata())[0]
-        s.ns = config.KMLNS
-        assert s.to_string() == s2.to_string()
-        k1 = kml.KML()
-        k1.from_string(k.to_string())
-        assert "Schema" in k1.to_string()
-        assert "SimpleField" in k1.to_string()
-        assert k1.to_string() == k.to_string()
-
     def test_snippet(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Placemark>
