@@ -21,7 +21,6 @@ from typing import Optional
 from typing import Union
 
 import arrow
-from dateutil import parser
 
 import fastkml.config as config
 from fastkml.base import _BaseObject

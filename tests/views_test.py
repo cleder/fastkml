@@ -17,7 +17,9 @@
 """Test the (Abstract)Views classes."""
 
 import datetime
+
 from dateutil.tz import tzutc
+
 from fastkml import times
 from fastkml import views
 from tests.base import Lxml
@@ -57,8 +59,12 @@ class TestStdLibrary(StdLibrary):
         assert camera.longitude == 60
         assert camera.id == "cam-id"
         assert camera.target_id == "target-cam-id"
-        assert camera.begin == times.KmlDateTime(datetime.datetime(2019, 1, 1, tzinfo=tzutc()))
-        assert camera.end == times.KmlDateTime(datetime.datetime(2019, 1, 2, tzinfo=tzutc()))
+        assert camera.begin == times.KmlDateTime(
+            datetime.datetime(2019, 1, 1, tzinfo=tzutc())
+        )
+        assert camera.end == times.KmlDateTime(
+            datetime.datetime(2019, 1, 2, tzinfo=tzutc())
+        )
         assert camera.to_string()
 
     def test_camera_read(self) -> None:
@@ -92,8 +98,12 @@ class TestStdLibrary(StdLibrary):
         assert camera.longitude == 60
         assert camera.id == "cam-id"
         assert camera.target_id == "target-cam-id"
-        assert camera.begin == times.KmlDateTime(datetime.datetime(2019, 1, 1, tzinfo=tzutc()))
-        assert camera.end == times.KmlDateTime(datetime.datetime(2019, 1, 2, tzinfo=tzutc()))
+        assert camera.begin == times.KmlDateTime(
+            datetime.datetime(2019, 1, 1, tzinfo=tzutc())
+        )
+        assert camera.end == times.KmlDateTime(
+            datetime.datetime(2019, 1, 2, tzinfo=tzutc())
+        )
 
     def test_create_look_at(self) -> None:
         time_stamp = times.TimeStamp(
@@ -121,7 +131,9 @@ class TestStdLibrary(StdLibrary):
         assert look_at.longitude == 60
         assert look_at.id == "look-at-id"
         assert look_at.target_id == "target-look-at-id"
-        assert look_at._timestamp.timestamp.dt == datetime.datetime(2019, 1, 1, tzinfo=tzutc())
+        assert look_at._timestamp.timestamp.dt == datetime.datetime(
+            2019, 1, 1, tzinfo=tzutc()
+        )
         assert look_at.begin is None
         assert look_at.end is None
         assert look_at.to_string()
@@ -153,7 +165,9 @@ class TestStdLibrary(StdLibrary):
         assert look_at.longitude == 60
         assert look_at.id == "look-at-id"
         assert look_at.target_id == "target-look-at-id"
-        assert look_at._timestamp.timestamp.dt == datetime.datetime(2019, 1, 1, tzinfo=tzutc())
+        assert look_at._timestamp.timestamp.dt == datetime.datetime(
+            2019, 1, 1, tzinfo=tzutc()
+        )
         assert look_at.begin is None
         assert look_at.end is None
 
