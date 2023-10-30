@@ -30,6 +30,26 @@ from fastkml.base import _XMLObject
 from fastkml.enums import Verbosity
 from fastkml.types import Element
 
+__all__ = [
+    "Data",
+    "ExtendedData",
+    "Schema",
+    "SchemaData",
+    "SchemaDataDictInput",
+    "SchemaDataInput",
+    "SchemaDataListInput",
+    "SchemaDataOutput",
+    "SchemaDataTupleInput",
+    "SchemaDataType",
+    "SimpleField",
+    "SimpleFields",
+    "SimpleFieldsDictInput",
+    "SimpleFieldsInput",
+    "SimpleFieldsListInput",
+    "SimpleFieldsOutput",
+    "SimpleFieldsTupleInput",
+]
+
 logger = logging.getLogger(__name__)
 
 

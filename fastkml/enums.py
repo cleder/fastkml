@@ -16,6 +16,8 @@
 from enum import Enum
 from enum import unique
 
+__all__ = ["AltitudeMode", "DateTimeResolution", "Verbosity"]
+
 
 @unique
 class Verbosity(Enum):

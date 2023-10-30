@@ -22,7 +22,6 @@ from types import ModuleType
 __all__ = [
     "ATOMNS",
     "DEFAULT_NAME_SPACES",
-    "FORCE3D",
     "GXNS",
     "KMLNS",
     "register_namespaces",
@@ -76,5 +75,3 @@ def set_default_namespaces() -> None:
 
 
 set_default_namespaces()
-
-FORCE3D = False

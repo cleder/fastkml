@@ -37,6 +37,18 @@ from fastkml.exceptions import KMLParseError
 from fastkml.exceptions import KMLWriteError
 from fastkml.types import Element
 
+__all__ = [
+    "AnyGeometryType",
+    "GeometryType",
+    "LineString",
+    "LinearRing",
+    "MultiGeometry",
+    "MultiGeometryType",
+    "Point",
+    "Polygon",
+    "create_multigeometry",
+]
+
 logger = logging.getLogger(__name__)
 
 GeometryType = Union[geo.Polygon, geo.LineString, geo.LinearRing, geo.Point]

@@ -1,5 +1,5 @@
 -r requirements.txt
--r doc-requirements.txt
+-r doc/requirements.txt
 black
 flake8
 # flake8-dunder-all

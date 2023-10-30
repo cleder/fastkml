@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
 
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
 
     steps:
       - uses: actions/checkout@v4
@@ -67,7 +67,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip wheel
-          pip install -r test-requirements.txt
+          pip install -e ".[typing, complexity, linting]"
       - name: Typecheck
         run: |
           mypy fastkml
@@ -87,7 +87,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pypy-version: ['pypy-3.7', 'pypy-3.8', 'pypy-3.9', 'pypy-3.10']
+        pypy-version: ['pypy-3.8', 'pypy-3.9', 'pypy-3.10']
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.pypy-version }}

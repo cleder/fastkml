@@ -97,6 +97,17 @@ from fastkml.enums import Verbosity
 from fastkml.geometry import _Geometry
 from fastkml.types import Element
 
+__all__ = [
+    "Angle",
+    "MultiTrack",
+    "Track",
+    "TrackItem",
+    "linestring_to_track_items",
+    "multilinestring_to_tracks",
+    "track_items_to_geometry",
+    "tracks_to_geometry",
+]
+
 logger = logging.getLogger(__name__)
 
 
