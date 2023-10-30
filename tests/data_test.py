@@ -59,9 +59,8 @@ class TestStdLibrary(StdLibrary):
             </SimpleField>
           </Schema> """
 
-        s = kml.Schema(ns="", id="default")
-        s.from_string(doc)
-        assert len(list(s.simple_fields)) == 3
+        s = kml.Schema.class_from_string(doc, ns="")
+        assert len(s.simple_fields) == 3
         assert s.simple_fields[0].type == DataType("string")
         assert s.simple_fields[1].type == DataType("double")
         assert s.simple_fields[2].type == DataType("int")

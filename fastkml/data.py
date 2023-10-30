@@ -16,12 +16,14 @@
 """Add Custom Data"""
 import logging
 from dataclasses import dataclass
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
+from typing import cast
 from typing import overload
 
 import fastkml.config as config
@@ -80,10 +82,13 @@ class SimpleField:
 
 class Schema(_BaseObject):
     """
-    Specifies a custom KML schema that is used to add custom data to
-    KML Features.
+    Specifies a custom KML schema that is used to add custom data to KML Features.
+
     The "id" attribute is required and must be unique within the KML file.
     <Schema> is always a child of <Document>.
+
+    https://developers.google.com/kml/documentation/extendeddata#declare-the-schema-element
+
     """
 
     __name__ = "Schema"
@@ -156,6 +161,46 @@ class Schema(_BaseObject):
                 )
                 dn.text = simple_field.display_name
         return element
+
+    @classmethod
+    def _get_fields_kwargs_from_element(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> List[SimpleField]:
+        def get_display_name(field: Element) -> Optional[str]:
+            display_name = field.find(f"{ns}displayName")
+            return display_name.text if display_name is not None else None
+
+        return [
+            cast(
+                SimpleField,
+                SimpleField(
+                    name=field.get("name"),
+                    type=DataType(field.get("type")),
+                    display_name=get_display_name(field),
+                ),
+            )
+            for field in element.findall(f"{ns}SimpleField")
+            if field is not None
+        ]
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs["name"] = element.get("name")
+        kwargs["fields"] = cls._get_fields_kwargs_from_element(
+            ns=ns, element=element, strict=strict
+        )
+        return kwargs
 
 
 class Data(_XMLObject):
