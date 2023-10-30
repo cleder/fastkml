@@ -20,11 +20,7 @@ from datetime import datetime
 from typing import Optional
 from typing import Union
 
-# note that there are some ISO 8601 timeparsers at pypi
-# but in my tests all of them had some errors so we rely on the
-# tried and tested dateutil here which is more stable. As a side effect
-# we can also parse non ISO compliant dateTimes
-import dateutil.parser
+import arrow
 
 import fastkml.config as config
 from fastkml.base import _BaseObject
@@ -126,20 +122,20 @@ class KmlDateTime:
         dt = None
         if len(datestr) == 4:
             year = int(datestr)
-            dt = datetime(year, 1, 1)
+            dt = arrow.get(year, 1, 1).datetime
             resolution = DateTimeResolution.year
         elif len(datestr) in {6, 7}:
             ym = year_month.match(datestr)
             if ym:
                 year = int(ym.group("year"))
                 month = int(ym.group("month"))
-                dt = datetime(year, month, 1)
+                dt = arrow.get(year, month, 1).datetime
                 resolution = DateTimeResolution.year_month
         elif len(datestr) in {8, 10}:  # 8 is YYYYMMDD, 10 is YYYY-MM-DD
-            dt = dateutil.parser.parse(datestr)
+            dt = arrow.get(datestr).datetime
             resolution = DateTimeResolution.date
         elif len(datestr) > 10:
-            dt = dateutil.parser.parse(datestr)
+            dt = arrow.get(datestr).datetime
             resolution = DateTimeResolution.datetime
         return cls(dt, resolution) if dt else None
 
