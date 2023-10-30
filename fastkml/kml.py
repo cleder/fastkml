@@ -1576,7 +1576,7 @@ class Document(_Container):
             s = Schema(schema)
             self._schemata.append(s)
 
-    def from_element(self, element: Element) -> None:
+    def from_element(self, element: Element, strict: bool = False) -> None:
         super().from_element(element)
         documents = element.findall(f"{self.ns}Document")
         for document in documents:
@@ -1595,8 +1595,7 @@ class Document(_Container):
             self.append(feature)
         schemata = element.findall(f"{self.ns}Schema")
         for schema in schemata:
-            s = Schema(self.ns, id="default")
-            s.from_element(schema)
+            s = Schema.class_from_element(ns=self.ns, element=schema, strict=strict)
             self.append_schema(s)
 
     def etree_element(

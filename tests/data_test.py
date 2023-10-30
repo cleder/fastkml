@@ -70,8 +70,7 @@ class TestStdLibrary(StdLibrary):
         assert s.simple_fields[0].display_name == "<b>Trail Head Name</b>"
         assert s.simple_fields[1].display_name == "<i>The length in miles</i>"
         assert s.simple_fields[2].display_name == "<i>change in altitude</i>"
-        s1 = kml.Schema(ns="", id="default")
-        s1.from_string(s.to_string())
+        s1 = kml.Schema.class_from_string(s.to_string(), ns="")
         assert len(s1.simple_fields) == 3
         assert s1.simple_fields[0].type == DataType("string")
         assert s1.simple_fields[1].name == "TrailLength"
