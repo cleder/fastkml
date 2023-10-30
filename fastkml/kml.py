@@ -289,8 +289,7 @@ class _Feature(TimeMixin, _BaseObject):
         if not self._snippet:
             return
         if isinstance(self._snippet, dict):
-            text = self._snippet.get("text")
-            if text:
+            if text := self._snippet.get("text"):
                 assert isinstance(text, str)
                 max_lines = self._snippet.get("maxLines", None)
                 if max_lines is None:
@@ -1682,9 +1681,7 @@ class Placemark(_Feature):
 
     @property
     def geometry(self) -> Optional[AnyGeometryType]:
-        if self._geometry is not None:
-            return self._geometry.geometry
-        return None
+        return self._geometry.geometry if self._geometry is not None else None
 
     def from_element(self, element: Element, strict=False) -> None:
         super().from_element(element)
