@@ -1,4 +1,4 @@
-# Copyright (C) 2012 - 2021  Christian Ledermann
+# Copyright (C) 2012 - 2023  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -164,6 +164,19 @@ class Link(_XMLObject):
         self.title = title
         self.length = length
 
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"href={self.href!r}, "
+            f"rel={self.rel!r}, "
+            f"type={self.type!r}, "
+            f"hreflang={self.hreflang!r}, "
+            f"title={self.title!r}, "
+            f"length={self.length!r}, "
+            ")"
+        )
+
     def from_element(self, element: Element) -> None:
         super().from_element(element)
 
@@ -230,6 +243,16 @@ class _Person(_XMLObject):
         self.name = name
         self.uri = uri
         self.email = email
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name={self.name!r}, "
+            f"uri={self.uri!r}, "
+            f"email={self.email!r}, "
+            ")"
+        )
 
     def etree_element(
         self,
