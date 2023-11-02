@@ -15,7 +15,6 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -33,7 +32,7 @@ dynamic = [
     "version",
 ]
 name = "fastkml"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 
 [project.license]
 text = "LGPL"
@@ -46,9 +45,11 @@ complexity = [
 dev = [
     "fastkml[complexity]",
     "fastkml[docs]",
+    "fastkml[lxml]",
     "fastkml[tests]",
     "fastkml[typing]",
     "pre-commit",
+    "shapely",
 ]
 docs = [
     "Sphinx",
@@ -79,7 +80,6 @@ tests = [
 ]
 typing = [
     "mypy",
-    "types-python-dateutil",
 ]
 
 [project.readme]
@@ -140,8 +140,6 @@ warn_unused_ignores = true
 ignore_errors = true
 module = [
     "fastkml.kml",
-    "fastkml.tests.config_test",
-    "fastkml.tests.oldunit_test",
     "fastkml.views",
 ]
 
@@ -156,10 +154,78 @@ include = [
     "fastkml",
 ]
 
-[tool.ruff.extend-per-file-ignores]
-"setup.py" = [
-    "E501",
+[tool.ruff]
+fix = true
+ignore = [
+    "ANN101",
+    "ANN102",
+    "D203",
+    "D212",
+    "FA100",
 ]
+select = [
+    "A",
+    "AIR",
+    "ANN",
+    "ARG",
+    "ASYNC",
+    "B",
+    "BLE",
+    "C4",
+    "C90",
+    "COM",
+    "CPY",
+    "D",
+    "DJ",
+    "DTZ",
+    "E",
+    "EM",
+    "ERA",
+    "EXE",
+    "F",
+    "FA",
+    "FBT",
+    "FIX",
+    "FLY",
+    "FURB",
+    "G",
+    "I",
+    "ICN",
+    "INP",
+    "INT",
+    "ISC",
+    "LOG",
+    "N",
+    "NPY",
+    "PD",
+    "PERF",
+    "PGH",
+    "PIE",
+    "PL",
+    "PT",
+    "PTH",
+    "PYI",
+    "Q",
+    "RET",
+    "RSE",
+    "RUF",
+    "S",
+    "SIM",
+    "SLF",
+    "SLOT",
+    "T10",
+    "T20",
+    "TCH",
+    "TD",
+    "TID",
+    "TRY",
+    "UP",
+    "W",
+    "YTT",
+]
+target-version = "py38"
+
+[tool.ruff.extend-per-file-ignores]
 "tests/oldunit_test.py" = [
     "E501",
 ]
