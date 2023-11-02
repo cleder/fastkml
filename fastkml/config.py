@@ -34,7 +34,7 @@ try:  # pragma: no cover
 
 except ImportError:  # pragma: no cover
     warnings.warn("Package `lxml` missing. Pretty print will be disabled")  # noqa: B028
-    import xml.etree.ElementTree as etree  # type: ignore[no-redef] # noqa: N813
+    import xml.etree.ElementTree as etree  # noqa: N813
 
 
 logger = logging.getLogger(__name__)

@@ -45,6 +45,7 @@ complexity = [
 dev = [
     "fastkml[complexity]",
     "fastkml[docs]",
+    "fastkml[linting]",
     "fastkml[lxml]",
     "fastkml[tests]",
     "fastkml[typing]",
