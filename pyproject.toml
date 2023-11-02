@@ -230,6 +230,9 @@ target-version = "py38"
     "E501",
 ]
 
+[tool.ruff.isort]
+force-single-line = true
+
 [tool.setuptools]
 include-package-data = true
 zip-safe = false
