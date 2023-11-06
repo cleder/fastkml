@@ -53,13 +53,14 @@ logger = logging.getLogger(__name__)
 
 GeometryType = Union[geo.Polygon, geo.LineString, geo.LinearRing, geo.Point]
 MultiGeometryType = Union[
-    geo.MultiPoint, geo.MultiLineString, geo.MultiPolygon, geo.GeometryCollection
+    geo.MultiPoint, geo.MultiLineString, geo.MultiPolygon, geo.GeometryCollection,
 ]
 AnyGeometryType = Union[GeometryType, MultiGeometryType]
 
 
 class _Geometry(_BaseObject):
-    """Baseclass with common methods for all geometry objects.
+    """
+    Baseclass with common methods for all geometry objects.
 
     Attributes: extrude: boolean --> Specifies whether to connect the feature to
                                      the ground with a line.
@@ -84,6 +85,7 @@ class _Geometry(_BaseObject):
         """
 
         Args:
+        ----
             ns: Namespace of the object
             id: Id of the object
             target_id: Target id of the object
@@ -159,7 +161,7 @@ class _Geometry(_BaseObject):
     def _set_altitude_mode(self, element: Element) -> None:
         if self.altitude_mode:
             am_element = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}altitudeMode"
+                element, f"{self.ns}altitudeMode",
             )
             am_element.text = self.altitude_mode.value
 
@@ -168,7 +170,7 @@ class _Geometry(_BaseObject):
             et_element = cast(
                 Element,
                 config.etree.SubElement(  # type: ignore[attr-defined]
-                    element, f"{self.ns}extrude"
+                    element, f"{self.ns}extrude",
                 ),
             )
             et_element.text = str(int(self.extrude))
@@ -178,7 +180,7 @@ class _Geometry(_BaseObject):
             t_element = cast(
                 Element,
                 config.etree.SubElement(  # type: ignore[attr-defined]
-                    element, f"{self.ns}tessellate"
+                    element, f"{self.ns}tessellate",
                 ),
             )
             t_element.text = str(int(self.tessellate))
@@ -197,7 +199,7 @@ class _Geometry(_BaseObject):
 
     @classmethod
     def _get_coordinates(
-        cls, *, ns: str, element: Element, strict: bool
+        cls, *, ns: str, element: Element, strict: bool,
     ) -> List[PointType]:
         """
         Get coordinates from element.
@@ -279,7 +281,7 @@ class _Geometry(_BaseObject):
             "extrude": cls._get_extrude(ns=ns, element=element, strict=strict),
             "tessellate": cls._get_tessellate(ns=ns, element=element, strict=strict),
             "altitude_mode": cls._get_altitude_mode(
-                ns=ns, element=element, strict=strict
+                ns=ns, element=element, strict=strict,
             ),
         }
 
@@ -304,7 +306,7 @@ class _Geometry(_BaseObject):
         kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
         kwargs.update(cls._get_geometry_kwargs(ns=ns, element=element, strict=strict))
         kwargs.update(
-            {"geometry": cls._get_geometry(ns=ns, element=element, strict=strict)}
+            {"geometry": cls._get_geometry(ns=ns, element=element, strict=strict)},
         )
         return kwargs
 
@@ -496,8 +498,8 @@ class Polygon(_Geometry):
         )
         outer_boundary.append(
             linear_ring(geometry=self.geometry.exterior).etree_element(
-                precision=precision, verbosity=verbosity
-            )
+                precision=precision, verbosity=verbosity,
+            ),
         )
         for interior in self.geometry.interiors:
             inner_boundary = cast(
@@ -509,8 +511,8 @@ class Polygon(_Geometry):
             )
             inner_boundary.append(
                 linear_ring(geometry=interior).etree_element(
-                    precision=precision, verbosity=verbosity
-                )
+                    precision=precision, verbosity=verbosity,
+                ),
             )
         return element
 
@@ -541,7 +543,7 @@ class Polygon(_Geometry):
                 ).decode("UTF-8")
                 raise KMLParseError(f"Missing LinearRing in {error}")
             interiors.append(
-                LinearRing._get_geometry(ns=ns, element=inner_ring, strict=strict)
+                LinearRing._get_geometry(ns=ns, element=inner_ring, strict=strict),
             )
         return geo.Polygon.from_linear_rings(exterior, *interiors)
 
@@ -549,12 +551,15 @@ class Polygon(_Geometry):
 def create_multigeometry(
     geometries: Sequence[AnyGeometryType],
 ) -> Optional[MultiGeometryType]:
-    """Create a MultiGeometry from a sequence of geometries.
+    """
+    Create a MultiGeometry from a sequence of geometries.
 
     Args:
+    ----
         geometries: Sequence of geometries.
 
     Returns:
+    -------
         MultiGeometry
 
     """
@@ -633,13 +638,13 @@ class MultiGeometry(_Geometry):
                     tessellate=None,
                     altitude_mode=None,
                     geometry=geometry,  # type: ignore[arg-type]
-                ).etree_element(precision=precision, verbosity=verbosity)
+                ).etree_element(precision=precision, verbosity=verbosity),
             )
         return element
 
     @classmethod
     def _get_geometry(
-        cls, *, ns: str, element: Element, strict: bool
+        cls, *, ns: str, element: Element, strict: bool,
     ) -> Optional[MultiGeometryType]:
         geometries = []
         allowed_geometries = (cls,) + tuple(cls.map_to_kml.values())

@@ -22,7 +22,7 @@ from typing import Union
 
 import arrow
 
-import fastkml.config as config
+from fastkml import config
 from fastkml.base import _BaseObject
 from fastkml.enums import DateTimeResolution
 from fastkml.enums import Verbosity
@@ -32,12 +32,13 @@ from fastkml.types import Element
 # year and month may be separated by a dash or not
 # year is always 4 digits, month is always 2 digits
 year_month_day = re.compile(
-    r"^(?P<year>\d{4})(?:-)?(?P<month>\d{2})?(?:-)?(?P<day>\d{2})?$"
+    r"^(?P<year>\d{4})(?:-)?(?P<month>\d{2})?(?:-)?(?P<day>\d{2})?$",
 )
 
 
 class KmlDateTime:
-    """A KML DateTime object.
+    """
+    A KML DateTime object.
 
     This class is used to parse and format KML DateTime objects.
 
@@ -170,7 +171,7 @@ class TimeStamp(_TimePrimitive):
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
         when = config.etree.SubElement(  # type: ignore[attr-defined]
-            element, f"{self.ns}when"
+            element, f"{self.ns}when",
         )
         when.text = str(self.timestamp)
         return element

@@ -54,7 +54,7 @@ class TestPoint(StdLibrary):
         point = Point(geometry=geo.Point(None, None))  # type: ignore[arg-type]
 
         with pytest.raises(
-            KMLWriteError, match=r"Invalid dimensions in coordinates '\(\(\),\)'"
+            KMLWriteError, match=r"Invalid dimensions in coordinates '\(\(\),\)'",
         ):
             point.to_string()
 
@@ -65,7 +65,7 @@ class TestPoint(StdLibrary):
             Point.class_from_string(
                 '<Point xmlns="http://www.opengis.net/kml/2.2">'
                 "<coordinates>1.000000,2.000000</coordinates>"
-                "</Point>"
+                "</Point>",
             ),
         )
 

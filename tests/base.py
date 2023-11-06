@@ -20,7 +20,7 @@ import xml.etree.ElementTree
 import pytest
 
 try:  # pragma: no cover
-    import lxml  # noqa: F401
+    import lxml
 
     LXML = True
 except ImportError:  # pragma: no cover

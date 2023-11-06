@@ -72,7 +72,7 @@ class TestGetGxGeometry(StdLibrary):
         mt = MultiTrack.class_from_string(doc, ns="")
 
         assert mt.geometry == geo.MultiLineString(
-            (((0.0, 0.0), (1.0, 0.0)), ((0.0, 1.0), (1.0, 1.0)))
+            (((0.0, 0.0), (1.0, 0.0)), ((0.0, 1.0), (1.0, 1.0))),
         )
         assert "when>" in mt.to_string()
         assert (
@@ -95,14 +95,14 @@ class TestGetGxGeometry(StdLibrary):
                         track_items=[
                             TrackItem(
                                 when=datetime.datetime(
-                                    2020, 1, 1, 0, 0, tzinfo=tzutc()
+                                    2020, 1, 1, 0, 0, tzinfo=tzutc(),
                                 ),
                                 coord=geo.Point(0.0, 0.0),
                                 angle=None,
                             ),
                             TrackItem(
                                 when=datetime.datetime(
-                                    2020, 1, 1, 0, 10, tzinfo=tzutc()
+                                    2020, 1, 1, 0, 10, tzinfo=tzutc(),
                                 ),
                                 coord=geo.Point(1.0, 0.0),
                                 angle=None,
@@ -119,14 +119,14 @@ class TestGetGxGeometry(StdLibrary):
                         track_items=[
                             TrackItem(
                                 when=datetime.datetime(
-                                    2020, 1, 1, 0, 10, tzinfo=tzutc()
+                                    2020, 1, 1, 0, 10, tzinfo=tzutc(),
                                 ),
                                 coord=geo.Point(0.0, 1.0),
                                 angle=None,
                             ),
                             TrackItem(
                                 when=datetime.datetime(
-                                    2020, 1, 1, 0, 20, tzinfo=tzutc()
+                                    2020, 1, 1, 0, 20, tzinfo=tzutc(),
                                 ),
                                 coord=geo.Point(1.0, 1.0),
                                 angle=None,
@@ -313,7 +313,7 @@ class TestTrack(StdLibrary):
                 (-122.203451, 37.374706, 141.800003),
                 (-122.203329, 37.37478, 141.199997),
                 (-122.203207, 37.374857, 140.199997),
-            )
+            ),
         )
         assert track.to_string() == expected_track.to_string()
 
@@ -362,7 +362,7 @@ class TestMultiTrack(StdLibrary):
                         ],
                     ),
                 ],
-            )
+            ),
         )
 
     def test_multitrack(self) -> None:
@@ -384,14 +384,14 @@ class TestMultiTrack(StdLibrary):
                     track_items=[
                         TrackItem(
                             when=datetime.datetime(
-                                2010, 5, 28, 2, 2, 55, tzinfo=tzutc()
+                                2010, 5, 28, 2, 2, 55, tzinfo=tzutc(),
                             ),
                             coord=geo.Point(-122.203451, 37.374706, 141.800003),
                             angle=Angle(heading=1.0, tilt=2.0, roll=3.0),
                         ),
                         TrackItem(
                             when=datetime.datetime(
-                                2010, 5, 28, 2, 2, 56, tzinfo=tzutc()
+                                2010, 5, 28, 2, 2, 56, tzinfo=tzutc(),
                             ),
                             coord=geo.Point(-122.203329, 37.37478, 141.199997),
                             angle=Angle(heading=1.0, tilt=2.0, roll=3.0),
@@ -408,7 +408,7 @@ class TestMultiTrack(StdLibrary):
                     (-122.203451, 37.374706, 141.800003),
                     (-122.203329, 37.37478, 141.199997),
                 ),
-            )
+            ),
         )
         assert "MultiTrack>" in track.to_string()
         assert "interpolate>1</" in track.to_string()

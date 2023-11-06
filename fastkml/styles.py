@@ -181,7 +181,7 @@ class IconStyle(_ColorStyle):
         hot_spot: Optional[HotSpot] = None,
     ) -> None:
         super().__init__(
-            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode
+            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode,
         )
 
         self.scale = scale
@@ -219,7 +219,7 @@ class IconStyle(_ColorStyle):
             href.text = self.icon_href
         if self.hot_spot:
             hot_spot = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}hotSpot"
+                element, f"{self.ns}hotSpot",
             )
             hot_spot.attrib["x"] = str(self.hot_spot["x"])
             hot_spot.attrib["y"] = str(self.hot_spot["y"])
@@ -272,7 +272,7 @@ class LineStyle(_ColorStyle):
         width: Union[int, float] = 1,
     ) -> None:
         super().__init__(
-            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode
+            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode,
         )
         self.width = width
 
@@ -322,7 +322,7 @@ class PolyStyle(_ColorStyle):
         outline: int = 1,
     ) -> None:
         super().__init__(
-            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode
+            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode,
         )
         self.fill = fill
         self.outline = outline
@@ -384,7 +384,7 @@ class LabelStyle(_ColorStyle):
         scale: float = 1.0,
     ) -> None:
         super().__init__(
-            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode
+            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode,
         )
         self.scale = scale
 
@@ -410,9 +410,11 @@ class LabelStyle(_ColorStyle):
 
 
 class BalloonStyle(_BaseObject):
-    """Specifies how the description balloon for placemarks is drawn.
+    """
+    Specifies how the description balloon for placemarks is drawn.
     The <bgColor>, if specified, is used as the background color of
-    the balloon."""
+    the balloon.
+    """
 
     __name__ = "BalloonStyle"
 

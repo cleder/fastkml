@@ -25,11 +25,11 @@ class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
 
     def test_atom_link_ns(self) -> None:
-        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
+        ns = "{http://www.opengis.net/kml/2.2}"
         link = atom.Link(ns=ns)
         assert link.ns == ns
         assert link.to_string().startswith(
-            '<kml:link xmlns:kml="http://www.opengis.net/kml/2.2"'
+            '<kml:link xmlns:kml="http://www.opengis.net/kml/2.2"',
         )
 
     def test_atom_link(self) -> None:
@@ -57,7 +57,7 @@ class TestStdLibrary(StdLibrary):
         link.from_string(
             '<atom:link xmlns:atom="http://www.w3.org/2005/Atom" '
             'href="#here" rel="alternate" type="text/html" hreflang="en" '
-            'title="Title" length="3456" />'
+            'title="Title" length="3456" />',
         )
         assert link.href == "#here"
         assert link.rel == "alternate"
@@ -71,18 +71,18 @@ class TestStdLibrary(StdLibrary):
         link.from_string(
             '<atom:link xmlns:atom="http://www.w3.org/2005/Atom" '
             'rel="alternate" type="text/html" hreflang="en" '
-            'title="Title" length="3456" />'
+            'title="Title" length="3456" />',
         )
         assert link.href is None
 
     def test_atom_person_ns(self) -> None:
-        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
+        ns = "{http://www.opengis.net/kml/2.2}"
         p = atom._Person(ns=ns)
         assert p.ns == ns
 
     def test_atom_author(self) -> None:
         a = atom.Author(
-            name="Nobody", uri="http://localhost", email="cl@donotreply.com"
+            name="Nobody", uri="http://localhost", email="cl@donotreply.com",
         )
 
         serialized = a.to_string()
