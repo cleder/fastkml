@@ -31,9 +31,9 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-import fastkml.atom as atom
-import fastkml.config as config
-import fastkml.gx as gx
+from fastkml import atom
+from fastkml import config
+from fastkml import gx
 from fastkml.base import _BaseObject
 from fastkml.data import ExtendedData
 from fastkml.data import Schema
@@ -199,14 +199,16 @@ class _Feature(TimeMixin, _BaseObject):
 
     @property
     def style_url(self) -> Optional[str]:
-        """Returns the url only, not a full StyleUrl object.
-        if you need the full StyleUrl object use _style_url"""
+        """
+        Returns the url only, not a full StyleUrl object.
+        if you need the full StyleUrl object use _style_url
+        """
         if isinstance(self._style_url, StyleUrl):
             return self._style_url.url
 
     @style_url.setter
     def style_url(self, styleurl: Union[str, StyleUrl, None]) -> None:
-        """you may pass a StyleUrl Object, a string or None"""
+        """You may pass a StyleUrl Object, a string or None"""
         if isinstance(styleurl, StyleUrl):
             self._style_url = styleurl
         elif isinstance(styleurl, str):
@@ -270,14 +272,14 @@ class _Feature(TimeMixin, _BaseObject):
             raise TypeError
 
     def append_style(self, style: Union[Style, StyleMap]) -> None:
-        """append a style to the feature"""
+        """Append a style to the feature"""
         if isinstance(style, _StyleSelector):
             self._styles.append(style)
         else:
             raise TypeError
 
     def styles(self) -> Iterator[Union[Style, StyleMap]]:
-        """iterate over the styles of this feature"""
+        """Iterate over the styles of this feature"""
         for style in self._styles:
             if isinstance(style, _StyleSelector):
                 yield style
@@ -287,7 +289,7 @@ class _Feature(TimeMixin, _BaseObject):
     @property
     def snippet(self):
         if not self._snippet:
-            return
+            return None
         if isinstance(self._snippet, dict):
             text = self._snippet.get("text")
             if text:
@@ -303,7 +305,7 @@ class _Feature(TimeMixin, _BaseObject):
         else:
             raise ValueError(
                 "Snippet must be dict of "
-                "{'text':t, 'maxLines':i} or string"  # noqa: FS003
+                "{'text':t, 'maxLines':i} or string",
             )
 
     @snippet.setter
@@ -321,7 +323,7 @@ class _Feature(TimeMixin, _BaseObject):
         else:
             raise ValueError(
                 "Snippet must be dict of "
-                "{'text':t, 'maxLines':i} or string"  # noqa: FS003
+                "{'text':t, 'maxLines':i} or string",
             )
 
     @property
@@ -722,22 +724,22 @@ class Icon(_BaseObject):
             refresh_mode.text = self._refresh_mode
         if self._refresh_interval:
             refresh_interval = config.etree.SubElement(
-                element, f"{self.ns}refreshInterval"
+                element, f"{self.ns}refreshInterval",
             )
             refresh_interval.text = str(self._refresh_interval)
         if self._view_refresh_mode:
             view_refresh_mode = config.etree.SubElement(
-                element, f"{self.ns}viewRefreshMode"
+                element, f"{self.ns}viewRefreshMode",
             )
             view_refresh_mode.text = self._view_refresh_mode
         if self._view_refresh_time:
             view_refresh_time = config.etree.SubElement(
-                element, f"{self.ns}viewRefreshTime"
+                element, f"{self.ns}viewRefreshTime",
             )
             view_refresh_time.text = str(self._view_refresh_time)
         if self._view_bound_scale:
             view_bound_scale = config.etree.SubElement(
-                element, f"{self.ns}viewBoundScale"
+                element, f"{self.ns}viewBoundScale",
             )
             view_bound_scale.text = str(self._view_bound_scale)
         if self._view_format:
@@ -829,14 +831,14 @@ class _Container(_Feature):
         self._features = features or []
 
     def features(self) -> Iterator[_Feature]:
-        """iterate over features"""
+        """Iterate over features"""
         for feature in self._features:
             if isinstance(feature, (Folder, Placemark, Document, _Overlay)):
                 yield feature
             else:
                 raise TypeError(
                     "Features must be instances of "
-                    "(Folder, Placemark, Document, Overlay)"
+                    "(Folder, Placemark, Document, Overlay)",
                 )
 
     def etree_element(
@@ -850,7 +852,7 @@ class _Container(_Feature):
         return element
 
     def append(self, kmlobj: _Feature) -> None:
-        """append a feature"""
+        """Append a feature"""
         if id(kmlobj) == id(self):
             raise ValueError("Cannot append self")
         if isinstance(kmlobj, (Folder, Placemark, Document, _Overlay)):
@@ -858,7 +860,7 @@ class _Container(_Feature):
         else:
             raise TypeError(
                 "Features must be instances of "
-                "(Folder, Placemark, Document, Overlay)"
+                "(Folder, Placemark, Document, Overlay)",
             )
 
 
@@ -1224,7 +1226,7 @@ class PhotoOverlay(_Overlay):
         elif value is None:
             self._shape = None
         else:
-            raise ValueError("Shape must be one of " "rectangle, cylinder, sphere")
+            raise ValueError("Shape must be one of rectangle, cylinder, sphere")
 
     def view_volume(self, left_fov, right_fov, bottom_fov, top_fov, near):
         self.left_fov = left_fov
@@ -1255,7 +1257,7 @@ class PhotoOverlay(_Overlay):
                 self._bottom_fov,
                 self._top_fov,
                 self._near,
-            ]
+            ],
         ):
             view_volume = config.etree.SubElement(element, f"{self.ns}ViewVolume")
             left_fov = config.etree.SubElement(view_volume, f"{self.ns}leftFov")
@@ -1476,7 +1478,7 @@ class GroundOverlay(_Overlay):
             raise ValueError
 
     def lat_lon_box(
-        self, north: int, south: int, east: int, west: int, rotation: int = 0
+        self, north: int, south: int, east: int, west: int, rotation: int = 0,
     ) -> None:
         if -90 <= float(north) <= 90:
             self.north = north
@@ -1510,7 +1512,7 @@ class GroundOverlay(_Overlay):
             altitude.text = self._altitude
             if self._altitude_mode:
                 altitude_mode = config.etree.SubElement(
-                    element, f"{self.ns}altitudeMode"
+                    element, f"{self.ns}altitudeMode",
                 )
                 altitude_mode.text = self._altitude_mode
         if all([self._north, self._south, self._east, self._west]):
@@ -1768,7 +1770,8 @@ class KML:
     ns = None
 
     def __init__(self, ns: Optional[str] = None) -> None:
-        """The namespace (ns) may be empty ('') if the 'kml:' prefix is
+        """
+        The namespace (ns) may be empty ('') if the 'kml:' prefix is
         undesired. Note that all child elements like Document or Placemark need
         to be initialized with empty namespace as well in this case.
 
@@ -1778,10 +1781,10 @@ class KML:
         self.ns = config.KMLNS if ns is None else ns
 
     def from_string(self, xml_string: str) -> None:
-        """create a KML object from a xml string"""
+        """Create a KML object from a xml string"""
         try:
             element = config.etree.fromstring(
-                xml_string, parser=config.etree.XMLParser(huge_tree=True, recover=True)
+                xml_string, parser=config.etree.XMLParser(huge_tree=True, recover=True),
             )
         except TypeError:
             element = config.etree.XML(xml_string)
@@ -1830,7 +1833,7 @@ class KML:
         else:
             try:
                 root = config.etree.Element(
-                    f"{self.ns}kml", nsmap={None: self.ns[1:-1]}
+                    f"{self.ns}kml", nsmap={None: self.ns[1:-1]},
                 )
             except TypeError:
                 root = config.etree.Element(f"{self.ns}kml")
@@ -1848,29 +1851,29 @@ class KML:
             ).decode("UTF-8")
         except TypeError:
             return config.etree.tostring(self.etree_element(), encoding="UTF-8").decode(
-                "UTF-8"
+                "UTF-8",
             )
 
     def features(self) -> Iterator[Union[Folder, Document, Placemark]]:
-        """iterate over features"""
+        """Iterate over features"""
         for feature in self._features:
             if isinstance(feature, (Document, Folder, Placemark, _Overlay)):
                 yield feature
             else:
                 raise TypeError(
                     "Features must be instances of "
-                    "(Document, Folder, Placemark, Overlay)"
+                    "(Document, Folder, Placemark, Overlay)",
                 )
 
     def append(self, kmlobj: Union[Folder, Document, Placemark]) -> None:
-        """append a feature"""
+        """Append a feature"""
         if id(kmlobj) == id(self):
             raise ValueError("Cannot append self")
         if isinstance(kmlobj, (Document, Folder, Placemark, _Overlay)):
             self._features.append(kmlobj)
         else:
             raise TypeError(
-                "Features must be instances of (Document, Folder, Placemark, Overlay)"
+                "Features must be instances of (Document, Folder, Placemark, Overlay)",
             )
 
 

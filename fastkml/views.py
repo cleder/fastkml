@@ -3,8 +3,8 @@ from typing import Optional
 from typing import SupportsFloat
 from typing import Union
 
-import fastkml.config as config
-import fastkml.gx as gx
+from fastkml import config
+from fastkml import gx
 from fastkml.base import _BaseObject
 from fastkml.enums import Verbosity
 from fastkml.mixins import TimeMixin

@@ -62,7 +62,7 @@ class TestStdLibrary(StdLibrary):
             <kml:viewFormat>BBOX=[bboxWest],[bboxSouth],[bboxEast],[bboxNorth]</kml:viewFormat>
             <kml:httpQuery>clientName=fastkml</kml:httpQuery>
             </kml:Icon>
-            """.strip()
+            """.strip(),
         )
 
         assert icon.id == "icon-01"

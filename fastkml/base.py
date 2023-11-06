@@ -68,11 +68,11 @@ class _XMLObject:
         """Return the KML Object as an Element."""
         if self.__name__:
             element: Element = config.etree.Element(  # type: ignore[attr-defined]
-                f"{self.ns}{self.__name__}"
+                f"{self.ns}{self.__name__}",
             )
         else:
             raise NotImplementedError(
-                "Call of abstract base class, subclasses implement this!"
+                "Call of abstract base class, subclasses implement this!",
             )
         for mapping in self.kml_object_mapping:
             mapping["to_kml"](self, element, **mapping)
@@ -98,7 +98,7 @@ class _XMLObject:
         making it a classmethod.
         """
         self.from_element(
-            cast(Element, config.etree.XML(xml_string))  # type: ignore[attr-defined]
+            cast(Element, config.etree.XML(xml_string)),  # type: ignore[attr-defined]
         )
 
     def to_string(
@@ -125,7 +125,7 @@ class _XMLObject:
             return cast(
                 str,
                 config.etree.tostring(  # type: ignore[attr-defined]
-                    self.etree_element(), encoding="UTF-8"
+                    self.etree_element(), encoding="UTF-8",
                 ).decode("UTF-8"),
             )
 
@@ -168,12 +168,15 @@ class _XMLObject:
         ns: Optional[str] = None,
         strict: bool = True,
     ) -> "_XMLObject":
-        """Creates a geometry object from a string.
+        """
+        Creates a geometry object from a string.
 
         Args:
+        ----
             string: String representation of the geometry object
 
         Returns:
+        -------
             Geometry object
         """
         ns = cls._get_ns(ns)

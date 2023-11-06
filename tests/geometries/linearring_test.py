@@ -55,7 +55,7 @@ class TestLinearRing(StdLibrary):
                 '<kml:LinearRing xmlns:kml="http://www.opengis.net/kml/2.2">'
                 "<kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.0,1.0 "
                 "0.000000,0.000000</kml:coordinates>"
-                "</kml:LinearRing>"
+                "</kml:LinearRing>",
             ),
         )
 

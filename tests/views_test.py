@@ -60,10 +60,10 @@ class TestStdLibrary(StdLibrary):
         assert camera.id == "cam-id"
         assert camera.target_id == "target-cam-id"
         assert camera.begin == times.KmlDateTime(
-            datetime.datetime(2019, 1, 1, tzinfo=tzutc())
+            datetime.datetime(2019, 1, 1, tzinfo=tzutc()),
         )
         assert camera.end == times.KmlDateTime(
-            datetime.datetime(2019, 1, 2, tzinfo=tzutc())
+            datetime.datetime(2019, 1, 2, tzinfo=tzutc()),
         )
         assert camera.to_string()
 
@@ -99,10 +99,10 @@ class TestStdLibrary(StdLibrary):
         assert camera.id == "cam-id"
         assert camera.target_id == "target-cam-id"
         assert camera.begin == times.KmlDateTime(
-            datetime.datetime(2019, 1, 1, tzinfo=tzutc())
+            datetime.datetime(2019, 1, 1, tzinfo=tzutc()),
         )
         assert camera.end == times.KmlDateTime(
-            datetime.datetime(2019, 1, 2, tzinfo=tzutc())
+            datetime.datetime(2019, 1, 2, tzinfo=tzutc()),
         )
 
     def test_create_look_at(self) -> None:
@@ -132,7 +132,7 @@ class TestStdLibrary(StdLibrary):
         assert look_at.id == "look-at-id"
         assert look_at.target_id == "target-look-at-id"
         assert look_at._timestamp.timestamp.dt == datetime.datetime(
-            2019, 1, 1, tzinfo=tzutc()
+            2019, 1, 1, tzinfo=tzutc(),
         )
         assert look_at.begin is None
         assert look_at.end is None
@@ -166,7 +166,7 @@ class TestStdLibrary(StdLibrary):
         assert look_at.id == "look-at-id"
         assert look_at.target_id == "target-look-at-id"
         assert look_at._timestamp.timestamp.dt == datetime.datetime(
-            2019, 1, 1, tzinfo=tzutc()
+            2019, 1, 1, tzinfo=tzutc(),
         )
         assert look_at.begin is None
         assert look_at.end is None

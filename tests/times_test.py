@@ -151,7 +151,7 @@ class TestDateTime(StdLibrary):
 
         assert dt.resolution == DateTimeResolution.datetime
         assert dt.dt == datetime.datetime(
-            1997, 7, 16, 7, 30, 15, tzinfo=tzoffset(None, 3600)
+            1997, 7, 16, 7, 30, 15, tzinfo=tzoffset(None, 3600),
         )
 
     def test_parse_datetime_with_tz_no_colon(self) -> None:
@@ -159,7 +159,7 @@ class TestDateTime(StdLibrary):
 
         assert dt.resolution == DateTimeResolution.datetime
         assert dt.dt == datetime.datetime(
-            1997, 7, 16, 7, 30, 15, tzinfo=tzoffset(None, 3600)
+            1997, 7, 16, 7, 30, 15, tzinfo=tzoffset(None, 3600),
         )
 
     def test_parse_datetime_no_tz(self) -> None:
@@ -334,7 +334,7 @@ class TestStdLibrary(StdLibrary):
         ts.from_string(doc)
         assert ts.timestamp.resolution == DateTimeResolution.datetime
         assert ts.timestamp.dt == datetime.datetime(
-            1997, 7, 16, 7, 30, 15, tzinfo=tzutc()
+            1997, 7, 16, 7, 30, 15, tzinfo=tzutc(),
         )
         doc = """
         <TimeStamp>
@@ -345,7 +345,7 @@ class TestStdLibrary(StdLibrary):
         ts.from_string(doc)
         assert ts.timestamp.resolution == DateTimeResolution.datetime
         assert ts.timestamp.dt == datetime.datetime(
-            1997, 7, 16, 10, 30, 15, tzinfo=tzoffset(None, 10800)
+            1997, 7, 16, 10, 30, 15, tzinfo=tzoffset(None, 10800),
         )
 
     def test_read_timespan(self) -> None:

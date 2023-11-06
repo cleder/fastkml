@@ -58,12 +58,12 @@ class TestLineString(StdLibrary):
                 "<coordinates>"
                 "-122.364383,37.824664,0 -122.364152,37.824322,0"
                 "</coordinates>"
-                "</LineString>"
+                "</LineString>",
             ),
         )
 
         assert linestring.geometry == geo.LineString(
-            ((-122.364383, 37.824664, 0), (-122.364152, 37.824322, 0))
+            ((-122.364383, 37.824664, 0), (-122.364152, 37.824322, 0)),
         )
 
 

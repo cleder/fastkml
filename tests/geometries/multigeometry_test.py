@@ -312,9 +312,9 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
                             ),
                         ),
                         geo.LinearRing(
-                            ((0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0.0), (0.0, 0.0))
+                            ((0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0.0), (0.0, 0.0)),
                         ),
-                    )
+                    ),
                 ),
                 geo.MultiPolygon(
                     (
@@ -337,12 +337,12 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
                             ),
                         ),
                         (((0.0, 0.0), (0.0, 2.0), (1.0, 1.0), (1.0, 0.0), (0.0, 0.0)),),
-                    )
+                    ),
                 ),
                 geo.MultiLineString(
-                    (((1.0, 2.0), (3.0, 4.0)), ((5.0, 6.0), (7.0, 8.0)))
+                    (((1.0, 2.0), (3.0, 4.0)), ((5.0, 6.0), (7.0, 8.0))),
                 ),
-            )
+            ),
         )
 
     def test_empty_multi_geometries_read(self) -> None:

@@ -35,8 +35,10 @@ except ImportError:
 
 
 class TestBaseClasses:
-    """BaseClasses  must raise a NotImplementedError on etree_element
-    and a TypeError on from_element"""
+    """
+    BaseClasses  must raise a NotImplementedError on etree_element
+    and a TypeError on from_element
+    """
 
     def setup_method(self) -> None:
         """Always test with the same parser."""
@@ -120,7 +122,7 @@ class TestBuildKml:
         config.set_default_namespaces()
 
     def test_kml(self) -> None:
-        """kml file without contents"""
+        """Kml file without contents"""
         k = kml.KML()
         assert not list(k.features())
         assert (
@@ -133,7 +135,7 @@ class TestBuildKml:
 
     def test_folder(self) -> None:
         """KML file with folders"""
-        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
+        ns = "{http://www.opengis.net/kml/2.2}"
         k = kml.KML()
         f = kml.Folder(ns, "id", "name", "description")
         nf = kml.Folder(ns, "nested-id", "nested-name", "nested-description")
@@ -149,7 +151,7 @@ class TestBuildKml:
         assert s == k2.to_string()
 
     def test_placemark(self) -> None:
-        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
+        ns = "{http://www.opengis.net/kml/2.2}"
         k = kml.KML(ns=ns)
         p = kml.Placemark(ns, "id", "name", "description")
         # XXX p.geometry = Point(0.0, 0.0, 0.0)
@@ -164,7 +166,7 @@ class TestBuildKml:
 
     def test_document(self) -> None:
         k = kml.KML()
-        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
+        ns = "{http://www.opengis.net/kml/2.2}"
         d = kml.Document(ns, "docid", "doc name", "doc description")
         f = kml.Folder(ns, "fid", "f name", "f description")
         k.append(d)
@@ -190,7 +192,7 @@ class TestBuildKml:
         d.author = "Christian Ledermann"
         assert "Christian Ledermann" in str(d.to_string())
         a = atom.Author(
-            name="Nobody", uri="http://localhost", email="cl@donotreply.com"
+            name="Nobody", uri="http://localhost", email="cl@donotreply.com",
         )
         d.author = a
         assert d.author == "Nobody"
@@ -593,7 +595,7 @@ class TestKmlFromString:
             <kml:visibility>1</kml:visibility>
             <kml:address>1600 Amphitheatre Parkway,...</kml:address>
         </kml:Document>
-        """
+        """,
         )
 
         doc2 = kml.Document()
@@ -611,7 +613,7 @@ class TestKmlFromString:
             <kml:visibility>1</kml:visibility>
             <kml:phoneNumber>+1 234 567 8901</kml:phoneNumber>
         </kml:Document>
-        """
+        """,
         )
 
         doc2 = kml.Document()
@@ -644,7 +646,7 @@ class TestKmlFromString:
                 </GroundOverlay>
               </Folder>
             </kml>
-            """
+            """,
         )
 
         doc2 = kml.KML()
@@ -659,7 +661,7 @@ class TestKmlFromString:
           <LinearRing>
             <coordinates>0.0,0.0 1.0,0.0 1.0,1.0 0.0,0.0</coordinates>
           </LinearRing>
-        </Placemark> </kml>"""
+        </Placemark> </kml>""",
         )
         doc2 = kml.KML()
         doc2.from_string(doc.to_string())
@@ -1183,7 +1185,7 @@ class TestStyleFromString:
         assert len(list(k.features())) == 1
         document = list(k.features())[0]
         style = document.get_style_by_url(
-            "http://localhost:8080/somepath#exampleStyleDocument"
+            "http://localhost:8080/somepath#exampleStyleDocument",
         )
         assert isinstance(list(style.styles())[0], styles.LabelStyle)
         style = document.get_style_by_url("somepath#linestyleExample")
@@ -1514,7 +1516,7 @@ class TestGroundOverlayString:
         expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:visibility>1</kml:visibility>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
         assert g.to_string() == expected.to_string()
 
@@ -1534,7 +1536,7 @@ class TestGroundOverlayString:
             "<kml:Icon>"
             "<kml:href>http://example.com</kml:href>"
             "</kml:Icon>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1549,7 +1551,7 @@ class TestGroundOverlayString:
             "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123</kml:altitude>"
             "<kml:altitudeMode>clampToGround</kml:altitudeMode>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1564,7 +1566,7 @@ class TestGroundOverlayString:
             "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123.4</kml:altitude>"
             "<kml:altitudeMode>clampToGround</kml:altitudeMode>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1579,7 +1581,7 @@ class TestGroundOverlayString:
             "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123.4</kml:altitude>"
             "<kml:altitudeMode>clampToGround</kml:altitudeMode>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1595,7 +1597,7 @@ class TestGroundOverlayString:
             "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123.4</kml:altitude>"
             "<kml:altitudeMode>absolute</kml:altitudeMode>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1611,7 +1613,7 @@ class TestGroundOverlayString:
             "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123.4</kml:altitude>"
             "<kml:altitudeMode>clampToGround</kml:altitudeMode>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1627,7 +1629,7 @@ class TestGroundOverlayString:
             "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123.4</kml:altitude>"
             "<kml:altitudeMode>clampToGround</kml:altitudeMode>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1647,7 +1649,7 @@ class TestGroundOverlayString:
             "<kml:west>40</kml:west>"
             "<kml:rotation>0</kml:rotation>"
             "</kml:LatLonBox>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1667,7 +1669,7 @@ class TestGroundOverlayString:
             "<kml:west>40</kml:west>"
             "<kml:rotation>50</kml:rotation>"
             "</kml:LatLonBox>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1691,7 +1693,7 @@ class TestGroundOverlayString:
             "<kml:west>40</kml:west>"
             "<kml:rotation>50</kml:rotation>"
             "</kml:LatLonBox>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1741,7 +1743,7 @@ class TestPhotoOverlay:
 
     def test_camera_initialization(self) -> None:
         self.p.camera = kml.Camera(
-            longitude=10, latitude=20, altitude=30, heading=40, tilt=50, roll=60
+            longitude=10, latitude=20, altitude=30, heading=40, tilt=50, roll=60,
         )
         assert self.p.camera.longitude == 10
         assert self.p.camera.latitude == 20
