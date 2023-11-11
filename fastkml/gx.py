@@ -448,7 +448,7 @@ class MultiTrack(_Geometry):
             strict=strict,
         )
         kwargs["tracks"] = cls._get_track_kwargs_from_element(
-            ns=config.GXNS,
+            ns=kwargs["name_spaces"].get("gx", ""),
             element=element,
             strict=strict,
         )

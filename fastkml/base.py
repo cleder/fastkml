@@ -143,6 +143,8 @@ class _XMLObject:
         strict: bool,
     ) -> Dict[str, Any]:
         """Returns a dictionary of kwargs for the class constructor."""
+        name_spaces = name_spaces or {}
+        name_spaces = {**config.NAME_SPACES, **name_spaces}
         kwargs: Dict[str, Any] = {"ns": ns, "name_spaces": name_spaces}
         return kwargs
 
