@@ -3,6 +3,7 @@ from typing import Dict
 from typing import Optional
 from typing import SupportsFloat
 from typing import Union
+from typing import cast
 
 from fastkml import config
 from fastkml.base import _BaseObject
@@ -185,14 +186,26 @@ class _AbstractView(TimeMixin, _BaseObject):
             self.altitude_mode = AltitudeMode(altitude_mode.text)
         timespan = element.find(f"{self.ns}TimeSpan")
         if timespan is not None:
-            span = TimeSpan(self.ns)
-            span.from_element(timespan)
-            self._timespan = span
+            self._timespan = cast(
+                TimeSpan,
+                TimeSpan.class_from_element(
+                    ns=self.ns,
+                    name_spaces=self.name_spaces,
+                    element=timespan,
+                    strict=False,
+                ),
+            )
         timestamp = element.find(f"{self.ns}TimeStamp")
         if timestamp is not None:
-            stamp = TimeStamp(self.ns)
-            stamp.from_element(timestamp)
-            self._timestamp = stamp
+            self._timestamp = cast(
+                TimeStamp,
+                TimeStamp.class_from_element(
+                    ns=self.ns,
+                    name_spaces=self.name_spaces,
+                    element=timestamp,
+                    strict=False,
+                ),
+            )
 
     def etree_element(
         self,

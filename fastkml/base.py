@@ -158,7 +158,12 @@ class _XMLObject:
         strict: bool,
     ) -> "_XMLObject":
         """Creates an XML object from an etree element."""
-        kwargs = cls._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs = cls._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
         return cls(
             **kwargs,
         )
@@ -186,6 +191,7 @@ class _XMLObject:
         ns = cls._get_ns(ns)
         return cls.class_from_element(
             ns=ns,
+            name_spaces=name_spaces,
             strict=strict,
             element=cast(
                 Element,
