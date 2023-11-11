@@ -28,6 +28,7 @@ import logging
 import urllib.parse as urlparse
 from datetime import datetime
 from typing import Any
+from typing import Dict
 from typing import Iterator
 from typing import List
 from typing import Optional
@@ -291,7 +292,7 @@ class _Feature(TimeMixin, _BaseObject):
                 raise TypeError
 
     @property
-    def snippet(self) -> dict | None | dict[str, Any]:
+    def snippet(self) -> Optional[Dict[str, Any]]:
         if not self._snippet:
             return None
         if isinstance(self._snippet, dict):
@@ -946,7 +947,7 @@ class _Overlay(_Feature):
             raise ValueError
 
     @property
-    def draw_order(self) -> str | None:
+    def draw_order(self) -> Optional[str]:
         return self._draw_order
 
     @draw_order.setter
@@ -959,7 +960,7 @@ class _Overlay(_Feature):
             raise ValueError
 
     @property
-    def icon(self) -> Icon | None:
+    def icon(self) -> Optional[Icon]:
         return self._icon
 
     @icon.setter
@@ -1093,7 +1094,7 @@ class PhotoOverlay(_Overlay):
     #       for spherical panoramas
 
     @property
-    def rotation(self) -> str | None:
+    def rotation(self) -> Optional[str]:
         return self._rotation
 
     @rotation.setter
@@ -1106,7 +1107,7 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def left_fov(self) -> str | None:
+    def left_fov(self) -> Optional[str]:
         return self._left_fow
 
     @left_fov.setter
@@ -1119,7 +1120,7 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def right_fov(self) -> str | None:
+    def right_fov(self) -> Optional[str]:
         return self._right_fov
 
     @right_fov.setter
@@ -1132,7 +1133,7 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def bottom_fov(self) -> str | None:
+    def bottom_fov(self) -> Optional[str]:
         return self._bottom_fov
 
     @bottom_fov.setter
@@ -1145,7 +1146,7 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def top_fov(self) -> str | None:
+    def top_fov(self) -> Optional[str]:
         return self._top_fov
 
     @top_fov.setter
@@ -1158,7 +1159,7 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def near(self) -> str | None:
+    def near(self) -> Optional[str]:
         return self._near
 
     @near.setter
@@ -1171,7 +1172,7 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def tile_size(self) -> str | None:
+    def tile_size(self) -> Optional[str]:
         return self._tile_size
 
     @tile_size.setter
@@ -1184,7 +1185,7 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def max_width(self) -> str | None:
+    def max_width(self) -> Optional[str]:
         return self._max_width
 
     @max_width.setter
@@ -1197,7 +1198,7 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def max_height(self) -> str | None:
+    def max_height(self) -> Optional[str]:
         return self._max_height
 
     @max_height.setter
@@ -1210,7 +1211,7 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def grid_origin(self) -> str | None:
+    def grid_origin(self) -> Optional[str]:
         return self._grid_origin
 
     @grid_origin.setter
@@ -1234,7 +1235,7 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def shape(self) -> str | None:
+    def shape(self) -> Optional[str]:
         return self._shape
 
     @shape.setter
@@ -1408,7 +1409,7 @@ class GroundOverlay(_Overlay):
     _lat_lon_quad = None
 
     @property
-    def altitude(self) -> str | None:
+    def altitude(self) -> Optional[str]:
         return self._altitude
 
     @altitude.setter
@@ -1432,7 +1433,7 @@ class GroundOverlay(_Overlay):
             self._altitude_mode = "clampToGround"
 
     @property
-    def north(self) -> str | None:
+    def north(self) -> Optional[str]:
         return self._north
 
     @north.setter
@@ -1445,7 +1446,7 @@ class GroundOverlay(_Overlay):
             raise ValueError
 
     @property
-    def south(self) -> str | None:
+    def south(self) -> Optional[str]:
         return self._south
 
     @south.setter
@@ -1458,7 +1459,7 @@ class GroundOverlay(_Overlay):
             raise ValueError
 
     @property
-    def east(self) -> str | None:
+    def east(self) -> Optional[str]:
         return self._east
 
     @east.setter
@@ -1471,7 +1472,7 @@ class GroundOverlay(_Overlay):
             raise ValueError
 
     @property
-    def west(self) -> str | None:
+    def west(self) -> Optional[str]:
         return self._west
 
     @west.setter
@@ -1484,7 +1485,7 @@ class GroundOverlay(_Overlay):
             raise ValueError
 
     @property
-    def rotation(self) -> str | None:
+    def rotation(self) -> Optional[str]:
         return self._rotation
 
     @rotation.setter
