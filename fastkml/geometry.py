@@ -312,10 +312,13 @@ class _Geometry(_BaseObject):
         cls,
         *,
         ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs = super()._get_kwargs(
+            ns=ns, name_spaces=name_spaces, element=element, strict=strict
+        )
         kwargs.update(cls._get_geometry_kwargs(ns=ns, element=element, strict=strict))
         kwargs.update(
             {"geometry": cls._get_geometry(ns=ns, element=element, strict=strict)},

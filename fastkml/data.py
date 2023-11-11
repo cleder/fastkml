@@ -178,10 +178,13 @@ class Schema(_BaseObject):
         cls,
         *,
         ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs = super()._get_kwargs(
+            ns=ns, name_spaces=name_spaces, element=element, strict=strict
+        )
         kwargs["name"] = element.get("name")
         kwargs["fields"] = cls._get_fields_kwargs_from_element(
             ns=ns,
@@ -243,10 +246,13 @@ class Data(_XMLObject):
         cls,
         *,
         ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs = super()._get_kwargs(
+            ns=ns, name_spaces=name_spaces, element=element, strict=strict
+        )
         kwargs["name"] = element.get("name")
         value = element.find(f"{ns}value")
         if value is not None:
@@ -332,10 +338,13 @@ class SchemaData(_XMLObject):
         cls,
         *,
         ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs = super()._get_kwargs(
+            ns=ns, name_spaces=name_spaces, element=element, strict=strict
+        )
         kwargs["schema_url"] = element.get("schemaUrl")
         kwargs["data"] = [
             SimpleData(name=sd.get("name"), value=sd.text)
@@ -387,10 +396,13 @@ class ExtendedData(_XMLObject):
         cls,
         *,
         ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs = super()._get_kwargs(
+            ns=ns, name_spaces=name_spaces, element=element, strict=strict
+        )
         elements = []
         untyped_data = element.findall(f"{ns}Data")
         for ud in untyped_data:

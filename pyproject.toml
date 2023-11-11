@@ -141,7 +141,6 @@ warn_unused_ignores = true
 ignore_errors = true
 module = [
     "fastkml.kml",
-    "fastkml.views",
 ]
 
 [tool.pyright]

@@ -5,7 +5,6 @@ from typing import SupportsFloat
 from typing import Union
 
 from fastkml import config
-from fastkml import gx
 from fastkml.base import _BaseObject
 from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
@@ -162,37 +161,38 @@ class _AbstractView(TimeMixin, _BaseObject):
     def altitude_mode(self, mode: AltitudeMode) -> None:
         self._altitude_mode = mode
 
-    def from_element(self, element: Element):
+    def from_element(self, element: Element) -> None:
         super().from_element(element)
         longitude = element.find(f"{self.ns}longitude")
         if longitude is not None:
-            self.longitude = longitude.text
+            self.longitude = float(longitude.text)
         latitude = element.find(f"{self.ns}latitude")
         if latitude is not None:
-            self.latitude = latitude.text
+            self.latitude = float(latitude.text)
         altitude = element.find(f"{self.ns}altitude")
         if altitude is not None:
-            self.altitude = altitude.text
+            self.altitude = float(altitude.text)
         heading = element.find(f"{self.ns}heading")
         if heading is not None:
-            self.heading = heading.text
+            self.heading = float(heading.text)
         tilt = element.find(f"{self.ns}tilt")
         if tilt is not None:
-            self.tilt = tilt.text
+            self.tilt = float(tilt.text)
         altitude_mode = element.find(f"{self.ns}altitudeMode")
         if altitude_mode is None:
-            altitude_mode = element.find(f"{gx.NS}altitudeMode")
-        self.altitude_mode = AltitudeMode(altitude_mode.text)
+            altitude_mode = element.find(f"{self.name_spaces['gx']}altitudeMode")
+        if altitude_mode is not None:
+            self.altitude_mode = AltitudeMode(altitude_mode.text)
         timespan = element.find(f"{self.ns}TimeSpan")
         if timespan is not None:
-            s = TimeSpan(self.ns)
-            s.from_element(timespan)
-            self._timespan = s
+            span = TimeSpan(self.ns)
+            span.from_element(timespan)
+            self._timespan = span
         timestamp = element.find(f"{self.ns}TimeStamp")
         if timestamp is not None:
-            s = TimeStamp(self.ns)
-            s.from_element(timestamp)
-            self._timestamp = s
+            stamp = TimeStamp(self.ns)
+            stamp.from_element(timestamp)
+            self._timestamp = stamp
 
     def etree_element(
         self,
@@ -201,31 +201,45 @@ class _AbstractView(TimeMixin, _BaseObject):
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.longitude:
-            longitude = config.etree.SubElement(element, f"{self.ns}longitude")
+            longitude = config.etree.SubElement(  # type: ignore[attr-defined]
+                element, f"{self.ns}longitude"
+            )
             longitude.text = str(self.longitude)
         if self.latitude:
-            latitude = config.etree.SubElement(element, f"{self.ns}latitude")
+            latitude = config.etree.SubElement(  # type: ignore[attr-defined]
+                element, f"{self.ns}latitude"
+            )
             latitude.text = str(self.latitude)
         if self.altitude:
-            altitude = config.etree.SubElement(element, f"{self.ns}altitude")
+            altitude = config.etree.SubElement(  # type: ignore[attr-defined]
+                element, f"{self.ns}altitude"
+            )
             altitude.text = str(self.altitude)
         if self.heading:
-            heading = config.etree.SubElement(element, f"{self.ns}heading")
+            heading = config.etree.SubElement(  # type: ignore[attr-defined]
+                element, f"{self.ns}heading"
+            )
             heading.text = str(self.heading)
         if self.tilt:
-            tilt = config.etree.SubElement(element, f"{self.ns}tilt")
+            tilt = config.etree.SubElement(  # type: ignore[attr-defined]
+                element, f"{self.ns}tilt"
+            )
             tilt.text = str(self.tilt)
         if self.altitude_mode in (
             AltitudeMode.clamp_to_ground,
             AltitudeMode.relative_to_ground,
             AltitudeMode.absolute,
         ):
-            altitude_mode = config.etree.SubElement(element, f"{self.ns}altitudeMode")
+            altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
+                element, f"{self.ns}altitudeMode"
+            )
         elif self.altitude_mode in (
             AltitudeMode.clamp_to_sea_floor,
             AltitudeMode.relative_to_sea_floor,
         ):
-            altitude_mode = config.etree.SubElement(element, f"{gx.NS}altitudeMode")
+            altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
+                element, f"{self.name_spaces['gx']}altitudeMode"
+            )
         altitude_mode.text = self.altitude_mode.value
         if (self._timespan is not None) and (self._timestamp is not None):
             msg = "Either Timestamp or Timespan can be defined, not both"
@@ -302,7 +316,7 @@ class Camera(_AbstractView):
         super().from_element(element)
         roll = element.find(f"{self.ns}roll")
         if roll is not None:
-            self.roll = roll.text
+            self.roll = float(roll.text)
 
     def etree_element(
         self,
@@ -311,7 +325,9 @@ class Camera(_AbstractView):
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.roll:
-            roll = config.etree.SubElement(element, f"{self.ns}roll")
+            roll = config.etree.SubElement(  # type: ignore[attr-defined]
+                element, f"{self.ns}roll"
+            )
             roll.text = str(self.roll)
         return element
 
@@ -320,13 +336,8 @@ class Camera(_AbstractView):
         return self._roll
 
     @roll.setter
-    def roll(self, value) -> None:
-        if isinstance(value, (str, int, float)) and (-180 <= float(value) <= 180):
-            self._roll = float(value)
-        elif value is None:
-            self._roll = None
-        else:
-            raise ValueError
+    def roll(self, value: float) -> None:
+        self._roll = value
 
 
 class LookAt(_AbstractView):
@@ -371,19 +382,14 @@ class LookAt(_AbstractView):
         return self._range
 
     @range.setter
-    def range(self, value) -> None:
-        if isinstance(value, (str, int, float)):
-            self._range = float(value)
-        elif value is None:
-            self._range = None
-        else:
-            raise ValueError
+    def range(self, value: float) -> None:
+        self._range = value
 
     def from_element(self, element: Element) -> None:
         super().from_element(element)
         range_var = element.find(f"{self.ns}range")
         if range_var is not None:
-            self.range = range_var.text
+            self.range = float(range_var.text)
 
     def etree_element(
         self,
@@ -392,7 +398,9 @@ class LookAt(_AbstractView):
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.range:
-            range_var = config.etree.SubElement(element, f"{self.ns}range")
+            range_var = config.etree.SubElement(  # type: ignore[attr-defined]
+                element, f"{self.ns}range"
+            )
             range_var.text = str(self._range)
         return element
 

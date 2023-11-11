@@ -290,10 +290,13 @@ class Track(_Geometry):
         cls,
         *,
         ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs = super()._get_kwargs(
+            ns=ns, name_spaces=name_spaces, element=element, strict=strict
+        )
         kwargs["track_items"] = cls.track_items_kwargs_from_element(
             ns=ns,
             element=element,
@@ -432,10 +435,13 @@ class MultiTrack(_Geometry):
         cls,
         *,
         ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs = super()._get_kwargs(
+            ns=ns, name_spaces=name_spaces, element=element, strict=strict
+        )
         kwargs["interpolate"] = cls._get_interpolate(
             ns=ns,
             element=element,
