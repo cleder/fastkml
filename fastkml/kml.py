@@ -447,9 +447,12 @@ class _Feature(TimeMixin, _BaseObject):
             self.append_style(s)
         style_url = element.find(f"{self.ns}styleUrl")
         if style_url is not None:
-            s = StyleUrl(self.ns)
-            s.from_element(style_url)
-            self._style_url = s
+            self._style_url = StyleUrl.class_from_element(
+                ns=self.ns,
+                name_spaces=self.name_spaces,
+                element=style_url,
+                strict=strict,
+            )
         snippet = element.find(f"{self.ns}Snippet")
         if snippet is not None:
             _snippet = {"text": snippet.text}

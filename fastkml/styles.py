@@ -21,6 +21,7 @@ part of how your data is displayed.
 """
 
 import logging
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import Iterator
@@ -28,6 +29,7 @@ from typing import List
 from typing import Optional
 from typing import Type
 from typing import Union
+from typing import cast
 
 from typing_extensions import TypedDict
 
@@ -72,9 +74,23 @@ class StyleUrl(_BaseObject):
             logger.warning("StyleUrl is missing required url.")
         return element
 
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        self.url = element.text
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        kwargs["url"] = element.text
+        return kwargs
 
 
 class _StyleSelector(_BaseObject):
@@ -652,7 +668,7 @@ class StyleMap(_StyleSelector):
         self.normal = normal
         self.highlight = highlight
 
-    def from_element(self, element: Element) -> None:
+    def from_element(self, element: Element, strict: bool = False) -> None:
         super().from_element(element)
         pairs = element.findall(f"{self.ns}Pair")
         for pair in pairs:
@@ -666,8 +682,15 @@ class StyleMap(_StyleSelector):
                     highlight = Style(self.ns)
                     highlight.from_element(style)
                 elif style_url is not None:
-                    highlight = StyleUrl(self.ns)  # type: ignore[assignment]
-                    highlight.from_element(style_url)
+                    highlight = cast(  # type: ignore[assignment]
+                        StyleUrl,
+                        StyleUrl.class_from_element(
+                            ns=self.ns,
+                            name_spaces=self.name_spaces,
+                            element=style_url,
+                            strict=strict,
+                        ),
+                    )
                 else:
                     raise ValueError
                 self.highlight = highlight
@@ -676,8 +699,15 @@ class StyleMap(_StyleSelector):
                     normal = Style(self.ns)
                     normal.from_element(style)
                 elif style_url is not None:
-                    normal = StyleUrl(self.ns)  # type: ignore[assignment]
-                    normal.from_element(style_url)
+                    normal = cast(  # type: ignore[assignment]
+                        StyleUrl,
+                        StyleUrl.class_from_element(
+                            ns=self.ns,
+                            name_spaces=self.name_spaces,
+                            element=style_url,
+                            strict=strict,
+                        ),
+                    )
                 else:
                     raise ValueError
                 self.normal = normal

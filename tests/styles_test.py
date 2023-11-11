@@ -35,9 +35,7 @@ class TestStdLibrary(StdLibrary):
         assert ">#style-0</kml:styleUrl>" in serialized
 
     def test_style_url_read(self) -> None:
-        url = styles.StyleUrl()
-
-        url.from_string(
+        url = styles.StyleUrl.class_from_string(
             '<kml:styleUrl xmlns:kml="http://www.opengis.net/kml/2.2"'
             ' id="id-0" targetId="target-0">#style-0</kml:styleUrl>',
         )
