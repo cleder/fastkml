@@ -43,7 +43,8 @@ class TestStdLibrary(StdLibrary):
         obj.__name__ = "test"
 
         assert obj.to_string().replace(" ", "").replace(
-            "\n", "",
+            "\n",
+            "",
         ) == '<test id="id-0" targetId="target-id-0" />'.replace(" ", "")
 
     def test_from_string(self) -> None:

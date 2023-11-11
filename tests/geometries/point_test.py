@@ -54,7 +54,8 @@ class TestPoint(StdLibrary):
         point = Point(geometry=geo.Point(None, None))  # type: ignore[arg-type]
 
         with pytest.raises(
-            KMLWriteError, match=r"Invalid dimensions in coordinates '\(\(\),\)'",
+            KMLWriteError,
+            match=r"Invalid dimensions in coordinates '\(\(\),\)'",
         ):
             point.to_string()
 
