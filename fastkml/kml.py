@@ -458,14 +458,20 @@ class _Feature(TimeMixin, _BaseObject):
             self.snippet = _snippet
         timespan = element.find(f"{self.ns}TimeSpan")
         if timespan is not None:
-            s = TimeSpan(self.ns)
-            s.from_element(timespan)
-            self._timespan = s
+            self._timespan = TimeSpan.class_from_element(
+                ns=self.ns,
+                name_spaces=self.name_spaces,
+                element=timespan,
+                strict=strict,
+            )
         timestamp = element.find(f"{self.ns}TimeStamp")
         if timestamp is not None:
-            s = TimeStamp(self.ns)
-            s.from_element(timestamp)
-            self._timestamp = s
+            self._timestamp = TimeStamp.class_from_element(
+                ns=self.ns,
+                name_spaces=self.name_spaces,
+                element=timestamp,
+                strict=strict,
+            )
         atom_link = element.find(f"{atom.NS}link")
         if atom_link is not None:
             s = atom.Link()

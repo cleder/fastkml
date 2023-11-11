@@ -17,6 +17,8 @@
 import re
 from datetime import date
 from datetime import datetime
+from typing import Any
+from typing import Dict
 from typing import Optional
 from typing import Union
 
@@ -157,11 +159,12 @@ class TimeStamp(_TimePrimitive):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         timestamp: Optional[KmlDateTime] = None,
     ) -> None:
-        super().__init__(ns=ns, id=id, target_id=target_id)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.timestamp = timestamp
 
     def etree_element(
@@ -177,11 +180,25 @@ class TimeStamp(_TimePrimitive):
         when.text = str(self.timestamp)
         return element
 
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        when = element.find(f"{self.ns}when")
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        when = element.find(f"{ns}when")
         if when is not None:
-            self.timestamp = KmlDateTime.parse(when.text)
+            kwargs["timestamp"] = KmlDateTime.parse(when.text)
+        return kwargs
 
 
 class TimeSpan(_TimePrimitive):
@@ -192,23 +209,15 @@ class TimeSpan(_TimePrimitive):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         begin: Optional[KmlDateTime] = None,
         end: Optional[KmlDateTime] = None,
     ) -> None:
-        super().__init__(ns=ns, id=id, target_id=target_id)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.begin = begin
         self.end = end
-
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        begin = element.find(f"{self.ns}begin")
-        if begin is not None:
-            self.begin = KmlDateTime.parse(begin.text)
-        end = element.find(f"{self.ns}end")
-        if end is not None:
-            self.end = KmlDateTime.parse(end.text)
 
     def etree_element(
         self,
@@ -237,3 +246,26 @@ class TimeSpan(_TimePrimitive):
             raise ValueError(msg)
         # TODO test if end > begin
         return element
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        begin = element.find(f"{ns}begin")
+        if begin is not None:
+            kwargs["begin"] = KmlDateTime.parse(begin.text)
+        end = element.find(f"{ns}end")
+        if end is not None:
+            kwargs["end"] = KmlDateTime.parse(end.text)
+        return kwargs

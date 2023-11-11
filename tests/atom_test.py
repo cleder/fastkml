@@ -82,7 +82,9 @@ class TestStdLibrary(StdLibrary):
 
     def test_atom_author(self) -> None:
         a = atom.Author(
-            name="Nobody", uri="http://localhost", email="cl@donotreply.com",
+            name="Nobody",
+            uri="http://localhost",
+            email="cl@donotreply.com",
         )
 
         serialized = a.to_string()
