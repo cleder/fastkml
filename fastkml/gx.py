@@ -295,7 +295,10 @@ class Track(_Geometry):
         strict: bool,
     ) -> Dict[str, Any]:
         kwargs = super()._get_kwargs(
-            ns=ns, name_spaces=name_spaces, element=element, strict=strict
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
         )
         kwargs["track_items"] = cls.track_items_kwargs_from_element(
             ns=ns,
@@ -440,7 +443,10 @@ class MultiTrack(_Geometry):
         strict: bool,
     ) -> Dict[str, Any]:
         kwargs = super()._get_kwargs(
-            ns=ns, name_spaces=name_spaces, element=element, strict=strict
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
         )
         kwargs["interpolate"] = cls._get_interpolate(
             ns=ns,

@@ -202,27 +202,32 @@ class _AbstractView(TimeMixin, _BaseObject):
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.longitude:
             longitude = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}longitude"
+                element,
+                f"{self.ns}longitude",
             )
             longitude.text = str(self.longitude)
         if self.latitude:
             latitude = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}latitude"
+                element,
+                f"{self.ns}latitude",
             )
             latitude.text = str(self.latitude)
         if self.altitude:
             altitude = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}altitude"
+                element,
+                f"{self.ns}altitude",
             )
             altitude.text = str(self.altitude)
         if self.heading:
             heading = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}heading"
+                element,
+                f"{self.ns}heading",
             )
             heading.text = str(self.heading)
         if self.tilt:
             tilt = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}tilt"
+                element,
+                f"{self.ns}tilt",
             )
             tilt.text = str(self.tilt)
         if self.altitude_mode in (
@@ -231,14 +236,16 @@ class _AbstractView(TimeMixin, _BaseObject):
             AltitudeMode.absolute,
         ):
             altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}altitudeMode"
+                element,
+                f"{self.ns}altitudeMode",
             )
         elif self.altitude_mode in (
             AltitudeMode.clamp_to_sea_floor,
             AltitudeMode.relative_to_sea_floor,
         ):
             altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.name_spaces['gx']}altitudeMode"
+                element,
+                f"{self.name_spaces['gx']}altitudeMode",
             )
         altitude_mode.text = self.altitude_mode.value
         if (self._timespan is not None) and (self._timestamp is not None):
@@ -326,7 +333,8 @@ class Camera(_AbstractView):
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.roll:
             roll = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}roll"
+                element,
+                f"{self.ns}roll",
             )
             roll.text = str(self.roll)
         return element
@@ -399,7 +407,8 @@ class LookAt(_AbstractView):
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.range:
             range_var = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}range"
+                element,
+                f"{self.ns}range",
             )
             range_var.text = str(self._range)
         return element

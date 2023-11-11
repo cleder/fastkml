@@ -183,7 +183,10 @@ class Schema(_BaseObject):
         strict: bool,
     ) -> Dict[str, Any]:
         kwargs = super()._get_kwargs(
-            ns=ns, name_spaces=name_spaces, element=element, strict=strict
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
         )
         kwargs["name"] = element.get("name")
         kwargs["fields"] = cls._get_fields_kwargs_from_element(
@@ -251,7 +254,10 @@ class Data(_XMLObject):
         strict: bool,
     ) -> Dict[str, Any]:
         kwargs = super()._get_kwargs(
-            ns=ns, name_spaces=name_spaces, element=element, strict=strict
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
         )
         kwargs["name"] = element.get("name")
         value = element.find(f"{ns}value")
@@ -343,7 +349,10 @@ class SchemaData(_XMLObject):
         strict: bool,
     ) -> Dict[str, Any]:
         kwargs = super()._get_kwargs(
-            ns=ns, name_spaces=name_spaces, element=element, strict=strict
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
         )
         kwargs["schema_url"] = element.get("schemaUrl")
         kwargs["data"] = [
@@ -401,7 +410,10 @@ class ExtendedData(_XMLObject):
         strict: bool,
     ) -> Dict[str, Any]:
         kwargs = super()._get_kwargs(
-            ns=ns, name_spaces=name_spaces, element=element, strict=strict
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
         )
         elements = []
         untyped_data = element.findall(f"{ns}Data")

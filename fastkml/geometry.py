@@ -317,7 +317,10 @@ class _Geometry(_BaseObject):
         strict: bool,
     ) -> Dict[str, Any]:
         kwargs = super()._get_kwargs(
-            ns=ns, name_spaces=name_spaces, element=element, strict=strict
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
         )
         kwargs.update(cls._get_geometry_kwargs(ns=ns, element=element, strict=strict))
         kwargs.update(
