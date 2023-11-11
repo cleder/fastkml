@@ -43,8 +43,9 @@ logger = logging.getLogger(__name__)
 
 class StyleUrl(_BaseObject):
     """
-    URL of a <Style> or <StyleMap> defined in a Document. If the style
-    is in the same file, use a # reference. If the style is defined in
+    URL of a <Style> or <StyleMap> defined in a Document.
+
+    If the style is in the same file, use a # reference. If the style is defined in
     an external file, use a full URL along with # referencing.
     """
 
