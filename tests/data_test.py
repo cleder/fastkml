@@ -33,7 +33,7 @@ class TestStdLibrary(StdLibrary):
 
     def test_schema(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"
-        s = kml.Schema(ns, "some_id")
+        s = kml.Schema(ns=ns, id="some_id")
         assert not list(s.simple_fields)
         field = data.SimpleField(
             name="Integer",
@@ -99,7 +99,7 @@ class TestStdLibrary(StdLibrary):
         ns = "{http://www.opengis.net/kml/2.2}"
         pytest.raises(ValueError, data.SchemaData, ns)
         pytest.raises(ValueError, data.SchemaData, ns, "")
-        sd = data.SchemaData(ns, "#default")
+        sd = data.SchemaData(ns=ns, schema_url="#default")
         sd.append_data(data.SimpleData("text", "Some Text"))
         assert len(sd.data) == 1
         sd.append_data(data.SimpleData(value=1, name="Integer"))

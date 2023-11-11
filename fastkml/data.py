@@ -92,6 +92,7 @@ class Schema(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
@@ -100,7 +101,7 @@ class Schema(_BaseObject):
         if id is None:
             msg = "Id is required for schema"
             raise KMLSchemaError(msg)
-        super().__init__(ns=ns, id=id, target_id=target_id)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.name = name
         self._simple_fields = list(fields) if fields else []
 
@@ -198,11 +199,12 @@ class Data(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         name: Optional[str] = None,
         value: Optional[str] = None,
         display_name: Optional[str] = None,
     ) -> None:
-        super().__init__(ns)
+        super().__init__(ns=ns, name_spaces=name_spaces)
 
         self.name = name
         self.value = value
@@ -279,10 +281,11 @@ class SchemaData(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         schema_url: Optional[str] = None,
         data: Optional[Iterable[SimpleData]] = None,
     ) -> None:
-        super().__init__(ns)
+        super().__init__(ns=ns, name_spaces=name_spaces)
         if (not isinstance(schema_url, str)) or (not schema_url):
             msg = "required parameter schema_url missing"
             raise ValueError(msg)
@@ -356,9 +359,10 @@ class ExtendedData(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         elements: Optional[Iterable[Union[Data, SchemaData]]] = None,
     ) -> None:
-        super().__init__(ns)
+        super().__init__(ns=ns, name_spaces=name_spaces)
         self.elements = elements or []
 
     def __repr__(self) -> str:

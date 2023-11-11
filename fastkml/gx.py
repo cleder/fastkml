@@ -193,6 +193,7 @@ class Track(_Geometry):
         self,
         *,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         extrude: Optional[bool] = False,
@@ -211,6 +212,7 @@ class Track(_Geometry):
         self.track_items = track_items
         super().__init__(
             ns=ns,
+            name_spaces=name_spaces,
             id=id,
             target_id=target_id,
             extrude=extrude,
@@ -318,6 +320,7 @@ class MultiTrack(_Geometry):
         self,
         *,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         extrude: Optional[bool] = False,
@@ -338,6 +341,7 @@ class MultiTrack(_Geometry):
         self.interpolate = interpolate
         super().__init__(
             ns=ns,
+            name_spaces=name_spaces,
             id=id,
             target_id=target_id,
             extrude=extrude,

@@ -138,11 +138,12 @@ class _XMLObject:
         cls,
         *,
         ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> Dict[str, Any]:
         """Returns a dictionary of kwargs for the class constructor."""
-        kwargs: Dict[str, Any] = {}
+        kwargs: Dict[str, Any] = {"ns": ns, "name_spaces": name_spaces}
         return kwargs
 
     @classmethod
@@ -150,13 +151,13 @@ class _XMLObject:
         cls,
         *,
         ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> "_XMLObject":
         """Creates an XML object from an etree element."""
         kwargs = cls._get_kwargs(ns=ns, element=element, strict=strict)
         return cls(
-            ns=ns,
             **kwargs,
         )
 
@@ -166,6 +167,7 @@ class _XMLObject:
         string: str,
         *,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         strict: bool = True,
     ) -> "_XMLObject":
         """
@@ -228,11 +230,12 @@ class _BaseObject(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
     ) -> None:
         """Initialize the KML Object."""
-        super().__init__(ns)
+        super().__init__(ns=ns, name_spaces=name_spaces)
         self.id = id
         self.target_id = target_id
 
@@ -247,6 +250,7 @@ class _BaseObject(_XMLObject):
     def __repr__(self) -> str:
         return (
             f"{self.__class__.__name__}(ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
             f"(id={self.id!r}, target_id={self.target_id!r})"
         )
 
@@ -275,11 +279,21 @@ class _BaseObject(_XMLObject):
         cls,
         *,
         ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> Dict[str, Any]:
         """Get the keyword arguments to build the object from an element."""
-        return {
-            "id": cls._get_id(element=element, strict=strict),
-            "target_id": cls._get_target_id(element=element, strict=strict),
-        }
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        kwargs.update(
+            {
+                "id": cls._get_id(element=element, strict=strict),
+                "target_id": cls._get_target_id(element=element, strict=strict),
+            },
+        )
+        return kwargs

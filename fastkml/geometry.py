@@ -78,6 +78,7 @@ class _Geometry(_BaseObject):
         self,
         *,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         extrude: Optional[bool] = False,
@@ -97,7 +98,7 @@ class _Geometry(_BaseObject):
             altitude_mode: Specifies how altitude components in the <coordinates>
                            element are interpreted.
         """
-        super().__init__(ns=ns, id=id, target_id=target_id)
+        super().__init__(ns=ns, id=id, name_spaces=name_spaces, target_id=target_id)
         self._extrude = extrude
         self._tessellate = tessellate
         self._altitude_mode = altitude_mode
@@ -327,6 +328,7 @@ class Point(_Geometry):
         self,
         *,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         extrude: Optional[bool] = False,
@@ -337,6 +339,7 @@ class Point(_Geometry):
         super().__init__(
             ns=ns,
             id=id,
+            name_spaces=name_spaces,
             target_id=target_id,
             extrude=extrude,
             tessellate=tessellate,
@@ -381,6 +384,7 @@ class LineString(_Geometry):
         self,
         *,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         extrude: Optional[bool] = False,
@@ -390,6 +394,7 @@ class LineString(_Geometry):
     ) -> None:
         super().__init__(
             ns=ns,
+            name_spaces=name_spaces,
             id=id,
             target_id=target_id,
             extrude=extrude,
@@ -435,6 +440,7 @@ class LinearRing(LineString):
         self,
         *,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         extrude: Optional[bool] = False,
@@ -444,6 +450,7 @@ class LinearRing(LineString):
     ) -> None:
         super().__init__(
             ns=ns,
+            name_spaces=name_spaces,
             id=id,
             target_id=target_id,
             extrude=extrude,
@@ -477,6 +484,7 @@ class Polygon(_Geometry):
         self,
         *,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         extrude: Optional[bool] = False,
@@ -486,6 +494,7 @@ class Polygon(_Geometry):
     ) -> None:
         super().__init__(
             ns=ns,
+            name_spaces=name_spaces,
             id=id,
             target_id=target_id,
             extrude=extrude,
@@ -619,6 +628,7 @@ class MultiGeometry(_Geometry):
         self,
         *,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         extrude: Optional[bool] = False,
@@ -628,6 +638,7 @@ class MultiGeometry(_Geometry):
     ) -> None:
         super().__init__(
             ns=ns,
+            name_spaces=name_spaces,
             id=id,
             target_id=target_id,
             extrude=extrude,

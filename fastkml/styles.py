@@ -21,6 +21,7 @@ part of how your data is displayed.
 """
 
 import logging
+from typing import Dict
 from typing import Iterable
 from typing import Iterator
 from typing import List
@@ -51,11 +52,12 @@ class StyleUrl(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         url: Optional[str] = None,
     ) -> None:
-        super().__init__(ns=ns, id=id, target_id=target_id)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.url = url
 
     def etree_element(
@@ -109,12 +111,13 @@ class _ColorStyle(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
         color_mode: Optional[str] = None,
     ) -> None:
-        super().__init__(ns=ns, id=id, target_id=target_id)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.color = color
         self.color_mode = color_mode
 
@@ -171,6 +174,7 @@ class IconStyle(_ColorStyle):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
@@ -182,6 +186,7 @@ class IconStyle(_ColorStyle):
     ) -> None:
         super().__init__(
             ns=ns,
+            name_spaces=name_spaces,
             id=id,
             target_id=target_id,
             color=color,
@@ -270,6 +275,7 @@ class LineStyle(_ColorStyle):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
@@ -278,6 +284,7 @@ class LineStyle(_ColorStyle):
     ) -> None:
         super().__init__(
             ns=ns,
+            name_spaces=name_spaces,
             id=id,
             target_id=target_id,
             color=color,
@@ -323,6 +330,7 @@ class PolyStyle(_ColorStyle):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
@@ -332,6 +340,7 @@ class PolyStyle(_ColorStyle):
     ) -> None:
         super().__init__(
             ns=ns,
+            name_spaces=name_spaces,
             id=id,
             target_id=target_id,
             color=color,
@@ -388,6 +397,7 @@ class LabelStyle(_ColorStyle):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
@@ -396,6 +406,7 @@ class LabelStyle(_ColorStyle):
     ) -> None:
         super().__init__(
             ns=ns,
+            name_spaces=name_spaces,
             id=id,
             target_id=target_id,
             color=color,
@@ -480,6 +491,7 @@ class BalloonStyle(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         bg_color: Optional[str] = None,
@@ -487,7 +499,7 @@ class BalloonStyle(_BaseObject):
         text: Optional[str] = None,
         display_mode: Optional[str] = None,
     ) -> None:
-        super().__init__(ns=ns, id=id, target_id=target_id)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.bg_color = bg_color
         self.text_color = text_color
         self.text = text
@@ -563,11 +575,12 @@ class Style(_StyleSelector):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         styles: Optional[Iterable[AnyStyle]] = None,
     ) -> None:
-        super().__init__(ns, id, target_id)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self._styles: List[AnyStyle] = []
         if styles:
             for style in styles:
@@ -629,12 +642,13 @@ class StyleMap(_StyleSelector):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         normal: Optional[Union[Style, StyleUrl]] = None,
         highlight: Optional[Union[Style, StyleUrl]] = None,
     ) -> None:
-        super().__init__(ns, id, target_id)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.normal = normal
         self.highlight = highlight
 
