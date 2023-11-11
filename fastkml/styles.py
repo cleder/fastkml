@@ -91,7 +91,7 @@ class _ColorStyle(_BaseObject):
     This is an abstract element and cannot be used directly in a KML file.
     It provides elements for specifying the color and color mode of
     extended style types.
-    subclasses are: IconStyle, LabelStyle, LineStyle, PolyStyle
+    subclasses are: IconStyle, LabelStyle, LineStyle, PolyStyle.
     """
 
     id = None
@@ -156,7 +156,7 @@ class HotSpot(TypedDict):
 
 
 class IconStyle(_ColorStyle):
-    """Specifies how icons for point Placemarks are drawn"""
+    """Specifies how icons for point Placemarks are drawn."""
 
     __name__ = "IconStyle"
     scale = 1.0
@@ -181,7 +181,11 @@ class IconStyle(_ColorStyle):
         hot_spot: Optional[HotSpot] = None,
     ) -> None:
         super().__init__(
-            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode,
+            ns=ns,
+            id=id,
+            target_id=target_id,
+            color=color,
+            color_mode=color_mode,
         )
 
         self.scale = scale
@@ -219,7 +223,8 @@ class IconStyle(_ColorStyle):
             href.text = self.icon_href
         if self.hot_spot:
             hot_spot = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}hotSpot",
+                element,
+                f"{self.ns}hotSpot",
             )
             hot_spot.attrib["x"] = str(self.hot_spot["x"])
             hot_spot.attrib["y"] = str(self.hot_spot["y"])
@@ -272,7 +277,11 @@ class LineStyle(_ColorStyle):
         width: Union[int, float] = 1,
     ) -> None:
         super().__init__(
-            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode,
+            ns=ns,
+            id=id,
+            target_id=target_id,
+            color=color,
+            color_mode=color_mode,
         )
         self.width = width
 
@@ -322,7 +331,11 @@ class PolyStyle(_ColorStyle):
         outline: int = 1,
     ) -> None:
         super().__init__(
-            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode,
+            ns=ns,
+            id=id,
+            target_id=target_id,
+            color=color,
+            color_mode=color_mode,
         )
         self.fill = fill
         self.outline = outline
@@ -366,9 +379,7 @@ class PolyStyle(_ColorStyle):
 
 
 class LabelStyle(_ColorStyle):
-    """
-    Specifies how the <name> of a Feature is drawn in the 3D viewer.
-    """
+    """Specifies how the <name> of a Feature is drawn in the 3D viewer."""
 
     __name__ = "LabelStyle"
     scale = 1.0
@@ -384,7 +395,11 @@ class LabelStyle(_ColorStyle):
         scale: float = 1.0,
     ) -> None:
         super().__init__(
-            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode,
+            ns=ns,
+            id=id,
+            target_id=target_id,
+            color=color,
+            color_mode=color_mode,
         )
         self.scale = scale
 

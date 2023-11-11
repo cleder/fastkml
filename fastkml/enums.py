@@ -20,8 +20,17 @@ from typing import Union
 __all__ = ["AltitudeMode", "DateTimeResolution", "Verbosity"]
 
 
+class REnum(Enum):
+    """Enum with custom repr for eval roundtrip."""
+
+    def __repr__(self) -> str:
+        """The string representation of the object."""
+        cls_name = self.__class__.__name__
+        return f"{cls_name}.{self.name}"
+
+
 @unique
-class Verbosity(Enum):
+class Verbosity(REnum):
     """Enum to represent the different verbosity levels."""
 
     quiet = 0
@@ -30,7 +39,7 @@ class Verbosity(Enum):
 
 
 @unique
-class DateTimeResolution(Enum):
+class DateTimeResolution(REnum):
     """Enum to represent the different date time resolutions."""
 
     datetime = "dateTime"
@@ -40,7 +49,7 @@ class DateTimeResolution(Enum):
 
 
 @unique
-class AltitudeMode(Enum):
+class AltitudeMode(REnum):
     """
     Enum to represent the different altitude modes.
 
@@ -88,7 +97,7 @@ class AltitudeMode(Enum):
 
 
 @unique
-class DataType(Enum):
+class DataType(REnum):
     string = "string"
     int_ = "int"
     uint = "uint"
@@ -108,4 +117,5 @@ class DataType(Enum):
             return float(value)
         if self == DataType.bool_:
             return bool(int(value))
-        raise ValueError(f"Unknown data type {self}")
+        msg = f"Unknown data type {self}"
+        raise ValueError(msg)

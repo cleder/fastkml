@@ -36,7 +36,9 @@ class TestStdLibrary(StdLibrary):
         s = kml.Schema(ns, "some_id")
         assert not list(s.simple_fields)
         field = data.SimpleField(
-            name="Integer", type=DataType.int_, display_name="An Integer",
+            name="Integer",
+            type=DataType.int_,
+            display_name="An Integer",
         )
         s.append(field)
         assert s.simple_fields[0] == field
@@ -83,8 +85,8 @@ class TestStdLibrary(StdLibrary):
         </kml>"""
         k = kml.KML()
         k.from_string(doc1)
-        d = list(k.features())[0]
-        s2 = list(d.schemata())[0]
+        d = next(iter(k.features()))
+        s2 = next(iter(d.schemata()))
         s.ns = config.KMLNS
         assert s.to_string() == s2.to_string()
         k1 = kml.KML()
@@ -125,7 +127,10 @@ class TestStdLibrary(StdLibrary):
             elements=[
                 data.Data(ns=ns, name="info", value="so much to see"),
                 data.Data(
-                    ns=ns, name="weather", display_name="Weather", value="blue skies",
+                    ns=ns,
+                    name="weather",
+                    display_name="Weather",
+                    value="blue skies",
                 ),
             ],
         )
@@ -137,7 +142,7 @@ class TestStdLibrary(StdLibrary):
         k2.from_string(k.to_string(prettyprint=True))
         k.to_string()
 
-        extended_data = list(k2.features())[0].extended_data
+        extended_data = next(iter(k2.features())).extended_data
         assert extended_data is not None
         assert len(extended_data.elements), 2
         assert extended_data.elements[0].name == "info"
@@ -153,12 +158,14 @@ class TestStdLibrary(StdLibrary):
 
         d = kml.Document(ns, "docid", "doc name", "doc description")
         d.extended_data = kml.ExtendedData(
-            ns=ns, elements=[data.Data(ns=ns, name="type", value="Document")],
+            ns=ns,
+            elements=[data.Data(ns=ns, name="type", value="Document")],
         )
 
         f = kml.Folder(ns, "fid", "f name", "f description")
         f.extended_data = kml.ExtendedData(
-            ns=ns, elements=[data.Data(ns=ns, name="type", value="Folder")],
+            ns=ns,
+            elements=[data.Data(ns=ns, name="type", value="Folder")],
         )
 
         k.append(d)
@@ -167,8 +174,8 @@ class TestStdLibrary(StdLibrary):
         k2 = kml.KML()
         k2.from_string(k.to_string())
 
-        document_data = list(k2.features())[0].extended_data
-        folder_data = list(list(k2.features())[0].features())[0].extended_data
+        document_data = next(iter(k2.features())).extended_data
+        folder_data = next(iter(next(iter(k2.features())).features())).extended_data
 
         assert document_data.elements[0].name == "type"
         assert document_data.elements[0].value == "Document"
@@ -209,7 +216,7 @@ class TestStdLibrary(StdLibrary):
         k = kml.KML()
         k.from_string(doc)
 
-        extended_data = list(k.features())[0].extended_data
+        extended_data = next(iter(k.features())).extended_data
 
         assert extended_data.elements[0].name == "holeNumber"
         assert extended_data.elements[0].value == "1"
@@ -222,7 +229,8 @@ class TestStdLibrary(StdLibrary):
         )
         sd = extended_data.elements[2]
         assert sd.data[0] == data.SimpleData(
-            name="TrailHeadName", value="Mount Everest",
+            name="TrailHeadName",
+            value="Mount Everest",
         )
         assert sd.data[1] == data.SimpleData(name="TrailLength", value="347.45")
         assert sd.data[2] == data.SimpleData(name="ElevationGain", value="10000")

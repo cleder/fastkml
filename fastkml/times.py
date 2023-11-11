@@ -74,7 +74,7 @@ class KmlDateTime:
         self,
         dt: Union[date, datetime],
         resolution: Optional[DateTimeResolution] = None,
-    ):
+    ) -> None:
         """Initialize a KmlDateTime object."""
         self.dt = dt
         self.resolution = resolution
@@ -171,7 +171,8 @@ class TimeStamp(_TimePrimitive):
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
         when = config.etree.SubElement(  # type: ignore[attr-defined]
-            element, f"{self.ns}when",
+            element,
+            f"{self.ns}when",
         )
         when.text = str(self.timestamp)
         return element
@@ -232,6 +233,7 @@ class TimeSpan(_TimePrimitive):
                 )
                 end.text = text
         if self.begin == self.end is None:
-            raise ValueError("Either begin, end or both must be set")
+            msg = "Either begin, end or both must be set"
+            raise ValueError(msg)
         # TODO test if end > begin
         return element

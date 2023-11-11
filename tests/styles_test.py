@@ -355,12 +355,12 @@ class TestStdLibrary(StdLibrary):
 
         assert style.id == "id-0"
         assert style.target_id == "target-0"
-        assert list(style.styles())[0].id == "id-b0"
-        assert list(style.styles())[0].target_id == "target-b0"
-        assert list(style.styles())[0].bg_color == "7fff0000"  # type: ignore[union-attr]
-        assert list(style.styles())[0].text_color == "ff00ff00"  # type: ignore[union-attr]
-        assert list(style.styles())[0].text == "<b>Hello</b>"  # type: ignore[union-attr]
-        assert list(style.styles())[0].display_mode == "hide"  # type: ignore[union-attr]
+        assert next(iter(style.styles())).id == "id-b0"
+        assert next(iter(style.styles())).target_id == "target-b0"
+        assert next(iter(style.styles())).bg_color == "7fff0000"  # type: ignore[union-attr]
+        assert next(iter(style.styles())).text_color == "ff00ff00"  # type: ignore[union-attr]
+        assert next(iter(style.styles())).text == "<b>Hello</b>"  # type: ignore[union-attr]
+        assert next(iter(style.styles())).display_mode == "hide"  # type: ignore[union-attr]
 
         assert list(style.styles())[1].id == "id-i0"
         assert list(style.styles())[1].target_id == "target-i0"

@@ -224,7 +224,8 @@ class _AbstractView(TimeMixin, _BaseObject):
             altitude_mode = config.etree.SubElement(element, f"{gx.NS}altitudeMode")
         altitude_mode.text = self.altitude_mode
         if (self._timespan is not None) and (self._timestamp is not None):
-            raise ValueError("Either Timestamp or Timespan can be defined, not both")
+            msg = "Either Timestamp or Timespan can be defined, not both"
+            raise ValueError(msg)
         if self._timespan is not None:
             element.append(self._timespan.etree_element())
         elif self._timestamp is not None:

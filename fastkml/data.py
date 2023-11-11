@@ -14,7 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """
-Add Custom Data
+Add Custom Data.
 
 https://developers.google.com/kml/documentation/extendeddata#example
 """
@@ -98,7 +98,8 @@ class Schema(_BaseObject):
         fields: Optional[Iterable[SimpleField]] = None,
     ) -> None:
         if id is None:
-            raise KMLSchemaError("Id is required for schema")
+            msg = "Id is required for schema"
+            raise KMLSchemaError(msg)
         super().__init__(ns=ns, id=id, target_id=target_id)
         self.name = name
         self._simple_fields = list(fields) if fields else []
@@ -136,13 +137,15 @@ class Schema(_BaseObject):
             element.set("name", self.name)
         for simple_field in self.simple_fields:
             sf = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}SimpleField",
+                element,
+                f"{self.ns}SimpleField",
             )
             sf.set("type", simple_field.type.value)
             sf.set("name", simple_field.name)
             if simple_field.display_name:
                 dn = config.etree.SubElement(  # type: ignore[attr-defined]
-                    sf, f"{self.ns}displayName",
+                    sf,
+                    f"{self.ns}displayName",
                 )
                 dn.text = simple_field.display_name
         return element
@@ -180,7 +183,9 @@ class Schema(_BaseObject):
         kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
         kwargs["name"] = element.get("name")
         kwargs["fields"] = cls._get_fields_kwargs_from_element(
-            ns=ns, element=element, strict=strict,
+            ns=ns,
+            element=element,
+            strict=strict,
         )
         return kwargs
 
@@ -219,12 +224,14 @@ class Data(_XMLObject):
         element = super().etree_element(precision=precision, verbosity=verbosity)
         element.set("name", self.name or "")
         value = config.etree.SubElement(  # type: ignore[attr-defined]
-            element, f"{self.ns}value",
+            element,
+            f"{self.ns}value",
         )
         value.text = self.value
         if self.display_name:
             display_name = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}displayName",
+                element,
+                f"{self.ns}displayName",
             )
             display_name.text = self.display_name
         return element
@@ -277,7 +284,8 @@ class SchemaData(_XMLObject):
     ) -> None:
         super().__init__(ns)
         if (not isinstance(schema_url, str)) or (not schema_url):
-            raise ValueError("required parameter schema_url missing")
+            msg = "required parameter schema_url missing"
+            raise ValueError(msg)
         self.schema_url = schema_url
         self._data = list(data) if data else []
 
@@ -309,7 +317,8 @@ class SchemaData(_XMLObject):
         element.set("schemaUrl", self.schema_url)
         for data in self.data:
             sd = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}SimpleData",
+                element,
+                f"{self.ns}SimpleData",
             )
             sd.set("name", data.name)
             sd.text = data.value
@@ -386,7 +395,9 @@ class ExtendedData(_XMLObject):
         typed_data = element.findall(f"{ns}SchemaData")
         for sd in typed_data:
             el_schema_data = SchemaData.class_from_element(
-                ns=ns, element=sd, strict=strict,
+                ns=ns,
+                element=sd,
+                strict=strict,
             )
             elements.append(el_schema_data)
         kwargs["elements"] = elements

@@ -27,7 +27,7 @@ from tests.base import StdLibrary
 class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
 
-    def test_exterior_only(self):
+    def test_exterior_only(self) -> None:
         """Test exterior only."""
         poly = geo.Polygon([(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)])
 
@@ -41,7 +41,7 @@ class TestStdLibrary(StdLibrary):
             "1.000000,0.000000 0.000000,0.000000"
         ) in polygon.to_string()
 
-    def test_exterior_interior(self):
+    def test_exterior_interior(self) -> None:
         """Test exterior and interior."""
         poly = geo.Polygon(
             [(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)],
@@ -62,7 +62,7 @@ class TestStdLibrary(StdLibrary):
             "0.900000,0.100000 0.100000,0.100000"
         ) in polygon.to_string()
 
-    def test_from_string_exterior_only(self):
+    def test_from_string_exterior_only(self) -> None:
         """Test exterior only."""
         doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:outerBoundaryIs>
@@ -77,7 +77,7 @@ class TestStdLibrary(StdLibrary):
 
         assert polygon2.geometry == geo.Polygon([(0, 0), (1, 0), (1, 1), (0, 0)])
 
-    def test_from_string_exterior_interior(self):
+    def test_from_string_exterior_interior(self) -> None:
         doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:outerBoundaryIs>
             <kml:LinearRing>
@@ -101,7 +101,7 @@ class TestStdLibrary(StdLibrary):
             [[(0, 0), (1, 0), (1, 1), (0, 0)]],
         )
 
-    def test_empty_polygon(self):
+    def test_empty_polygon(self) -> None:
         """Test empty polygon."""
         doc = (
             "<Polygon><tessellate>1</tessellate><outerBoundaryIs>"

@@ -1,4 +1,4 @@
-# Copyright (C) 2012 - 2020  Christian Ledermann
+# Copyright (C) 2012 - 2023  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -14,7 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-"""Abstract base classes"""
+"""Abstract base classes."""
 import logging
 from typing import Any
 from typing import Dict
@@ -35,24 +35,21 @@ logger = logging.getLogger(__name__)
 class _XMLObject:
     """XML Baseclass."""
 
-    _namespaces: Tuple[str, ...] = ("",)
+    _default_ns: str = ""
     _node_name: str = ""
     __name__ = ""
+    name_spaces: Dict[str, str]
     kml_object_mapping: Tuple[KmlObjectMap, ...] = ()
 
-    def __init__(self, ns: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+    ) -> None:
         """Initialize the XML Object."""
-        self.ns: str = self._namespaces[0] if ns is None else ns
-
-    def __eq__(self, other: object) -> bool:
-        """Compare two XML Objects."""
-        if not isinstance(other, self.__class__):
-            return False
-        return (
-            other.ns == self.ns or other.ns in self._namespaces
-            if self.ns == ""
-            else True
-        )
+        self.ns: str = self._default_ns if ns is None else ns
+        name_spaces = name_spaces or {}
+        self.name_spaces = {**config.NAME_SPACES, **name_spaces}
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(ns={self.ns})"
@@ -71,8 +68,9 @@ class _XMLObject:
                 f"{self.ns}{self.__name__}",
             )
         else:
+            msg = "Call of abstract base class, subclasses implement this!"
             raise NotImplementedError(
-                "Call of abstract base class, subclasses implement this!",
+                msg,
             )
         for mapping in self.kml_object_mapping:
             mapping["to_kml"](self, element, **mapping)
@@ -86,7 +84,8 @@ class _XMLObject:
         making it a classmethod.
         """
         if f"{self.ns}{self.__name__}" != element.tag:
-            raise TypeError("Call of abstract base class, subclasses implement this!")
+            msg = "Call of abstract base class, subclasses implement this!"
+            raise TypeError(msg)
         for mapping in self.kml_object_mapping:
             mapping["from_kml"](self, element, **mapping)
 
@@ -125,13 +124,14 @@ class _XMLObject:
             return cast(
                 str,
                 config.etree.tostring(  # type: ignore[attr-defined]
-                    self.etree_element(), encoding="UTF-8",
+                    self.etree_element(),
+                    encoding="UTF-8",
                 ).decode("UTF-8"),
             )
 
     @classmethod
     def _get_ns(cls, ns: Optional[str]) -> str:
-        return cls._namespaces[0] if ns is None else ns
+        return cls._default_ns if ns is None else ns
 
     @classmethod
     def _get_kwargs(
@@ -202,8 +202,7 @@ class _BaseObject(_XMLObject):
     mechanism is to be used.
     """
 
-    _namespace = config.KMLNS
-    _namespaces: Tuple[str, ...] = (config.KMLNS,)
+    _default_ns = config.KMLNS
 
     id = None
     target_id = None

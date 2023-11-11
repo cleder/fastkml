@@ -53,7 +53,10 @@ logger = logging.getLogger(__name__)
 
 GeometryType = Union[geo.Polygon, geo.LineString, geo.LinearRing, geo.Point]
 MultiGeometryType = Union[
-    geo.MultiPoint, geo.MultiLineString, geo.MultiPolygon, geo.GeometryCollection,
+    geo.MultiPoint,
+    geo.MultiLineString,
+    geo.MultiPolygon,
+    geo.GeometryCollection,
 ]
 AnyGeometryType = Union[GeometryType, MultiGeometryType]
 
@@ -150,18 +153,18 @@ class _Geometry(_BaseObject):
         if len(coordinates[0]) == 2:
             tuples = (f"{c[0]:f},{c[1]:f}" for c in coordinates)
         elif len(coordinates[0]) == 3:
-            tuples = (
-                f"{c[0]:f},{c[1]:f},{c[2]:f}" for c in coordinates  # type: ignore[misc]
-            )
+            tuples = (f"{c[0]:f},{c[1]:f},{c[2]:f}" for c in coordinates)
         else:
-            raise KMLWriteError(f"Invalid dimensions in coordinates '{coordinates}'")
+            msg = f"Invalid dimensions in coordinates '{coordinates}'"
+            raise KMLWriteError(msg)
         element.text = " ".join(tuples)
         return element
 
     def _set_altitude_mode(self, element: Element) -> None:
         if self.altitude_mode:
             am_element = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}altitudeMode",
+                element,
+                f"{self.ns}altitudeMode",
             )
             am_element.text = self.altitude_mode.value
 
@@ -170,7 +173,8 @@ class _Geometry(_BaseObject):
             et_element = cast(
                 Element,
                 config.etree.SubElement(  # type: ignore[attr-defined]
-                    element, f"{self.ns}extrude",
+                    element,
+                    f"{self.ns}extrude",
                 ),
             )
             et_element.text = str(int(self.extrude))
@@ -180,7 +184,8 @@ class _Geometry(_BaseObject):
             t_element = cast(
                 Element,
                 config.etree.SubElement(  # type: ignore[attr-defined]
-                    element, f"{self.ns}tessellate",
+                    element,
+                    f"{self.ns}tessellate",
                 ),
             )
             t_element.text = str(int(self.tessellate))
@@ -199,7 +204,11 @@ class _Geometry(_BaseObject):
 
     @classmethod
     def _get_coordinates(
-        cls, *, ns: str, element: Element, strict: bool,
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
     ) -> List[PointType]:
         """
         Get coordinates from element.
@@ -281,7 +290,9 @@ class _Geometry(_BaseObject):
             "extrude": cls._get_extrude(ns=ns, element=element, strict=strict),
             "tessellate": cls._get_tessellate(ns=ns, element=element, strict=strict),
             "altitude_mode": cls._get_altitude_mode(
-                ns=ns, element=element, strict=strict,
+                ns=ns,
+                element=element,
+                strict=strict,
             ),
         }
 
@@ -361,7 +372,8 @@ class Point(_Geometry):
                 element,
                 encoding="UTF-8",
             ).decode("UTF-8")
-            raise KMLParseError(f"Invalid coordinates in {error}") from e
+            msg = f"Invalid coordinates in {error}"
+            raise KMLParseError(msg) from e
 
 
 class LineString(_Geometry):
@@ -414,7 +426,8 @@ class LineString(_Geometry):
                 element,
                 encoding="UTF-8",
             ).decode("UTF-8")
-            raise KMLParseError(f"Invalid coordinates in {error}") from e
+            msg = f"Invalid coordinates in {error}"
+            raise KMLParseError(msg) from e
 
 
 class LinearRing(LineString):
@@ -455,7 +468,8 @@ class LinearRing(LineString):
                 element,
                 encoding="UTF-8",
             ).decode("UTF-8")
-            raise KMLParseError(f"Invalid coordinates in {error}") from e
+            msg = f"Invalid coordinates in {error}"
+            raise KMLParseError(msg) from e
 
 
 class Polygon(_Geometry):
@@ -498,7 +512,8 @@ class Polygon(_Geometry):
         )
         outer_boundary.append(
             linear_ring(geometry=self.geometry.exterior).etree_element(
-                precision=precision, verbosity=verbosity,
+                precision=precision,
+                verbosity=verbosity,
             ),
         )
         for interior in self.geometry.interiors:
@@ -511,7 +526,8 @@ class Polygon(_Geometry):
             )
             inner_boundary.append(
                 linear_ring(geometry=interior).etree_element(
-                    precision=precision, verbosity=verbosity,
+                    precision=precision,
+                    verbosity=verbosity,
                 ),
             )
         return element
@@ -524,14 +540,16 @@ class Polygon(_Geometry):
                 element,
                 encoding="UTF-8",
             ).decode("UTF-8")
-            raise KMLParseError(f"Missing outerBoundaryIs in {error}")
+            msg = f"Missing outerBoundaryIs in {error}"
+            raise KMLParseError(msg)
         outer_ring = outer_boundary.find(f"{ns}LinearRing")
         if outer_ring is None:
             error = config.etree.tostring(  # type: ignore[attr-defined]
                 element,
                 encoding="UTF-8",
             ).decode("UTF-8")
-            raise KMLParseError(f"Missing LinearRing in {error}")
+            msg = f"Missing LinearRing in {error}"
+            raise KMLParseError(msg)
         exterior = LinearRing._get_geometry(ns=ns, element=outer_ring, strict=strict)
         interiors = []
         for inner_boundary in element.findall(f"{ns}innerBoundaryIs"):
@@ -541,7 +559,8 @@ class Polygon(_Geometry):
                     element,
                     encoding="UTF-8",
                 ).decode("UTF-8")
-                raise KMLParseError(f"Missing LinearRing in {error}")
+                msg = f"Missing LinearRing in {error}"
+                raise KMLParseError(msg)
             interiors.append(
                 LinearRing._get_geometry(ns=ns, element=inner_ring, strict=strict),
             )
@@ -575,7 +594,7 @@ def create_multigeometry(
         }
         for geometry_name, constructor in map_to_geometries.items():
             if geom_type == geometry_name:
-                return constructor(  # type: ignore[operator, no-any-return]
+                return constructor(
                     *geometries,
                 )
 
@@ -637,20 +656,28 @@ class MultiGeometry(_Geometry):
                     extrude=None,
                     tessellate=None,
                     altitude_mode=None,
-                    geometry=geometry,  # type: ignore[arg-type]
+                    geometry=geometry,
                 ).etree_element(precision=precision, verbosity=verbosity),
             )
         return element
 
     @classmethod
     def _get_geometry(
-        cls, *, ns: str, element: Element, strict: bool,
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
     ) -> Optional[MultiGeometryType]:
         geometries = []
-        allowed_geometries = (cls,) + tuple(cls.map_to_kml.values())
+        allowed_geometries = (cls, *tuple(cls.map_to_kml.values()))
         for g in allowed_geometries:
             for e in element.findall(f"{ns}{g.__name__}"):
-                geometry = g._get_geometry(ns=ns, element=e, strict=strict)
+                geometry = g._get_geometry(  # type: ignore[attr-defined]
+                    ns=ns,
+                    element=e,
+                    strict=strict,
+                )
                 if geometry is not None:
                     geometries.append(geometry)
         return create_multigeometry(geometries)

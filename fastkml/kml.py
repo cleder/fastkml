@@ -26,6 +26,8 @@ http://schemas.opengis.net/kml/.
 """
 import logging
 import urllib.parse as urlparse
+from datetime import datetime
+from typing import Any
 from typing import Iterator
 from typing import List
 from typing import Optional
@@ -76,7 +78,7 @@ class _Feature(TimeMixin, _BaseObject):
         * Placemark
         * Overlay
     Not Implemented Yet:
-        * NetworkLink
+        * NetworkLink.
     """
 
     name = None
@@ -201,14 +203,15 @@ class _Feature(TimeMixin, _BaseObject):
     def style_url(self) -> Optional[str]:
         """
         Returns the url only, not a full StyleUrl object.
-        if you need the full StyleUrl object use _style_url
+        if you need the full StyleUrl object use _style_url.
         """
         if isinstance(self._style_url, StyleUrl):
             return self._style_url.url
+        return None
 
     @style_url.setter
     def style_url(self, styleurl: Union[str, StyleUrl, None]) -> None:
-        """You may pass a StyleUrl Object, a string or None"""
+        """You may pass a StyleUrl Object, a string or None."""
         if isinstance(styleurl, StyleUrl):
             self._style_url = styleurl
         elif isinstance(styleurl, str):
@@ -224,16 +227,16 @@ class _Feature(TimeMixin, _BaseObject):
         return self._camera
 
     @camera.setter
-    def camera(self, camera):
+    def camera(self, camera) -> None:
         if isinstance(camera, Camera):
             self._camera = camera
 
     @property
-    def look_at(self):
+    def look_at(self) -> datetime:
         return self._look_at
 
     @look_at.setter
-    def look_at(self, look_at):
+    def look_at(self, look_at) -> None:
         if isinstance(look_at, LookAt):
             self._look_at = look_at
 
@@ -242,7 +245,7 @@ class _Feature(TimeMixin, _BaseObject):
         return self._atom_link.href
 
     @link.setter
-    def link(self, url):
+    def link(self, url) -> None:
         if isinstance(url, str):
             self._atom_link = atom.Link(href=url)
         elif isinstance(url, atom.Link):
@@ -253,12 +256,13 @@ class _Feature(TimeMixin, _BaseObject):
             raise TypeError
 
     @property
-    def author(self):
+    def author(self) -> None:
         if self._atom_author:
             return self._atom_author.name
+        return None
 
     @author.setter
-    def author(self, name):
+    def author(self, name) -> None:
         if isinstance(name, atom.Author):
             self._atom_author = name
         elif isinstance(name, str):
@@ -272,14 +276,14 @@ class _Feature(TimeMixin, _BaseObject):
             raise TypeError
 
     def append_style(self, style: Union[Style, StyleMap]) -> None:
-        """Append a style to the feature"""
+        """Append a style to the feature."""
         if isinstance(style, _StyleSelector):
             self._styles.append(style)
         else:
             raise TypeError
 
     def styles(self) -> Iterator[Union[Style, StyleMap]]:
-        """Iterate over the styles of this feature"""
+        """Iterate over the styles of this feature."""
         for style in self._styles:
             if isinstance(style, _StyleSelector):
                 yield style
@@ -287,7 +291,7 @@ class _Feature(TimeMixin, _BaseObject):
                 raise TypeError
 
     @property
-    def snippet(self):
+    def snippet(self) -> dict | None | dict[str, Any]:
         if not self._snippet:
             return None
         if isinstance(self._snippet, dict):
@@ -300,16 +304,18 @@ class _Feature(TimeMixin, _BaseObject):
                 elif int(max_lines) > 0:
                     # if maxLines <=0 ignore it
                     return {"text": text, "maxLines": max_lines}
+                return None
+            return None
         elif isinstance(self._snippet, str):
             return self._snippet
         else:
+            msg = "Snippet must be dict of {'text':t, 'maxLines':i} or string"
             raise ValueError(
-                "Snippet must be dict of "
-                "{'text':t, 'maxLines':i} or string",
+                msg,
             )
 
     @snippet.setter
-    def snippet(self, snip=None):
+    def snippet(self, snip=None) -> None:
         self._snippet = {}
         if isinstance(snip, dict):
             self._snippet["text"] = snip.get("text")
@@ -321,18 +327,19 @@ class _Feature(TimeMixin, _BaseObject):
         elif snip is None:
             self._snippet = None
         else:
+            msg = "Snippet must be dict of {'text':t, 'maxLines':i} or string"
             raise ValueError(
-                "Snippet must be dict of "
-                "{'text':t, 'maxLines':i} or string",
+                msg,
             )
 
     @property
-    def address(self):
+    def address(self) -> None:
         if self._address:
             return self._address
+        return None
 
     @address.setter
-    def address(self, address):
+    def address(self, address) -> None:
         if isinstance(address, str):
             self._address = address
         elif address is None:
@@ -341,12 +348,13 @@ class _Feature(TimeMixin, _BaseObject):
             raise ValueError
 
     @property
-    def phone_number(self):
+    def phone_number(self) -> None:
         if self._phone_number:
             return self._phone_number
+        return None
 
     @phone_number.setter
-    def phone_number(self, phone_number):
+    def phone_number(self, phone_number) -> None:
         if isinstance(phone_number, str):
             self._phone_number = phone_number
         elif phone_number is None:
@@ -367,7 +375,8 @@ class _Feature(TimeMixin, _BaseObject):
             description = config.etree.SubElement(element, f"{self.ns}description")
             description.text = self.description
         if (self.camera is not None) and (self.look_at is not None):
-            raise ValueError("Either Camera or LookAt can be defined, not both")
+            msg = "Either Camera or LookAt can be defined, not both"
+            raise ValueError(msg)
         if self.camera is not None:
             element.append(self._camera.etree_element())
         elif self.look_at is not None:
@@ -391,7 +400,8 @@ class _Feature(TimeMixin, _BaseObject):
                 if self.snippet.get("maxLines"):
                     snippet.set("maxLines", str(self.snippet["maxLines"]))
         if (self._timespan is not None) and (self._timestamp is not None):
-            raise ValueError("Either Timestamp or Timespan can be defined, not both")
+            msg = "Either Timestamp or Timespan can be defined, not both"
+            raise ValueError(msg)
         elif self._timespan is not None:
             element.append(self._timespan.etree_element())
         elif self._timestamp is not None:
@@ -602,7 +612,7 @@ class Icon(_BaseObject):
         return self._view_refresh_mode
 
     @view_refresh_mode.setter
-    def view_refresh_mode(self, view_refresh_mode):
+    def view_refresh_mode(self, view_refresh_mode) -> None:
         if isinstance(view_refresh_mode, str):
             self._view_refresh_mode = view_refresh_mode
         elif view_refresh_mode is None:
@@ -619,7 +629,7 @@ class Icon(_BaseObject):
         return self._view_refresh_time
 
     @view_refresh_time.setter
-    def view_refresh_time(self, view_refresh_time: Optional[float]):
+    def view_refresh_time(self, view_refresh_time: Optional[float]) -> None:
         if isinstance(view_refresh_time, float):
             self._view_refresh_time = view_refresh_time
         elif view_refresh_time is None:
@@ -652,7 +662,7 @@ class Icon(_BaseObject):
         """
         Specifies the format of the query string that is appended to the
         Link's <href> before the file is fetched.
-        (If the <href> specifies a local file, this element is ignored.)
+        (If the <href> specifies a local file, this element is ignored.).
 
         This information matches the Web Map Service (WMS) bounding box specification.
         If you specify an empty <viewFormat> tag, no information is appended to the
@@ -679,7 +689,7 @@ class Icon(_BaseObject):
         return self._view_format
 
     @view_format.setter
-    def view_format(self, view_format):
+    def view_format(self, view_format) -> None:
         if isinstance(view_format, str):
             self._view_format = view_format
         elif view_format is None:
@@ -701,7 +711,7 @@ class Icon(_BaseObject):
         return self._http_query
 
     @http_query.setter
-    def http_query(self, http_query):
+    def http_query(self, http_query) -> None:
         if isinstance(http_query, str):
             self._http_query = http_query
         elif http_query is None:
@@ -724,22 +734,26 @@ class Icon(_BaseObject):
             refresh_mode.text = self._refresh_mode
         if self._refresh_interval:
             refresh_interval = config.etree.SubElement(
-                element, f"{self.ns}refreshInterval",
+                element,
+                f"{self.ns}refreshInterval",
             )
             refresh_interval.text = str(self._refresh_interval)
         if self._view_refresh_mode:
             view_refresh_mode = config.etree.SubElement(
-                element, f"{self.ns}viewRefreshMode",
+                element,
+                f"{self.ns}viewRefreshMode",
             )
             view_refresh_mode.text = self._view_refresh_mode
         if self._view_refresh_time:
             view_refresh_time = config.etree.SubElement(
-                element, f"{self.ns}viewRefreshTime",
+                element,
+                f"{self.ns}viewRefreshTime",
             )
             view_refresh_time.text = str(self._view_refresh_time)
         if self._view_bound_scale:
             view_bound_scale = config.etree.SubElement(
-                element, f"{self.ns}viewBoundScale",
+                element,
+                f"{self.ns}viewBoundScale",
             )
             view_bound_scale.text = str(self._view_bound_scale)
         if self._view_format:
@@ -803,7 +817,7 @@ class _Container(_Feature):
     creation of nested hierarchies.
     subclasses are:
     Document,
-    Folder
+    Folder.
     """
 
     _features = []
@@ -831,14 +845,17 @@ class _Container(_Feature):
         self._features = features or []
 
     def features(self) -> Iterator[_Feature]:
-        """Iterate over features"""
+        """Iterate over features."""
         for feature in self._features:
             if isinstance(feature, (Folder, Placemark, Document, _Overlay)):
                 yield feature
             else:
-                raise TypeError(
+                msg = (
                     "Features must be instances of "
-                    "(Folder, Placemark, Document, Overlay)",
+                    "(Folder, Placemark, Document, Overlay)"
+                )
+                raise TypeError(
+                    msg,
                 )
 
     def etree_element(
@@ -852,21 +869,22 @@ class _Container(_Feature):
         return element
 
     def append(self, kmlobj: _Feature) -> None:
-        """Append a feature"""
+        """Append a feature."""
         if id(kmlobj) == id(self):
-            raise ValueError("Cannot append self")
+            msg = "Cannot append self"
+            raise ValueError(msg)
         if isinstance(kmlobj, (Folder, Placemark, Document, _Overlay)):
             self._features.append(kmlobj)
         else:
+            msg = "Features must be instances of (Folder, Placemark, Document, Overlay)"
             raise TypeError(
-                "Features must be instances of "
-                "(Folder, Placemark, Document, Overlay)",
+                msg,
             )
 
 
 class _Overlay(_Feature):
     """
-    abstract element; do not create
+    abstract element; do not create.
 
     Base type for image overlays drawn on the planet surface or on the screen
 
@@ -919,7 +937,7 @@ class _Overlay(_Feature):
         return self._color
 
     @color.setter
-    def color(self, color):
+    def color(self, color) -> None:
         if isinstance(color, str):
             self._color = color
         elif color is None:
@@ -928,11 +946,11 @@ class _Overlay(_Feature):
             raise ValueError
 
     @property
-    def draw_order(self):
+    def draw_order(self) -> str | None:
         return self._draw_order
 
     @draw_order.setter
-    def draw_order(self, value):
+    def draw_order(self, value) -> None:
         if isinstance(value, (str, int, float)):
             self._draw_order = str(value)
         elif value is None:
@@ -941,11 +959,11 @@ class _Overlay(_Feature):
             raise ValueError
 
     @property
-    def icon(self):
+    def icon(self) -> Icon | None:
         return self._icon
 
     @icon.setter
-    def icon(self, value):
+    def icon(self, value) -> None:
         if isinstance(value, Icon):
             self._icon = value
         elif value is None:
@@ -1075,11 +1093,11 @@ class PhotoOverlay(_Overlay):
     #       for spherical panoramas
 
     @property
-    def rotation(self):
+    def rotation(self) -> str | None:
         return self._rotation
 
     @rotation.setter
-    def rotation(self, value):
+    def rotation(self, value) -> None:
         if isinstance(value, (str, int, float)):
             self._rotation = str(value)
         elif value is None:
@@ -1088,11 +1106,11 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def left_fov(self):
+    def left_fov(self) -> str | None:
         return self._left_fow
 
     @left_fov.setter
-    def left_fov(self, value):
+    def left_fov(self, value) -> None:
         if isinstance(value, (str, int, float)):
             self._left_fow = str(value)
         elif value is None:
@@ -1101,11 +1119,11 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def right_fov(self):
+    def right_fov(self) -> str | None:
         return self._right_fov
 
     @right_fov.setter
-    def right_fov(self, value):
+    def right_fov(self, value) -> None:
         if isinstance(value, (str, int, float)):
             self._right_fov = str(value)
         elif value is None:
@@ -1114,11 +1132,11 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def bottom_fov(self):
+    def bottom_fov(self) -> str | None:
         return self._bottom_fov
 
     @bottom_fov.setter
-    def bottom_fov(self, value):
+    def bottom_fov(self, value) -> None:
         if isinstance(value, (str, int, float)):
             self._bottom_fov = str(value)
         elif value is None:
@@ -1127,11 +1145,11 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def top_fov(self):
+    def top_fov(self) -> str | None:
         return self._top_fov
 
     @top_fov.setter
-    def top_fov(self, value):
+    def top_fov(self, value) -> None:
         if isinstance(value, (str, int, float)):
             self._top_fov = str(value)
         elif value is None:
@@ -1140,11 +1158,11 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def near(self):
+    def near(self) -> str | None:
         return self._near
 
     @near.setter
-    def near(self, value):
+    def near(self, value) -> None:
         if isinstance(value, (str, int, float)):
             self._near = str(value)
         elif value is None:
@@ -1153,11 +1171,11 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def tile_size(self):
+    def tile_size(self) -> str | None:
         return self._tile_size
 
     @tile_size.setter
-    def tile_size(self, value):
+    def tile_size(self, value) -> None:
         if isinstance(value, (str, int, float)):
             self._tile_size = str(value)
         elif value is None:
@@ -1166,11 +1184,11 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def max_width(self):
+    def max_width(self) -> str | None:
         return self._max_width
 
     @max_width.setter
-    def max_width(self, value):
+    def max_width(self, value) -> None:
         if isinstance(value, (str, int, float)):
             self._max_width = str(value)
         elif value is None:
@@ -1179,11 +1197,11 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def max_height(self):
+    def max_height(self) -> str | None:
         return self._max_height
 
     @max_height.setter
-    def max_height(self, value):
+    def max_height(self, value) -> None:
         if isinstance(value, (str, int, float)):
             self._max_height = str(value)
         elif value is None:
@@ -1192,11 +1210,11 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def grid_origin(self):
+    def grid_origin(self) -> str | None:
         return self._grid_origin
 
     @grid_origin.setter
-    def grid_origin(self, value):
+    def grid_origin(self, value) -> None:
         if value in ("lowerLeft", "upperLeft"):
             self._grid_origin = str(value)
         elif value is None:
@@ -1205,37 +1223,38 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def point(self):
+    def point(self) -> str:
         return self._point
 
     @point.setter
-    def point(self, value):
+    def point(self, value) -> None:
         if isinstance(value, (str, tuple)):
             self._point = str(value)
         else:
             raise ValueError
 
     @property
-    def shape(self):
+    def shape(self) -> str | None:
         return self._shape
 
     @shape.setter
-    def shape(self, value):
+    def shape(self, value) -> None:
         if value in ("rectangle", "cylinder", "sphere"):
             self._shape = str(value)
         elif value is None:
             self._shape = None
         else:
-            raise ValueError("Shape must be one of rectangle, cylinder, sphere")
+            msg = "Shape must be one of rectangle, cylinder, sphere"
+            raise ValueError(msg)
 
-    def view_volume(self, left_fov, right_fov, bottom_fov, top_fov, near):
+    def view_volume(self, left_fov, right_fov, bottom_fov, top_fov, near) -> None:
         self.left_fov = left_fov
         self.right_fov = right_fov
         self.bottom_fov = bottom_fov
         self.top_fov = top_fov
         self.near = near
 
-    def image_pyramid(self, tile_size, max_width, max_height, grid_origin):
+    def image_pyramid(self, tile_size, max_width, max_height, grid_origin) -> None:
         self.tile_size = tile_size
         self.max_width = max_width
         self.max_height = max_height
@@ -1245,7 +1264,7 @@ class PhotoOverlay(_Overlay):
         self,
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
-    ):
+    ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self._rotation:
             rotation = config.etree.SubElement(element, f"{self.ns}rotation")
@@ -1282,7 +1301,7 @@ class PhotoOverlay(_Overlay):
             grid_origin.text = self._grid_origin
         return element
 
-    def from_element(self, element):
+    def from_element(self, element) -> None:
         super().from_element(element)
         rotation = element.find(f"{self.ns}rotation")
         if rotation is not None:
@@ -1389,11 +1408,11 @@ class GroundOverlay(_Overlay):
     _lat_lon_quad = None
 
     @property
-    def altitude(self):
+    def altitude(self) -> str | None:
         return self._altitude
 
     @altitude.setter
-    def altitude(self, value):
+    def altitude(self, value) -> None:
         if isinstance(value, (str, int, float)):
             self._altitude = str(value)
         elif value is None:
@@ -1402,22 +1421,22 @@ class GroundOverlay(_Overlay):
             raise ValueError
 
     @property
-    def altitude_mode(self):
+    def altitude_mode(self) -> str:
         return self._altitude_mode
 
     @altitude_mode.setter
-    def altitude_mode(self, mode):
+    def altitude_mode(self, mode) -> None:
         if mode in ("clampToGround", "absolute"):
             self._altitude_mode = str(mode)
         else:
             self._altitude_mode = "clampToGround"
 
     @property
-    def north(self):
+    def north(self) -> str | None:
         return self._north
 
     @north.setter
-    def north(self, value):
+    def north(self, value) -> None:
         if isinstance(value, (str, int, float)):
             self._north = str(value)
         elif value is None:
@@ -1426,11 +1445,11 @@ class GroundOverlay(_Overlay):
             raise ValueError
 
     @property
-    def south(self):
+    def south(self) -> str | None:
         return self._south
 
     @south.setter
-    def south(self, value):
+    def south(self, value) -> None:
         if isinstance(value, (str, int, float)):
             self._south = str(value)
         elif value is None:
@@ -1439,11 +1458,11 @@ class GroundOverlay(_Overlay):
             raise ValueError
 
     @property
-    def east(self):
+    def east(self) -> str | None:
         return self._east
 
     @east.setter
-    def east(self, value):
+    def east(self, value) -> None:
         if isinstance(value, (str, int, float)):
             self._east = str(value)
         elif value is None:
@@ -1452,11 +1471,11 @@ class GroundOverlay(_Overlay):
             raise ValueError
 
     @property
-    def west(self):
+    def west(self) -> str | None:
         return self._west
 
     @west.setter
-    def west(self, value):
+    def west(self, value) -> None:
         if isinstance(value, (str, int, float)):
             self._west = str(value)
         elif value is None:
@@ -1465,11 +1484,11 @@ class GroundOverlay(_Overlay):
             raise ValueError
 
     @property
-    def rotation(self):
+    def rotation(self) -> str | None:
         return self._rotation
 
     @rotation.setter
-    def rotation(self, value):
+    def rotation(self, value) -> None:
         if isinstance(value, (str, int, float)):
             self._rotation = str(value)
         elif value is None:
@@ -1478,7 +1497,12 @@ class GroundOverlay(_Overlay):
             raise ValueError
 
     def lat_lon_box(
-        self, north: int, south: int, east: int, west: int, rotation: int = 0,
+        self,
+        north: int,
+        south: int,
+        east: int,
+        west: int,
+        rotation: int = 0,
     ) -> None:
         if -90 <= float(north) <= 90:
             self.north = north
@@ -1512,7 +1536,8 @@ class GroundOverlay(_Overlay):
             altitude.text = self._altitude
             if self._altitude_mode:
                 altitude_mode = config.etree.SubElement(
-                    element, f"{self.ns}altitudeMode",
+                    element,
+                    f"{self.ns}altitudeMode",
                 )
                 altitude_mode.text = self._altitude_mode
         if all([self._north, self._south, self._east, self._west]):
@@ -1561,7 +1586,7 @@ class Document(_Container):
     """
     A Document is a container for features and styles. This element is
     required if your KML file uses shared styles or schemata for typed
-    extended data
+    extended data.
     """
 
     __name__ = "Document"
@@ -1618,6 +1643,7 @@ class Document(_Container):
         for style in self.styles():
             if style.id == id:
                 return style
+        return None
 
 
 class Folder(_Container):
@@ -1748,7 +1774,6 @@ class Placemark(_Feature):
             return
         logger.warning("No geometries found")
         logger.debug("Problem with element: %", config.etree.tostring(element))
-        # raise ValueError('No geometries found')
 
     def etree_element(
         self,
@@ -1764,7 +1789,7 @@ class Placemark(_Feature):
 
 
 class KML:
-    """represents a KML File"""
+    """represents a KML File."""
 
     _features = []
     ns = None
@@ -1781,10 +1806,11 @@ class KML:
         self.ns = config.KMLNS if ns is None else ns
 
     def from_string(self, xml_string: str) -> None:
-        """Create a KML object from a xml string"""
+        """Create a KML object from a xml string."""
         try:
             element = config.etree.fromstring(
-                xml_string, parser=config.etree.XMLParser(huge_tree=True, recover=True),
+                xml_string,
+                parser=config.etree.XMLParser(huge_tree=True, recover=True),
             )
         except TypeError:
             element = config.etree.XML(xml_string)
@@ -1833,7 +1859,8 @@ class KML:
         else:
             try:
                 root = config.etree.Element(
-                    f"{self.ns}kml", nsmap={None: self.ns[1:-1]},
+                    f"{self.ns}kml",
+                    nsmap={None: self.ns[1:-1]},
                 )
             except TypeError:
                 root = config.etree.Element(f"{self.ns}kml")
@@ -1842,7 +1869,7 @@ class KML:
         return root
 
     def to_string(self, prettyprint: bool = False) -> str:
-        """Return the KML Object as serialized xml"""
+        """Return the KML Object as serialized xml."""
         try:
             return config.etree.tostring(
                 self.etree_element(),
@@ -1855,25 +1882,28 @@ class KML:
             )
 
     def features(self) -> Iterator[Union[Folder, Document, Placemark]]:
-        """Iterate over features"""
+        """Iterate over features."""
         for feature in self._features:
             if isinstance(feature, (Document, Folder, Placemark, _Overlay)):
                 yield feature
             else:
-                raise TypeError(
+                msg = (
                     "Features must be instances of "
-                    "(Document, Folder, Placemark, Overlay)",
+                    "(Document, Folder, Placemark, Overlay)"
                 )
+                raise TypeError(msg)
 
     def append(self, kmlobj: Union[Folder, Document, Placemark]) -> None:
-        """Append a feature"""
+        """Append a feature."""
         if id(kmlobj) == id(self):
-            raise ValueError("Cannot append self")
+            msg = "Cannot append self"
+            raise ValueError(msg)
         if isinstance(kmlobj, (Document, Folder, Placemark, _Overlay)):
             self._features.append(kmlobj)
         else:
+            msg = "Features must be instances of (Document, Folder, Placemark, Overlay)"
             raise TypeError(
-                "Features must be instances of (Document, Folder, Placemark, Overlay)",
+                msg,
             )
 
 

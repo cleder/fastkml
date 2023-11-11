@@ -7,7 +7,7 @@ Module contents
 .. automodule:: fastkml
    :members:
    :undoc-members:
-   :noindex:
+   :no-index:
 
 
 Submodules

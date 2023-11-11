@@ -202,7 +202,8 @@ class Track(_Geometry):
         track_items: Optional[Sequence[TrackItem]] = None,
     ) -> None:
         if geometry and track_items:
-            raise ValueError("Cannot specify both geometry and track_items")
+            msg = "Cannot specify both geometry and track_items"
+            raise ValueError(msg)
         if geometry:
             track_items = linestring_to_track_items(geometry)
         elif track_items:
@@ -242,7 +243,9 @@ class Track(_Geometry):
         if self.track_items:
             for track_item in self.track_items:
                 for track_item_element in track_item.etree_elements(
-                    precision=precision, verbosity=verbosity, name_spaces=name_spaces,
+                    precision=precision,
+                    verbosity=verbosity,
+                    name_spaces=name_spaces,
                 ):
                     element.append(track_item_element)
         return element
@@ -290,13 +293,16 @@ class Track(_Geometry):
     ) -> Dict[str, Any]:
         kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
         kwargs["track_items"] = cls.track_items_kwargs_from_element(
-            ns=ns, element=element, strict=strict,
+            ns=ns,
+            element=element,
+            strict=strict,
         )
         return kwargs
 
 
 def multilinestring_to_tracks(
-    multilinestring: geo.MultiLineString, ns: Optional[str],
+    multilinestring: geo.MultiLineString,
+    ns: Optional[str],
 ) -> List[Track]:
     return [Track(ns=ns, geometry=linestring) for linestring in multilinestring.geoms]
 
@@ -322,7 +328,8 @@ class MultiTrack(_Geometry):
         interpolate: Optional[bool] = None,
     ) -> None:
         if geometry and tracks:
-            raise ValueError("Cannot specify both geometry and track_items")
+            msg = "Cannot specify both geometry and track_items"
+            raise ValueError(msg)
         if geometry:
             tracks = multilinestring_to_tracks(geometry, ns=ns)
         elif tracks:
@@ -365,14 +372,17 @@ class MultiTrack(_Geometry):
             i_element = cast(
                 Element,
                 config.etree.SubElement(  # type: ignore[attr-defined]
-                    element, f"{self.ns}interpolate",
+                    element,
+                    f"{self.ns}interpolate",
                 ),
             )
             i_element.text = str(int(self.interpolate))
         for track in self.tracks or []:
             element.append(
                 track.etree_element(
-                    precision=precision, verbosity=verbosity, name_spaces=name_spaces,
+                    precision=precision,
+                    verbosity=verbosity,
+                    name_spaces=name_spaces,
                 ),
             )
         return element
@@ -423,9 +433,13 @@ class MultiTrack(_Geometry):
     ) -> Dict[str, Any]:
         kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
         kwargs["interpolate"] = cls._get_interpolate(
-            ns=ns, element=element, strict=strict,
+            ns=ns,
+            element=element,
+            strict=strict,
         )
         kwargs["tracks"] = cls._get_track_kwargs_from_element(
-            ns=config.GXNS, element=element, strict=strict,
+            ns=config.GXNS,
+            element=element,
+            strict=strict,
         )
         return kwargs
