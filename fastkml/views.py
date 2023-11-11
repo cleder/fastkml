@@ -1,4 +1,5 @@
 import logging
+from typing import Dict
 from typing import Optional
 from typing import SupportsFloat
 from typing import Union
@@ -6,6 +7,7 @@ from typing import Union
 from fastkml import config
 from fastkml import gx
 from fastkml.base import _BaseObject
+from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
 from fastkml.mixins import TimeMixin
 from fastkml.times import TimeSpan
@@ -46,7 +48,7 @@ class _AbstractView(TimeMixin, _BaseObject):
     # view is pointed up into the sky. Values for <tilt> are clamped at +180
     # degrees.
 
-    _altitude_mode: str = "relativeToGround"
+    _altitude_mode: AltitudeMode
     # Specifies how the <altitude> specified for the Camera is interpreted.
     # Possible values are as follows:
     #   relativeToGround -
@@ -64,6 +66,7 @@ class _AbstractView(TimeMixin, _BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         longitude: Optional[float] = None,
@@ -71,10 +74,10 @@ class _AbstractView(TimeMixin, _BaseObject):
         altitude: Optional[float] = None,
         heading: Optional[float] = None,
         tilt: Optional[float] = None,
-        altitude_mode: str = "relativeToGround",
+        altitude_mode: AltitudeMode = AltitudeMode.relative_to_ground,
         time_primitive: Union[TimeSpan, TimeStamp, None] = None,
     ) -> None:
-        super().__init__(ns=ns, id=id, target_id=target_id)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self._longitude = longitude
         self._latitude = latitude
         self._altitude = altitude
@@ -152,18 +155,12 @@ class _AbstractView(TimeMixin, _BaseObject):
             raise ValueError
 
     @property
-    def altitude_mode(self) -> str:
+    def altitude_mode(self) -> AltitudeMode:
         return self._altitude_mode
 
     @altitude_mode.setter
-    def altitude_mode(self, mode: str) -> None:
-        if mode in {"relativeToGround", "clampToGround", "absolute"}:
-            self._altitude_mode = mode
-        else:
-            self._altitude_mode = "relativeToGround"
-            # raise ValueError(
-            #     "altitude_mode must be one of " "relativeToGround,
-            #     clampToGround, absolute")
+    def altitude_mode(self, mode: AltitudeMode) -> None:
+        self._altitude_mode = mode
 
     def from_element(self, element: Element):
         super().from_element(element)
@@ -185,7 +182,7 @@ class _AbstractView(TimeMixin, _BaseObject):
         altitude_mode = element.find(f"{self.ns}altitudeMode")
         if altitude_mode is None:
             altitude_mode = element.find(f"{gx.NS}altitudeMode")
-        self.altitude_mode = altitude_mode.text
+        self.altitude_mode = AltitudeMode(altitude_mode.text)
         timespan = element.find(f"{self.ns}TimeSpan")
         if timespan is not None:
             s = TimeSpan(self.ns)
@@ -218,11 +215,18 @@ class _AbstractView(TimeMixin, _BaseObject):
         if self.tilt:
             tilt = config.etree.SubElement(element, f"{self.ns}tilt")
             tilt.text = str(self.tilt)
-        if self.altitude_mode in ("clampedToGround", "relativeToGround", "absolute"):
+        if self.altitude_mode in (
+            AltitudeMode.clamp_to_ground,
+            AltitudeMode.relative_to_ground,
+            AltitudeMode.absolute,
+        ):
             altitude_mode = config.etree.SubElement(element, f"{self.ns}altitudeMode")
-        elif self.altitude_mode in ("clampedToSeaFloor", "relativeToSeaFloor"):
+        elif self.altitude_mode in (
+            AltitudeMode.clamp_to_sea_floor,
+            AltitudeMode.relative_to_sea_floor,
+        ):
             altitude_mode = config.etree.SubElement(element, f"{gx.NS}altitudeMode")
-        altitude_mode.text = self.altitude_mode
+        altitude_mode.text = self.altitude_mode.value
         if (self._timespan is not None) and (self._timestamp is not None):
             msg = "Either Timestamp or Timespan can be defined, not both"
             raise ValueError(msg)
@@ -267,6 +271,7 @@ class Camera(_AbstractView):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         longitude: Optional[float] = None,
@@ -275,11 +280,12 @@ class Camera(_AbstractView):
         heading: Optional[float] = None,
         tilt: Optional[float] = None,
         roll: Optional[float] = None,
-        altitude_mode: str = "relativeToGround",
+        altitude_mode: AltitudeMode = AltitudeMode.relative_to_ground,
         time_primitive: Union[TimeSpan, TimeStamp, None] = None,
     ) -> None:
         super().__init__(
             ns=ns,
+            name_spaces=name_spaces,
             id=id,
             target_id=target_id,
             longitude=longitude,
@@ -333,6 +339,7 @@ class LookAt(_AbstractView):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         longitude: Optional[float] = None,
@@ -341,11 +348,12 @@ class LookAt(_AbstractView):
         heading: Optional[float] = None,
         tilt: Optional[float] = None,
         range: Optional[float] = None,
-        altitude_mode: str = "relativeToGround",
+        altitude_mode: AltitudeMode = AltitudeMode.relative_to_ground,
         time_primitive: Union[TimeSpan, TimeStamp, None] = None,
     ) -> None:
         super().__init__(
             ns=ns,
+            name_spaces=name_spaces,
             id=id,
             target_id=target_id,
             longitude=longitude,

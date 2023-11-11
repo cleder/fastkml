@@ -25,6 +25,7 @@ from fastkml import base
 from fastkml import config
 from fastkml import kml
 from fastkml import styles
+from fastkml.enums import AltitudeMode
 
 try:
     import lxml
@@ -1735,15 +1736,11 @@ class TestPhotoOverlay:
         assert self.p.camera.altitude is None
 
     def test_camera_altitude_mode_default(self) -> None:
-        assert self.p.camera.altitude_mode == "relativeToGround"
-
-    def test_camera_altitude_mode_error(self) -> None:
-        self.p.camera.altitude_mode = ""
-        assert self.p.camera.altitude_mode == "relativeToGround"
+        assert self.p.camera.altitude_mode == AltitudeMode("relativeToGround")
 
     def test_camera_altitude_mode_clamp(self) -> None:
-        self.p.camera.altitude_mode = "clampToGround"
-        assert self.p.camera.altitude_mode == "clampToGround"
+        self.p.camera.altitude_mode = AltitudeMode("clampToGround")
+        assert self.p.camera.altitude_mode == AltitudeMode("clampToGround")
 
     def test_camera_altitude_mode_absolute(self) -> None:
         self.p.camera.altitude_mode = "absolute"
@@ -1764,4 +1761,4 @@ class TestPhotoOverlay:
         assert self.p.camera.heading == 40
         assert self.p.camera.tilt == 50
         assert self.p.camera.roll == 60
-        assert self.p.camera.altitude_mode == "relativeToGround"
+        assert self.p.camera.altitude_mode == AltitudeMode("relativeToGround")
