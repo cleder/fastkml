@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import SupportsFloat
@@ -162,51 +163,6 @@ class _AbstractView(TimeMixin, _BaseObject):
     def altitude_mode(self, mode: AltitudeMode) -> None:
         self._altitude_mode = mode
 
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        longitude = element.find(f"{self.ns}longitude")
-        if longitude is not None:
-            self.longitude = float(longitude.text)
-        latitude = element.find(f"{self.ns}latitude")
-        if latitude is not None:
-            self.latitude = float(latitude.text)
-        altitude = element.find(f"{self.ns}altitude")
-        if altitude is not None:
-            self.altitude = float(altitude.text)
-        heading = element.find(f"{self.ns}heading")
-        if heading is not None:
-            self.heading = float(heading.text)
-        tilt = element.find(f"{self.ns}tilt")
-        if tilt is not None:
-            self.tilt = float(tilt.text)
-        altitude_mode = element.find(f"{self.ns}altitudeMode")
-        if altitude_mode is None:
-            altitude_mode = element.find(f"{self.name_spaces['gx']}altitudeMode")
-        if altitude_mode is not None:
-            self.altitude_mode = AltitudeMode(altitude_mode.text)
-        timespan = element.find(f"{self.ns}TimeSpan")
-        if timespan is not None:
-            self._timespan = cast(
-                TimeSpan,
-                TimeSpan.class_from_element(
-                    ns=self.ns,
-                    name_spaces=self.name_spaces,
-                    element=timespan,
-                    strict=False,
-                ),
-            )
-        timestamp = element.find(f"{self.ns}TimeStamp")
-        if timestamp is not None:
-            self._timestamp = cast(
-                TimeStamp,
-                TimeStamp.class_from_element(
-                    ns=self.ns,
-                    name_spaces=self.name_spaces,
-                    element=timestamp,
-                    strict=False,
-                ),
-            )
-
     def etree_element(
         self,
         precision: Optional[int] = None,
@@ -273,6 +229,65 @@ class _AbstractView(TimeMixin, _BaseObject):
     # TODO: <gx:ViewerOptions>
     # TODO: <gx:horizFov>
 
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        longitude = element.find(f"{ns}longitude")
+        if longitude is not None:
+            kwargs["longitude"] = float(longitude.text)
+        latitude = element.find(f"{ns}latitude")
+        if latitude is not None:
+            kwargs["latitude"] = float(latitude.text)
+        altitude = element.find(f"{ns}altitude")
+        if altitude is not None:
+            kwargs["altitude"] = float(altitude.text)
+        heading = element.find(f"{ns}heading")
+        if heading is not None:
+            kwargs["heading"] = float(heading.text)
+        tilt = element.find(f"{ns}tilt")
+        if tilt is not None:
+            kwargs["tilt"] = float(tilt.text)
+        altitude_mode = element.find(f"{ns}altitudeMode")
+        if altitude_mode is None:
+            altitude_mode = element.find(f"{kwargs['name_spaces']['gx']}altitudeMode")
+        if altitude_mode is not None:
+            kwargs["altitude_mode"] = AltitudeMode(altitude_mode.text)
+        timespan = element.find(f"{ns}TimeSpan")
+        if timespan is not None:
+            kwargs["time_primitive"] = cast(
+                TimeSpan,
+                TimeSpan.class_from_element(
+                    ns=ns,
+                    name_spaces=name_spaces,
+                    element=timespan,
+                    strict=strict,
+                ),
+            )
+        timestamp = element.find(f"{ns}TimeStamp")
+        if timestamp is not None:
+            kwargs["time_primitive"] = cast(
+                TimeStamp,
+                TimeStamp.class_from_element(
+                    ns=ns,
+                    name_spaces=name_spaces,
+                    element=timestamp,
+                    strict=strict,
+                ),
+            )
+        return kwargs
+
 
 class Camera(_AbstractView):
     """
@@ -332,12 +347,6 @@ class Camera(_AbstractView):
         )
         self._roll = roll
 
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        roll = element.find(f"{self.ns}roll")
-        if roll is not None:
-            self.roll = float(roll.text)
-
     def etree_element(
         self,
         precision: Optional[int] = None,
@@ -359,6 +368,26 @@ class Camera(_AbstractView):
     @roll.setter
     def roll(self, value: float) -> None:
         self._roll = value
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        roll = element.find(f"{ns}roll")
+        if roll is not None:
+            kwargs["roll"] = float(roll.text)
+        return kwargs
 
 
 class LookAt(_AbstractView):
@@ -406,12 +435,6 @@ class LookAt(_AbstractView):
     def range(self, value: float) -> None:
         self._range = value
 
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        range_var = element.find(f"{self.ns}range")
-        if range_var is not None:
-            self.range = float(range_var.text)
-
     def etree_element(
         self,
         precision: Optional[int] = None,
@@ -425,6 +448,26 @@ class LookAt(_AbstractView):
             )
             range_var.text = str(self._range)
         return element
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        range_var = element.find(f"{ns}range")
+        if range_var is not None:
+            kwargs["range"] = float(range_var.text)
+        return kwargs
 
 
 __all__ = [
