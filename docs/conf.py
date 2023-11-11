@@ -205,7 +205,7 @@ latex_documents = [
         "index",
         "FastKML.tex",
         "FastKML Documentation",
-        "Christian Ledermann \\& Ian Lee",
+        r"Christian Ledermann \& Ian Lee",
         "manual",
     ),
 ]
