@@ -25,6 +25,7 @@ from fastkml import base
 from fastkml import config
 from fastkml import kml
 from fastkml import styles
+from fastkml.enums import AltitudeMode
 
 try:
     import lxml
@@ -35,8 +36,10 @@ except ImportError:
 
 
 class TestBaseClasses:
-    """BaseClasses  must raise a NotImplementedError on etree_element
-    and a TypeError on from_element"""
+    """
+    BaseClasses  must raise a NotImplementedError on etree_element
+    and a TypeError on from_element.
+    """
 
     def setup_method(self) -> None:
         """Always test with the same parser."""
@@ -67,7 +70,7 @@ class TestBaseClasses:
         bo.from_element(element)
         assert bo.id is None
         assert bo.ns == config.KMLNS
-        assert not bo.etree_element(), None
+        assert bo.etree_element() is not None
         assert len(bo.to_string()) > 1
 
     def test_feature(self) -> None:
@@ -112,7 +115,7 @@ class TestBaseClasses:
 
 
 class TestBuildKml:
-    """Build a simple KML File"""
+    """Build a simple KML File."""
 
     def setup_method(self) -> None:
         """Always test with the same parser."""
@@ -120,7 +123,7 @@ class TestBuildKml:
         config.set_default_namespaces()
 
     def test_kml(self) -> None:
-        """kml file without contents"""
+        """Kml file without contents."""
         k = kml.KML()
         assert not list(k.features())
         assert (
@@ -132,8 +135,8 @@ class TestBuildKml:
         assert k.to_string() == k2.to_string()
 
     def test_folder(self) -> None:
-        """KML file with folders"""
-        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
+        """KML file with folders."""
+        ns = "{http://www.opengis.net/kml/2.2}"
         k = kml.KML()
         f = kml.Folder(ns, "id", "name", "description")
         nf = kml.Folder(ns, "nested-id", "nested-name", "nested-description")
@@ -142,14 +145,14 @@ class TestBuildKml:
         f2 = kml.Folder(ns, "id2", "name2", "description2")
         k.append(f2)
         assert len(list(k.features())) == 2
-        assert len(list(list(k.features())[0].features())) == 1
+        assert len(list(next(iter(k.features())).features())) == 1
         k2 = kml.KML()
         s = k.to_string()
         k2.from_string(s)
         assert s == k2.to_string()
 
     def test_placemark(self) -> None:
-        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
+        ns = "{http://www.opengis.net/kml/2.2}"
         k = kml.KML(ns=ns)
         p = kml.Placemark(ns, "id", "name", "description")
         # XXX p.geometry = Point(0.0, 0.0, 0.0)
@@ -164,7 +167,7 @@ class TestBuildKml:
 
     def test_document(self) -> None:
         k = kml.KML()
-        ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
+        ns = "{http://www.opengis.net/kml/2.2}"
         d = kml.Document(ns, "docid", "doc name", "doc description")
         f = kml.Folder(ns, "fid", "f name", "f description")
         k.append(d)
@@ -180,7 +183,7 @@ class TestBuildKml:
         f2.append(p)
         nf.append(p2)
         assert len(list(k.features())) == 1
-        assert len(list(list(k.features())[0].features())) == 2
+        assert len(list(next(iter(k.features())).features())) == 2
         k2 = kml.KML()
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
@@ -190,7 +193,9 @@ class TestBuildKml:
         d.author = "Christian Ledermann"
         assert "Christian Ledermann" in str(d.to_string())
         a = atom.Author(
-            name="Nobody", uri="http://localhost", email="cl@donotreply.com"
+            name="Nobody",
+            uri="http://localhost",
+            email="cl@donotreply.com",
         )
         d.author = a
         assert d.author == "Nobody"
@@ -261,7 +266,7 @@ class TestKmlFromString:
         k = kml.KML()
         k.from_string(doc)
         assert len(list(k.features())) == 1
-        assert len(list(list(k.features())[0].features())) == 2
+        assert len(list(next(iter(k.features())).features())) == 2
         k2 = kml.KML()
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
@@ -277,8 +282,8 @@ class TestKmlFromString:
 
         k = kml.KML()
         k.from_string(doc)
-        assert list(k.features())[0].visibility == 1
-        assert list(k.features())[0].isopen == 1
+        assert next(iter(k.features())).visibility == 1
+        assert next(iter(k.features())).isopen == 1
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document targetId="someTargetId">
           <name>Document.kml</name>
@@ -289,8 +294,8 @@ class TestKmlFromString:
 
         k = kml.KML()
         k.from_string(doc)
-        assert list(k.features())[0].visibility == 0
-        assert list(k.features())[0].isopen == 0
+        assert next(iter(k.features())).visibility == 0
+        assert next(iter(k.features())).isopen == 0
 
     def test_folders(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
@@ -336,7 +341,7 @@ class TestKmlFromString:
         k = kml.KML()
         k.from_string(doc)
         assert len(list(k.features())) == 1
-        assert len(list(list(k.features())[0].features())) == 3
+        assert len(list(next(iter(k.features())).features())) == 3
         k2 = kml.KML()
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
@@ -356,7 +361,7 @@ class TestKmlFromString:
         k = kml.KML()
         k.from_string(doc)
         assert len(list(k.features())) == 1
-        assert list(k.features())[0].name == "Simple placemark"
+        assert next(iter(k.features())).name == "Simple placemark"
         k2 = kml.KML()
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
@@ -480,7 +485,7 @@ class TestKmlFromString:
         k = kml.KML()
         k.from_string(doc)
         assert len(list(k.features())) == 1
-        assert isinstance(list(k.features())[0].geometry, Polygon)
+        assert isinstance(next(iter(k.features())).geometry, Polygon)
         k2 = kml.KML()
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
@@ -533,8 +538,8 @@ class TestKmlFromString:
         k = kml.KML()
         k.from_string(doc)
         assert len(list(k.features())) == 1
-        assert isinstance(list(k.features())[0].geometry, MultiPoint)
-        assert len(list(list(k.features())[0].geometry.geoms)) == 12
+        assert isinstance(next(iter(k.features())).geometry, MultiPoint)
+        assert len(list(next(iter(k.features())).geometry.geoms)) == 12
         k2 = kml.KML()
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
@@ -550,15 +555,15 @@ class TestKmlFromString:
 
         k = kml.KML()
         k.from_string(doc)
-        assert list(k.features())[0].snippet["text"] == "Short Desc"
-        assert list(k.features())[0].snippet["maxLines"] == 2
-        list(k.features())[0]._snippet["maxLines"] = 3
-        assert list(k.features())[0].snippet["maxLines"] == 3
+        assert next(iter(k.features())).snippet["text"] == "Short Desc"
+        assert next(iter(k.features())).snippet["maxLines"] == 2
+        next(iter(k.features()))._snippet["maxLines"] = 3
+        assert next(iter(k.features())).snippet["maxLines"] == 3
         assert 'maxLines="3"' in k.to_string()
-        list(k.features())[0].snippet = {"text": "Annother Snippet"}
+        next(iter(k.features())).snippet = {"text": "Annother Snippet"}
         assert "maxLines" not in k.to_string()
         assert "Annother Snippet" in k.to_string()
-        list(k.features())[0].snippet = "Diffrent Snippet"
+        next(iter(k.features())).snippet = "Diffrent Snippet"
         assert "maxLines" not in k.to_string()
         assert "Diffrent Snippet" in k.to_string()
 
@@ -593,7 +598,7 @@ class TestKmlFromString:
             <kml:visibility>1</kml:visibility>
             <kml:address>1600 Amphitheatre Parkway,...</kml:address>
         </kml:Document>
-        """
+        """,
         )
 
         doc2 = kml.Document()
@@ -611,7 +616,7 @@ class TestKmlFromString:
             <kml:visibility>1</kml:visibility>
             <kml:phoneNumber>+1 234 567 8901</kml:phoneNumber>
         </kml:Document>
-        """
+        """,
         )
 
         doc2 = kml.Document()
@@ -644,7 +649,7 @@ class TestKmlFromString:
                 </GroundOverlay>
               </Folder>
             </kml>
-            """
+            """,
         )
 
         doc2 = kml.KML()
@@ -659,11 +664,11 @@ class TestKmlFromString:
           <LinearRing>
             <coordinates>0.0,0.0 1.0,0.0 1.0,1.0 0.0,0.0</coordinates>
           </LinearRing>
-        </Placemark> </kml>"""
+        </Placemark> </kml>""",
         )
         doc2 = kml.KML()
         doc2.from_string(doc.to_string())
-        assert isinstance(list(doc.features())[0].geometry, LinearRing)
+        assert isinstance(next(iter(doc.features())).geometry, LinearRing)
         assert doc.to_string() == doc2.to_string()
 
 
@@ -766,7 +771,7 @@ class TestStyleFromString:
         k = kml.KML()
         k.from_string(doc)
         assert len(list(k.features())) == 1
-        assert list(k.features())[0].style_url == "#default"
+        assert next(iter(k.features())).style_url == "#default"
         k2 = kml.KML()
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
@@ -801,8 +806,8 @@ class TestStyleFromString:
         k = kml.KML()
         k.from_string(doc)
         assert len(list(k.features())) == 1
-        assert isinstance(list(list(k.features())[0].styles())[0], styles.Style)
-        style = list(list(list(k.features())[0].styles())[0].styles())[0]
+        assert isinstance(next(iter(next(iter(k.features())).styles())), styles.Style)
+        style = next(iter(next(iter(next(iter(k.features())).styles())).styles()))
         assert isinstance(style, styles.BalloonStyle)
         assert style.bg_color == "ffffffbb"
         assert style.text_color == "ff000000"
@@ -829,8 +834,8 @@ class TestStyleFromString:
         k = kml.KML()
         k.from_string(doc)
         assert len(list(k.features())) == 1
-        assert isinstance(list(list(k.features())[0].styles())[0], styles.Style)
-        style = list(list(list(k.features())[0].styles())[0].styles())[0]
+        assert isinstance(next(iter(next(iter(k.features())).styles())), styles.Style)
+        style = next(iter(next(iter(next(iter(k.features())).styles())).styles()))
         assert isinstance(style, styles.BalloonStyle)
         assert style.bg_color == "ffffffbb"
         k2 = kml.KML()
@@ -853,8 +858,8 @@ class TestStyleFromString:
         k = kml.KML()
         k.from_string(doc)
         assert len(list(k.features())) == 1
-        assert isinstance(list(list(k.features())[0].styles())[0], styles.Style)
-        style = list(list(list(k.features())[0].styles())[0].styles())[0]
+        assert isinstance(next(iter(next(iter(k.features())).styles())), styles.Style)
+        style = next(iter(next(iter(next(iter(k.features())).styles())).styles()))
         assert isinstance(style, styles.LabelStyle)
         assert style.color == "ff0000cc"
         assert style.color_mode is None
@@ -882,8 +887,8 @@ class TestStyleFromString:
         k = kml.KML()
         k.from_string(doc)
         assert len(list(k.features())) == 1
-        assert isinstance(list(list(k.features())[0].styles())[0], styles.Style)
-        style = list(list(list(k.features())[0].styles())[0].styles())[0]
+        assert isinstance(next(iter(next(iter(k.features())).styles())), styles.Style)
+        style = next(iter(next(iter(next(iter(k.features())).styles())).styles()))
         assert isinstance(style, styles.IconStyle)
         assert style.color == "ff00ff00"
         assert style.scale == 1.1
@@ -911,8 +916,8 @@ class TestStyleFromString:
         k = kml.KML()
         k.from_string(doc)
         assert len(list(k.features())) == 1
-        assert isinstance(list(list(k.features())[0].styles())[0], styles.Style)
-        style = list(list(list(k.features())[0].styles())[0].styles())[0]
+        assert isinstance(next(iter(next(iter(k.features())).styles())), styles.Style)
+        style = next(iter(next(iter(next(iter(k.features())).styles())).styles()))
         assert isinstance(style, styles.LineStyle)
         assert style.color == "7f0000ff"
         assert style.width == 4
@@ -938,8 +943,8 @@ class TestStyleFromString:
         k = kml.KML()
         k.from_string(doc)
         assert len(list(k.features())) == 1
-        assert isinstance(list(list(k.features())[0].styles())[0], styles.Style)
-        style = list(list(list(k.features())[0].styles())[0].styles())[0]
+        assert isinstance(next(iter(next(iter(k.features())).styles())), styles.Style)
+        style = next(iter(next(iter(next(iter(k.features())).styles())).styles()))
         assert isinstance(style, styles.PolyStyle)
         assert style.color == "ff0000cc"
         assert style.color_mode == "random"
@@ -962,7 +967,7 @@ class TestStyleFromString:
 
         k = kml.KML()
         k.from_string(doc)
-        style = list(list(list(k.features())[0].styles())[0].styles())[0]
+        style = next(iter(next(iter(next(iter(k.features())).styles())).styles()))
         assert isinstance(style, styles.PolyStyle)
         assert style.fill == 0
         k2 = kml.KML()
@@ -984,7 +989,7 @@ class TestStyleFromString:
 
         k = kml.KML()
         k.from_string(doc)
-        style = list(list(list(k.features())[0].styles())[0].styles())[0]
+        style = next(iter(next(iter(next(iter(k.features())).styles())).styles()))
         assert isinstance(style, styles.PolyStyle)
         assert style.outline == 0
         k2 = kml.KML()
@@ -1006,7 +1011,7 @@ class TestStyleFromString:
 
         k = kml.KML()
         k.from_string(doc)
-        style = list(list(list(k.features())[0].styles())[0].styles())[0]
+        style = next(iter(next(iter(next(iter(k.features())).styles())).styles()))
         assert isinstance(style, styles.PolyStyle)
         assert style.fill == 0
         k2 = kml.KML()
@@ -1028,7 +1033,7 @@ class TestStyleFromString:
 
         k = kml.KML()
         k.from_string(doc)
-        style = list(list(list(k.features())[0].styles())[0].styles())[0]
+        style = next(iter(next(iter(next(iter(k.features())).styles())).styles()))
         assert isinstance(style, styles.PolyStyle)
         assert style.outline == 0
         k2 = kml.KML()
@@ -1067,8 +1072,8 @@ class TestStyleFromString:
         k = kml.KML()
         k.from_string(doc)
         assert len(list(k.features())) == 1
-        assert isinstance(list(list(k.features())[0].styles())[0], styles.Style)
-        style = list(list(list(k.features())[0].styles())[0].styles())
+        assert isinstance(next(iter(next(iter(k.features())).styles())), styles.Style)
+        style = list(next(iter(next(iter(k.features())).styles())).styles())
         assert len(style) == 4
         k2 = kml.KML()
         k2.from_string(k.to_string())
@@ -1093,8 +1098,11 @@ class TestStyleFromString:
         k = kml.KML()
         k.from_string(doc)
         assert len(list(k.features())) == 1
-        assert isinstance(list(list(k.features())[0].styles())[0], styles.StyleMap)
-        sm = list(list(list(k.features())[0].styles()))[0]
+        assert isinstance(
+            next(iter(next(iter(k.features())).styles())),
+            styles.StyleMap,
+        )
+        sm = next(iter(next(iter(k.features())).styles()))
         assert isinstance(sm.normal, styles.StyleUrl)
         assert sm.normal.url == "#normalState"
         assert isinstance(sm.highlight, styles.StyleUrl)
@@ -1135,15 +1143,18 @@ class TestStyleFromString:
         k = kml.KML()
         k.from_string(doc)
         assert len(list(k.features())) == 1
-        assert isinstance(list(list(k.features())[0].styles())[0], styles.StyleMap)
-        sm = list(list(list(k.features())[0].styles()))[0]
+        assert isinstance(
+            next(iter(next(iter(k.features())).styles())),
+            styles.StyleMap,
+        )
+        sm = next(iter(next(iter(k.features())).styles()))
         assert isinstance(sm.normal, styles.Style)
         assert len(list(sm.normal.styles())) == 1
-        assert isinstance(list(sm.normal.styles())[0], styles.LabelStyle)
+        assert isinstance(next(iter(sm.normal.styles())), styles.LabelStyle)
         assert isinstance(sm.highlight, styles.Style)
         assert isinstance(sm.highlight, styles.Style)
         assert len(list(sm.highlight.styles())) == 2
-        assert isinstance(list(sm.highlight.styles())[0], styles.LineStyle)
+        assert isinstance(next(iter(sm.highlight.styles())), styles.LineStyle)
         assert isinstance(list(sm.highlight.styles())[1], styles.PolyStyle)
         k2 = kml.KML()
         k2.from_string(k.to_string())
@@ -1181,18 +1192,18 @@ class TestStyleFromString:
         k = kml.KML()
         k.from_string(doc)
         assert len(list(k.features())) == 1
-        document = list(k.features())[0]
+        document = next(iter(k.features()))
         style = document.get_style_by_url(
-            "http://localhost:8080/somepath#exampleStyleDocument"
+            "http://localhost:8080/somepath#exampleStyleDocument",
         )
-        assert isinstance(list(style.styles())[0], styles.LabelStyle)
+        assert isinstance(next(iter(style.styles())), styles.LabelStyle)
         style = document.get_style_by_url("somepath#linestyleExample")
-        assert isinstance(list(style.styles())[0], styles.LineStyle)
+        assert isinstance(next(iter(style.styles())), styles.LineStyle)
         style = document.get_style_by_url("#styleMapExample")
         assert isinstance(style, styles.StyleMap)
 
 
-def test_nested_multigeometry():
+def test_nested_multigeometry() -> None:
     doc = """<kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark>
           <MultiGeometry>
             <Polygon>
@@ -1229,19 +1240,19 @@ def test_nested_multigeometry():
 
     k = kml.KML()
     k.from_string(doc)
-    placemark = list(list(k.features())[0].features())[0]
+    placemark = next(iter(next(iter(k.features())).features()))
 
     first_multigeometry = placemark.geometry
     assert len(list(first_multigeometry.geoms)) == 3
 
-    second_multigeometry = [
+    second_multigeometry = next(
         g for g in first_multigeometry.geoms if g.geom_type == "GeometryCollection"
-    ][0]
+    )
     assert len(list(second_multigeometry.geoms)) == 2
 
 
 class TestGetGeometry:
-    def test_nested_multigeometry(self):
+    def test_nested_multigeometry(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark>
           <MultiGeometry>
             <Polygon>
@@ -1278,14 +1289,14 @@ class TestGetGeometry:
 
         k = kml.KML()
         k.from_string(doc)
-        placemark = list(list(k.features())[0].features())[0]
+        placemark = next(iter(next(iter(k.features())).features()))
 
         first_multigeometry = placemark.geometry
         assert len(list(first_multigeometry.geoms)) == 3
 
-        second_multigeometry = [
+        second_multigeometry = next(
             g for g in first_multigeometry.geoms if g.geom_type == "GeometryCollection"
-        ][0]
+        )
         assert len(list(second_multigeometry.geoms)) == 2
 
 
@@ -1514,7 +1525,7 @@ class TestGroundOverlayString:
         expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:visibility>1</kml:visibility>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
         assert g.to_string() == expected.to_string()
 
@@ -1534,7 +1545,7 @@ class TestGroundOverlayString:
             "<kml:Icon>"
             "<kml:href>http://example.com</kml:href>"
             "</kml:Icon>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1549,7 +1560,7 @@ class TestGroundOverlayString:
             "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123</kml:altitude>"
             "<kml:altitudeMode>clampToGround</kml:altitudeMode>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1564,7 +1575,7 @@ class TestGroundOverlayString:
             "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123.4</kml:altitude>"
             "<kml:altitudeMode>clampToGround</kml:altitudeMode>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1579,7 +1590,7 @@ class TestGroundOverlayString:
             "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123.4</kml:altitude>"
             "<kml:altitudeMode>clampToGround</kml:altitudeMode>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1595,7 +1606,7 @@ class TestGroundOverlayString:
             "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123.4</kml:altitude>"
             "<kml:altitudeMode>absolute</kml:altitudeMode>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1611,7 +1622,7 @@ class TestGroundOverlayString:
             "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123.4</kml:altitude>"
             "<kml:altitudeMode>clampToGround</kml:altitudeMode>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1627,7 +1638,7 @@ class TestGroundOverlayString:
             "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123.4</kml:altitude>"
             "<kml:altitudeMode>clampToGround</kml:altitudeMode>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1647,7 +1658,7 @@ class TestGroundOverlayString:
             "<kml:west>40</kml:west>"
             "<kml:rotation>0</kml:rotation>"
             "</kml:LatLonBox>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1667,7 +1678,7 @@ class TestGroundOverlayString:
             "<kml:west>40</kml:west>"
             "<kml:rotation>50</kml:rotation>"
             "</kml:LatLonBox>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1691,7 +1702,7 @@ class TestGroundOverlayString:
             "<kml:west>40</kml:west>"
             "<kml:rotation>50</kml:rotation>"
             "</kml:LatLonBox>"
-            "</kml:GroundOverlay>"
+            "</kml:GroundOverlay>",
         )
 
         assert g.to_string() == expected.to_string()
@@ -1725,15 +1736,11 @@ class TestPhotoOverlay:
         assert self.p.camera.altitude is None
 
     def test_camera_altitude_mode_default(self) -> None:
-        assert self.p.camera.altitude_mode == "relativeToGround"
-
-    def test_camera_altitude_mode_error(self) -> None:
-        self.p.camera.altitude_mode = ""
-        assert self.p.camera.altitude_mode == "relativeToGround"
+        assert self.p.camera.altitude_mode == AltitudeMode("relativeToGround")
 
     def test_camera_altitude_mode_clamp(self) -> None:
-        self.p.camera.altitude_mode = "clampToGround"
-        assert self.p.camera.altitude_mode == "clampToGround"
+        self.p.camera.altitude_mode = AltitudeMode("clampToGround")
+        assert self.p.camera.altitude_mode == AltitudeMode("clampToGround")
 
     def test_camera_altitude_mode_absolute(self) -> None:
         self.p.camera.altitude_mode = "absolute"
@@ -1741,7 +1748,12 @@ class TestPhotoOverlay:
 
     def test_camera_initialization(self) -> None:
         self.p.camera = kml.Camera(
-            longitude=10, latitude=20, altitude=30, heading=40, tilt=50, roll=60
+            longitude=10,
+            latitude=20,
+            altitude=30,
+            heading=40,
+            tilt=50,
+            roll=60,
         )
         assert self.p.camera.longitude == 10
         assert self.p.camera.latitude == 20
@@ -1749,4 +1761,4 @@ class TestPhotoOverlay:
         assert self.p.camera.heading == 40
         assert self.p.camera.tilt == 50
         assert self.p.camera.roll == 60
-        assert self.p.camera.altitude_mode == "relativeToGround"
+        assert self.p.camera.altitude_mode == AltitudeMode("relativeToGround")

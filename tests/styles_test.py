@@ -39,7 +39,7 @@ class TestStdLibrary(StdLibrary):
 
         url.from_string(
             '<kml:styleUrl xmlns:kml="http://www.opengis.net/kml/2.2"'
-            ' id="id-0" targetId="target-0">#style-0</kml:styleUrl>'
+            ' id="id-0" targetId="target-0">#style-0</kml:styleUrl>',
         )
 
         assert url.id == "id-0"
@@ -80,7 +80,7 @@ class TestStdLibrary(StdLibrary):
             "<kml:color>ff2200ff</kml:color><kml:colorMode>random</kml:colorMode>"
             "<kml:scale>5</kml:scale><kml:heading>20</kml:heading><kml:Icon>"
             "<kml:href>http://example.com/icon.png</kml:href></kml:Icon>"
-            "</kml:IconStyle>"
+            "</kml:IconStyle>",
         )
 
         assert icons.id == "id-1"
@@ -119,7 +119,7 @@ class TestStdLibrary(StdLibrary):
             "  <kml:color>ffaa00ff</kml:color>\n"
             "  <kml:colorMode>normal</kml:colorMode>\n"
             "  <kml:width>3.0</kml:width>\n"
-            "</kml:LineStyle>\n"
+            "</kml:LineStyle>\n",
         )
 
         assert lines.id == "id-l0"
@@ -159,7 +159,7 @@ class TestStdLibrary(StdLibrary):
             "<kml:colorMode>normal</kml:colorMode>"
             "<kml:fill>1</kml:fill>"
             "<kml:outline>0</kml:outline>"
-            "</kml:PolyStyle>"
+            "</kml:PolyStyle>",
         )
 
         assert ps.id == "id-1"
@@ -199,7 +199,7 @@ class TestStdLibrary(StdLibrary):
             "<kml:color>ff001122</kml:color>"
             "<kml:colorMode>normal</kml:colorMode>"
             "<kml:scale>2.2</kml:scale>"
-            "</kml:LabelStyle>"
+            "</kml:LabelStyle>",
         )
 
         assert ls.id == "id-1"
@@ -241,7 +241,7 @@ class TestStdLibrary(StdLibrary):
             "<kml:textColor>ff11ff22</kml:textColor>"
             "<kml:text>&lt;b&gt;World&lt;/b&gt;</kml:text>"
             "<kml:displayMode>default</kml:displayMode>"
-            "</kml:BalloonStyle>"
+            "</kml:BalloonStyle>",
         )
 
         assert bs.id == "id-7"
@@ -350,17 +350,17 @@ class TestStdLibrary(StdLibrary):
             "<kml:fill>0</kml:fill>"
             "<kml:outline>1</kml:outline>"
             "</kml:PolyStyle>"
-            "</kml:Style>"
+            "</kml:Style>",
         )
 
         assert style.id == "id-0"
         assert style.target_id == "target-0"
-        assert list(style.styles())[0].id == "id-b0"
-        assert list(style.styles())[0].target_id == "target-b0"
-        assert list(style.styles())[0].bg_color == "7fff0000"  # type: ignore[union-attr]
-        assert list(style.styles())[0].text_color == "ff00ff00"  # type: ignore[union-attr]
-        assert list(style.styles())[0].text == "<b>Hello</b>"  # type: ignore[union-attr]
-        assert list(style.styles())[0].display_mode == "hide"  # type: ignore[union-attr]
+        assert next(iter(style.styles())).id == "id-b0"
+        assert next(iter(style.styles())).target_id == "target-b0"
+        assert next(iter(style.styles())).bg_color == "7fff0000"  # type: ignore[union-attr]
+        assert next(iter(style.styles())).text_color == "ff00ff00"  # type: ignore[union-attr]
+        assert next(iter(style.styles())).text == "<b>Hello</b>"  # type: ignore[union-attr]
+        assert next(iter(style.styles())).display_mode == "hide"  # type: ignore[union-attr]
 
         assert list(style.styles())[1].id == "id-i0"
         assert list(style.styles())[1].target_id == "target-i0"
@@ -536,7 +536,7 @@ class TestStdLibrary(StdLibrary):
                 </kml:Style>
             </kml:Pair>
             </kml:StyleMap>
-        """
+        """,
         )
 
         assert sm.id == "id-sm-0"

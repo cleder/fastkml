@@ -21,6 +21,7 @@ part of how your data is displayed.
 """
 
 import logging
+from typing import Dict
 from typing import Iterable
 from typing import Iterator
 from typing import List
@@ -51,11 +52,12 @@ class StyleUrl(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         url: Optional[str] = None,
     ) -> None:
-        super().__init__(ns=ns, id=id, target_id=target_id)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.url = url
 
     def etree_element(
@@ -91,7 +93,7 @@ class _ColorStyle(_BaseObject):
     This is an abstract element and cannot be used directly in a KML file.
     It provides elements for specifying the color and color mode of
     extended style types.
-    subclasses are: IconStyle, LabelStyle, LineStyle, PolyStyle
+    subclasses are: IconStyle, LabelStyle, LineStyle, PolyStyle.
     """
 
     id = None
@@ -109,12 +111,13 @@ class _ColorStyle(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
         color_mode: Optional[str] = None,
     ) -> None:
-        super().__init__(ns=ns, id=id, target_id=target_id)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.color = color
         self.color_mode = color_mode
 
@@ -156,7 +159,7 @@ class HotSpot(TypedDict):
 
 
 class IconStyle(_ColorStyle):
-    """Specifies how icons for point Placemarks are drawn"""
+    """Specifies how icons for point Placemarks are drawn."""
 
     __name__ = "IconStyle"
     scale = 1.0
@@ -171,6 +174,7 @@ class IconStyle(_ColorStyle):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
@@ -181,7 +185,12 @@ class IconStyle(_ColorStyle):
         hot_spot: Optional[HotSpot] = None,
     ) -> None:
         super().__init__(
-            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            color=color,
+            color_mode=color_mode,
         )
 
         self.scale = scale
@@ -219,7 +228,8 @@ class IconStyle(_ColorStyle):
             href.text = self.icon_href
         if self.hot_spot:
             hot_spot = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}hotSpot"
+                element,
+                f"{self.ns}hotSpot",
             )
             hot_spot.attrib["x"] = str(self.hot_spot["x"])
             hot_spot.attrib["y"] = str(self.hot_spot["y"])
@@ -265,6 +275,7 @@ class LineStyle(_ColorStyle):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
@@ -272,7 +283,12 @@ class LineStyle(_ColorStyle):
         width: Union[int, float] = 1,
     ) -> None:
         super().__init__(
-            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            color=color,
+            color_mode=color_mode,
         )
         self.width = width
 
@@ -314,6 +330,7 @@ class PolyStyle(_ColorStyle):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
@@ -322,7 +339,12 @@ class PolyStyle(_ColorStyle):
         outline: int = 1,
     ) -> None:
         super().__init__(
-            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            color=color,
+            color_mode=color_mode,
         )
         self.fill = fill
         self.outline = outline
@@ -366,9 +388,7 @@ class PolyStyle(_ColorStyle):
 
 
 class LabelStyle(_ColorStyle):
-    """
-    Specifies how the <name> of a Feature is drawn in the 3D viewer.
-    """
+    """Specifies how the <name> of a Feature is drawn in the 3D viewer."""
 
     __name__ = "LabelStyle"
     scale = 1.0
@@ -377,6 +397,7 @@ class LabelStyle(_ColorStyle):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
@@ -384,7 +405,12 @@ class LabelStyle(_ColorStyle):
         scale: float = 1.0,
     ) -> None:
         super().__init__(
-            ns=ns, id=id, target_id=target_id, color=color, color_mode=color_mode
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            color=color,
+            color_mode=color_mode,
         )
         self.scale = scale
 
@@ -410,9 +436,11 @@ class LabelStyle(_ColorStyle):
 
 
 class BalloonStyle(_BaseObject):
-    """Specifies how the description balloon for placemarks is drawn.
+    """
+    Specifies how the description balloon for placemarks is drawn.
     The <bgColor>, if specified, is used as the background color of
-    the balloon."""
+    the balloon.
+    """
 
     __name__ = "BalloonStyle"
 
@@ -463,6 +491,7 @@ class BalloonStyle(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         bg_color: Optional[str] = None,
@@ -470,7 +499,7 @@ class BalloonStyle(_BaseObject):
         text: Optional[str] = None,
         display_mode: Optional[str] = None,
     ) -> None:
-        super().__init__(ns=ns, id=id, target_id=target_id)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.bg_color = bg_color
         self.text_color = text_color
         self.text = text
@@ -546,11 +575,12 @@ class Style(_StyleSelector):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         styles: Optional[Iterable[AnyStyle]] = None,
     ) -> None:
-        super().__init__(ns, id, target_id)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self._styles: List[AnyStyle] = []
         if styles:
             for style in styles:
@@ -612,12 +642,13 @@ class StyleMap(_StyleSelector):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         normal: Optional[Union[Style, StyleUrl]] = None,
         highlight: Optional[Union[Style, StyleUrl]] = None,
     ) -> None:
-        super().__init__(ns, id, target_id)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.normal = normal
         self.highlight = highlight
 

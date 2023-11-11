@@ -45,6 +45,7 @@ complexity = [
 dev = [
     "fastkml[complexity]",
     "fastkml[docs]",
+    "fastkml[linting]",
     "fastkml[lxml]",
     "fastkml[tests]",
     "fastkml[typing]",
@@ -60,7 +61,6 @@ linting = [
     "black",
     "flake8",
     "flake8-comments",
-    "flake8-continuation",
     "flake8-encodings",
     "flake8-expression-complexity",
     "flake8-length",
@@ -140,7 +140,6 @@ warn_unused_ignores = true
 ignore_errors = true
 module = [
     "fastkml.kml",
-    "fastkml.views",
 ]
 
 [tool.pyright]
@@ -226,6 +225,14 @@ select = [
 target-version = "py38"
 
 [tool.ruff.extend-per-file-ignores]
+"tests/*.py" = [
+    "D101",
+    "D102",
+    "D103",
+    "PLR2004",
+    "S101",
+    "SLF001",
+]
 "tests/oldunit_test.py" = [
     "E501",
 ]

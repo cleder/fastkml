@@ -13,7 +13,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-"""Add Custom Data
+"""
+Add Custom Data.
 
 https://developers.google.com/kml/documentation/extendeddata#example
 """
@@ -27,7 +28,7 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
-import fastkml.config as config
+from fastkml import config
 from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
 from fastkml.enums import DataType
@@ -91,14 +92,16 @@ class Schema(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
         fields: Optional[Iterable[SimpleField]] = None,
     ) -> None:
         if id is None:
-            raise KMLSchemaError("Id is required for schema")
-        super().__init__(ns=ns, id=id, target_id=target_id)
+            msg = "Id is required for schema"
+            raise KMLSchemaError(msg)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.name = name
         self._simple_fields = list(fields) if fields else []
 
@@ -135,13 +138,15 @@ class Schema(_BaseObject):
             element.set("name", self.name)
         for simple_field in self.simple_fields:
             sf = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}SimpleField"
+                element,
+                f"{self.ns}SimpleField",
             )
             sf.set("type", simple_field.type.value)
             sf.set("name", simple_field.name)
             if simple_field.display_name:
                 dn = config.etree.SubElement(  # type: ignore[attr-defined]
-                    sf, f"{self.ns}displayName"
+                    sf,
+                    f"{self.ns}displayName",
                 )
                 dn.text = simple_field.display_name
         return element
@@ -173,13 +178,21 @@ class Schema(_BaseObject):
         cls,
         *,
         ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
         kwargs["name"] = element.get("name")
         kwargs["fields"] = cls._get_fields_kwargs_from_element(
-            ns=ns, element=element, strict=strict
+            ns=ns,
+            element=element,
+            strict=strict,
         )
         return kwargs
 
@@ -192,11 +205,12 @@ class Data(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         name: Optional[str] = None,
         value: Optional[str] = None,
         display_name: Optional[str] = None,
     ) -> None:
-        super().__init__(ns)
+        super().__init__(ns=ns, name_spaces=name_spaces)
 
         self.name = name
         self.value = value
@@ -218,12 +232,14 @@ class Data(_XMLObject):
         element = super().etree_element(precision=precision, verbosity=verbosity)
         element.set("name", self.name or "")
         value = config.etree.SubElement(  # type: ignore[attr-defined]
-            element, f"{self.ns}value"
+            element,
+            f"{self.ns}value",
         )
         value.text = self.value
         if self.display_name:
             display_name = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}displayName"
+                element,
+                f"{self.ns}displayName",
             )
             display_name.text = self.display_name
         return element
@@ -233,10 +249,16 @@ class Data(_XMLObject):
         cls,
         *,
         ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
         kwargs["name"] = element.get("name")
         value = element.find(f"{ns}value")
         if value is not None:
@@ -271,12 +293,14 @@ class SchemaData(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         schema_url: Optional[str] = None,
         data: Optional[Iterable[SimpleData]] = None,
     ) -> None:
-        super().__init__(ns)
+        super().__init__(ns=ns, name_spaces=name_spaces)
         if (not isinstance(schema_url, str)) or (not schema_url):
-            raise ValueError("required parameter schema_url missing")
+            msg = "required parameter schema_url missing"
+            raise ValueError(msg)
         self.schema_url = schema_url
         self._data = list(data) if data else []
 
@@ -308,7 +332,8 @@ class SchemaData(_XMLObject):
         element.set("schemaUrl", self.schema_url)
         for data in self.data:
             sd = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}SimpleData"
+                element,
+                f"{self.ns}SimpleData",
             )
             sd.set("name", data.name)
             sd.text = data.value
@@ -319,10 +344,16 @@ class SchemaData(_XMLObject):
         cls,
         *,
         ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
         kwargs["schema_url"] = element.get("schemaUrl")
         kwargs["data"] = [
             SimpleData(name=sd.get("name"), value=sd.text)
@@ -333,7 +364,8 @@ class SchemaData(_XMLObject):
 
 
 class ExtendedData(_XMLObject):
-    """Represents a list of untyped name/value pairs. See docs:
+    """
+    Represents a list of untyped name/value pairs. See docs:
 
     -> 'Adding Untyped Name/Value Pairs'
        https://developers.google.com/kml/documentation/extendeddata
@@ -345,9 +377,10 @@ class ExtendedData(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         elements: Optional[Iterable[Union[Data, SchemaData]]] = None,
     ) -> None:
-        super().__init__(ns)
+        super().__init__(ns=ns, name_spaces=name_spaces)
         self.elements = elements or []
 
     def __repr__(self) -> str:
@@ -372,10 +405,16 @@ class ExtendedData(_XMLObject):
         cls,
         *,
         ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(ns=ns, element=element, strict=strict)
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
         elements = []
         untyped_data = element.findall(f"{ns}Data")
         for ud in untyped_data:
@@ -384,7 +423,9 @@ class ExtendedData(_XMLObject):
         typed_data = element.findall(f"{ns}SchemaData")
         for sd in typed_data:
             el_schema_data = SchemaData.class_from_element(
-                ns=ns, element=sd, strict=strict
+                ns=ns,
+                element=sd,
+                strict=strict,
             )
             elements.append(el_schema_data)
         kwargs["elements"] = elements

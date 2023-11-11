@@ -4,7 +4,7 @@ from fastkml import kml
 
 
 def print_child_features(element):
-    """Prints the name of every child node of the given element, recursively"""
+    """Prints the name of every child node of the given element, recursively."""
     if not getattr(element, "features", None):
         return
     for feature in element.features():
@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     k = kml.KML()
 
-    with open(fname) as kml_file:
+    with open(fname, encoding="utf-8") as kml_file:
         k.from_string(kml_file.read().encode("utf-8"))
 
     print_child_features(k)

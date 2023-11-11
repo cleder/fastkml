@@ -22,6 +22,7 @@ from dateutil.tz import tzutc
 
 from fastkml import times
 from fastkml import views
+from fastkml.enums import AltitudeMode
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -44,7 +45,7 @@ class TestStdLibrary(StdLibrary):
             tilt=20,
             roll=30,
             altitude=40,
-            altitude_mode="relativeToGround",
+            altitude_mode=AltitudeMode("relativeToGround"),
             latitude=50,
             longitude=60,
             time_primitive=time_span,
@@ -54,16 +55,16 @@ class TestStdLibrary(StdLibrary):
         assert camera.tilt == 20
         assert camera.roll == 30
         assert camera.altitude == 40
-        assert camera.altitude_mode == "relativeToGround"
+        assert camera.altitude_mode == AltitudeMode("relativeToGround")
         assert camera.latitude == 50
         assert camera.longitude == 60
         assert camera.id == "cam-id"
         assert camera.target_id == "target-cam-id"
         assert camera.begin == times.KmlDateTime(
-            datetime.datetime(2019, 1, 1, tzinfo=tzutc())
+            datetime.datetime(2019, 1, 1, tzinfo=tzutc()),
         )
         assert camera.end == times.KmlDateTime(
-            datetime.datetime(2019, 1, 2, tzinfo=tzutc())
+            datetime.datetime(2019, 1, 2, tzinfo=tzutc()),
         )
         assert camera.to_string()
 
@@ -85,24 +86,23 @@ class TestStdLibrary(StdLibrary):
             "<kml:altitudeMode>relativeToGround</kml:altitudeMode>"
             "</kml:Camera>"
         )
-        camera = views.Camera()
 
-        camera.from_string(camera_xml)
+        camera = views.Camera.class_from_string(camera_xml)
 
         assert camera.heading == 10
         assert camera.tilt == 20
         assert camera.roll == 30
         assert camera.altitude == 40
-        assert camera.altitude_mode == "relativeToGround"
+        assert camera.altitude_mode == AltitudeMode("relativeToGround")
         assert camera.latitude == 50
         assert camera.longitude == 60
         assert camera.id == "cam-id"
         assert camera.target_id == "target-cam-id"
         assert camera.begin == times.KmlDateTime(
-            datetime.datetime(2019, 1, 1, tzinfo=tzutc())
+            datetime.datetime(2019, 1, 1, tzinfo=tzutc()),
         )
         assert camera.end == times.KmlDateTime(
-            datetime.datetime(2019, 1, 2, tzinfo=tzutc())
+            datetime.datetime(2019, 1, 2, tzinfo=tzutc()),
         )
 
     def test_create_look_at(self) -> None:
@@ -117,7 +117,7 @@ class TestStdLibrary(StdLibrary):
             heading=10,
             tilt=20,
             range=30,
-            altitude_mode="relativeToGround",
+            altitude_mode=AltitudeMode("relativeToGround"),
             latitude=50,
             longitude=60,
             time_primitive=time_stamp,
@@ -126,13 +126,16 @@ class TestStdLibrary(StdLibrary):
         assert look_at.heading == 10
         assert look_at.tilt == 20
         assert look_at.range == 30
-        assert look_at.altitude_mode == "relativeToGround"
+        assert look_at.altitude_mode == AltitudeMode("relativeToGround")
         assert look_at.latitude == 50
         assert look_at.longitude == 60
         assert look_at.id == "look-at-id"
         assert look_at.target_id == "target-look-at-id"
         assert look_at._timestamp.timestamp.dt == datetime.datetime(
-            2019, 1, 1, tzinfo=tzutc()
+            2019,
+            1,
+            1,
+            tzinfo=tzutc(),
         )
         assert look_at.begin is None
         assert look_at.end is None
@@ -153,20 +156,21 @@ class TestStdLibrary(StdLibrary):
             "<kml:range>30</kml:range>"
             "</kml:LookAt>"
         )
-        look_at = views.LookAt()
-
-        look_at.from_string(look_at_xml)
+        look_at = views.LookAt.class_from_string(look_at_xml)
 
         assert look_at.heading == 10
         assert look_at.tilt == 20
         assert look_at.range == 30
-        assert look_at.altitude_mode == "relativeToGround"
+        assert look_at.altitude_mode == AltitudeMode("relativeToGround")
         assert look_at.latitude == 50
         assert look_at.longitude == 60
         assert look_at.id == "look-at-id"
         assert look_at.target_id == "target-look-at-id"
         assert look_at._timestamp.timestamp.dt == datetime.datetime(
-            2019, 1, 1, tzinfo=tzutc()
+            2019,
+            1,
+            1,
+            tzinfo=tzutc(),
         )
         assert look_at.begin is None
         assert look_at.end is None

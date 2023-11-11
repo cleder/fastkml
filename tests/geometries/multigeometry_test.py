@@ -25,7 +25,7 @@ from tests.base import StdLibrary
 class TestMultiPointStdLibrary(StdLibrary):
     """Test with the standard library."""
 
-    def test_1_point(self):
+    def test_1_point(self) -> None:
         """Test with one point."""
         p = geo.MultiPoint([(1, 2)])
 
@@ -35,7 +35,7 @@ class TestMultiPointStdLibrary(StdLibrary):
         assert "MultiGeometry>" in mg.to_string()
         assert "Point>" in mg.to_string()
 
-    def test_2_points(self):
+    def test_2_points(self) -> None:
         """Test with two points."""
         p = geo.MultiPoint([(1, 2), (3, 4)])
 
@@ -59,7 +59,7 @@ class TestMultiPointStdLibrary(StdLibrary):
 
 
 class TestMultiLineStringStdLibrary(StdLibrary):
-    def test_1_linestring(self):
+    def test_1_linestring(self) -> None:
         """Test with one linestring."""
         p = geo.MultiLineString([[(1, 2), (3, 4)]])
 
@@ -69,7 +69,7 @@ class TestMultiLineStringStdLibrary(StdLibrary):
         assert "MultiGeometry>" in mg.to_string()
         assert "LineString>" in mg.to_string()
 
-    def test_2_linestrings(self):
+    def test_2_linestrings(self) -> None:
         """Test with two linestrings."""
         p = geo.MultiLineString([[(1, 2), (3, 4)], [(5, 6), (7, 8)]])
 
@@ -95,7 +95,7 @@ class TestMultiLineStringStdLibrary(StdLibrary):
 
 
 class TestMultiPolygonStdLibrary(StdLibrary):
-    def test_1_polygon(self):
+    def test_1_polygon(self) -> None:
         """Test with one polygon."""
         p = geo.MultiPolygon([[[[1, 2], [3, 4], [5, 6], [1, 2]]]])
 
@@ -110,7 +110,7 @@ class TestMultiPolygonStdLibrary(StdLibrary):
         assert "outerBoundaryIs>" in mg.to_string()
         assert "innerBoundaryIs>" not in mg.to_string()
 
-    def test_1_polygons_with_holes(self):
+    def test_1_polygons_with_holes(self) -> None:
         """Test with one polygon with holes."""
         p = geo.MultiPolygon(
             [
@@ -135,7 +135,7 @@ class TestMultiPolygonStdLibrary(StdLibrary):
         assert "outerBoundaryIs>" in mg.to_string()
         assert "innerBoundaryIs>" in mg.to_string()
 
-    def test_2_polygons(self):
+    def test_2_polygons(self) -> None:
         """Test with two polygons."""
         p = geo.MultiPolygon(
             [
@@ -199,7 +199,7 @@ class TestMultiPolygonStdLibrary(StdLibrary):
 class TestGeometryCollectionStdLibrary(StdLibrary):
     """Test heterogeneous geometry collections."""
 
-    def test_1_point(self):
+    def test_1_point(self) -> None:
         """Test with one point."""
         p = geo.GeometryCollection([geo.Point(1, 2)])
 
@@ -209,7 +209,7 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
         assert "MultiGeometry>" in mg.to_string()
         assert "Point>" in mg.to_string()
 
-    def test_geometries(self):
+    def test_geometries(self) -> None:
         p = geo.Point(1, 2)
         ls = geo.LineString(((1, 2), (2, 0)))
         lr = geo.LinearRing(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)))
@@ -227,7 +227,7 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
         assert "Polygon>" in mg.to_string()
         assert "MultiGeometry>" in mg.to_string()
 
-    def test_multi_geometries(self):
+    def test_multi_geometries(self) -> None:
         p = geo.Point(1, 2)
         ls = geo.LineString(((1, 2), (2, 0)))
         lr = geo.LinearRing(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)))
@@ -312,9 +312,15 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
                             ),
                         ),
                         geo.LinearRing(
-                            ((0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0.0), (0.0, 0.0))
+                            (
+                                (0.0, 0.0),
+                                (0.0, 1.0),
+                                (1.0, 1.0),
+                                (1.0, 0.0),
+                                (0.0, 0.0),
+                            ),
                         ),
-                    )
+                    ),
                 ),
                 geo.MultiPolygon(
                     (
@@ -337,12 +343,12 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
                             ),
                         ),
                         (((0.0, 0.0), (0.0, 2.0), (1.0, 1.0), (1.0, 0.0), (0.0, 0.0)),),
-                    )
+                    ),
                 ),
                 geo.MultiLineString(
-                    (((1.0, 2.0), (3.0, 4.0)), ((5.0, 6.0), (7.0, 8.0)))
+                    (((1.0, 2.0), (3.0, 4.0)), ((5.0, 6.0), (7.0, 8.0))),
                 ),
-            )
+            ),
         )
 
     def test_empty_multi_geometries_read(self) -> None:

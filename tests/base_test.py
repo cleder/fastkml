@@ -43,7 +43,8 @@ class TestStdLibrary(StdLibrary):
         obj.__name__ = "test"
 
         assert obj.to_string().replace(" ", "").replace(
-            "\n", ""
+            "\n",
+            "",
         ) == '<test id="id-0" targetId="target-id-0" />'.replace(" ", "")
 
     def test_from_string(self) -> None:
@@ -54,7 +55,7 @@ class TestStdLibrary(StdLibrary):
             xml_string=(
                 '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" '
                 'id="id-0" targetId="target-id-0" />'
-            )
+            ),
         )
 
         assert be.id == "id-0"
@@ -88,7 +89,7 @@ class TestStdLibrary(StdLibrary):
 
         with pytest.raises(TypeError):
             be.from_string(
-                '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" />'
+                '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" />',
             )
 
     def test_base_class_from_string(self) -> None:
@@ -126,7 +127,7 @@ class TestLxml(Lxml, TestStdLibrary):
             xml_string=(
                 '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" '
                 'id="id-0" targetId="target-id-0"/>\n'
-            )
+            ),
         )
 
         assert be.id == "id-0"

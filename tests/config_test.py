@@ -58,11 +58,11 @@ def test_register_namespaces() -> None:
 
 
 def test_default_registered_namespaces() -> None:
-    assert config.DEFAULT_NAME_SPACES == {
+    assert {
         "kml": "http://www.opengis.net/kml/2.2",
         "atom": "http://www.w3.org/2005/Atom",
         "gx": "http://www.google.com/kml/ext/2.2",
-    }
+    } == config.DEFAULT_NAME_SPACES
 
 
 def test_set_default_namespaces() -> None:

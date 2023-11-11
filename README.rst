@@ -25,11 +25,11 @@ Fastkml is continually tested
     :target: http://codecov.io/github/cleder/fastkml?branch=main
     :alt: codecov.io
 
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+.. image:: https://img.shields.io/badge/code_style-black-000000.svg
     :target: https://github.com/psf/black
     :alt: Black
 
-.. image:: https://img.shields.io/badge/type%20checker-mypy-blue
+.. image:: https://img.shields.io/badge/type_checker-mypy-blue
     :target: http://mypy-lang.org/
     :alt: Mypy
 
