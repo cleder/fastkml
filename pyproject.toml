@@ -94,6 +94,7 @@ keywords = [
 ]
 
 [project.urls]
+Changelog = "https://github.com/cleder/fastkml/blob/develop/docs/HISTORY.rst"
 Documentation = "https://fastkml.readthedocs.org/"
 Homepage = "https://github.com/cleder/fastkml"
 

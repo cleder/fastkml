@@ -9,7 +9,8 @@ Changelog
 - Drop shapely native support
 - Add type annotations
 - refactor
-
+- Use arrow instead of dateutil
+- Add an informative ``__repr__``
 
 0.12 (2020/09/23)
 -----------------

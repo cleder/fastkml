@@ -97,19 +97,14 @@ Requirements
 -------------
 
 * pygeoif_
-* dateutils_
 * arrow_
 
 Optional
 ---------
 
-* lxml_
+* lxml_::
 
-You can install all of the requirements for working with FastKML by using
-pip_::
-
-    pip install -r requirements.txt
-
+    pip install --pre "fastkml[lxml]"
 
 Limitations
 ===========
@@ -123,7 +118,7 @@ is the `gx extension
 <https://developers.google.com/kml/documentation/kmlreference#kmlextensions>`_.
 Please submit a PR with the features you'd like to see implemented.
 
-.. _pygeoif: http://pypi.python.org/pypi/pygeoif/
+.. _pygeoif: https://pypi.python.org/pypi/pygeoif/
 .. _lxml: https://pypi.python.org/pypi/lxml
-.. _dateutils: https://pypi.python.org/pypi/dateutils
+.. _arrow: https://pypi.org/project/arrow/
 .. _pip: https://pypi.python.org/pypi/pip
