@@ -1602,7 +1602,7 @@ class Document(_Container):
     __name__ = "Document"
     _schemata = None
 
-    def schemata(self) -> None:
+    def schemata(self) -> Iterator["Schema"]:
         if self._schemata:
             yield from self._schemata
 
