@@ -18,6 +18,7 @@
 
 from fastkml import styles
 from fastkml.enums import ColorMode
+from fastkml.enums import DisplayMode
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -206,7 +207,7 @@ class TestStdLibrary(StdLibrary):
             bg_color="7fff0000",
             text_color="ff00ff00",
             text="<b>Hello</b>",
-            display_mode="hide",
+            display_mode=DisplayMode.hide,
         )
 
         serialized = bs.to_string()
@@ -238,7 +239,7 @@ class TestStdLibrary(StdLibrary):
         assert bs.bg_color == "7fff1144"
         assert bs.text_color == "ff11ff22"
         assert bs.text == "<b>World</b>"
-        assert bs.display_mode == "default"
+        assert bs.display_mode == DisplayMode.default
 
     def test_style(self) -> None:
         icons = styles.IconStyle(
@@ -263,7 +264,7 @@ class TestStdLibrary(StdLibrary):
             bg_color="7fff0000",
             text_color="ff00ff00",
             text="<b>Hello</b>",
-            display_mode="hide",
+            display_mode=DisplayMode.hide,
         )
         ls = styles.LabelStyle(
             id="id-a0",
@@ -347,7 +348,7 @@ class TestStdLibrary(StdLibrary):
         assert next(iter(style.styles())).bg_color == "7fff0000"  # type: ignore[union-attr]
         assert next(iter(style.styles())).text_color == "ff00ff00"  # type: ignore[union-attr]
         assert next(iter(style.styles())).text == "<b>Hello</b>"  # type: ignore[union-attr]
-        assert next(iter(style.styles())).display_mode == "hide"  # type: ignore[union-attr]
+        assert next(iter(style.styles())).display_mode == DisplayMode.hide  # type: ignore[union-attr]
 
         assert list(style.styles())[1].id == "id-i0"
         assert list(style.styles())[1].target_id == "target-i0"
@@ -400,7 +401,7 @@ class TestStdLibrary(StdLibrary):
             bg_color="7fff0000",
             text_color="ff00ff00",
             text="<b>Hello</b>",
-            display_mode="hide",
+            display_mode=DisplayMode.hide,
         )
         ls = styles.LabelStyle(
             id="id-a0",

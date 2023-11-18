@@ -34,6 +34,7 @@ from typing import cast
 from fastkml import config
 from fastkml.base import _BaseObject
 from fastkml.enums import ColorMode
+from fastkml.enums import DisplayMode
 from fastkml.enums import Units
 from fastkml.enums import Verbosity
 from fastkml.types import Element
@@ -131,7 +132,7 @@ class _ColorStyle(_BaseObject):
     # The order of expression is aabbggrr, where aa=alpha (00 to ff);
     # bb=blue (00 to ff); gg=green (00 to ff); rr=red (00 to ff).
 
-    color_mode: ColorMode
+    color_mode: Optional[ColorMode]
     # Values for <colorMode> are normal (no effect) and random.
     # A value of random applies a random linear scale to the base <color>
 
@@ -307,10 +308,10 @@ class IconStyle(_ColorStyle):
                 kwargs["icon_href"] = href.text
         hot_spot = element.find(f"{ns}hotSpot")
         if hot_spot is not None:
-            x = hot_spot.attrib.get("x")
-            y = hot_spot.attrib.get("y")
-            xunits = hot_spot.attrib.get("xunits")
-            yunits = hot_spot.attrib.get("yunits")
+            x = hot_spot.attrib.get("x")  # type: ignore[attr-defined]
+            y = hot_spot.attrib.get("y")  # type: ignore[attr-defined]
+            xunits = hot_spot.attrib.get("xunits")  # type: ignore[attr-defined]
+            yunits = hot_spot.attrib.get("yunits")  # type: ignore[attr-defined]
             x = float(x) if x is not None else 0
             y = float(y) if y is not None else 0
             xunits = Units(xunits) if xunits is not None else None
@@ -412,7 +413,7 @@ class PolyStyle(_ColorStyle):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
-        color_mode: Optional[str] = None,
+        color_mode: Optional[ColorMode] = None,
         fill: int = 1,
         outline: int = 1,
     ) -> None:
@@ -579,7 +580,7 @@ class BalloonStyle(_BaseObject):
     # in the Feature elements that use this BalloonStyle:
     # <text>This is $[name], whose description is:<br/>$[description]</text>
 
-    display_mode = None
+    display_mode: Optional[DisplayMode]
     # If <displayMode> is default, Google Earth uses the information supplied
     # in <text> to create a balloon . If <displayMode> is hide, Google Earth
     # does not display the balloon. In Google Earth, clicking the List View
@@ -595,7 +596,7 @@ class BalloonStyle(_BaseObject):
         bg_color: Optional[str] = None,
         text_color: Optional[str] = None,
         text: Optional[str] = None,
-        display_mode: Optional[str] = None,
+        display_mode: Optional[DisplayMode] = None,
     ) -> None:
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.bg_color = bg_color
@@ -632,7 +633,7 @@ class BalloonStyle(_BaseObject):
                 element,
                 f"{self.ns}displayMode",
             )
-            elem.text = self.display_mode
+            elem.text = self.display_mode.value
         return element
 
     @classmethod
@@ -665,7 +666,7 @@ class BalloonStyle(_BaseObject):
             kwargs["text"] = text.text
         display_mode = element.find(f"{ns}displayMode")
         if display_mode is not None:
-            kwargs["display_mode"] = display_mode.text
+            kwargs["display_mode"] = DisplayMode(display_mode.text)
         return kwargs
 
 

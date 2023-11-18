@@ -16,6 +16,8 @@
 
 """Test the kml classes."""
 from fastkml import kml
+from fastkml.enums import RefreshMode
+from fastkml.enums import ViewRefreshMode
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -67,9 +69,9 @@ class TestStdLibrary(StdLibrary):
 
         assert icon.id == "icon-01"
         assert icon.href == "http://maps.google.com/mapfiles/kml/paddle/red-circle.png"
-        assert icon.refresh_mode == "onInterval"
+        assert icon.refresh_mode == RefreshMode("onInterval")
         assert icon.refresh_interval == 60
-        assert icon.view_refresh_mode == "onStop"
+        assert icon.view_refresh_mode == ViewRefreshMode("onStop")
         assert icon.view_refresh_time == 4
         assert icon.view_bound_scale == 1.2
         assert icon.view_format == "BBOX=[bboxWest],[bboxSouth],[bboxEast],[bboxNorth]"
