@@ -97,7 +97,7 @@ Requirements
 -------------
 
 * pygeoif_
-* dateutils_
+* lxml_
 * arrow_
 
 Optional
@@ -105,8 +105,7 @@ Optional
 
 * lxml_
 
-You can install all of the requirements for working with FastKML by using
-pip_::
+You can install all of the requirements for working with FastKML by using pip_::
 
     pip install -r requirements.txt
 
@@ -125,5 +124,5 @@ Please submit a PR with the features you'd like to see implemented.
 
 .. _pygeoif: http://pypi.python.org/pypi/pygeoif/
 .. _lxml: https://pypi.python.org/pypi/lxml
-.. _dateutils: https://pypi.python.org/pypi/dateutils
+.. _arrow: https://pypi.python.org/pypi/arrow
 .. _pip: https://pypi.python.org/pypi/pip
