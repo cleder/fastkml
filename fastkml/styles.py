@@ -33,6 +33,8 @@ from typing import cast
 
 from fastkml import config
 from fastkml.base import _BaseObject
+from fastkml.enums import ColorMode
+from fastkml.enums import Units
 from fastkml.enums import Verbosity
 from fastkml.types import Element
 
@@ -129,7 +131,7 @@ class _ColorStyle(_BaseObject):
     # The order of expression is aabbggrr, where aa=alpha (00 to ff);
     # bb=blue (00 to ff); gg=green (00 to ff); rr=red (00 to ff).
 
-    color_mode = None
+    color_mode: ColorMode
     # Values for <colorMode> are normal (no effect) and random.
     # A value of random applies a random linear scale to the base <color>
 
@@ -140,7 +142,7 @@ class _ColorStyle(_BaseObject):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
-        color_mode: Optional[str] = None,
+        color_mode: Optional[ColorMode] = None,
     ) -> None:
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.color = color
@@ -163,7 +165,7 @@ class _ColorStyle(_BaseObject):
                 element,
                 f"{self.ns}colorMode",
             )
-            color_mode.text = self.color_mode
+            color_mode.text = self.color_mode.value
         return element
 
     @classmethod
@@ -183,7 +185,7 @@ class _ColorStyle(_BaseObject):
         )
         color_mode = element.find(f"{ns}colorMode")
         if color_mode is not None:
-            kwargs["color_mode"] = color_mode.text
+            kwargs["color_mode"] = ColorMode(color_mode.text)
         color = element.find(f"{ns}color")
         if color is not None:
             kwargs["color"] = color.text
@@ -194,8 +196,8 @@ class _ColorStyle(_BaseObject):
 class HotSpot:
     x: float
     y: float
-    xunits: str  # pixels, fraction, insetPixels
-    yunits: str
+    xunits: Units
+    yunits: Units
 
 
 class IconStyle(_ColorStyle):
@@ -218,7 +220,7 @@ class IconStyle(_ColorStyle):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
-        color_mode: Optional[str] = None,
+        color_mode: Optional[ColorMode] = None,
         scale: float = 1.0,
         heading: Optional[float] = None,
         icon_href: Optional[str] = None,
@@ -273,8 +275,8 @@ class IconStyle(_ColorStyle):
             )
             hot_spot.attrib["x"] = str(self.hot_spot.x)
             hot_spot.attrib["y"] = str(self.hot_spot.y)
-            hot_spot.attrib["xunits"] = str(self.hot_spot.xunits)
-            hot_spot.attrib["yunits"] = str(self.hot_spot.yunits)
+            hot_spot.attrib["xunits"] = self.hot_spot.xunits.value
+            hot_spot.attrib["yunits"] = self.hot_spot.yunits.value
         return element
 
     @classmethod
@@ -305,12 +307,20 @@ class IconStyle(_ColorStyle):
                 kwargs["icon_href"] = href.text
         hot_spot = element.find(f"{ns}hotSpot")
         if hot_spot is not None:
-            kwargs["hot_spot"] = {
-                "x": hot_spot.attrib["x"],  # type: ignore[attr-defined]
-                "y": hot_spot.attrib["y"],  # type: ignore[attr-defined]
-                "xunits": hot_spot.attrib["xunits"],  # type: ignore[attr-defined]
-                "yunits": hot_spot.attrib["yunits"],  # type: ignore[attr-defined]
-            }
+            x = hot_spot.attrib.get("x")
+            y = hot_spot.attrib.get("y")
+            xunits = hot_spot.attrib.get("xunits")
+            yunits = hot_spot.attrib.get("yunits")
+            x = float(x) if x is not None else 0
+            y = float(y) if y is not None else 0
+            xunits = Units(xunits) if xunits is not None else None
+            yunits = Units(yunits) if yunits is not None else None
+            kwargs["hot_spot"] = HotSpot(
+                x=x,
+                y=y,
+                xunits=xunits,
+                yunits=yunits,
+            )
         return kwargs
 
 
@@ -333,7 +343,7 @@ class LineStyle(_ColorStyle):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
-        color_mode: Optional[str] = None,
+        color_mode: Optional[ColorMode] = None,
         width: Union[int, float] = 1,
     ) -> None:
         super().__init__(
@@ -475,7 +485,7 @@ class LabelStyle(_ColorStyle):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
-        color_mode: Optional[str] = None,
+        color_mode: Optional[ColorMode] = None,
         scale: float = 1.0,
     ) -> None:
         super().__init__(

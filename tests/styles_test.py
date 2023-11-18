@@ -17,6 +17,7 @@
 """Test the styles classes."""
 
 from fastkml import styles
+from fastkml.enums import ColorMode
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -49,7 +50,7 @@ class TestStdLibrary(StdLibrary):
             id="id-0",
             target_id="target-0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode("random"),
             scale=1.0,
             heading=0,
             icon_href="http://example.com/icon.png",
@@ -82,7 +83,7 @@ class TestStdLibrary(StdLibrary):
         assert icons.id == "id-1"
         assert icons.target_id == "target-1"
         assert icons.color == "ff2200ff"
-        assert icons.color_mode == "random"
+        assert icons.color_mode == ColorMode("random")
         assert icons.scale == 5.0
         assert icons.icon_href == "http://example.com/icon.png"
         assert icons.heading == 20.0
@@ -92,7 +93,7 @@ class TestStdLibrary(StdLibrary):
             id="id-0",
             target_id="target-0",
             color="ff0000ff",
-            color_mode="normal",
+            color_mode=ColorMode.normal,
             width=1.0,
         )
 
@@ -119,7 +120,7 @@ class TestStdLibrary(StdLibrary):
         assert lines.id == "id-l0"
         assert lines.target_id == "target-line"
         assert lines.color == "ffaa00ff"
-        assert lines.color_mode == "normal"
+        assert lines.color_mode == ColorMode.normal
         assert lines.width == 3.0
 
     def test_poly_style(self) -> None:
@@ -127,7 +128,7 @@ class TestStdLibrary(StdLibrary):
             id="id-0",
             target_id="target-0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode.random,
             fill=0,
             outline=1,
         )
@@ -157,7 +158,7 @@ class TestStdLibrary(StdLibrary):
         assert ps.id == "id-1"
         assert ps.target_id == "target-1"
         assert ps.color == "ffaabbff"
-        assert ps.color_mode == "normal"
+        assert ps.color_mode == ColorMode.normal
         assert ps.fill == 1
         assert ps.outline == 0
 
@@ -166,7 +167,7 @@ class TestStdLibrary(StdLibrary):
             id="id-0",
             target_id="target-0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode.random,
             scale=1.0,
         )
 
@@ -195,7 +196,7 @@ class TestStdLibrary(StdLibrary):
         assert ls.id == "id-1"
         assert ls.target_id == "target-1"
         assert ls.color == "ff001122"
-        assert ls.color_mode == "normal"
+        assert ls.color_mode == ColorMode.normal
         assert ls.scale == 2.2
 
     def test_balloon_style(self) -> None:
@@ -244,7 +245,7 @@ class TestStdLibrary(StdLibrary):
             id="id-i0",
             target_id="target-i0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode.random,
             scale=1.0,
             heading=0,
             icon_href="http://example.com/icon.png",
@@ -253,7 +254,7 @@ class TestStdLibrary(StdLibrary):
             id="id-l0",
             target_id="target-l0",
             color="ff0000ff",
-            color_mode="normal",
+            color_mode=ColorMode.normal,
             width=1.0,
         )
         bs = styles.BalloonStyle(
@@ -268,14 +269,14 @@ class TestStdLibrary(StdLibrary):
             id="id-a0",
             target_id="target-a0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode.random,
             scale=1.0,
         )
         ps = styles.PolyStyle(
             id="id-p0",
             target_id="target-p0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode.random,
             fill=0,
             outline=1,
         )
@@ -351,7 +352,7 @@ class TestStdLibrary(StdLibrary):
         assert list(style.styles())[1].id == "id-i0"
         assert list(style.styles())[1].target_id == "target-i0"
         assert list(style.styles())[1].color == "ff0000ff"  # type: ignore[union-attr]
-        assert list(style.styles())[1].color_mode == "random"  # type: ignore[union-attr]
+        assert list(style.styles())[1].color_mode == ColorMode.random  # type: ignore[union-attr]
         assert list(style.styles())[1].scale == 1.0  # type: ignore[union-attr]
         assert list(style.styles())[1].heading == 0  # type: ignore[union-attr]
         assert list(style.styles())[1].icon_href == "http://example.com/icon.png"  # type: ignore[union-attr]
@@ -359,19 +360,19 @@ class TestStdLibrary(StdLibrary):
         assert list(style.styles())[2].id == "id-a0"
         assert list(style.styles())[2].target_id == "target-a0"
         assert list(style.styles())[2].color == "ff0000ff"  # type: ignore[union-attr]
-        assert list(style.styles())[2].color_mode == "random"  # type: ignore[union-attr]
+        assert list(style.styles())[2].color_mode == ColorMode.random  # type: ignore[union-attr]
         assert list(style.styles())[2].scale == 1.0  # type: ignore[union-attr]
 
         assert list(style.styles())[3].id == "id-l0"
         assert list(style.styles())[3].target_id == "target-l0"
         assert list(style.styles())[3].color == "ff0000ff"  # type: ignore[union-attr]
-        assert list(style.styles())[3].color_mode == "normal"  # type: ignore[union-attr]
+        assert list(style.styles())[3].color_mode == ColorMode.normal  # type: ignore[union-attr]
         assert list(style.styles())[3].width == 1.0  # type: ignore[union-attr]
 
         assert list(style.styles())[4].id == "id-p0"
         assert list(style.styles())[4].target_id == "target-p0"
         assert list(style.styles())[4].color == "ff0000ff"  # type: ignore[union-attr]
-        assert list(style.styles())[4].color_mode == "random"  # type: ignore[union-attr]
+        assert list(style.styles())[4].color_mode == ColorMode.random  # type: ignore[union-attr]
         assert list(style.styles())[4].fill == 0  # type: ignore[union-attr]
         assert list(style.styles())[4].outline == 1  # type: ignore[union-attr]
 
@@ -381,7 +382,7 @@ class TestStdLibrary(StdLibrary):
             id="id-i0",
             target_id="target-i0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode.random,
             scale=1.0,
             heading=0,
             icon_href="http://example.com/icon.png",
@@ -390,7 +391,7 @@ class TestStdLibrary(StdLibrary):
             id="id-l0",
             target_id="target-l0",
             color="ff0000ff",
-            color_mode="normal",
+            color_mode=ColorMode.normal,
             width=1.0,
         )
         bs = styles.BalloonStyle(
@@ -405,14 +406,14 @@ class TestStdLibrary(StdLibrary):
             id="id-a0",
             target_id="target-a0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode.random,
             scale=1.0,
         )
         ps = styles.PolyStyle(
             id="id-p0",
             target_id="target-p0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode.random,
             fill=0,
             outline=1,
         )
