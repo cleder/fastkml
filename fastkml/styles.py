@@ -21,6 +21,7 @@ part of how your data is displayed.
 """
 
 import logging
+from dataclasses import dataclass
 from typing import Any
 from typing import Dict
 from typing import Iterable
@@ -29,8 +30,6 @@ from typing import List
 from typing import Optional
 from typing import Union
 from typing import cast
-
-from typing_extensions import TypedDict
 
 from fastkml import config
 from fastkml.base import _BaseObject
@@ -191,7 +190,8 @@ class _ColorStyle(_BaseObject):
         return kwargs
 
 
-class HotSpot(TypedDict):
+@dataclass(frozen=True)
+class HotSpot:
     x: float
     y: float
     xunits: str  # pixels, fraction, insetPixels
@@ -271,10 +271,10 @@ class IconStyle(_ColorStyle):
                 element,
                 f"{self.ns}hotSpot",
             )
-            hot_spot.attrib["x"] = str(self.hot_spot["x"])
-            hot_spot.attrib["y"] = str(self.hot_spot["y"])
-            hot_spot.attrib["xunits"] = str(self.hot_spot["xunits"])
-            hot_spot.attrib["yunits"] = str(self.hot_spot["yunits"])
+            hot_spot.attrib["x"] = str(self.hot_spot.x)
+            hot_spot.attrib["y"] = str(self.hot_spot.y)
+            hot_spot.attrib["xunits"] = str(self.hot_spot.xunits)
+            hot_spot.attrib["yunits"] = str(self.hot_spot.yunits)
         return element
 
     @classmethod
