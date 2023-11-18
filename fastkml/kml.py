@@ -437,13 +437,21 @@ class _Feature(TimeMixin, _BaseObject):
             self.isopen = 1 if isopen.text in ["1", "true"] else 0
         styles = element.findall(f"{self.ns}Style")
         for style in styles:
-            s = Style(self.ns)
-            s.from_element(style)
+            s = Style.class_from_element(
+                ns=self.ns,
+                name_spaces=self.name_spaces,
+                element=style,
+                strict=strict,
+            )
             self.append_style(s)
         styles = element.findall(f"{self.ns}StyleMap")
         for style in styles:
-            s = StyleMap(self.ns)
-            s.from_element(style)
+            s = StyleMap.class_from_element(
+                ns=self.ns,
+                name_spaces=self.name_spaces,
+                element=style,
+                strict=strict,
+            )
             self.append_style(s)
         style_url = element.find(f"{self.ns}styleUrl")
         if style_url is not None:
