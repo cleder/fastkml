@@ -334,7 +334,7 @@ class IconStyle(_ColorStyle):
             href = icon.find(f"{ns}href")
             if href is not None:
                 kwargs["icon_href"] = href.text
-        kwargs["hot_spot"] = HotSpot.class_from_element(  # type: ignore[attr-defined]
+        kwargs["hot_spot"] = HotSpot.class_from_element(
             ns=ns,
             name_spaces=name_spaces,
             element=element,
