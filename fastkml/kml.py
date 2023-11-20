@@ -29,6 +29,7 @@ import urllib.parse as urlparse
 from datetime import datetime
 from typing import Any
 from typing import Dict
+from typing import Iterable
 from typing import Iterator
 from typing import List
 from typing import Optional
@@ -86,41 +87,41 @@ class _Feature(TimeMixin, _BaseObject):
         * NetworkLink.
     """
 
-    name = None
+    name: Optional[str]
     # User-defined text displayed in the 3D viewer as the label for the
     # object (for example, for a Placemark, Folder, or NetworkLink).
 
-    visibility = 1
+    visibility: bool
     # Boolean value. Specifies whether the feature is drawn in the 3D
     # viewer when it is initially loaded. In order for a feature to be
     # visible, the <visibility> tag of all its ancestors must also be
     # set to 1.
 
-    isopen = 0
+    isopen: bool
     # Boolean value. Specifies whether a Document or Folder appears
     # closed or open when first loaded into the Places panel.
     # 0=collapsed (the default), 1=expanded.
 
-    _atom_author = None
+    _atom_author: Optional[atom.Author]
     # KML 2.2 supports new elements for including data about the author
     # and related website in your KML file. This information is displayed
     # in geo search results, both in Earth browsers such as Google Earth,
     # and in other applications such as Google Maps.
 
-    _atom_link = None
+    _atom_link: Optional[atom.Link]
     # Specifies the URL of the website containing this KML or KMZ file.
 
-    _address = None
+    _address: Optional[str]
     # A string value representing an unstructured address written as a
     # standard street, city, state address, and/or as a postal code.
     # You can use the <address> tag to specify the location of a point
     # instead of using latitude and longitude coordinates.
 
-    _phone_number = None
+    _phone_number: Optional[str]
     # A string value representing a telephone number.
     # This element is used by Google Maps Mobile only.
 
-    _snippet = None  # XXX
+    _snippet: Optional[Union[str, Dict[str, Any]]]
     # _snippet is either a tuple of a string Snippet.text and an integer
     # Snippet.maxLines or a string
     #
@@ -134,16 +135,16 @@ class _Feature(TimeMixin, _BaseObject):
     # support HTML markup. <Snippet> has a maxLines attribute, an integer
     # that specifies the maximum number of lines to display.
 
-    description = None
+    description: Optional[str]
     # User-supplied content that appears in the description balloon.
 
-    _style_url = None
+    _style_url: Optional[Union[Style, StyleMap]]
     # URL of a <Style> or <StyleMap> defined in a Document.
     # If the style is in the same file, use a # reference.
     # If the style is defined in an external file, use a full URL
     # along with # referencing.
 
-    _styles = None
+    _styles: List[Union[Style, StyleMap]]
     # One or more Styles and StyleMaps can be defined to customize the
     # appearance of any element derived from Feature or of the Geometry
     # in a Placemark.
@@ -157,14 +158,14 @@ class _Feature(TimeMixin, _BaseObject):
     # Placemark, or ScreenOverlay—the value for the Feature's inline
     # style takes precedence over the value for the shared style.
 
-    _timespan = None
+    _timespan: Optional[TimeSpan]
     # Associates this Feature with a period of time.
-    _timestamp = None
+    _timestamp: Optional[TimeStamp]
     # Associates this Feature with a point in time.
 
-    _camera = None
+    _camera: Optional[Camera]
 
-    _look_at = None
+    _look_at: Optional[LookAt]
 
     # TODO Region = None
     # Features and geometry associated with a Region are drawn only when
@@ -181,11 +182,12 @@ class _Feature(TimeMixin, _BaseObject):
     # (2) is already implemented, see UntypedExtendedData
     #
     # <Metadata> (deprecated in KML 2.2; use <ExtendedData> instead)
-    extended_data = None
+    extended_data: Optional[ExtendedData]
 
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
@@ -194,7 +196,7 @@ class _Feature(TimeMixin, _BaseObject):
         style_url: Optional[str] = None,
         extended_data: None = None,
     ) -> None:
-        super().__init__(ns=ns, id=id, target_id=target_id)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.name = name
         self.description = description
         self.style_url = style_url
@@ -538,18 +540,19 @@ class Icon(_BaseObject):
 
     __name__ = "Icon"
 
-    _href = None
+    _href: Optional[str]
     _refresh_mode: Optional[RefreshMode]
-    _refresh_interval = None
+    _refresh_interval: Optional[float]
     _view_refresh_mode: Optional[ViewRefreshMode]
-    _view_refresh_time = None
-    _view_bound_scale = None
-    _view_format = None
-    _http_query = None
+    _view_refresh_time: Optional[float]
+    _view_bound_scale: Optional[float]
+    _view_format: Optional[str]
+    _http_query: Optional[str]
 
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         href: Optional[str] = None,
@@ -562,7 +565,7 @@ class Icon(_BaseObject):
         http_query: Optional[str] = None,
     ) -> None:
         """Initialize the KML Icon Object."""
-        super().__init__(ns=ns, id=id, target_id=target_id)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self._href = href
         self._refresh_mode = refresh_mode
         self._refresh_interval = refresh_interval
@@ -843,6 +846,7 @@ class _Container(_Feature):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
@@ -853,6 +857,7 @@ class _Container(_Feature):
     ) -> None:
         super().__init__(
             ns=ns,
+            name_spaces=name_spaces,
             id=id,
             target_id=target_id,
             name=name,
@@ -910,18 +915,18 @@ class _Overlay(_Feature):
     nested hierarchies.
     """
 
-    _color = None
+    _color: Optional[str]
     # Color values expressed in hexadecimal notation, including opacity (alpha)
     # values. The order of expression is alphaOverlay, blue, green, red
     # (AABBGGRR). The range of values for any one color is 0 to 255 (00 to ff).
     # For opacity, 00 is fully transparent and ff is fully opaque.
 
-    _draw_order = None
+    _draw_order: Optional[str]
     # Defines the stacking order for the images in overlapping overlays.
     # Overlays with higher <drawOrder> values are drawn on top of those with
     # lower <drawOrder> values.
 
-    _icon = None
+    _icon: Optional[Icon]
     # Defines the image associated with the overlay. Contains an <href> html
     # tag which defines the location of the image to be used as the overlay.
     # The location can be either on a local file system or on a webserver. If
@@ -931,6 +936,7 @@ class _Overlay(_Feature):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
@@ -941,6 +947,7 @@ class _Overlay(_Feature):
     ) -> None:
         super().__init__(
             ns=ns,
+            name_spaces=name_spaces,
             id=id,
             target_id=target_id,
             name=name,
@@ -1094,7 +1101,7 @@ class PhotoOverlay(_Overlay):
     # A value of lowerLeft specifies that row 1, column 1 of each layer is in
     # the bottom left corner of the grid.
 
-    _point = None
+    _point: Optional[Point]
     # The <Point> element acts as a <Point> inside a <Placemark> element.
     # It draws an icon to mark the position of the PhotoOverlay.
     # The icon drawn is specified by the <styleUrl> and <StyleSelector> fields,
@@ -1694,6 +1701,7 @@ class Placemark(_Feature):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
@@ -1705,6 +1713,7 @@ class Placemark(_Feature):
     ) -> None:
         super().__init__(
             ns=ns,
+            name_spaces=name_spaces,
             id=id,
             target_id=target_id,
             name=name,
@@ -1801,14 +1810,19 @@ class KML:
     _features = []
     ns = None
 
-    def __init__(self, ns: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        features: Iterable[Union[Folder, Document, Placemark]] = None,
+    ) -> None:
         """
         The namespace (ns) may be empty ('') if the 'kml:' prefix is
         undesired. Note that all child elements like Document or Placemark need
         to be initialized with empty namespace as well in this case.
 
         """
-        self._features = []
+        self._features = list(features) if features is not None else []
 
         self.ns = config.KMLNS if ns is None else ns
 
