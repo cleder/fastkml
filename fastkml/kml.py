@@ -210,9 +210,7 @@ class _Feature(TimeMixin, _BaseObject):
         Returns the url only, not a full StyleUrl object.
         if you need the full StyleUrl object use _style_url.
         """
-        if isinstance(self._style_url, StyleUrl):
-            return self._style_url.url
-        return None
+        return self._style_url.url if isinstance(self._style_url, StyleUrl) else None
 
     @style_url.setter
     def style_url(self, styleurl: Union[str, StyleUrl, None]) -> None:
@@ -262,9 +260,7 @@ class _Feature(TimeMixin, _BaseObject):
 
     @property
     def author(self) -> None:
-        if self._atom_author:
-            return self._atom_author.name
-        return None
+        return self._atom_author.name if self._atom_author else None
 
     @author.setter
     def author(self, name) -> None:
@@ -300,8 +296,7 @@ class _Feature(TimeMixin, _BaseObject):
         if not self._snippet:
             return None
         if isinstance(self._snippet, dict):
-            text = self._snippet.get("text")
-            if text:
+            if text := self._snippet.get("text"):
                 assert isinstance(text, str)
                 max_lines = self._snippet.get("maxLines", None)
                 if max_lines is None:
@@ -339,9 +334,7 @@ class _Feature(TimeMixin, _BaseObject):
 
     @property
     def address(self) -> None:
-        if self._address:
-            return self._address
-        return None
+        return self._address if self._address else None
 
     @address.setter
     def address(self, address) -> None:
@@ -354,9 +347,7 @@ class _Feature(TimeMixin, _BaseObject):
 
     @property
     def phone_number(self) -> None:
-        if self._phone_number:
-            return self._phone_number
-        return None
+        return self._phone_number if self._phone_number else None
 
     @phone_number.setter
     def phone_number(self, phone_number) -> None:
@@ -1641,10 +1632,7 @@ class Document(_Container):
 
     def get_style_by_url(self, style_url: str) -> Union[Style, StyleMap]:
         id = urlparse.urlparse(style_url).fragment
-        for style in self.styles():
-            if style.id == id:
-                return style
-        return None
+        return next((style for style in self.styles() if style.id == id), None)
 
 
 class Folder(_Container):
@@ -1711,9 +1699,7 @@ class Placemark(_Feature):
 
     @property
     def geometry(self) -> Optional[AnyGeometryType]:
-        if self._geometry is not None:
-            return self._geometry.geometry
-        return None
+        return self._geometry.geometry if self._geometry is not None else None
 
     def from_element(self, element: Element, strict=False) -> None:
         super().from_element(element)

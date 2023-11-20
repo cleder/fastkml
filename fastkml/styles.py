@@ -46,9 +46,7 @@ def strtobool(val: str) -> int:
     val = val.lower()
     if val == "false":
         return 0
-    if val == "true":
-        return 1
-    return int(float(val))
+    return 1 if val == "true" else int(float(val))
 
 
 class StyleUrl(_BaseObject):
