@@ -195,6 +195,7 @@ class TestBuildKml:
         d.author = "Christian Ledermann"
         assert "Christian Ledermann" in str(d.to_string())
         a = atom.Author(
+            ns="{http://www.w3.org/2005/Atom}",
             name="Nobody",
             uri="http://localhost",
             email="cl@donotreply.com",
@@ -214,7 +215,7 @@ class TestBuildKml:
         d = kml.Document()
         d.link = "http://localhost"
         assert "http://localhost" in str(d.to_string())
-        d.link = atom.Link(href="#here")
+        d.link = atom.Link(ns=config.ATOMNS, href="#here")
         assert "#here" in str(d.to_string())
         # pytest.raises(TypeError, d.link, object)
         d2 = kml.Document()

@@ -34,6 +34,7 @@ class TestStdLibrary(StdLibrary):
 
     def test_atom_link(self) -> None:
         link = atom.Link(
+            ns="{http://www.w3.org/2005/Atom}",
             href="#here",
             rel="alternate",
             type="text/html",
@@ -53,8 +54,7 @@ class TestStdLibrary(StdLibrary):
         assert 'length="3456"' in serialized
 
     def test_atom_link_read(self) -> None:
-        link = atom.Link()
-        link.from_string(
+        link = atom.Link.class_from_string(
             '<atom:link xmlns:atom="http://www.w3.org/2005/Atom" '
             'href="#here" rel="alternate" type="text/html" hreflang="en" '
             'title="Title" length="3456" />',
@@ -67,8 +67,7 @@ class TestStdLibrary(StdLibrary):
         assert link.length == 3456
 
     def test_atom_link_read_no_href(self) -> None:
-        link = atom.Link()
-        link.from_string(
+        link = atom.Link.class_from_string(
             '<atom:link xmlns:atom="http://www.w3.org/2005/Atom" '
             'rel="alternate" type="text/html" hreflang="en" '
             'title="Title" length="3456" />',
@@ -82,6 +81,7 @@ class TestStdLibrary(StdLibrary):
 
     def test_atom_author(self) -> None:
         a = atom.Author(
+            ns="{http://www.w3.org/2005/Atom}",
             name="Nobody",
             uri="http://localhost",
             email="cl@donotreply.com",
@@ -95,11 +95,11 @@ class TestStdLibrary(StdLibrary):
         assert "</atom:author>" in serialized
 
     def test_atom_author_read(self) -> None:
-        a = atom.Author()
-        a.from_string(
+        a = atom.Author.class_from_string(
             '<atom:author xmlns:atom="http://www.w3.org/2005/Atom">'
             "<atom:name>Nobody</atom:name><atom:uri>http://localhost</atom:uri>"
             "<atom:email>cl@donotreply.com</atom:email></atom:author>",
+            ns="{http://www.w3.org/2005/Atom}",
         )
 
         assert a.name == "Nobody"
@@ -107,11 +107,11 @@ class TestStdLibrary(StdLibrary):
         assert a.email == "cl@donotreply.com"
 
     def test_atom_contributor_read_no_name(self) -> None:
-        a = atom.Contributor()
-        a.from_string(
+        a = atom.Contributor.class_from_string(
             '<atom:contributor xmlns:atom="http://www.w3.org/2005/Atom">'
             "<atom:uri>http://localhost</atom:uri>"
             "<atom:email>cl@donotreply.com</atom:email></atom:contributor>",
+            ns="{http://www.w3.org/2005/Atom}",
         )
 
         assert a.name is None
@@ -130,8 +130,7 @@ class TestStdLibrary(StdLibrary):
         a.email = "christian@gmail.com"
         a.email = "christian"
         assert "email>" not in str(a.to_string())
-        a2 = atom.Author()
-        a2.from_string(a.to_string())
+        a2 = atom.Author.class_from_string(a.to_string())
         assert a.to_string() == a2.to_string()
 
     def test_link_roundtrip(self) -> None:
@@ -140,8 +139,7 @@ class TestStdLibrary(StdLibrary):
         link.type = "text/html"
         link.hreflang = "en"
         link.length = 4096
-        l2 = atom.Link()
-        l2.from_string(link.to_string())
+        l2 = atom.Link.class_from_string(link.to_string())
         assert link.to_string() == l2.to_string()
 
 

@@ -19,15 +19,11 @@ import logging
 from typing import Any
 from typing import Dict
 from typing import Optional
-from typing import Tuple
 from typing import cast
 
 from fastkml import config
 from fastkml.enums import Verbosity
-from fastkml.helpers import o_from_attr
-from fastkml.helpers import o_to_attr
 from fastkml.types import Element
-from fastkml.types import KmlObjectMap
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +35,6 @@ class _XMLObject:
     _node_name: str = ""
     __name__ = ""
     name_spaces: Dict[str, str]
-    kml_object_mapping: Tuple[KmlObjectMap, ...] = ()
 
     def __init__(
         self,
@@ -72,8 +67,6 @@ class _XMLObject:
             raise NotImplementedError(
                 msg,
             )
-        for mapping in self.kml_object_mapping:
-            mapping["to_kml"](self, element, **mapping)
         return element
 
     def from_element(self, element: Element) -> None:
@@ -86,8 +79,6 @@ class _XMLObject:
         if f"{self.ns}{self.__name__}" != element.tag:
             msg = "Call of abstract base class, subclasses implement this!"
             raise TypeError(msg)
-        for mapping in self.kml_object_mapping:
-            mapping["from_kml"](self, element, **mapping)
 
     def from_string(self, xml_string: str) -> None:
         """
@@ -118,7 +109,9 @@ class _XMLObject:
                     ),
                     encoding="UTF-8",
                     pretty_print=prettyprint,
-                ).decode("UTF-8"),
+                ).decode(
+                    "UTF-8",
+                ),
             )
         except TypeError:
             return cast(
@@ -126,7 +119,9 @@ class _XMLObject:
                 config.etree.tostring(  # type: ignore[attr-defined]
                     self.etree_element(),
                     encoding="UTF-8",
-                ).decode("UTF-8"),
+                ).decode(
+                    "UTF-8",
+                ),
             )
 
     @classmethod
@@ -216,24 +211,6 @@ class _BaseObject(_XMLObject):
 
     id = None
     target_id = None
-    kml_object_mapping: Tuple[KmlObjectMap, ...] = (
-        {
-            "kml_attr": "id",
-            "obj_attr": "id",
-            "from_kml": o_from_attr,
-            "to_kml": o_to_attr,
-            "required": False,
-            "validator": None,
-        },
-        {
-            "kml_attr": "targetId",
-            "obj_attr": "target_id",
-            "from_kml": o_from_attr,
-            "to_kml": o_to_attr,
-            "required": False,
-            "validator": None,
-        },
-    )
 
     def __init__(
         self,
@@ -268,11 +245,20 @@ class _BaseObject(_XMLObject):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         """Return the KML Object as an Element."""
-        return super().etree_element(precision=precision, verbosity=verbosity)
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        if self.id:
+            element.set("id", self.id)
+        if self.target_id:
+            element.set("targetId", self.target_id)
+        return element
 
     def from_element(self, element: Element) -> None:
         """Load the KML Object from an Element."""
         super().from_element(element)
+        if element.get("id"):
+            self.id = element.get("id")
+        if element.get("targetId"):
+            self.target_id = element.get("targetId")
 
     @classmethod
     def _get_id(cls, element: Element, strict: bool) -> str:

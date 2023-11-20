@@ -272,7 +272,7 @@ class _Feature(TimeMixin, _BaseObject):
             self._atom_author = name
         elif isinstance(name, str):
             if self._atom_author is None:
-                self._atom_author = atom.Author(name=name)
+                self._atom_author = atom.Author(ns=config.ATOMNS, name=name)
             else:
                 self._atom_author.name = name
         elif name is None:
@@ -489,14 +489,20 @@ class _Feature(TimeMixin, _BaseObject):
             )
         atom_link = element.find(f"{atom.NS}link")
         if atom_link is not None:
-            s = atom.Link()
-            s.from_element(atom_link)
-            self._atom_link = s
+            self._atom_link = atom.Link.class_from_element(
+                ns=atom.NS,
+                name_spaces=self.name_spaces,
+                element=atom_link,
+                strict=strict,
+            )
         atom_author = element.find(f"{atom.NS}author")
         if atom_author is not None:
-            s = atom.Author()
-            s.from_element(atom_author)
-            self._atom_author = s
+            self._atom_author = atom.Author.class_from_element(
+                ns=atom.NS,
+                name_spaces=self.name_spaces,
+                element=atom_author,
+                strict=strict,
+            )
         extended_data = element.find(f"{self.ns}ExtendedData")
         if extended_data is not None:
             self.extended_data = ExtendedData.class_from_element(
