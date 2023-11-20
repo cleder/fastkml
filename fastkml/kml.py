@@ -40,7 +40,11 @@ from fastkml import gx
 from fastkml.base import _BaseObject
 from fastkml.data import ExtendedData
 from fastkml.data import Schema
+from fastkml.enums import GridOrigin
+from fastkml.enums import RefreshMode
+from fastkml.enums import Shape
 from fastkml.enums import Verbosity
+from fastkml.enums import ViewRefreshMode
 from fastkml.geometry import AnyGeometryType
 from fastkml.geometry import LinearRing
 from fastkml.geometry import LineString
@@ -437,19 +441,30 @@ class _Feature(TimeMixin, _BaseObject):
             self.isopen = 1 if isopen.text in ["1", "true"] else 0
         styles = element.findall(f"{self.ns}Style")
         for style in styles:
-            s = Style(self.ns)
-            s.from_element(style)
+            s = Style.class_from_element(
+                ns=self.ns,
+                name_spaces=self.name_spaces,
+                element=style,
+                strict=strict,
+            )
             self.append_style(s)
         styles = element.findall(f"{self.ns}StyleMap")
         for style in styles:
-            s = StyleMap(self.ns)
-            s.from_element(style)
+            s = StyleMap.class_from_element(
+                ns=self.ns,
+                name_spaces=self.name_spaces,
+                element=style,
+                strict=strict,
+            )
             self.append_style(s)
         style_url = element.find(f"{self.ns}styleUrl")
         if style_url is not None:
-            s = StyleUrl(self.ns)
-            s.from_element(style_url)
-            self._style_url = s
+            self._style_url = StyleUrl.class_from_element(
+                ns=self.ns,
+                name_spaces=self.name_spaces,
+                element=style_url,
+                strict=strict,
+            )
         snippet = element.find(f"{self.ns}Snippet")
         if snippet is not None:
             _snippet = {"text": snippet.text}
@@ -518,9 +533,9 @@ class Icon(_BaseObject):
     __name__ = "Icon"
 
     _href = None
-    _refresh_mode: str = None
+    _refresh_mode: Optional[RefreshMode]
     _refresh_interval = None
-    _view_refresh_mode = None
+    _view_refresh_mode: Optional[ViewRefreshMode]
     _view_refresh_time = None
     _view_bound_scale = None
     _view_format = None
@@ -532,9 +547,9 @@ class Icon(_BaseObject):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         href: Optional[str] = None,
-        refresh_mode: Optional[str] = None,
+        refresh_mode: Optional[RefreshMode] = None,
         refresh_interval: Optional[float] = None,
-        view_refresh_mode: Optional[str] = None,
+        view_refresh_mode: Optional[ViewRefreshMode] = None,
         view_refresh_time: Optional[float] = None,
         view_bound_scale: Optional[float] = None,
         view_format: Optional[str] = None,
@@ -566,7 +581,7 @@ class Icon(_BaseObject):
             raise ValueError
 
     @property
-    def refresh_mode(self) -> Optional[str]:
+    def refresh_mode(self) -> Optional[RefreshMode]:
         """
         Specifies a time-based refresh mode.
 
@@ -579,13 +594,8 @@ class Icon(_BaseObject):
         return self._refresh_mode
 
     @refresh_mode.setter
-    def refresh_mode(self, refresh_mode) -> None:
-        if isinstance(refresh_mode, str):
-            self._refresh_mode = refresh_mode
-        elif refresh_mode is None:
-            self._refresh_mode = None
-        else:
-            raise ValueError
+    def refresh_mode(self, refresh_mode: Optional[RefreshMode]) -> None:
+        self._refresh_mode = refresh_mode
 
     @property
     def refresh_interval(self) -> Optional[float]:
@@ -602,7 +612,7 @@ class Icon(_BaseObject):
             raise ValueError
 
     @property
-    def view_refresh_mode(self):
+    def view_refresh_mode(self) -> Optional[ViewRefreshMode]:
         """
         Specifies how the link is refreshed when the "camera" changes.
 
@@ -614,18 +624,13 @@ class Icon(_BaseObject):
          - onRequest - Refresh the file only when the user explicitly requests it.
            (For example, in Google Earth, the user right-clicks and selects Refresh
             in the Context menu.)
-          - onRegion - Refresh the file when the Region becomes active.
+         - onRegion - Refresh the file when the Region becomes active.
         """
         return self._view_refresh_mode
 
     @view_refresh_mode.setter
-    def view_refresh_mode(self, view_refresh_mode) -> None:
-        if isinstance(view_refresh_mode, str):
-            self._view_refresh_mode = view_refresh_mode
-        elif view_refresh_mode is None:
-            self._view_refresh_mode = None
-        else:
-            raise ValueError
+    def view_refresh_mode(self, view_refresh_mode: Optional[ViewRefreshMode]) -> None:
+        self._view_refresh_mode = view_refresh_mode
 
     @property
     def view_refresh_time(self):
@@ -738,7 +743,7 @@ class Icon(_BaseObject):
             href.text = self._href
         if self._refresh_mode:
             refresh_mode = config.etree.SubElement(element, f"{self.ns}refreshMode")
-            refresh_mode.text = self._refresh_mode
+            refresh_mode.text = self._refresh_mode.value
         if self._refresh_interval:
             refresh_interval = config.etree.SubElement(
                 element,
@@ -750,7 +755,7 @@ class Icon(_BaseObject):
                 element,
                 f"{self.ns}viewRefreshMode",
             )
-            view_refresh_mode.text = self._view_refresh_mode
+            view_refresh_mode.text = self._view_refresh_mode.value
         if self._view_refresh_time:
             view_refresh_time = config.etree.SubElement(
                 element,
@@ -781,7 +786,7 @@ class Icon(_BaseObject):
 
         refresh_mode = element.find(f"{self.ns}refreshMode")
         if refresh_mode is not None:
-            self.refresh_mode = refresh_mode.text
+            self.refresh_mode = RefreshMode(refresh_mode.text)
 
         refresh_interval = element.find(f"{self.ns}refreshInterval")
         if refresh_interval is not None:
@@ -792,7 +797,7 @@ class Icon(_BaseObject):
 
         view_refresh_mode = element.find(f"{self.ns}viewRefreshMode")
         if view_refresh_mode is not None:
-            self.view_refresh_mode = view_refresh_mode.text
+            self.view_refresh_mode = ViewRefreshMode(view_refresh_mode.text)
 
         view_refresh_time = element.find(f"{self.ns}viewRefreshTime")
         if view_refresh_time is not None:
@@ -1078,7 +1083,7 @@ class PhotoOverlay(_Overlay):
     _max_height = None
     # Height in pixels of the original image.
 
-    _grid_origin = None
+    _grid_origin: Optional[GridOrigin]
     # Specifies where to begin numbering the tiles in each layer of the pyramid.
     # A value of lowerLeft specifies that row 1, column 1 of each layer is in
     # the bottom left corner of the grid.
@@ -1089,7 +1094,7 @@ class PhotoOverlay(_Overlay):
     # The icon drawn is specified by the <styleUrl> and <StyleSelector> fields,
     # just as it is for <Placemark>.
 
-    _shape = "rectangle"
+    _shape: Optional[Shape]
     # The PhotoOverlay is projected onto the <shape>.
     # The <shape> can be one of the following:
     #   rectangle (default) -
@@ -1217,17 +1222,12 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def grid_origin(self) -> Optional[str]:
+    def grid_origin(self) -> Optional[GridOrigin]:
         return self._grid_origin
 
     @grid_origin.setter
-    def grid_origin(self, value) -> None:
-        if value in ("lowerLeft", "upperLeft"):
-            self._grid_origin = str(value)
-        elif value is None:
-            self._grid_origin = None
-        else:
-            raise ValueError
+    def grid_origin(self, value: Optional[GridOrigin]) -> None:
+        self._grid_origin = value
 
     @property
     def point(self) -> str:
@@ -1241,18 +1241,12 @@ class PhotoOverlay(_Overlay):
             raise ValueError
 
     @property
-    def shape(self) -> Optional[str]:
+    def shape(self) -> Optional[Shape]:
         return self._shape
 
     @shape.setter
-    def shape(self, value) -> None:
-        if value in ("rectangle", "cylinder", "sphere"):
-            self._shape = str(value)
-        elif value is None:
-            self._shape = None
-        else:
-            msg = "Shape must be one of rectangle, cylinder, sphere"
-            raise ValueError(msg)
+    def shape(self, value: Optional[Shape]) -> None:
+        self._shape = value
 
     def view_volume(self, left_fov, right_fov, bottom_fov, top_fov, near) -> None:
         self.left_fov = left_fov
@@ -1599,7 +1593,7 @@ class Document(_Container):
     __name__ = "Document"
     _schemata = None
 
-    def schemata(self) -> None:
+    def schemata(self) -> Iterator["Schema"]:
         if self._schemata:
             yield from self._schemata
 

@@ -242,7 +242,6 @@ force-single-line = true
 
 [tool.setuptools]
 include-package-data = true
-zip-safe = false
 
 [tool.setuptools.dynamic.version]
 attr = "fastkml.about.__version__"

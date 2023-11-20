@@ -26,6 +26,8 @@ from fastkml import config
 from fastkml import kml
 from fastkml import styles
 from fastkml.enums import AltitudeMode
+from fastkml.enums import ColorMode
+from fastkml.enums import DisplayMode
 
 try:
     import lxml
@@ -811,7 +813,7 @@ class TestStyleFromString:
         assert isinstance(style, styles.BalloonStyle)
         assert style.bg_color == "ffffffbb"
         assert style.text_color == "ff000000"
-        assert style.display_mode == "default"
+        assert style.display_mode == DisplayMode.default
         assert "$[geDirections]" in style.text
         assert "$[description]" in style.text
         k2 = kml.KML()
@@ -892,7 +894,7 @@ class TestStyleFromString:
         assert isinstance(style, styles.IconStyle)
         assert style.color == "ff00ff00"
         assert style.scale == 1.1
-        assert style.color_mode == "random"
+        assert style.color_mode == ColorMode.random
         assert style.heading == 0.0
         assert style.icon_href == "http://maps.google.com/icon21.png"
         k2 = kml.KML()
@@ -947,7 +949,7 @@ class TestStyleFromString:
         style = next(iter(next(iter(next(iter(k.features())).styles())).styles()))
         assert isinstance(style, styles.PolyStyle)
         assert style.color == "ff0000cc"
-        assert style.color_mode == "random"
+        assert style.color_mode == ColorMode.random
         k2 = kml.KML()
         k2.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
