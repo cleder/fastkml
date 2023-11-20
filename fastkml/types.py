@@ -46,6 +46,9 @@ class Element(Protocol):
     def append(self, element: "Element") -> None:
         """Append an element to the current element."""
 
+    def remove(self, element: "Element") -> None:
+        """Remove an element from the current element."""
+
 
 class KmlObjectMap(TypedDict):
     """TypedDict for KmlObjectMap."""

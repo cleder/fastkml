@@ -78,6 +78,7 @@ class TestStdLibrary(StdLibrary):
             "<kml:color>ff2200ff</kml:color><kml:colorMode>random</kml:colorMode>"
             "<kml:scale>5</kml:scale><kml:heading>20</kml:heading><kml:Icon>"
             "<kml:href>http://example.com/icon.png</kml:href></kml:Icon>"
+            '<kml:hotSpot x="0.5"  y="0.7" xunits="fraction" yunits="insetPixels"/>'
             "</kml:IconStyle>",
         )
 
@@ -88,6 +89,10 @@ class TestStdLibrary(StdLibrary):
         assert icons.scale == 5.0
         assert icons.icon_href == "http://example.com/icon.png"
         assert icons.heading == 20.0
+        assert icons.hot_spot.x == 0.5
+        assert icons.hot_spot.y == 0.7
+        assert icons.hot_spot.xunits.value == "fraction"
+        assert icons.hot_spot.yunits.value == "insetPixels"
 
     def test_line_style(self) -> None:
         lines = styles.LineStyle(

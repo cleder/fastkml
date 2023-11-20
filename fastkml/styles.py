@@ -200,6 +200,34 @@ class HotSpot:
     xunits: Units
     yunits: Units
 
+    @classmethod
+    def class_from_element(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Optional["HotSpot"]:
+        hot_spot = element.find(f"{ns}hotSpot")
+        if hot_spot is not None:
+            x = hot_spot.attrib.get("x")  # type: ignore[attr-defined]
+            y = hot_spot.attrib.get("y")  # type: ignore[attr-defined]
+            xunits = hot_spot.attrib.get("xunits")  # type: ignore[attr-defined]
+            yunits = hot_spot.attrib.get("yunits")  # type: ignore[attr-defined]
+            x = float(x) if x is not None else 0
+            y = float(y) if y is not None else 0
+            xunits = Units(xunits) if xunits is not None else None
+            yunits = Units(yunits) if yunits is not None else None
+            element.remove(hot_spot)
+            return HotSpot(
+                x=x,
+                y=y,
+                xunits=xunits,
+                yunits=yunits,
+            )
+        return None
+
 
 class IconStyle(_ColorStyle):
     """Specifies how icons for point Placemarks are drawn."""
@@ -306,22 +334,12 @@ class IconStyle(_ColorStyle):
             href = icon.find(f"{ns}href")
             if href is not None:
                 kwargs["icon_href"] = href.text
-        hot_spot = element.find(f"{ns}hotSpot")
-        if hot_spot is not None:
-            x = hot_spot.attrib.get("x")  # type: ignore[attr-defined]
-            y = hot_spot.attrib.get("y")  # type: ignore[attr-defined]
-            xunits = hot_spot.attrib.get("xunits")  # type: ignore[attr-defined]
-            yunits = hot_spot.attrib.get("yunits")  # type: ignore[attr-defined]
-            x = float(x) if x is not None else 0
-            y = float(y) if y is not None else 0
-            xunits = Units(xunits) if xunits is not None else None
-            yunits = Units(yunits) if yunits is not None else None
-            kwargs["hot_spot"] = HotSpot(
-                x=x,
-                y=y,
-                xunits=xunits,
-                yunits=yunits,
-            )
+        kwargs["hot_spot"] = HotSpot.class_from_element(  # type: ignore[attr-defined]
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
         return kwargs
 
 
