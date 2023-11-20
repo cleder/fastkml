@@ -380,7 +380,9 @@ class Point(_Geometry):
             error = config.etree.tostring(  # type: ignore[attr-defined]
                 element,
                 encoding="UTF-8",
-            ).decode("UTF-8")
+            ).decode(
+                "UTF-8",
+            )
             msg = f"Invalid coordinates in {error}"
             raise KMLParseError(msg) from e
 
@@ -436,7 +438,9 @@ class LineString(_Geometry):
             error = config.etree.tostring(  # type: ignore[attr-defined]
                 element,
                 encoding="UTF-8",
-            ).decode("UTF-8")
+            ).decode(
+                "UTF-8",
+            )
             msg = f"Invalid coordinates in {error}"
             raise KMLParseError(msg) from e
 
@@ -480,7 +484,9 @@ class LinearRing(LineString):
             error = config.etree.tostring(  # type: ignore[attr-defined]
                 element,
                 encoding="UTF-8",
-            ).decode("UTF-8")
+            ).decode(
+                "UTF-8",
+            )
             msg = f"Invalid coordinates in {error}"
             raise KMLParseError(msg) from e
 
@@ -554,7 +560,9 @@ class Polygon(_Geometry):
             error = config.etree.tostring(  # type: ignore[attr-defined]
                 element,
                 encoding="UTF-8",
-            ).decode("UTF-8")
+            ).decode(
+                "UTF-8",
+            )
             msg = f"Missing outerBoundaryIs in {error}"
             raise KMLParseError(msg)
         outer_ring = outer_boundary.find(f"{ns}LinearRing")
@@ -562,7 +570,9 @@ class Polygon(_Geometry):
             error = config.etree.tostring(  # type: ignore[attr-defined]
                 element,
                 encoding="UTF-8",
-            ).decode("UTF-8")
+            ).decode(
+                "UTF-8",
+            )
             msg = f"Missing LinearRing in {error}"
             raise KMLParseError(msg)
         exterior = LinearRing._get_geometry(ns=ns, element=outer_ring, strict=strict)
@@ -573,7 +583,9 @@ class Polygon(_Geometry):
                 error = config.etree.tostring(  # type: ignore[attr-defined]
                     element,
                     encoding="UTF-8",
-                ).decode("UTF-8")
+                ).decode(
+                    "UTF-8",
+                )
                 msg = f"Missing LinearRing in {error}"
                 raise KMLParseError(msg)
             interiors.append(

@@ -15,14 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Types for fastkml."""
-from typing import Callable
 from typing import Iterable
 from typing import Optional
 
 from typing_extensions import Protocol
-from typing_extensions import TypedDict
 
-__all__ = ["Element", "KmlObjectMap"]
+__all__ = ["Element"]
 
 
 class Element(Protocol):
@@ -48,14 +46,3 @@ class Element(Protocol):
 
     def remove(self, element: "Element") -> None:
         """Remove an element from the current element."""
-
-
-class KmlObjectMap(TypedDict):
-    """TypedDict for KmlObjectMap."""
-
-    kml_attr: str
-    obj_attr: str
-    required: bool
-    from_kml: Callable[..., None]
-    to_kml: Callable[..., None]
-    validator: Optional[Callable[..., bool]]
