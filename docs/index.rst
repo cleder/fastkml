@@ -1,46 +1,7 @@
 Welcome to FastKML's documentation!
 ===================================
 
-Fastkml is continually tested with *Travis CI*:
-
-.. image:: https://api.travis-ci.org/cleder/fastkml.png
-    :target: https://travis-ci.org/cleder/fastkml
-
-.. image:: https://coveralls.io/repos/cleder/fastkml/badge.png?branch=master
-    :target: https://coveralls.io/r/cleder/fastkml?branch=master
-
-
-Is Maintained and documented:
-
-.. image:: https://pypip.in/v/fastkml/badge.png
-    :target: https://pypi.python.org/pypi/fastkml
-    :alt: Latest PyPI version
-
-.. image:: https://pypip.in/status/fastkml/badge.svg
-    :target: https://pypi.python.org/pypi/fastkml/
-    :alt: Development Status
-
-.. image:: https://readthedocs.org/projects/fastkml/badge/
-    :target: https://fastkml.readthedocs.org/
-
-.. image:: https://www.openhub.net/p/fastkml/widgets/project_thin_badge.gif
-    :target: https://www.openhub.net/p/fastkml
-
-Follows best practises:
-
-.. image:: https://landscape.io/github/cleder/fastkml/master/landscape.svg?style=plastic
-   :target: https://landscape.io/github/cleder/fastkml/master
-   :alt: Code Health
-
-.. image:: https://pypip.in/py_versions/fastkml/badge.svg
-    :target: https://pypi.python.org/pypi/fastkml/
-    :alt: Supported Python versions
-
-.. image:: https://pypip.in/implementation/fastkml/badge.svg
-    :target: https://pypi.python.org/pypi/fastkml/
-    :alt: Supported Python implementations
-
-fastkml is a library to read, write and manipulate KML files. It aims to keep
+``fastkml`` is a library to read, write and manipulate KML files. It aims to keep
 it simple and fast (using lxml_ if available). "Fast" refers to the time you
 spend to write and read KML files, as well as the time you spend to get
 acquainted with the library or to create KML objects. It provides a subset of KML
@@ -74,6 +35,7 @@ requirements, namely:
    installing
    usage_guide
    reference_guide
+   modules
    contributing
 
 .. _lxml: https://pypi.python.org/pypi/lxml

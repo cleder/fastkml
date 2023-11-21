@@ -26,3 +26,7 @@ class KMLParseError(FastKMLError):
 
 class KMLWriteError(FastKMLError):
     """Raised when there is an error writing KML."""
+
+
+class KMLSchemaError(FastKMLError):
+    """Raised when there is an error with the KML Schema."""

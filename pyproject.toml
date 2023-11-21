@@ -1,17 +1,117 @@
-[tool.ruff.extend-per-file-ignores]
-"setup.py" = [
-    "E501",
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+    "setuptools>=61.2",
 ]
-"tests/oldunit_test.py" = [
-    "E501",
+
+[project]
+authors = [
+    { email = "christian.ledermann@gmail.com", name = "Christian Ledermann" },
 ]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: GIS",
+]
+dependencies = [
+    "arrow",
+    "pygeoif>=1.1",
+    "typing-extensions>4",
+]
+description = "Fast KML processing in python"
+dynamic = [
+    "version",
+]
+name = "fastkml"
+requires-python = ">=3.8"
+
+[project.license]
+text = "LGPL"
+
+[project.optional-dependencies]
+complexity = [
+    "lizard",
+    "radon",
+]
+dev = [
+    "fastkml[complexity]",
+    "fastkml[docs]",
+    "fastkml[linting]",
+    "fastkml[lxml]",
+    "fastkml[tests]",
+    "fastkml[typing]",
+    "pre-commit",
+    "shapely",
+]
+docs = [
+    "Sphinx",
+    "sphinx-autodoc-typehints",
+    "sphinx-rtd-theme",
+]
+linting = [
+    "black",
+    "flake8",
+    "flake8-comments",
+    "flake8-encodings",
+    "flake8-expression-complexity",
+    "flake8-length",
+    "flake8-literal",
+    "flake8-pep3101",
+    "flake8-super",
+    "flake8-typing-imports",
+    "ruff",
+    "yamllint",
+]
+lxml = [
+    "lxml",
+]
+tests = [
+    "pytest",
+    "pytest-cov",
+]
+typing = [
+    "mypy",
+]
+
+[project.readme]
+content-type = "text/x-rst"
+file = "README.rst"
+keywords = [
+    "GIS",
+    "Google",
+    "KML",
+    "Maps",
+    "OpenLayers",
+]
+
+[project.urls]
+Documentation = "https://fastkml.readthedocs.org/"
+Homepage = "https://github.com/cleder/fastkml"
+
+[tool.check-manifest]
+ignore = [
+    ".*",
+    "examples/*",
+    "mutmut_config.py",
+    "test-requirements.txt",
+    "tox.ini",
+]
+
+[tool.flake8]
+max_line_length = 89
 
 [tool.isort]
 force_single_line = true
 line_length = 88
-
-[tool.flake8]
-max_line_length = 89
 
 [tool.mypy]
 disallow_any_generics = true
@@ -40,18 +140,6 @@ warn_unused_ignores = true
 ignore_errors = true
 module = [
     "fastkml.kml",
-    "fastkml.tests.config_test",
-    "fastkml.tests.oldunit_test",
-    "fastkml.views",
-]
-
-[tool.check-manifest]
-ignore = [
-    ".*",
-    "examples/*",
-    "mutmut_config.py",
-    "test-requirements.txt",
-    "tox.ini",
 ]
 
 [tool.pyright]
@@ -64,3 +152,102 @@ exclude = [
 include = [
     "fastkml",
 ]
+
+[tool.ruff]
+fix = true
+ignore = [
+    "ANN101",
+    "ANN102",
+    "D203",
+    "D212",
+    "FA100",
+]
+select = [
+    "A",
+    "AIR",
+    "ANN",
+    "ARG",
+    "ASYNC",
+    "B",
+    "BLE",
+    "C4",
+    "C90",
+    "COM",
+    "CPY",
+    "D",
+    "DJ",
+    "DTZ",
+    "E",
+    "EM",
+    "ERA",
+    "EXE",
+    "F",
+    "FA",
+    "FBT",
+    "FIX",
+    "FLY",
+    "FURB",
+    "G",
+    "I",
+    "ICN",
+    "INP",
+    "INT",
+    "ISC",
+    "LOG",
+    "N",
+    "NPY",
+    "PD",
+    "PERF",
+    "PGH",
+    "PIE",
+    "PL",
+    "PT",
+    "PTH",
+    "PYI",
+    "Q",
+    "RET",
+    "RSE",
+    "RUF",
+    "S",
+    "SIM",
+    "SLF",
+    "SLOT",
+    "T10",
+    "T20",
+    "TCH",
+    "TD",
+    "TID",
+    "TRY",
+    "UP",
+    "W",
+    "YTT",
+]
+target-version = "py38"
+
+[tool.ruff.extend-per-file-ignores]
+"tests/*.py" = [
+    "D101",
+    "D102",
+    "D103",
+    "PLR2004",
+    "S101",
+    "SLF001",
+]
+"tests/oldunit_test.py" = [
+    "E501",
+]
+
+[tool.ruff.isort]
+force-single-line = true
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic.version]
+attr = "fastkml.about.__version__"
+
+[tool.setuptools.packages.find]
+exclude = [
+    "ez_setup",
+]
+namespaces = false

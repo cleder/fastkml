@@ -1,4 +1,4 @@
-# Copyright (C) 2012 - 2021  Christian Ledermann
+# Copyright (C) 2012 - 2023  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -14,7 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-"""Frequently used constants and configuration options"""
+"""Frequently used constants and configuration options."""
 import logging
 import warnings
 from types import ModuleType
@@ -22,7 +22,6 @@ from types import ModuleType
 __all__ = [
     "ATOMNS",
     "DEFAULT_NAME_SPACES",
-    "FORCE3D",
     "GXNS",
     "KMLNS",
     "register_namespaces",
@@ -34,8 +33,8 @@ try:  # pragma: no cover
     from lxml import etree
 
 except ImportError:  # pragma: no cover
-    warnings.warn("Package `lxml` missing. Pretty print will be disabled")
-    import xml.etree.ElementTree as etree  # type: ignore[no-redef] # noqa: N813
+    warnings.warn("Package `lxml` missing. Pretty print will be disabled")  # noqa: B028
+    import xml.etree.ElementTree as etree  # noqa: N813
 
 
 logger = logging.getLogger(__name__)
@@ -43,13 +42,13 @@ logger = logging.getLogger(__name__)
 
 def set_etree_implementation(implementation: ModuleType) -> None:
     """Set the etree implementation to use."""
-    global etree
+    global etree  # noqa: PLW0603
     etree = implementation
 
 
-KMLNS = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
-ATOMNS = "{http://www.w3.org/2005/Atom}"  # noqa: FS003
-GXNS = "{http://www.google.com/kml/ext/2.2}"  # noqa: FS003
+KMLNS = "{http://www.opengis.net/kml/2.2}"
+ATOMNS = "{http://www.w3.org/2005/Atom}"
+GXNS = "{http://www.google.com/kml/ext/2.2}"
 
 NAME_SPACES = {
     "kml": KMLNS,
@@ -76,5 +75,3 @@ def set_default_namespaces() -> None:
 
 
 set_default_namespaces()
-
-FORCE3D = False

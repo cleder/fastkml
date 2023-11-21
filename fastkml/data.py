@@ -1,4 +1,4 @@
-# Copyright (C) 2022  Christian Ledermann
+# Copyright (C) 2022 - 2023  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -13,48 +13,78 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-"""Add Custom Data"""
+"""
+Add Custom Data.
+
+https://developers.google.com/kml/documentation/extendeddata#example
+"""
 import logging
+from dataclasses import dataclass
+from typing import Any
 from typing import Dict
+from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
-from typing import overload
 
-from typing_extensions import TypedDict
-
-import fastkml.config as config
+from fastkml import config
 from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
+from fastkml.enums import DataType
 from fastkml.enums import Verbosity
+from fastkml.exceptions import KMLSchemaError
 from fastkml.types import Element
+
+__all__ = [
+    "Data",
+    "ExtendedData",
+    "Schema",
+    "SchemaData",
+    "SimpleField",
+]
 
 logger = logging.getLogger(__name__)
 
 
-class SimpleField(TypedDict):
+@dataclass(frozen=True)
+class SimpleField:
+    """
+    A SimpleField always has both name and type attributes.
+
+    The declaration of the custom field, must specify both the type
+    and the name of this field.
+    If either the type or the name is omitted, the field is ignored.
+
+    The type can be one of the following:
+     - string
+     - int
+     - uint
+     - short
+     - ushort
+     - float
+     - double
+     - bool
+
+    The displayName, if any, to be used when the field name is displayed to
+    the Google Earth user. Use the [CDATA] element to escape standard
+    HTML markup.
+    """
+
     name: str
-    type: str
-    displayName: Optional[str]  # noqa: N815
-
-
-SimpleFields = List[Dict[str, str]]
-SimpleFieldsListInput = List[Union[Dict[str, str], List[Dict[str, str]]]]
-SimpleFieldsTupleInput = Tuple[Union[Dict[str, str], Tuple[Dict[str, str]]]]
-SimpleFieldsDictInput = Dict[str, str]
-SimpleFieldsInput = Optional[
-    Union[SimpleFieldsListInput, SimpleFieldsTupleInput, SimpleFieldsDictInput]
-]
-SimpleFieldsOutput = Tuple[SimpleField, ...]
+    type: DataType
+    display_name: Optional[str] = None
 
 
 class Schema(_BaseObject):
     """
-    Specifies a custom KML schema that is used to add custom data to
-    KML Features.
+    Specifies a custom KML schema that is used to add custom data to KML Features.
+
     The "id" attribute is required and must be unique within the KML file.
     <Schema> is always a child of <Document>.
+
+    https://developers.google.com/kml/documentation/extendeddata#declare-the-schema-element
+
     """
 
     __name__ = "Schema"
@@ -62,115 +92,41 @@ class Schema(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
-        fields: SimpleFieldsInput = None,
+        fields: Optional[Iterable[SimpleField]] = None,
     ) -> None:
         if id is None:
-            raise ValueError("Id is required for schema")
-        super().__init__(ns=ns, id=id, target_id=target_id)
+            msg = "Id is required for schema"
+            raise KMLSchemaError(msg)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.name = name
-        self._simple_fields: SimpleFields = []
-        self.simple_fields = fields  # type: ignore[assignment]
+        self._simple_fields = list(fields) if fields else []
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name}, "
+            f"fields={self.simple_fields!r}"
+            ")"
+        )
 
     @property
-    def simple_fields(self) -> SimpleFieldsOutput:
-        return tuple(
-            SimpleField(
-                type=simple_field.get("type", ""),
-                name=simple_field.get("name", ""),
-                displayName=simple_field.get("displayName") or None,
-            )
-            for simple_field in self._simple_fields
-            if simple_field.get("type") and simple_field.get("name")
-        )
+    def simple_fields(self) -> Tuple[SimpleField, ...]:
+        return tuple(self._simple_fields)
 
     @simple_fields.setter
-    @overload
-    def simple_fields(self, fields: SimpleFieldsListInput) -> None:
-        ...
+    def simple_fields(self, fields: Iterable[SimpleField]) -> None:
+        self._simple_fields = list(fields)
 
-    @simple_fields.setter
-    @overload
-    def simple_fields(self, fields: SimpleFieldsTupleInput) -> None:
-        ...
-
-    @simple_fields.setter
-    @overload
-    def simple_fields(self, fields: SimpleFieldsDictInput) -> None:
-        ...
-
-    @simple_fields.setter
-    def simple_fields(self, fields: SimpleFieldsInput) -> None:
-        if isinstance(fields, dict):
-            self.append(**fields)
-        elif isinstance(fields, (list, tuple)):
-            for field in fields:
-                if isinstance(field, (list, tuple)):
-                    self.append(*field)
-                elif isinstance(field, dict):
-                    self.append(**field)
-        elif fields is None:
-            self._simple_fields = []
-        else:
-            raise ValueError("Fields must be of type list, tuple or dict")
-
-    def append(self, type: str, name: str, display_name: Optional[str] = None) -> None:
-        """
-        append a field.
-        The declaration of the custom field, must specify both the type
-        and the name of this field.
-        If either the type or the name is omitted, the field is ignored.
-
-        The type can be one of the following:
-            string
-            int
-            uint
-            short
-            ushort
-            float
-            double
-            bool
-
-        <displayName>
-        The name, if any, to be used when the field name is displayed to
-        the Google Earth user. Use the [CDATA] element to escape standard
-        HTML markup.
-        """
-        allowed_types = [
-            "string",
-            "int",
-            "uint",
-            "short",
-            "ushort",
-            "float",
-            "double",
-            "bool",
-        ]
-        if type not in allowed_types:
-            logger.warning(
-                "%s has the type %s which is invalid. "
-                "The type must be one of "
-                "'string', 'int', 'uint', 'short', "
-                "'ushort', 'float', 'double', 'bool'",
-                name,
-                type,
-            )
-        self._simple_fields.append(
-            {"type": type, "name": name, "displayName": display_name or ""}
-        )
-
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        self.name = element.get("name")
-        simple_fields = element.findall(f"{self.ns}SimpleField")
-        for simple_field in simple_fields:
-            sfname = simple_field.get("name")
-            sftype = simple_field.get("type")
-            display_name = simple_field.find(f"{self.ns}displayName")
-            sfdisplay_name = display_name.text if display_name is not None else None
-            self.append(sftype, sfname, sfdisplay_name)
+    def append(self, field: SimpleField) -> None:
+        """Append a field."""
+        self._simple_fields.append(field)
 
     def etree_element(
         self,
@@ -182,16 +138,63 @@ class Schema(_BaseObject):
             element.set("name", self.name)
         for simple_field in self.simple_fields:
             sf = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}SimpleField"
+                element,
+                f"{self.ns}SimpleField",
             )
-            sf.set("type", simple_field["type"])
-            sf.set("name", simple_field["name"])
-            if simple_field.get("displayName"):
+            sf.set("type", simple_field.type.value)
+            sf.set("name", simple_field.name)
+            if simple_field.display_name:
                 dn = config.etree.SubElement(  # type: ignore[attr-defined]
-                    sf, f"{self.ns}displayName"
+                    sf,
+                    f"{self.ns}displayName",
                 )
-                dn.text = simple_field["displayName"]
+                dn.text = simple_field.display_name
         return element
+
+    @classmethod
+    def _get_fields_kwargs_from_element(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> List[SimpleField]:
+        def get_display_name(field: Element) -> Optional[str]:
+            display_name = field.find(f"{ns}displayName")
+            return display_name.text if display_name is not None else None
+
+        return [
+            SimpleField(
+                name=field.get("name"),
+                type=DataType(field.get("type")),
+                display_name=get_display_name(field),
+            )
+            for field in element.findall(f"{ns}SimpleField")
+            if field is not None
+        ]
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        kwargs["name"] = element.get("name")
+        kwargs["fields"] = cls._get_fields_kwargs_from_element(
+            ns=ns,
+            element=element,
+            strict=strict,
+        )
+        return kwargs
 
 
 class Data(_XMLObject):
@@ -202,11 +205,12 @@ class Data(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         name: Optional[str] = None,
         value: Optional[str] = None,
         display_name: Optional[str] = None,
     ) -> None:
-        super().__init__(ns)
+        super().__init__(ns=ns, name_spaces=name_spaces)
 
         self.name = name
         self.value = value
@@ -228,82 +232,47 @@ class Data(_XMLObject):
         element = super().etree_element(precision=precision, verbosity=verbosity)
         element.set("name", self.name or "")
         value = config.etree.SubElement(  # type: ignore[attr-defined]
-            element, f"{self.ns}value"
+            element,
+            f"{self.ns}value",
         )
         value.text = self.value
         if self.display_name:
             display_name = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}displayName"
+                element,
+                f"{self.ns}displayName",
             )
             display_name.text = self.display_name
         return element
 
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        self.name = element.get("name")
-        tmp_value = element.find(f"{self.ns}value")
-        if tmp_value is not None:
-            self.value = tmp_value.text
-        display_name = element.find(f"{self.ns}displayName")
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        kwargs["name"] = element.get("name")
+        value = element.find(f"{ns}value")
+        if value is not None:
+            kwargs["value"] = value.text
+        display_name = element.find(f"{ns}displayName")
         if display_name is not None:
-            self.display_name = display_name.text
+            kwargs["display_name"] = display_name.text
+        return kwargs
 
 
-class ExtendedData(_XMLObject):
-    """Represents a list of untyped name/value pairs. See docs:
-
-    -> 'Adding Untyped Name/Value Pairs'
-       https://developers.google.com/kml/documentation/extendeddata
-
-    """
-
-    __name__ = "ExtendedData"
-
-    def __init__(
-        self,
-        ns: Optional[str] = None,
-        elements: Optional[List[Union[Data, "SchemaData"]]] = None,
-    ) -> None:
-        super().__init__(ns)
-        self.elements = elements or []
-
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        for subelement in self.elements:
-            element.append(subelement.etree_element())
-        return element
-
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        self.elements = []
-        untyped_data = element.findall(f"{self.ns}Data")
-        for ud in untyped_data:
-            el_data = Data(self.ns)
-            el_data.from_element(ud)
-            self.elements.append(el_data)
-        typed_data = element.findall(f"{self.ns}SchemaData")
-        for sd in typed_data:
-            el_schema_data = SchemaData(self.ns, "dummy")
-            el_schema_data.from_element(sd)
-            self.elements.append(el_schema_data)
-
-
-SchemaDataType = List[Dict[str, Union[int, str]]]
-SchemaDataListInput = List[Union[Dict[str, str], SchemaDataType]]
-SchemaDataTupleInput = Tuple[Union[Dict[str, str], Tuple[Dict[str, Union[int, str]]]]]
-SchemaDataDictInput = Dict[str, Union[int, str]]
-SchemaDataInput = Optional[
-    Union[
-        SchemaDataListInput,
-        SchemaDataTupleInput,
-        SchemaDataDictInput,
-    ]
-]
-SchemaDataOutput = Tuple[Dict[str, Union[int, str]], ...]
+@dataclass(frozen=True)
+class SimpleData:
+    name: str
+    value: Union[int, str, float, bool]
 
 
 class SchemaData(_XMLObject):
@@ -324,54 +293,35 @@ class SchemaData(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         schema_url: Optional[str] = None,
-        data: Optional[List[Dict[str, str]]] = None,
+        data: Optional[Iterable[SimpleData]] = None,
     ) -> None:
-        super().__init__(ns)
+        super().__init__(ns=ns, name_spaces=name_spaces)
         if (not isinstance(schema_url, str)) or (not schema_url):
-            raise ValueError("required parameter schema_url missing")
+            msg = "required parameter schema_url missing"
+            raise ValueError(msg)
         self.schema_url = schema_url
-        self._data: SchemaDataType = []
-        self.data = data  # type: ignore[assignment]
+        self._data = list(data) if data else []
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"ns='{self.ns}',"
+            f"schema_url='{self.schema_url}', "
+            f"data='{self.data}')"
+        )
 
     @property
-    def data(self) -> SchemaDataOutput:
+    def data(self) -> Tuple[SimpleData, ...]:
         return tuple(self._data)
 
     @data.setter
-    @overload
-    def data(self, data: SchemaDataListInput) -> None:
-        ...
+    def data(self, data: Iterable[SimpleData]) -> None:
+        self._data = list(data)
 
-    @data.setter
-    @overload
-    def data(self, data: SchemaDataTupleInput) -> None:
-        ...
-
-    @data.setter
-    @overload
-    def data(self, data: SchemaDataDictInput) -> None:
-        ...
-
-    @data.setter
-    def data(self, data: SchemaDataInput) -> None:
-        if isinstance(data, (tuple, list)):
-            self._data = []
-            for d in data:
-                if isinstance(d, (tuple, list)):
-                    self.append_data(*d)
-                elif isinstance(d, dict):
-                    self.append_data(**d)
-        elif data is None:
-            self._data = []
-        else:
-            raise TypeError("data must be of type tuple or list")
-
-    def append_data(self, name: str, value: Union[int, str]) -> None:
-        if isinstance(name, str) and name:
-            self._data.append({"name": name, "value": value})
-        else:
-            raise TypeError("name must be a nonempty string")
+    def append_data(self, data: SimpleData) -> None:
+        self._data.append(data)
 
     def etree_element(
         self,
@@ -382,16 +332,101 @@ class SchemaData(_XMLObject):
         element.set("schemaUrl", self.schema_url)
         for data in self.data:
             sd = config.etree.SubElement(  # type: ignore[attr-defined]
-                element, f"{self.ns}SimpleData"
+                element,
+                f"{self.ns}SimpleData",
             )
-            sd.set("name", data["name"])
-            sd.text = data["value"]
+            sd.set("name", data.name)
+            sd.text = data.value
         return element
 
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        self.data = []  # type: ignore[assignment]
-        self.schema_url = element.get("schemaUrl")
-        simple_data = element.findall(f"{self.ns}SimpleData")
-        for sd in simple_data:
-            self.append_data(sd.get("name"), sd.text)
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        kwargs["schema_url"] = element.get("schemaUrl")
+        kwargs["data"] = [
+            SimpleData(name=sd.get("name"), value=sd.text)
+            for sd in element.findall(f"{ns}SimpleData")
+            if sd is not None
+        ]
+        return kwargs
+
+
+class ExtendedData(_XMLObject):
+    """
+    Represents a list of untyped name/value pairs. See docs:
+
+    -> 'Adding Untyped Name/Value Pairs'
+       https://developers.google.com/kml/documentation/extendeddata
+
+    """
+
+    __name__ = "ExtendedData"
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        elements: Optional[Iterable[Union[Data, SchemaData]]] = None,
+    ) -> None:
+        super().__init__(ns=ns, name_spaces=name_spaces)
+        self.elements = elements or []
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"ns='{self.ns}',"
+            f"elements='{self.elements}')"
+        )
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        for subelement in self.elements:
+            element.append(subelement.etree_element())
+        return element
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        elements = []
+        untyped_data = element.findall(f"{ns}Data")
+        for ud in untyped_data:
+            el_data = Data.class_from_element(ns=ns, element=ud, strict=strict)
+            elements.append(el_data)
+        typed_data = element.findall(f"{ns}SchemaData")
+        for sd in typed_data:
+            el_schema_data = SchemaData.class_from_element(
+                ns=ns,
+                element=sd,
+                strict=strict,
+            )
+            elements.append(el_schema_data)
+        kwargs["elements"] = elements
+        return kwargs

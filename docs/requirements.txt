@@ -1,0 +1,7 @@
+arrow
+pygeoif>=1.1
+# Documentation Requirements
+Sphinx
+sphinx-autodoc-typehints
+sphinx-rtd-theme
+typing-extensions>4

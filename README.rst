@@ -15,11 +15,6 @@ the functionality that KML clients such as `OpenLayers
 
 Geometries are handled as pygeoif_ objects.
 
-.. _pygeoif: http://pypi.python.org/pypi/pygeoif/
-.. _lxml: https://pypi.python.org/pypi/lxml
-.. _dateutils: https://pypi.python.org/pypi/dateutils
-.. _pip: https://pypi.python.org/pypi/pip
-
 Fastkml is continually tested
 
 .. image:: https://github.com/cleder/fastkml/actions/workflows/run-all-tests.yml/badge.svg?branch=main
@@ -30,9 +25,17 @@ Fastkml is continually tested
     :target: http://codecov.io/github/cleder/fastkml?branch=main
     :alt: codecov.io
 
-.. image:: https://img.shields.io/badge/code+style-black-000000.svg
+.. image:: https://img.shields.io/badge/code_style-black-000000.svg
     :target: https://github.com/psf/black
     :alt: Black
+
+.. image:: https://img.shields.io/badge/type_checker-mypy-blue
+    :target: http://mypy-lang.org/
+    :alt: Mypy
+
+.. image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit
+   :target: https://github.com/pre-commit/pre-commit
+   :alt: pre-commit
 
 Is Maintained and documented:
 
@@ -43,6 +46,10 @@ Is Maintained and documented:
 .. image:: https://img.shields.io/pypi/status/fastkml.svg
     :target: https://pypi.python.org/pypi/fastkml/
     :alt: Development Status
+
+.. image:: https://img.shields.io/pypi/l/fastkml
+    :target: https://www.gnu.org/licenses/lgpl-3.0.en.html
+    :alt: LGPL - License
 
 .. image:: https://readthedocs.org/projects/fastkml/badge/
     :target: https://fastkml.readthedocs.org/
@@ -59,6 +66,10 @@ Is Maintained and documented:
 .. image:: https://img.shields.io/pypi/implementation/fastkml.svg
     :target: https://pypi.python.org/pypi/fastkml/
     :alt: Supported Python implementations
+
+.. image:: https://img.shields.io/librariesio/release/pypi/fastkml
+    :target: https://libraries.io/pypi/fastkml
+    :alt: Libraries.io dependency status for latest release
 
 Documentation
 =============
@@ -86,15 +97,15 @@ Requirements
 -------------
 
 * pygeoif_
-* dateutils_
+* lxml_
+* arrow_
 
 Optional
 ---------
 
 * lxml_
 
-You can install all of the requirements for working with FastKML by using
-pip_::
+You can install all of the requirements for working with FastKML by using pip_::
 
     pip install -r requirements.txt
 
@@ -110,3 +121,8 @@ Currently, the only major feature missing for the full Google Earth experience
 is the `gx extension
 <https://developers.google.com/kml/documentation/kmlreference#kmlextensions>`_.
 Please submit a PR with the features you'd like to see implemented.
+
+.. _pygeoif: http://pypi.python.org/pypi/pygeoif/
+.. _lxml: https://pypi.python.org/pypi/lxml
+.. _arrow: https://pypi.python.org/pypi/arrow
+.. _pip: https://pypi.python.org/pypi/pip

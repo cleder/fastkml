@@ -30,7 +30,7 @@ class TimeMixin:
 
     @property
     def time_stamp(self) -> Optional[KmlDateTime]:
-        """This just returns the datetime portion of the timestamp"""
+        """This just returns the datetime portion of the timestamp."""
         return self._timestamp.timestamp if self._timestamp is not None else None
 
     @time_stamp.setter

@@ -5,7 +5,7 @@ from fastkml import kml
 
 # Create the root KML object
 k = kml.KML()
-ns = "{http://www.opengis.net/kml/2.2}"  # noqa: FS003
+ns = "{http://www.opengis.net/kml/2.2}"
 
 # Create a KML Document and add it to the KML root object
 d = kml.Document(ns, "docid", "doc name", "doc description")
