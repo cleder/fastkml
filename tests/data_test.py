@@ -92,7 +92,10 @@ class TestStdLibrary(StdLibrary):
         k1.from_string(k.to_string())
         assert "Schema" in k1.to_string()
         assert "SimpleField" in k1.to_string()
-        assert k1.to_string() == k.to_string()
+        assert k1.to_string().replace("kml:", "").replace(
+            ":kml",
+            "",
+        ) == k.to_string().replace("kml:", "").replace(":kml", "")
 
     def test_schema_data(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"

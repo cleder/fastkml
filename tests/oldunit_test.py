@@ -79,8 +79,8 @@ class TestBaseClasses:
         f = kml._Feature(name="A Feature")
         pytest.raises(NotImplementedError, f.etree_element)
         assert f.name == "A Feature"
-        assert f.visibility == 1
-        assert f.isopen == 0
+        assert f.visibility is None
+        assert f.isopen is None
         assert f._atom_author is None
         assert f._atom_link is None
         assert f.address is None
@@ -140,11 +140,16 @@ class TestBuildKml:
         """KML file with folders."""
         ns = "{http://www.opengis.net/kml/2.2}"
         k = kml.KML()
-        f = kml.Folder(ns, "id", "name", "description")
-        nf = kml.Folder(ns, "nested-id", "nested-name", "nested-description")
+        f = kml.Folder(ns, id="id", name="name", description="description")
+        nf = kml.Folder(
+            ns,
+            id="nested-id",
+            name="nested-name",
+            description="nested-description",
+        )
         f.append(nf)
         k.append(f)
-        f2 = kml.Folder(ns, "id2", "name2", "description2")
+        f2 = kml.Folder(ns, id="id2", name="name2", description="description2")
         k.append(f2)
         assert len(list(k.features())) == 2
         assert len(list(next(iter(k.features())).features())) == 1
@@ -156,9 +161,9 @@ class TestBuildKml:
     def test_placemark(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"
         k = kml.KML(ns=ns)
-        p = kml.Placemark(ns, "id", "name", "description")
+        p = kml.Placemark(ns, id="id", name="name", description="description")
         # XXX p.geometry = Point(0.0, 0.0, 0.0)
-        p2 = kml.Placemark(ns, "id2", "name2", "description2")
+        p2 = kml.Placemark(ns, id="id2", name="name2", description="description2")
         # XXX p2.geometry = LineString([(0, 0, 0), (1, 1, 1)])
         k.append(p)
         k.append(p2)
@@ -170,17 +175,22 @@ class TestBuildKml:
     def test_document(self) -> None:
         k = kml.KML()
         ns = "{http://www.opengis.net/kml/2.2}"
-        d = kml.Document(ns, "docid", "doc name", "doc description")
-        f = kml.Folder(ns, "fid", "f name", "f description")
+        d = kml.Document(ns, id="docid", name="doc name", description="doc description")
+        f = kml.Folder(ns, id="fid", name="f name", description="f description")
         k.append(d)
         d.append(f)
-        nf = kml.Folder(ns, "nested-fid", "nested f name", "nested f description")
+        nf = kml.Folder(
+            ns,
+            id="nested-fid",
+            name="nested f name",
+            description="nested f description",
+        )
         f.append(nf)
-        f2 = kml.Folder(ns, "id2", "name2", "description2")
+        f2 = kml.Folder(ns, id="id2", name="name2", description="description2")
         d.append(f2)
-        p = kml.Placemark(ns, "id", "name", "description")
+        p = kml.Placemark(ns, id="id", name="name", description="description")
         # XXX p.geometry = Polygon([(0, 0, 0), (1, 1, 0), (1, 0, 1)])
-        p2 = kml.Placemark(ns, "id2", "name2", "description2")
+        p2 = kml.Placemark(ns, id="id2", name="name2", description="description2")
         # p2 does not have a geometry!
         f2.append(p)
         nf.append(p2)
@@ -715,7 +725,7 @@ class TestStyleUsage:
 
         expected = """
             <kml:Document xmlns:kml="http://www.opengis.net/kml/2.2">
-              <kml:visibility>1</kml:visibility>
+              <kml:visibility/>
                 <kml:Style>
                   <kml:PolyStyle>
                     <kml:color>7f000000</kml:color>
@@ -743,7 +753,6 @@ class TestStyleUsage:
 
         expected = """
             <kml:Placemark xmlns:kml="http://www.opengis.net/kml/2.2">
-              <kml:visibility>1</kml:visibility>
                 <kml:Style>
                   <kml:PolyStyle>
                     <kml:color>7f000000</kml:color>
@@ -1527,7 +1536,6 @@ class TestGroundOverlayString:
         expected = kml.GroundOverlay()
         expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
-            "<kml:visibility>1</kml:visibility>"
             "</kml:GroundOverlay>",
         )
         assert g.to_string() == expected.to_string()
@@ -1542,7 +1550,6 @@ class TestGroundOverlayString:
         expected = kml.GroundOverlay()
         expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
-            "<kml:visibility>1</kml:visibility>"
             "<kml:color>00010203</kml:color>"
             "<kml:drawOrder>1</kml:drawOrder>"
             "<kml:Icon>"
@@ -1560,7 +1567,6 @@ class TestGroundOverlayString:
         expected = kml.GroundOverlay()
         expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
-            "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123</kml:altitude>"
             "<kml:altitudeMode>clampToGround</kml:altitudeMode>"
             "</kml:GroundOverlay>",
@@ -1575,7 +1581,6 @@ class TestGroundOverlayString:
         expected = kml.GroundOverlay()
         expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
-            "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123.4</kml:altitude>"
             "<kml:altitudeMode>clampToGround</kml:altitudeMode>"
             "</kml:GroundOverlay>",
@@ -1590,7 +1595,6 @@ class TestGroundOverlayString:
         expected = kml.GroundOverlay()
         expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
-            "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123.4</kml:altitude>"
             "<kml:altitudeMode>clampToGround</kml:altitudeMode>"
             "</kml:GroundOverlay>",
@@ -1606,7 +1610,6 @@ class TestGroundOverlayString:
         expected = kml.GroundOverlay()
         expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
-            "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123.4</kml:altitude>"
             "<kml:altitudeMode>absolute</kml:altitudeMode>"
             "</kml:GroundOverlay>",
@@ -1622,7 +1625,6 @@ class TestGroundOverlayString:
         expected = kml.GroundOverlay()
         expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
-            "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123.4</kml:altitude>"
             "<kml:altitudeMode>clampToGround</kml:altitudeMode>"
             "</kml:GroundOverlay>",
@@ -1638,7 +1640,6 @@ class TestGroundOverlayString:
         expected = kml.GroundOverlay()
         expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
-            "<kml:visibility>1</kml:visibility>"
             "<kml:altitude>123.4</kml:altitude>"
             "<kml:altitudeMode>clampToGround</kml:altitudeMode>"
             "</kml:GroundOverlay>",
@@ -1653,7 +1654,6 @@ class TestGroundOverlayString:
         expected = kml.GroundOverlay()
         expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
-            "<kml:visibility>1</kml:visibility>"
             "<kml:LatLonBox>"
             "<kml:north>10</kml:north>"
             "<kml:south>20</kml:south>"
@@ -1673,7 +1673,6 @@ class TestGroundOverlayString:
         expected = kml.GroundOverlay()
         expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
-            "<kml:visibility>1</kml:visibility>"
             "<kml:LatLonBox>"
             "<kml:north>10</kml:north>"
             "<kml:south>20</kml:south>"
@@ -1697,7 +1696,6 @@ class TestGroundOverlayString:
         expected = kml.GroundOverlay()
         expected.from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
-            "<kml:visibility>1</kml:visibility>"
             "<kml:LatLonBox>"
             "<kml:north>10</kml:north>"
             "<kml:south>20</kml:south>"

@@ -405,8 +405,9 @@ class _Feature(TimeMixin, _BaseObject):
             element.append(self._camera.etree_element())
         elif self.look_at is not None:
             element.append(self._look_at.etree_element())
-        visibility = config.etree.SubElement(element, f"{self.ns}visibility")
-        visibility.text = str(self.visibility)
+        if self.visibility is not None:
+            visibility = config.etree.SubElement(element, f"{self.ns}visibility")
+            visibility.text = str(self.visibility)
         if self.isopen:
             isopen = config.etree.SubElement(element, f"{self.ns}open")
             isopen.text = str(self.isopen)
@@ -453,7 +454,7 @@ class _Feature(TimeMixin, _BaseObject):
         if description is not None:
             self.description = description.text
         visibility = element.find(f"{self.ns}visibility")
-        if visibility is not None:
+        if visibility is not None and visibility.text:
             self.visibility = 1 if visibility.text in ["1", "true"] else 0
         isopen = element.find(f"{self.ns}open")
         if isopen is not None:
@@ -1367,7 +1368,7 @@ class Document(_Container):
                 element.append(schema.etree_element())
         return element
 
-    def get_style_by_url(self, style_url: str) -> Union[Style, StyleMap]:
+    def get_style_by_url(self, style_url: str) -> Optional[Union[Style, StyleMap]]:
         id = urlparse.urlparse(style_url).fragment
         for style in self.styles():
             if style.id == id:
@@ -1529,7 +1530,7 @@ class KML:
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
-        features: Iterable[Union[Folder, Document, Placemark]] = None,
+        features: Optional[Iterable[Union[Folder, Document, Placemark]]] = None,
     ) -> None:
         """
         The namespace (ns) may be empty ('') if the 'kml:' prefix is
@@ -1596,7 +1597,7 @@ class KML:
             try:
                 root = config.etree.Element(
                     f"{self.ns}kml",
-                    nsmap={None: self.ns[1:-1]},
+                    # nsmap={None: self.ns[1:-1]},
                 )
             except TypeError:
                 root = config.etree.Element(f"{self.ns}kml")

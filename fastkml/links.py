@@ -81,13 +81,8 @@ class Icon(_BaseObject):
         return self._href
 
     @href.setter
-    def href(self, href) -> None:
-        if isinstance(href, str):
-            self._href = href
-        elif href is None:
-            self._href = None
-        else:
-            raise ValueError
+    def href(self, href: Optional[str]) -> None:
+        self._href = href
 
     @property
     def refresh_mode(self) -> Optional[RefreshMode]:
@@ -142,7 +137,7 @@ class Icon(_BaseObject):
         self._view_refresh_mode = view_refresh_mode
 
     @property
-    def view_refresh_time(self):
+    def view_refresh_time(self) -> Optional[float]:
         """
         After camera movement stops, specifies the number of seconds to
         wait before refreshing the view.
@@ -179,7 +174,7 @@ class Icon(_BaseObject):
             raise ValueError
 
     @property
-    def view_format(self):
+    def view_format(self) -> Optional[str]:
         """
         Specifies the format of the query string that is appended to the
         Link's <href> before the file is fetched.
@@ -210,7 +205,7 @@ class Icon(_BaseObject):
         return self._view_format
 
     @view_format.setter
-    def view_format(self, view_format) -> None:
+    def view_format(self, view_format: Optional[str]) -> None:
         if isinstance(view_format, str):
             self._view_format = view_format
         elif view_format is None:
@@ -219,7 +214,7 @@ class Icon(_BaseObject):
             raise ValueError
 
     @property
-    def http_query(self):
+    def http_query(self) -> Optional[str]:
         """
         Appends information to the query string, based on the parameters specified.
 
@@ -232,7 +227,7 @@ class Icon(_BaseObject):
         return self._http_query
 
     @http_query.setter
-    def http_query(self, http_query) -> None:
+    def http_query(self, http_query: Optional[str]) -> None:
         if isinstance(http_query, str):
             self._http_query = http_query
         elif http_query is None:
@@ -248,40 +243,52 @@ class Icon(_BaseObject):
         element = super().etree_element(precision=precision, verbosity=verbosity)
 
         if self._href:
-            href = config.etree.SubElement(element, f"{self.ns}href")
+            href = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}href",
+            )
             href.text = self._href
         if self._refresh_mode:
-            refresh_mode = config.etree.SubElement(element, f"{self.ns}refreshMode")
+            refresh_mode = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}refreshMode",
+            )
             refresh_mode.text = self._refresh_mode.value
         if self._refresh_interval:
-            refresh_interval = config.etree.SubElement(
+            refresh_interval = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
                 f"{self.ns}refreshInterval",
             )
             refresh_interval.text = str(self._refresh_interval)
         if self._view_refresh_mode:
-            view_refresh_mode = config.etree.SubElement(
+            view_refresh_mode = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
                 f"{self.ns}viewRefreshMode",
             )
             view_refresh_mode.text = self._view_refresh_mode.value
         if self._view_refresh_time:
-            view_refresh_time = config.etree.SubElement(
+            view_refresh_time = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
                 f"{self.ns}viewRefreshTime",
             )
             view_refresh_time.text = str(self._view_refresh_time)
         if self._view_bound_scale:
-            view_bound_scale = config.etree.SubElement(
+            view_bound_scale = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
                 f"{self.ns}viewBoundScale",
             )
             view_bound_scale.text = str(self._view_bound_scale)
         if self._view_format:
-            view_format = config.etree.SubElement(element, f"{self.ns}viewFormat")
+            view_format = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}viewFormat",
+            )
             view_format.text = self._view_format
         if self._http_query:
-            http_query = config.etree.SubElement(element, f"{self.ns}httpQuery")
+            http_query = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}httpQuery",
+            )
             http_query.text = self._http_query
 
         return element
