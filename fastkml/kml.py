@@ -738,9 +738,12 @@ class _Overlay(_Feature):
             self.draw_order = draw_order.text
         icon = element.find(f"{self.ns}Icon")
         if icon is not None:
-            s = Icon(self.ns)
-            s.from_element(icon)
-            self._icon = s
+            self._icon = Icon.class_from_element(
+                ns=self.ns,
+                name_spaces=self.name_spaces,
+                element=icon,
+                strict=False,
+            )
 
 
 class PhotoOverlay(_Overlay):

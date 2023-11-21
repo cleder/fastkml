@@ -14,6 +14,8 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
+import contextlib
+from typing import Any
 from typing import Dict
 from typing import Optional
 
@@ -33,6 +35,9 @@ class Icon(_BaseObject):
     The required <href> child element defines the location
     of the image to be used as the overlay or as the icon for the placemark.
     This location can either be on a local file system or a remote web server.
+
+    Todo:
+    ----
     The <gx:x>, <gx:y>, <gx:w>, and <gx:h> elements are used to select one
     icon from an image that contains multiple icons
     (often referred to as an icon palette).
@@ -108,12 +113,7 @@ class Icon(_BaseObject):
 
     @refresh_interval.setter
     def refresh_interval(self, refresh_interval: Optional[float]) -> None:
-        if isinstance(refresh_interval, float):
-            self._refresh_interval = refresh_interval
-        elif refresh_interval is None:
-            self._refresh_interval = None
-        else:
-            raise ValueError
+        self._refresh_interval = refresh_interval
 
     @property
     def view_refresh_mode(self) -> Optional[ViewRefreshMode]:
@@ -146,12 +146,7 @@ class Icon(_BaseObject):
 
     @view_refresh_time.setter
     def view_refresh_time(self, view_refresh_time: Optional[float]) -> None:
-        if isinstance(view_refresh_time, float):
-            self._view_refresh_time = view_refresh_time
-        elif view_refresh_time is None:
-            self._view_refresh_time = None
-        else:
-            raise ValueError
+        self._view_refresh_time = view_refresh_time
 
     @property
     def view_bound_scale(self) -> Optional[float]:
@@ -166,12 +161,7 @@ class Icon(_BaseObject):
 
     @view_bound_scale.setter
     def view_bound_scale(self, view_bound_scale: Optional[float]) -> None:
-        if isinstance(view_bound_scale, float):
-            self._view_bound_scale = view_bound_scale
-        elif view_bound_scale is None:
-            self._view_bound_scale = None
-        else:
-            raise ValueError
+        self._view_bound_scale = view_bound_scale
 
     @property
     def view_format(self) -> Optional[str]:
@@ -206,12 +196,7 @@ class Icon(_BaseObject):
 
     @view_format.setter
     def view_format(self, view_format: Optional[str]) -> None:
-        if isinstance(view_format, str):
-            self._view_format = view_format
-        elif view_format is None:
-            self._view_format = None
-        else:
-            raise ValueError
+        self._view_format = view_format
 
     @property
     def http_query(self) -> Optional[str]:
@@ -228,12 +213,7 @@ class Icon(_BaseObject):
 
     @http_query.setter
     def http_query(self, http_query: Optional[str]) -> None:
-        if isinstance(http_query, str):
-            self._http_query = http_query
-        elif http_query is None:
-            self._http_query = None
-        else:
-            raise ValueError
+        self._http_query = http_query
 
     def etree_element(
         self,
@@ -293,46 +273,46 @@ class Icon(_BaseObject):
 
         return element
 
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-
-        href = element.find(f"{self.ns}href")
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        href = element.find(f"{ns}href")
         if href is not None:
-            self.href = href.text
-
-        refresh_mode = element.find(f"{self.ns}refreshMode")
+            kwargs["href"] = href.text
+        refresh_mode = element.find(f"{ns}refreshMode")
         if refresh_mode is not None:
-            self.refresh_mode = RefreshMode(refresh_mode.text)
-
-        refresh_interval = element.find(f"{self.ns}refreshInterval")
+            kwargs["refresh_mode"] = RefreshMode(refresh_mode.text)
+        refresh_interval = element.find(f"{ns}refreshInterval")
         if refresh_interval is not None:
-            try:
-                self.refresh_interval = float(refresh_interval.text)
-            except ValueError:
-                self.refresh_interval = None
-
-        view_refresh_mode = element.find(f"{self.ns}viewRefreshMode")
+            with contextlib.suppress(ValueError):
+                kwargs["refresh_interval"] = float(refresh_interval.text)
+        view_refresh_mode = element.find(f"{ns}viewRefreshMode")
         if view_refresh_mode is not None:
-            self.view_refresh_mode = ViewRefreshMode(view_refresh_mode.text)
-
-        view_refresh_time = element.find(f"{self.ns}viewRefreshTime")
+            kwargs["view_refresh_mode"] = ViewRefreshMode(view_refresh_mode.text)
+        view_refresh_time = element.find(f"{ns}viewRefreshTime")
         if view_refresh_time is not None:
-            try:
-                self.view_refresh_time = float(view_refresh_time.text)
-            except ValueError:
-                self.view_refresh_time = None
-
-        view_bound_scale = element.find(f"{self.ns}viewBoundScale")
+            with contextlib.suppress(ValueError):
+                kwargs["view_refresh_time"] = float(view_refresh_time.text)
+        view_bound_scale = element.find(f"{ns}viewBoundScale")
         if view_bound_scale is not None:
-            try:
-                self.view_bound_scale = float(view_bound_scale.text)
-            except ValueError:
-                self.view_bound_scale = None
-
-        view_format = element.find(f"{self.ns}viewFormat")
+            with contextlib.suppress(ValueError):
+                kwargs["view_bound_scale"] = float(view_bound_scale.text)
+        view_format = element.find(f"{ns}viewFormat")
         if view_format is not None:
-            self.view_format = view_format.text
-
-        http_query = element.find(f"{self.ns}httpQuery")
+            kwargs["view_format"] = view_format.text
+        http_query = element.find(f"{ns}httpQuery")
         if http_query is not None:
-            self.http_query = http_query.text
+            kwargs["http_query"] = http_query.text
+        return kwargs
