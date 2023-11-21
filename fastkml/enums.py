@@ -118,7 +118,7 @@ class DataType(REnum):
     def convert(self, value: str) -> Union[str, int, float, bool]:
         """Convert the data type to a python type."""
         if self == DataType.string:
-            return str(value)
+            return value
         if self in {DataType.int_, DataType.uint, DataType.short, DataType.ushort}:
             return int(value)
         if self in {DataType.float_, DataType.double}:
