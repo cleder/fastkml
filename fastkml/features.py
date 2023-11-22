@@ -34,6 +34,7 @@ from fastkml.times import TimeStamp
 from fastkml.types import Element
 from fastkml.views import Camera
 from fastkml.views import LookAt
+from fastkml.views import Region
 
 logger = logging.getLogger(__name__)
 
@@ -156,19 +157,20 @@ class _Feature(TimeMixin, _BaseObject):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
-        description: Optional[str] = None,
-        snippet: Optional[Union[str, Dict[str, Any]]] = None,
-        atom_author: Optional[atom.Author] = None,
-        atom_link: Optional[atom.Link] = None,
         visibility: Optional[bool] = None,
         isopen: Optional[bool] = None,
-        styles: Optional[List[Style]] = None,
-        style_url: Optional[str] = None,
-        extended_data: None = None,
-        view: Optional[Union[Camera, LookAt]] = None,
+        atom_link: Optional[atom.Link] = None,
+        atom_author: Optional[atom.Author] = None,
         address: Optional[str] = None,
         phone_number: Optional[str] = None,
+        snippet: Optional[Union[str, Dict[str, Any]]] = None,
+        description: Optional[str] = None,
+        view: Optional[Union[Camera, LookAt]] = None,
         times: Optional[Union[TimeSpan, TimeStamp]] = None,
+        style_url: Optional[str] = None,
+        styles: Optional[List[Style]] = None,
+        region: Optional[Region] = None,
+        extended_data: None = None,
     ) -> None:
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.name = name

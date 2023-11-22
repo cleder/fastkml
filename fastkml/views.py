@@ -1,4 +1,5 @@
 import logging
+from dataclasses import dataclass
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -464,7 +465,191 @@ class LookAt(_AbstractView):
         return kwargs
 
 
+@dataclass(frozen=True)
+class LatLonAltBox:
+    """
+    A bounding box defined by geographic coordinates and altitudes.
+
+    https://developers.google.com/kml/documentation/kmlreference#latlonaltbox
+    """
+
+    north: float
+    south: float
+    east: float
+    west: float
+    min_altitude: Optional[float]
+    max_altitude: Optional[float]
+    altitude_mode: Optional[AltitudeMode]
+
+    def etree_element(
+        self,
+        *,
+        ns: str,
+        precision: Optional[int],
+        verbosity: Verbosity,
+    ) -> Element:
+        element = config.etree.Element(  # type: ignore[attr-defined]
+            f"{ns}LatLonAltBox",
+        )
+        north = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{ns}north",
+        )
+        north.text = str(self.north)
+        south = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{ns}south",
+        )
+        south.text = str(self.south)
+        east = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{ns}east",
+        )
+        east.text = str(self.east)
+        west = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{ns}west",
+        )
+        west.text = str(self.west)
+        if self.min_altitude is not None:
+            min_altitude = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{ns}minAltitude",
+            )
+            min_altitude.text = str(self.min_altitude)
+        if self.max_altitude is not None:
+            max_altitude = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{ns}maxAltitude",
+            )
+            max_altitude.text = str(self.max_altitude)
+        if self.altitude_mode:
+            altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{ns}altitudeMode",
+            )
+            altitude_mode.text = self.altitude_mode.value
+        return element
+
+
+@dataclass(frozen=True)
+class Lod:
+    """
+    Lod is an abbreviation for Level of Detail.
+    <Lod> describes the size of the projected region on the screen that is required in
+    order for the region to be considered "active."
+    Also specifies the size of the pixel ramp used for fading in
+    (from transparent to opaque) and fading out (from opaque to transparent).
+
+    https://developers.google.com/kml/documentation/kmlreference#elements-specific-to-region
+    """
+
+    min_lod_pixels: float
+    max_lod_pixels: float
+    min_fade_extent: float
+    max_fade_extent: float
+
+    def etree_element(
+        self,
+        *,
+        ns: str,
+        precision: Optional[int],
+        verbosity: Verbosity,
+    ) -> Element:
+        element = config.etree.Element(f"{ns}Lod")  # type: ignore[attr-defined]
+        min_lod = config.etree.SubElement(  # type: ignore[attr-defined]
+            f"{ns}minLodPixels",
+        )
+        min_lod.text = str(self.min_lod_pixels)
+        max_lod = config.etree.SubElement(  # type: ignore[attr-defined]
+            f"{ns}maxLodPixels",
+        )
+        max_lod.text = str(self.max_lod_pixels)
+        min_fade = config.etree.SubElement(  # type: ignore[attr-defined]
+            f"{ns}minFadeExtent",
+        )
+        min_fade.text = str(self.min_fade_extent)
+        max_fade = config.etree.SubElement(  # type: ignore[attr-defined]
+            f"{ns}maxFadeExtent",
+        )
+        max_fade.text = str(self.max_fade_extent)
+        return element
+
+
+class Region(_BaseObject):
+    """
+    A <Region> contains a bounding box (<LatLonAltBox>) that describes an area of
+    interest defined by geographic coordinates and altitudes.
+
+    In addition, a Region contains an LOD (level of detail) extent (<Lod>),
+    which is a pair of projected coordinate bounding boxes that describe
+    the area that should be loaded in the viewport corresponding to a given
+    level of detail.
+
+    https://developers.google.com/kml/documentation/kmlreference#region
+    """
+
+    __name__ = "Region"
+
+    _lat_lon_alt_box: Optional[LatLonAltBox] = None
+    _lod: Optional[Lod] = None
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        lat_lon_alt_box: Optional[LatLonAltBox] = None,
+        lod: Optional[Lod] = None,
+    ) -> None:
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        self._lat_lon_alt_box = lat_lon_alt_box
+        self._lod = lod
+
+    @property
+    def lat_lon_alt_box(self) -> Optional[LatLonAltBox]:
+        return self._lat_lon_alt_box
+
+    @lat_lon_alt_box.setter
+    def lat_lon_alt_box(self, value: LatLonAltBox) -> None:
+        self._lat_lon_alt_box = value
+
+    @property
+    def lod(self) -> Optional[Lod]:
+        return self._lod
+
+    @lod.setter
+    def lod(self, value: Lod) -> None:
+        self._lod = value
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        if self.lat_lon_alt_box:
+            element.append(
+                self.lat_lon_alt_box.etree_element(
+                    ns=self.ns,
+                    precision=precision,
+                    verbosity=verbosity,
+                ),
+            )
+        if self.lod:
+            element.append(
+                self.lod.etree_element(
+                    ns=self.ns,
+                    precision=precision,
+                    verbosity=verbosity,
+                ),
+            )
+        return element
+
+
 __all__ = [
     "Camera",
     "LookAt",
+    "Region",
 ]
