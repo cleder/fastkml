@@ -85,10 +85,7 @@ class _AbstractView(TimeMixin, _BaseObject):
         self._heading = heading
         self._tilt = tilt
         self._altitude_mode = altitude_mode
-        if isinstance(time_primitive, TimeSpan):
-            self._timespan = time_primitive
-        elif isinstance(time_primitive, TimeStamp):
-            self._timestamp = time_primitive
+        self._times = time_primitive
 
     @property
     def longitude(self) -> Optional[float]:
@@ -199,31 +196,28 @@ class _AbstractView(TimeMixin, _BaseObject):
                 f"{self.ns}tilt",
             )
             tilt.text = str(self.tilt)
-        if self.altitude_mode in (
-            AltitudeMode.clamp_to_ground,
-            AltitudeMode.relative_to_ground,
-            AltitudeMode.absolute,
-        ):
-            altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}altitudeMode",
-            )
-        elif self.altitude_mode in (
-            AltitudeMode.clamp_to_sea_floor,
-            AltitudeMode.relative_to_sea_floor,
-        ):
-            altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.name_spaces['gx']}altitudeMode",
-            )
-        altitude_mode.text = self.altitude_mode.value
-        if (self._timespan is not None) and (self._timestamp is not None):
-            msg = "Either Timestamp or Timespan can be defined, not both"
-            raise ValueError(msg)
-        if self._timespan is not None:
-            element.append(self._timespan.etree_element())
-        elif self._timestamp is not None:
-            element.append(self._timestamp.etree_element())
+        if self.altitude_mode:
+            if self.altitude_mode in (
+                AltitudeMode.clamp_to_ground,
+                AltitudeMode.relative_to_ground,
+                AltitudeMode.absolute,
+            ):
+                altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
+                    element,
+                    f"{self.ns}altitudeMode",
+                )
+            elif self.altitude_mode in (
+                AltitudeMode.clamp_to_sea_floor,
+                AltitudeMode.relative_to_sea_floor,
+            ):
+                altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
+                    element,
+                    f"{self.name_spaces['gx']}altitudeMode",
+                )
+            altitude_mode.text = self.altitude_mode.value
+
+        if self._times is not None:
+            element.append(self._times.etree_element())
         return element
 
     # TODO: <gx:ViewerOptions>

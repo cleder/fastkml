@@ -5,7 +5,6 @@ These are the objects that can be added to a KML file.
 """
 
 import logging
-from datetime import datetime
 from typing import Any
 from typing import Dict
 from typing import Iterator
@@ -131,14 +130,7 @@ class _Feature(TimeMixin, _BaseObject):
     # Placemark, or ScreenOverlay—the value for the Feature's inline
     # style takes precedence over the value for the shared style.
 
-    _timespan: Optional[TimeSpan]
-    # Associates this Feature with a period of time.
-    _timestamp: Optional[TimeStamp]
-    # Associates this Feature with a point in time.
-
-    _camera: Optional[Camera]
-
-    _look_at: Optional[LookAt]
+    _view: Union[Camera, LookAt, None]
 
     # TODO Region = None
     # Features and geometry associated with a Region are drawn only when
@@ -173,18 +165,17 @@ class _Feature(TimeMixin, _BaseObject):
         styles: Optional[List[Style]] = None,
         style_url: Optional[str] = None,
         extended_data: None = None,
-        camera: Optional[Camera] = None,
-        look_at: Optional[LookAt] = None,
+        view: Optional[Union[Camera, LookAt]] = None,
         address: Optional[str] = None,
         phone_number: Optional[str] = None,
+        times: Optional[Union[TimeSpan, TimeStamp]] = None,
     ) -> None:
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.name = name
         self.description = description
         self.style_url = style_url
         self._styles = []
-        self._camera = camera
-        self._look_at = look_at
+        self._view = view
         self.visibility = visibility
         self.isopen = isopen
         self.snippet = snippet
@@ -196,6 +187,7 @@ class _Feature(TimeMixin, _BaseObject):
             for style in styles:
                 self.append_style(style)
         self.extended_data = extended_data
+        self._times = times
 
     @property
     def style_url(self) -> Optional[str]:
@@ -221,22 +213,12 @@ class _Feature(TimeMixin, _BaseObject):
             raise ValueError
 
     @property
-    def camera(self):
-        return self._camera
+    def view(self) -> Optional[Union[Camera, LookAt]]:
+        return self._view
 
-    @camera.setter
-    def camera(self, camera) -> None:
-        if isinstance(camera, Camera):
-            self._camera = camera
-
-    @property
-    def look_at(self) -> datetime:
-        return self._look_at
-
-    @look_at.setter
-    def look_at(self, look_at) -> None:
-        if isinstance(look_at, LookAt):
-            self._look_at = look_at
+    @view.setter
+    def view(self, camera: Optional[Union[Camera, LookAt]]) -> None:
+        self._view = camera
 
     @property
     def link(self):
@@ -331,34 +313,20 @@ class _Feature(TimeMixin, _BaseObject):
             )
 
     @property
-    def address(self) -> None:
-        if self._address:
-            return self._address
-        return None
+    def address(self) -> Optional[str]:
+        return self._address
 
     @address.setter
-    def address(self, address) -> None:
-        if isinstance(address, str):
-            self._address = address
-        elif address is None:
-            self._address = None
-        else:
-            raise ValueError
+    def address(self, address: Optional[str]) -> None:
+        self._address = address
 
     @property
-    def phone_number(self) -> None:
-        if self._phone_number:
-            return self._phone_number
-        return None
+    def phone_number(self) -> Optional[str]:
+        return self._phone_number
 
     @phone_number.setter
-    def phone_number(self, phone_number) -> None:
-        if isinstance(phone_number, str):
-            self._phone_number = phone_number
-        elif phone_number is None:
-            self._phone_number = None
-        else:
-            raise ValueError
+    def phone_number(self, phone_number: Optional[str]) -> None:
+        self._phone_number = phone_number
 
     def etree_element(
         self,
@@ -372,13 +340,8 @@ class _Feature(TimeMixin, _BaseObject):
         if self.description:
             description = config.etree.SubElement(element, f"{self.ns}description")
             description.text = self.description
-        if (self.camera is not None) and (self.look_at is not None):
-            msg = "Either Camera or LookAt can be defined, not both"
-            raise ValueError(msg)
-        if self.camera is not None:
-            element.append(self._camera.etree_element())
-        elif self.look_at is not None:
-            element.append(self._look_at.etree_element())
+        if self._view is not None:
+            element.append(self._view.etree_element())
         if self.visibility is not None:
             visibility = config.etree.SubElement(element, f"{self.ns}visibility")
             visibility.text = str(self.visibility)
@@ -398,13 +361,8 @@ class _Feature(TimeMixin, _BaseObject):
                 snippet.text = self.snippet["text"]
                 if self.snippet.get("maxLines"):
                     snippet.set("maxLines", str(self.snippet["maxLines"]))
-        if (self._timespan is not None) and (self._timestamp is not None):
-            msg = "Either Timestamp or Timespan can be defined, not both"
-            raise ValueError(msg)
-        elif self._timespan is not None:
-            element.append(self._timespan.etree_element())
-        elif self._timestamp is not None:
-            element.append(self._timestamp.etree_element())
+        elif self._times is not None:
+            element.append(self._times.etree_element())
         if self._atom_link is not None:
             element.append(self._atom_link.etree_element())
         if self._atom_author is not None:
@@ -512,9 +470,18 @@ class _Feature(TimeMixin, _BaseObject):
             self.phone_number = phone_number.text
         camera = element.find(f"{self.ns}Camera")
         if camera is not None:
-            s = Camera(self.ns)
-            s.from_element(camera)
-            self.camera = s
+            self._view = Camera.class_from_element(
+                ns=self.ns,
+                element=camera,
+                strict=strict,
+            )
+        lookat = element.find(f"{self.ns}LookAt")
+        if lookat is not None:
+            self._view = LookAt.class_from_element(
+                ns=self.ns,
+                element=lookat,
+                strict=strict,
+            )
 
 
 class Placemark(_Feature):
@@ -632,3 +599,58 @@ class Placemark(_Feature):
         else:
             logger.error("Object does not have a geometry")
         return element
+
+
+class NetworkLink(_Feature):
+    __name__ = "NetworkLink"
+    _nlink = None
+
+    def __init__(
+        self,
+        ns=None,
+        id=None,
+        name=None,
+        description=None,
+        styles=None,
+        styleUrl=None,
+    ):
+        super().__init__(ns, id, name, description, styles, styleUrl)
+
+    @property
+    def link(self):
+        return self._nlink.href
+
+    @link.setter
+    def link(self, url):
+        if isinstance(url, basestring):
+            self._nlink = atom.Link(href=url)
+        elif isinstance(url, Link):
+            self._nlink = url
+        elif url is None:
+            self._nlink = None
+        else:
+            raise TypeError
+
+    def etree_element(self):
+        element = super().etree_element()
+        if self._nlink is not None:
+            element.append(self._nlink.etree_element())
+        return element
+
+    def from_element(self, element):
+        super(_Feature, self).from_element(element)
+        name = element.find(f"{self.ns}name")
+        if name is not None:
+            self.name = name.text
+        id = element.find(f"{self.ns}id")
+        if id is not None:
+            self.id = id.text
+        visibility = element.find(f"{self.ns}visibility")
+        if visibility is not None:
+            self.visibility = visibility.text
+
+        link = element.find(f"{self.ns}Link")
+        if link is not None:
+            s = Link()
+            s.from_element(link)
+            self._nlink = s

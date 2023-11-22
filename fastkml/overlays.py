@@ -3,10 +3,13 @@ Overlays.
 """
 
 import logging
+from typing import Any
 from typing import Dict
+from typing import List
 from typing import Optional
 from typing import Union
 
+from fastkml import atom
 from fastkml import config
 from fastkml import gx
 from fastkml.enums import GridOrigin
@@ -19,7 +22,12 @@ from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
 from fastkml.links import Icon
+from fastkml.styles import Style
+from fastkml.times import TimeSpan
+from fastkml.times import TimeStamp
 from fastkml.types import Element
+from fastkml.views import Camera
+from fastkml.views import LookAt
 
 logger = logging.getLogger(__name__)
 
@@ -70,9 +78,19 @@ class _Overlay(_Feature):
         target_id: Optional[str] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
-        color: Optional[str] = None,
-        styles: None = None,
+        snippet: Optional[Union[str, Dict[str, Any]]] = None,
+        atom_author: Optional[atom.Author] = None,
+        atom_link: Optional[atom.Link] = None,
+        visibility: Optional[bool] = None,
+        isopen: Optional[bool] = None,
+        styles: Optional[List[Style]] = None,
         style_url: Optional[str] = None,
+        extended_data: None = None,
+        view: Optional[Union[Camera, LookAt]] = None,
+        address: Optional[str] = None,
+        phone_number: Optional[str] = None,
+        times: Optional[Union[TimeSpan, TimeStamp]] = None,
+        color: Optional[str] = None,
         draw_order: Optional[str] = None,
         icon: Optional[Icon] = None,
     ) -> None:
@@ -85,6 +103,16 @@ class _Overlay(_Feature):
             description=description,
             styles=styles,
             style_url=style_url,
+            snippet=snippet,
+            atom_author=atom_author,
+            atom_link=atom_link,
+            visibility=visibility,
+            isopen=isopen,
+            extended_data=extended_data,
+            view=view,
+            address=address,
+            phone_number=phone_number,
+            times=times,
         )
         self._icon = icon
         self._color = color
