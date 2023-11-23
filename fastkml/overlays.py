@@ -1,18 +1,21 @@
 """Overlays."""
 
 import logging
-from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Union
+from typing import cast
 
 from fastkml import atom
 from fastkml import config
 from fastkml import gx
+from fastkml.base import _XMLObject
+from fastkml.data import ExtendedData
 from fastkml.enums import GridOrigin
 from fastkml.enums import Shape
 from fastkml.enums import Verbosity
+from fastkml.features import Snippet
 from fastkml.features import _Feature
 from fastkml.geometry import LinearRing
 from fastkml.geometry import LineString
@@ -21,11 +24,13 @@ from fastkml.geometry import Point
 from fastkml.geometry import Polygon
 from fastkml.links import Icon
 from fastkml.styles import Style
+from fastkml.styles import StyleUrl
 from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
 from fastkml.types import Element
 from fastkml.views import Camera
 from fastkml.views import LookAt
+from fastkml.views import Region
 
 logger = logging.getLogger(__name__)
 
@@ -75,19 +80,21 @@ class _Overlay(_Feature):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
-        description: Optional[str] = None,
-        snippet: Optional[Union[str, Dict[str, Any]]] = None,
-        atom_author: Optional[atom.Author] = None,
-        atom_link: Optional[atom.Link] = None,
         visibility: Optional[bool] = None,
         isopen: Optional[bool] = None,
-        styles: Optional[List[Style]] = None,
-        style_url: Optional[str] = None,
-        extended_data: None = None,
-        view: Optional[Union[Camera, LookAt]] = None,
+        atom_link: Optional[atom.Link] = None,
+        atom_author: Optional[atom.Author] = None,
         address: Optional[str] = None,
         phone_number: Optional[str] = None,
+        snippet: Optional[Snippet] = None,
+        description: Optional[str] = None,
+        view: Optional[Union[Camera, LookAt]] = None,
         times: Optional[Union[TimeSpan, TimeStamp]] = None,
+        style_url: Optional[StyleUrl] = None,
+        styles: Optional[List[Style]] = None,
+        region: Optional[Region] = None,
+        extended_data: Optional[ExtendedData] = None,
+        # Overlay specific
         color: Optional[str] = None,
         draw_order: Optional[str] = None,
         icon: Optional[Icon] = None,
@@ -98,62 +105,48 @@ class _Overlay(_Feature):
             id=id,
             target_id=target_id,
             name=name,
-            description=description,
-            styles=styles,
-            style_url=style_url,
-            snippet=snippet,
-            atom_author=atom_author,
-            atom_link=atom_link,
             visibility=visibility,
             isopen=isopen,
-            extended_data=extended_data,
-            view=view,
+            atom_link=atom_link,
+            atom_author=atom_author,
             address=address,
             phone_number=phone_number,
+            snippet=snippet,
+            description=description,
+            view=view,
             times=times,
+            style_url=style_url,
+            styles=styles,
+            region=region,
+            extended_data=extended_data,
         )
         self._icon = icon
         self._color = color
         self._draw_order = draw_order
 
     @property
-    def color(self):
+    def color(self) -> Optional[str]:
         return self._color
 
     @color.setter
-    def color(self, color) -> None:
-        if isinstance(color, str):
-            self._color = color
-        elif color is None:
-            self._color = None
-        else:
-            raise ValueError
+    def color(self, color: Optional[str]) -> None:
+        self._color = color
 
     @property
     def draw_order(self) -> Optional[str]:
         return self._draw_order
 
     @draw_order.setter
-    def draw_order(self, value) -> None:
-        if isinstance(value, (str, int, float)):
-            self._draw_order = str(value)
-        elif value is None:
-            self._draw_order = None
-        else:
-            raise ValueError
+    def draw_order(self, value: Optional[str]) -> None:
+        self._draw_order = value
 
     @property
     def icon(self) -> Optional[Icon]:
         return self._icon
 
     @icon.setter
-    def icon(self, value) -> None:
-        if isinstance(value, Icon):
-            self._icon = value
-        elif value is None:
-            self._icon = None
-        else:
-            raise ValueError
+    def icon(self, value: Optional[Icon]) -> None:
+        self._icon = value
 
     def etree_element(
         self,
@@ -162,17 +155,23 @@ class _Overlay(_Feature):
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self._color:
-            color = config.etree.SubElement(element, f"{self.ns}color")
+            color = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}color",
+            )
             color.text = self._color
         if self._draw_order:
-            draw_order = config.etree.SubElement(element, f"{self.ns}drawOrder")
-            draw_order.text = self._draw_order
+            draw_order = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}drawOrder",
+            )
+            draw_order.text = str(self._draw_order)
         if self._icon:
             element.append(self._icon.etree_element())
         return element
 
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
+    def from_element(self, element: Element, strict: bool = False) -> None:
+        super().from_element(element=element, strict=strict)
         color = element.find(f"{self.ns}color")
         if color is not None:
             self.color = color.text
@@ -181,12 +180,65 @@ class _Overlay(_Feature):
             self.draw_order = draw_order.text
         icon = element.find(f"{self.ns}Icon")
         if icon is not None:
-            self._icon = Icon.class_from_element(
-                ns=self.ns,
-                name_spaces=self.name_spaces,
-                element=icon,
-                strict=False,
+            self._icon = cast(
+                Icon,
+                Icon.class_from_element(
+                    ns=self.ns,
+                    name_spaces=self.name_spaces,
+                    element=icon,
+                    strict=False,
+                ),
             )
+
+
+class ViewVolume(_XMLObject):
+    """
+    The ViewVolume defines how much of the current scene is visible.
+
+    Specifying the field of view is analogous to specifying the lens opening in a
+    physical camera.
+    A small field of view, like a telephoto lens, focuses on a small part of the scene.
+    A large field of view, like a wide-angle lens, focuses on a large part of the scene.
+
+    https://developers.google.com/kml/documentation/kmlreference#viewvolume
+    """
+
+    left_fow: Optional[float]
+    # Angle, in degrees, between the camera's viewing direction and the left side
+    # of the view volume.
+
+    right_fov: Optional[float]
+    # Angle, in degrees, between the camera's viewing direction and the right side
+    # of the view volume.
+
+    bottom_fov: Optional[float]
+    # Angle, in degrees, between the camera's viewing direction and the bottom side
+    # of the view volume.
+
+    top_fov: Optional[float]
+    # Angle, in degrees, between the camera's viewing direction and the top side
+    # of the view volume.
+
+    near: Optional[float]
+    # Measurement in meters along the viewing direction from the camera viewpoint
+    # to the PhotoOverlay shape.
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        left_fov: Optional[float] = None,
+        right_fov: Optional[float] = None,
+        bottom_fov: Optional[float] = None,
+        top_fov: Optional[float] = None,
+        near: Optional[float] = None,
+    ) -> None:
+        super().__init__(ns=ns, name_spaces=name_spaces)
+        self.left_fov = left_fov
+        self.right_fov = right_fov
+        self.bottom_fov = bottom_fov
+        self.top_fov = top_fov
+        self.near = near
 
 
 class PhotoOverlay(_Overlay):
@@ -211,41 +263,23 @@ class PhotoOverlay(_Overlay):
     element that specifies the image file to use for the PhotoOverlay.
     In the case of a very large image, the <href> is a special URL that
     indexes into a pyramid of images of varying resolutions (see ImagePyramid).
+
+    https://developers.google.com/kml/documentation/kmlreference#photooverlay
     """
 
     __name__ = "PhotoOverlay"
 
-    _rotation = None
+    _rotation: Optional[float]
     # Adjusts how the photo is placed inside the field of view. This element is
     # useful if your photo has been rotated and deviates slightly from a desired
     # horizontal view.
 
-    # - ViewVolume -
-    # Defines how much of the current scene is visible. Specifying the field of
-    # view is analogous to specifying the lens opening in a physical camera.
-    # A small field of view, like a telephoto lens, focuses on a small part of
-    # the scene. A large field of view, like a wide-angle lens, focuses on a
-    # large part of the scene.
+    _view_volume: Optional[ViewVolume]
+    # Defines how much of the current scene is visible.
 
-    _left_fow = None
-    # Angle, in degrees, between the camera's viewing direction and the left side
-    # of the view volume.
-
-    _right_fov = None
-    # Angle, in degrees, between the camera's viewing direction and the right side
-    # of the view volume.
-
-    _bottom_fov = None
-    # Angle, in degrees, between the camera's viewing direction and the bottom side
-    # of the view volume.
-
-    _top_fov = None
-    # Angle, in degrees, between the camera's viewing direction and the top side
-    # of the view volume.
-
-    _near = None
-    # Measurement in meters along the viewing direction from the camera viewpoint
-    # to the PhotoOverlay shape.
+    # _image_pyramid: Optional[ImagePyramid]
+    # Defines the format, resolution, and refresh rate for images that are
+    # displayed in the PhotoOverlay.
 
     _tile_size = "256"
     # Size of the tiles, in pixels. Tiles must be square, and <tileSize> must
@@ -278,6 +312,58 @@ class PhotoOverlay(_Overlay):
     #       for panoramas, which can be either partial or full cylinders
     #   sphere -
     #       for spherical panoramas
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        name: Optional[str] = None,
+        visibility: Optional[bool] = None,
+        isopen: Optional[bool] = None,
+        atom_link: Optional[atom.Link] = None,
+        atom_author: Optional[atom.Author] = None,
+        address: Optional[str] = None,
+        phone_number: Optional[str] = None,
+        snippet: Optional[Snippet] = None,
+        description: Optional[str] = None,
+        view: Optional[Union[Camera, LookAt]] = None,
+        times: Optional[Union[TimeSpan, TimeStamp]] = None,
+        style_url: Optional[StyleUrl] = None,
+        styles: Optional[List[Style]] = None,
+        region: Optional[Region] = None,
+        extended_data: Optional[ExtendedData] = None,
+        color: Optional[str] = None,
+        draw_order: Optional[str] = None,
+        icon: Optional[Icon] = None,
+        # Photo Overlay specific
+    ) -> None:
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            name=name,
+            visibility=visibility,
+            isopen=isopen,
+            atom_link=atom_link,
+            atom_author=atom_author,
+            address=address,
+            phone_number=phone_number,
+            snippet=snippet,
+            description=description,
+            view=view,
+            times=times,
+            style_url=style_url,
+            styles=styles,
+            region=region,
+            extended_data=extended_data,
+            color=color,
+            draw_order=draw_order,
+            icon=icon,
+        )
+        self._rotation = None
 
     @property
     def rotation(self) -> Optional[str]:

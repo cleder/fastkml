@@ -291,25 +291,40 @@ class _Feature(TimeMixin, _BaseObject):
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.name:
-            name = config.etree.SubElement(element, f"{self.ns}name")
+            name = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}name",
+            )
             name.text = self.name
         if self.description:
-            description = config.etree.SubElement(element, f"{self.ns}description")
+            description = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}description",
+            )
             description.text = self.description
         if self._view is not None:
             element.append(self._view.etree_element())
         if self.visibility is not None:
-            visibility = config.etree.SubElement(element, f"{self.ns}visibility")
-            visibility.text = str(self.visibility)
+            visibility = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}visibility",
+            )
+            visibility.text = str(int(self.visibility))
         if self.isopen:
-            isopen = config.etree.SubElement(element, f"{self.ns}open")
-            isopen.text = str(self.isopen)
+            isopen = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}open",
+            )
+            isopen.text = str(int(self.isopen))
         if self._style_url is not None:
             element.append(self._style_url.etree_element())
         for style in self.styles():
             element.append(style.etree_element())
         if self.snippet:
-            snippet = config.etree.SubElement(element, f"{self.ns}Snippet")
+            snippet = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}Snippet",
+            )
             snippet.text = self.snippet.text
             if self.snippet.max_lines:
                 snippet.set("maxLines", str(self.snippet.max_lines))
@@ -322,10 +337,16 @@ class _Feature(TimeMixin, _BaseObject):
         if self.extended_data is not None:
             element.append(self.extended_data.etree_element())
         if self._address is not None:
-            address = config.etree.SubElement(element, f"{self.ns}address")
+            address = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}address",
+            )
             address.text = self._address
         if self._phone_number is not None:
-            phone_number = config.etree.SubElement(element, f"{self.ns}phoneNumber")
+            phone_number = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}phoneNumber",
+            )
             phone_number.text = self._phone_number
         return element
 
@@ -397,26 +418,35 @@ class _Feature(TimeMixin, _BaseObject):
             )
         atom_link = element.find(f"{atom.NS}link")
         if atom_link is not None:
-            self._atom_link = atom.Link.class_from_element(
-                ns=atom.NS,
-                name_spaces=self.name_spaces,
-                element=atom_link,
-                strict=strict,
+            self._atom_link = cast(
+                atom.Link,
+                atom.Link.class_from_element(
+                    ns=atom.NS,
+                    name_spaces=self.name_spaces,
+                    element=atom_link,
+                    strict=strict,
+                ),
             )
         atom_author = element.find(f"{atom.NS}author")
         if atom_author is not None:
-            self._atom_author = atom.Author.class_from_element(
-                ns=atom.NS,
-                name_spaces=self.name_spaces,
-                element=atom_author,
-                strict=strict,
+            self._atom_author = cast(
+                atom.Author,
+                atom.Author.class_from_element(
+                    ns=atom.NS,
+                    name_spaces=self.name_spaces,
+                    element=atom_author,
+                    strict=strict,
+                ),
             )
         extended_data = element.find(f"{self.ns}ExtendedData")
         if extended_data is not None:
-            self.extended_data = ExtendedData.class_from_element(
-                ns=self.ns,
-                element=extended_data,
-                strict=strict,
+            self.extended_data = cast(
+                ExtendedData,
+                ExtendedData.class_from_element(
+                    ns=self.ns,
+                    element=extended_data,
+                    strict=strict,
+                ),
             )
         address = element.find(f"{self.ns}address")
         if address is not None:
@@ -426,17 +456,23 @@ class _Feature(TimeMixin, _BaseObject):
             self.phone_number = phone_number.text
         camera = element.find(f"{self.ns}Camera")
         if camera is not None:
-            self._view = Camera.class_from_element(
-                ns=self.ns,
-                element=camera,
-                strict=strict,
+            self._view = cast(
+                Camera,
+                Camera.class_from_element(
+                    ns=self.ns,
+                    element=camera,
+                    strict=strict,
+                ),
             )
         lookat = element.find(f"{self.ns}LookAt")
         if lookat is not None:
-            self._view = LookAt.class_from_element(
-                ns=self.ns,
-                element=lookat,
-                strict=strict,
+            self._view = cast(
+                LookAt,
+                LookAt.class_from_element(
+                    ns=self.ns,
+                    element=lookat,
+                    strict=strict,
+                ),
             )
 
 
@@ -508,62 +544,86 @@ class Placemark(_Feature):
         super().from_element(element)
         point = element.find(f"{self.ns}Point")
         if point is not None:
-            self._geometry = Point.class_from_element(
-                ns=self.ns,
-                element=point,
-                strict=strict,
+            self._geometry = cast(
+                Point,
+                Point.class_from_element(
+                    ns=self.ns,
+                    element=point,
+                    strict=strict,
+                ),
             )
             return
         line = element.find(f"{self.ns}LineString")
         if line is not None:
-            self._geometry = LineString.class_from_element(
-                ns=self.ns,
-                element=line,
-                strict=strict,
+            self._geometry = cast(
+                LineString,
+                LineString.class_from_element(
+                    ns=self.ns,
+                    element=line,
+                    strict=strict,
+                ),
             )
             return
         polygon = element.find(f"{self.ns}Polygon")
         if polygon is not None:
-            self._geometry = Polygon.class_from_element(
-                ns=self.ns,
-                element=polygon,
-                strict=strict,
+            self._geometry = cast(
+                Polygon,
+                Polygon.class_from_element(
+                    ns=self.ns,
+                    element=polygon,
+                    strict=strict,
+                ),
             )
             return
         linearring = element.find(f"{self.ns}LinearRing")
         if linearring is not None:
-            self._geometry = LinearRing.class_from_element(
-                ns=self.ns,
-                element=linearring,
-                strict=strict,
+            self._geometry = cast(
+                LinearRing,
+                LinearRing.class_from_element(
+                    ns=self.ns,
+                    element=linearring,
+                    strict=strict,
+                ),
             )
             return
         multigeometry = element.find(f"{self.ns}MultiGeometry")
         if multigeometry is not None:
-            self._geometry = MultiGeometry.class_from_element(
-                ns=self.ns,
-                element=multigeometry,
-                strict=strict,
+            self._geometry = cast(
+                MultiGeometry,
+                MultiGeometry.class_from_element(
+                    ns=self.ns,
+                    element=multigeometry,
+                    strict=strict,
+                ),
             )
             return
         track = element.find(f"{self.ns}Track")
         if track is not None:
-            self._geometry = gx.Track.class_from_element(
-                ns=config.GXNS,
-                element=track,
-                strict=strict,
+            self._geometry = cast(
+                gx.Track,
+                gx.Track.class_from_element(
+                    ns=config.GXNS,
+                    element=track,
+                    strict=strict,
+                ),
             )
             return
         multitrack = element.find(f"{self.ns}MultiTrack")
         if multitrack is not None:
-            self._geometry = gx.MultiTrack.class_from_element(
-                ns=config.GXNS,
-                element=multitrack,
-                strict=strict,
+            self._geometry = cast(
+                gx.MultiTrack,
+                gx.MultiTrack.class_from_element(
+                    ns=config.GXNS,
+                    element=multitrack,
+                    strict=strict,
+                ),
             )
             return
         logger.warning("No geometries found")
-        logger.debug("Problem with element: %", config.etree.tostring(element))
+        logger.debug(
+            "Problem with element: %",
+            config.etree.tostring(element),  # type: ignore[attr-defined]
+        )
 
     def etree_element(
         self,
@@ -620,7 +680,7 @@ class NetworkLink(_Feature):
 
     refresh_visibility: Optional[bool]
     fly_to_view: Optional[bool]
-    link: Optional[Link]
+    _link: Optional[Link]
 
     __name__ = "NetworkLink"
 
@@ -673,7 +733,7 @@ class NetworkLink(_Feature):
         )
         self.refresh_visibility = refresh_visibility
         self.fly_to_view = fly_to_view
-        self.link = link
+        self._link = link
 
     def etree_element(
         self,
@@ -698,7 +758,7 @@ class NetworkLink(_Feature):
             element.append(self.link.etree_element())
         return element
 
-    def from_element(self, element: Element, strict=False) -> None:
+    def from_element(self, element: Element, strict: bool = False) -> None:
         super(_Feature, self).from_element(element)
 
         visibility = element.find(f"{self.ns}refreshVisibility")
@@ -710,9 +770,12 @@ class NetworkLink(_Feature):
 
         link = element.find(f"{self.ns}Link")
         if link is not None:
-            self.link = Link.class_from_element(
-                ns=self.ns,
-                name_spaces=self.name_spaces,
-                element=link,
-                strict=strict,
+            self._link = cast(
+                Link,
+                Link.class_from_element(
+                    ns=self.ns,
+                    name_spaces=self.name_spaces,
+                    element=link,
+                    strict=strict,
+                ),
             )

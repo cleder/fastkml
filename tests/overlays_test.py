@@ -38,37 +38,22 @@ class TestBaseOverlay(StdLibrary):
         o.color = None
         assert o.color is None
 
-    def test_color_value_error(self) -> None:
-        o = overlays._Overlay(name="An Overlay")
-        with pytest.raises(ValueError):
-            o.color = object()
-
     def test_draw_order_string(self) -> None:
         o = overlays._Overlay(name="An Overlay")
-        o.draw_order = "1"
-        assert o.draw_order == "1"
+        o.draw_order = 1
+        assert o.draw_order == 1
 
     def test_draw_order_int(self) -> None:
         o = overlays._Overlay(name="An Overlay")
         o.draw_order = 1
-        assert o.draw_order == "1"
+        assert o.draw_order == 1
 
     def test_draw_order_none(self) -> None:
         o = overlays._Overlay(name="An Overlay")
-        o.draw_order = "1"
-        assert o.draw_order == "1"
+        o.draw_order = 1
+        assert o.draw_order == 1
         o.draw_order = None
         assert o.draw_order is None
-
-    def test_draw_order_value_error(self) -> None:
-        o = overlays._Overlay(name="An Overlay")
-        with pytest.raises(ValueError):
-            o.draw_order = object()
-
-    def test_icon_raise_exception(self) -> None:
-        o = overlays._Overlay(name="An Overlay")
-        with pytest.raises(ValueError):
-            o.icon = 12345
 
 
 class TestGroundOverlay(StdLibrary):
