@@ -11,6 +11,7 @@ from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Union
+from typing import cast
 
 from fastkml import atom
 from fastkml import config
@@ -117,7 +118,7 @@ class _Feature(TimeMixin, _BaseObject):
     description: Optional[str]
     # User-supplied content that appears in the description balloon.
 
-    _style_url: Optional[Union[Style, StyleMap]]
+    _style_url: Optional[StyleUrl]
     # URL of a <Style> or <StyleMap> defined in a Document.
     # If the style is in the same file, use a # reference.
     # If the style is defined in an external file, use a full URL
@@ -172,7 +173,7 @@ class _Feature(TimeMixin, _BaseObject):
         description: Optional[str] = None,
         view: Optional[Union[Camera, LookAt]] = None,
         times: Optional[Union[TimeSpan, TimeStamp]] = None,
-        style_url: Optional[str] = None,
+        style_url: Optional[StyleUrl] = None,
         styles: Optional[List[Style]] = None,
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
@@ -180,7 +181,7 @@ class _Feature(TimeMixin, _BaseObject):
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.name = name
         self.description = description
-        self.style_url = style_url
+        self._style_url = style_url
         self._styles = []
         self._view = view
         self.visibility = visibility
@@ -229,7 +230,7 @@ class _Feature(TimeMixin, _BaseObject):
         self._view = camera
 
     @property
-    def link(self) -> atom.Link:
+    def link(self) -> Optional[atom.Link]:
         return self._atom_link
 
     @link.setter
@@ -338,10 +339,10 @@ class _Feature(TimeMixin, _BaseObject):
             self.description = description.text
         visibility = element.find(f"{self.ns}visibility")
         if visibility is not None and visibility.text:
-            self.visibility = 1 if visibility.text in ["1", "true"] else 0
+            self.visibility = True if visibility.text in ["1", "true"] else False
         isopen = element.find(f"{self.ns}open")
         if isopen is not None:
-            self.isopen = 1 if isopen.text in ["1", "true"] else 0
+            self.isopen = True if isopen.text in ["1", "true"] else False
         styles = element.findall(f"{self.ns}Style")
         for style in styles:
             s = Style.class_from_element(
@@ -350,7 +351,7 @@ class _Feature(TimeMixin, _BaseObject):
                 element=style,
                 strict=strict,
             )
-            self.append_style(s)
+            self.append_style(cast(Style, s))
         styles = element.findall(f"{self.ns}StyleMap")
         for style in styles:
             s = StyleMap.class_from_element(
@@ -359,14 +360,17 @@ class _Feature(TimeMixin, _BaseObject):
                 element=style,
                 strict=strict,
             )
-            self.append_style(s)
+            self.append_style(cast(StyleMap, s))
         style_url = element.find(f"{self.ns}styleUrl")
         if style_url is not None:
-            self._style_url = StyleUrl.class_from_element(
-                ns=self.ns,
-                name_spaces=self.name_spaces,
-                element=style_url,
-                strict=strict,
+            self._style_url = cast(
+                StyleUrl,
+                StyleUrl.class_from_element(
+                    ns=self.ns,
+                    name_spaces=self.name_spaces,
+                    element=style_url,
+                    strict=strict,
+                ),
             )
         snippet = element.find(f"{self.ns}Snippet")
         if snippet is not None:
@@ -374,7 +378,7 @@ class _Feature(TimeMixin, _BaseObject):
             if max_lines is not None:
                 self.snippet = Snippet(text=snippet.text, max_lines=int(max_lines))
             else:
-                self.snippet = Snippet(text=snippet.text)
+                self.snippet = Snippet(text=snippet.text)  # type: ignore[unreachable]
         timespan = element.find(f"{self.ns}TimeSpan")
         if timespan is not None:
             self._timespan = TimeSpan.class_from_element(
@@ -464,7 +468,7 @@ class Placemark(_Feature):
         description: Optional[str] = None,
         view: Optional[Union[Camera, LookAt]] = None,
         times: Optional[Union[TimeSpan, TimeStamp]] = None,
-        style_url: Optional[str] = None,
+        style_url: Optional[StyleUrl] = None,
         styles: Optional[List[Style]] = None,
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
@@ -500,7 +504,7 @@ class Placemark(_Feature):
             return self._geometry.geometry
         return None
 
-    def from_element(self, element: Element, strict=False) -> None:
+    def from_element(self, element: Element, strict: bool = False) -> None:
         super().from_element(element)
         point = element.find(f"{self.ns}Point")
         if point is not None:
@@ -637,7 +641,7 @@ class NetworkLink(_Feature):
         description: Optional[str] = None,
         view: Optional[Union[Camera, LookAt]] = None,
         times: Optional[Union[TimeSpan, TimeStamp]] = None,
-        style_url: Optional[str] = None,
+        style_url: Optional[StyleUrl] = None,
         styles: Optional[List[Style]] = None,
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
@@ -671,8 +675,12 @@ class NetworkLink(_Feature):
         self.fly_to_view = fly_to_view
         self.link = link
 
-    def etree_element(self):
-        element = super().etree_element()
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.refresh_visibility is not None:
             refresh_visibility = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -690,7 +698,7 @@ class NetworkLink(_Feature):
             element.append(self.link.etree_element())
         return element
 
-    def from_element(self, element, strict=False):
+    def from_element(self, element: Element, strict=False) -> None:
         super(_Feature, self).from_element(element)
 
         visibility = element.find(f"{self.ns}refreshVisibility")
