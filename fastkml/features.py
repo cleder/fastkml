@@ -759,7 +759,7 @@ class NetworkLink(_Feature):
         return element
 
     def from_element(self, element: Element, strict: bool = False) -> None:
-        super(_Feature, self).from_element(element)
+        super().from_element(element)
 
         visibility = element.find(f"{self.ns}refreshVisibility")
         if visibility is not None:
