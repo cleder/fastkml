@@ -23,6 +23,7 @@ from pygeoif.geometry import Polygon
 from fastkml import atom
 from fastkml import base
 from fastkml import config
+from fastkml import features
 from fastkml import kml
 from fastkml import styles
 from fastkml.enums import ColorMode
@@ -534,17 +535,18 @@ class TestKmlFromString:
 
         k = kml.KML()
         k.from_string(doc)
-        assert next(iter(k.features())).snippet["text"] == "Short Desc"
-        assert next(iter(k.features())).snippet["maxLines"] == 2
-        next(iter(k.features()))._snippet["maxLines"] = 3
-        assert next(iter(k.features())).snippet["maxLines"] == 3
+        assert next(iter(k.features())).snippet.text == "Short Desc"
+        assert next(iter(k.features())).snippet.max_lines == 2
+        next(iter(k.features()))._snippet = features.Snippet(
+            text="Another Snippet", max_lines=3
+        )
         assert 'maxLines="3"' in k.to_string()
-        next(iter(k.features())).snippet = {"text": "Annother Snippet"}
+        next(iter(k.features())).snippet = features.Snippet(text="Another Snippet")
         assert "maxLines" not in k.to_string()
-        assert "Annother Snippet" in k.to_string()
-        next(iter(k.features())).snippet = "Diffrent Snippet"
+        assert "Another Snippet" in k.to_string()
+        next(iter(k.features())).snippet = features.Snippet("Different Snippet")
         assert "maxLines" not in k.to_string()
-        assert "Diffrent Snippet" in k.to_string()
+        assert "Different Snippet" in k.to_string()
 
     def test_from_wrong_string(self) -> None:
         doc = kml.KML()

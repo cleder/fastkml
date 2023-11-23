@@ -5,6 +5,7 @@ These are the objects that can be added to a KML file.
 """
 
 import logging
+from dataclasses import dataclass
 from typing import Any
 from typing import Dict
 from typing import Iterator
@@ -48,6 +49,12 @@ KmlGeometry = Union[
     gx.MultiTrack,
     gx.Track,
 ]
+
+
+@dataclass(frozen=True)
+class Snippet:
+    text: str
+    max_lines: Optional[int] = None
 
 
 class _Feature(TimeMixin, _BaseObject):
@@ -95,7 +102,7 @@ class _Feature(TimeMixin, _BaseObject):
     # A string value representing a telephone number.
     # This element is used by Google Maps Mobile only.
 
-    _snippet: Optional[Union[str, Dict[str, Any]]]
+    _snippet: Optional[Snippet]
     # _snippet is either a tuple of a string Snippet.text and an integer
     # Snippet.maxLines or a string
     #
@@ -163,7 +170,7 @@ class _Feature(TimeMixin, _BaseObject):
         atom_author: Optional[atom.Author] = None,
         address: Optional[str] = None,
         phone_number: Optional[str] = None,
-        snippet: Optional[Union[str, Dict[str, Any]]] = None,
+        snippet: Optional[Snippet] = None,
         description: Optional[str] = None,
         view: Optional[Union[Camera, LookAt]] = None,
         times: Optional[Union[TimeSpan, TimeStamp]] = None,
@@ -274,46 +281,12 @@ class _Feature(TimeMixin, _BaseObject):
                 raise TypeError
 
     @property
-    def snippet(self) -> Optional[Dict[str, Any]]:
-        if not self._snippet:
-            return None
-        if isinstance(self._snippet, dict):
-            text = self._snippet.get("text")
-            if text:
-                assert isinstance(text, str)
-                max_lines = self._snippet.get("maxLines", None)
-                if max_lines is None:
-                    return {"text": text}
-                elif int(max_lines) > 0:
-                    # if maxLines <=0 ignore it
-                    return {"text": text, "maxLines": max_lines}
-                return None
-            return None
-        elif isinstance(self._snippet, str):
-            return self._snippet
-        else:
-            msg = "Snippet must be dict of {'text':t, 'maxLines':i} or string"
-            raise ValueError(
-                msg,
-            )
+    def snippet(self) -> Optional[Snippet]:
+        return self._snippet
 
     @snippet.setter
-    def snippet(self, snip=None) -> None:
-        self._snippet = {}
-        if isinstance(snip, dict):
-            self._snippet["text"] = snip.get("text")
-            max_lines = snip.get("maxLines")
-            if max_lines is not None:
-                self._snippet["maxLines"] = int(snip["maxLines"])
-        elif isinstance(snip, str):
-            self._snippet["text"] = snip
-        elif snip is None:
-            self._snippet = None
-        else:
-            msg = "Snippet must be dict of {'text':t, 'maxLines':i} or string"
-            raise ValueError(
-                msg,
-            )
+    def snippet(self, snippet: Optional[Snippet]) -> None:
+        self._snippet = snippet
 
     @property
     def address(self) -> Optional[str]:
@@ -357,13 +330,9 @@ class _Feature(TimeMixin, _BaseObject):
             element.append(style.etree_element())
         if self.snippet:
             snippet = config.etree.SubElement(element, f"{self.ns}Snippet")
-            if isinstance(self.snippet, str):
-                snippet.text = self.snippet
-            else:
-                assert isinstance(self.snippet["text"], str)
-                snippet.text = self.snippet["text"]
-                if self.snippet.get("maxLines"):
-                    snippet.set("maxLines", str(self.snippet["maxLines"]))
+            snippet.text = self.snippet.text
+            if self.snippet.max_lines:
+                snippet.set("maxLines", str(self.snippet.max_lines))
         elif self._times is not None:
             element.append(self._times.etree_element())
         if self._atom_link is not None:
@@ -422,10 +391,11 @@ class _Feature(TimeMixin, _BaseObject):
             )
         snippet = element.find(f"{self.ns}Snippet")
         if snippet is not None:
-            _snippet = {"text": snippet.text}
-            if snippet.get("maxLines"):
-                _snippet["maxLines"] = int(snippet.get("maxLines"))
-            self.snippet = _snippet
+            max_lines = snippet.get("maxLines")
+            if max_lines is not None:
+                self.snippet = Snippet(text=snippet.text, max_lines=int(max_lines))
+            else:
+                self.snippet = Snippet(text=snippet.text)
         timespan = element.find(f"{self.ns}TimeSpan")
         if timespan is not None:
             self._timespan = TimeSpan.class_from_element(
