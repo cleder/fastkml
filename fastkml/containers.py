@@ -1,6 +1,4 @@
-"""
-Container classes for KML elements.
-"""
+"""Container classes for KML elements."""
 import logging
 import urllib.parse as urlparse
 from typing import Dict

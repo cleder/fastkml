@@ -1,6 +1,4 @@
-"""
-Overlays.
-"""
+"""Overlays."""
 
 import logging
 from typing import Any

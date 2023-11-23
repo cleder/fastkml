@@ -24,6 +24,7 @@ from fastkml.geometry import LineString
 from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
+from fastkml.links import Link
 from fastkml.mixins import TimeMixin
 from fastkml.styles import Style
 from fastkml.styles import StyleMap
@@ -133,11 +134,11 @@ class _Feature(TimeMixin, _BaseObject):
 
     _view: Union[Camera, LookAt, None]
 
-    # TODO Region = None
+    region: Optional[Region]
     # Features and geometry associated with a Region are drawn only when
     # the Region is active.
 
-    # TODO ExtendedData = None
+    extended_data: Optional[ExtendedData]
     # Allows you to add custom data to a KML file. This data can be
     # (1) data that references an external XML schema,
     # (2) untyped data/value pairs, or
@@ -148,7 +149,6 @@ class _Feature(TimeMixin, _BaseObject):
     # (2) is already implemented, see UntypedExtendedData
     #
     # <Metadata> (deprecated in KML 2.2; use <ExtendedData> instead)
-    extended_data: Optional[ExtendedData]
 
     def __init__(
         self,
@@ -170,7 +170,7 @@ class _Feature(TimeMixin, _BaseObject):
         style_url: Optional[str] = None,
         styles: Optional[List[Style]] = None,
         region: Optional[Region] = None,
-        extended_data: None = None,
+        extended_data: Optional[ExtendedData] = None,
     ) -> None:
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.name = name
@@ -185,6 +185,7 @@ class _Feature(TimeMixin, _BaseObject):
         self._atom_link = atom_link
         self.address = address
         self.phone_number = phone_number
+        self.region = region
         if styles:
             for style in styles:
                 self.append_style(style)
@@ -495,7 +496,7 @@ class Placemark(_Feature):
     """
 
     __name__ = "Placemark"
-    _geometry = None
+    _geometry: Optional[KmlGeometry]
 
     def __init__(
         self,
@@ -504,10 +505,21 @@ class Placemark(_Feature):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
+        visibility: Optional[bool] = None,
+        isopen: Optional[bool] = None,
+        atom_link: Optional[atom.Link] = None,
+        atom_author: Optional[atom.Author] = None,
+        address: Optional[str] = None,
+        phone_number: Optional[str] = None,
+        snippet: Optional[Union[str, Dict[str, Any]]] = None,
         description: Optional[str] = None,
-        styles: Optional[List[Style]] = None,
+        view: Optional[Union[Camera, LookAt]] = None,
+        times: Optional[Union[TimeSpan, TimeStamp]] = None,
         style_url: Optional[str] = None,
-        extended_data: None = None,
+        styles: Optional[List[Style]] = None,
+        region: Optional[Region] = None,
+        extended_data: Optional[ExtendedData] = None,
+        # Placemark specific
         geometry: Optional[KmlGeometry] = None,
     ) -> None:
         super().__init__(
@@ -516,9 +528,19 @@ class Placemark(_Feature):
             id=id,
             target_id=target_id,
             name=name,
+            visibility=visibility,
+            isopen=isopen,
+            atom_link=atom_link,
+            atom_author=atom_author,
+            address=address,
+            phone_number=phone_number,
+            snippet=snippet,
             description=description,
-            styles=styles,
+            view=view,
+            times=times,
             style_url=style_url,
+            styles=styles,
+            region=region,
             extended_data=extended_data,
         )
         self._geometry = geometry
@@ -604,55 +626,136 @@ class Placemark(_Feature):
 
 
 class NetworkLink(_Feature):
+    """
+    References a KML file or KMZ archive on a local or remote network.
+
+    Use the <Link> element to specify the location of the KML file.
+    Within that element, you can define the refresh options for updating the file,
+    based on time and camera change.
+    NetworkLinks can be used in combination with Regions to handle very large datasets
+    efficiently.
+    https://developers.google.com/kml/documentation/kmlreference#networklink
+
+
+    Elements Specific to NetworkLink
+    <refreshVisibility>
+    Boolean value.
+    A value of 0 leaves the visibility of features within the control of the
+    Google Earth user.
+    Set the value to 1 to reset the visibility of features each time the NetworkLink is
+    refreshed.
+    For example, suppose a Placemark within the linked KML file has <visibility>
+    set to 1 and the NetworkLink has <refreshVisibility> set to 1.
+    When the file is first loaded into Google Earth, the user can clear the check box
+    next to the item to turn off display in the 3D viewer.
+    However, when the NetworkLink is refreshed, the Placemark will be made
+    visible again, since its original visibility state was TRUE.
+    <flyToView>
+    Boolean value.
+    A value of 1 causes Google Earth to fly to the view of the LookAt or Camera in the
+    NetworkLinkControl (if it exists).
+    If the NetworkLinkControl does not contain an AbstractView element,
+    Google Earth flies to the LookAt or Camera element in the Feature child
+    within the <kml> element in the refreshed file.
+    If the <kml> element does not have a LookAt or Camera specified,
+    the view is unchanged.
+    For example, Google Earth would fly to the <LookAt> view of the parent Document,
+    not the <LookAt> of the Placemarks contained within the Document.
+    <Link>(required)
+       https://developers.google.com/kml/documentation/kmlreference#link
+    """
+
+    refresh_visibility: Optional[bool]
+    fly_to_view: Optional[bool]
+    link: Optional[Link]
+
     __name__ = "NetworkLink"
-    _nlink = None
 
     def __init__(
         self,
-        ns=None,
-        id=None,
-        name=None,
-        description=None,
-        styles=None,
-        styleUrl=None,
-    ):
-        super().__init__(ns, id, name, description, styles, styleUrl)
-
-    @property
-    def link(self):
-        return self._nlink.href
-
-    @link.setter
-    def link(self, url):
-        if isinstance(url, basestring):
-            self._nlink = atom.Link(href=url)
-        elif isinstance(url, Link):
-            self._nlink = url
-        elif url is None:
-            self._nlink = None
-        else:
-            raise TypeError
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        name: Optional[str] = None,
+        visibility: Optional[bool] = None,
+        isopen: Optional[bool] = None,
+        atom_link: Optional[atom.Link] = None,
+        atom_author: Optional[atom.Author] = None,
+        address: Optional[str] = None,
+        phone_number: Optional[str] = None,
+        snippet: Optional[Union[str, Dict[str, Any]]] = None,
+        description: Optional[str] = None,
+        view: Optional[Union[Camera, LookAt]] = None,
+        times: Optional[Union[TimeSpan, TimeStamp]] = None,
+        style_url: Optional[str] = None,
+        styles: Optional[List[Style]] = None,
+        region: Optional[Region] = None,
+        extended_data: Optional[ExtendedData] = None,
+        # NetworkLink specific
+        refresh_visibility: Optional[bool] = None,
+        fly_to_view: Optional[bool] = None,
+        link: Optional[Link] = None,
+    ) -> None:
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            name=name,
+            visibility=visibility,
+            isopen=isopen,
+            atom_link=atom_link,
+            atom_author=atom_author,
+            address=address,
+            phone_number=phone_number,
+            snippet=snippet,
+            description=description,
+            view=view,
+            times=times,
+            style_url=style_url,
+            styles=styles,
+            region=region,
+            extended_data=extended_data,
+        )
+        self.refresh_visibility = refresh_visibility
+        self.fly_to_view = fly_to_view
+        self.link = link
 
     def etree_element(self):
         element = super().etree_element()
-        if self._nlink is not None:
-            element.append(self._nlink.etree_element())
+        if self.refresh_visibility is not None:
+            refresh_visibility = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}refreshVisibility",
+            )
+            refresh_visibility.text = str(int(self.refresh_visibility))
+
+        if self.fly_to_view is not None:
+            fly_to_view = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}flyToView",
+            )
+            fly_to_view.text = str(int(self.fly_to_view))
+        if self.link is not None:
+            element.append(self.link.etree_element())
         return element
 
-    def from_element(self, element):
+    def from_element(self, element, strict=False):
         super(_Feature, self).from_element(element)
-        name = element.find(f"{self.ns}name")
-        if name is not None:
-            self.name = name.text
-        id = element.find(f"{self.ns}id")
-        if id is not None:
-            self.id = id.text
-        visibility = element.find(f"{self.ns}visibility")
+
+        visibility = element.find(f"{self.ns}refreshVisibility")
         if visibility is not None:
-            self.visibility = visibility.text
+            self.visibility = bool(int(visibility.text))
+        flyto = element.find(f"{self.ns}flyToView")
+        if flyto is not None:
+            self.fly_to_view = bool(int(flyto.text))
 
         link = element.find(f"{self.ns}Link")
         if link is not None:
-            s = Link()
-            s.from_element(link)
-            self._nlink = s
+            self.link = Link.class_from_element(
+                ns=self.ns,
+                name_spaces=self.name_spaces,
+                element=link,
+                strict=strict,
+            )

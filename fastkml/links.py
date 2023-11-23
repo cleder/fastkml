@@ -27,23 +27,14 @@ from fastkml.enums import ViewRefreshMode
 from fastkml.types import Element
 
 
-class Icon(_BaseObject):
+class Link(_BaseObject):
     """
-    Represents an <Icon> element used in Overlays.
+    Represents a <Link> element.
 
-    Defines an image associated with an Icon style or overlay.
-    The required <href> child element defines the location
-    of the image to be used as the overlay or as the icon for the placemark.
-    This location can either be on a local file system or a remote web server.
-
-    Todo:
-    ----
-    The <gx:x>, <gx:y>, <gx:w>, and <gx:h> elements are used to select one
-    icon from an image that contains multiple icons
-    (often referred to as an icon palette).
+    A URL can be passed to the constructor, or the href can be set later.
     """
 
-    __name__ = "Icon"
+    __name__ = "Link"
 
     _href: Optional[str]
     _refresh_mode: Optional[RefreshMode]
@@ -316,3 +307,22 @@ class Icon(_BaseObject):
         if http_query is not None:
             kwargs["http_query"] = http_query.text
         return kwargs
+
+
+class Icon(Link):
+    """
+    Represents an <Icon> element used in Overlays.
+
+    Defines an image associated with an Icon style or overlay.
+    The required <href> child element defines the location
+    of the image to be used as the overlay or as the icon for the placemark.
+    This location can either be on a local file system or a remote web server.
+
+    Todo:
+    ----
+    The <gx:x>, <gx:y>, <gx:w>, and <gx:h> elements are used to select one
+    icon from an image that contains multiple icons
+    (often referred to as an icon palette).
+    """
+
+    __name__ = "Icon"
