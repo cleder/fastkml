@@ -1,6 +1,7 @@
 """Overlays."""
 
 import logging
+from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -12,6 +13,7 @@ from fastkml import config
 from fastkml import gx
 from fastkml.base import _XMLObject
 from fastkml.data import ExtendedData
+from fastkml.enums import AltitudeMode
 from fastkml.enums import GridOrigin
 from fastkml.enums import Shape
 from fastkml.enums import Verbosity
@@ -240,6 +242,201 @@ class ViewVolume(_XMLObject):
         self.top_fov = top_fov
         self.near = near
 
+    def __bool__(self) -> bool:
+        return all(
+            [
+                self.left_fov is not None,
+                self.right_fov is not None,
+                self.bottom_fov is not None,
+                self.top_fov is not None,
+                self.near is not None,
+            ],
+        )
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        left_fov = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}leftFov",
+        )
+        left_fov.text = str(self.left_fov)
+        right_fov = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}rightFov",
+        )
+        right_fov.text = str(self.right_fov)
+        bottom_fov = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}bottomFov",
+        )
+        bottom_fov.text = str(self.bottom_fov)
+        top_fov = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}topFov",
+        )
+        top_fov.text = str(self.top_fov)
+        near = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}near",
+        )
+        near.text = str(self.near)
+        return element
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        left_fov = element.find(f"{ns}leftFov")
+        if left_fov is not None:
+            kwargs["left_fov"] = float(left_fov.text)
+        right_fov = element.find(f"{ns}rightFov")
+        if right_fov is not None:
+            kwargs["right_fov"] = float(right_fov.text)
+        bottom_fov = element.find(f"{ns}bottomFov")
+        if bottom_fov is not None:
+            kwargs["bottom_fov"] = float(bottom_fov.text)
+        top_fov = element.find(f"{ns}topFov")
+        if top_fov is not None:
+            kwargs["top_fov"] = float(top_fov.text)
+        near = element.find(f"{ns}near")
+        if near is not None:
+            kwargs["near"] = float(near.text)
+        return kwargs
+
+
+class ImagePyramid(_XMLObject):
+    """
+    For very large images, you'll need to construct an image pyramid.
+
+    An ImagePyramid is a hierarchical set of images, each of which is an increasingly
+    lower resolution version of the original image.
+    Each image in the pyramid is subdivided into tiles, so that only the portions in
+    view need to be loaded.
+    Google Earth calculates the current viewpoint and loads the tiles that are
+    appropriate to the user's distance from the image.
+    As the viewpoint moves closer to the PhotoOverlay, Google Earth loads higher
+    resolution tiles.
+    Since all the pixels in the original image can't be viewed on the screen at once,
+    this preprocessing allows Google Earth to achieve maximum performance because it
+    loads only the portions of the image that are in view, and only the pixel details
+    that can be discerned by the user at the current viewpoint.
+
+    When you specify an image pyramid, you also need to modify the <href> in the <Icon>
+    element to include specifications for which tiles to load.
+    """
+
+    tile_size: Optional[int]
+    # Size of the tiles, in pixels. Tiles must be square, and <tileSize> must be a power
+    # of 2. A tile size of 256 (the default) or 512 is recommended.
+    # The original image is divided into tiles of this size, at varying resolutions.
+
+    max_width: Optional[int]
+    # Width in pixels of the original image.
+
+    max_height: Optional[int]
+    # Height in pixels of the original image.
+
+    grid_origin: Optional[GridOrigin]
+    # Specifies where to begin numbering the tiles in each layer of the pyramid.
+    # A value of lowerLeft specifies that row 1, column 1 of each layer is in
+    # the bottom left corner of the grid.
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        tile_size: Optional[int] = None,
+        max_width: Optional[int] = None,
+        max_height: Optional[int] = None,
+        grid_origin: Optional[GridOrigin] = None,
+    ) -> None:
+        super().__init__(ns=ns, name_spaces=name_spaces)
+        self.tile_size = tile_size
+        self.max_width = max_width
+        self.max_height = max_height
+        self.grid_origin = grid_origin
+
+    def __bool__(self) -> bool:
+        return (
+            self.tile_size is not None
+            and self.max_width is not None
+            and self.max_height is not None
+            and self.grid_origin is not None
+        )
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        tile_size = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}tileSize",
+        )
+        tile_size.text = str(self.tile_size)
+        max_width = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}maxWidth",
+        )
+        max_width.text = str(self.max_width)
+        max_height = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}maxHeight",
+        )
+        max_height.text = str(self.max_height)
+        grid_origin = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}gridOrigin",
+        )
+        assert self.grid_origin is not None
+        grid_origin.text = self.grid_origin.value
+        return element
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        tile_size = element.find(f"{ns}tileSize")
+        if tile_size is not None:
+            kwargs["tile_size"] = int(tile_size.text)
+        max_width = element.find(f"{ns}maxWidth")
+        if max_width is not None:
+            kwargs["max_width"] = int(max_width.text)
+        max_height = element.find(f"{ns}maxHeight")
+        if max_height is not None:
+            kwargs["max_height"] = int(max_height.text)
+        grid_origin = element.find(f"{ns}gridOrigin")
+        if grid_origin is not None:
+            kwargs["grid_origin"] = GridOrigin(grid_origin.text)
+        return kwargs
+
 
 class PhotoOverlay(_Overlay):
     """
@@ -269,41 +466,26 @@ class PhotoOverlay(_Overlay):
 
     __name__ = "PhotoOverlay"
 
-    _rotation: Optional[float]
+    rotation: Optional[float]
     # Adjusts how the photo is placed inside the field of view. This element is
     # useful if your photo has been rotated and deviates slightly from a desired
     # horizontal view.
 
-    _view_volume: Optional[ViewVolume]
+    view_volume: Optional[ViewVolume]
     # Defines how much of the current scene is visible.
 
-    # _image_pyramid: Optional[ImagePyramid]
+    image_pyramid: Optional[ImagePyramid]
     # Defines the format, resolution, and refresh rate for images that are
     # displayed in the PhotoOverlay.
 
-    _tile_size = "256"
-    # Size of the tiles, in pixels. Tiles must be square, and <tileSize> must
-    # be a power of 2. A tile size of 256 (the default) or 512 is recommended.
-    # The original image is divided into tiles of this size, at varying resolutions.
+    point: Optional[Point]
+    # Defines the exact coordinates of the PhotoOverlay's origin, in latitude
+    # and longitude, and in meters. Latitude and longitude measurements are
+    # standard lat-lon projection with WGS84 datum. Altitude is distance above
+    # the earth's surface, in meters, and is interpreted according to
+    # altitudeMode.
 
-    _max_width = None
-    # Width in pixels of the original image.
-
-    _max_height = None
-    # Height in pixels of the original image.
-
-    _grid_origin: Optional[GridOrigin]
-    # Specifies where to begin numbering the tiles in each layer of the pyramid.
-    # A value of lowerLeft specifies that row 1, column 1 of each layer is in
-    # the bottom left corner of the grid.
-
-    _point: Optional[Point]
-    # The <Point> element acts as a <Point> inside a <Placemark> element.
-    # It draws an icon to mark the position of the PhotoOverlay.
-    # The icon drawn is specified by the <styleUrl> and <StyleSelector> fields,
-    # just as it is for <Placemark>.
-
-    _shape: Optional[Shape]
+    shape: Optional[Shape]
     # The PhotoOverlay is projected onto the <shape>.
     # The <shape> can be one of the following:
     #   rectangle (default) -
@@ -338,6 +520,11 @@ class PhotoOverlay(_Overlay):
         draw_order: Optional[str] = None,
         icon: Optional[Icon] = None,
         # Photo Overlay specific
+        rotation: Optional[float] = None,
+        view_volume: Optional[ViewVolume] = None,
+        image_pyramid: Optional[ImagePyramid] = None,
+        point: Optional[Point] = None,
+        shape: Optional[Shape] = None,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -363,164 +550,11 @@ class PhotoOverlay(_Overlay):
             draw_order=draw_order,
             icon=icon,
         )
-        self._rotation = None
-
-    @property
-    def rotation(self) -> Optional[str]:
-        return self._rotation
-
-    @rotation.setter
-    def rotation(self, value) -> None:
-        if isinstance(value, (str, int, float)):
-            self._rotation = str(value)
-        elif value is None:
-            self._rotation = None
-        else:
-            raise ValueError
-
-    @property
-    def left_fov(self) -> Optional[str]:
-        return self._left_fow
-
-    @left_fov.setter
-    def left_fov(self, value) -> None:
-        if isinstance(value, (str, int, float)):
-            self._left_fow = str(value)
-        elif value is None:
-            self._left_fow = None
-        else:
-            raise ValueError
-
-    @property
-    def right_fov(self) -> Optional[str]:
-        return self._right_fov
-
-    @right_fov.setter
-    def right_fov(self, value) -> None:
-        if isinstance(value, (str, int, float)):
-            self._right_fov = str(value)
-        elif value is None:
-            self._right_fov = None
-        else:
-            raise ValueError
-
-    @property
-    def bottom_fov(self) -> Optional[str]:
-        return self._bottom_fov
-
-    @bottom_fov.setter
-    def bottom_fov(self, value) -> None:
-        if isinstance(value, (str, int, float)):
-            self._bottom_fov = str(value)
-        elif value is None:
-            self._bottom_fov = None
-        else:
-            raise ValueError
-
-    @property
-    def top_fov(self) -> Optional[str]:
-        return self._top_fov
-
-    @top_fov.setter
-    def top_fov(self, value) -> None:
-        if isinstance(value, (str, int, float)):
-            self._top_fov = str(value)
-        elif value is None:
-            self._top_fov = None
-        else:
-            raise ValueError
-
-    @property
-    def near(self) -> Optional[str]:
-        return self._near
-
-    @near.setter
-    def near(self, value) -> None:
-        if isinstance(value, (str, int, float)):
-            self._near = str(value)
-        elif value is None:
-            self._near = None
-        else:
-            raise ValueError
-
-    @property
-    def tile_size(self) -> Optional[str]:
-        return self._tile_size
-
-    @tile_size.setter
-    def tile_size(self, value) -> None:
-        if isinstance(value, (str, int, float)):
-            self._tile_size = str(value)
-        elif value is None:
-            self._tile_size = None
-        else:
-            raise ValueError
-
-    @property
-    def max_width(self) -> Optional[str]:
-        return self._max_width
-
-    @max_width.setter
-    def max_width(self, value) -> None:
-        if isinstance(value, (str, int, float)):
-            self._max_width = str(value)
-        elif value is None:
-            self._max_width = None
-        else:
-            raise ValueError
-
-    @property
-    def max_height(self) -> Optional[str]:
-        return self._max_height
-
-    @max_height.setter
-    def max_height(self, value) -> None:
-        if isinstance(value, (str, int, float)):
-            self._max_height = str(value)
-        elif value is None:
-            self._max_height = None
-        else:
-            raise ValueError
-
-    @property
-    def grid_origin(self) -> Optional[GridOrigin]:
-        return self._grid_origin
-
-    @grid_origin.setter
-    def grid_origin(self, value: Optional[GridOrigin]) -> None:
-        self._grid_origin = value
-
-    @property
-    def point(self) -> str:
-        return self._point
-
-    @point.setter
-    def point(self, value) -> None:
-        if isinstance(value, (str, tuple)):
-            self._point = str(value)
-        else:
-            raise ValueError
-
-    @property
-    def shape(self) -> Optional[Shape]:
-        return self._shape
-
-    @shape.setter
-    def shape(self, value: Optional[Shape]) -> None:
-        self._shape = value
-
-    def view_volume(self, left_fov, right_fov, bottom_fov, top_fov, near) -> None:
-        self.left_fov = left_fov
-        self.right_fov = right_fov
-        self.bottom_fov = bottom_fov
-        self.top_fov = top_fov
-        self.near = near
-
-    def image_pyramid(self, tile_size, max_width, max_height, grid_origin) -> None:
-        self.tile_size = tile_size
-        self.max_width = max_width
-        self.max_height = max_height
-        self.grid_origin = grid_origin
+        self.rotation = rotation
+        self.view_volume = view_volume
+        self.image_pyramid = image_pyramid
+        self.point = point
+        self.shape = shape
 
     def etree_element(
         self,
@@ -528,83 +562,191 @@ class PhotoOverlay(_Overlay):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self._rotation:
-            rotation = config.etree.SubElement(element, f"{self.ns}rotation")
-            rotation.text = self._rotation
-        if all(
-            [
-                self._left_fow,
-                self._right_fov,
-                self._bottom_fov,
-                self._top_fov,
-                self._near,
-            ],
-        ):
-            view_volume = config.etree.SubElement(element, f"{self.ns}ViewVolume")
-            left_fov = config.etree.SubElement(view_volume, f"{self.ns}leftFov")
-            left_fov.text = self._left_fow
-            right_fov = config.etree.SubElement(view_volume, f"{self.ns}rightFov")
-            right_fov.text = self._right_fov
-            bottom_fov = config.etree.SubElement(view_volume, f"{self.ns}bottomFov")
-            bottom_fov.text = self._bottom_fov
-            top_fov = config.etree.SubElement(view_volume, f"{self.ns}topFov")
-            top_fov.text = self._top_fov
-            near = config.etree.SubElement(view_volume, f"{self.ns}near")
-            near.text = self._near
-        if all([self._tile_size, self._max_width, self._max_height, self._grid_origin]):
-            image_pyramid = config.etree.SubElement(element, f"{self.ns}ImagePyramid")
-            tile_size = config.etree.SubElement(image_pyramid, f"{self.ns}tileSize")
-            tile_size.text = self._tile_size
-            max_width = config.etree.SubElement(image_pyramid, f"{self.ns}maxWidth")
-            max_width.text = self._max_width
-            max_height = config.etree.SubElement(image_pyramid, f"{self.ns}maxHeight")
-            max_height.text = self._max_height
-            grid_origin = config.etree.SubElement(image_pyramid, f"{self.ns}gridOrigin")
-            grid_origin.text = self._grid_origin
+        if self.rotation is not None:
+            rotation = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}rotation",
+            )
+            rotation.text = str(self.rotation)
+        if self.view_volume:
+            element.append(self.view_volume.etree_element())
+        if self.image_pyramid:
+            element.append(self.image_pyramid.etree_element())
+        if self.point:
+            element.append(self.point.etree_element())
+        if self.shape:
+            shape = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}shape",
+            )
+            shape.text = self.shape.value
         return element
 
-    def from_element(self, element) -> None:
+    def from_element(self, element: Element, strict: bool = True) -> None:
         super().from_element(element)
         rotation = element.find(f"{self.ns}rotation")
         if rotation is not None:
-            self.rotation = rotation.text
+            self.rotation = float(rotation.text)
         view_volume = element.find(f"{self.ns}ViewVolume")
         if view_volume is not None:
-            left_fov = view_volume.find(f"{self.ns}leftFov")
-            if left_fov is not None:
-                self.left_fov = left_fov.text
-            right_fov = view_volume.find(f"{self.ns}rightFov")
-            if right_fov is not None:
-                self.right_fov = right_fov.text
-            bottom_fov = view_volume.find(f"{self.ns}bottomFov")
-            if bottom_fov is not None:
-                self.bottom_fov = bottom_fov.text
-            top_fov = view_volume.find(f"{self.ns}topFov")
-            if top_fov is not None:
-                self.top_fov = top_fov.text
-            near = view_volume.find(f"{self.ns}near")
-            if near is not None:
-                self.near = near.text
+            self.view_volume = cast(
+                ViewVolume,
+                ViewVolume.class_from_element(
+                    ns=self.ns,
+                    name_spaces=self.name_spaces,
+                    element=view_volume,
+                    strict=False,
+                ),
+            )
         image_pyramid = element.find(f"{self.ns}ImagePyramid")
         if image_pyramid is not None:
-            tile_size = image_pyramid.find(f"{self.ns}tileSize")
-            if tile_size is not None:
-                self.tile_size = tile_size.text
-            max_width = image_pyramid.find(f"{self.ns}maxWidth")
-            if max_width is not None:
-                self.max_width = max_width.text
-            max_height = image_pyramid.find(f"{self.ns}maxHeight")
-            if max_height is not None:
-                self.max_height = max_height.text
-            grid_origin = image_pyramid.find(f"{self.ns}gridOrigin")
-            if grid_origin is not None:
-                self.grid_origin = grid_origin.text
+            self.image_pyramid = cast(
+                ImagePyramid,
+                ImagePyramid.class_from_element(
+                    ns=self.ns,
+                    name_spaces=self.name_spaces,
+                    element=image_pyramid,
+                    strict=False,
+                ),
+            )
         point = element.find(f"{self.ns}Point")
         if point is not None:
-            self.point = point.text
+            self.point = cast(
+                Point,
+                Point.class_from_element(
+                    ns=self.ns,
+                    name_spaces=self.name_spaces,
+                    element=point,
+                    strict=False,
+                ),
+            )
         shape = element.find(f"{self.ns}shape")
         if shape is not None:
-            self.shape = shape.text
+            self.shape = Shape(shape.text)
+
+
+class LatLonBox(_XMLObject):
+    """
+    Specifies where the top, bottom, right, and left sides of a bounding box for the
+    ground overlay are aligned.
+    Also, optionally the rotation of the overlay.
+
+    <north> Specifies the latitude of the north edge of the bounding box,
+    in decimal degrees from 0 to ±90.
+    <south> Specifies the latitude of the south edge of the bounding box,
+    in decimal degrees from 0 to ±90.
+    <east> Specifies the longitude of the east edge of the bounding box,
+    in decimal degrees from 0 to ±180.
+    (For overlays that overlap the meridian of 180° longitude,
+    values can extend beyond that range.)
+    <west> Specifies the longitude of the west edge of the bounding box,
+    in decimal degrees from 0 to ±180.
+    (For overlays that overlap the meridian of 180° longitude,
+    values can extend beyond that range.)
+    <rotation> Specifies a rotation of the overlay about its center, in degrees.
+    Values can be ±180. The default is 0 (north).
+    Rotations are specified in a counterclockwise direction.
+    """
+
+    __name__ = "LatLonBox"
+    north: Optional[float]
+    south: Optional[float]
+    east: Optional[float]
+    west: Optional[float]
+    rotation: Optional[float]
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        north: Optional[float] = None,
+        south: Optional[float] = None,
+        east: Optional[float] = None,
+        west: Optional[float] = None,
+        rotation: Optional[float] = None,
+    ) -> None:
+        super().__init__(ns=ns, name_spaces=name_spaces)
+        self.north = north
+        self.south = south
+        self.east = east
+        self.west = west
+        self.rotation = rotation
+
+    def __bool__(self) -> bool:
+        return all(
+            [
+                self.north is not None,
+                self.south is not None,
+                self.east is not None,
+                self.west is not None,
+            ],
+        )
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        north = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}north",
+        )
+        north.text = str(self.north)
+        south = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}south",
+        )
+        south.text = str(self.south)
+        east = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}east",
+        )
+        east.text = str(self.east)
+        west = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}west",
+        )
+        west.text = str(self.west)
+        if self.rotation is not None:
+            rotation = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}rotation",
+            )
+            rotation.text = str(self.rotation)
+        return element
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        north = element.find(f"{ns}north")
+        if north is not None:
+            kwargs["north"] = float(north.text)
+        south = element.find(f"{ns}south")
+        if south is not None:
+            kwargs["south"] = float(south.text)
+        east = element.find(f"{ns}east")
+        if east is not None:
+            kwargs["east"] = float(east.text)
+        west = element.find(f"{ns}west")
+        if west is not None:
+            kwargs["west"] = float(west.text)
+        rotation = element.find(f"{ns}rotation")
+        if rotation is not None:
+            kwargs["rotation"] = float(rotation.text)
+        return kwargs
 
 
 class GroundOverlay(_Overlay):
@@ -614,15 +756,17 @@ class GroundOverlay(_Overlay):
     can be either on a local file system or on a web server. If this element
     is omitted or contains no <href>, a rectangle is drawn using the color and
     LatLonBox bounds defined by the ground overlay.
+
+    https://developers.google.com/kml/documentation/kmlreference#groundoverlay
     """
 
     __name__ = "GroundOverlay"
 
-    _altitude = None
+    altitude: Optional[float]
     # Specifies the distance above the earth's surface, in meters, and is
     # interpreted according to the altitude mode.
 
-    _altitude_mode = "clampToGround"
+    altitude_mode: Optional[AltitudeMode]
     # Specifies how the <altitude> is interpreted. Possible values are:
     #   clampToGround -
     #       (default) Indicates to ignore the altitude specification and drape
@@ -636,156 +780,67 @@ class GroundOverlay(_Overlay):
     #       the terrain is 3 meters above sea level, the overlay will appear
     #       elevated above the terrain by 7 meters.
 
-    # - LatLonBox -
-    # TODO: Convert this to it's own class?
+    lat_lon_box: Optional[LatLonBox]
     # Specifies where the top, bottom, right, and left sides of a bounding box
     # for the ground overlay are aligned. Also, optionally the rotation of the
     # overlay.
 
-    _north = None
-    # Specifies the latitude of the north edge of the bounding box, in decimal
-    # degrees from 0 to ±90.
-
-    _south = None
-    # Specifies the latitude of the south edge of the bounding box, in decimal
-    # degrees from 0 to ±90.
-
-    _east = None
-    # Specifies the longitude of the east edge of the bounding box, in decimal
-    # degrees from 0 to ±180. (For overlays that overlap the meridian of 180°
-    # longitude, values can extend beyond that range.)
-
-    _west = None
-    # Specifies the longitude of the west edge of the bounding box, in decimal
-    # degrees from 0 to ±180. (For overlays that overlap the meridian of 180°
-    # longitude, values can extend beyond that range.)
-
-    _rotation = None
-    # Specifies a rotation of the overlay about its center, in degrees. Values
-    # can be ±180. The default is 0 (north). Rotations are specified in a
-    # counterclockwise direction.
-
-    # TODO: <gx:LatLonQuad>
-    # Used for nonrectangular quadrilateral ground overlays.
-    _lat_lon_quad = None
-
-    @property
-    def altitude(self) -> Optional[str]:
-        return self._altitude
-
-    @altitude.setter
-    def altitude(self, value) -> None:
-        if isinstance(value, (str, int, float)):
-            self._altitude = str(value)
-        elif value is None:
-            self._altitude = None
-        else:
-            raise ValueError
-
-    @property
-    def altitude_mode(self) -> str:
-        return self._altitude_mode
-
-    @altitude_mode.setter
-    def altitude_mode(self, mode) -> None:
-        if mode in ("clampToGround", "absolute"):
-            self._altitude_mode = str(mode)
-        else:
-            self._altitude_mode = "clampToGround"
-
-    @property
-    def north(self) -> Optional[str]:
-        return self._north
-
-    @north.setter
-    def north(self, value) -> None:
-        if isinstance(value, (str, int, float)):
-            self._north = str(value)
-        elif value is None:
-            self._north = None
-        else:
-            raise ValueError
-
-    @property
-    def south(self) -> Optional[str]:
-        return self._south
-
-    @south.setter
-    def south(self, value) -> None:
-        if isinstance(value, (str, int, float)):
-            self._south = str(value)
-        elif value is None:
-            self._south = None
-        else:
-            raise ValueError
-
-    @property
-    def east(self) -> Optional[str]:
-        return self._east
-
-    @east.setter
-    def east(self, value) -> None:
-        if isinstance(value, (str, int, float)):
-            self._east = str(value)
-        elif value is None:
-            self._east = None
-        else:
-            raise ValueError
-
-    @property
-    def west(self) -> Optional[str]:
-        return self._west
-
-    @west.setter
-    def west(self, value) -> None:
-        if isinstance(value, (str, int, float)):
-            self._west = str(value)
-        elif value is None:
-            self._west = None
-        else:
-            raise ValueError
-
-    @property
-    def rotation(self) -> Optional[str]:
-        return self._rotation
-
-    @rotation.setter
-    def rotation(self, value) -> None:
-        if isinstance(value, (str, int, float)):
-            self._rotation = str(value)
-        elif value is None:
-            self._rotation = None
-        else:
-            raise ValueError
-
-    def lat_lon_box(
+    def __init__(
         self,
-        north: int,
-        south: int,
-        east: int,
-        west: int,
-        rotation: int = 0,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        name: Optional[str] = None,
+        visibility: Optional[bool] = None,
+        isopen: Optional[bool] = None,
+        atom_link: Optional[atom.Link] = None,
+        atom_author: Optional[atom.Author] = None,
+        address: Optional[str] = None,
+        phone_number: Optional[str] = None,
+        snippet: Optional[Snippet] = None,
+        description: Optional[str] = None,
+        view: Optional[Union[Camera, LookAt]] = None,
+        times: Optional[Union[TimeSpan, TimeStamp]] = None,
+        style_url: Optional[StyleUrl] = None,
+        styles: Optional[List[Style]] = None,
+        region: Optional[Region] = None,
+        extended_data: Optional[ExtendedData] = None,
+        color: Optional[str] = None,
+        draw_order: Optional[str] = None,
+        icon: Optional[Icon] = None,
+        # Ground Overlay specific
+        altitude: Optional[float] = None,
+        altitude_mode: Optional[AltitudeMode] = None,
+        lat_lon_box: Optional[LatLonBox] = None,
     ) -> None:
-        if -90 <= float(north) <= 90:
-            self.north = north
-        else:
-            raise ValueError
-        if -90 <= float(south) <= 90:
-            self.south = south
-        else:
-            raise ValueError
-        if -180 <= float(east) <= 180:
-            self.east = east
-        else:
-            raise ValueError
-        if -180 <= float(west) <= 180:
-            self.west = west
-        else:
-            raise ValueError
-        if -180 <= float(rotation) <= 180:
-            self.rotation = rotation
-        else:
-            raise ValueError
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            name=name,
+            visibility=visibility,
+            isopen=isopen,
+            atom_link=atom_link,
+            atom_author=atom_author,
+            address=address,
+            phone_number=phone_number,
+            snippet=snippet,
+            description=description,
+            view=view,
+            times=times,
+            style_url=style_url,
+            styles=styles,
+            region=region,
+            extended_data=extended_data,
+            color=color,
+            draw_order=draw_order,
+            icon=icon,
+        )
+        self.altitude = altitude
+        self.altitude_mode = altitude_mode
+        self.lat_lon_box = lat_lon_box
 
     def etree_element(
         self,
@@ -793,52 +848,38 @@ class GroundOverlay(_Overlay):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self._altitude:
-            altitude = config.etree.SubElement(element, f"{self.ns}altitude")
-            altitude.text = self._altitude
-            if self._altitude_mode:
-                altitude_mode = config.etree.SubElement(
+        if self.altitude:
+            altitude = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}altitude",
+            )
+            altitude.text = str(self.altitude)
+            if self.altitude_mode:
+                altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
                     element,
                     f"{self.ns}altitudeMode",
                 )
-                altitude_mode.text = self._altitude_mode
-        if all([self._north, self._south, self._east, self._west]):
-            lat_lon_box = config.etree.SubElement(element, f"{self.ns}LatLonBox")
-            north = config.etree.SubElement(lat_lon_box, f"{self.ns}north")
-            north.text = self._north
-            south = config.etree.SubElement(lat_lon_box, f"{self.ns}south")
-            south.text = self._south
-            east = config.etree.SubElement(lat_lon_box, f"{self.ns}east")
-            east.text = self._east
-            west = config.etree.SubElement(lat_lon_box, f"{self.ns}west")
-            west.text = self._west
-            if self._rotation:
-                rotation = config.etree.SubElement(lat_lon_box, f"{self.ns}rotation")
-                rotation.text = self._rotation
+                altitude_mode.text = self.altitude_mode.value
+        if self.lat_lon_box:
+            element.append(self.lat_lon_box.etree_element())
         return element
 
-    def from_element(self, element: Element) -> None:
+    def from_element(self, element: Element, strict: bool = False) -> None:
         super().from_element(element)
         altitude = element.find(f"{self.ns}altitude")
         if altitude is not None:
-            self.altitude = altitude.text
+            self.altitude = float(altitude.text)
         altitude_mode = element.find(f"{self.ns}altitudeMode")
         if altitude_mode is not None:
-            self.altitude_mode = altitude_mode.text
+            self.altitude_mode = AltitudeMode(altitude_mode.text)
         lat_lon_box = element.find(f"{self.ns}LatLonBox")
         if lat_lon_box is not None:
-            north = lat_lon_box.find(f"{self.ns}north")
-            if north is not None:
-                self.north = north.text
-            south = lat_lon_box.find(f"{self.ns}south")
-            if south is not None:
-                self.south = south.text
-            east = lat_lon_box.find(f"{self.ns}east")
-            if east is not None:
-                self.east = east.text
-            west = lat_lon_box.find(f"{self.ns}west")
-            if west is not None:
-                self.west = west.text
-            rotation = lat_lon_box.find(f"{self.ns}rotation")
-            if rotation is not None:
-                self.rotation = rotation.text
+            self.lat_lon_box = cast(
+                LatLonBox,
+                LatLonBox.class_from_element(
+                    ns=self.ns,
+                    name_spaces=self.name_spaces,
+                    element=lat_lon_box,
+                    strict=False,
+                ),
+            )
