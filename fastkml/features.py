@@ -6,7 +6,6 @@ These are the objects that can be added to a KML file.
 
 import logging
 from dataclasses import dataclass
-from typing import Any
 from typing import Dict
 from typing import Iterator
 from typing import List
@@ -64,7 +63,6 @@ class _Feature(TimeMixin, _BaseObject):
         * Container (Document, Folder)
         * Placemark
         * Overlay
-    Not Implemented Yet:
         * NetworkLink.
     """
 
@@ -231,39 +229,20 @@ class _Feature(TimeMixin, _BaseObject):
         self._view = camera
 
     @property
-    def link(self):
-        return self._atom_link.href
+    def link(self) -> atom.Link:
+        return self._atom_link
 
     @link.setter
-    def link(self, url) -> None:
-        if isinstance(url, str):
-            self._atom_link = atom.Link(href=url)
-        elif isinstance(url, atom.Link):
-            self._atom_link = url
-        elif url is None:
-            self._atom_link = None
-        else:
-            raise TypeError
+    def link(self, link: Optional[atom.Link]) -> None:
+        self._atom_link = link
 
     @property
-    def author(self) -> None:
-        if self._atom_author:
-            return self._atom_author.name
-        return None
+    def author(self) -> Optional[atom.Author]:
+        return self._atom_author
 
     @author.setter
-    def author(self, name) -> None:
-        if isinstance(name, atom.Author):
-            self._atom_author = name
-        elif isinstance(name, str):
-            if self._atom_author is None:
-                self._atom_author = atom.Author(ns=config.ATOMNS, name=name)
-            else:
-                self._atom_author.name = name
-        elif name is None:
-            self._atom_author = None
-        else:
-            raise TypeError
+    def author(self, author: Optional[atom.Author]) -> None:
+        self._atom_author = author
 
     def append_style(self, style: Union[Style, StyleMap]) -> None:
         """Append a style to the feature."""
@@ -481,7 +460,7 @@ class Placemark(_Feature):
         atom_author: Optional[atom.Author] = None,
         address: Optional[str] = None,
         phone_number: Optional[str] = None,
-        snippet: Optional[Union[str, Dict[str, Any]]] = None,
+        snippet: Optional[Snippet] = None,
         description: Optional[str] = None,
         view: Optional[Union[Camera, LookAt]] = None,
         times: Optional[Union[TimeSpan, TimeStamp]] = None,
@@ -654,7 +633,7 @@ class NetworkLink(_Feature):
         atom_author: Optional[atom.Author] = None,
         address: Optional[str] = None,
         phone_number: Optional[str] = None,
-        snippet: Optional[Union[str, Dict[str, Any]]] = None,
+        snippet: Optional[Snippet] = None,
         description: Optional[str] = None,
         view: Optional[Union[Camera, LookAt]] = None,
         times: Optional[Union[TimeSpan, TimeStamp]] = None,

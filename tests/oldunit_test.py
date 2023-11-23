@@ -169,7 +169,10 @@ class TestBuildKml:
 
     def test_author(self) -> None:
         d = kml.Document()
-        d.author = "Christian Ledermann"
+        d.author = atom.Author(
+            ns="{http://www.w3.org/2005/Atom}",
+            name="Christian Ledermann",
+        )
         assert "Christian Ledermann" in str(d.to_string())
         a = atom.Author(
             ns="{http://www.w3.org/2005/Atom}",
@@ -178,7 +181,6 @@ class TestBuildKml:
             email="cl@donotreply.com",
         )
         d.author = a
-        assert d.author == "Nobody"
         assert "Christian Ledermann" not in str(d.to_string())
         assert "Nobody" in str(d.to_string())
         assert "http://localhost" in str(d.to_string())
@@ -190,11 +192,10 @@ class TestBuildKml:
 
     def test_link(self) -> None:
         d = kml.Document()
-        d.link = "http://localhost"
+        d.link = atom.Link(ns=config.ATOMNS, href="http://localhost")
         assert "http://localhost" in str(d.to_string())
         d.link = atom.Link(ns=config.ATOMNS, href="#here")
         assert "#here" in str(d.to_string())
-        # pytest.raises(TypeError, d.link, object)
         d2 = kml.Document()
         d2.from_string(d.to_string())
         assert d.to_string() == d2.to_string()
@@ -538,7 +539,8 @@ class TestKmlFromString:
         assert next(iter(k.features())).snippet.text == "Short Desc"
         assert next(iter(k.features())).snippet.max_lines == 2
         next(iter(k.features()))._snippet = features.Snippet(
-            text="Another Snippet", max_lines=3
+            text="Another Snippet",
+            max_lines=3,
         )
         assert 'maxLines="3"' in k.to_string()
         next(iter(k.features())).snippet = features.Snippet(text="Another Snippet")
