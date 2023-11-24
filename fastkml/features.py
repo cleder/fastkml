@@ -6,6 +6,7 @@ These are the objects that can be added to a KML file.
 
 import logging
 from dataclasses import dataclass
+from typing import Any
 from typing import Dict
 from typing import Iterator
 from typing import List
@@ -360,10 +361,10 @@ class _Feature(TimeMixin, _BaseObject):
             self.description = description.text
         visibility = element.find(f"{self.ns}visibility")
         if visibility is not None and visibility.text:
-            self.visibility = True if visibility.text in ["1", "true"] else False
+            self.visibility = visibility.text in ["1", "true"]
         isopen = element.find(f"{self.ns}open")
         if isopen is not None:
-            self.isopen = True if isopen.text in ["1", "true"] else False
+            self.isopen = isopen.text in ["1", "true"]
         styles = element.findall(f"{self.ns}Style")
         for style in styles:
             s = Style.class_from_element(
@@ -474,6 +475,111 @@ class _Feature(TimeMixin, _BaseObject):
                     strict=strict,
                 ),
             )
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        name = element.find(f"{ns}name")
+        if name is not None:
+            kwargs["name"] = name.text
+        description = element.find(f"{ns}description")
+        if description is not None:
+            kwargs["description"] = description.text
+        visibility = element.find(f"{ns}visibility")
+        if visibility is not None and visibility.text:
+            kwargs["visibility"] = visibility.text in ["1", "true"]
+        isopen = element.find(f"{ns}open")
+        if isopen is not None:
+            kwargs["isopen"] = isopen.text in ["1", "true"]
+        style_url = element.find(f"{ns}styleUrl")
+        if style_url is not None:
+            kwargs["style_url"] = StyleUrl.class_from_element(
+                ns=ns,
+                name_spaces=name_spaces,
+                element=style_url,
+                strict=strict,
+            )
+        snippet = element.find(f"{ns}Snippet")
+        if snippet is not None:
+            max_lines = snippet.get("maxLines")
+            if max_lines is not None:
+                kwargs["snippet"] = Snippet(text=snippet.text, max_lines=int(max_lines))
+            else:
+                kwargs["snippet"] = Snippet(  # type: ignore[unreachable]
+                    text=snippet.text
+                )
+        timespan = element.find(f"{ns}TimeSpan")
+        if timespan is not None:
+            kwargs["times"] = TimeSpan.class_from_element(
+                ns=ns,
+                name_spaces=name_spaces,
+                element=timespan,
+                strict=strict,
+            )
+        timestamp = element.find(f"{ns}TimeStamp")
+        if timestamp is not None:
+            kwargs["times"] = TimeStamp.class_from_element(
+                ns=ns,
+                name_spaces=name_spaces,
+                element=timestamp,
+                strict=strict,
+            )
+        atom_link = element.find(f"{atom.NS}link")
+        if atom_link is not None:
+            kwargs["atom_link"] = atom.Link.class_from_element(
+                ns=atom.NS,
+                name_spaces=name_spaces,
+                element=atom_link,
+                strict=strict,
+            )
+        atom_author = element.find(f"{atom.NS}author")
+        if atom_author is not None:
+            kwargs["atom_author"] = atom.Author.class_from_element(
+                ns=atom.NS,
+                name_spaces=name_spaces,
+                element=atom_author,
+                strict=strict,
+            )
+        extended_data = element.find(f"{ns}ExtendedData")
+        if extended_data is not None:
+            kwargs["extended_data"] = ExtendedData.class_from_element(
+                ns=ns,
+                element=extended_data,
+                strict=strict,
+            )
+        address = element.find(f"{ns}address")
+        if address is not None:
+            kwargs["address"] = address.text
+        phone_number = element.find(f"{ns}phoneNumber")
+        if phone_number is not None:
+            kwargs["phone_number"] = phone_number.text
+        camera = element.find(f"{ns}Camera")
+        if camera is not None:
+            kwargs["view"] = Camera.class_from_element(
+                ns=ns,
+                element=camera,
+                strict=strict,
+            )
+        lookat = element.find(f"{ns}LookAt")
+        if lookat is not None:
+            kwargs["view"] = LookAt.class_from_element(
+                ns=ns,
+                element=lookat,
+                strict=strict,
+            )
+        return kwargs
 
 
 class Placemark(_Feature):
@@ -637,6 +743,84 @@ class Placemark(_Feature):
             logger.error("Object does not have a geometry")
         return element
 
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        point = element.find(f"{ns}Point")
+        if point is not None:
+            kwargs["geometry"] = Point.class_from_element(
+                ns=ns,
+                element=point,
+                strict=strict,
+            )
+            return kwargs
+        line = element.find(f"{ns}LineString")
+        if line is not None:
+            kwargs["geometry"] = LineString.class_from_element(
+                ns=ns,
+                element=line,
+                strict=strict,
+            )
+            return kwargs
+        polygon = element.find(f"{ns}Polygon")
+        if polygon is not None:
+            kwargs["geometry"] = Polygon.class_from_element(
+                ns=ns,
+                element=polygon,
+                strict=strict,
+            )
+            return kwargs
+        linearring = element.find(f"{ns}LinearRing")
+        if linearring is not None:
+            kwargs["geometry"] = LinearRing.class_from_element(
+                ns=ns,
+                element=linearring,
+                strict=strict,
+            )
+            return kwargs
+        multigeometry = element.find(f"{ns}MultiGeometry")
+        if multigeometry is not None:
+            kwargs["geometry"] = MultiGeometry.class_from_element(
+                ns=ns,
+                element=multigeometry,
+                strict=strict,
+            )
+            return kwargs
+        track = element.find(f"{ns}Track")
+        if track is not None:
+            kwargs["geometry"] = gx.Track.class_from_element(
+                ns=config.GXNS,
+                element=track,
+                strict=strict,
+            )
+            return kwargs
+        multitrack = element.find(f"{ns}MultiTrack")
+        if multitrack is not None:
+            kwargs["geometry"] = gx.MultiTrack.class_from_element(
+                ns=config.GXNS,
+                element=multitrack,
+                strict=strict,
+            )
+            return kwargs
+        logger.warning("No geometries found")
+        logger.debug(
+            "Problem with element: %",
+            config.etree.tostring(element),  # type: ignore[attr-defined]
+        )
+        return kwargs
+
 
 class NetworkLink(_Feature):
     """
@@ -779,3 +963,34 @@ class NetworkLink(_Feature):
                     strict=strict,
                 ),
             )
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        visibility = element.find(f"{ns}refreshVisibility")
+        if visibility is not None:
+            kwargs["refresh_visibility"] = bool(int(visibility.text))
+        flyto = element.find(f"{ns}flyToView")
+        if flyto is not None:
+            kwargs["fly_to_view"] = bool(int(flyto.text))
+        link = element.find(f"{ns}Link")
+        if link is not None:
+            kwargs["link"] = Link.class_from_element(
+                ns=ns,
+                name_spaces=name_spaces,
+                element=link,
+                strict=strict,
+            )
+        return kwargs

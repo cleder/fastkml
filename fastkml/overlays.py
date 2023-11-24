@@ -192,6 +192,40 @@ class _Overlay(_Feature):
                 ),
             )
 
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        color = element.find(f"{ns}color")
+        if color is not None:
+            kwargs["color"] = color.text
+        draw_order = element.find(f"{ns}drawOrder")
+        if draw_order is not None:
+            kwargs["draw_order"] = draw_order.text
+        icon = element.find(f"{ns}Icon")
+        if icon is not None:
+            kwargs["icon"] = cast(
+                Icon,
+                Icon.class_from_element(
+                    ns=ns,
+                    name_spaces=name_spaces,
+                    element=icon,
+                    strict=strict,
+                ),
+            )
+        return kwargs
+
 
 class ViewVolume(_XMLObject):
     """
@@ -624,6 +658,62 @@ class PhotoOverlay(_Overlay):
         if shape is not None:
             self.shape = Shape(shape.text)
 
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        rotation = element.find(f"{ns}rotation")
+        if rotation is not None:
+            kwargs["rotation"] = float(rotation.text)
+        view_volume = element.find(f"{ns}ViewVolume")
+        if view_volume is not None:
+            kwargs["view_volume"] = cast(
+                ViewVolume,
+                ViewVolume.class_from_element(
+                    ns=ns,
+                    name_spaces=name_spaces,
+                    element=view_volume,
+                    strict=strict,
+                ),
+            )
+        image_pyramid = element.find(f"{ns}ImagePyramid")
+        if image_pyramid is not None:
+            kwargs["image_pyramid"] = cast(
+                ImagePyramid,
+                ImagePyramid.class_from_element(
+                    ns=ns,
+                    name_spaces=name_spaces,
+                    element=image_pyramid,
+                    strict=strict,
+                ),
+            )
+        point = element.find(f"{ns}Point")
+        if point is not None:
+            kwargs["point"] = cast(
+                Point,
+                Point.class_from_element(
+                    ns=ns,
+                    name_spaces=name_spaces,
+                    element=point,
+                    strict=strict,
+                ),
+            )
+        shape = element.find(f"{ns}shape")
+        if shape is not None:
+            kwargs["shape"] = Shape(shape.text)
+        return kwargs
+
 
 class LatLonBox(_XMLObject):
     """
@@ -883,3 +973,37 @@ class GroundOverlay(_Overlay):
                     strict=False,
                 ),
             )
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        altitude = element.find(f"{ns}altitude")
+        if altitude is not None:
+            kwargs["altitude"] = float(altitude.text)
+        altitude_mode = element.find(f"{ns}altitudeMode")
+        if altitude_mode is not None:
+            kwargs["altitude_mode"] = AltitudeMode(altitude_mode.text)
+        lat_lon_box = element.find(f"{ns}LatLonBox")
+        if lat_lon_box is not None:
+            kwargs["lat_lon_box"] = cast(
+                LatLonBox,
+                LatLonBox.class_from_element(
+                    ns=ns,
+                    name_spaces=name_spaces,
+                    element=lat_lon_box,
+                    strict=strict,
+                ),
+            )
+        return kwargs

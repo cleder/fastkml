@@ -1,6 +1,7 @@
 """Container classes for KML elements."""
 import logging
 import urllib.parse as urlparse
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import Iterator
@@ -126,6 +127,39 @@ class _Container(_Feature):
             raise ValueError(msg)
         assert self._features is not None
         self._features.append(kmlobj)
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        kwargs["features"] = []
+        folders = element.findall(f"{ns}Folder")
+        kwargs["features"] += [
+            Folder.class_from_element(ns=ns, element=folder, strict=strict)
+            for folder in folders
+        ]
+        placemarks = element.findall(f"{ns}Placemark")
+        kwargs["features"] += [
+            Placemark.class_from_element(ns=ns, element=placemark, strict=strict)
+            for placemark in placemarks
+        ]
+        documents = element.findall(f"{ns}Document")
+        kwargs["features"] += [
+            Document.class_from_element(ns=ns, element=document, strict=strict)
+            for document in documents
+        ]
+        return kwargs
 
 
 class Folder(_Container):
@@ -260,3 +294,25 @@ class Document(_Container):
     def get_style_by_url(self, style_url: str) -> Optional[Union[Style, StyleMap]]:
         id_ = urlparse.urlparse(style_url).fragment
         return next((style for style in self.styles() if style.id == id_), None)
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        schemata = element.findall(f"{ns}Schema")
+        kwargs["schemata"] = [
+            Schema.class_from_element(ns=ns, element=schema, strict=strict)
+            for schema in schemata
+        ]
+        return kwargs
