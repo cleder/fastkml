@@ -25,6 +25,7 @@ http://schemas.opengis.net/kml/.
 
 """
 import logging
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import Iterator
@@ -32,6 +33,7 @@ from typing import Optional
 from typing import Union
 
 from fastkml import config
+from fastkml.base import _XMLObject
 from fastkml.containers import Document
 from fastkml.containers import Folder
 from fastkml.enums import Verbosity
@@ -44,7 +46,7 @@ from fastkml.types import Element
 logger = logging.getLogger(__name__)
 
 
-class KML:
+class KML(_XMLObject):
     """represents a KML File."""
 
     _features = []
@@ -82,29 +84,50 @@ class KML:
         ns = element.tag.rstrip("kml")
         documents = element.findall(f"{ns}Document")
         for document in documents:
-            feature = Document(ns)
-            feature.from_element(document)
-            self.append(feature)
+            self.append(
+                Document.class_from_element(
+                    ns=ns,
+                    element=document,
+                    strict=False,
+                ),
+            )
         folders = element.findall(f"{ns}Folder")
         for folder in folders:
-            feature = Folder(ns)
-            feature.from_element(folder)
-            self.append(feature)
+            self.append(
+                Folder.class_from_element(
+                    ns=ns,
+                    element=folder,
+                    strict=False,
+                ),
+            )
         placemarks = element.findall(f"{ns}Placemark")
         for placemark in placemarks:
-            feature = Placemark(ns)
-            feature.from_element(placemark)
-            self.append(feature)
+            self.append(
+                Placemark.class_from_element(
+                    ns=ns,
+                    element=placemark,
+                    strict=False,
+                ),
+            )
         groundoverlays = element.findall(f"{ns}GroundOverlay")
         for groundoverlay in groundoverlays:
-            feature = GroundOverlay(ns)
-            feature.from_element(groundoverlay)
-            self.append(feature)
+            self.append(
+                GroundOverlay.class_from_element(
+                    ns=ns,
+                    element=groundoverlay,
+                    strict=False,
+                ),
+            )
+
         photo_overlays = element.findall(f"{ns}PhotoOverlay")
         for photo_overlay in photo_overlays:
-            feature = PhotoOverlay(ns)
-            feature.from_element(photo_overlay)
-            self.append(feature)
+            self.append(
+                PhotoOverlay.class_from_element(
+                    ns=ns,
+                    element=photo_overlay,
+                    strict=False,
+                ),
+            )
 
     def etree_element(
         self,
@@ -166,6 +189,68 @@ class KML:
             raise TypeError(
                 msg,
             )
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Dict[str, str] | None = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        documents = element.findall(f"{ns}Document")
+        for document in documents:
+            kwargs["features"].append(
+                Document.class_from_element(
+                    ns=ns,
+                    element=document,
+                    strict=False,
+                ),
+            )
+        folders = element.findall(f"{ns}Folder")
+        for folder in folders:
+            kwargs["features"].append(
+                Folder.class_from_element(
+                    ns=ns,
+                    element=folder,
+                    strict=False,
+                ),
+            )
+        placemarks = element.findall(f"{ns}Placemark")
+        for placemark in placemarks:
+            kwargs["features"].append(
+                Placemark.class_from_element(
+                    ns=ns,
+                    element=placemark,
+                    strict=False,
+                ),
+            )
+        groundoverlays = element.findall(f"{ns}GroundOverlay")
+        for groundoverlay in groundoverlays:
+            kwargs["features"].append(
+                GroundOverlay.class_from_element(
+                    ns=ns,
+                    element=groundoverlay,
+                    strict=False,
+                ),
+            )
+        photo_overlays = element.findall(f"{ns}PhotoOverlay")
+        for photo_overlay in photo_overlays:
+            kwargs["features"].append(
+                PhotoOverlay.class_from_element(
+                    ns=ns,
+                    element=photo_overlay,
+                    strict=False,
+                ),
+            )
+        return kwargs
 
 
 __all__ = [

@@ -8,11 +8,11 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 from typing import Dict
+from typing import Iterable
 from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Union
-from typing import cast
 
 from fastkml import atom
 from fastkml import config
@@ -175,7 +175,7 @@ class _Feature(TimeMixin, _BaseObject):
         view: Optional[Union[Camera, LookAt]] = None,
         times: Optional[Union[TimeSpan, TimeStamp]] = None,
         style_url: Optional[StyleUrl] = None,
-        styles: Optional[List[Style]] = None,
+        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
     ) -> None:
@@ -183,7 +183,7 @@ class _Feature(TimeMixin, _BaseObject):
         self.name = name
         self.description = description
         self._style_url = style_url
-        self._styles = []
+        self._styles = list(styles) if styles else []
         self._view = view
         self.visibility = visibility
         self.isopen = isopen
@@ -193,9 +193,6 @@ class _Feature(TimeMixin, _BaseObject):
         self.address = address
         self.phone_number = phone_number
         self.region = region
-        if styles:
-            for style in styles:
-                self.append_style(style)
         self.extended_data = extended_data
         self._times = times
 
@@ -351,131 +348,6 @@ class _Feature(TimeMixin, _BaseObject):
             phone_number.text = self._phone_number
         return element
 
-    def from_element(self, element: Element, strict: bool = False) -> None:
-        super().from_element(element)
-        name = element.find(f"{self.ns}name")
-        if name is not None:
-            self.name = name.text
-        description = element.find(f"{self.ns}description")
-        if description is not None:
-            self.description = description.text
-        visibility = element.find(f"{self.ns}visibility")
-        if visibility is not None and visibility.text:
-            self.visibility = visibility.text in ["1", "true"]
-        isopen = element.find(f"{self.ns}open")
-        if isopen is not None:
-            self.isopen = isopen.text in ["1", "true"]
-        styles = element.findall(f"{self.ns}Style")
-        for style in styles:
-            s = Style.class_from_element(
-                ns=self.ns,
-                name_spaces=self.name_spaces,
-                element=style,
-                strict=strict,
-            )
-            self.append_style(cast(Style, s))
-        styles = element.findall(f"{self.ns}StyleMap")
-        for style in styles:
-            s = StyleMap.class_from_element(
-                ns=self.ns,
-                name_spaces=self.name_spaces,
-                element=style,
-                strict=strict,
-            )
-            self.append_style(cast(StyleMap, s))
-        style_url = element.find(f"{self.ns}styleUrl")
-        if style_url is not None:
-            self._style_url = cast(
-                StyleUrl,
-                StyleUrl.class_from_element(
-                    ns=self.ns,
-                    name_spaces=self.name_spaces,
-                    element=style_url,
-                    strict=strict,
-                ),
-            )
-        snippet = element.find(f"{self.ns}Snippet")
-        if snippet is not None:
-            max_lines = snippet.get("maxLines")
-            if max_lines is not None:
-                self.snippet = Snippet(text=snippet.text, max_lines=int(max_lines))
-            else:
-                self.snippet = Snippet(text=snippet.text)  # type: ignore[unreachable]
-        timespan = element.find(f"{self.ns}TimeSpan")
-        if timespan is not None:
-            self._timespan = TimeSpan.class_from_element(
-                ns=self.ns,
-                name_spaces=self.name_spaces,
-                element=timespan,
-                strict=strict,
-            )
-        timestamp = element.find(f"{self.ns}TimeStamp")
-        if timestamp is not None:
-            self._timestamp = TimeStamp.class_from_element(
-                ns=self.ns,
-                name_spaces=self.name_spaces,
-                element=timestamp,
-                strict=strict,
-            )
-        atom_link = element.find(f"{atom.NS}link")
-        if atom_link is not None:
-            self._atom_link = cast(
-                atom.Link,
-                atom.Link.class_from_element(
-                    ns=atom.NS,
-                    name_spaces=self.name_spaces,
-                    element=atom_link,
-                    strict=strict,
-                ),
-            )
-        atom_author = element.find(f"{atom.NS}author")
-        if atom_author is not None:
-            self._atom_author = cast(
-                atom.Author,
-                atom.Author.class_from_element(
-                    ns=atom.NS,
-                    name_spaces=self.name_spaces,
-                    element=atom_author,
-                    strict=strict,
-                ),
-            )
-        extended_data = element.find(f"{self.ns}ExtendedData")
-        if extended_data is not None:
-            self.extended_data = cast(
-                ExtendedData,
-                ExtendedData.class_from_element(
-                    ns=self.ns,
-                    element=extended_data,
-                    strict=strict,
-                ),
-            )
-        address = element.find(f"{self.ns}address")
-        if address is not None:
-            self.address = address.text
-        phone_number = element.find(f"{self.ns}phoneNumber")
-        if phone_number is not None:
-            self.phone_number = phone_number.text
-        camera = element.find(f"{self.ns}Camera")
-        if camera is not None:
-            self._view = cast(
-                Camera,
-                Camera.class_from_element(
-                    ns=self.ns,
-                    element=camera,
-                    strict=strict,
-                ),
-            )
-        lookat = element.find(f"{self.ns}LookAt")
-        if lookat is not None:
-            self._view = cast(
-                LookAt,
-                LookAt.class_from_element(
-                    ns=self.ns,
-                    element=lookat,
-                    strict=strict,
-                ),
-            )
-
     @classmethod
     def _get_kwargs(
         cls,
@@ -511,6 +383,29 @@ class _Feature(TimeMixin, _BaseObject):
                 element=style_url,
                 strict=strict,
             )
+        styles = element.findall(f"{ns}Style")
+        kwargs["styles"] = []
+        if styles is not None:
+            for style in styles:
+                kwargs["styles"].append(
+                    Style.class_from_element(
+                        ns=ns,
+                        name_spaces=name_spaces,
+                        element=style,
+                        strict=strict,
+                    ),
+                )
+        stylemaps = element.findall(f"{ns}StyleMap")
+        if stylemaps is not None:
+            for stylemap in stylemaps:
+                kwargs["styles"].append(
+                    StyleMap.class_from_element(
+                        ns=ns,
+                        name_spaces=name_spaces,
+                        element=stylemap,
+                        strict=strict,
+                    ),
+                )
         snippet = element.find(f"{ns}Snippet")
         if snippet is not None:
             max_lines = snippet.get("maxLines")
@@ -611,7 +506,7 @@ class Placemark(_Feature):
         view: Optional[Union[Camera, LookAt]] = None,
         times: Optional[Union[TimeSpan, TimeStamp]] = None,
         style_url: Optional[StyleUrl] = None,
-        styles: Optional[List[Style]] = None,
+        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
         # Placemark specific
@@ -645,91 +540,6 @@ class Placemark(_Feature):
         if self._geometry is not None:
             return self._geometry.geometry
         return None
-
-    def from_element(self, element: Element, strict: bool = False) -> None:
-        super().from_element(element)
-        point = element.find(f"{self.ns}Point")
-        if point is not None:
-            self._geometry = cast(
-                Point,
-                Point.class_from_element(
-                    ns=self.ns,
-                    element=point,
-                    strict=strict,
-                ),
-            )
-            return
-        line = element.find(f"{self.ns}LineString")
-        if line is not None:
-            self._geometry = cast(
-                LineString,
-                LineString.class_from_element(
-                    ns=self.ns,
-                    element=line,
-                    strict=strict,
-                ),
-            )
-            return
-        polygon = element.find(f"{self.ns}Polygon")
-        if polygon is not None:
-            self._geometry = cast(
-                Polygon,
-                Polygon.class_from_element(
-                    ns=self.ns,
-                    element=polygon,
-                    strict=strict,
-                ),
-            )
-            return
-        linearring = element.find(f"{self.ns}LinearRing")
-        if linearring is not None:
-            self._geometry = cast(
-                LinearRing,
-                LinearRing.class_from_element(
-                    ns=self.ns,
-                    element=linearring,
-                    strict=strict,
-                ),
-            )
-            return
-        multigeometry = element.find(f"{self.ns}MultiGeometry")
-        if multigeometry is not None:
-            self._geometry = cast(
-                MultiGeometry,
-                MultiGeometry.class_from_element(
-                    ns=self.ns,
-                    element=multigeometry,
-                    strict=strict,
-                ),
-            )
-            return
-        track = element.find(f"{self.ns}Track")
-        if track is not None:
-            self._geometry = cast(
-                gx.Track,
-                gx.Track.class_from_element(
-                    ns=config.GXNS,
-                    element=track,
-                    strict=strict,
-                ),
-            )
-            return
-        multitrack = element.find(f"{self.ns}MultiTrack")
-        if multitrack is not None:
-            self._geometry = cast(
-                gx.MultiTrack,
-                gx.MultiTrack.class_from_element(
-                    ns=config.GXNS,
-                    element=multitrack,
-                    strict=strict,
-                ),
-            )
-            return
-        logger.warning("No geometries found")
-        logger.debug(
-            "Problem with element: %",
-            config.etree.tostring(element),  # type: ignore[attr-defined]
-        )
 
     def etree_element(
         self,
@@ -886,7 +696,7 @@ class NetworkLink(_Feature):
         view: Optional[Union[Camera, LookAt]] = None,
         times: Optional[Union[TimeSpan, TimeStamp]] = None,
         style_url: Optional[StyleUrl] = None,
-        styles: Optional[List[Style]] = None,
+        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
         # NetworkLink specific
@@ -941,28 +751,6 @@ class NetworkLink(_Feature):
         if self.link is not None:
             element.append(self.link.etree_element())
         return element
-
-    def from_element(self, element: Element, strict: bool = False) -> None:
-        super().from_element(element)
-
-        visibility = element.find(f"{self.ns}refreshVisibility")
-        if visibility is not None:
-            self.visibility = bool(int(visibility.text))
-        flyto = element.find(f"{self.ns}flyToView")
-        if flyto is not None:
-            self.fly_to_view = bool(int(flyto.text))
-
-        link = element.find(f"{self.ns}Link")
-        if link is not None:
-            self._link = cast(
-                Link,
-                Link.class_from_element(
-                    ns=self.ns,
-                    name_spaces=self.name_spaces,
-                    element=link,
-                    strict=strict,
-                ),
-            )
 
     @classmethod
     def _get_kwargs(

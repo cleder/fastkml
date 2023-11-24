@@ -64,8 +64,7 @@ class TestGroundOverlayString(StdLibrary):
     def test_default_to_string(self) -> None:
         g = overlays.GroundOverlay()
 
-        expected = overlays.GroundOverlay()
-        expected.from_string(
+        expected = overlays.GroundOverlay.class_from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             "</kml:GroundOverlay>",
         )
@@ -78,8 +77,7 @@ class TestGroundOverlayString(StdLibrary):
         g.draw_order = 1
         g.color = "00010203"
 
-        expected = overlays.GroundOverlay()
-        expected.from_string(
+        expected = overlays.GroundOverlay.class_from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:color>00010203</kml:color>"
             "<kml:drawOrder>1</kml:drawOrder>"
@@ -95,8 +93,7 @@ class TestGroundOverlayString(StdLibrary):
         g = overlays.GroundOverlay()
         g.altitude = 123.0
 
-        expected = overlays.GroundOverlay()
-        expected.from_string(
+        expected = overlays.GroundOverlay.class_from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:altitude>123</kml:altitude>"
             "</kml:GroundOverlay>",
@@ -108,8 +105,7 @@ class TestGroundOverlayString(StdLibrary):
         g = overlays.GroundOverlay()
         g.altitude = 123.4
 
-        expected = overlays.GroundOverlay()
-        expected.from_string(
+        expected = overlays.GroundOverlay.class_from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:altitude>123.4</kml:altitude>"
             "</kml:GroundOverlay>",
@@ -123,8 +119,7 @@ class TestGroundOverlayString(StdLibrary):
             altitude_mode=AltitudeMode.clamp_to_ground,
         )
 
-        expected = overlays.GroundOverlay()
-        expected.from_string(
+        expected = overlays.GroundOverlay.class_from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:altitude>123.4</kml:altitude>"
             "<kml:altitudeMode>clampToGround</kml:altitudeMode>"
@@ -135,8 +130,7 @@ class TestGroundOverlayString(StdLibrary):
 
     def test_altitude_mode_absolute(self) -> None:
         g = overlays.GroundOverlay(altitude=123.4, altitude_mode=AltitudeMode.absolute)
-        expected = overlays.GroundOverlay()
-        expected.from_string(
+        expected = overlays.GroundOverlay.class_from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:altitude>123.4</kml:altitude>"
             "<kml:altitudeMode>absolute</kml:altitudeMode>"
@@ -155,8 +149,7 @@ class TestGroundOverlayString(StdLibrary):
         )
         g = overlays.GroundOverlay(lat_lon_box=llb)
 
-        expected = overlays.GroundOverlay()
-        expected.from_string(
+        expected = overlays.GroundOverlay.class_from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:LatLonBox>"
             "<kml:north>10</kml:north>"
@@ -180,8 +173,7 @@ class TestGroundOverlayString(StdLibrary):
         )
         g = overlays.GroundOverlay(lat_lon_box=llb)
 
-        expected = overlays.GroundOverlay()
-        expected.from_string(
+        expected = overlays.GroundOverlay.class_from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:LatLonBox>"
             "<kml:north>10</kml:north>"
@@ -206,8 +198,7 @@ class TestGroundOverlayString(StdLibrary):
         )
         g = overlays.GroundOverlay()
         g.lat_lon_box = llb
-        expected = overlays.GroundOverlay()
-        expected.from_string(
+        expected = overlays.GroundOverlay.class_from_string(
             '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:LatLonBox>"
             "<kml:north>10</kml:north>"

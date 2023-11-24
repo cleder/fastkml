@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 from typing import Dict
-from typing import List
+from typing import Iterable
 from typing import Optional
 from typing import Union
 from typing import cast
@@ -26,6 +26,7 @@ from fastkml.geometry import Point
 from fastkml.geometry import Polygon
 from fastkml.links import Icon
 from fastkml.styles import Style
+from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
 from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
@@ -63,7 +64,7 @@ class _Overlay(_Feature):
     # (AABBGGRR). The range of values for any one color is 0 to 255 (00 to ff).
     # For opacity, 00 is fully transparent and ff is fully opaque.
 
-    _draw_order: Optional[str]
+    _draw_order: Optional[int]
     # Defines the stacking order for the images in overlapping overlays.
     # Overlays with higher <drawOrder> values are drawn on top of those with
     # lower <drawOrder> values.
@@ -93,12 +94,12 @@ class _Overlay(_Feature):
         view: Optional[Union[Camera, LookAt]] = None,
         times: Optional[Union[TimeSpan, TimeStamp]] = None,
         style_url: Optional[StyleUrl] = None,
-        styles: Optional[List[Style]] = None,
+        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
         # Overlay specific
         color: Optional[str] = None,
-        draw_order: Optional[str] = None,
+        draw_order: Optional[int] = None,
         icon: Optional[Icon] = None,
     ) -> None:
         super().__init__(
@@ -135,11 +136,11 @@ class _Overlay(_Feature):
         self._color = color
 
     @property
-    def draw_order(self) -> Optional[str]:
+    def draw_order(self) -> Optional[int]:
         return self._draw_order
 
     @draw_order.setter
-    def draw_order(self, value: Optional[str]) -> None:
+    def draw_order(self, value: Optional[int]) -> None:
         self._draw_order = value
 
     @property
@@ -172,26 +173,6 @@ class _Overlay(_Feature):
             element.append(self._icon.etree_element())
         return element
 
-    def from_element(self, element: Element, strict: bool = False) -> None:
-        super().from_element(element=element, strict=strict)
-        color = element.find(f"{self.ns}color")
-        if color is not None:
-            self.color = color.text
-        draw_order = element.find(f"{self.ns}drawOrder")
-        if draw_order is not None:
-            self.draw_order = draw_order.text
-        icon = element.find(f"{self.ns}Icon")
-        if icon is not None:
-            self._icon = cast(
-                Icon,
-                Icon.class_from_element(
-                    ns=self.ns,
-                    name_spaces=self.name_spaces,
-                    element=icon,
-                    strict=False,
-                ),
-            )
-
     @classmethod
     def _get_kwargs(
         cls,
@@ -212,7 +193,7 @@ class _Overlay(_Feature):
             kwargs["color"] = color.text
         draw_order = element.find(f"{ns}drawOrder")
         if draw_order is not None:
-            kwargs["draw_order"] = draw_order.text
+            kwargs["draw_order"] = int(draw_order.text)
         icon = element.find(f"{ns}Icon")
         if icon is not None:
             kwargs["icon"] = cast(
@@ -547,11 +528,11 @@ class PhotoOverlay(_Overlay):
         view: Optional[Union[Camera, LookAt]] = None,
         times: Optional[Union[TimeSpan, TimeStamp]] = None,
         style_url: Optional[StyleUrl] = None,
-        styles: Optional[List[Style]] = None,
+        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
         color: Optional[str] = None,
-        draw_order: Optional[str] = None,
+        draw_order: Optional[int] = None,
         icon: Optional[Icon] = None,
         # Photo Overlay specific
         rotation: Optional[float] = None,
@@ -615,48 +596,6 @@ class PhotoOverlay(_Overlay):
             )
             shape.text = self.shape.value
         return element
-
-    def from_element(self, element: Element, strict: bool = True) -> None:
-        super().from_element(element)
-        rotation = element.find(f"{self.ns}rotation")
-        if rotation is not None:
-            self.rotation = float(rotation.text)
-        view_volume = element.find(f"{self.ns}ViewVolume")
-        if view_volume is not None:
-            self.view_volume = cast(
-                ViewVolume,
-                ViewVolume.class_from_element(
-                    ns=self.ns,
-                    name_spaces=self.name_spaces,
-                    element=view_volume,
-                    strict=False,
-                ),
-            )
-        image_pyramid = element.find(f"{self.ns}ImagePyramid")
-        if image_pyramid is not None:
-            self.image_pyramid = cast(
-                ImagePyramid,
-                ImagePyramid.class_from_element(
-                    ns=self.ns,
-                    name_spaces=self.name_spaces,
-                    element=image_pyramid,
-                    strict=False,
-                ),
-            )
-        point = element.find(f"{self.ns}Point")
-        if point is not None:
-            self.point = cast(
-                Point,
-                Point.class_from_element(
-                    ns=self.ns,
-                    name_spaces=self.name_spaces,
-                    element=point,
-                    strict=False,
-                ),
-            )
-        shape = element.find(f"{self.ns}shape")
-        if shape is not None:
-            self.shape = Shape(shape.text)
 
     @classmethod
     def _get_kwargs(
@@ -893,11 +832,11 @@ class GroundOverlay(_Overlay):
         view: Optional[Union[Camera, LookAt]] = None,
         times: Optional[Union[TimeSpan, TimeStamp]] = None,
         style_url: Optional[StyleUrl] = None,
-        styles: Optional[List[Style]] = None,
+        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
         color: Optional[str] = None,
-        draw_order: Optional[str] = None,
+        draw_order: Optional[int] = None,
         icon: Optional[Icon] = None,
         # Ground Overlay specific
         altitude: Optional[float] = None,
@@ -953,26 +892,6 @@ class GroundOverlay(_Overlay):
         if self.lat_lon_box:
             element.append(self.lat_lon_box.etree_element())
         return element
-
-    def from_element(self, element: Element, strict: bool = False) -> None:
-        super().from_element(element)
-        altitude = element.find(f"{self.ns}altitude")
-        if altitude is not None:
-            self.altitude = float(altitude.text)
-        altitude_mode = element.find(f"{self.ns}altitudeMode")
-        if altitude_mode is not None:
-            self.altitude_mode = AltitudeMode(altitude_mode.text)
-        lat_lon_box = element.find(f"{self.ns}LatLonBox")
-        if lat_lon_box is not None:
-            self.lat_lon_box = cast(
-                LatLonBox,
-                LatLonBox.class_from_element(
-                    ns=self.ns,
-                    name_spaces=self.name_spaces,
-                    element=lat_lon_box,
-                    strict=False,
-                ),
-            )
 
     @classmethod
     def _get_kwargs(

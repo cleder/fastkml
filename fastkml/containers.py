@@ -8,7 +8,6 @@ from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Union
-from typing import cast
 
 from fastkml import atom
 from fastkml import gx
@@ -76,7 +75,7 @@ class _Container(_Feature):
         view: Optional[Union[Camera, LookAt]] = None,
         times: Optional[Union[TimeSpan, TimeStamp]] = None,
         style_url: Optional[StyleUrl] = None,
-        styles: Optional[List[Style]] = None,
+        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
         # Container specific
@@ -170,24 +169,6 @@ class Folder(_Container):
 
     __name__ = "Folder"
 
-    def from_element(self, element: Element, strict: bool = False) -> None:
-        super().from_element(element)
-        folders = element.findall(f"{self.ns}Folder")
-        for folder in folders:
-            feature = Folder(self.ns)
-            feature.from_element(folder)
-            self.append(feature)
-        placemarks = element.findall(f"{self.ns}Placemark")
-        for placemark in placemarks:
-            feature = Placemark(self.ns)  # type: ignore[assignment]
-            feature.from_element(placemark)
-            self.append(feature)
-        documents = element.findall(f"{self.ns}Document")
-        for document in documents:
-            feature = Document(self.ns)  # type: ignore[assignment]
-            feature.from_element(document)
-            self.append(feature)
-
 
 class Document(_Container):
     """
@@ -217,7 +198,7 @@ class Document(_Container):
         view: Optional[Union[Camera, LookAt]] = None,
         times: Optional[Union[TimeSpan, TimeStamp]] = None,
         style_url: Optional[StyleUrl] = None,
-        styles: Optional[List[Style]] = None,
+        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
         features: Optional[List[_Feature]] = None,
@@ -254,31 +235,6 @@ class Document(_Container):
     def append_schema(self, schema: Schema) -> None:
         assert self._schemata is not None
         self._schemata.append(schema)
-
-    def from_element(self, element: Element, strict: bool = False) -> None:
-        super().from_element(element)
-        documents = element.findall(f"{self.ns}Document")
-        for document in documents:
-            feature = Document(self.ns)
-            feature.from_element(document)
-            self.append(feature)
-        folders = element.findall(f"{self.ns}Folder")
-        for folder in folders:
-            feature = Folder(self.ns)  # type: ignore[assignment]
-            feature.from_element(folder)
-            self.append(feature)
-        placemarks = element.findall(f"{self.ns}Placemark")
-        for placemark in placemarks:
-            feature = Placemark(self.ns)  # type: ignore[assignment]
-            feature.from_element(placemark)
-            self.append(feature)
-        schemata = element.findall(f"{self.ns}Schema")
-        for schema in schemata:
-            s = cast(
-                Schema,
-                Schema.class_from_element(ns=self.ns, element=schema, strict=strict),
-            )
-            self.append_schema(s)
 
     def etree_element(
         self,
