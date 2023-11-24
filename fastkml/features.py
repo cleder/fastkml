@@ -518,7 +518,7 @@ class _Feature(TimeMixin, _BaseObject):
                 kwargs["snippet"] = Snippet(text=snippet.text, max_lines=int(max_lines))
             else:
                 kwargs["snippet"] = Snippet(  # type: ignore[unreachable]
-                    text=snippet.text
+                    text=snippet.text,
                 )
         timespan = element.find(f"{ns}TimeSpan")
         if timespan is not None:
