@@ -62,11 +62,12 @@ class KML(_XMLObject):
         The namespace (ns) may be empty ('') if the 'kml:' prefix is
         undesired. Note that all child elements like Document or Placemark need
         to be initialized with empty namespace as well in this case.
-
         """
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+        )
         self._features = list(features) if features is not None else []
-
-        self.ns = config.KMLNS if ns is None else ns
 
     def from_string(self, xml_string: str) -> None:
         """Create a KML object from a xml string."""
@@ -149,7 +150,7 @@ class KML(_XMLObject):
             except TypeError:
                 root = config.etree.Element(f"{self.ns}kml")
         for feature in self.features():
-            root.append(feature.etree_element())
+            root.append(feature.etree_element(precision=precision, verbosity=verbosity))
         return root
 
     def to_string(self, prettyprint: bool = False) -> str:
@@ -195,7 +196,7 @@ class KML(_XMLObject):
         cls,
         *,
         ns: str,
-        name_spaces: Dict[str, str] | None = None,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> Dict[str, Any]:
