@@ -522,14 +522,14 @@ class TestKmlFromString:
         pytest.raises(TypeError, kml.KML.class_from_string, "<xml></xml>")
 
     def test_from_string_with_unbound_prefix(self) -> None:
-        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
+        if LXML:
+            config.set_etree_implementation(lxml.etree)
+            doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Placemark>
         <ExtendedData>
           <lc:attachment>image.png</lc:attachment>
         </ExtendedData>
         </Placemark> </kml>"""
-        if LXML:
-            config.set_etree_implementation(lxml.etree)
             k = kml.KML.class_from_string(doc)
             assert len(list(k.features())) == 1
 
