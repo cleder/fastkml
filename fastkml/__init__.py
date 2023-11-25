@@ -28,14 +28,16 @@ from fastkml.about import __version__  # noqa: F401
 from fastkml.atom import Author
 from fastkml.atom import Contributor
 from fastkml.atom import Link
+from fastkml.containers import Document
+from fastkml.containers import Folder
 from fastkml.data import Data
 from fastkml.data import ExtendedData
 from fastkml.data import Schema
 from fastkml.data import SchemaData
+from fastkml.features import Placemark
 from fastkml.kml import KML
-from fastkml.kml import Document
-from fastkml.kml import Folder
-from fastkml.kml import Placemark
+from fastkml.overlays import GroundOverlay
+from fastkml.overlays import PhotoOverlay
 from fastkml.styles import BalloonStyle
 from fastkml.styles import IconStyle
 from fastkml.styles import LabelStyle
@@ -53,11 +55,13 @@ __all__ = [
     "KML",
     "Document",
     "Folder",
+    "GroundOverlay",
     "Placemark",
     "TimeSpan",
     "TimeStamp",
     "ExtendedData",
     "Data",
+    "PhotoOverlay",
     "Schema",
     "SchemaData",
     "StyleUrl",

@@ -136,12 +136,6 @@ warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
 
-[[tool.mypy.overrides]]
-ignore_errors = true
-module = [
-    "fastkml.kml",
-]
-
 [tool.pyright]
 exclude = [
     "**/__pycache__",
