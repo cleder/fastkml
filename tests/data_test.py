@@ -134,8 +134,7 @@ class TestStdLibrary(StdLibrary):
         assert len(p.extended_data.elements) == 2
         k.append(p)
 
-        k2 = kml.KML()
-        k2.from_string(k.to_string(prettyprint=True))
+        k2 = kml.KML.class_from_string(k.to_string(prettyprint=True))
         k.to_string()
 
         extended_data = next(iter(k2.features())).extended_data
@@ -167,8 +166,7 @@ class TestStdLibrary(StdLibrary):
         k.append(d)
         d.append(f)
 
-        k2 = kml.KML()
-        k2.from_string(k.to_string())
+        k2 = kml.KML.class_from_string(k.to_string())
 
         document_data = next(iter(k2.features())).extended_data
         folder_data = next(iter(next(iter(k2.features())).features())).extended_data
@@ -209,8 +207,7 @@ class TestStdLibrary(StdLibrary):
           </Placemark>
         </kml>"""
 
-        k = kml.KML()
-        k.from_string(doc)
+        k = kml.KML.class_from_string(doc)
 
         extended_data = next(iter(k.features())).extended_data
 

@@ -69,67 +69,6 @@ class KML(_XMLObject):
         )
         self._features = list(features) if features is not None else []
 
-    def from_string(self, xml_string: str) -> None:
-        """Create a KML object from a xml string."""
-        try:
-            element = config.etree.fromstring(
-                xml_string,
-                parser=config.etree.XMLParser(huge_tree=True, recover=True),
-            )
-        except TypeError:
-            element = config.etree.XML(xml_string)
-
-        if not element.tag.endswith("kml"):
-            raise TypeError
-
-        ns = element.tag.rstrip("kml")
-        documents = element.findall(f"{ns}Document")
-        for document in documents:
-            self.append(
-                Document.class_from_element(
-                    ns=ns,
-                    element=document,
-                    strict=False,
-                ),
-            )
-        folders = element.findall(f"{ns}Folder")
-        for folder in folders:
-            self.append(
-                Folder.class_from_element(
-                    ns=ns,
-                    element=folder,
-                    strict=False,
-                ),
-            )
-        placemarks = element.findall(f"{ns}Placemark")
-        for placemark in placemarks:
-            self.append(
-                Placemark.class_from_element(
-                    ns=ns,
-                    element=placemark,
-                    strict=False,
-                ),
-            )
-        groundoverlays = element.findall(f"{ns}GroundOverlay")
-        for groundoverlay in groundoverlays:
-            self.append(
-                GroundOverlay.class_from_element(
-                    ns=ns,
-                    element=groundoverlay,
-                    strict=False,
-                ),
-            )
-
-        photo_overlays = element.findall(f"{ns}PhotoOverlay")
-        for photo_overlay in photo_overlays:
-            self.append(
-                PhotoOverlay.class_from_element(
-                    ns=ns,
-                    element=photo_overlay,
-                    strict=False,
-                ),
-            )
-
     def etree_element(
         self,
         precision: Optional[int] = None,
