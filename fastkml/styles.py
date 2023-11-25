@@ -21,29 +21,43 @@ part of how your data is displayed.
 """
 
 import logging
+from dataclasses import dataclass
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import Iterator
 from typing import List
 from typing import Optional
-from typing import Type
 from typing import Union
-
-from typing_extensions import TypedDict
+from typing import cast
 
 from fastkml import config
 from fastkml.base import _BaseObject
+from fastkml.enums import ColorMode
+from fastkml.enums import DisplayMode
+from fastkml.enums import Units
 from fastkml.enums import Verbosity
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
 
 
+def strtobool(val: str) -> int:
+    val = val.lower()
+    if val == "false":
+        return 0
+    if val == "true":
+        return 1
+    return int(float(val))
+
+
 class StyleUrl(_BaseObject):
     """
-    URL of a <Style> or <StyleMap> defined in a Document. If the style
-    is in the same file, use a # reference. If the style is defined in
-    an external file, use a full URL along with # referencing.
+    URL of a <Style> or <StyleMap> defined in a Document.
+
+    If the style is in the same file, use a # reference.
+    If the style is defined in an external file,
+    use a full URL along with # referencing.
     """
 
     __name__ = "styleUrl"
@@ -72,9 +86,23 @@ class StyleUrl(_BaseObject):
             logger.warning("StyleUrl is missing required url.")
         return element
 
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        self.url = element.text
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        kwargs["url"] = element.text
+        return kwargs
 
 
 class _StyleSelector(_BaseObject):
@@ -104,7 +132,7 @@ class _ColorStyle(_BaseObject):
     # The order of expression is aabbggrr, where aa=alpha (00 to ff);
     # bb=blue (00 to ff); gg=green (00 to ff); rr=red (00 to ff).
 
-    color_mode = None
+    color_mode: Optional[ColorMode]
     # Values for <colorMode> are normal (no effect) and random.
     # A value of random applies a random linear scale to the base <color>
 
@@ -115,7 +143,7 @@ class _ColorStyle(_BaseObject):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
-        color_mode: Optional[str] = None,
+        color_mode: Optional[ColorMode] = None,
     ) -> None:
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.color = color
@@ -138,24 +166,67 @@ class _ColorStyle(_BaseObject):
                 element,
                 f"{self.ns}colorMode",
             )
-            color_mode.text = self.color_mode
+            color_mode.text = self.color_mode.value
         return element
 
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        color_mode = element.find(f"{self.ns}colorMode")
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        color_mode = element.find(f"{ns}colorMode")
         if color_mode is not None:
-            self.color_mode = color_mode.text
-        color = element.find(f"{self.ns}color")
+            kwargs["color_mode"] = ColorMode(color_mode.text)
+        color = element.find(f"{ns}color")
         if color is not None:
-            self.color = color.text
+            kwargs["color"] = color.text
+        return kwargs
 
 
-class HotSpot(TypedDict):
+@dataclass(frozen=True)
+class HotSpot:
     x: float
     y: float
-    xunits: str  # pixels, fraction, insetPixels
-    yunits: str
+    xunits: Units
+    yunits: Units
+
+    @classmethod
+    def class_from_element(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Optional["HotSpot"]:
+        hot_spot = element.find(f"{ns}hotSpot")
+        if hot_spot is not None:
+            x = hot_spot.attrib.get("x")  # type: ignore[attr-defined]
+            y = hot_spot.attrib.get("y")  # type: ignore[attr-defined]
+            xunits = hot_spot.attrib.get("xunits")  # type: ignore[attr-defined]
+            yunits = hot_spot.attrib.get("yunits")  # type: ignore[attr-defined]
+            x = float(x) if x is not None else 0
+            y = float(y) if y is not None else 0
+            xunits = Units(xunits) if xunits is not None else None
+            yunits = Units(yunits) if yunits is not None else None
+            element.remove(hot_spot)
+            return HotSpot(
+                x=x,
+                y=y,
+                xunits=xunits,
+                yunits=yunits,
+            )
+        return None
 
 
 class IconStyle(_ColorStyle):
@@ -178,7 +249,7 @@ class IconStyle(_ColorStyle):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
-        color_mode: Optional[str] = None,
+        color_mode: Optional[ColorMode] = None,
         scale: float = 1.0,
         heading: Optional[float] = None,
         icon_href: Optional[str] = None,
@@ -231,33 +302,45 @@ class IconStyle(_ColorStyle):
                 element,
                 f"{self.ns}hotSpot",
             )
-            hot_spot.attrib["x"] = str(self.hot_spot["x"])
-            hot_spot.attrib["y"] = str(self.hot_spot["y"])
-            hot_spot.attrib["xunits"] = str(self.hot_spot["xunits"])
-            hot_spot.attrib["yunits"] = str(self.hot_spot["yunits"])
+            hot_spot.attrib["x"] = str(self.hot_spot.x)
+            hot_spot.attrib["y"] = str(self.hot_spot.y)
+            hot_spot.attrib["xunits"] = self.hot_spot.xunits.value
+            hot_spot.attrib["yunits"] = self.hot_spot.yunits.value
         return element
 
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        scale = element.find(f"{self.ns}scale")
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        scale = element.find(f"{ns}scale")
         if scale is not None:
-            self.scale = float(scale.text)
-        heading = element.find(f"{self.ns}heading")
+            kwargs["scale"] = float(scale.text)
+        heading = element.find(f"{ns}heading")
         if heading is not None:
-            self.heading = float(heading.text)
-        icon = element.find(f"{self.ns}Icon")
+            kwargs["heading"] = float(heading.text)
+        icon = element.find(f"{ns}Icon")
         if icon is not None:
-            href = icon.find(f"{self.ns}href")
+            href = icon.find(f"{ns}href")
             if href is not None:
-                self.icon_href = href.text
-        hot_spot = element.find(f"{self.ns}hotSpot")
-        if hot_spot is not None:
-            self.hot_spot: HotSpot = {  # type: ignore[no-redef]
-                "x": hot_spot.attrib["x"],  # type: ignore[attr-defined]
-                "y": hot_spot.attrib["y"],  # type: ignore[attr-defined]
-                "xunits": hot_spot.attrib["xunits"],  # type: ignore[attr-defined]
-                "yunits": hot_spot.attrib["yunits"],  # type: ignore[attr-defined]
-            }
+                kwargs["icon_href"] = href.text
+        kwargs["hot_spot"] = HotSpot.class_from_element(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        return kwargs
 
 
 class LineStyle(_ColorStyle):
@@ -279,7 +362,7 @@ class LineStyle(_ColorStyle):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
-        color_mode: Optional[str] = None,
+        color_mode: Optional[ColorMode] = None,
         width: Union[int, float] = 1,
     ) -> None:
         super().__init__(
@@ -306,11 +389,25 @@ class LineStyle(_ColorStyle):
             width.text = str(self.width)
         return element
 
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        width = element.find(f"{self.ns}width")
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        width = element.find(f"{ns}width")
         if width is not None:
-            self.width = float(width.text)
+            kwargs["width"] = float(width.text)
+        return kwargs
 
 
 class PolyStyle(_ColorStyle):
@@ -334,7 +431,7 @@ class PolyStyle(_ColorStyle):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
-        color_mode: Optional[str] = None,
+        color_mode: Optional[ColorMode] = None,
         fill: int = 1,
         outline: int = 1,
     ) -> None:
@@ -369,22 +466,28 @@ class PolyStyle(_ColorStyle):
             outline.text = str(self.outline)
         return element
 
-    def from_element(self, element: Element) -> None:
-        def strtobool(val: str) -> int:
-            val = val.lower()
-            if val == "false":
-                return 0
-            if val == "true":
-                return 1
-            return int(float(val))
-
-        super().from_element(element)
-        fill = element.find(f"{self.ns}fill")
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        fill = element.find(f"{ns}fill")
         if fill is not None:
-            self.fill = strtobool(fill.text)
-        outline = element.find(f"{self.ns}outline")
+            kwargs["fill"] = strtobool(fill.text)
+        outline = element.find(f"{ns}outline")
         if outline is not None:
-            self.outline = strtobool(outline.text)
+            kwargs["outline"] = strtobool(outline.text)
+        return kwargs
 
 
 class LabelStyle(_ColorStyle):
@@ -401,7 +504,7 @@ class LabelStyle(_ColorStyle):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
-        color_mode: Optional[str] = None,
+        color_mode: Optional[ColorMode] = None,
         scale: float = 1.0,
     ) -> None:
         super().__init__(
@@ -428,18 +531,32 @@ class LabelStyle(_ColorStyle):
             scale.text = str(self.scale)
         return element
 
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        scale = element.find(f"{self.ns}scale")
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        scale = element.find(f"{ns}scale")
         if scale is not None:
-            self.scale = float(scale.text)
+            kwargs["scale"] = float(scale.text)
+        return kwargs
 
 
 class BalloonStyle(_BaseObject):
     """
     Specifies how the description balloon for placemarks is drawn.
-    The <bgColor>, if specified, is used as the background color of
-    the balloon.
+
+    The <bgColor>, if specified, is used as the background color of the balloon.
     """
 
     __name__ = "BalloonStyle"
@@ -481,7 +598,7 @@ class BalloonStyle(_BaseObject):
     # in the Feature elements that use this BalloonStyle:
     # <text>This is $[name], whose description is:<br/>$[description]</text>
 
-    display_mode = None
+    display_mode: Optional[DisplayMode]
     # If <displayMode> is default, Google Earth uses the information supplied
     # in <text> to create a balloon . If <displayMode> is hide, Google Earth
     # does not display the balloon. In Google Earth, clicking the List View
@@ -497,32 +614,13 @@ class BalloonStyle(_BaseObject):
         bg_color: Optional[str] = None,
         text_color: Optional[str] = None,
         text: Optional[str] = None,
-        display_mode: Optional[str] = None,
+        display_mode: Optional[DisplayMode] = None,
     ) -> None:
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.bg_color = bg_color
         self.text_color = text_color
         self.text = text
         self.display_mode = display_mode
-
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        bg_color = element.find(f"{self.ns}bgColor")
-        if bg_color is not None:
-            self.bg_color = bg_color.text
-        else:
-            bg_color = element.find(f"{self.ns}color")
-            if bg_color is not None:
-                self.bg_color = bg_color.text
-        text_color = element.find(f"{self.ns}textColor")
-        if text_color is not None:
-            self.text_color = text_color.text
-        text = element.find(f"{self.ns}text")
-        if text is not None:
-            self.text = text.text
-        display_mode = element.find(f"{self.ns}displayMode")
-        if display_mode is not None:
-            self.display_mode = display_mode.text
 
     def etree_element(
         self,
@@ -553,8 +651,41 @@ class BalloonStyle(_BaseObject):
                 element,
                 f"{self.ns}displayMode",
             )
-            elem.text = self.display_mode
+            elem.text = self.display_mode.value
         return element
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        bg_color = element.find(f"{ns}bgColor")
+        if bg_color is not None:
+            kwargs["bg_color"] = bg_color.text
+        else:
+            bg_color = element.find(f"{ns}color")
+            if bg_color is not None:
+                kwargs["bg_color"] = bg_color.text
+        text_color = element.find(f"{ns}textColor")
+        if text_color is not None:
+            kwargs["text_color"] = text_color.text
+        text = element.find(f"{ns}text")
+        if text is not None:
+            kwargs["text"] = text.text
+        display_mode = element.find(f"{ns}displayMode")
+        if display_mode is not None:
+            kwargs["display_mode"] = DisplayMode(display_mode.text)
+        return kwargs
 
 
 AnyStyle = Union[BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle]
@@ -562,12 +693,13 @@ AnyStyle = Union[BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle]
 
 class Style(_StyleSelector):
     """
-    A Style defines an addressable style group that can be referenced
-    by StyleMaps and Features. Styles affect how Geometry is presented
-    in the 3D viewer and how Features appear in the Places panel of the
-    List view. Shared styles are collected in a <Document> and must have
-    an id defined for them so that they can be referenced by the
-    individual Features that use them.
+    A Style defines an addressable style group.
+
+    It can be referenced by StyleMaps and Features.
+    Styles affect how Geometry is presented in the 3D viewer and how Features
+    appear in the Places panel of the List view.
+    Shared styles are collected in a <Document> and must have an id defined for them
+    so that they can be referenced by the individual Features that use them.
     """
 
     __name__ = "Style"
@@ -604,18 +736,6 @@ class Style(_StyleSelector):
             else:
                 raise TypeError
 
-    def _get_style(self, element: Element, style_class: Type[AnyStyle]) -> None:
-        style = element.find(f"{self.ns}{style_class.__name__}")
-        if style is not None:
-            thestyle = style_class(self.ns)
-            thestyle.from_element(style)
-            self.append_style(thestyle)
-
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        for style in [BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle]:
-            self._get_style(element, style)
-
     def etree_element(
         self,
         precision: Optional[int] = None,
@@ -626,11 +746,41 @@ class Style(_StyleSelector):
             element.append(style.etree_element())
         return element
 
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        styles = []
+        for style in [BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle]:
+            style_element = element.find(f"{ns}{style.__name__}")
+            if style_element is not None:
+                styles.append(
+                    style.class_from_element(  # type: ignore[attr-defined]
+                        ns=ns,
+                        name_spaces=name_spaces,
+                        element=style_element,
+                        strict=strict,
+                    ),
+                )
+        kwargs["styles"] = styles
+        return kwargs
+
 
 class StyleMap(_StyleSelector):
     """
-    A <StyleMap> maps between two different Styles. Typically a
-    <StyleMap> element is used to provide separate normal and highlighted
+    A <StyleMap> maps between two different Styles.
+    Typically a <StyleMap> element is used to provide separate normal and highlighted
     styles for a placemark, so that the highlighted version appears when
     the user mouses over the icon in Google Earth.
     """
@@ -651,38 +801,6 @@ class StyleMap(_StyleSelector):
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.normal = normal
         self.highlight = highlight
-
-    def from_element(self, element: Element) -> None:
-        super().from_element(element)
-        pairs = element.findall(f"{self.ns}Pair")
-        for pair in pairs:
-            key = pair.find(f"{self.ns}key")
-            style = pair.find(f"{self.ns}Style")
-            style_url = pair.find(f"{self.ns}styleUrl")
-            if key is None:
-                raise ValueError
-            elif key.text == "highlight":
-                if style is not None:
-                    highlight = Style(self.ns)
-                    highlight.from_element(style)
-                elif style_url is not None:
-                    highlight = StyleUrl(self.ns)  # type: ignore[assignment]
-                    highlight.from_element(style_url)
-                else:
-                    raise ValueError
-                self.highlight = highlight
-            elif key.text == "normal":
-                if style is not None:
-                    normal = Style(self.ns)
-                    normal.from_element(style)
-                elif style_url is not None:
-                    normal = StyleUrl(self.ns)  # type: ignore[assignment]
-                    normal.from_element(style_url)
-                else:
-                    raise ValueError
-                self.normal = normal
-            else:
-                raise ValueError
 
     def etree_element(
         self,
@@ -713,6 +831,78 @@ class StyleMap(_StyleSelector):
             key.text = "highlight"
             pair.append(self.highlight.etree_element())
         return element
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        pairs = element.findall(f"{ns}Pair")
+        for pair in pairs:
+            key = pair.find(f"{ns}key")
+            style = pair.find(f"{ns}Style")
+            style_url = pair.find(f"{ns}styleUrl")
+            if key is None or key.text not in ["highlight", "normal"]:
+                raise ValueError
+            elif key.text == "highlight":
+                if style is not None:
+                    highlight = cast(
+                        Style,
+                        Style.class_from_element(
+                            ns=ns,
+                            name_spaces=name_spaces,
+                            element=style,
+                            strict=strict,
+                        ),
+                    )
+                elif style_url is not None:
+                    highlight = cast(  # type: ignore[assignment]
+                        StyleUrl,
+                        StyleUrl.class_from_element(
+                            ns=ns,
+                            name_spaces=name_spaces,
+                            element=style_url,
+                            strict=strict,
+                        ),
+                    )
+                else:
+                    raise ValueError
+                kwargs["highlight"] = highlight
+            else:
+                if style is not None:
+                    normal = cast(
+                        Style,
+                        Style.class_from_element(
+                            ns=ns,
+                            name_spaces=name_spaces,
+                            element=style,
+                            strict=strict,
+                        ),
+                    )
+                elif style_url is not None:
+                    normal = cast(  # type: ignore[assignment]
+                        StyleUrl,
+                        StyleUrl.class_from_element(
+                            ns=ns,
+                            name_spaces=name_spaces,
+                            element=style_url,
+                            strict=strict,
+                        ),
+                    )
+                else:
+                    raise ValueError
+                kwargs["normal"] = normal
+        return kwargs
 
 
 __all__ = [

@@ -17,6 +17,8 @@
 """Test the styles classes."""
 
 from fastkml import styles
+from fastkml.enums import ColorMode
+from fastkml.enums import DisplayMode
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -35,9 +37,7 @@ class TestStdLibrary(StdLibrary):
         assert ">#style-0</kml:styleUrl>" in serialized
 
     def test_style_url_read(self) -> None:
-        url = styles.StyleUrl()
-
-        url.from_string(
+        url = styles.StyleUrl.class_from_string(
             '<kml:styleUrl xmlns:kml="http://www.opengis.net/kml/2.2"'
             ' id="id-0" targetId="target-0">#style-0</kml:styleUrl>',
         )
@@ -51,7 +51,7 @@ class TestStdLibrary(StdLibrary):
             id="id-0",
             target_id="target-0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode("random"),
             scale=1.0,
             heading=0,
             icon_href="http://example.com/icon.png",
@@ -72,31 +72,34 @@ class TestStdLibrary(StdLibrary):
         assert "</kml:IconStyle>" in serialized
 
     def test_icon_style_read(self) -> None:
-        icons = styles.IconStyle()
-
-        icons.from_string(
+        icons = styles.IconStyle.class_from_string(
             '<kml:IconStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
             'id="id-1" targetId="target-1">'
             "<kml:color>ff2200ff</kml:color><kml:colorMode>random</kml:colorMode>"
             "<kml:scale>5</kml:scale><kml:heading>20</kml:heading><kml:Icon>"
             "<kml:href>http://example.com/icon.png</kml:href></kml:Icon>"
+            '<kml:hotSpot x="0.5"  y="0.7" xunits="fraction" yunits="insetPixels"/>'
             "</kml:IconStyle>",
         )
 
         assert icons.id == "id-1"
         assert icons.target_id == "target-1"
         assert icons.color == "ff2200ff"
-        assert icons.color_mode == "random"
+        assert icons.color_mode == ColorMode("random")
         assert icons.scale == 5.0
         assert icons.icon_href == "http://example.com/icon.png"
         assert icons.heading == 20.0
+        assert icons.hot_spot.x == 0.5
+        assert icons.hot_spot.y == 0.7
+        assert icons.hot_spot.xunits.value == "fraction"
+        assert icons.hot_spot.yunits.value == "insetPixels"
 
     def test_line_style(self) -> None:
         lines = styles.LineStyle(
             id="id-0",
             target_id="target-0",
             color="ff0000ff",
-            color_mode="normal",
+            color_mode=ColorMode.normal,
             width=1.0,
         )
 
@@ -111,9 +114,7 @@ class TestStdLibrary(StdLibrary):
         assert "</kml:LineStyle>" in serialized
 
     def test_line_style_read(self) -> None:
-        lines = styles.LineStyle()
-
-        lines.from_string(
+        lines = styles.LineStyle.class_from_string(
             '<kml:LineStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
             'id="id-l0" targetId="target-line">\n'
             "  <kml:color>ffaa00ff</kml:color>\n"
@@ -125,7 +126,7 @@ class TestStdLibrary(StdLibrary):
         assert lines.id == "id-l0"
         assert lines.target_id == "target-line"
         assert lines.color == "ffaa00ff"
-        assert lines.color_mode == "normal"
+        assert lines.color_mode == ColorMode.normal
         assert lines.width == 3.0
 
     def test_poly_style(self) -> None:
@@ -133,7 +134,7 @@ class TestStdLibrary(StdLibrary):
             id="id-0",
             target_id="target-0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode.random,
             fill=0,
             outline=1,
         )
@@ -150,9 +151,7 @@ class TestStdLibrary(StdLibrary):
         assert "</kml:PolyStyle>" in serialized
 
     def test_poly_style_read(self) -> None:
-        ps = styles.PolyStyle()
-
-        ps.from_string(
+        ps = styles.PolyStyle.class_from_string(
             '<kml:PolyStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
             'id="id-1" targetId="target-1">'
             "<kml:color>ffaabbff</kml:color>"
@@ -165,7 +164,7 @@ class TestStdLibrary(StdLibrary):
         assert ps.id == "id-1"
         assert ps.target_id == "target-1"
         assert ps.color == "ffaabbff"
-        assert ps.color_mode == "normal"
+        assert ps.color_mode == ColorMode.normal
         assert ps.fill == 1
         assert ps.outline == 0
 
@@ -174,7 +173,7 @@ class TestStdLibrary(StdLibrary):
             id="id-0",
             target_id="target-0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode.random,
             scale=1.0,
         )
 
@@ -191,9 +190,7 @@ class TestStdLibrary(StdLibrary):
         assert "</kml:LabelStyle>" in serialized
 
     def test_label_style_read(self) -> None:
-        ls = styles.LabelStyle()
-
-        ls.from_string(
+        ls = styles.LabelStyle.class_from_string(
             '<kml:LabelStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
             'id="id-1" targetId="target-1">'
             "<kml:color>ff001122</kml:color>"
@@ -205,7 +202,7 @@ class TestStdLibrary(StdLibrary):
         assert ls.id == "id-1"
         assert ls.target_id == "target-1"
         assert ls.color == "ff001122"
-        assert ls.color_mode == "normal"
+        assert ls.color_mode == ColorMode.normal
         assert ls.scale == 2.2
 
     def test_balloon_style(self) -> None:
@@ -215,7 +212,7 @@ class TestStdLibrary(StdLibrary):
             bg_color="7fff0000",
             text_color="ff00ff00",
             text="<b>Hello</b>",
-            display_mode="hide",
+            display_mode=DisplayMode.hide,
         )
 
         serialized = bs.to_string()
@@ -232,9 +229,7 @@ class TestStdLibrary(StdLibrary):
         assert "</kml:BalloonStyle>" in serialized
 
     def test_balloon_style_read(self) -> None:
-        bs = styles.BalloonStyle()
-
-        bs.from_string(
+        bs = styles.BalloonStyle.class_from_string(
             '<kml:BalloonStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
             'id="id-7" targetId="target-6">'
             "<kml:bgColor>7fff1144</kml:bgColor>"
@@ -249,14 +244,14 @@ class TestStdLibrary(StdLibrary):
         assert bs.bg_color == "7fff1144"
         assert bs.text_color == "ff11ff22"
         assert bs.text == "<b>World</b>"
-        assert bs.display_mode == "default"
+        assert bs.display_mode == DisplayMode.default
 
     def test_style(self) -> None:
         icons = styles.IconStyle(
             id="id-i0",
             target_id="target-i0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode.random,
             scale=1.0,
             heading=0,
             icon_href="http://example.com/icon.png",
@@ -265,7 +260,7 @@ class TestStdLibrary(StdLibrary):
             id="id-l0",
             target_id="target-l0",
             color="ff0000ff",
-            color_mode="normal",
+            color_mode=ColorMode.normal,
             width=1.0,
         )
         bs = styles.BalloonStyle(
@@ -274,20 +269,20 @@ class TestStdLibrary(StdLibrary):
             bg_color="7fff0000",
             text_color="ff00ff00",
             text="<b>Hello</b>",
-            display_mode="hide",
+            display_mode=DisplayMode.hide,
         )
         ls = styles.LabelStyle(
             id="id-a0",
             target_id="target-a0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode.random,
             scale=1.0,
         )
         ps = styles.PolyStyle(
             id="id-p0",
             target_id="target-p0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode.random,
             fill=0,
             outline=1,
         )
@@ -314,9 +309,7 @@ class TestStdLibrary(StdLibrary):
         assert "</kml:Style>" in serialized
 
     def test_style_read(self) -> None:
-        style = styles.Style()
-
-        style.from_string(
+        style = styles.Style.class_from_string(
             '<kml:Style xmlns:kml="http://www.opengis.net/kml/2.2" '
             'id="id-0" targetId="target-0">'
             '<kml:IconStyle id="id-i0" targetId="target-i0">'
@@ -360,12 +353,12 @@ class TestStdLibrary(StdLibrary):
         assert next(iter(style.styles())).bg_color == "7fff0000"  # type: ignore[union-attr]
         assert next(iter(style.styles())).text_color == "ff00ff00"  # type: ignore[union-attr]
         assert next(iter(style.styles())).text == "<b>Hello</b>"  # type: ignore[union-attr]
-        assert next(iter(style.styles())).display_mode == "hide"  # type: ignore[union-attr]
+        assert next(iter(style.styles())).display_mode == DisplayMode.hide  # type: ignore[union-attr]
 
         assert list(style.styles())[1].id == "id-i0"
         assert list(style.styles())[1].target_id == "target-i0"
         assert list(style.styles())[1].color == "ff0000ff"  # type: ignore[union-attr]
-        assert list(style.styles())[1].color_mode == "random"  # type: ignore[union-attr]
+        assert list(style.styles())[1].color_mode == ColorMode.random  # type: ignore[union-attr]
         assert list(style.styles())[1].scale == 1.0  # type: ignore[union-attr]
         assert list(style.styles())[1].heading == 0  # type: ignore[union-attr]
         assert list(style.styles())[1].icon_href == "http://example.com/icon.png"  # type: ignore[union-attr]
@@ -373,19 +366,19 @@ class TestStdLibrary(StdLibrary):
         assert list(style.styles())[2].id == "id-a0"
         assert list(style.styles())[2].target_id == "target-a0"
         assert list(style.styles())[2].color == "ff0000ff"  # type: ignore[union-attr]
-        assert list(style.styles())[2].color_mode == "random"  # type: ignore[union-attr]
+        assert list(style.styles())[2].color_mode == ColorMode.random  # type: ignore[union-attr]
         assert list(style.styles())[2].scale == 1.0  # type: ignore[union-attr]
 
         assert list(style.styles())[3].id == "id-l0"
         assert list(style.styles())[3].target_id == "target-l0"
         assert list(style.styles())[3].color == "ff0000ff"  # type: ignore[union-attr]
-        assert list(style.styles())[3].color_mode == "normal"  # type: ignore[union-attr]
+        assert list(style.styles())[3].color_mode == ColorMode.normal  # type: ignore[union-attr]
         assert list(style.styles())[3].width == 1.0  # type: ignore[union-attr]
 
         assert list(style.styles())[4].id == "id-p0"
         assert list(style.styles())[4].target_id == "target-p0"
         assert list(style.styles())[4].color == "ff0000ff"  # type: ignore[union-attr]
-        assert list(style.styles())[4].color_mode == "random"  # type: ignore[union-attr]
+        assert list(style.styles())[4].color_mode == ColorMode.random  # type: ignore[union-attr]
         assert list(style.styles())[4].fill == 0  # type: ignore[union-attr]
         assert list(style.styles())[4].outline == 1  # type: ignore[union-attr]
 
@@ -395,7 +388,7 @@ class TestStdLibrary(StdLibrary):
             id="id-i0",
             target_id="target-i0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode.random,
             scale=1.0,
             heading=0,
             icon_href="http://example.com/icon.png",
@@ -404,7 +397,7 @@ class TestStdLibrary(StdLibrary):
             id="id-l0",
             target_id="target-l0",
             color="ff0000ff",
-            color_mode="normal",
+            color_mode=ColorMode.normal,
             width=1.0,
         )
         bs = styles.BalloonStyle(
@@ -413,20 +406,20 @@ class TestStdLibrary(StdLibrary):
             bg_color="7fff0000",
             text_color="ff00ff00",
             text="<b>Hello</b>",
-            display_mode="hide",
+            display_mode=DisplayMode.hide,
         )
         ls = styles.LabelStyle(
             id="id-a0",
             target_id="target-a0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode.random,
             scale=1.0,
         )
         ps = styles.PolyStyle(
             id="id-p0",
             target_id="target-p0",
             color="ff0000ff",
-            color_mode="random",
+            color_mode=ColorMode.random,
             fill=0,
             outline=1,
         )
@@ -490,8 +483,7 @@ class TestStdLibrary(StdLibrary):
         assert "</kml:StyleMap>" in serialized
 
     def test_stylemap_read(self) -> None:
-        sm = styles.StyleMap()
-        sm.from_string(
+        sm = styles.StyleMap.class_from_string(
             """
             <kml:StyleMap xmlns:kml="http://www.opengis.net/kml/2.2"
             id="id-sm-0" targetId="target-sm-0">

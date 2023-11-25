@@ -17,7 +17,6 @@
 import pytest
 
 import fastkml as kml
-from fastkml import config
 from fastkml import data
 from fastkml.enums import DataType
 from fastkml.exceptions import KMLSchemaError
@@ -78,22 +77,19 @@ class TestStdLibrary(StdLibrary):
         assert s1.simple_fields[1].name == "TrailLength"
         assert s1.simple_fields[2].display_name == "<i>change in altitude</i>"
         assert s.to_string() == s1.to_string()
-        doc1 = f"""<kml xmlns="http://www.opengis.net/kml/2.2">
-            <Document>
-            {doc}
-        </Document>
-        </kml>"""
-        k = kml.KML()
-        k.from_string(doc1)
+        doc1 = f"<kml><Document>{doc}</Document></kml>"
+        k = kml.KML.class_from_string(doc1, ns="")
         d = next(iter(k.features()))
         s2 = next(iter(d.schemata()))
-        s.ns = config.KMLNS
+        # s.ns = config.KMLNS
         assert s.to_string() == s2.to_string()
-        k1 = kml.KML()
-        k1.from_string(k.to_string())
+        k1 = kml.KML.class_from_string(k.to_string())
         assert "Schema" in k1.to_string()
         assert "SimpleField" in k1.to_string()
-        assert k1.to_string() == k.to_string()
+        assert k1.to_string().replace("kml:", "").replace(
+            ":kml",
+            "",
+        ) == k.to_string().replace("kml:", "").replace(":kml", "")
 
     def test_schema_data(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"
@@ -121,7 +117,7 @@ class TestStdLibrary(StdLibrary):
         ns = "{http://www.opengis.net/kml/2.2}"
         k = kml.KML(ns=ns)
 
-        p = kml.Placemark(ns, "id", "name", "description")
+        p = kml.Placemark(ns, id="id", name="name", description="description")
         p.extended_data = kml.ExtendedData(
             ns=ns,
             elements=[
@@ -138,8 +134,7 @@ class TestStdLibrary(StdLibrary):
         assert len(p.extended_data.elements) == 2
         k.append(p)
 
-        k2 = kml.KML()
-        k2.from_string(k.to_string(prettyprint=True))
+        k2 = kml.KML.class_from_string(k.to_string(prettyprint=True))
         k.to_string()
 
         extended_data = next(iter(k2.features())).extended_data
@@ -156,13 +151,13 @@ class TestStdLibrary(StdLibrary):
         ns = "{http://www.opengis.net/kml/2.2}"
         k = kml.KML(ns=ns)
 
-        d = kml.Document(ns, "docid", "doc name", "doc description")
+        d = kml.Document(ns, id="docid", name="doc name", description="doc description")
         d.extended_data = kml.ExtendedData(
             ns=ns,
             elements=[data.Data(ns=ns, name="type", value="Document")],
         )
 
-        f = kml.Folder(ns, "fid", "f name", "f description")
+        f = kml.Folder(ns, id="fid", name="f name", description="f description")
         f.extended_data = kml.ExtendedData(
             ns=ns,
             elements=[data.Data(ns=ns, name="type", value="Folder")],
@@ -171,8 +166,7 @@ class TestStdLibrary(StdLibrary):
         k.append(d)
         d.append(f)
 
-        k2 = kml.KML()
-        k2.from_string(k.to_string())
+        k2 = kml.KML.class_from_string(k.to_string())
 
         document_data = next(iter(k2.features())).extended_data
         folder_data = next(iter(next(iter(k2.features())).features())).extended_data
@@ -213,8 +207,7 @@ class TestStdLibrary(StdLibrary):
           </Placemark>
         </kml>"""
 
-        k = kml.KML()
-        k.from_string(doc)
+        k = kml.KML.class_from_string(doc)
 
         extended_data = next(iter(k.features())).extended_data
 

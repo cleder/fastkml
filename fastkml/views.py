@@ -8,6 +8,7 @@ from typing import cast
 
 from fastkml import config
 from fastkml.base import _BaseObject
+from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
 from fastkml.mixins import TimeMixin
@@ -85,10 +86,7 @@ class _AbstractView(TimeMixin, _BaseObject):
         self._heading = heading
         self._tilt = tilt
         self._altitude_mode = altitude_mode
-        if isinstance(time_primitive, TimeSpan):
-            self._timespan = time_primitive
-        elif isinstance(time_primitive, TimeStamp):
-            self._timestamp = time_primitive
+        self._times = time_primitive
 
     @property
     def longitude(self) -> Optional[float]:
@@ -199,31 +197,28 @@ class _AbstractView(TimeMixin, _BaseObject):
                 f"{self.ns}tilt",
             )
             tilt.text = str(self.tilt)
-        if self.altitude_mode in (
-            AltitudeMode.clamp_to_ground,
-            AltitudeMode.relative_to_ground,
-            AltitudeMode.absolute,
-        ):
-            altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}altitudeMode",
-            )
-        elif self.altitude_mode in (
-            AltitudeMode.clamp_to_sea_floor,
-            AltitudeMode.relative_to_sea_floor,
-        ):
-            altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.name_spaces['gx']}altitudeMode",
-            )
-        altitude_mode.text = self.altitude_mode.value
-        if (self._timespan is not None) and (self._timestamp is not None):
-            msg = "Either Timestamp or Timespan can be defined, not both"
-            raise ValueError(msg)
-        if self._timespan is not None:
-            element.append(self._timespan.etree_element())
-        elif self._timestamp is not None:
-            element.append(self._timestamp.etree_element())
+        if self.altitude_mode:
+            if self.altitude_mode in (
+                AltitudeMode.clamp_to_ground,
+                AltitudeMode.relative_to_ground,
+                AltitudeMode.absolute,
+            ):
+                altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
+                    element,
+                    f"{self.ns}altitudeMode",
+                )
+            elif self.altitude_mode in (
+                AltitudeMode.clamp_to_sea_floor,
+                AltitudeMode.relative_to_sea_floor,
+            ):
+                altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
+                    element,
+                    f"{self.name_spaces['gx']}altitudeMode",
+                )
+            altitude_mode.text = self.altitude_mode.value
+
+        if self._times is not None:
+            element.append(self._times.etree_element())
         return element
 
     # TODO: <gx:ViewerOptions>
@@ -470,7 +465,323 @@ class LookAt(_AbstractView):
         return kwargs
 
 
+class LatLonAltBox(_XMLObject):
+    """
+    A bounding box defined by geographic coordinates and altitudes.
+
+    https://developers.google.com/kml/documentation/kmlreference#latlonaltbox
+    """
+
+    north: float
+    south: float
+    east: float
+    west: float
+    min_altitude: Optional[float]
+    max_altitude: Optional[float]
+    altitude_mode: Optional[AltitudeMode]
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        north: float = 0.0,
+        south: float = 0.0,
+        east: float = 0.0,
+        west: float = 0.0,
+        min_altitude: Optional[float] = None,
+        max_altitude: Optional[float] = None,
+        altitude_mode: Optional[AltitudeMode] = None,
+    ) -> None:
+        super().__init__(ns=ns, name_spaces=name_spaces)
+        self.north = north
+        self.south = south
+        self.east = east
+        self.west = west
+        self.min_altitude = min_altitude
+        self.max_altitude = max_altitude
+        self.altitude_mode = altitude_mode
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        north = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}north",
+        )
+        north.text = str(self.north)
+        south = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}south",
+        )
+        south.text = str(self.south)
+        east = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}east",
+        )
+        east.text = str(self.east)
+        west = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}west",
+        )
+        west.text = str(self.west)
+        if self.min_altitude is not None:
+            min_altitude = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}minAltitude",
+            )
+            min_altitude.text = str(self.min_altitude)
+        if self.max_altitude is not None:
+            max_altitude = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}maxAltitude",
+            )
+            max_altitude.text = str(self.max_altitude)
+        if self.altitude_mode:
+            altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}altitudeMode",
+            )
+            altitude_mode.text = self.altitude_mode.value
+        return element
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        north = element.find(f"{ns}north")
+        if north is not None:
+            kwargs["north"] = float(north.text)
+        south = element.find(f"{ns}south")
+        if south is not None:
+            kwargs["south"] = float(south.text)
+        east = element.find(f"{ns}east")
+        if east is not None:
+            kwargs["east"] = float(east.text)
+        west = element.find(f"{ns}west")
+        if west is not None:
+            kwargs["west"] = float(west.text)
+        min_altitude = element.find(f"{ns}minAltitude")
+        if min_altitude is not None:
+            kwargs["min_altitude"] = float(min_altitude.text)
+        max_altitude = element.find(f"{ns}maxAltitude")
+        if max_altitude is not None:
+            kwargs["max_altitude"] = float(max_altitude.text)
+        altitude_mode = element.find(f"{ns}altitudeMode")
+        if altitude_mode is not None:
+            kwargs["altitude_mode"] = AltitudeMode(altitude_mode.text)
+        return kwargs
+
+
+class Lod(_XMLObject):
+    """
+    Lod is an abbreviation for Level of Detail.
+    <Lod> describes the size of the projected region on the screen that is required in
+    order for the region to be considered "active."
+    Also specifies the size of the pixel ramp used for fading in
+    (from transparent to opaque) and fading out (from opaque to transparent).
+
+    https://developers.google.com/kml/documentation/kmlreference#elements-specific-to-region
+    """
+
+    min_lod_pixels: float
+    max_lod_pixels: float
+    min_fade_extent: float
+    max_fade_extent: float
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        min_lod_pixels: float = 0.0,
+        max_lod_pixels: float = -1.0,
+        min_fade_extent: float = 0.0,
+        max_fade_extent: float = 0.0,
+    ) -> None:
+        super().__init__(ns=ns, name_spaces=name_spaces)
+        self.min_lod_pixels = min_lod_pixels
+        self.max_lod_pixels = max_lod_pixels
+        self.min_fade_extent = min_fade_extent
+        self.max_fade_extent = max_fade_extent
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        min_lod = config.etree.SubElement(  # type: ignore[attr-defined]
+            f"{self.ns}minLodPixels",
+        )
+        min_lod.text = str(self.min_lod_pixels)
+        max_lod = config.etree.SubElement(  # type: ignore[attr-defined]
+            f"{self.ns}maxLodPixels",
+        )
+        max_lod.text = str(self.max_lod_pixels)
+        min_fade = config.etree.SubElement(  # type: ignore[attr-defined]
+            f"{self.ns}minFadeExtent",
+        )
+        min_fade.text = str(self.min_fade_extent)
+        max_fade = config.etree.SubElement(  # type: ignore[attr-defined]
+            f"{self.ns}maxFadeExtent",
+        )
+        max_fade.text = str(self.max_fade_extent)
+        return element
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        min_lod = element.find(f"{ns}minLodPixels")
+        if min_lod is not None:
+            kwargs["min_lod_pixels"] = float(min_lod.text)
+        max_lod = element.find(f"{ns}maxLodPixels")
+        if max_lod is not None:
+            kwargs["max_lod_pixels"] = float(max_lod.text)
+        min_fade = element.find(f"{ns}minFadeExtent")
+        if min_fade is not None:
+            kwargs["min_fade_extent"] = float(min_fade.text)
+        max_fade = element.find(f"{ns}maxFadeExtent")
+        if max_fade is not None:
+            kwargs["max_fade_extent"] = float(max_fade.text)
+        return kwargs
+
+
+class Region(_BaseObject):
+    """
+    A <Region> contains a bounding box (<LatLonAltBox>) that describes an area of
+    interest defined by geographic coordinates and altitudes.
+
+    In addition, a Region contains an LOD (level of detail) extent (<Lod>),
+    which is a pair of projected coordinate bounding boxes that describe
+    the area that should be loaded in the viewport corresponding to a given
+    level of detail.
+
+    https://developers.google.com/kml/documentation/kmlreference#region
+    """
+
+    __name__ = "Region"
+
+    _lat_lon_alt_box: Optional[LatLonAltBox] = None
+    _lod: Optional[Lod] = None
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        lat_lon_alt_box: Optional[LatLonAltBox] = None,
+        lod: Optional[Lod] = None,
+    ) -> None:
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        self._lat_lon_alt_box = lat_lon_alt_box
+        self._lod = lod
+
+    @property
+    def lat_lon_alt_box(self) -> Optional[LatLonAltBox]:
+        return self._lat_lon_alt_box
+
+    @lat_lon_alt_box.setter
+    def lat_lon_alt_box(self, value: LatLonAltBox) -> None:
+        self._lat_lon_alt_box = value
+
+    @property
+    def lod(self) -> Optional[Lod]:
+        return self._lod
+
+    @lod.setter
+    def lod(self, value: Lod) -> None:
+        self._lod = value
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        if self.lat_lon_alt_box:
+            element.append(
+                self.lat_lon_alt_box.etree_element(
+                    precision=precision,
+                    verbosity=verbosity,
+                ),
+            )
+        if self.lod:
+            element.append(
+                self.lod.etree_element(
+                    precision=precision,
+                    verbosity=verbosity,
+                ),
+            )
+        return element
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        lat_lon_alt_box = element.find(f"{ns}LatLonAltBox")
+        if lat_lon_alt_box is not None:
+            kwargs["lat_lon_alt_box"] = cast(
+                LatLonAltBox,
+                LatLonAltBox.class_from_element(
+                    ns=ns,
+                    name_spaces=name_spaces,
+                    element=lat_lon_alt_box,
+                    strict=strict,
+                ),
+            )
+        lod = element.find(f"{ns}Lod")
+        if lod is not None:
+            kwargs["lod"] = cast(
+                Lod,
+                Lod.class_from_element(
+                    ns=ns,
+                    name_spaces=name_spaces,
+                    element=lod,
+                    strict=strict,
+                ),
+            )
+        return kwargs
+
+
 __all__ = [
     "Camera",
     "LookAt",
+    "Region",
 ]

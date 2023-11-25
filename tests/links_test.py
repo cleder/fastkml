@@ -15,7 +15,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the kml classes."""
-from fastkml import kml
+from fastkml import links
+from fastkml.enums import RefreshMode
+from fastkml.enums import ViewRefreshMode
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -25,7 +27,7 @@ class TestStdLibrary(StdLibrary):
 
     def test_icon(self) -> None:
         """Test the Icon class."""
-        icon = kml.Icon(
+        icon = links.Icon(
             id="icon-01",
             href="http://maps.google.com/mapfiles/kml/paddle/red-circle.png",
             refresh_mode="onInterval",
@@ -49,8 +51,7 @@ class TestStdLibrary(StdLibrary):
 
     def test_icon_read(self) -> None:
         """Test the Icon class."""
-        icon = kml.Icon()
-        icon.from_string(
+        icon = links.Icon.class_from_string(
             """
             <kml:Icon xmlns:kml="http://www.opengis.net/kml/2.2" id="icon-01">
             <kml:href>http://maps.google.com/mapfiles/kml/paddle/red-circle.png</kml:href>
@@ -67,16 +68,15 @@ class TestStdLibrary(StdLibrary):
 
         assert icon.id == "icon-01"
         assert icon.href == "http://maps.google.com/mapfiles/kml/paddle/red-circle.png"
-        assert icon.refresh_mode == "onInterval"
+        assert icon.refresh_mode == RefreshMode("onInterval")
         assert icon.refresh_interval == 60
-        assert icon.view_refresh_mode == "onStop"
+        assert icon.view_refresh_mode == ViewRefreshMode("onStop")
         assert icon.view_refresh_time == 4
         assert icon.view_bound_scale == 1.2
         assert icon.view_format == "BBOX=[bboxWest],[bboxSouth],[bboxEast],[bboxNorth]"
         assert icon.http_query == "clientName=fastkml"
 
-        icon2 = kml.Icon()
-        icon2.from_string(icon.to_string())
+        icon2 = links.Icon.class_from_string(icon.to_string())
 
         assert icon2.to_string() == icon.to_string()
 

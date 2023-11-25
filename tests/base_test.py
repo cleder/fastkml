@@ -15,13 +15,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the base classes."""
-from typing import cast
 
 import pytest
 
 from fastkml import base
-from fastkml import config
-from fastkml import types
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -48,16 +45,12 @@ class TestStdLibrary(StdLibrary):
         ) == '<test id="id-0" targetId="target-id-0" />'.replace(" ", "")
 
     def test_from_string(self) -> None:
-        be = base._BaseObject()
-        be.__name__ = "test"
-
-        be.from_string(
-            xml_string=(
+        be = base._BaseObject.class_from_string(
+            string=(
                 '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" '
                 'id="id-0" targetId="target-id-0" />'
             ),
         )
-
         assert be.id == "id-0"
         assert be.target_id == "target-id-0"
 
@@ -73,24 +66,6 @@ class TestStdLibrary(StdLibrary):
 
         with pytest.raises(NotImplementedError):
             Test().etree_element()
-
-    def test_base_from_element_raises(self) -> None:
-        be = base._BaseObject()
-        element = cast(
-            types.Element,
-            config.etree.Element(config.KMLNS + "Base"),  # type: ignore[attr-defined]
-        )
-
-        with pytest.raises(TypeError):
-            be.from_element(element=element)
-
-    def test_base_from_string_raises(self) -> None:
-        be = base._BaseObject()
-
-        with pytest.raises(TypeError):
-            be.from_string(
-                '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0" />',
-            )
 
     def test_base_class_from_string(self) -> None:
         be = base._BaseObject.class_from_string('<test id="id-0" targetId="td-00" />')
@@ -120,11 +95,8 @@ class TestLxml(Lxml, TestStdLibrary):
         )
 
     def test_from_string(self) -> None:
-        be = base._BaseObject()
-        be.__name__ = "test"
-
-        be.from_string(
-            xml_string=(
+        be = base._BaseObject.class_from_string(
+            string=(
                 '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" '
                 'id="id-0" targetId="target-id-0"/>\n'
             ),

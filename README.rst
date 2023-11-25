@@ -120,5 +120,4 @@ Please submit a PR with the features you'd like to see implemented.
 
 .. _pygeoif: https://pypi.python.org/pypi/pygeoif/
 .. _lxml: https://pypi.python.org/pypi/lxml
-.. _arrow: https://pypi.org/project/arrow/
-.. _pip: https://pypi.python.org/pypi/pip
+.. _arrow: https://pypi.python.org/pypi/arrow
