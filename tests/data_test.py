@@ -77,19 +77,13 @@ class TestStdLibrary(StdLibrary):
         assert s1.simple_fields[1].name == "TrailLength"
         assert s1.simple_fields[2].display_name == "<i>change in altitude</i>"
         assert s.to_string() == s1.to_string()
-        doc1 = f"""<kml>
-            <Document>
-            {doc}
-        </Document>
-        </kml>"""
-        k = kml.KML(ns="")
-        k.from_string(doc1)
+        doc1 = f"<kml><Document>{doc}</Document></kml>"
+        k = kml.KML.class_from_string(doc1, ns="")
         d = next(iter(k.features()))
         s2 = next(iter(d.schemata()))
         # s.ns = config.KMLNS
         assert s.to_string() == s2.to_string()
-        k1 = kml.KML()
-        k1.from_string(k.to_string())
+        k1 = kml.KML.class_from_string(k.to_string())
         assert "Schema" in k1.to_string()
         assert "SimpleField" in k1.to_string()
         assert k1.to_string().replace("kml:", "").replace(

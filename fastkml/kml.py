@@ -206,6 +206,7 @@ class KML(_XMLObject):
             element=element,
             strict=strict,
         )
+        kwargs["features"] = []
         documents = element.findall(f"{ns}Document")
         for document in documents:
             kwargs["features"].append(
@@ -252,6 +253,44 @@ class KML(_XMLObject):
                 ),
             )
         return kwargs
+
+    @classmethod
+    def class_from_string(
+        cls,
+        string: str,
+        *,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        strict: bool = True,
+    ) -> "_XMLObject":
+        """
+        Creates a geometry object from a string.
+
+        Args:
+        ----
+            string: String representation of the geometry object
+
+        Returns:
+        -------
+            Geometry object
+        """
+        try:
+            element = config.etree.fromstring(
+                string,
+                parser=config.etree.XMLParser(huge_tree=True, recover=True),
+            )
+        except TypeError:
+            element = config.etree.XML(string)
+        if not element.tag.endswith("kml"):
+            raise TypeError
+        if ns is None:
+            ns = element.tag.rstrip("kml") or None
+        return cls.class_from_element(
+            ns=ns,
+            name_spaces=name_spaces,
+            strict=strict,
+            element=element,
+        )
 
 
 __all__ = [
