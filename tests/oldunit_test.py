@@ -40,8 +40,7 @@ except ImportError:
 
 class TestBaseClasses:
     """
-    BaseClasses  must raise a NotImplementedError on etree_element
-    and a TypeError on from_element.
+    BaseClasses  must raise a NotImplementedError on etree_element.
     """
 
     def setup_method(self) -> None:
@@ -62,19 +61,6 @@ class TestBaseClasses:
         assert bo.id is None
         assert not bo.ns
         pytest.raises(NotImplementedError, bo.etree_element)
-        element = config.etree.Element(f"{config.KMLNS}Base")
-        pytest.raises(TypeError, bo.from_element)
-        pytest.raises(TypeError, bo.from_element, element)
-        bo.__name__ = "NotABaseObject"
-        pytest.raises(TypeError, bo.from_element, element)
-        # Note that we can coax baseclasses not to throw errors
-        bo.__name__ = "Base"
-        bo.ns = config.KMLNS
-        bo.from_element(element)
-        assert bo.id is None
-        assert bo.ns == config.KMLNS
-        assert bo.etree_element() is not None
-        assert len(bo.to_string()) > 1
 
     def test_overlay(self) -> None:
         o = overlays._Overlay(name="An Overlay")

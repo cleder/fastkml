@@ -222,19 +222,18 @@ class TestStdLibrary(StdLibrary):
         ts.begin = None
         pytest.raises(ValueError, ts.to_string)
 
-    @pytest.mark.skip(reason="not yet implemented")
     def test_feature_timestamp(self) -> None:
         now = datetime.datetime.now()
         f = kml.Document()
-        f.time_stamp = KmlDateTime(now)
+        f._times = kml.TimeStamp(timestamp=KmlDateTime(now))
         assert f.time_stamp.dt == now
         assert now.isoformat() in str(f.to_string())
         assert "TimeStamp>" in str(f.to_string())
         assert "when>" in str(f.to_string())
-        f.time_stamp = KmlDateTime(now.date())
+        f._times = kml.TimeStamp(timestamp=KmlDateTime(now.date()))
         assert now.date().isoformat() in str(f.to_string())
         assert now.isoformat() not in str(f.to_string())
-        f.time_stamp = None
+        f._times = None
         assert "TimeStamp>" not in str(f.to_string())
 
     @pytest.mark.skip(reason="not yet implemented")
@@ -367,7 +366,6 @@ class TestStdLibrary(StdLibrary):
         assert ts.end.dt == datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc())
 
     def test_featurefromstring(self) -> None:
-        d = kml.Document(ns="")
         doc = """<Document>
           <name>Document.kml</name>
           <open>1</open>
@@ -380,7 +378,17 @@ class TestStdLibrary(StdLibrary):
           </TimeSpan>
         </Document>"""
 
-        d.from_string(doc)
+        d = kml.Document.class_from_string(doc, ns="")
+
+        assert d.time_stamp.dt == datetime.datetime(
+            1997,
+            7,
+            16,
+            10,
+            30,
+            15,
+            tzinfo=tzoffset(None, 10800),
+        )
 
 
 class TestLxml(Lxml, TestStdLibrary):
