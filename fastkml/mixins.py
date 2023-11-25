@@ -16,6 +16,7 @@
 """Mixins for the KML classes."""
 import logging
 from typing import Optional
+from typing import Union
 
 from fastkml.times import KmlDateTime
 from fastkml.times import TimeSpan
@@ -25,54 +26,17 @@ logger = logging.getLogger(__name__)
 
 
 class TimeMixin:
-    _timespan: Optional[TimeSpan] = None
-    _timestamp: Optional[TimeStamp] = None
+    _times: Optional[Union[TimeSpan, TimeStamp]] = None
 
     @property
     def time_stamp(self) -> Optional[KmlDateTime]:
         """This just returns the datetime portion of the timestamp."""
-        return self._timestamp.timestamp if self._timestamp is not None else None
-
-    @time_stamp.setter
-    def time_stamp(self, timestamp: Optional[KmlDateTime]) -> None:
-        if self._timestamp is None:
-            self._timestamp = TimeStamp(timestamp=timestamp)
-        elif timestamp is None:
-            self._timestamp = None
-        else:
-            self._timestamp.timestamp = timestamp
-        if self._timespan and self._timestamp:
-            logger.warning("Setting a TimeStamp, TimeSpan deleted")
-            self._timespan = None
+        return self._times.timestamp if isinstance(self._times, TimeStamp) else None
 
     @property
     def begin(self) -> Optional[KmlDateTime]:
-        return self._timespan.begin if self._timespan is not None else None
-
-    @begin.setter
-    def begin(self, dt: Optional[KmlDateTime]) -> None:
-        if self._timespan is None:
-            self._timespan = TimeSpan(begin=dt)
-        elif dt is None and self._timespan.end is None:
-            self._timespan = None
-        else:
-            self._timespan.begin = dt
-        if self._timespan and self._timestamp:
-            logger.warning("Setting a TimeSpan, TimeStamp deleted")
-            self._timestamp = None
+        return self._times.begin if isinstance(self._times, TimeSpan) else None
 
     @property
     def end(self) -> Optional[KmlDateTime]:
-        return self._timespan.end if self._timespan is not None else None
-
-    @end.setter
-    def end(self, dt: Optional[KmlDateTime]) -> None:
-        if self._timespan is None:
-            self._timespan = TimeSpan(end=dt)
-        elif dt is None and self._timespan.begin is None:
-            self._timespan = None
-        else:
-            self._timespan.end = dt
-        if self._timespan and self._timestamp:
-            logger.warning("Setting a TimeSpan, TimeStamp deleted")
-            self._timestamp = None
+        return self._times.end if isinstance(self._times, TimeSpan) else None

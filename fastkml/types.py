@@ -29,7 +29,7 @@ class Element(Protocol):
     tag: str
     text: str
 
-    def set(self, tag: str, value: str) -> None:
+    def set(self, tag: str, value: str) -> None:  # noqa: A003
         """Set the value of the tag."""
 
     def get(self, tag: str) -> str:

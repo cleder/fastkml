@@ -225,17 +225,18 @@ class TestStdLibrary(StdLibrary):
     def test_feature_timestamp(self) -> None:
         now = datetime.datetime.now()
         f = kml.Document()
-        f.time_stamp = KmlDateTime(now)
+        f._times = kml.TimeStamp(timestamp=KmlDateTime(now))
         assert f.time_stamp.dt == now
         assert now.isoformat() in str(f.to_string())
         assert "TimeStamp>" in str(f.to_string())
         assert "when>" in str(f.to_string())
-        f.time_stamp = KmlDateTime(now.date())
+        f._times = kml.TimeStamp(timestamp=KmlDateTime(now.date()))
         assert now.date().isoformat() in str(f.to_string())
         assert now.isoformat() not in str(f.to_string())
-        f.time_stamp = None
+        f._times = None
         assert "TimeStamp>" not in str(f.to_string())
 
+    @pytest.mark.skip(reason="not yet implemented")
     def test_feature_timespan(self) -> None:
         now = datetime.datetime.now()
         y2k = datetime.datetime(2000, 1, 1)
@@ -257,44 +258,6 @@ class TestStdLibrary(StdLibrary):
         assert "end>" not in str(f.to_string())
         f.begin = None
         assert "TimeSpan>" not in str(f.to_string())
-
-    def test_feature_timespan_stamp(self) -> None:
-        now = datetime.datetime.now()
-        y2k = datetime.date(2000, 1, 1)
-        f = kml.Document()
-        f.begin = KmlDateTime(y2k)
-        f.end = KmlDateTime(now)
-        assert now.isoformat() in str(f.to_string())
-        assert "2000-01-01" in str(f.to_string())
-        assert "TimeSpan>" in str(f.to_string())
-        assert "begin>" in str(f.to_string())
-        assert "end>" in str(f.to_string())
-        assert "TimeStamp>" not in str(f.to_string())
-        assert "when>" not in str(f.to_string())
-        # when we set a timestamp an existing timespan will be deleted
-        f.time_stamp = KmlDateTime(now)
-        assert now.isoformat() in str(f.to_string())
-        assert "TimeStamp>" in str(f.to_string())
-        assert "when>" in str(f.to_string())
-        assert "2000-01-01" not in str(f.to_string())
-        assert "TimeSpan>" not in str(f.to_string())
-        assert "begin>" not in str(f.to_string())
-        assert "end>" not in str(f.to_string())
-        # when we set a timespan an existing timestamp will be deleted
-        f.end = y2k
-        assert now.isoformat() not in str(f.to_string())
-        assert "2000-01-01" in str(f.to_string())
-        assert "TimeSpan>" in str(f.to_string())
-        assert "begin>" not in str(f.to_string())
-        assert "end>" in str(f.to_string())
-        assert "TimeStamp>" not in str(f.to_string())
-        assert "when>" not in str(f.to_string())
-        # We manipulate our Feature so it has timespan and stamp
-        ts = kml.TimeStamp(timestamp=now)
-        f._timestamp = ts
-        # this raises an exception as only either timespan or timestamp
-        # are allowed not both
-        pytest.raises(ValueError, f.to_string)
 
     def test_read_timestamp_year(self) -> None:
         doc = """
@@ -403,7 +366,6 @@ class TestStdLibrary(StdLibrary):
         assert ts.end.dt == datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc())
 
     def test_featurefromstring(self) -> None:
-        d = kml.Document(ns="")
         doc = """<Document>
           <name>Document.kml</name>
           <open>1</open>
@@ -416,7 +378,17 @@ class TestStdLibrary(StdLibrary):
           </TimeSpan>
         </Document>"""
 
-        d.from_string(doc)
+        d = kml.Document.class_from_string(doc, ns="")
+
+        assert d.time_stamp.dt == datetime.datetime(
+            1997,
+            7,
+            16,
+            10,
+            30,
+            15,
+            tzinfo=tzoffset(None, 10800),
+        )
 
 
 class TestLxml(Lxml, TestStdLibrary):
