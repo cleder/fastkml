@@ -29,8 +29,10 @@ from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import Iterator
+from typing import List
 from typing import Optional
 from typing import Union
+from typing import cast
 
 from fastkml import config
 from fastkml.base import _XMLObject
@@ -40,7 +42,6 @@ from fastkml.enums import Verbosity
 from fastkml.features import Placemark
 from fastkml.overlays import GroundOverlay
 from fastkml.overlays import PhotoOverlay
-from fastkml.overlays import _Overlay
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
@@ -49,8 +50,8 @@ logger = logging.getLogger(__name__)
 class KML(_XMLObject):
     """represents a KML File."""
 
-    _features = []
-    ns = None
+    _features: List[Union[Folder, Document, Placemark]]
+    ns: str
 
     def __init__(
         self,
@@ -78,57 +79,32 @@ class KML(_XMLObject):
         # However, in this case the xlmns should still be mentioned on the kml
         # element, just without prefix.
         if not self.ns:
-            root = config.etree.Element(f"{self.ns}kml")
+            root = config.etree.Element(f"{self.ns}kml")  # type: ignore[attr-defined]
             root.set("xmlns", config.KMLNS[1:-1])
         else:
             try:
-                root = config.etree.Element(
+                root = config.etree.Element(  # type: ignore[attr-defined]
                     f"{self.ns}kml",
                     # nsmap={None: self.ns[1:-1]},
                 )
             except TypeError:
-                root = config.etree.Element(f"{self.ns}kml")
+                root = config.etree.Element(  # type: ignore[attr-defined]
+                    f"{self.ns}kml",
+                )
         for feature in self.features():
             root.append(feature.etree_element(precision=precision, verbosity=verbosity))
-        return root
-
-    def to_string(self, prettyprint: bool = False) -> str:
-        """Return the KML Object as serialized xml."""
-        try:
-            return config.etree.tostring(
-                self.etree_element(),
-                encoding="UTF-8",
-                pretty_print=prettyprint,
-            ).decode("UTF-8")
-        except TypeError:
-            return config.etree.tostring(self.etree_element(), encoding="UTF-8").decode(
-                "UTF-8",
-            )
+        return cast(Element, root)
 
     def features(self) -> Iterator[Union[Folder, Document, Placemark]]:
         """Iterate over features."""
-        for feature in self._features:
-            if isinstance(feature, (Document, Folder, Placemark, _Overlay)):
-                yield feature
-            else:
-                msg = (
-                    "Features must be instances of "
-                    "(Document, Folder, Placemark, Overlay)"
-                )
-                raise TypeError(msg)
+        yield from self._features
 
     def append(self, kmlobj: Union[Folder, Document, Placemark]) -> None:
         """Append a feature."""
         if id(kmlobj) == id(self):
             msg = "Cannot append self"
             raise ValueError(msg)
-        if isinstance(kmlobj, (Document, Folder, Placemark, _Overlay)):
-            self._features.append(kmlobj)
-        else:
-            msg = "Features must be instances of (Document, Folder, Placemark, Overlay)"
-            raise TypeError(
-                msg,
-            )
+        self._features.append(kmlobj)
 
     @classmethod
     def _get_kwargs(
@@ -201,7 +177,7 @@ class KML(_XMLObject):
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
         strict: bool = True,
-    ) -> "_XMLObject":
+    ) -> _XMLObject:
         """
         Creates a geometry object from a string.
 
@@ -214,16 +190,19 @@ class KML(_XMLObject):
             Geometry object
         """
         try:
-            element = config.etree.fromstring(
+            element = config.etree.fromstring(  # type: ignore[attr-defined]
                 string,
-                parser=config.etree.XMLParser(huge_tree=True, recover=True),
+                parser=config.etree.XMLParser(  # type: ignore[attr-defined]
+                    huge_tree=True,
+                    recover=True,
+                ),
             )
         except TypeError:
-            element = config.etree.XML(string)
+            element = config.etree.XML(string)  # type: ignore[attr-defined]
         if not element.tag.endswith("kml"):
             raise TypeError
         if ns is None:
-            ns = element.tag.rstrip("kml") or None
+            ns = cast(str, element.tag.rstrip("kml"))
         return cls.class_from_element(
             ns=ns,
             name_spaces=name_spaces,
