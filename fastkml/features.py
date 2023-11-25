@@ -202,9 +202,7 @@ class _Feature(TimeMixin, _BaseObject):
         Returns the url only, not a full StyleUrl object.
         if you need the full StyleUrl object use _style_url.
         """
-        if isinstance(self._style_url, StyleUrl):
-            return self._style_url.url
-        return None
+        return self._style_url.url if isinstance(self._style_url, StyleUrl) else None
 
     @style_url.setter
     def style_url(self, styleurl: Union[str, StyleUrl, None]) -> None:
@@ -537,9 +535,7 @@ class Placemark(_Feature):
 
     @property
     def geometry(self) -> Optional[AnyGeometryType]:
-        if self._geometry is not None:
-            return self._geometry.geometry
-        return None
+        return self._geometry.geometry if self._geometry is not None else None
 
     def etree_element(
         self,
