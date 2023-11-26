@@ -1,8 +1,7 @@
 Introduction
 ============
 
-KML is an XML geospatial data format and an `OGC standard <https://www.ogc.org/search/content/kml>`_
-that deserves a canonical python implementation.
+KML is an XML geospatial data format and an OGC_ standard that deserves a canonical python implementation.
 
 Fastkml is a library to read, write and manipulate KML files. It aims to keep
 it simple and fast (using lxml_ if available). Fast refers to the time you
@@ -121,3 +120,4 @@ Please submit a PR with the features you'd like to see implemented.
 .. _pygeoif: https://pypi.python.org/pypi/pygeoif/
 .. _lxml: https://pypi.python.org/pypi/lxml
 .. _arrow: https://pypi.python.org/pypi/arrow
+.. _OGC: https://www.ogc.org/standard/kml/

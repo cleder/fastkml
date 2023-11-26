@@ -107,6 +107,15 @@ ignore = [
     "tox.ini",
 ]
 
+[tool.coverage.paths]
+source = [
+    "fastkml",
+    "tests",
+]
+
+[tool.coverage.run]
+branch = true
+
 [tool.flake8]
 max_line_length = 89
 
