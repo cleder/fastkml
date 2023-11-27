@@ -100,6 +100,7 @@ fastkml.kml module
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index: StyleUrl
 
 fastkml.mixins module
 ---------------------
