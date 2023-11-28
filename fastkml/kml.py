@@ -127,6 +127,7 @@ class KML(_XMLObject):
             kwargs["features"].append(
                 Document.class_from_element(
                     ns=ns,
+                    name_spaces=name_spaces,
                     element=document,
                     strict=False,
                 ),
@@ -136,6 +137,7 @@ class KML(_XMLObject):
             kwargs["features"].append(
                 Folder.class_from_element(
                     ns=ns,
+                    name_spaces=name_spaces,
                     element=folder,
                     strict=False,
                 ),
@@ -145,6 +147,7 @@ class KML(_XMLObject):
             kwargs["features"].append(
                 Placemark.class_from_element(
                     ns=ns,
+                    name_spaces=name_spaces,
                     element=placemark,
                     strict=False,
                 ),
@@ -154,6 +157,7 @@ class KML(_XMLObject):
             kwargs["features"].append(
                 GroundOverlay.class_from_element(
                     ns=ns,
+                    name_spaces=name_spaces,
                     element=groundoverlay,
                     strict=False,
                 ),
@@ -163,6 +167,7 @@ class KML(_XMLObject):
             kwargs["features"].append(
                 PhotoOverlay.class_from_element(
                     ns=ns,
+                    name_spaces=name_spaces,
                     element=photo_overlay,
                     strict=False,
                 ),
@@ -203,6 +208,8 @@ class KML(_XMLObject):
             raise TypeError
         if ns is None:
             ns = cast(str, element.tag.rstrip("kml"))
+        name_spaces = name_spaces or {}
+        name_spaces = {**config.NAME_SPACES, **name_spaces}
         return cls.class_from_element(
             ns=ns,
             name_spaces=name_spaces,
@@ -212,10 +219,5 @@ class KML(_XMLObject):
 
 
 __all__ = [
-    "Document",
-    "Folder",
-    "PhotoOverlay",
-    "GroundOverlay",
     "KML",
-    "Placemark",
 ]

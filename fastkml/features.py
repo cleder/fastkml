@@ -361,6 +361,8 @@ class _Feature(TimeMixin, _BaseObject):
             element=element,
             strict=strict,
         )
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
         name = element.find(f"{ns}name")
         if name is not None:
             kwargs["name"] = name.text
@@ -429,18 +431,18 @@ class _Feature(TimeMixin, _BaseObject):
                 element=timestamp,
                 strict=strict,
             )
-        atom_link = element.find(f"{atom.NS}link")
+        atom_link = element.find(f"{name_spaces['atom']}link")
         if atom_link is not None:
             kwargs["atom_link"] = atom.Link.class_from_element(
-                ns=atom.NS,
+                ns=name_spaces["atom"],
                 name_spaces=name_spaces,
                 element=atom_link,
                 strict=strict,
             )
-        atom_author = element.find(f"{atom.NS}author")
+        atom_author = element.find(f"{name_spaces['atom']}author")
         if atom_author is not None:
             kwargs["atom_author"] = atom.Author.class_from_element(
-                ns=atom.NS,
+                ns=name_spaces["atom"],
                 name_spaces=name_spaces,
                 element=atom_author,
                 strict=strict,
@@ -449,6 +451,7 @@ class _Feature(TimeMixin, _BaseObject):
         if extended_data is not None:
             kwargs["extended_data"] = ExtendedData.class_from_element(
                 ns=ns,
+                name_spaces=name_spaces,
                 element=extended_data,
                 strict=strict,
             )
@@ -462,6 +465,7 @@ class _Feature(TimeMixin, _BaseObject):
         if camera is not None:
             kwargs["view"] = Camera.class_from_element(
                 ns=ns,
+                name_spaces=name_spaces,
                 element=camera,
                 strict=strict,
             )
@@ -469,6 +473,7 @@ class _Feature(TimeMixin, _BaseObject):
         if lookat is not None:
             kwargs["view"] = LookAt.class_from_element(
                 ns=ns,
+                name_spaces=name_spaces,
                 element=lookat,
                 strict=strict,
             )
@@ -564,10 +569,13 @@ class Placemark(_Feature):
             element=element,
             strict=strict,
         )
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
         point = element.find(f"{ns}Point")
         if point is not None:
             kwargs["geometry"] = Point.class_from_element(
                 ns=ns,
+                name_spaces=name_spaces,
                 element=point,
                 strict=strict,
             )
@@ -576,6 +584,7 @@ class Placemark(_Feature):
         if line is not None:
             kwargs["geometry"] = LineString.class_from_element(
                 ns=ns,
+                name_spaces=name_spaces,
                 element=line,
                 strict=strict,
             )
@@ -584,6 +593,7 @@ class Placemark(_Feature):
         if polygon is not None:
             kwargs["geometry"] = Polygon.class_from_element(
                 ns=ns,
+                name_spaces=name_spaces,
                 element=polygon,
                 strict=strict,
             )
@@ -592,6 +602,7 @@ class Placemark(_Feature):
         if linearring is not None:
             kwargs["geometry"] = LinearRing.class_from_element(
                 ns=ns,
+                name_spaces=name_spaces,
                 element=linearring,
                 strict=strict,
             )
@@ -600,6 +611,7 @@ class Placemark(_Feature):
         if multigeometry is not None:
             kwargs["geometry"] = MultiGeometry.class_from_element(
                 ns=ns,
+                name_spaces=name_spaces,
                 element=multigeometry,
                 strict=strict,
             )
@@ -607,7 +619,8 @@ class Placemark(_Feature):
         track = element.find(f"{ns}Track")
         if track is not None:
             kwargs["geometry"] = gx.Track.class_from_element(
-                ns=config.GXNS,
+                ns=name_spaces["gx"],
+                name_spaces=name_spaces,
                 element=track,
                 strict=strict,
             )
@@ -615,7 +628,8 @@ class Placemark(_Feature):
         multitrack = element.find(f"{ns}MultiTrack")
         if multitrack is not None:
             kwargs["geometry"] = gx.MultiTrack.class_from_element(
-                ns=config.GXNS,
+                ns=name_spaces["gx"],
+                name_spaces=name_spaces,
                 element=multitrack,
                 strict=strict,
             )
@@ -763,6 +777,7 @@ class NetworkLink(_Feature):
             element=element,
             strict=strict,
         )
+        name_spaces = kwargs["name_spaces"]
         visibility = element.find(f"{ns}refreshVisibility")
         if visibility is not None:
             kwargs["refresh_visibility"] = bool(int(visibility.text))

@@ -145,17 +145,32 @@ class _Container(_Feature):
         kwargs["features"] = []
         folders = element.findall(f"{ns}Folder")
         kwargs["features"] += [
-            Folder.class_from_element(ns=ns, element=folder, strict=strict)
+            Folder.class_from_element(
+                ns=ns,
+                name_spaces=name_spaces,
+                element=folder,
+                strict=strict,
+            )
             for folder in folders
         ]
         placemarks = element.findall(f"{ns}Placemark")
         kwargs["features"] += [
-            Placemark.class_from_element(ns=ns, element=placemark, strict=strict)
+            Placemark.class_from_element(
+                ns=ns,
+                name_spaces=name_spaces,
+                element=placemark,
+                strict=strict,
+            )
             for placemark in placemarks
         ]
         documents = element.findall(f"{ns}Document")
         kwargs["features"] += [
-            Document.class_from_element(ns=ns, element=document, strict=strict)
+            Document.class_from_element(
+                ns=ns,
+                name_spaces=name_spaces,
+                element=document,
+                strict=strict,
+            )
             for document in documents
         ]
         return kwargs
@@ -244,7 +259,9 @@ class Document(_Container):
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self._schemata is not None:
             for schema in self._schemata:
-                element.append(schema.etree_element())
+                element.append(
+                    schema.etree_element(precision=precision, verbosity=verbosity),
+                )
         return element
 
     def get_style_by_url(self, style_url: str) -> Optional[Union[Style, StyleMap]]:
@@ -268,7 +285,12 @@ class Document(_Container):
         )
         schemata = element.findall(f"{ns}Schema")
         kwargs["schemata"] = [
-            Schema.class_from_element(ns=ns, element=schema, strict=strict)
+            Schema.class_from_element(
+                ns=ns,
+                name_spaces=name_spaces,
+                element=schema,
+                strict=strict,
+            )
             for schema in schemata
         ]
         return kwargs

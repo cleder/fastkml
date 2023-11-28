@@ -402,6 +402,7 @@ class MultiTrack(_Geometry):
         cls,
         *,
         ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> Optional[bool]:
@@ -417,6 +418,7 @@ class MultiTrack(_Geometry):
         cls,
         *,
         ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> List[Track]:
@@ -450,11 +452,13 @@ class MultiTrack(_Geometry):
         )
         kwargs["interpolate"] = cls._get_interpolate(
             ns=ns,
+            name_spaces=name_spaces,
             element=element,
             strict=strict,
         )
         kwargs["tracks"] = cls._get_track_kwargs_from_element(
             ns=kwargs["name_spaces"].get("gx", ""),
+            name_spaces=name_spaces,
             element=element,
             strict=strict,
         )

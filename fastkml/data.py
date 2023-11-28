@@ -156,6 +156,7 @@ class Schema(_BaseObject):
         cls,
         *,
         ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> List[SimpleField]:
@@ -191,6 +192,7 @@ class Schema(_BaseObject):
         kwargs["name"] = element.get("name")
         kwargs["fields"] = cls._get_fields_kwargs_from_element(
             ns=ns,
+            name_spaces=name_spaces,
             element=element,
             strict=strict,
         )
@@ -397,7 +399,9 @@ class ExtendedData(_XMLObject):
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
         for subelement in self.elements:
-            element.append(subelement.etree_element())
+            element.append(
+                subelement.etree_element(precision=precision, verbosity=verbosity),
+            )
         return element
 
     @classmethod
@@ -418,12 +422,18 @@ class ExtendedData(_XMLObject):
         elements = []
         untyped_data = element.findall(f"{ns}Data")
         for ud in untyped_data:
-            el_data = Data.class_from_element(ns=ns, element=ud, strict=strict)
+            el_data = Data.class_from_element(
+                ns=ns,
+                name_spaces=name_spaces,
+                element=ud,
+                strict=strict,
+            )
             elements.append(el_data)
         typed_data = element.findall(f"{ns}SchemaData")
         for sd in typed_data:
             el_schema_data = SchemaData.class_from_element(
                 ns=ns,
+                name_spaces=name_spaces,
                 element=sd,
                 strict=strict,
             )

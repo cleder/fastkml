@@ -682,6 +682,7 @@ class MultiGeometry(_Geometry):
             element.append(
                 geometry_class(
                     ns=self.ns,
+                    name_spaces=self.name_spaces,
                     extrude=None,
                     tessellate=None,
                     altitude_mode=None,
