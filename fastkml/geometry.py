@@ -154,7 +154,9 @@ class _Geometry(_BaseObject):
         if len(coordinates[0]) == 2:
             tuples = (f"{c[0]:f},{c[1]:f}" for c in coordinates)
         elif len(coordinates[0]) == 3:
-            tuples = (f"{c[0]:f},{c[1]:f},{c[2]:f}" for c in coordinates)
+            tuples = (
+                f"{c[0]:f},{c[1]:f},{c[2]:f}" for c in coordinates  # type: ignore[misc]
+            )
         else:
             msg = f"Invalid dimensions in coordinates '{coordinates}'"
             raise KMLWriteError(msg)
@@ -621,7 +623,7 @@ def create_multigeometry(
         }
         for geometry_name, constructor in map_to_geometries.items():
             if geom_type == geometry_name:
-                return constructor(
+                return constructor(  # type: ignore[operator, no-any-return]
                     *geometries,
                 )
 
@@ -686,7 +688,7 @@ class MultiGeometry(_Geometry):
                     extrude=None,
                     tessellate=None,
                     altitude_mode=None,
-                    geometry=geometry,
+                    geometry=geometry,  # type: ignore[arg-type]
                 ).etree_element(precision=precision, verbosity=verbosity),
             )
         return element
