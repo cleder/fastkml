@@ -450,6 +450,8 @@ class MultiTrack(_Geometry):
             element=element,
             strict=strict,
         )
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
         kwargs["interpolate"] = cls._get_interpolate(
             ns=ns,
             name_spaces=name_spaces,
@@ -457,7 +459,7 @@ class MultiTrack(_Geometry):
             strict=strict,
         )
         kwargs["tracks"] = cls._get_track_kwargs_from_element(
-            ns=kwargs["name_spaces"].get("gx", ""),
+            ns=name_spaces["gx"],
             name_spaces=name_spaces,
             element=element,
             strict=strict,

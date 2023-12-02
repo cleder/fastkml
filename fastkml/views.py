@@ -239,6 +239,8 @@ class _AbstractView(TimeMixin, _BaseObject):
             element=element,
             strict=strict,
         )
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
         longitude = element.find(f"{ns}longitude")
         if longitude is not None:
             kwargs["longitude"] = float(longitude.text)
@@ -256,7 +258,7 @@ class _AbstractView(TimeMixin, _BaseObject):
             kwargs["tilt"] = float(tilt.text)
         altitude_mode = element.find(f"{ns}altitudeMode")
         if altitude_mode is None:
-            altitude_mode = element.find(f"{kwargs['name_spaces']['gx']}altitudeMode")
+            altitude_mode = element.find(f"{name_spaces['gx']}altitudeMode")
         if altitude_mode is not None:
             kwargs["altitude_mode"] = AltitudeMode(altitude_mode.text)
         timespan = element.find(f"{ns}TimeSpan")
