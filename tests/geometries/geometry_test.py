@@ -473,13 +473,13 @@ class TestCreateKmlGeometry(StdLibrary):
         """Test the create_kml_geometry function."""
         g = create_kml_geometry(
             geo.MultiPolygon(
-                [
+                (
                     (
                         ((0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0.0)),
                         [((0.1, 0.1), (0.1, 0.2), (0.2, 0.2), (0.2, 0.1))],
                     ),
                     (((0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0.0)),),
-                ],
+                ),
             ),
         )
         assert len(g.geometry) == 2

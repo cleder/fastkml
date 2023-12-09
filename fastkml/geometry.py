@@ -161,7 +161,9 @@ class _Geometry(_BaseObject):
                 f"{c[0]:f},{c[1]:f},{c[2]:f}" for c in coordinates  # type: ignore[misc]
             )
         else:
-            msg = f"Invalid dimensions in coordinates '{coordinates}'"
+            msg = (  # type: ignore[unreachable]
+                f"Invalid dimensions in coordinates '{coordinates}'"
+            )
             raise KMLWriteError(msg)
         element.text = " ".join(tuples)
         return element
