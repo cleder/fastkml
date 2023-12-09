@@ -14,6 +14,9 @@ from typing import List
 from typing import Optional
 from typing import Union
 
+from pygeoif.types import GeoCollectionType
+from pygeoif.types import GeoType
+
 from fastkml import atom
 from fastkml import config
 from fastkml import gx
@@ -26,6 +29,7 @@ from fastkml.geometry import LineString
 from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
+from fastkml.geometry import create_kml_geometry
 from fastkml.links import Link
 from fastkml.mixins import TimeMixin
 from fastkml.styles import Style
@@ -513,7 +517,8 @@ class Placemark(_Feature):
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
         # Placemark specific
-        geometry: Optional[KmlGeometry] = None,
+        kml_geometry: Optional[KmlGeometry] = None,
+        geometry: Optional[Union[GeoType, GeoCollectionType]] = None,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -536,7 +541,15 @@ class Placemark(_Feature):
             region=region,
             extended_data=extended_data,
         )
-        self._geometry = geometry
+        if kml_geometry and geometry:
+            raise ValueError("You can only specify one of kml_geometry or geometry")
+        if geometry:
+            kml_geometry = create_kml_geometry(  # type: ignore[assignment]
+                geometry=geometry,
+                ns=ns,
+                name_spaces=name_spaces,
+            )
+        self._geometry = kml_geometry
 
     @property
     def geometry(self) -> Optional[AnyGeometryType]:
@@ -573,7 +586,7 @@ class Placemark(_Feature):
         assert name_spaces is not None
         point = element.find(f"{ns}Point")
         if point is not None:
-            kwargs["geometry"] = Point.class_from_element(
+            kwargs["kml_geometry"] = Point.class_from_element(
                 ns=ns,
                 name_spaces=name_spaces,
                 element=point,
@@ -582,7 +595,7 @@ class Placemark(_Feature):
             return kwargs
         line = element.find(f"{ns}LineString")
         if line is not None:
-            kwargs["geometry"] = LineString.class_from_element(
+            kwargs["kml_geometry"] = LineString.class_from_element(
                 ns=ns,
                 name_spaces=name_spaces,
                 element=line,
@@ -591,7 +604,7 @@ class Placemark(_Feature):
             return kwargs
         polygon = element.find(f"{ns}Polygon")
         if polygon is not None:
-            kwargs["geometry"] = Polygon.class_from_element(
+            kwargs["kml_geometry"] = Polygon.class_from_element(
                 ns=ns,
                 name_spaces=name_spaces,
                 element=polygon,
@@ -600,7 +613,7 @@ class Placemark(_Feature):
             return kwargs
         linearring = element.find(f"{ns}LinearRing")
         if linearring is not None:
-            kwargs["geometry"] = LinearRing.class_from_element(
+            kwargs["kml_geometry"] = LinearRing.class_from_element(
                 ns=ns,
                 name_spaces=name_spaces,
                 element=linearring,
@@ -609,7 +622,7 @@ class Placemark(_Feature):
             return kwargs
         multigeometry = element.find(f"{ns}MultiGeometry")
         if multigeometry is not None:
-            kwargs["geometry"] = MultiGeometry.class_from_element(
+            kwargs["kml_geometry"] = MultiGeometry.class_from_element(
                 ns=ns,
                 name_spaces=name_spaces,
                 element=multigeometry,
@@ -618,7 +631,7 @@ class Placemark(_Feature):
             return kwargs
         track = element.find(f"{ns}Track")
         if track is not None:
-            kwargs["geometry"] = gx.Track.class_from_element(
+            kwargs["kml_geometry"] = gx.Track.class_from_element(
                 ns=name_spaces["gx"],
                 name_spaces=name_spaces,
                 element=track,
@@ -627,7 +640,7 @@ class Placemark(_Feature):
             return kwargs
         multitrack = element.find(f"{ns}MultiTrack")
         if multitrack is not None:
-            kwargs["geometry"] = gx.MultiTrack.class_from_element(
+            kwargs["kml_geometry"] = gx.MultiTrack.class_from_element(
                 ns=name_spaces["gx"],
                 name_spaces=name_spaces,
                 element=multitrack,

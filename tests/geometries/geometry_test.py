@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the geometry classes."""
+from pygeoif import geometry as geo
 
 from fastkml.geometry import AltitudeMode
 from fastkml.geometry import LinearRing
@@ -23,6 +24,7 @@ from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
 from fastkml.geometry import _Geometry
+from fastkml.geometry import create_kml_geometry
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -388,9 +390,180 @@ class TestGeometry(StdLibrary):
         assert g.tessellate is True
 
 
+class TestCreateKmlGeometry(StdLibrary):
+    def test_create_kml_geometry_point(self) -> None:
+        """Test the create_kml_geometry function."""
+        g = create_kml_geometry(geo.Point(0, 1))
+
+        assert g.geometry.__geo_interface__ == {
+            "type": "Point",
+            "bbox": (0.0, 1.0, 0.0, 1.0),
+            "coordinates": (0.0, 1.0),
+        }
+        assert "Point>" in g.to_string()
+        assert "coordinates>0.000000,1.000000</" in g.to_string()
+
+    def test_create_kml_geometry_linestring(self) -> None:
+        """Test the create_kml_geometry function."""
+        g = create_kml_geometry(geo.LineString([(0, 0), (1, 1)]))
+
+        assert g.geometry.__geo_interface__ == {
+            "type": "LineString",
+            "bbox": (0.0, 0.0, 1.0, 1.0),
+            "coordinates": ((0.0, 0.0), (1.0, 1.0)),
+        }
+        assert "LineString>" in g.to_string()
+        assert "coordinates>0.000000,0.000000 1.000000,1.000000</" in g.to_string()
+
+    def test_create_kml_geometry_linearring(self) -> None:
+        """Test the create_kml_geometry function."""
+        g = create_kml_geometry(geo.LinearRing([(0, 0), (1, 1), (1, 0), (0, 0)]))
+
+        assert g.geometry.__geo_interface__ == {
+            "type": "LinearRing",
+            "bbox": (0.0, 0.0, 1.0, 1.0),
+            "coordinates": ((0.0, 0.0), (1.0, 1.0), (1.0, 0.0), (0.0, 0.0)),
+        }
+        assert "LinearRing>" in g.to_string()
+        assert (
+            "coordinates>0.000000,0.000000 1.000000,1.000000 1.000000,0.000000 "
+            "0.000000,0.000000</"
+        ) in g.to_string()
+
+    def test_create_kml_geometry_polygon(self) -> None:
+        """Test the create_kml_geometry function."""
+        g = create_kml_geometry(geo.Polygon([(0, 0), (1, 1), (1, 0), (0, 0)]))
+
+        assert g.geometry.__geo_interface__ == {
+            "type": "Polygon",
+            "bbox": (0.0, 0.0, 1.0, 1.0),
+            "coordinates": (((0.0, 0.0), (1.0, 1.0), (1.0, 0.0), (0.0, 0.0)),),
+        }
+        assert "Polygon>" in g.to_string()
+        assert (
+            "coordinates>0.000000,0.000000 1.000000,1.000000 1.000000,0.000000 "
+            "0.000000,0.000000</"
+        ) in g.to_string()
+
+    def test_create_kml_geometry_multipoint(self) -> None:
+        """Test the create_kml_geometry function."""
+        g = create_kml_geometry(geo.MultiPoint([(0, 0), (1, 1), (1, 0), (2, 2)]))
+
+        assert len(g.geometry) == 4
+        assert "MultiGeometry>" in g.to_string()
+        assert "Point>" in g.to_string()
+        assert "coordinates>0.000000,0.000000</" in g.to_string()
+        assert "coordinates>1.000000,1.000000</" in g.to_string()
+        assert "coordinates>1.000000,0.000000</" in g.to_string()
+        assert "coordinates>2.000000,2.000000</" in g.to_string()
+
+    def test_create_kml_geometry_multilinestring(self) -> None:
+        """Test the create_kml_geometry function."""
+        g = create_kml_geometry(
+            geo.MultiLineString([[(0, 0), (1, 1)], [(0, 0), (1, 1)]]),
+        )
+
+        assert len(g.geometry) == 2
+        assert "MultiGeometry>" in g.to_string()
+        assert "LineString>" in g.to_string()
+        assert "coordinates>0.000000,0.000000 1.000000,1.000000</" in g.to_string()
+        assert "coordinates>0.000000,0.000000 1.000000,1.000000</" in g.to_string()
+
+    def test_create_kml_geometry_multipolygon(self) -> None:
+        """Test the create_kml_geometry function."""
+        g = create_kml_geometry(
+            geo.MultiPolygon(
+                [
+                    (
+                        ((0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0.0)),
+                        [((0.1, 0.1), (0.1, 0.2), (0.2, 0.2), (0.2, 0.1))],
+                    ),
+                    (((0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0.0)),),
+                ],
+            ),
+        )
+        assert len(g.geometry) == 2
+        assert "MultiGeometry>" in g.to_string()
+        assert "Polygon>" in g.to_string()
+        assert (
+            "coordinates>0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
+            "1.000000,0.000000 0.000000,0.000000</"
+        ) in g.to_string()
+        assert (
+            "coordinates>0.100000,0.100000 0.100000,0.200000 0.200000,0.200000 "
+            "0.200000,0.100000 0.100000,0.100000</"
+        ) in g.to_string()
+        assert (
+            "coordinates>0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
+            "1.000000,0.000000 0.000000,0.000000</"
+        ) in g.to_string()
+
+    def test_create_kml_geometry_geometrycollection(self) -> None:
+        multipoint = geo.MultiPoint([(0, 0), (1, 1), (1, 2), (2, 2)])
+        gc1 = geo.GeometryCollection([geo.Point(0, 0), multipoint])
+        line1 = geo.LineString([(0, 0), (3, 1)])
+        gc2 = geo.GeometryCollection([gc1, line1])
+        poly1 = geo.Polygon([(0, 0), (1, 1), (1, 0), (0, 0)])
+        e = [(0, 0), (0, 2), (2, 2), (2, 0), (0, 0)]
+        i = [(1, 0), (0.5, 0.5), (1, 1), (1.5, 0.5), (1, 0)]
+        poly2 = geo.Polygon(e, [i])
+        p0 = geo.Point(0, 0)
+        p1 = geo.Point(-1, -1)
+        ring = geo.LinearRing([(0, 0), (1, 1), (1, 0), (0, 0)])
+        line = geo.LineString([(0, 0), (1, 1)])
+        gc = geo.GeometryCollection([gc2, poly1, poly2, p0, p1, ring, line])
+
+        g = create_kml_geometry(gc)
+
+        assert len(g.geometry) == 7
+        assert "MultiGeometry>" in g.to_string()
+        assert "LineString>" in g.to_string()
+        assert "LinearRing>" in g.to_string()
+        assert "Polygon>" in g.to_string()
+        assert "outerBoundaryIs>" in g.to_string()
+        assert "innerBoundaryIs>" in g.to_string()
+        assert "Point>" in g.to_string()
+        assert "coordinates>0.000000,0.000000</" in g.to_string()
+        assert g.geometry == gc
+
+    def test_create_kml_geometry_geometrycollection_roundtrip(self) -> None:
+        multipoint = geo.MultiPoint([(0, 0), (1, 1), (1, 2), (2, 2)])
+        gc1 = geo.GeometryCollection([multipoint, geo.Point(0, 0)])
+        line1 = geo.LineString([(0, 0), (3, 1)])
+        gc2 = geo.GeometryCollection([gc1, line1])
+        poly1 = geo.Polygon([(0, 0), (1, 1), (1, 0), (0, 0)])
+        e = [(0, 0), (0, 2), (2, 2), (2, 0), (0, 0)]
+        i = [(1, 0), (0.5, 0.5), (1, 1), (1.5, 0.5), (1, 0)]
+        poly2 = geo.Polygon(e, [i])
+        p0 = geo.Point(0, 0)
+        p1 = geo.Point(-1, -1)
+        ring = geo.LinearRing([(0, 0), (1, 1), (1, 0), (0, 0)])
+        line = geo.LineString([(0, 0), (1, 1)])
+        gc = geo.GeometryCollection(
+            [
+                gc2,
+                p0,
+                p1,
+                line,
+                poly1,
+                poly2,
+                ring,
+            ],
+        )
+        g = create_kml_geometry(gc)
+
+        mg = MultiGeometry.class_from_string(g.to_string())
+
+        assert mg.geometry == gc
+
+
 class TestGetGeometryLxml(Lxml, TestGetGeometry):
     """Test with lxml."""
 
 
 class TestGeometryLxml(Lxml, TestGeometry):
+    """Test with lxml."""
+
+
+class TestCreateKmlGeometryLxml(Lxml, TestCreateKmlGeometry):
     """Test with lxml."""

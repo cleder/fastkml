@@ -27,6 +27,9 @@ from typing import Union
 from typing import cast
 
 import pygeoif.geometry as geo
+from pygeoif.factories import shape
+from pygeoif.types import GeoCollectionType
+from pygeoif.types import GeoType
 from pygeoif.types import PointType
 
 from fastkml import config
@@ -713,3 +716,62 @@ class MultiGeometry(_Geometry):
                 if geometry is not None:
                     geometries.append(geometry)
         return create_multigeometry(geometries)
+
+
+def create_kml_geometry(
+    geometry: Union[GeoType, GeoCollectionType],
+    *,
+    ns: Optional[str] = None,
+    name_spaces: Optional[Dict[str, str]] = None,
+    id: Optional[str] = None,
+    target_id: Optional[str] = None,
+    extrude: Optional[bool] = False,
+    tessellate: Optional[bool] = False,
+    altitude_mode: Optional[AltitudeMode] = None,
+) -> _Geometry:
+    """
+    Create a KML geometry from a geometry object.
+
+    Args:
+    ----
+        geometry: Geometry object.
+        ns: Namespace of the object
+        id: Id of the object
+        target_id: Target id of the object
+        extrude: Specifies whether to connect the feature to the ground with a line.
+        tessellate: Specifies whether to allow the LineString to follow the terrain.
+        altitude_mode: Specifies how altitude components in the <coordinates>
+                       element are interpreted.
+
+    Returns:
+    -------
+        KML geometry object.
+
+    """
+    _map_to_kml = {
+        geo.Point: Point,
+        geo.Polygon: Polygon,
+        geo.LinearRing: LinearRing,
+        geo.LineString: LineString,
+        geo.MultiPoint: MultiGeometry,
+        geo.MultiLineString: MultiGeometry,
+        geo.MultiPolygon: MultiGeometry,
+        geo.GeometryCollection: MultiGeometry,
+    }
+    geom = shape(geometry)
+    for geometry_class, kml_class in _map_to_kml.items():
+        if isinstance(geom, geometry_class):
+            return cast(
+                _Geometry,
+                kml_class(
+                    ns=ns,
+                    name_spaces=name_spaces,
+                    id=id,
+                    target_id=target_id,
+                    extrude=extrude,
+                    tessellate=tessellate,
+                    altitude_mode=altitude_mode,
+                    geometry=geom,
+                ),
+            )
+    raise KMLWriteError(f"Unsupported geometry type {type(geometry)}")
