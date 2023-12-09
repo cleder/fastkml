@@ -64,7 +64,6 @@ linting = [
     "flake8-encodings",
     "flake8-expression-complexity",
     "flake8-length",
-    "flake8-literal",
     "flake8-pep3101",
     "flake8-super",
     "flake8-typing-imports",
