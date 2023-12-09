@@ -70,6 +70,11 @@ Is Maintained and documented:
     :target: https://libraries.io/pypi/fastkml
     :alt: Libraries.io dependency status for latest release
 
+.. image:: https://static.pepy.tech/badge/fastkml/month
+    :target: https://pepy.tech/project/fastkml
+    :alt: Downloads
+
+
 Documentation
 =============
 
