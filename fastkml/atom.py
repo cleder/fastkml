@@ -53,7 +53,24 @@ def check_email(email: str) -> bool:
     return bool(email_match(email))
 
 
-class Link(_XMLObject):
+class _AtomObject(_XMLObject):
+    """
+    Baseclass for Atom Objects.
+
+    Atom objects are used in KML to provide information about the author and
+    related website in your KML file. This information is displayed in geo
+    search results, both in Earth browsers such as Google Earth, and in other
+    applications such as Google Maps.
+    The atom tag name is the class name in lower case.
+    """
+
+    @classmethod
+    def get_tag_name(cls) -> str:
+        """Return the tag name."""
+        return cls.__name__.lower()
+
+
+class Link(_AtomObject):
     """
     Identifies a related Web page. The rel attribute defines the type of relation.
     A feed is limited to one alternate per type and hreflang.
@@ -61,8 +78,6 @@ class Link(_XMLObject):
     attribute, href, and five optional attributes: rel, type, hreflang,
     title, and length.
     """
-
-    __name__ = "link"
 
     href: Optional[str]
     # href is the URI of the referenced resource
@@ -170,14 +185,12 @@ class Link(_XMLObject):
         return kwargs
 
 
-class _Person(_XMLObject):
+class _Person(_AtomObject):
     """
     <author> and <contributor> describe a person, corporation, or similar
     entity. It has one required element, name, and two optional elements:
     uri, email.
     """
-
-    __name__ = ""
 
     name: Optional[str]
     # conveys a human-readable name for the person.
@@ -216,7 +229,6 @@ class _Person(_XMLObject):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        self.__name__ = self.__class__.__name__.lower()
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.name:
             name = config.etree.SubElement(  # type: ignore[attr-defined]
@@ -274,8 +286,6 @@ class Author(_Person):
     A feed/entry may have multiple authors.
     """
 
-    __name__ = "author"
-
 
 class Contributor(_Person):
     """
@@ -283,8 +293,6 @@ class Contributor(_Person):
 
     A feed/entry may have multiple contributor elements.
     """
-
-    __name__ = "contributor"
 
 
 __all__ = ["Author", "Contributor", "Link", "NS"]

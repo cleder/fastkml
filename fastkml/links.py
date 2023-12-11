@@ -34,8 +34,6 @@ class Link(_BaseObject):
     A URL can be passed to the constructor, or the href can be set later.
     """
 
-    __name__ = "Link"
-
     _href: Optional[str]
     _refresh_mode: Optional[RefreshMode]
     _refresh_interval: Optional[float]
@@ -324,5 +322,3 @@ class Icon(Link):
     icon from an image that contains multiple icons
     (often referred to as an icon palette).
     """
-
-    __name__ = "Icon"

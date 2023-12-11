@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the kml classes."""
-import pytest
 
 from fastkml import features
 from tests.base import Lxml
@@ -27,26 +26,17 @@ class TestStdLibrary(StdLibrary):
 
     def test_feature_base(self) -> None:
         f = features._Feature(name="A Feature")
-        pytest.raises(NotImplementedError, f.etree_element)
         assert f.name == "A Feature"
         assert f.visibility is None
         assert f.isopen is None
         assert f._atom_author is None
         assert f._atom_link is None
         assert f.address is None
-        # self.assertEqual(f.phoneNumber, None)
         assert f._snippet is None
         assert f.description is None
-        assert f._style_url is None
         assert f._styles == []
         assert f._times is None
-        # self.assertEqual(f.region, None)
-        # self.assertEqual(f.extended_data, None)
-
-        f.__name__ = "Feature"
-        f.style_url = "#default"
-        assert "Feature>" in str(f.to_string())
-        assert "#default" in str(f.to_string())
+        assert "_Feature>" in str(f.to_string())
 
     def test_address_string(self) -> None:
         f = features._Feature()

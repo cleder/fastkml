@@ -53,21 +53,18 @@ class TestBaseClasses:
         assert bo.id == "id0"
         assert bo.ns == config.KMLNS
         assert bo.target_id is None
-        assert bo.__name__ == ""
         bo.target_id = "target"
         assert bo.target_id == "target"
         bo.ns = ""
         bo.id = None
         assert bo.id is None
         assert not bo.ns
-        pytest.raises(NotImplementedError, bo.etree_element)
 
     def test_overlay(self) -> None:
         o = overlays._Overlay(name="An Overlay")
         assert o._color is None
         assert o._draw_order is None
         assert o._icon is None
-        pytest.raises(NotImplementedError, o.etree_element)
 
 
 class TestBuildKml:

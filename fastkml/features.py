@@ -492,7 +492,6 @@ class Placemark(_Feature):
     marks a point on the Earth in the 3D viewer.
     """
 
-    __name__ = "Placemark"
     _geometry: Optional[KmlGeometry]
 
     def __init__(
@@ -698,8 +697,6 @@ class NetworkLink(_Feature):
     refresh_visibility: Optional[bool]
     fly_to_view: Optional[bool]
     _link: Optional[Link]
-
-    __name__ = "NetworkLink"
 
     def __init__(
         self,

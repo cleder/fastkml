@@ -154,8 +154,6 @@ class _TimePrimitive(_BaseObject):
 class TimeStamp(_TimePrimitive):
     """Represents a single moment in time."""
 
-    __name__ = "TimeStamp"
-
     def __init__(
         self,
         ns: Optional[str] = None,
@@ -203,8 +201,6 @@ class TimeStamp(_TimePrimitive):
 
 class TimeSpan(_TimePrimitive):
     """Represents an extent in time bounded by begin and end dateTimes."""
-
-    __name__ = "TimeSpan"
 
     def __init__(
         self,

@@ -60,7 +60,6 @@ class StyleUrl(_BaseObject):
     use a full URL along with # referencing.
     """
 
-    __name__ = "styleUrl"
     url = None
 
     def __init__(
@@ -85,6 +84,11 @@ class StyleUrl(_BaseObject):
         else:
             logger.warning("StyleUrl is missing required url.")
         return element
+
+    @classmethod
+    def get_tag_name(cls) -> str:
+        """Return the tag name."""
+        return "styleUrl"
 
     @classmethod
     def _get_kwargs(
@@ -259,7 +263,6 @@ class HotSpot(_XMLObject):
 class IconStyle(_ColorStyle):
     """Specifies how icons for point Placemarks are drawn."""
 
-    __name__ = "IconStyle"
     scale = 1.0
     # Resizes the icon. (float)
     heading = None
@@ -375,7 +378,6 @@ class LineStyle(_ColorStyle):
     (if extrusion is enabled).
     """
 
-    __name__ = "LineStyle"
     width = 1.0
     # Width of the line, in pixels.
 
@@ -441,7 +443,6 @@ class PolyStyle(_ColorStyle):
     extrusions (which look like solid fences).
     """
 
-    __name__ = "PolyStyle"
     fill = 1
     # Boolean value. Specifies whether to fill the polygon.
     outline = 1
@@ -517,7 +518,6 @@ class PolyStyle(_ColorStyle):
 class LabelStyle(_ColorStyle):
     """Specifies how the <name> of a Feature is drawn in the 3D viewer."""
 
-    __name__ = "LabelStyle"
     scale = 1.0
     # Resizes the label.
 
@@ -582,8 +582,6 @@ class BalloonStyle(_BaseObject):
 
     The <bgColor>, if specified, is used as the background color of the balloon.
     """
-
-    __name__ = "BalloonStyle"
 
     bg_color = None
     # Background color of the balloon (optional). Color and opacity (alpha)
@@ -726,8 +724,6 @@ class Style(_StyleSelector):
     so that they can be referenced by the individual Features that use them.
     """
 
-    __name__ = "Style"
-
     def __init__(
         self,
         ns: Optional[str] = None,
@@ -809,7 +805,6 @@ class StyleMap(_StyleSelector):
     the user mouses over the icon in Google Earth.
     """
 
-    __name__ = "StyleMap"
     normal = None
     highlight = None
 

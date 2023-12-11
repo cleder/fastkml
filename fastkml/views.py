@@ -308,8 +308,6 @@ class Camera(_AbstractView):
     the Time and Animation chapter of the Developer's Guide.
     """
 
-    __name__ = "Camera"
-
     _roll: Optional[float] = None
     # Rotation, in degrees, of the camera around the Z axis. Values range from
     # −180 to +180 degrees.
@@ -388,8 +386,6 @@ class Camera(_AbstractView):
 
 
 class LookAt(_AbstractView):
-    __name__ = "LookAt"
-
     _range: Optional[float] = None
     # Distance in meters from the point specified by <longitude>, <latitude>,
     # and <altitude> to the LookAt position. (See diagram below.)
@@ -685,8 +681,6 @@ class Region(_BaseObject):
 
     https://developers.google.com/kml/documentation/kmlreference#region
     """
-
-    __name__ = "Region"
 
     _lat_lon_alt_box: Optional[LatLonAltBox] = None
     _lod: Optional[Lod] = None

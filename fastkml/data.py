@@ -87,8 +87,6 @@ class Schema(_BaseObject):
 
     """
 
-    __name__ = "Schema"
-
     def __init__(
         self,
         ns: Optional[str] = None,
@@ -202,8 +200,6 @@ class Schema(_BaseObject):
 class Data(_XMLObject):
     """Represents an untyped name/value pair with optional display name."""
 
-    __name__ = "Data"
-
     def __init__(
         self,
         ns: Optional[str] = None,
@@ -290,8 +286,6 @@ class SchemaData(_XMLObject):
     in the same KML file.
     """
 
-    __name__ = "SchemaData"
-
     def __init__(
         self,
         ns: Optional[str] = None,
@@ -373,8 +367,6 @@ class ExtendedData(_XMLObject):
        https://developers.google.com/kml/documentation/extendeddata
 
     """
-
-    __name__ = "ExtendedData"
 
     def __init__(
         self,

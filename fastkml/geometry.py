@@ -203,7 +203,6 @@ class _Geometry(_BaseObject):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        self.__name__ = self.__class__.__name__
         element = super().etree_element(precision=precision, verbosity=verbosity)
         self._set_extrude(element)
         self._set_altitude_mode(element)
@@ -365,7 +364,6 @@ class Point(_Geometry):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        self.__name__ = self.__class__.__name__
         element = super().etree_element(precision=precision, verbosity=verbosity)
         assert isinstance(self.geometry, geo.Point)
         coords = self.geometry.coords
@@ -423,7 +421,6 @@ class LineString(_Geometry):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        self.__name__ = self.__class__.__name__
         element = super().etree_element(precision=precision, verbosity=verbosity)
         assert isinstance(self.geometry, geo.LineString)
         coords = self.geometry.coords
@@ -527,7 +524,6 @@ class Polygon(_Geometry):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        self.__name__ = self.__class__.__name__
         element = super().etree_element(precision=precision, verbosity=verbosity)
         assert isinstance(self.geometry, geo.Polygon)
         linear_ring = partial(LinearRing, ns=self.ns, extrude=None, tessellate=None)
@@ -677,7 +673,6 @@ class MultiGeometry(_Geometry):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        self.__name__ = self.__class__.__name__
         element = super().etree_element(precision=precision, verbosity=verbosity)
         _map_to_kml = {mg: self.__class__ for mg in self.multi_geometries}
         _map_to_kml.update(self.map_to_kml)

@@ -479,8 +479,6 @@ class PhotoOverlay(_Overlay):
     https://developers.google.com/kml/documentation/kmlreference#photooverlay
     """
 
-    __name__ = "PhotoOverlay"
-
     rotation: Optional[float]
     # Adjusts how the photo is placed inside the field of view. This element is
     # useful if your photo has been rotated and deviates slightly from a desired
@@ -677,7 +675,6 @@ class LatLonBox(_XMLObject):
     Rotations are specified in a counterclockwise direction.
     """
 
-    __name__ = "LatLonBox"
     north: Optional[float]
     south: Optional[float]
     east: Optional[float]
@@ -788,8 +785,6 @@ class GroundOverlay(_Overlay):
 
     https://developers.google.com/kml/documentation/kmlreference#groundoverlay
     """
-
-    __name__ = "GroundOverlay"
 
     altitude: Optional[float]
     # Specifies the distance above the earth's surface, in meters, and is

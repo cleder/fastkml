@@ -182,8 +182,6 @@ class Folder(_Container):
     (Folders, Placemarks, #NetworkLinks, or #Overlays).
     """
 
-    __name__ = "Folder"
-
 
 class Document(_Container):
     """
@@ -192,7 +190,6 @@ class Document(_Container):
     extended data.
     """
 
-    __name__ = "Document"
     _schemata: Optional[List[Schema]]
 
     def __init__(

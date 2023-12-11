@@ -240,7 +240,6 @@ class Track(_Geometry):
         verbosity: Verbosity = Verbosity.normal,
         name_spaces: Optional[Dict[str, str]] = None,
     ) -> Element:
-        self.__name__ = self.__class__.__name__
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.track_items:
             for track_item in self.track_items:
@@ -376,7 +375,6 @@ class MultiTrack(_Geometry):
         verbosity: Verbosity = Verbosity.normal,
         name_spaces: Optional[Dict[str, str]] = None,
     ) -> Element:
-        self.__name__ = self.__class__.__name__
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.interpolate is not None:
             i_element = cast(
