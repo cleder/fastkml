@@ -85,11 +85,12 @@ class KML(_XMLObject):
             root = config.etree.Element(f"{self.ns}kml")  # type: ignore[attr-defined]
             root.set("xmlns", config.KMLNS[1:-1])
         else:
-            try:
+            if hasattr(config.etree, "LXML_VERSION"):
                 root = config.etree.Element(  # type: ignore[attr-defined]
                     f"{self.ns}kml",
+                    nsmap={None: self.ns[1:-1]},
                 )
-            except TypeError:
+            else:
                 root = config.etree.Element(  # type: ignore[attr-defined]
                     f"{self.ns}kml",
                 )
