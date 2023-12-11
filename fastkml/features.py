@@ -290,32 +290,16 @@ class _Feature(TimeMixin, _BaseObject):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.name:
-            name = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}name",
-            )
-            name.text = self.name
-        if self.description:
-            description = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}description",
-            )
-            description.text = self.description
+        if self._times is not None:
+            element.append(self._times.etree_element())
+        if self._atom_link is not None:
+            element.append(self._atom_link.etree_element())
+        if self._atom_author is not None:
+            element.append(self._atom_author.etree_element())
+        if self.extended_data is not None:
+            element.append(self.extended_data.etree_element())
         if self._view is not None:
             element.append(self._view.etree_element())
-        if self.visibility is not None:
-            visibility = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}visibility",
-            )
-            visibility.text = str(int(self.visibility))
-        if self.isopen:
-            isopen = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}open",
-            )
-            isopen.text = str(int(self.isopen))
         if self._style_url is not None:
             element.append(self._style_url.etree_element())
         for style in self.styles():
@@ -328,14 +312,30 @@ class _Feature(TimeMixin, _BaseObject):
             snippet.text = self.snippet.text
             if self.snippet.max_lines:
                 snippet.set("maxLines", str(self.snippet.max_lines))
-        elif self._times is not None:
-            element.append(self._times.etree_element())
-        if self._atom_link is not None:
-            element.append(self._atom_link.etree_element())
-        if self._atom_author is not None:
-            element.append(self._atom_author.etree_element())
-        if self.extended_data is not None:
-            element.append(self.extended_data.etree_element())
+        if self.name:
+            name = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}name",
+            )
+            name.text = self.name
+        if self.description:
+            description = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}description",
+            )
+            description.text = self.description
+        if self.visibility is not None:
+            visibility = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}visibility",
+            )
+            visibility.text = str(int(self.visibility))
+        if self.isopen:
+            isopen = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}open",
+            )
+            isopen.text = str(int(self.isopen))
         if self._address is not None:
             address = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -367,18 +367,6 @@ class _Feature(TimeMixin, _BaseObject):
         )
         name_spaces = kwargs["name_spaces"]
         assert name_spaces is not None
-        name = element.find(f"{ns}name")
-        if name is not None:
-            kwargs["name"] = name.text
-        description = element.find(f"{ns}description")
-        if description is not None:
-            kwargs["description"] = description.text
-        visibility = element.find(f"{ns}visibility")
-        if visibility is not None and visibility.text:
-            kwargs["visibility"] = visibility.text in ["1", "true"]
-        isopen = element.find(f"{ns}open")
-        if isopen is not None:
-            kwargs["isopen"] = isopen.text in ["1", "true"]
         style_url = element.find(f"{ns}styleUrl")
         if style_url is not None:
             kwargs["style_url"] = StyleUrl.class_from_element(
@@ -409,15 +397,6 @@ class _Feature(TimeMixin, _BaseObject):
                         element=stylemap,
                         strict=strict,
                     ),
-                )
-        snippet = element.find(f"{ns}Snippet")
-        if snippet is not None:
-            max_lines = snippet.get("maxLines")
-            if max_lines is not None:
-                kwargs["snippet"] = Snippet(text=snippet.text, max_lines=int(max_lines))
-            else:
-                kwargs["snippet"] = Snippet(  # type: ignore[unreachable]
-                    text=snippet.text,
                 )
         timespan = element.find(f"{ns}TimeSpan")
         if timespan is not None:
@@ -459,12 +438,6 @@ class _Feature(TimeMixin, _BaseObject):
                 element=extended_data,
                 strict=strict,
             )
-        address = element.find(f"{ns}address")
-        if address is not None:
-            kwargs["address"] = address.text
-        phone_number = element.find(f"{ns}phoneNumber")
-        if phone_number is not None:
-            kwargs["phone_number"] = phone_number.text
         camera = element.find(f"{ns}Camera")
         if camera is not None:
             kwargs["view"] = Camera.class_from_element(
@@ -481,6 +454,33 @@ class _Feature(TimeMixin, _BaseObject):
                 element=lookat,
                 strict=strict,
             )
+        name = element.find(f"{ns}name")
+        if name is not None:
+            kwargs["name"] = name.text
+        description = element.find(f"{ns}description")
+        if description is not None:
+            kwargs["description"] = description.text
+        visibility = element.find(f"{ns}visibility")
+        if visibility is not None and visibility.text:
+            kwargs["visibility"] = visibility.text in ["1", "true"]
+        isopen = element.find(f"{ns}open")
+        if isopen is not None:
+            kwargs["isopen"] = isopen.text in ["1", "true"]
+        address = element.find(f"{ns}address")
+        if address is not None:
+            kwargs["address"] = address.text
+        phone_number = element.find(f"{ns}phoneNumber")
+        if phone_number is not None:
+            kwargs["phone_number"] = phone_number.text
+        snippet = element.find(f"{ns}Snippet")
+        if snippet is not None:
+            max_lines = snippet.get("maxLines")
+            if max_lines is not None:
+                kwargs["snippet"] = Snippet(text=snippet.text, max_lines=int(max_lines))
+            else:
+                kwargs["snippet"] = Snippet(  # type: ignore[unreachable]
+                    text=snippet.text,
+                )
         return kwargs
 
 

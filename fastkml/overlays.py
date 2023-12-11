@@ -577,18 +577,18 @@ class PhotoOverlay(_Overlay):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.rotation is not None:
-            rotation = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}rotation",
-            )
-            rotation.text = str(self.rotation)
         if self.view_volume:
             element.append(self.view_volume.etree_element())
         if self.image_pyramid:
             element.append(self.image_pyramid.etree_element())
         if self.point:
             element.append(self.point.etree_element())
+        if self.rotation is not None:
+            rotation = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}rotation",
+            )
+            rotation.text = str(self.rotation)
         if self.shape:
             shape = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -612,9 +612,6 @@ class PhotoOverlay(_Overlay):
             element=element,
             strict=strict,
         )
-        rotation = element.find(f"{ns}rotation")
-        if rotation is not None:
-            kwargs["rotation"] = float(rotation.text)
         view_volume = element.find(f"{ns}ViewVolume")
         if view_volume is not None:
             kwargs["view_volume"] = cast(
@@ -648,6 +645,9 @@ class PhotoOverlay(_Overlay):
                     strict=strict,
                 ),
             )
+        rotation = element.find(f"{ns}rotation")
+        if rotation is not None:
+            kwargs["rotation"] = float(rotation.text)
         shape = element.find(f"{ns}shape")
         if shape is not None:
             kwargs["shape"] = Shape(shape.text)
@@ -883,12 +883,12 @@ class GroundOverlay(_Overlay):
                 f"{self.ns}altitude",
             )
             altitude.text = str(self.altitude)
-            if self.altitude_mode:
-                altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
-                    element,
-                    f"{self.ns}altitudeMode",
-                )
-                altitude_mode.text = self.altitude_mode.value
+        if self.altitude_mode:
+            altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
+                element,
+                f"{self.ns}altitudeMode",
+            )
+            altitude_mode.text = self.altitude_mode.value
         if self.lat_lon_box:
             element.append(self.lat_lon_box.etree_element())
         return element

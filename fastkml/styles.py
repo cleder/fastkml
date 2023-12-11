@@ -194,7 +194,7 @@ class _ColorStyle(_BaseObject):
 
 
 @dataclass(frozen=True)
-class HotSpot:
+class HotSpot:  # XXX, make this a _XMLObject
     x: float
     y: float
     xunits: Units
