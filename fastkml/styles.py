@@ -21,7 +21,6 @@ part of how your data is displayed.
 """
 
 import logging
-from dataclasses import dataclass
 from typing import Any
 from typing import Dict
 from typing import Iterable
@@ -33,6 +32,7 @@ from typing import cast
 
 from fastkml import config
 from fastkml.base import _BaseObject
+from fastkml.base import _XMLObject
 from fastkml.enums import ColorMode
 from fastkml.enums import DisplayMode
 from fastkml.enums import Units
@@ -193,40 +193,67 @@ class _ColorStyle(_BaseObject):
         return kwargs
 
 
-@dataclass(frozen=True)
-class HotSpot:  # XXX, make this a _XMLObject
+class HotSpot(_XMLObject):
     x: float
     y: float
-    xunits: Units
-    yunits: Units
+    xunits: Optional[Units]
+    yunits: Optional[Units]
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        x: float = 0,
+        y: float = 0,
+        xunits: Optional[Units] = None,
+        yunits: Optional[Units] = None,
+    ) -> None:
+        super().__init__(ns=ns, name_spaces=name_spaces)
+        self.x = x
+        self.y = y
+        self.xunits = xunits
+        self.yunits = yunits
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        hot_spot = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}hotSpot",
+        )
+        hot_spot.attrib["x"] = str(self.x)
+        hot_spot.attrib["y"] = str(self.y)
+        if self.xunits:
+            hot_spot.attrib["xunits"] = self.xunits.value
+        if self.yunits:
+            hot_spot.attrib["yunits"] = self.yunits.value
+        return element
 
     @classmethod
-    def class_from_element(
+    def _get_kwargs(
         cls,
         *,
         ns: str,
         name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
-    ) -> Optional["HotSpot"]:
-        hot_spot = element.find(f"{ns}hotSpot")
-        if hot_spot is not None:
-            x = hot_spot.attrib.get("x")  # type: ignore[attr-defined]
-            y = hot_spot.attrib.get("y")  # type: ignore[attr-defined]
-            xunits = hot_spot.attrib.get("xunits")  # type: ignore[attr-defined]
-            yunits = hot_spot.attrib.get("yunits")  # type: ignore[attr-defined]
-            x = float(x) if x is not None else 0
-            y = float(y) if y is not None else 0
-            xunits = Units(xunits) if xunits is not None else None
-            yunits = Units(yunits) if yunits is not None else None
-            element.remove(hot_spot)
-            return HotSpot(
-                x=x,
-                y=y,
-                xunits=xunits,
-                yunits=yunits,
-            )
-        return None
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        kwargs["x"] = float(element.get("x"))
+        kwargs["y"] = float(element.get("y"))
+        if element.get("xunits"):
+            kwargs["xunits"] = Units(element.get("xunits"))
+        if element.get("yunits"):
+            kwargs["yunits"] = Units(element.get("yunits"))
+        return kwargs
 
 
 class IconStyle(_ColorStyle):
@@ -298,14 +325,9 @@ class IconStyle(_ColorStyle):
             )
             href.text = self.icon_href
         if self.hot_spot:
-            hot_spot = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}hotSpot",
+            element.append(
+                self.hot_spot.etree_element(precision=precision, verbosity=verbosity),
             )
-            hot_spot.attrib["x"] = str(self.hot_spot.x)
-            hot_spot.attrib["y"] = str(self.hot_spot.y)
-            hot_spot.attrib["xunits"] = self.hot_spot.xunits.value
-            hot_spot.attrib["yunits"] = self.hot_spot.yunits.value
         return element
 
     @classmethod
@@ -334,12 +356,14 @@ class IconStyle(_ColorStyle):
             href = icon.find(f"{ns}href")
             if href is not None:
                 kwargs["icon_href"] = href.text
-        kwargs["hot_spot"] = HotSpot.class_from_element(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
+        hot_spot = element.find(f"{ns}hotSpot")
+        if hot_spot is not None:
+            kwargs["hot_spot"] = HotSpot.class_from_element(
+                ns=ns,
+                name_spaces=name_spaces,
+                element=hot_spot,
+                strict=strict,
+            )
         return kwargs
 
 
