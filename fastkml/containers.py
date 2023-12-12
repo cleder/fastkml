@@ -143,36 +143,20 @@ class _Container(_Feature):
             strict=strict,
         )
         kwargs["features"] = []
-        folders = element.findall(f"{ns}Folder")
-        kwargs["features"] += [
-            Folder.class_from_element(
-                ns=ns,
-                name_spaces=name_spaces,
-                element=folder,
-                strict=strict,
-            )
-            for folder in folders
-        ]
-        placemarks = element.findall(f"{ns}Placemark")
-        kwargs["features"] += [
-            Placemark.class_from_element(
-                ns=ns,
-                name_spaces=name_spaces,
-                element=placemark,
-                strict=strict,
-            )
-            for placemark in placemarks
-        ]
-        documents = element.findall(f"{ns}Document")
-        kwargs["features"] += [
-            Document.class_from_element(
-                ns=ns,
-                name_spaces=name_spaces,
-                element=document,
-                strict=strict,
-            )
-            for document in documents
-        ]
+        for klass in (
+            Folder,
+            Placemark,
+            Document,
+        ):
+            for feature in element.findall(f"{ns}{klass.__name__}"):
+                kwargs["features"].append(
+                    klass.class_from_element(  # type: ignore[attr-defined]
+                        ns=ns,
+                        name_spaces=name_spaces,
+                        element=feature,
+                        strict=strict,
+                    ),
+                )
         return kwargs
 
 

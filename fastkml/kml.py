@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2022  Christian Ledermann
+# Copyright (C) 2012-2023 Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -122,56 +122,17 @@ class KML(_XMLObject):
             strict=strict,
         )
         kwargs["features"] = []
-        documents = element.findall(f"{ns}Document")
-        for document in documents:
-            kwargs["features"].append(
-                Document.class_from_element(
-                    ns=ns,
-                    name_spaces=name_spaces,
-                    element=document,
-                    strict=False,
-                ),
-            )
-        folders = element.findall(f"{ns}Folder")
-        for folder in folders:
-            kwargs["features"].append(
-                Folder.class_from_element(
-                    ns=ns,
-                    name_spaces=name_spaces,
-                    element=folder,
-                    strict=False,
-                ),
-            )
-        placemarks = element.findall(f"{ns}Placemark")
-        for placemark in placemarks:
-            kwargs["features"].append(
-                Placemark.class_from_element(
-                    ns=ns,
-                    name_spaces=name_spaces,
-                    element=placemark,
-                    strict=False,
-                ),
-            )
-        groundoverlays = element.findall(f"{ns}GroundOverlay")
-        for groundoverlay in groundoverlays:
-            kwargs["features"].append(
-                GroundOverlay.class_from_element(
-                    ns=ns,
-                    name_spaces=name_spaces,
-                    element=groundoverlay,
-                    strict=False,
-                ),
-            )
-        photo_overlays = element.findall(f"{ns}PhotoOverlay")
-        for photo_overlay in photo_overlays:
-            kwargs["features"].append(
-                PhotoOverlay.class_from_element(
-                    ns=ns,
-                    name_spaces=name_spaces,
-                    element=photo_overlay,
-                    strict=False,
-                ),
-            )
+        for klass in (Document, Folder, Placemark, GroundOverlay, PhotoOverlay):
+            for feature in element.findall(f"{ns}{klass.__name__}"):
+                kwargs["features"].append(
+                    klass.class_from_element(  # type: ignore[attr-defined]
+                        ns=ns,
+                        name_spaces=name_spaces,
+                        element=feature,
+                        strict=strict,
+                    ),
+                )
+
         return kwargs
 
     @classmethod

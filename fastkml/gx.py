@@ -126,7 +126,7 @@ class Angle:
     roll: float = 0.0
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True)  # XXX replace with _XMLObject
 class TrackItem:
     """A track item describes an objects position and heading at a specific time."""
 
