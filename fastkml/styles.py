@@ -871,7 +871,7 @@ class StyleMap(_StyleSelector):
             key = pair.find(f"{ns}key")
             style = pair.find(f"{ns}Style")
             style_url = pair.find(f"{ns}styleUrl")
-            if key is None or key.text not in ["highlight", "normal"]:
+            if key is None or key.text not in {"highlight", "normal"}:
                 raise ValueError
             elif key.text == "highlight":
                 if style is not None:

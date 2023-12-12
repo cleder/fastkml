@@ -462,10 +462,10 @@ class _Feature(TimeMixin, _BaseObject):
             kwargs["description"] = description.text
         visibility = element.find(f"{ns}visibility")
         if visibility is not None and visibility.text:
-            kwargs["visibility"] = visibility.text in ["1", "true"]
+            kwargs["visibility"] = visibility.text in {"1", "true"}
         isopen = element.find(f"{ns}open")
         if isopen is not None:
-            kwargs["isopen"] = isopen.text in ["1", "true"]
+            kwargs["isopen"] = isopen.text in {"1", "true"}
         address = element.find(f"{ns}address")
         if address is not None:
             kwargs["address"] = address.text
@@ -541,7 +541,8 @@ class Placemark(_Feature):
             extended_data=extended_data,
         )
         if kml_geometry and geometry:
-            raise ValueError("You can only specify one of kml_geometry or geometry")
+            msg = "You can only specify one of kml_geometry or geometry"
+            raise ValueError(msg)
         if geometry:
             kml_geometry = create_kml_geometry(  # type: ignore[assignment]
                 geometry=geometry,

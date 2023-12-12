@@ -198,19 +198,19 @@ class _AbstractView(TimeMixin, _BaseObject):
             )
             tilt.text = str(self.tilt)
         if self.altitude_mode:
-            if self.altitude_mode in (
+            if self.altitude_mode in {
                 AltitudeMode.clamp_to_ground,
                 AltitudeMode.relative_to_ground,
                 AltitudeMode.absolute,
-            ):
+            }:
                 altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
                     element,
                     f"{self.ns}altitudeMode",
                 )
-            elif self.altitude_mode in (
+            elif self.altitude_mode in {
                 AltitudeMode.clamp_to_sea_floor,
                 AltitudeMode.relative_to_sea_floor,
-            ):
+            }:
                 altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
                     element,
                     f"{self.name_spaces['gx']}altitudeMode",

@@ -771,4 +771,5 @@ def create_kml_geometry(
                     geometry=geom,
                 ),
             )
-    raise KMLWriteError(f"Unsupported geometry type {type(geometry)}")
+    msg = f"Unsupported geometry type {type(geometry)}"
+    raise KMLWriteError(msg)
