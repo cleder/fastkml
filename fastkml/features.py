@@ -30,6 +30,7 @@ from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
 from fastkml.geometry import create_kml_geometry
+from fastkml.helpers import bool_subelement
 from fastkml.helpers import simple_text_subelement
 from fastkml.links import Link
 from fastkml.mixins import TimeMixin
@@ -319,19 +320,8 @@ class _Feature(TimeMixin, _BaseObject):
         simple_text_subelement(self, element, "phone_number", "phoneNumber")
         simple_text_subelement(self, element, "description", "description")
         simple_text_subelement(self, element, "name", "name")
-
-        if self.visibility is not None:
-            visibility = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}visibility",
-            )
-            visibility.text = str(int(self.visibility))
-        if self.isopen:
-            isopen = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}open",
-            )
-            isopen.text = str(int(self.isopen))
+        bool_subelement(self, element, "visibility", "visibility")
+        bool_subelement(self, element, "isopen", "open")
         return element
 
     @classmethod
@@ -740,19 +730,9 @@ class NetworkLink(_Feature):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.refresh_visibility is not None:
-            refresh_visibility = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}refreshVisibility",
-            )
-            refresh_visibility.text = str(int(self.refresh_visibility))
+        bool_subelement(self, element, "refresh_visibility", "refreshVisibility")
+        bool_subelement(self, element, "fly_to_view", "flyToView")
 
-        if self.fly_to_view is not None:
-            fly_to_view = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}flyToView",
-            )
-            fly_to_view.text = str(int(self.fly_to_view))
         if self.link is not None:
             element.append(self.link.etree_element())
         return element

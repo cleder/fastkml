@@ -18,3 +18,18 @@ def simple_text_subelement(
             f"{obj.ns}{node_name}",
         )
         subelement.text = getattr(obj, attr_name)
+
+
+def bool_subelement(
+    obj: _BaseObject,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+) -> None:
+    """Set the value of an attribute from a subelement with a text node."""
+    if getattr(obj, attr_name, None):
+        subelement = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{obj.ns}{node_name}",
+        )
+        subelement.text = str(int(getattr(obj, attr_name)))
