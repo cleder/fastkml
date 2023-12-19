@@ -1,5 +1,7 @@
 """Helper functions for fastkml."""
 
+from typing import Dict
+
 from fastkml import config
 from fastkml.base import _BaseObject
 from fastkml.types import Element
@@ -33,3 +35,18 @@ def bool_subelement(
             f"{obj.ns}{node_name}",
         )
         subelement.text = str(int(getattr(obj, attr_name)))
+
+
+def subelement_text_kwarg(
+    element: Element,
+    ns: str,
+    node_name: str,
+    kwarg: str,
+) -> Dict[str, str]:
+    kwargs = {}
+    node = element.find(f"{ns}{node_name}")
+    if node is None:
+        return {}
+    if node.text and node.text.strip():
+        kwargs[kwarg] = node.text.strip()
+    return kwargs

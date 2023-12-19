@@ -32,6 +32,7 @@ from fastkml.geometry import Polygon
 from fastkml.geometry import create_kml_geometry
 from fastkml.helpers import bool_subelement
 from fastkml.helpers import simple_text_subelement
+from fastkml.helpers import subelement_text_kwarg
 from fastkml.links import Link
 from fastkml.mixins import TimeMixin
 from fastkml.styles import Style
@@ -437,24 +438,17 @@ class _Feature(TimeMixin, _BaseObject):
                 kwargs["snippet"] = Snippet(  # type: ignore[unreachable]
                     text=snippet.text,
                 )
-        name = element.find(f"{ns}name")
-        if name is not None:
-            kwargs["name"] = name.text
-        description = element.find(f"{ns}description")
-        if description is not None:
-            kwargs["description"] = description.text
+        kwargs.update(subelement_text_kwarg(element, ns, "address", "address"))
+        kwargs.update(subelement_text_kwarg(element, ns, "phoneNumber", "phone_number"))
+        kwargs.update(subelement_text_kwarg(element, ns, "description", "description"))
+        kwargs.update(subelement_text_kwarg(element, ns, "name", "name"))
+
         visibility = element.find(f"{ns}visibility")
-        phone_number = element.find(f"{ns}phoneNumber")
-        if phone_number is not None:
-            kwargs["phone_number"] = phone_number.text
         if visibility is not None and visibility.text:
             kwargs["visibility"] = visibility.text in {"1", "true"}
         isopen = element.find(f"{ns}open")
         if isopen is not None:
             kwargs["isopen"] = isopen.text in {"1", "true"}
-        address = element.find(f"{ns}address")
-        if address is not None:
-            kwargs["address"] = address.text
         return kwargs
 
 
