@@ -30,6 +30,7 @@ from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
 from fastkml.geometry import create_kml_geometry
+from fastkml.helpers import simple_text_subelement
 from fastkml.links import Link
 from fastkml.mixins import TimeMixin
 from fastkml.styles import Style
@@ -157,7 +158,7 @@ class _Feature(TimeMixin, _BaseObject):
     # A given KML Feature can contain a combination of these types of
     # custom data.
     #
-    # (2) is already implemented, see UntypedExtendedData
+    # (2 and 3) are already implemented, see data.py for more information.
     #
     # <Metadata> (deprecated in KML 2.2; use <ExtendedData> instead)
 
@@ -304,6 +305,7 @@ class _Feature(TimeMixin, _BaseObject):
             element.append(self._style_url.etree_element())
         for style in self.styles():
             element.append(style.etree_element())
+
         if self.snippet:
             snippet = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -312,18 +314,12 @@ class _Feature(TimeMixin, _BaseObject):
             snippet.text = self.snippet.text
             if self.snippet.max_lines:
                 snippet.set("maxLines", str(self.snippet.max_lines))
-        if self.name:
-            name = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}name",
-            )
-            name.text = self.name
-        if self.description:
-            description = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}description",
-            )
-            description.text = self.description
+
+        simple_text_subelement(self, element, "address", "address")
+        simple_text_subelement(self, element, "phone_number", "phoneNumber")
+        simple_text_subelement(self, element, "description", "description")
+        simple_text_subelement(self, element, "name", "name")
+
         if self.visibility is not None:
             visibility = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -336,18 +332,6 @@ class _Feature(TimeMixin, _BaseObject):
                 f"{self.ns}open",
             )
             isopen.text = str(int(self.isopen))
-        if self._address is not None:
-            address = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}address",
-            )
-            address.text = self._address
-        if self._phone_number is not None:
-            phone_number = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}phoneNumber",
-            )
-            phone_number.text = self._phone_number
         return element
 
     @classmethod
@@ -454,24 +438,6 @@ class _Feature(TimeMixin, _BaseObject):
                 element=lookat,
                 strict=strict,
             )
-        name = element.find(f"{ns}name")
-        if name is not None:
-            kwargs["name"] = name.text
-        description = element.find(f"{ns}description")
-        if description is not None:
-            kwargs["description"] = description.text
-        visibility = element.find(f"{ns}visibility")
-        if visibility is not None and visibility.text:
-            kwargs["visibility"] = visibility.text in {"1", "true"}
-        isopen = element.find(f"{ns}open")
-        if isopen is not None:
-            kwargs["isopen"] = isopen.text in {"1", "true"}
-        address = element.find(f"{ns}address")
-        if address is not None:
-            kwargs["address"] = address.text
-        phone_number = element.find(f"{ns}phoneNumber")
-        if phone_number is not None:
-            kwargs["phone_number"] = phone_number.text
         snippet = element.find(f"{ns}Snippet")
         if snippet is not None:
             max_lines = snippet.get("maxLines")
@@ -481,6 +447,24 @@ class _Feature(TimeMixin, _BaseObject):
                 kwargs["snippet"] = Snippet(  # type: ignore[unreachable]
                     text=snippet.text,
                 )
+        name = element.find(f"{ns}name")
+        if name is not None:
+            kwargs["name"] = name.text
+        description = element.find(f"{ns}description")
+        if description is not None:
+            kwargs["description"] = description.text
+        visibility = element.find(f"{ns}visibility")
+        phone_number = element.find(f"{ns}phoneNumber")
+        if phone_number is not None:
+            kwargs["phone_number"] = phone_number.text
+        if visibility is not None and visibility.text:
+            kwargs["visibility"] = visibility.text in {"1", "true"}
+        isopen = element.find(f"{ns}open")
+        if isopen is not None:
+            kwargs["isopen"] = isopen.text in {"1", "true"}
+        address = element.find(f"{ns}address")
+        if address is not None:
+            kwargs["address"] = address.text
         return kwargs
 
 
