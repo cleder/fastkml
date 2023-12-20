@@ -95,7 +95,7 @@ def xml_subelement(
 
 
 def xml_subelement_list(
-    obj: _BaseObject,
+    obj: _XMLObject,
     *,
     element: Element,
     attr_name: str,

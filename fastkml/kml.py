@@ -39,6 +39,8 @@ from fastkml.containers import Document
 from fastkml.containers import Folder
 from fastkml.enums import Verbosity
 from fastkml.features import Placemark
+from fastkml.helpers import xml_subelement_list
+from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.overlays import GroundOverlay
 from fastkml.overlays import PhotoOverlay
 from fastkml.types import Element
@@ -84,19 +86,23 @@ class KML(_XMLObject):
             try:
                 root = config.etree.Element(  # type: ignore[attr-defined]
                     f"{self.ns}kml",
-                    # nsmap={None: self.ns[1:-1]},
                 )
             except TypeError:
                 root = config.etree.Element(  # type: ignore[attr-defined]
                     f"{self.ns}kml",
                 )
-        for feature in self.features:
-            root.append(feature.etree_element(precision=precision, verbosity=verbosity))
+        xml_subelement_list(
+            obj=self,
+            element=root,
+            attr_name="features",
+            precision=precision,
+            verbosity=verbosity,
+        )
         return cast(Element, root)
 
     def append(self, kmlobj: Union[Folder, Document, Placemark]) -> None:
         """Append a feature."""
-        if id(kmlobj) == id(self):
+        if kmlobj is self:
             msg = "Cannot append self"
             raise ValueError(msg)
         self.features.append(kmlobj)
@@ -116,18 +122,20 @@ class KML(_XMLObject):
             element=element,
             strict=strict,
         )
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
         kwargs["features"] = []
         for klass in (Document, Folder, Placemark, GroundOverlay, PhotoOverlay):
-            for feature in element.findall(f"{ns}{klass.__name__}"):
-                kwargs["features"].append(
-                    klass.class_from_element(  # type: ignore[attr-defined]
-                        ns=ns,
-                        name_spaces=name_spaces,
-                        element=feature,
-                        strict=strict,
-                    ),
-                )
-
+            kwargs["features"].extend(
+                xml_subelement_list_kwarg(
+                    element=element,
+                    ns=ns,
+                    name_spaces=name_spaces,
+                    kwarg="features",
+                    obj_class=klass,
+                    strict=strict,
+                ).get("features", []),
+            )
         return kwargs
 
     @classmethod
