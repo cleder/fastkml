@@ -4,7 +4,6 @@ import urllib.parse as urlparse
 from typing import Any
 from typing import Dict
 from typing import Iterable
-from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Union
@@ -102,12 +101,7 @@ class _Container(_Feature):
             region=region,
             extended_data=extended_data,
         )
-        self._features = features or []
-
-    def features(self) -> Iterator[_Feature]:
-        """Iterate over features."""
-        assert self._features is not None
-        yield from self._features
+        self.features = features or []
 
     def etree_element(
         self,
@@ -115,7 +109,7 @@ class _Container(_Feature):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        for feature in self.features():
+        for feature in self.features:
             element.append(feature.etree_element())
         return element
 
@@ -124,8 +118,8 @@ class _Container(_Feature):
         if kmlobj is self:
             msg = "Cannot append self"
             raise ValueError(msg)
-        assert self._features is not None
-        self._features.append(kmlobj)
+        assert self.features is not None
+        self.features.append(kmlobj)
 
     @classmethod
     def _get_kwargs(

@@ -79,7 +79,7 @@ class TestStdLibrary(StdLibrary):
         assert s.to_string() == s1.to_string()
         doc1 = f"<kml><Document>{doc}</Document></kml>"
         k = kml.KML.class_from_string(doc1, ns="")
-        d = next(iter(k.features()))
+        d = k.features[0]
         s2 = d.schemata[0]
         # s.ns = config.KMLNS
         assert s.to_string() == s2.to_string()
@@ -137,7 +137,7 @@ class TestStdLibrary(StdLibrary):
         k2 = kml.KML.class_from_string(k.to_string(prettyprint=True))
         k.to_string()
 
-        extended_data = next(iter(k2.features())).extended_data
+        extended_data = k2.features[0].extended_data
         assert extended_data is not None
         assert len(extended_data.elements), 2
         assert extended_data.elements[0].name == "info"
@@ -168,8 +168,8 @@ class TestStdLibrary(StdLibrary):
 
         k2 = kml.KML.class_from_string(k.to_string())
 
-        document_data = next(iter(k2.features())).extended_data
-        folder_data = next(iter(next(iter(k2.features())).features())).extended_data
+        document_data = k2.features[0].extended_data
+        folder_data = k2.features[0].features[0].extended_data
 
         assert document_data.elements[0].name == "type"
         assert document_data.elements[0].value == "Document"
@@ -209,7 +209,7 @@ class TestStdLibrary(StdLibrary):
 
         k = kml.KML.class_from_string(doc)
 
-        extended_data = next(iter(k.features())).extended_data
+        extended_data = k.features[0].extended_data
 
         assert extended_data.elements[0].name == "holeNumber"
         assert extended_data.elements[0].value == "1"

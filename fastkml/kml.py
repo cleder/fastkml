@@ -28,7 +28,6 @@ import logging
 from typing import Any
 from typing import Dict
 from typing import Iterable
-from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Union
@@ -68,7 +67,7 @@ class KML(_XMLObject):
             ns=ns,
             name_spaces=name_spaces,
         )
-        self._features = list(features) if features is not None else []
+        self.features = list(features) if features is not None else []
 
     def etree_element(
         self,
@@ -91,20 +90,16 @@ class KML(_XMLObject):
                 root = config.etree.Element(  # type: ignore[attr-defined]
                     f"{self.ns}kml",
                 )
-        for feature in self.features():
+        for feature in self.features:
             root.append(feature.etree_element(precision=precision, verbosity=verbosity))
         return cast(Element, root)
-
-    def features(self) -> Iterator[Union[Folder, Document, Placemark]]:
-        """Iterate over features."""
-        yield from self._features
 
     def append(self, kmlobj: Union[Folder, Document, Placemark]) -> None:
         """Append a feature."""
         if id(kmlobj) == id(self):
             msg = "Cannot append self"
             raise ValueError(msg)
-        self._features.append(kmlobj)
+        self.features.append(kmlobj)
 
     @classmethod
     def _get_kwargs(

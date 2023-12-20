@@ -1,5 +1,5 @@
 """Helper functions for fastkml."""
-
+from enum import Enum
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -42,6 +42,39 @@ def bool_subelement(
             f"{obj.ns}{node_name}",
         )
         subelement.text = str(int(getattr(obj, attr_name)))
+
+
+def float_subelement(
+    obj: _BaseObject,
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+) -> None:
+    """Set the value of an attribute from a subelement with a text node."""
+    if getattr(obj, attr_name, None):
+        subelement = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{obj.ns}{node_name}",
+        )
+        subelement.text = str(round(getattr(obj, attr_name), precision))
+
+
+def enum_subelement(
+    obj: _BaseObject,
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+) -> None:
+    """Set the value of an attribute from a subelement with a text node."""
+    if getattr(obj, attr_name, None):
+        subelement = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{obj.ns}{node_name}",
+        )
+        subelement.text = getattr(obj, attr_name).value
 
 
 def xml_subelement(
@@ -106,6 +139,23 @@ def subelement_bool_kwarg(
             return {kwarg: True}
         if node.text.strip().lower() in {"0", "false"}:
             return {kwarg: False}
+    return {}
+
+
+def subelement_enum_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    node_name: str,
+    kwarg: str,
+    enum_class: Type[Enum],
+    strict: bool,
+) -> Dict[str, Enum]:
+    node = element.find(f"{ns}{node_name}")
+    if node is None:
+        return {}
+    if node.text and node.text.strip():
+        return {kwarg: enum_class(node.text.strip())}
     return {}
 
 
