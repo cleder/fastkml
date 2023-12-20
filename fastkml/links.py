@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2022  Christian Ledermann
+# Copyright (C) 2012-2023 Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -14,7 +14,6 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-import contextlib
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -27,6 +26,7 @@ from fastkml.helpers import enum_subelement
 from fastkml.helpers import float_subelement
 from fastkml.helpers import simple_text_subelement
 from fastkml.helpers import subelement_enum_kwarg
+from fastkml.helpers import subelement_float_kwarg
 from fastkml.helpers import subelement_text_kwarg
 from fastkml.types import Element
 
@@ -185,25 +185,46 @@ class Link(_BaseObject):
                 strict=strict,
             ),
         )
-
-        refresh_mode = element.find(f"{ns}refreshMode")
-        if refresh_mode is not None:
-            kwargs["refresh_mode"] = RefreshMode(refresh_mode.text)
-        refresh_interval = element.find(f"{ns}refreshInterval")
-        if refresh_interval is not None:
-            with contextlib.suppress(ValueError):
-                kwargs["refresh_interval"] = float(refresh_interval.text)
-        view_refresh_mode = element.find(f"{ns}viewRefreshMode")
-        if view_refresh_mode is not None:
-            kwargs["view_refresh_mode"] = ViewRefreshMode(view_refresh_mode.text)
-        view_refresh_time = element.find(f"{ns}viewRefreshTime")
-        if view_refresh_time is not None:
-            with contextlib.suppress(ValueError):
-                kwargs["view_refresh_time"] = float(view_refresh_time.text)
-        view_bound_scale = element.find(f"{ns}viewBoundScale")
-        if view_bound_scale is not None:
-            with contextlib.suppress(ValueError):
-                kwargs["view_bound_scale"] = float(view_bound_scale.text)
+        kwargs.update(
+            subelement_enum_kwarg(
+                element=element,
+                ns=ns,
+                node_name="viewRefreshMode",
+                kwarg="view_refresh_mode",
+                enum_class=ViewRefreshMode,
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="refreshInterval",
+                kwarg="refresh_interval",
+                precision=None,
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="viewRefreshTime",
+                kwarg="view_refresh_time",
+                precision=None,
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="viewBoundScale",
+                kwarg="view_bound_scale",
+                precision=None,
+                strict=strict,
+            ),
+        )
         return kwargs
 
 

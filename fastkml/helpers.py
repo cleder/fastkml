@@ -142,6 +142,23 @@ def subelement_bool_kwarg(
     return {}
 
 
+def subelement_float_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    node_name: str,
+    kwarg: str,
+    precision: Optional[int],
+    strict: bool,
+) -> Dict[str, float]:
+    node = element.find(f"{ns}{node_name}")
+    if node is None:
+        return {}
+    if node.text and node.text.strip():
+        return {kwarg: float(node.text.strip())}
+    return {}
+
+
 def subelement_enum_kwarg(
     *,
     element: Element,
