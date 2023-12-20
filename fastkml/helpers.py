@@ -1,15 +1,19 @@
 """Helper functions for fastkml."""
 
 from typing import Dict
+from typing import Optional
+from typing import Type
 
 from fastkml import config
 from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
+from fastkml.enums import Verbosity
 from fastkml.types import Element
 
 
 def simple_text_subelement(
     obj: _BaseObject,
+    *,
     element: Element,
     attr_name: str,
     node_name: str,
@@ -25,6 +29,7 @@ def simple_text_subelement(
 
 def bool_subelement(
     obj: _BaseObject,
+    *,
     element: Element,
     attr_name: str,
     node_name: str,
@@ -40,14 +45,36 @@ def bool_subelement(
 
 def xml_subelement(
     obj: _BaseObject,
+    *,
     element: Element,
     attr_name: str,
+    precision: Optional[int],
+    verbosity: Verbosity,
 ) -> None:
     if getattr(obj, attr_name, None):
-        element.append(getattr(obj, attr_name).etree_element())
+        element.append(
+            getattr(obj, attr_name).etree_element(
+                precision=precision,
+                verbosity=verbosity,
+            ),
+        )
+
+
+def xml_subelement_list(
+    obj: _BaseObject,
+    *,
+    element: Element,
+    attr_name: str,
+    precision: Optional[int],
+    verbosity: Verbosity,
+) -> None:
+    if getattr(obj, attr_name, None):
+        for item in getattr(obj, attr_name):
+            element.append(item.etree_element(precision=precision, verbosity=verbosity))
 
 
 def subelement_text_kwarg(
+    *,
     element: Element,
     ns: str,
     node_name: str,
@@ -61,6 +88,7 @@ def subelement_text_kwarg(
 
 
 def subelement_bool_kwarg(
+    *,
     element: Element,
     ns: str,
     node_name: str,
@@ -81,11 +109,12 @@ def subelement_bool_kwarg(
 
 
 def xml_subelement_kwarg(
+    *,
     element: Element,
     ns: str,
     name_spaces: Dict[str, str],
     kwarg: str,
-    obj_class: type[_XMLObject],
+    obj_class: Type[_XMLObject],
     strict: bool,
 ) -> Dict[str, _XMLObject]:
     subelement = element.find(f"{ns}{obj_class.get_tag_name()}")

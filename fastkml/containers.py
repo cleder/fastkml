@@ -174,7 +174,7 @@ class Document(_Container):
     extended data.
     """
 
-    _schemata: Optional[List[Schema]]
+    schemata: List[Schema]
 
     def __init__(
         self,
@@ -222,15 +222,7 @@ class Document(_Container):
             extended_data=extended_data,
             features=features,
         )
-        self._schemata = list(schemata) if schemata else []
-
-    def schemata(self) -> Iterator[Schema]:
-        if self._schemata:
-            yield from self._schemata
-
-    def append_schema(self, schema: Schema) -> None:
-        assert self._schemata is not None
-        self._schemata.append(schema)
+        self.schemata = list(schemata) if schemata else []
 
     def etree_element(
         self,
@@ -238,8 +230,8 @@ class Document(_Container):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self._schemata is not None:
-            for schema in self._schemata:
+        if self.schemata is not None:
+            for schema in self.schemata:
                 element.append(
                     schema.etree_element(precision=precision, verbosity=verbosity),
                 )

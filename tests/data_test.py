@@ -80,7 +80,7 @@ class TestStdLibrary(StdLibrary):
         doc1 = f"<kml><Document>{doc}</Document></kml>"
         k = kml.KML.class_from_string(doc1, ns="")
         d = next(iter(k.features()))
-        s2 = next(iter(d.schemata()))
+        s2 = d.schemata[0]
         # s.ns = config.KMLNS
         assert s.to_string() == s2.to_string()
         k1 = kml.KML.class_from_string(k.to_string())

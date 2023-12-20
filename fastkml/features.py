@@ -34,6 +34,7 @@ from fastkml.helpers import subelement_bool_kwarg
 from fastkml.helpers import subelement_text_kwarg
 from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
+from fastkml.helpers import xml_subelement_list
 from fastkml.links import Link
 from fastkml.mixins import TimeMixin
 from fastkml.styles import Style
@@ -247,23 +248,95 @@ class _Feature(TimeMixin, _BaseObject):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        xml_subelement(self, element, "times")
-        xml_subelement(self, element, "atom_link")
-        xml_subelement(self, element, "atom_author")
-        xml_subelement(self, element, "extended_data")
-        xml_subelement(self, element, "view")
-        xml_subelement(self, element, "style_url")
-        xml_subelement(self, element, "snippet")
+        xml_subelement(
+            self,
+            element=element,
+            attr_name="times",
+            precision=precision,
+            verbosity=verbosity,
+        )
+        xml_subelement(
+            self,
+            element=element,
+            attr_name="atom_link",
+            precision=precision,
+            verbosity=verbosity,
+        )
+        xml_subelement(
+            self,
+            element=element,
+            attr_name="atom_author",
+            precision=precision,
+            verbosity=verbosity,
+        )
+        xml_subelement(
+            self,
+            element=element,
+            attr_name="extended_data",
+            precision=precision,
+            verbosity=verbosity,
+        )
+        xml_subelement(
+            self,
+            element=element,
+            attr_name="view",
+            precision=precision,
+            verbosity=verbosity,
+        )
+        xml_subelement(
+            self,
+            element=element,
+            attr_name="style_url",
+            precision=precision,
+            verbosity=verbosity,
+        )
+        xml_subelement(
+            self,
+            element=element,
+            attr_name="snippet",
+            precision=precision,
+            verbosity=verbosity,
+        )
 
-        for style in self.styles:
-            element.append(style.etree_element())
+        xml_subelement_list(
+            self,
+            element=element,
+            attr_name="styles",
+            precision=precision,
+            verbosity=verbosity,
+        )
 
-        simple_text_subelement(self, element, "address", "address")
-        simple_text_subelement(self, element, "phone_number", "phoneNumber")
-        simple_text_subelement(self, element, "description", "description")
-        simple_text_subelement(self, element, "name", "name")
-        bool_subelement(self, element, "visibility", "visibility")
-        bool_subelement(self, element, "isopen", "open")
+        simple_text_subelement(
+            self,
+            element=element,
+            attr_name="address",
+            node_name="address",
+        )
+        simple_text_subelement(
+            self,
+            element=element,
+            attr_name="phone_number",
+            node_name="phoneNumber",
+        )
+        simple_text_subelement(
+            self,
+            element=element,
+            attr_name="description",
+            node_name="description",
+        )
+        simple_text_subelement(
+            self,
+            element=element,
+            attr_name="name",
+            node_name="name",
+        )
+        bool_subelement(
+            self,
+            element=element,
+            attr_name="visibility",
+            node_name="visibility",
+        )
+        bool_subelement(self, element=element, attr_name="isopen", node_name="open")
         return element
 
     @classmethod
@@ -530,7 +603,13 @@ class Placemark(_Feature):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        xml_subelement(self, element, "_geometry")
+        xml_subelement(
+            self,
+            element=element,
+            attr_name="_geometry",
+            precision=precision,
+            verbosity=verbosity,
+        )
         return element
 
     @classmethod
@@ -724,9 +803,25 @@ class NetworkLink(_Feature):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        bool_subelement(self, element, "refresh_visibility", "refreshVisibility")
-        bool_subelement(self, element, "fly_to_view", "flyToView")
-        xml_subelement(self, element, "link")
+        bool_subelement(
+            self,
+            element=element,
+            attr_name="refresh_visibility",
+            node_name="refreshVisibility",
+        )
+        bool_subelement(
+            self,
+            element=element,
+            attr_name="fly_to_view",
+            node_name="flyToView",
+        )
+        xml_subelement(
+            self,
+            element=element,
+            attr_name="link",
+            precision=precision,
+            verbosity=verbosity,
+        )
         return element
 
     @classmethod
