@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from typing import Any
 from typing import Dict
 from typing import Iterable
-from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Union
@@ -32,13 +31,13 @@ from fastkml.geometry import Polygon
 from fastkml.geometry import create_kml_geometry
 from fastkml.helpers import bool_subelement
 from fastkml.helpers import simple_text_subelement
+from fastkml.helpers import subelement_bool_kwarg
 from fastkml.helpers import subelement_text_kwarg
 from fastkml.links import Link
 from fastkml.mixins import TimeMixin
 from fastkml.styles import Style
 from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
-from fastkml.styles import _StyleSelector
 from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
 from fastkml.types import Element
@@ -90,26 +89,26 @@ class _Feature(TimeMixin, _BaseObject):
     # closed or open when first loaded into the Places panel.
     # 0=collapsed (the default), 1=expanded.
 
-    _atom_author: Optional[atom.Author]
+    atom_author: Optional[atom.Author]
     # KML 2.2 supports new elements for including data about the author
     # and related website in your KML file. This information is displayed
     # in geo search results, both in Earth browsers such as Google Earth,
     # and in other applications such as Google Maps.
 
-    _atom_link: Optional[atom.Link]
+    atom_link: Optional[atom.Link]
     # Specifies the URL of the website containing this KML or KMZ file.
 
-    _address: Optional[str]
+    address: Optional[str]
     # A string value representing an unstructured address written as a
     # standard street, city, state address, and/or as a postal code.
     # You can use the <address> tag to specify the location of a point
     # instead of using latitude and longitude coordinates.
 
-    _phone_number: Optional[str]
+    phone_number: Optional[str]
     # A string value representing a telephone number.
     # This element is used by Google Maps Mobile only.
 
-    _snippet: Optional[Snippet]
+    snippet: Optional[Snippet]
     # _snippet is either a tuple of a string Snippet.text and an integer
     # Snippet.maxLines or a string
     #
@@ -126,13 +125,13 @@ class _Feature(TimeMixin, _BaseObject):
     description: Optional[str]
     # User-supplied content that appears in the description balloon.
 
-    _style_url: Optional[StyleUrl]
+    style_url: Optional[StyleUrl]
     # URL of a <Style> or <StyleMap> defined in a Document.
     # If the style is in the same file, use a # reference.
     # If the style is defined in an external file, use a full URL
     # along with # referencing.
 
-    _styles: List[Union[Style, StyleMap]]
+    styles: List[Union[Style, StyleMap]]
     # One or more Styles and StyleMaps can be defined to customize the
     # appearance of any element derived from Feature or of the Geometry
     # in a Placemark.
@@ -146,7 +145,7 @@ class _Feature(TimeMixin, _BaseObject):
     # Placemark, or ScreenOverlay—the value for the Feature's inline
     # style takes precedence over the value for the shared style.
 
-    _view: Union[Camera, LookAt, None]
+    view: Union[Camera, LookAt, None]
 
     region: Optional[Region]
     # Features and geometry associated with a Region are drawn only when
@@ -189,103 +188,19 @@ class _Feature(TimeMixin, _BaseObject):
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.name = name
         self.description = description
-        self._style_url = style_url
-        self._styles = list(styles) if styles else []
-        self._view = view
+        self.style_url = style_url
+        self.styles = list(styles) if styles else []
+        self.view = view
         self.visibility = visibility
         self.isopen = isopen
         self.snippet = snippet
-        self._atom_author = atom_author
-        self._atom_link = atom_link
+        self.atom_author = atom_author
+        self.atom_link = atom_link
         self.address = address
         self.phone_number = phone_number
         self.region = region
         self.extended_data = extended_data
-        self._times = times
-
-    @property
-    def style_url(self) -> Optional[str]:
-        """
-        Returns the url only, not a full StyleUrl object.
-        if you need the full StyleUrl object use _style_url.
-        """
-        return self._style_url.url if isinstance(self._style_url, StyleUrl) else None
-
-    @style_url.setter
-    def style_url(self, styleurl: Union[str, StyleUrl, None]) -> None:
-        """You may pass a StyleUrl Object, a string or None."""
-        if isinstance(styleurl, StyleUrl):
-            self._style_url = styleurl
-        elif isinstance(styleurl, str):
-            s = StyleUrl(self.ns, url=styleurl)
-            self._style_url = s
-        elif styleurl is None:
-            self._style_url = None
-        else:
-            raise ValueError
-
-    @property
-    def view(self) -> Optional[Union[Camera, LookAt]]:
-        return self._view
-
-    @view.setter
-    def view(self, camera: Optional[Union[Camera, LookAt]]) -> None:
-        self._view = camera
-
-    @property
-    def link(self) -> Optional[atom.Link]:
-        return self._atom_link
-
-    @link.setter
-    def link(self, link: Optional[atom.Link]) -> None:
-        self._atom_link = link
-
-    @property
-    def author(self) -> Optional[atom.Author]:
-        return self._atom_author
-
-    @author.setter
-    def author(self, author: Optional[atom.Author]) -> None:
-        self._atom_author = author
-
-    def append_style(self, style: Union[Style, StyleMap]) -> None:
-        """Append a style to the feature."""
-        if isinstance(style, _StyleSelector):
-            self._styles.append(style)
-        else:
-            raise TypeError
-
-    def styles(self) -> Iterator[Union[Style, StyleMap]]:
-        """Iterate over the styles of this feature."""
-        for style in self._styles:
-            if isinstance(style, _StyleSelector):
-                yield style
-            else:
-                raise TypeError
-
-    @property
-    def snippet(self) -> Optional[Snippet]:
-        return self._snippet
-
-    @snippet.setter
-    def snippet(self, snippet: Optional[Snippet]) -> None:
-        self._snippet = snippet
-
-    @property
-    def address(self) -> Optional[str]:
-        return self._address
-
-    @address.setter
-    def address(self, address: Optional[str]) -> None:
-        self._address = address
-
-    @property
-    def phone_number(self) -> Optional[str]:
-        return self._phone_number
-
-    @phone_number.setter
-    def phone_number(self, phone_number: Optional[str]) -> None:
-        self._phone_number = phone_number
+        self.times = times
 
     def etree_element(
         self,
@@ -293,19 +208,19 @@ class _Feature(TimeMixin, _BaseObject):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self._times is not None:
-            element.append(self._times.etree_element())
-        if self._atom_link is not None:
-            element.append(self._atom_link.etree_element())
-        if self._atom_author is not None:
-            element.append(self._atom_author.etree_element())
+        if self.times is not None:
+            element.append(self.times.etree_element())
+        if self.atom_link is not None:
+            element.append(self.atom_link.etree_element())
+        if self.atom_author is not None:
+            element.append(self.atom_author.etree_element())
         if self.extended_data is not None:
             element.append(self.extended_data.etree_element())
-        if self._view is not None:
-            element.append(self._view.etree_element())
-        if self._style_url is not None:
-            element.append(self._style_url.etree_element())
-        for style in self.styles():
+        if self.view is not None:
+            element.append(self.view.etree_element())
+        if self.style_url is not None:
+            element.append(self.style_url.etree_element())
+        for style in self.styles:
             element.append(style.etree_element())
 
         if self.snippet:
@@ -342,14 +257,6 @@ class _Feature(TimeMixin, _BaseObject):
         )
         name_spaces = kwargs["name_spaces"]
         assert name_spaces is not None
-        style_url = element.find(f"{ns}styleUrl")
-        if style_url is not None:
-            kwargs["style_url"] = StyleUrl.class_from_element(
-                ns=ns,
-                name_spaces=name_spaces,
-                element=style_url,
-                strict=strict,
-            )
         styles = element.findall(f"{ns}Style")
         kwargs["styles"] = []
         if styles is not None:
@@ -373,6 +280,14 @@ class _Feature(TimeMixin, _BaseObject):
                         strict=strict,
                     ),
                 )
+        style_url = element.find(f"{ns}styleUrl")
+        if style_url is not None:
+            kwargs["style_url"] = StyleUrl.class_from_element(
+                ns=ns,
+                name_spaces=name_spaces,
+                element=style_url,
+                strict=strict,
+            )
         timespan = element.find(f"{ns}TimeSpan")
         if timespan is not None:
             kwargs["times"] = TimeSpan.class_from_element(
@@ -387,22 +302,6 @@ class _Feature(TimeMixin, _BaseObject):
                 ns=ns,
                 name_spaces=name_spaces,
                 element=timestamp,
-                strict=strict,
-            )
-        atom_link = element.find(f"{name_spaces['atom']}link")
-        if atom_link is not None:
-            kwargs["atom_link"] = atom.Link.class_from_element(
-                ns=name_spaces["atom"],
-                name_spaces=name_spaces,
-                element=atom_link,
-                strict=strict,
-            )
-        atom_author = element.find(f"{name_spaces['atom']}author")
-        if atom_author is not None:
-            kwargs["atom_author"] = atom.Author.class_from_element(
-                ns=name_spaces["atom"],
-                name_spaces=name_spaces,
-                element=atom_author,
                 strict=strict,
             )
         extended_data = element.find(f"{ns}ExtendedData")
@@ -438,17 +337,76 @@ class _Feature(TimeMixin, _BaseObject):
                 kwargs["snippet"] = Snippet(  # type: ignore[unreachable]
                     text=snippet.text,
                 )
-        kwargs.update(subelement_text_kwarg(element, ns, "address", "address"))
-        kwargs.update(subelement_text_kwarg(element, ns, "phoneNumber", "phone_number"))
-        kwargs.update(subelement_text_kwarg(element, ns, "description", "description"))
-        kwargs.update(subelement_text_kwarg(element, ns, "name", "name"))
-
-        visibility = element.find(f"{ns}visibility")
-        if visibility is not None and visibility.text:
-            kwargs["visibility"] = visibility.text in {"1", "true"}
-        isopen = element.find(f"{ns}open")
-        if isopen is not None:
-            kwargs["isopen"] = isopen.text in {"1", "true"}
+        atom_link = element.find(f"{name_spaces['atom']}link")
+        if atom_link is not None:
+            kwargs["atom_link"] = atom.Link.class_from_element(
+                ns=name_spaces["atom"],
+                name_spaces=name_spaces,
+                element=atom_link,
+                strict=strict,
+            )
+        atom_author = element.find(f"{name_spaces['atom']}author")
+        if atom_author is not None:
+            kwargs["atom_author"] = atom.Author.class_from_element(
+                ns=name_spaces["atom"],
+                name_spaces=name_spaces,
+                element=atom_author,
+                strict=strict,
+            )
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="address",
+                kwarg="address",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="phoneNumber",
+                kwarg="phone_number",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="description",
+                kwarg="description",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="name",
+                kwarg="name",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_bool_kwarg(
+                element=element,
+                ns=ns,
+                node_name="visibility",
+                kwarg="visibility",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_bool_kwarg(
+                element=element,
+                ns=ns,
+                node_name="open",
+                kwarg="isopen",
+                strict=strict,
+            ),
+        )
         return kwargs
 
 
@@ -665,7 +623,7 @@ class NetworkLink(_Feature):
 
     refresh_visibility: Optional[bool]
     fly_to_view: Optional[bool]
-    _link: Optional[Link]
+    link: Optional[Link]
 
     def __init__(
         self,
@@ -716,7 +674,7 @@ class NetworkLink(_Feature):
         )
         self.refresh_visibility = refresh_visibility
         self.fly_to_view = fly_to_view
-        self._link = link
+        self.link = link
 
     def etree_element(
         self,

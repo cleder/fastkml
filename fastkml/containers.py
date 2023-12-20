@@ -247,7 +247,7 @@ class Document(_Container):
 
     def get_style_by_url(self, style_url: str) -> Optional[Union[Style, StyleMap]]:
         id_ = urlparse.urlparse(style_url).fragment
-        return next((style for style in self.styles() if style.id == id_), None)
+        return next((style for style in self.styles if style.id == id_), None)
 
     @classmethod
     def _get_kwargs(

@@ -42,11 +42,29 @@ def subelement_text_kwarg(
     ns: str,
     node_name: str,
     kwarg: str,
+    strict: bool,
 ) -> Dict[str, str]:
-    kwargs = {}
+    node = element.find(f"{ns}{node_name}")
+    if node is None:
+        return {}
+    return {kwarg: node.text.strip()} if node.text and node.text.strip() else {}
+
+
+def subelement_bool_kwarg(
+    element: Element,
+    ns: str,
+    node_name: str,
+    kwarg: str,
+    strict: bool,
+) -> Dict[str, bool]:
     node = element.find(f"{ns}{node_name}")
     if node is None:
         return {}
     if node.text and node.text.strip():
-        kwargs[kwarg] = node.text.strip()
-    return kwargs
+        if strict:
+            return {kwarg: bool(int(node.text.strip()))}
+        if node.text.strip().lower() in {"1", "true"}:
+            return {kwarg: True}
+        if node.text.strip().lower() in {"0", "false"}:
+            return {kwarg: False}
+    return {}

@@ -131,7 +131,7 @@ class TestStdLibrary(StdLibrary):
         assert look_at.longitude == 60
         assert look_at.id == "look-at-id"
         assert look_at.target_id == "target-look-at-id"
-        assert look_at._times.timestamp.dt == datetime.datetime(
+        assert look_at.times.timestamp.dt == datetime.datetime(
             2019,
             1,
             1,
@@ -166,7 +166,7 @@ class TestStdLibrary(StdLibrary):
         assert look_at.longitude == 60
         assert look_at.id == "look-at-id"
         assert look_at.target_id == "target-look-at-id"
-        assert look_at._times.timestamp.dt == datetime.datetime(
+        assert look_at.times.timestamp.dt == datetime.datetime(
             2019,
             1,
             1,

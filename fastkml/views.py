@@ -86,7 +86,7 @@ class _AbstractView(TimeMixin, _BaseObject):
         self._heading = heading
         self._tilt = tilt
         self._altitude_mode = altitude_mode
-        self._times = time_primitive
+        self.times = time_primitive
 
     @property
     def longitude(self) -> Optional[float]:
@@ -217,8 +217,8 @@ class _AbstractView(TimeMixin, _BaseObject):
                 )
             altitude_mode.text = self.altitude_mode.value
 
-        if self._times is not None:
-            element.append(self._times.etree_element())
+        if self.times is not None:
+            element.append(self.times.etree_element())
         return element
 
     # TODO: <gx:ViewerOptions>

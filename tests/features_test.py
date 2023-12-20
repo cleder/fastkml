@@ -29,13 +29,13 @@ class TestStdLibrary(StdLibrary):
         assert f.name == "A Feature"
         assert f.visibility is None
         assert f.isopen is None
-        assert f._atom_author is None
-        assert f._atom_link is None
+        assert f.atom_author is None
+        assert f.atom_link is None
         assert f.address is None
-        assert f._snippet is None
+        assert f.snippet is None
         assert f.description is None
-        assert f._styles == []
-        assert f._times is None
+        assert f.styles == []
+        assert f.times is None
         assert "_Feature>" in str(f.to_string())
 
     def test_address_string(self) -> None:
