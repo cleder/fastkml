@@ -125,8 +125,7 @@ class KmlDateTime:
         """Parse a KML DateTime string into a KmlDateTime object."""
         resolution = None
         dt = None
-        year_month_day_match = year_month_day.match(datestr)
-        if year_month_day_match:
+        if year_month_day_match := year_month_day.match(datestr):
             year = int(year_month_day_match.group("year"))
             month = int(year_month_day_match.group("month") or 1)
             day = int(year_month_day_match.group("day") or 1)
@@ -222,16 +221,14 @@ class TimeSpan(_TimePrimitive):
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.begin is not None:
-            text = str(self.begin)
-            if text:
+            if text := str(self.begin):
                 begin = config.etree.SubElement(  # type: ignore[attr-defined]
                     element,
                     f"{self.ns}begin",
                 )
                 begin.text = text
         if self.end is not None:
-            text = str(self.end)
-            if text:
+            if text := str(self.end):
                 end = config.etree.SubElement(  # type: ignore[attr-defined]
                     element,
                     f"{self.ns}end",

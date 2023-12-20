@@ -2,7 +2,6 @@ import logging
 from typing import Any
 from typing import Dict
 from typing import Optional
-from typing import SupportsFloat
 from typing import Union
 from typing import cast
 
@@ -25,24 +24,24 @@ class _AbstractView(TimeMixin, _BaseObject):
     This element is extended by the <Camera> and <LookAt> elements.
     """
 
-    _longitude: Optional[float] = None
+    longitude: Optional[float] = None
     # Longitude of the virtual camera (eye point). Angular distance in degrees,
     # relative to the Prime Meridian. Values west of the Meridian range from
     # −180 to 0 degrees. Values east of the Meridian range from 0 to 180 degrees.
 
-    _latitude: Optional[float] = None
+    latitude: Optional[float] = None
     # Latitude of the virtual camera. Degrees north or south of the Equator
     # (0 degrees). Values range from −90 degrees to 90 degrees.
 
-    _altitude: Optional[float] = None
+    altitude: Optional[float] = None
     # Distance of the camera from the earth's surface, in meters. Interpreted
     # according to the Camera's <altitudeMode> or <gx:altitudeMode>.
 
-    _heading: Optional[float] = None
+    heading: Optional[float] = None
     # Direction (azimuth) of the camera, in degrees. Default=0 (true North).
     # (See diagram.) Values range from 0 to 360 degrees.
 
-    _tilt: Optional[float] = None
+    tilt: Optional[float] = None
     # Rotation, in degrees, of the camera around the X axis. A value of 0
     # indicates that the view is aimed straight down toward the earth (the
     # most common case). A value for 90 for <tilt> indicates that the view
@@ -50,7 +49,7 @@ class _AbstractView(TimeMixin, _BaseObject):
     # view is pointed up into the sky. Values for <tilt> are clamped at +180
     # degrees.
 
-    _altitude_mode: AltitudeMode
+    altitude_mode: AltitudeMode
     # Specifies how the <altitude> specified for the Camera is interpreted.
     # Possible values are as follows:
     #   relativeToGround -
@@ -80,86 +79,13 @@ class _AbstractView(TimeMixin, _BaseObject):
         time_primitive: Union[TimeSpan, TimeStamp, None] = None,
     ) -> None:
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
-        self._longitude = longitude
-        self._latitude = latitude
-        self._altitude = altitude
-        self._heading = heading
-        self._tilt = tilt
-        self._altitude_mode = altitude_mode
+        self.longitude = longitude
+        self.latitude = latitude
+        self.altitude = altitude
+        self.heading = heading
+        self.tilt = tilt
+        self.altitude_mode = altitude_mode
         self.times = time_primitive
-
-    @property
-    def longitude(self) -> Optional[float]:
-        return self._longitude
-
-    @longitude.setter
-    def longitude(self, value: Optional[SupportsFloat]) -> None:
-        if isinstance(value, (str, int, float)) and (-180 <= float(value) <= 180):
-            self._longitude = float(value)
-        elif value is None:
-            self._longitude = None
-        else:
-            raise ValueError
-
-    @property
-    def latitude(self) -> Optional[float]:
-        return self._latitude
-
-    @latitude.setter
-    def latitude(self, value: Optional[SupportsFloat]) -> None:
-        if isinstance(value, (str, int, float)) and (-90 <= float(value) <= 90):
-            self._latitude = float(value)
-        elif value is None:
-            self._latitude = None
-        else:
-            raise ValueError
-
-    @property
-    def altitude(self) -> Optional[float]:
-        return self._altitude
-
-    @altitude.setter
-    def altitude(self, value: Optional[SupportsFloat]) -> None:
-        if isinstance(value, (str, int, float)):
-            self._altitude = float(value)
-        elif value is None:
-            self._altitude = None
-        else:
-            raise ValueError
-
-    @property
-    def heading(self) -> Optional[float]:
-        return self._heading
-
-    @heading.setter
-    def heading(self, value: Optional[SupportsFloat]) -> None:
-        if isinstance(value, (str, int, float)) and (-180 <= float(value) <= 180):
-            self._heading = float(value)
-        elif value is None:
-            self._heading = None
-        else:
-            raise ValueError
-
-    @property
-    def tilt(self) -> Optional[float]:
-        return self._tilt
-
-    @tilt.setter
-    def tilt(self, value: Optional[SupportsFloat]) -> None:
-        if isinstance(value, (str, int, float)) and (0 <= float(value) <= 180):
-            self._tilt = float(value)
-        elif value is None:
-            self._tilt = None
-        else:
-            raise ValueError
-
-    @property
-    def altitude_mode(self) -> AltitudeMode:
-        return self._altitude_mode
-
-    @altitude_mode.setter
-    def altitude_mode(self, mode: AltitudeMode) -> None:
-        self._altitude_mode = mode
 
     def etree_element(
         self,

@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the kml classes."""
-import pytest
 
 from fastkml import links
 from fastkml import overlays
@@ -228,11 +227,6 @@ class TestPhotoOverlay(StdLibrary):
         po = overlays.PhotoOverlay(view=views.Camera())
         po.view.altitude = 123
         assert po.view.altitude == 123
-
-    def test_camera_altitude_value_error(self) -> None:
-        po = overlays.PhotoOverlay(view=views.Camera())
-        with pytest.raises(ValueError):
-            po.view.altitude = object()
 
     def test_camera_altitude_none(self) -> None:
         po = overlays.PhotoOverlay(view=views.Camera())
