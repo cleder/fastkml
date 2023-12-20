@@ -5,7 +5,6 @@ These are the objects that can be added to a KML file.
 """
 
 import logging
-from dataclasses import dataclass
 from typing import Any
 from typing import Dict
 from typing import Iterable
@@ -17,9 +16,9 @@ from pygeoif.types import GeoCollectionType
 from pygeoif.types import GeoType
 
 from fastkml import atom
-from fastkml import config
 from fastkml import gx
 from fastkml.base import _BaseObject
+from fastkml.base import _XMLObject
 from fastkml.data import ExtendedData
 from fastkml.enums import Verbosity
 from fastkml.geometry import AnyGeometryType
@@ -33,6 +32,8 @@ from fastkml.helpers import bool_subelement
 from fastkml.helpers import simple_text_subelement
 from fastkml.helpers import subelement_bool_kwarg
 from fastkml.helpers import subelement_text_kwarg
+from fastkml.helpers import xml_subelement
+from fastkml.helpers import xml_subelement_kwarg
 from fastkml.links import Link
 from fastkml.mixins import TimeMixin
 from fastkml.styles import Style
@@ -58,10 +59,48 @@ KmlGeometry = Union[
 ]
 
 
-@dataclass(frozen=True)
-class Snippet:
-    text: str
+class Snippet(_XMLObject):
+    text: Optional[str]
     max_lines: Optional[int] = None
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        text: Optional[str] = None,
+        max_lines: Optional[int] = None,
+    ) -> None:
+        super().__init__(ns=ns, name_spaces=name_spaces)
+        self.text = text
+        self.max_lines = max_lines
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        element.text = self.text or ""
+        if self.max_lines is not None:
+            element.set("maxLines", str(self.max_lines))
+        return element
+
+    def __bool__(self) -> bool:
+        return bool(self.text)
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs: Dict[str, Any] = {"text": element.text}
+        if max_lines := element.get("maxLines"):
+            kwargs["max_lines"] = int(max_lines)
+        return kwargs
 
 
 class _Feature(TimeMixin, _BaseObject):
@@ -208,29 +247,16 @@ class _Feature(TimeMixin, _BaseObject):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.times is not None:
-            element.append(self.times.etree_element())
-        if self.atom_link is not None:
-            element.append(self.atom_link.etree_element())
-        if self.atom_author is not None:
-            element.append(self.atom_author.etree_element())
-        if self.extended_data is not None:
-            element.append(self.extended_data.etree_element())
-        if self.view is not None:
-            element.append(self.view.etree_element())
-        if self.style_url is not None:
-            element.append(self.style_url.etree_element())
+        xml_subelement(self, element, "times")
+        xml_subelement(self, element, "atom_link")
+        xml_subelement(self, element, "atom_author")
+        xml_subelement(self, element, "extended_data")
+        xml_subelement(self, element, "view")
+        xml_subelement(self, element, "style_url")
+        xml_subelement(self, element, "snippet")
+
         for style in self.styles:
             element.append(style.etree_element())
-
-        if self.snippet:
-            snippet = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}Snippet",
-            )
-            snippet.text = self.snippet.text
-            if self.snippet.max_lines:
-                snippet.set("maxLines", str(self.snippet.max_lines))
 
         simple_text_subelement(self, element, "address", "address")
         simple_text_subelement(self, element, "phone_number", "phoneNumber")
@@ -280,79 +306,96 @@ class _Feature(TimeMixin, _BaseObject):
                         strict=strict,
                     ),
                 )
-        style_url = element.find(f"{ns}styleUrl")
-        if style_url is not None:
-            kwargs["style_url"] = StyleUrl.class_from_element(
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
                 ns=ns,
                 name_spaces=name_spaces,
-                element=style_url,
+                kwarg="style_url",
+                obj_class=StyleUrl,
                 strict=strict,
-            )
-        timespan = element.find(f"{ns}TimeSpan")
-        if timespan is not None:
-            kwargs["times"] = TimeSpan.class_from_element(
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
                 ns=ns,
                 name_spaces=name_spaces,
-                element=timespan,
+                kwarg="times",
+                obj_class=TimeSpan,
                 strict=strict,
-            )
-        timestamp = element.find(f"{ns}TimeStamp")
-        if timestamp is not None:
-            kwargs["times"] = TimeStamp.class_from_element(
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
                 ns=ns,
                 name_spaces=name_spaces,
-                element=timestamp,
+                kwarg="times",
+                obj_class=TimeStamp,
                 strict=strict,
-            )
-        extended_data = element.find(f"{ns}ExtendedData")
-        if extended_data is not None:
-            kwargs["extended_data"] = ExtendedData.class_from_element(
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
                 ns=ns,
                 name_spaces=name_spaces,
-                element=extended_data,
+                kwarg="extended_data",
+                obj_class=ExtendedData,
                 strict=strict,
-            )
-        camera = element.find(f"{ns}Camera")
-        if camera is not None:
-            kwargs["view"] = Camera.class_from_element(
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
                 ns=ns,
                 name_spaces=name_spaces,
-                element=camera,
+                kwarg="view",
+                obj_class=Camera,
                 strict=strict,
-            )
-        lookat = element.find(f"{ns}LookAt")
-        if lookat is not None:
-            kwargs["view"] = LookAt.class_from_element(
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
                 ns=ns,
                 name_spaces=name_spaces,
-                element=lookat,
+                kwarg="view",
+                obj_class=LookAt,
                 strict=strict,
-            )
-        snippet = element.find(f"{ns}Snippet")
-        if snippet is not None:
-            max_lines = snippet.get("maxLines")
-            if max_lines is not None:
-                kwargs["snippet"] = Snippet(text=snippet.text, max_lines=int(max_lines))
-            else:
-                kwargs["snippet"] = Snippet(  # type: ignore[unreachable]
-                    text=snippet.text,
-                )
-        atom_link = element.find(f"{name_spaces['atom']}link")
-        if atom_link is not None:
-            kwargs["atom_link"] = atom.Link.class_from_element(
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="snippet",
+                obj_class=Snippet,
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
                 ns=name_spaces["atom"],
                 name_spaces=name_spaces,
-                element=atom_link,
+                kwarg="atom_link",
+                obj_class=atom.Link,
                 strict=strict,
-            )
-        atom_author = element.find(f"{name_spaces['atom']}author")
-        if atom_author is not None:
-            kwargs["atom_author"] = atom.Author.class_from_element(
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
                 ns=name_spaces["atom"],
                 name_spaces=name_spaces,
-                element=atom_author,
+                kwarg="atom_author",
+                obj_class=atom.Author,
                 strict=strict,
-            )
+            ),
+        )
         kwargs.update(
             subelement_text_kwarg(
                 element=element,
@@ -487,10 +530,7 @@ class Placemark(_Feature):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self._geometry is not None:
-            element.append(self._geometry.etree_element())
-        else:
-            logger.error("Object does not have a geometry")
+        xml_subelement(self, element, "_geometry")
         return element
 
     @classmethod
@@ -510,73 +550,75 @@ class Placemark(_Feature):
         )
         name_spaces = kwargs["name_spaces"]
         assert name_spaces is not None
-        point = element.find(f"{ns}Point")
-        if point is not None:
-            kwargs["kml_geometry"] = Point.class_from_element(
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
                 ns=ns,
                 name_spaces=name_spaces,
-                element=point,
+                kwarg="kml_geometry",
+                obj_class=Point,
                 strict=strict,
-            )
-            return kwargs
-        line = element.find(f"{ns}LineString")
-        if line is not None:
-            kwargs["kml_geometry"] = LineString.class_from_element(
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
                 ns=ns,
                 name_spaces=name_spaces,
-                element=line,
+                kwarg="kml_geometry",
+                obj_class=LineString,
                 strict=strict,
-            )
-            return kwargs
-        polygon = element.find(f"{ns}Polygon")
-        if polygon is not None:
-            kwargs["kml_geometry"] = Polygon.class_from_element(
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
                 ns=ns,
                 name_spaces=name_spaces,
-                element=polygon,
+                kwarg="kml_geometry",
+                obj_class=Polygon,
                 strict=strict,
-            )
-            return kwargs
-        linearring = element.find(f"{ns}LinearRing")
-        if linearring is not None:
-            kwargs["kml_geometry"] = LinearRing.class_from_element(
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
                 ns=ns,
                 name_spaces=name_spaces,
-                element=linearring,
+                kwarg="kml_geometry",
+                obj_class=LinearRing,
                 strict=strict,
-            )
-            return kwargs
-        multigeometry = element.find(f"{ns}MultiGeometry")
-        if multigeometry is not None:
-            kwargs["kml_geometry"] = MultiGeometry.class_from_element(
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
                 ns=ns,
                 name_spaces=name_spaces,
-                element=multigeometry,
+                kwarg="kml_geometry",
+                obj_class=MultiGeometry,
                 strict=strict,
-            )
-            return kwargs
-        track = element.find(f"{ns}Track")
-        if track is not None:
-            kwargs["kml_geometry"] = gx.Track.class_from_element(
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
                 ns=name_spaces["gx"],
                 name_spaces=name_spaces,
-                element=track,
+                kwarg="kml_geometry",
+                obj_class=gx.MultiTrack,
                 strict=strict,
-            )
-            return kwargs
-        multitrack = element.find(f"{ns}MultiTrack")
-        if multitrack is not None:
-            kwargs["kml_geometry"] = gx.MultiTrack.class_from_element(
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
                 ns=name_spaces["gx"],
                 name_spaces=name_spaces,
-                element=multitrack,
+                kwarg="kml_geometry",
+                obj_class=gx.Track,
                 strict=strict,
-            )
-            return kwargs
-        logger.warning("No geometries found")
-        logger.debug(
-            "Problem with element: %",
-            config.etree.tostring(element),  # type: ignore[attr-defined]
+            ),
         )
         return kwargs
 
@@ -684,9 +726,7 @@ class NetworkLink(_Feature):
         element = super().etree_element(precision=precision, verbosity=verbosity)
         bool_subelement(self, element, "refresh_visibility", "refreshVisibility")
         bool_subelement(self, element, "fly_to_view", "flyToView")
-
-        if self.link is not None:
-            element.append(self.link.etree_element())
+        xml_subelement(self, element, "link")
         return element
 
     @classmethod
@@ -705,18 +745,33 @@ class NetworkLink(_Feature):
             strict=strict,
         )
         name_spaces = kwargs["name_spaces"]
-        visibility = element.find(f"{ns}refreshVisibility")
-        if visibility is not None:
-            kwargs["refresh_visibility"] = bool(int(visibility.text))
-        flyto = element.find(f"{ns}flyToView")
-        if flyto is not None:
-            kwargs["fly_to_view"] = bool(int(flyto.text))
-        link = element.find(f"{ns}Link")
-        if link is not None:
-            kwargs["link"] = Link.class_from_element(
+        assert name_spaces is not None
+        kwargs.update(
+            subelement_bool_kwarg(
+                element=element,
+                ns=ns,
+                node_name="refreshVisibility",
+                kwarg="refresh_visibility",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_bool_kwarg(
+                element=element,
+                ns=ns,
+                node_name="flyToView",
+                kwarg="fly_to_view",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
                 ns=ns,
                 name_spaces=name_spaces,
-                element=link,
+                kwarg="link",
+                obj_class=Link,
                 strict=strict,
-            )
+            ),
+        )
         return kwargs

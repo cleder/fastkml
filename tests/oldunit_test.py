@@ -509,9 +509,11 @@ class TestKmlFromString:
         next(iter(k.features())).snippet = features.Snippet(text="Another Snippet")
         assert "maxLines" not in k.to_string()
         assert "Another Snippet" in k.to_string()
-        next(iter(k.features())).snippet = features.Snippet("Different Snippet")
+        next(iter(k.features())).snippet = features.Snippet(text="Different Snippet")
         assert "maxLines" not in k.to_string()
         assert "Different Snippet" in k.to_string()
+        next(iter(k.features())).snippet = features.Snippet(text="", max_lines=4)
+        assert "Snippet" not in k.to_string()
 
     def test_from_wrong_string(self) -> None:
         pytest.raises(TypeError, kml.KML.class_from_string, "<xml></xml>")
