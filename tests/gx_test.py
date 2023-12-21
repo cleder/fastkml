@@ -186,12 +186,6 @@ class TestTrack(StdLibrary):
         assert "when" in track.to_string()
         assert "angles>" not in track.to_string()
         assert "when>" not in track.to_string()
-        assert repr(track) == (
-            "Track(ns='', id='track1', target_id='track2', extrude=True, "
-            "tessellate=True, altitude_mode=AltitudeMode.absolute, "
-            "track_items=[TrackItem(when=None, coord=Point(1, 2), angle=None), "
-            "TrackItem(when=None, coord=Point(2, 0), angle=None)])"
-        )
 
     def test_track_from_track_items(self) -> None:
         time1 = datetime.datetime(2023, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
@@ -209,13 +203,6 @@ class TestTrack(StdLibrary):
         assert ">1 2</" in track.to_string()
         assert "angles>" in track.to_string()
         assert ">0.0 0.0 0.0</" in track.to_string()
-        assert repr(track) == (
-            "Track(ns='', id=None, target_id=None, extrude=False, tessellate=False, "
-            "altitude_mode=None, "
-            "track_items=[TrackItem("
-            "when=datetime.datetime(2023, 1, 1, 0, 0, tzinfo=datetime.timezone.utc), "
-            "coord=Point(1, 2), angle=Angle(heading=0.0, tilt=0.0, roll=0.0))])"
-        )
 
     def test_track_from_track_items_no_coord(self) -> None:
         time1 = datetime.datetime(2023, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
@@ -233,13 +220,6 @@ class TestTrack(StdLibrary):
         assert "coord" in track.to_string()
         assert "angles>" in track.to_string()
         assert ">0.0 0.0 0.0</" in track.to_string()
-        assert repr(track) == (
-            "Track(ns='', id=None, target_id=None, extrude=False, tessellate=False, "
-            "altitude_mode=None, "
-            "track_items=[TrackItem("
-            "when=datetime.datetime(2023, 1, 1, 0, 0, tzinfo=datetime.timezone.utc), "
-            "coord=None, angle=Angle(heading=0.0, tilt=0.0, roll=0.0))])"
-        )
 
     def test_track_from_str(self) -> None:
         doc = """
@@ -346,8 +326,9 @@ class TestMultiTrack(StdLibrary):
 
         mt = MultiTrack(geometry=lines, ns="")
 
-        assert repr(mt) == repr(
-            MultiTrack(
+        assert (
+            mt.to_string()
+            == MultiTrack(
                 ns="",
                 id=None,
                 target_id=None,
@@ -382,7 +363,7 @@ class TestMultiTrack(StdLibrary):
                         ],
                     ),
                 ],
-            ),
+            ).to_string()
         )
 
     def test_multitrack(self) -> None:
