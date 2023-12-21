@@ -201,7 +201,6 @@ class Link(_BaseObject):
                 ns=ns,
                 node_name="refreshInterval",
                 kwarg="refresh_interval",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -211,7 +210,6 @@ class Link(_BaseObject):
                 ns=ns,
                 node_name="viewRefreshTime",
                 kwarg="view_refresh_time",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -221,7 +219,6 @@ class Link(_BaseObject):
                 ns=ns,
                 node_name="viewBoundScale",
                 kwarg="view_bound_scale",
-                precision=None,
                 strict=strict,
             ),
         )

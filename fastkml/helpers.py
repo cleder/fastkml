@@ -43,6 +43,22 @@ def bool_subelement(
         subelement.text = str(int(getattr(obj, attr_name)))
 
 
+def int_subelement(
+    obj: _XMLObject,
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+) -> None:
+    """Set the value of an attribute from a subelement with a text node."""
+    if getattr(obj, attr_name, None):
+        subelement = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{obj.ns}{node_name}",
+        )
+        subelement.text = str(getattr(obj, attr_name))
+
+
 def float_subelement(
     obj: _XMLObject,
     *,
@@ -141,13 +157,33 @@ def subelement_bool_kwarg(
     return {}
 
 
+def subelement_int_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    node_name: str,
+    kwarg: str,
+    strict: bool,
+) -> Dict[str, int]:
+    node = element.find(f"{ns}{node_name}")
+    if node is None:
+        return {}
+    if node.text and node.text.strip():
+        try:
+            return {kwarg: int(node.text.strip())}
+        except ValueError:
+            if strict:
+                raise
+            return {}
+    return {}
+
+
 def subelement_float_kwarg(
     *,
     element: Element,
     ns: str,
     node_name: str,
     kwarg: str,
-    precision: Optional[int],
     strict: bool,
 ) -> Dict[str, float]:
     node = element.find(f"{ns}{node_name}")

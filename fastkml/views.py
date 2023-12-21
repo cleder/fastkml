@@ -173,7 +173,6 @@ class _AbstractView(TimeMixin, _BaseObject):
                 ns=ns,
                 node_name="longitude",
                 kwarg="longitude",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -183,7 +182,6 @@ class _AbstractView(TimeMixin, _BaseObject):
                 ns=ns,
                 node_name="latitude",
                 kwarg="latitude",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -193,7 +191,6 @@ class _AbstractView(TimeMixin, _BaseObject):
                 ns=ns,
                 node_name="altitude",
                 kwarg="altitude",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -203,7 +200,6 @@ class _AbstractView(TimeMixin, _BaseObject):
                 ns=ns,
                 node_name="heading",
                 kwarg="heading",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -213,7 +209,6 @@ class _AbstractView(TimeMixin, _BaseObject):
                 ns=ns,
                 node_name="tilt",
                 kwarg="tilt",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -343,7 +338,6 @@ class Camera(_AbstractView):
                 ns=ns,
                 node_name="roll",
                 kwarg="roll",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -421,7 +415,6 @@ class LookAt(_AbstractView):
                 ns=ns,
                 node_name="range",
                 kwarg="range",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -554,7 +547,6 @@ class LatLonAltBox(_XMLObject):
                 ns=ns,
                 node_name="north",
                 kwarg="north",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -564,7 +556,6 @@ class LatLonAltBox(_XMLObject):
                 ns=ns,
                 node_name="south",
                 kwarg="south",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -574,7 +565,6 @@ class LatLonAltBox(_XMLObject):
                 ns=ns,
                 node_name="east",
                 kwarg="east",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -584,7 +574,6 @@ class LatLonAltBox(_XMLObject):
                 ns=ns,
                 node_name="west",
                 kwarg="west",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -594,7 +583,6 @@ class LatLonAltBox(_XMLObject):
                 ns=ns,
                 node_name="minAltitude",
                 kwarg="min_altitude",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -604,7 +592,6 @@ class LatLonAltBox(_XMLObject):
                 ns=ns,
                 node_name="maxAltitude",
                 kwarg="max_altitude",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -716,7 +703,6 @@ class Lod(_XMLObject):
                 ns=ns,
                 node_name="minLodPixels",
                 kwarg="min_lod_pixels",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -726,7 +712,6 @@ class Lod(_XMLObject):
                 ns=ns,
                 node_name="maxLodPixels",
                 kwarg="max_lod_pixels",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -736,7 +721,6 @@ class Lod(_XMLObject):
                 ns=ns,
                 node_name="minFadeExtent",
                 kwarg="min_fade_extent",
-                precision=None,
                 strict=strict,
             ),
         )
@@ -746,7 +730,6 @@ class Lod(_XMLObject):
                 ns=ns,
                 node_name="maxFadeExtent",
                 kwarg="max_fade_extent",
-                precision=None,
                 strict=strict,
             ),
         )

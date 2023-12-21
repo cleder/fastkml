@@ -25,7 +25,6 @@ from fastkml import base
 from fastkml import config
 from fastkml import features
 from fastkml import kml
-from fastkml import overlays
 from fastkml import styles
 from fastkml.enums import ColorMode
 from fastkml.enums import DisplayMode
@@ -59,12 +58,6 @@ class TestBaseClasses:
         bo.id = None
         assert bo.id is None
         assert not bo.ns
-
-    def test_overlay(self) -> None:
-        o = overlays._Overlay(name="An Overlay")
-        assert o._color is None
-        assert o._draw_order is None
-        assert o._icon is None
 
 
 class TestBuildKml:
