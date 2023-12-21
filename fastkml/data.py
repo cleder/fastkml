@@ -373,7 +373,7 @@ class ExtendedData(_XMLObject):
         elements: Optional[Iterable[Union[Data, SchemaData]]] = None,
     ) -> None:
         super().__init__(ns=ns, name_spaces=name_spaces)
-        self.elements = elements or []
+        self.elements = list(elements) if elements else []
 
     def __bool__(self) -> bool:
         return bool(self.elements)
