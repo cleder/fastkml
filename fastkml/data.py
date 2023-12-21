@@ -25,7 +25,6 @@ from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
-from typing import Tuple
 from typing import Union
 
 from fastkml import config
@@ -34,6 +33,10 @@ from fastkml.base import _XMLObject
 from fastkml.enums import DataType
 from fastkml.enums import Verbosity
 from fastkml.exceptions import KMLSchemaError
+from fastkml.helpers import simple_text_subelement
+from fastkml.helpers import subelement_text_kwarg
+from fastkml.helpers import xml_subelement_list
+from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.types import Element
 
 __all__ = [
@@ -101,30 +104,11 @@ class Schema(_BaseObject):
             raise KMLSchemaError(msg)
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.name = name
-        self._simple_fields = list(fields) if fields else []
-
-    def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}("
-            f"ns={self.ns!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
-            f"name={self.name}, "
-            f"fields={self.simple_fields!r}"
-            ")"
-        )
-
-    @property
-    def simple_fields(self) -> Tuple[SimpleField, ...]:
-        return tuple(self._simple_fields)
-
-    @simple_fields.setter
-    def simple_fields(self, fields: Iterable[SimpleField]) -> None:
-        self._simple_fields = list(fields)
+        self.simple_fields = list(fields) if fields else []
 
     def append(self, field: SimpleField) -> None:
         """Append a field."""
-        self._simple_fields.append(field)
+        self.simple_fields.append(field)
 
     def etree_element(
         self,
@@ -229,17 +213,18 @@ class Data(_XMLObject):
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
         element.set("name", self.name or "")
-        value = config.etree.SubElement(  # type: ignore[attr-defined]
-            element,
-            f"{self.ns}value",
+        simple_text_subelement(
+            self,
+            element=element,
+            attr_name="value",
+            node_name="value",
         )
-        value.text = self.value
-        if self.display_name:
-            display_name = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}displayName",
-            )
-            display_name.text = self.display_name
+        simple_text_subelement(
+            self,
+            element=element,
+            attr_name="display_name",
+            node_name="displayName",
+        )
         return element
 
     @classmethod
@@ -258,12 +243,25 @@ class Data(_XMLObject):
             strict=strict,
         )
         kwargs["name"] = element.get("name")
-        value = element.find(f"{ns}value")
-        if value is not None:
-            kwargs["value"] = value.text
-        display_name = element.find(f"{ns}displayName")
-        if display_name is not None:
-            kwargs["display_name"] = display_name.text
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="value",
+                kwarg="value",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="displayName",
+                kwarg="display_name",
+                strict=strict,
+            ),
+        )
+
         return kwargs
 
 
@@ -294,30 +292,14 @@ class SchemaData(_XMLObject):
         data: Optional[Iterable[SimpleData]] = None,
     ) -> None:
         super().__init__(ns=ns, name_spaces=name_spaces)
-        if (not isinstance(schema_url, str)) or (not schema_url):
-            msg = "required parameter schema_url missing"
-            raise ValueError(msg)
         self.schema_url = schema_url
-        self._data = list(data) if data else []
+        self.data = list(data) if data else []
 
-    def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}("
-            f"ns='{self.ns}',"
-            f"schema_url='{self.schema_url}', "
-            f"data='{self.data}')"
-        )
-
-    @property
-    def data(self) -> Tuple[SimpleData, ...]:
-        return tuple(self._data)
-
-    @data.setter
-    def data(self, data: Iterable[SimpleData]) -> None:
-        self._data = list(data)
+    def __bool__(self) -> bool:
+        return bool(self.data) and bool(self.schema_url)
 
     def append_data(self, data: SimpleData) -> None:
-        self._data.append(data)
+        self.data.append(data)
 
     def etree_element(
         self,
@@ -325,7 +307,8 @@ class SchemaData(_XMLObject):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        element.set("schemaUrl", self.schema_url)
+        if self.schema_url:
+            element.set("schemaUrl", self.schema_url)
         for data in self.data:
             sd = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
@@ -377,12 +360,8 @@ class ExtendedData(_XMLObject):
         super().__init__(ns=ns, name_spaces=name_spaces)
         self.elements = elements or []
 
-    def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}("
-            f"ns='{self.ns}',"
-            f"elements='{self.elements}')"
-        )
+    def __bool__(self) -> bool:
+        return bool(self.elements)
 
     def etree_element(
         self,
@@ -390,10 +369,13 @@ class ExtendedData(_XMLObject):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        for subelement in self.elements:
-            element.append(
-                subelement.etree_element(precision=precision, verbosity=verbosity),
-            )
+        xml_subelement_list(
+            self,
+            element=element,
+            attr_name="elements",
+            precision=precision,
+            verbosity=verbosity,
+        )
         return element
 
     @classmethod
@@ -411,24 +393,28 @@ class ExtendedData(_XMLObject):
             element=element,
             strict=strict,
         )
-        elements = []
-        untyped_data = element.findall(f"{ns}Data")
-        for ud in untyped_data:
-            el_data = Data.class_from_element(
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
+        kwargs["elements"] = []
+        kwargs["elements"].extend(
+            xml_subelement_list_kwarg(
+                element=element,
                 ns=ns,
                 name_spaces=name_spaces,
-                element=ud,
+                kwarg="elements",
+                obj_class=Data,
                 strict=strict,
-            )
-            elements.append(el_data)
-        typed_data = element.findall(f"{ns}SchemaData")
-        for sd in typed_data:
-            el_schema_data = SchemaData.class_from_element(
+            ).get("elements", []),
+        )
+        kwargs["elements"].extend(
+            xml_subelement_list_kwarg(
+                element=element,
                 ns=ns,
                 name_spaces=name_spaces,
-                element=sd,
+                kwarg="elements",
+                obj_class=SchemaData,
                 strict=strict,
-            )
-            elements.append(el_schema_data)
-        kwargs["elements"] = elements
+            ).get("elements", []),
+        )
+
         return kwargs

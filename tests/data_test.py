@@ -93,11 +93,13 @@ class TestStdLibrary(StdLibrary):
 
     def test_schema_data(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"
-        pytest.raises(ValueError, data.SchemaData, ns)
-        pytest.raises(ValueError, data.SchemaData, ns, "")
+        assert not data.SchemaData()
+        assert not data.SchemaData(ns=ns)
         sd = data.SchemaData(ns=ns, schema_url="#default")
+        assert not sd
         sd.append_data(data.SimpleData("text", "Some Text"))
         assert len(sd.data) == 1
+        assert sd
         sd.append_data(data.SimpleData(value=1, name="Integer"))
         assert len(sd.data) == 2
         assert sd.data[0] == data.SimpleData(value="Some Text", name="text")
