@@ -6,14 +6,13 @@ from typing import Optional
 from typing import Type
 
 from fastkml import config
-from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
 from fastkml.enums import Verbosity
 from fastkml.types import Element
 
 
 def simple_text_subelement(
-    obj: _BaseObject,
+    obj: _XMLObject,
     *,
     element: Element,
     attr_name: str,
@@ -29,7 +28,7 @@ def simple_text_subelement(
 
 
 def bool_subelement(
-    obj: _BaseObject,
+    obj: _XMLObject,
     *,
     element: Element,
     attr_name: str,
@@ -45,7 +44,7 @@ def bool_subelement(
 
 
 def float_subelement(
-    obj: _BaseObject,
+    obj: _XMLObject,
     *,
     element: Element,
     attr_name: str,
@@ -62,7 +61,7 @@ def float_subelement(
 
 
 def enum_subelement(
-    obj: _BaseObject,
+    obj: _XMLObject,
     *,
     element: Element,
     attr_name: str,
@@ -78,7 +77,7 @@ def enum_subelement(
 
 
 def xml_subelement(
-    obj: _BaseObject,
+    obj: _XMLObject,
     *,
     element: Element,
     attr_name: str,
@@ -155,7 +154,12 @@ def subelement_float_kwarg(
     if node is None:
         return {}
     if node.text and node.text.strip():
-        return {kwarg: float(node.text.strip())}
+        try:
+            return {kwarg: float(node.text.strip())}
+        except ValueError:
+            if strict:
+                raise
+            return {}
     return {}
 
 

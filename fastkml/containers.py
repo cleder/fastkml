@@ -21,6 +21,8 @@ from fastkml.geometry import LineString
 from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
+from fastkml.helpers import xml_subelement_list
+from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.styles import Style
 from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
@@ -54,7 +56,7 @@ class _Container(_Feature):
     Folder.
     """
 
-    _features: Optional[List[_Feature]]
+    features: List[_Feature]
 
     def __init__(
         self,
@@ -78,7 +80,7 @@ class _Container(_Feature):
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
         # Container specific
-        features: Optional[List[_Feature]] = None,
+        features: Optional[Iterable[_Feature]] = None,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -101,7 +103,7 @@ class _Container(_Feature):
             region=region,
             extended_data=extended_data,
         )
-        self.features = features or []
+        self.features = list(features) if features else []
 
     def etree_element(
         self,
@@ -137,20 +139,23 @@ class _Container(_Feature):
             strict=strict,
         )
         kwargs["features"] = []
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
         for klass in (
             Folder,
             Placemark,
             Document,
         ):
-            for feature in element.findall(f"{ns}{klass.__name__}"):
-                kwargs["features"].append(
-                    klass.class_from_element(  # type: ignore[attr-defined]
-                        ns=ns,
-                        name_spaces=name_spaces,
-                        element=feature,
-                        strict=strict,
-                    ),
-                )
+            kwargs["features"].extend(
+                xml_subelement_list_kwarg(
+                    element=element,
+                    ns=ns,
+                    name_spaces=name_spaces,
+                    kwarg="features",
+                    obj_class=klass,
+                    strict=strict,
+                ).get("features", []),
+            )
         return kwargs
 
 
@@ -224,11 +229,13 @@ class Document(_Container):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.schemata is not None:
-            for schema in self.schemata:
-                element.append(
-                    schema.etree_element(precision=precision, verbosity=verbosity),
-                )
+        xml_subelement_list(
+            obj=self,
+            element=element,
+            attr_name="schemata",
+            precision=precision,
+            verbosity=verbosity,
+        )
         return element
 
     def get_style_by_url(self, style_url: str) -> Optional[Union[Style, StyleMap]]:
@@ -250,14 +257,16 @@ class Document(_Container):
             element=element,
             strict=strict,
         )
-        schemata = element.findall(f"{ns}Schema")
-        kwargs["schemata"] = [
-            Schema.class_from_element(
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
+        kwargs.update(
+            xml_subelement_list_kwarg(
+                element=element,
                 ns=ns,
                 name_spaces=name_spaces,
-                element=schema,
+                kwarg="schemata",
+                obj_class=Schema,
                 strict=strict,
-            )
-            for schema in schemata
-        ]
+            ),
+        )
         return kwargs
