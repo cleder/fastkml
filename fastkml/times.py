@@ -164,6 +164,10 @@ class TimeStamp(_TimePrimitive):
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.timestamp = timestamp
 
+    def __bool__(self) -> bool:
+        """Return True if the timestamp is valid."""
+        return bool(self.timestamp)
+
     def etree_element(
         self,
         precision: Optional[int] = None,
@@ -214,6 +218,10 @@ class TimeSpan(_TimePrimitive):
         self.begin = begin
         self.end = end
 
+    def __bool__(self) -> bool:
+        """Return True if the begin or end date is valid."""
+        return bool(self.begin) or bool(self.end)
+
     def etree_element(
         self,
         precision: Optional[int] = None,
@@ -234,10 +242,6 @@ class TimeSpan(_TimePrimitive):
                     f"{self.ns}end",
                 )
                 end.text = text
-        if self.begin == self.end is None:
-            msg = "Either begin, end or both must be set"
-            raise ValueError(msg)
-        # TODO test if end > begin
         return element
 
     @classmethod

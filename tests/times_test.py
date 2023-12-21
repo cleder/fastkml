@@ -219,8 +219,9 @@ class TestStdLibrary(StdLibrary):
         ts.end = None
         assert now.dt.isoformat() not in str(ts.to_string())
         assert y2k.dt.isoformat() in str(ts.to_string())
+        assert ts
         ts.begin = None
-        pytest.raises(ValueError, ts.to_string)
+        assert not ts
 
     def test_feature_timestamp(self) -> None:
         now = datetime.datetime.now()
