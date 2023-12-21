@@ -38,7 +38,7 @@ class TestPoint(StdLibrary):
 
         assert point.geometry == p
         assert point.altitude_mode is None
-        assert point.extrude is False
+        assert point.extrude is None
 
     def test_to_string(self) -> None:
         """Test the to_string method."""

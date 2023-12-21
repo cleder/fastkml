@@ -14,7 +14,6 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-import contextlib
 import logging
 import re
 from functools import partial
@@ -38,6 +37,10 @@ from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
 from fastkml.exceptions import KMLParseError
 from fastkml.exceptions import KMLWriteError
+from fastkml.helpers import bool_subelement
+from fastkml.helpers import enum_subelement
+from fastkml.helpers import subelement_bool_kwarg
+from fastkml.helpers import subelement_enum_kwarg
 from fastkml.types import Element
 
 __all__ = [
@@ -77,6 +80,11 @@ class _Geometry(_BaseObject):
 
     """
 
+    extrude: Optional[bool]
+    tessellate: Optional[bool]
+    altitude_mode: Optional[AltitudeMode]
+    geometry: Optional[AnyGeometryType]
+
     def __init__(
         self,
         *,
@@ -84,8 +92,8 @@ class _Geometry(_BaseObject):
         name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        extrude: Optional[bool] = False,
-        tessellate: Optional[bool] = False,
+        extrude: Optional[bool] = None,
+        tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: Optional[AnyGeometryType] = None,
     ) -> None:
@@ -102,9 +110,9 @@ class _Geometry(_BaseObject):
                            element are interpreted.
         """
         super().__init__(ns=ns, id=id, name_spaces=name_spaces, target_id=target_id)
-        self._extrude = extrude
-        self._tessellate = tessellate
-        self._altitude_mode = altitude_mode
+        self.extrude = extrude
+        self.tessellate = tessellate
+        self.altitude_mode = altitude_mode
         self.geometry = geometry
 
     def __repr__(self) -> str:
@@ -120,33 +128,13 @@ class _Geometry(_BaseObject):
             f")"
         )
 
-    @property
-    def extrude(self) -> Optional[bool]:
-        return self._extrude
-
-    @extrude.setter
-    def extrude(self, extrude: bool) -> None:
-        self._extrude = extrude
-
-    @property
-    def tessellate(self) -> Optional[bool]:
-        return self._tessellate
-
-    @tessellate.setter
-    def tessellate(self, tessellate: bool) -> None:
-        self._tessellate = tessellate
-
-    @property
-    def altitude_mode(self) -> Optional[AltitudeMode]:
-        return self._altitude_mode
-
-    @altitude_mode.setter
-    def altitude_mode(self, altitude_mode: Optional[AltitudeMode]) -> None:
-        self._altitude_mode = altitude_mode
+    def __bool__(self) -> bool:
+        return bool(self.geometry)
 
     def _etree_coordinates(
         self,
         coordinates: Sequence[PointType],
+        precision: Optional[int],
     ) -> Element:
         element = cast(
             Element,
@@ -168,45 +156,30 @@ class _Geometry(_BaseObject):
         element.text = " ".join(tuples)
         return element
 
-    def _set_altitude_mode(self, element: Element) -> None:
-        if self.altitude_mode:
-            am_element = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}altitudeMode",
-            )
-            am_element.text = self.altitude_mode.value
-
-    def _set_extrude(self, element: Element) -> None:
-        if self.extrude is not None:
-            et_element = cast(
-                Element,
-                config.etree.SubElement(  # type: ignore[attr-defined]
-                    element,
-                    f"{self.ns}extrude",
-                ),
-            )
-            et_element.text = str(int(self.extrude))
-
-    def _set_tessellate(self, element: Element) -> None:
-        if self.tessellate is not None:
-            t_element = cast(
-                Element,
-                config.etree.SubElement(  # type: ignore[attr-defined]
-                    element,
-                    f"{self.ns}tessellate",
-                ),
-            )
-            t_element.text = str(int(self.tessellate))
-
     def etree_element(
         self,
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        self._set_extrude(element)
-        self._set_altitude_mode(element)
-        self._set_tessellate(element)
+        bool_subelement(
+            self,
+            element=element,
+            attr_name="extrude",
+            node_name="extrude",
+        )
+        bool_subelement(
+            self,
+            element=element,
+            attr_name="tessellate",
+            node_name="tessellate",
+        )
+        enum_subelement(
+            self,
+            element=element,
+            attr_name="altitude_mode",
+            node_name="altitudeMode",
+        )
         return element
 
     @classmethod
@@ -241,69 +214,6 @@ class _Geometry(_BaseObject):
         return []
 
     @classmethod
-    def _get_extrude(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Optional[bool]:
-        extrude = element.find(f"{ns}extrude")
-        if extrude is None:
-            return None
-        with contextlib.suppress(ValueError, AttributeError):
-            return bool(int(extrude.text.strip()))
-        return None
-
-    @classmethod
-    def _get_tessellate(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Optional[bool]:
-        tessellate = element.find(f"{ns}tessellate")
-        if tessellate is None:
-            return None
-        with contextlib.suppress(ValueError):
-            return bool(int(tessellate.text.strip()))
-        return None
-
-    @classmethod
-    def _get_altitude_mode(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Optional[AltitudeMode]:
-        altitude_mode = element.find(f"{ns}altitudeMode")
-        if altitude_mode is None:
-            return None
-        with contextlib.suppress(ValueError):
-            return AltitudeMode(altitude_mode.text.strip())
-        return None
-
-    @classmethod
-    def _get_geometry_kwargs(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        return {
-            "extrude": cls._get_extrude(ns=ns, element=element, strict=strict),
-            "tessellate": cls._get_tessellate(ns=ns, element=element, strict=strict),
-            "altitude_mode": cls._get_altitude_mode(
-                ns=ns,
-                element=element,
-                strict=strict,
-            ),
-        }
-
-    @classmethod
     def _get_geometry(
         cls,
         *,
@@ -328,7 +238,34 @@ class _Geometry(_BaseObject):
             element=element,
             strict=strict,
         )
-        kwargs.update(cls._get_geometry_kwargs(ns=ns, element=element, strict=strict))
+        kwargs.update(
+            subelement_bool_kwarg(
+                element=element,
+                ns=ns,
+                node_name="extrude",
+                kwarg="extrude",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_bool_kwarg(
+                element=element,
+                ns=ns,
+                node_name="tessellate",
+                kwarg="tessellate",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_enum_kwarg(
+                element=element,
+                ns=ns,
+                node_name="altitudeMode",
+                kwarg="altitude_mode",
+                enum_class=AltitudeMode,
+                strict=strict,
+            ),
+        )
         kwargs.update(
             {"geometry": cls._get_geometry(ns=ns, element=element, strict=strict)},
         )
@@ -343,8 +280,8 @@ class Point(_Geometry):
         name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        extrude: Optional[bool] = False,
-        tessellate: Optional[bool] = False,
+        extrude: Optional[bool] = None,
+        tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: geo.Point,
     ) -> None:
@@ -367,7 +304,7 @@ class Point(_Geometry):
         element = super().etree_element(precision=precision, verbosity=verbosity)
         assert isinstance(self.geometry, geo.Point)
         coords = self.geometry.coords
-        element.append(self._etree_coordinates(coords))
+        element.append(self._etree_coordinates(coords, precision=precision))
         return element
 
     @classmethod
@@ -400,8 +337,8 @@ class LineString(_Geometry):
         name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        extrude: Optional[bool] = False,
-        tessellate: Optional[bool] = False,
+        extrude: Optional[bool] = None,
+        tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: geo.LineString,
     ) -> None:
@@ -424,7 +361,7 @@ class LineString(_Geometry):
         element = super().etree_element(precision=precision, verbosity=verbosity)
         assert isinstance(self.geometry, geo.LineString)
         coords = self.geometry.coords
-        element.append(self._etree_coordinates(coords))
+        element.append(self._etree_coordinates(coords, precision=precision))
         return element
 
     @classmethod
@@ -457,8 +394,8 @@ class LinearRing(LineString):
         name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        extrude: Optional[bool] = False,
-        tessellate: Optional[bool] = False,
+        extrude: Optional[bool] = None,
+        tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: geo.LinearRing,
     ) -> None:
@@ -503,8 +440,8 @@ class Polygon(_Geometry):
         name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        extrude: Optional[bool] = False,
-        tessellate: Optional[bool] = False,
+        extrude: Optional[bool] = None,
+        tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: geo.Polygon,
     ) -> None:
@@ -652,8 +589,8 @@ class MultiGeometry(_Geometry):
         name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        extrude: Optional[bool] = False,
-        tessellate: Optional[bool] = False,
+        extrude: Optional[bool] = None,
+        tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: MultiGeometryType,
     ) -> None:
@@ -722,8 +659,8 @@ def create_kml_geometry(
     name_spaces: Optional[Dict[str, str]] = None,
     id: Optional[str] = None,
     target_id: Optional[str] = None,
-    extrude: Optional[bool] = False,
-    tessellate: Optional[bool] = False,
+    extrude: Optional[bool] = None,
+    tessellate: Optional[bool] = None,
     altitude_mode: Optional[AltitudeMode] = None,
 ) -> _Geometry:
     """

@@ -332,16 +332,16 @@ class TestMultiTrack(StdLibrary):
                 ns="",
                 id=None,
                 target_id=None,
-                extrude=False,
-                tessellate=False,
+                extrude=None,
+                tessellate=None,
                 altitude_mode=None,
                 tracks=[
                     Track(
                         ns="",
                         id=None,
                         target_id=None,
-                        extrude=False,
-                        tessellate=False,
+                        extrude=None,
+                        tessellate=None,
                         altitude_mode=None,
                         track_items=[
                             TrackItem(when=None, coord=geo.Point(0, 0), angle=None),
@@ -354,8 +354,8 @@ class TestMultiTrack(StdLibrary):
                         ns="",
                         id=None,
                         target_id=None,
-                        extrude=False,
-                        tessellate=False,
+                        extrude=None,
+                        tessellate=None,
                         altitude_mode=None,
                         track_items=[
                             TrackItem(when=None, coord=geo.Point(0.0, 0.0), angle=None),

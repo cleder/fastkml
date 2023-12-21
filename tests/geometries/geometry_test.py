@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the geometry classes."""
+import pytest
 from pygeoif import geometry as geo
 
 from fastkml.geometry import AltitudeMode
@@ -266,9 +267,9 @@ class TestGeometry(StdLibrary):
         assert g.ns == "{http://www.opengis.net/kml/2.2}"
         assert g.target_id is None
         assert g.id is None
-        assert g.extrude is False
+        assert g.extrude is None
         assert g.altitude_mode is None
-        assert g.tessellate is False
+        assert g.tessellate is None
 
     def test_init_with_args(self) -> None:
         """Test the init method with arguments."""
@@ -295,9 +296,9 @@ class TestGeometry(StdLibrary):
         assert "http://www.opengis.net/kml/2.2" in g.to_string()
         assert "targetId=" not in g.to_string()
         assert "id=" not in g.to_string()
-        assert "extrude>0</" in g.to_string()
+        assert "extrude" not in g.to_string()
         assert "altitudeMode" not in g.to_string()
-        assert "tessellate>0<" in g.to_string()
+        assert "tessellate" not in g.to_string()
 
     def test_to_string_with_args(self) -> None:
         """Test the to_string method."""
@@ -338,25 +339,27 @@ class TestGeometry(StdLibrary):
 
     def test_from_string_invalid_altitude_mode(self) -> None:
         """Test the from_string method."""
-        g = _Geometry.class_from_string(
-            '<_Geometry id="my-id" targetId="target_id">'
-            "<altitudeMode>relative</altitudeMode>"
-            "</_Geometry>",
-            ns="",
-        )
-
-        assert g.altitude_mode is None
+        with pytest.raises(
+            ValueError,
+        ):
+            _Geometry.class_from_string(
+                '<_Geometry id="my-id" targetId="target_id">'
+                "<altitudeMode>invalid</altitudeMode>"
+                "</_Geometry>",
+                ns="",
+            )
 
     def test_from_string_invalid_extrude(self) -> None:
         """Test the from_string method."""
-        g = _Geometry.class_from_string(
-            '<_Geometry id="my-id" targetId="target_id">'
-            "<extrude>true</extrude>"
-            "</_Geometry>",
-            ns="",
-        )
-
-        assert g.extrude is None
+        with pytest.raises(
+            ValueError,
+        ):
+            _Geometry.class_from_string(
+                '<_Geometry id="my-id" targetId="target_id">'
+                "<extrude>invalid</extrude>"
+                "</_Geometry>",
+                ns="",
+            )
 
     def test_from_minimal_string(self) -> None:
         g = _Geometry.class_from_string(
