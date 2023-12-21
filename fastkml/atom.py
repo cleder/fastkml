@@ -32,7 +32,6 @@ This library only implements a subset of Atom that is useful with KML
 """
 
 import logging
-import re
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -41,16 +40,11 @@ from fastkml import config
 from fastkml.base import _XMLObject
 from fastkml.config import ATOMNS as NS
 from fastkml.enums import Verbosity
+from fastkml.helpers import subelement_text_kwarg
+from fastkml.helpers import text_subelement
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
-regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
-email_match = re.compile(regex).match
-
-
-def check_email(email: str) -> bool:
-    """Check if the email address is valid."""
-    return bool(email_match(email))
 
 
 class _AtomObject(_XMLObject):
@@ -140,6 +134,9 @@ class Link(_AtomObject):
             ")"
         )
 
+    def __bool__(self) -> bool:
+        return bool(self.href)
+
     def etree_element(
         self,
         precision: Optional[int] = None,
@@ -226,32 +223,33 @@ class _Person(_AtomObject):
             ")"
         )
 
+    def __bool__(self) -> bool:
+        return bool(self.name)
+
     def etree_element(
         self,
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.name:
-            name = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}name",
-            )
-            name.text = self.name
-        else:
-            logger.warning("No Name for person defined")
-        if self.uri:
-            uri = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}uri",
-            )
-            uri.text = self.uri
-        if self.email and check_email(self.email):
-            email = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}email",
-            )
-            email.text = self.email
+        text_subelement(
+            self,
+            element=element,
+            attr_name="name",
+            node_name="name",
+        )
+        text_subelement(
+            self,
+            element=element,
+            attr_name="uri",
+            node_name="uri",
+        )
+        text_subelement(
+            self,
+            element=element,
+            attr_name="email",
+            node_name="email",
+        )
         return element
 
     @classmethod
@@ -269,15 +267,33 @@ class _Person(_AtomObject):
             element=element,
             strict=strict,
         )
-        name = element.find(f"{ns}name")
-        if name is not None:
-            kwargs["name"] = name.text
-        uri = element.find(f"{ns}uri")
-        if uri is not None:
-            kwargs["uri"] = uri.text
-        email = element.find(f"{ns}email")
-        if email is not None:
-            kwargs["email"] = email.text
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="name",
+                kwarg="name",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="uri",
+                kwarg="uri",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="email",
+                kwarg="email",
+                strict=strict,
+            ),
+        )
         return kwargs
 
 

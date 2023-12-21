@@ -128,8 +128,7 @@ class TestStdLibrary(StdLibrary):
         a = atom.Author(name="Christian Ledermann")
         a.uri = "http://iwlearn.net"
         a.email = "christian@gmail.com"
-        a.email = "christian"
-        assert "email>" not in str(a.to_string())
+        assert "email>christian@gmail.com</" in str(a.to_string())
         a2 = atom.Author.class_from_string(a.to_string())
         assert a.to_string() == a2.to_string()
 
