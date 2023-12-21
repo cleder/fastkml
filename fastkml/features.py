@@ -29,9 +29,9 @@ from fastkml.geometry import Point
 from fastkml.geometry import Polygon
 from fastkml.geometry import create_kml_geometry
 from fastkml.helpers import bool_subelement
-from fastkml.helpers import simple_text_subelement
 from fastkml.helpers import subelement_bool_kwarg
 from fastkml.helpers import subelement_text_kwarg
+from fastkml.helpers import text_subelement
 from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
@@ -307,25 +307,25 @@ class _Feature(TimeMixin, _BaseObject):
             verbosity=verbosity,
         )
 
-        simple_text_subelement(
+        text_subelement(
             self,
             element=element,
             attr_name="address",
             node_name="address",
         )
-        simple_text_subelement(
+        text_subelement(
             self,
             element=element,
             attr_name="phone_number",
             node_name="phoneNumber",
         )
-        simple_text_subelement(
+        text_subelement(
             self,
             element=element,
             attr_name="description",
             node_name="description",
         )
-        simple_text_subelement(
+        text_subelement(
             self,
             element=element,
             attr_name="name",

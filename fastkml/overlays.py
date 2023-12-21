@@ -25,11 +25,11 @@ from fastkml.geometry import Polygon
 from fastkml.helpers import enum_subelement
 from fastkml.helpers import float_subelement
 from fastkml.helpers import int_subelement
-from fastkml.helpers import simple_text_subelement
 from fastkml.helpers import subelement_enum_kwarg
 from fastkml.helpers import subelement_float_kwarg
 from fastkml.helpers import subelement_int_kwarg
 from fastkml.helpers import subelement_text_kwarg
+from fastkml.helpers import text_subelement
 from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.links import Icon
@@ -141,7 +141,7 @@ class _Overlay(_Feature):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        simple_text_subelement(
+        text_subelement(
             self,
             element=element,
             attr_name="color",

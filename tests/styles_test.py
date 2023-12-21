@@ -19,6 +19,7 @@
 from fastkml import styles
 from fastkml.enums import ColorMode
 from fastkml.enums import DisplayMode
+from fastkml.enums import PairKey
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -54,7 +55,7 @@ class TestStdLibrary(StdLibrary):
             color_mode=ColorMode("random"),
             scale=1.0,
             heading=0,
-            icon_href="http://example.com/icon.png",
+            icon=styles.Icon(href="http://example.com/icon.png"),
         )
 
         serialized = icons.to_string()
@@ -64,7 +65,7 @@ class TestStdLibrary(StdLibrary):
         assert 'targetId="target-0"' in serialized
         assert "<kml:color>ff0000ff</kml:color>" in serialized
         assert "<kml:colorMode>random</kml:colorMode>" in serialized
-        assert "<kml:scale>1.0</kml:scale>" in serialized
+        assert "<kml:scale>1</kml:scale>" in serialized
         assert "<kml:heading>0</kml:heading>" in serialized
         assert "<kml:Icon>" in serialized
         assert "<kml:href>http://example.com/icon.png</kml:href>" in serialized
@@ -87,7 +88,7 @@ class TestStdLibrary(StdLibrary):
         assert icons.color == "ff2200ff"
         assert icons.color_mode == ColorMode("random")
         assert icons.scale == 5.0
-        assert icons.icon_href == "http://example.com/icon.png"
+        assert icons.icon.href == "http://example.com/icon.png"
         assert icons.heading == 20.0
         assert icons.hot_spot.x == 0.5
         assert icons.hot_spot.y == 0.7
@@ -110,7 +111,7 @@ class TestStdLibrary(StdLibrary):
         assert 'targetId="target-0"' in serialized
         assert "<kml:color>ff0000ff</kml:color>" in serialized
         assert "<kml:colorMode>normal</kml:colorMode>" in serialized
-        assert "<kml:width>1.0</kml:width>" in serialized
+        assert "<kml:width>1</kml:width>" in serialized
         assert "</kml:LineStyle>" in serialized
 
     def test_line_style_read(self) -> None:
@@ -186,7 +187,7 @@ class TestStdLibrary(StdLibrary):
         assert 'targetId="target-0"' in serialized
         assert "<kml:color>ff0000ff</kml:color>" in serialized
         assert "<kml:colorMode>random</kml:colorMode>" in serialized
-        assert "<kml:scale>1.0</kml:scale>" in serialized
+        assert "<kml:scale>1</kml:scale>" in serialized
         assert "</kml:LabelStyle>" in serialized
 
     def test_label_style_read(self) -> None:
@@ -254,7 +255,7 @@ class TestStdLibrary(StdLibrary):
             color_mode=ColorMode.random,
             scale=1.0,
             heading=0,
-            icon_href="http://example.com/icon.png",
+            icon=styles.Icon(href="http://example.com/icon.png"),
         )
         lines = styles.LineStyle(
             id="id-l0",
@@ -348,39 +349,39 @@ class TestStdLibrary(StdLibrary):
 
         assert style.id == "id-0"
         assert style.target_id == "target-0"
-        assert next(iter(style.styles())).id == "id-b0"
-        assert next(iter(style.styles())).target_id == "target-b0"
-        assert next(iter(style.styles())).bg_color == "7fff0000"  # type: ignore[union-attr]
-        assert next(iter(style.styles())).text_color == "ff00ff00"  # type: ignore[union-attr]
-        assert next(iter(style.styles())).text == "<b>Hello</b>"  # type: ignore[union-attr]
-        assert next(iter(style.styles())).display_mode == DisplayMode.hide  # type: ignore[union-attr]
+        assert style.styles[0].id == "id-b0"
+        assert style.styles[0].target_id == "target-b0"
+        assert style.styles[0].bg_color == "7fff0000"  # type: ignore[union-attr]
+        assert style.styles[0].text_color == "ff00ff00"  # type: ignore[union-attr]
+        assert style.styles[0].text == "<b>Hello</b>"  # type: ignore[union-attr]
+        assert style.styles[0].display_mode == DisplayMode.hide  # type: ignore[union-attr]
 
-        assert list(style.styles())[1].id == "id-i0"
-        assert list(style.styles())[1].target_id == "target-i0"
-        assert list(style.styles())[1].color == "ff0000ff"  # type: ignore[union-attr]
-        assert list(style.styles())[1].color_mode == ColorMode.random  # type: ignore[union-attr]
-        assert list(style.styles())[1].scale == 1.0  # type: ignore[union-attr]
-        assert list(style.styles())[1].heading == 0  # type: ignore[union-attr]
-        assert list(style.styles())[1].icon_href == "http://example.com/icon.png"  # type: ignore[union-attr]
+        assert style.styles[1].id == "id-i0"
+        assert style.styles[1].target_id == "target-i0"
+        assert style.styles[1].color == "ff0000ff"  # type: ignore[union-attr]
+        assert style.styles[1].color_mode == ColorMode.random  # type: ignore[union-attr]
+        assert style.styles[1].scale == 1.0  # type: ignore[union-attr]
+        assert style.styles[1].heading == 0  # type: ignore[union-attr]
+        assert style.styles[1].icon.href == "http://example.com/icon.png"  # type: ignore[union-attr]
 
-        assert list(style.styles())[2].id == "id-a0"
-        assert list(style.styles())[2].target_id == "target-a0"
-        assert list(style.styles())[2].color == "ff0000ff"  # type: ignore[union-attr]
-        assert list(style.styles())[2].color_mode == ColorMode.random  # type: ignore[union-attr]
-        assert list(style.styles())[2].scale == 1.0  # type: ignore[union-attr]
+        assert style.styles[2].id == "id-a0"
+        assert style.styles[2].target_id == "target-a0"
+        assert style.styles[2].color == "ff0000ff"  # type: ignore[union-attr]
+        assert style.styles[2].color_mode == ColorMode.random  # type: ignore[union-attr]
+        assert style.styles[2].scale == 1.0  # type: ignore[union-attr]
 
-        assert list(style.styles())[3].id == "id-l0"
-        assert list(style.styles())[3].target_id == "target-l0"
-        assert list(style.styles())[3].color == "ff0000ff"  # type: ignore[union-attr]
-        assert list(style.styles())[3].color_mode == ColorMode.normal  # type: ignore[union-attr]
-        assert list(style.styles())[3].width == 1.0  # type: ignore[union-attr]
+        assert style.styles[3].id == "id-l0"
+        assert style.styles[3].target_id == "target-l0"
+        assert style.styles[3].color == "ff0000ff"  # type: ignore[union-attr]
+        assert style.styles[3].color_mode == ColorMode.normal  # type: ignore[union-attr]
+        assert style.styles[3].width == 1.0  # type: ignore[union-attr]
 
-        assert list(style.styles())[4].id == "id-p0"
-        assert list(style.styles())[4].target_id == "target-p0"
-        assert list(style.styles())[4].color == "ff0000ff"  # type: ignore[union-attr]
-        assert list(style.styles())[4].color_mode == ColorMode.random  # type: ignore[union-attr]
-        assert list(style.styles())[4].fill == 0  # type: ignore[union-attr]
-        assert list(style.styles())[4].outline == 1  # type: ignore[union-attr]
+        assert style.styles[4].id == "id-p0"
+        assert style.styles[4].target_id == "target-p0"
+        assert style.styles[4].color == "ff0000ff"  # type: ignore[union-attr]
+        assert style.styles[4].color_mode == ColorMode.random  # type: ignore[union-attr]
+        assert style.styles[4].fill == 0  # type: ignore[union-attr]
+        assert style.styles[4].outline == 1  # type: ignore[union-attr]
 
     def test_stylemap(self) -> None:
         url = styles.StyleUrl(id="id-0", url="#style-0", target_id="target-0")
@@ -391,7 +392,7 @@ class TestStdLibrary(StdLibrary):
             color_mode=ColorMode.random,
             scale=1.0,
             heading=0,
-            icon_href="http://example.com/icon.png",
+            icon=styles.Icon(href="http://example.com/icon.png"),
         )
         lines = styles.LineStyle(
             id="id-l0",
@@ -431,8 +432,10 @@ class TestStdLibrary(StdLibrary):
         sm = styles.StyleMap(
             id="id-sm-0",
             target_id="target-sm-0",
-            normal=url,
-            highlight=style,
+            pairs=[
+                styles.Pair(key=PairKey.normal, style=url),
+                styles.Pair(key=PairKey.highlight, style=style),
+            ],
         )
 
         serialized = sm.to_string()
@@ -450,7 +453,7 @@ class TestStdLibrary(StdLibrary):
         assert "<kml:IconStyle " in serialized
         assert "<kml:color>ff0000ff</kml:color>" in serialized
         assert "<kml:colorMode>random</kml:colorMode>" in serialized
-        assert "<kml:scale>1.0</kml:scale>" in serialized
+        assert "<kml:scale>1</kml:scale>" in serialized
         assert "<kml:heading>0</kml:heading>" in serialized
         assert "<kml:Icon>" in serialized
         assert "<kml:href>http://example.com/icon.png</kml:href>" in serialized
@@ -459,7 +462,7 @@ class TestStdLibrary(StdLibrary):
         assert "<kml:LineStyle " in serialized
         assert "<kml:color>ff0000ff</kml:color>" in serialized
         assert "<kml:colorMode>normal</kml:colorMode>" in serialized
-        assert "<kml:width>1.0</kml:width>" in serialized
+        assert "<kml:width>1</kml:width>" in serialized
         assert "</kml:LineStyle>" in serialized
         assert "<kml:BalloonStyle " in serialized
         assert "<kml:bgColor>7fff0000</kml:bgColor>" in serialized
@@ -470,7 +473,7 @@ class TestStdLibrary(StdLibrary):
         assert "<kml:LabelStyle " in serialized
         assert "<kml:color>ff0000ff</kml:color>" in serialized
         assert "<kml:colorMode>random</kml:colorMode>" in serialized
-        assert "<kml:scale>1.0</kml:scale>" in serialized
+        assert "<kml:scale>1</kml:scale>" in serialized
         assert "</kml:LabelStyle>" in serialized
         assert "<kml:PolyStyle " in serialized
         assert "<kml:color>ff0000ff</kml:color>" in serialized

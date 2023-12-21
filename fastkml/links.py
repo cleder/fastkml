@@ -24,10 +24,10 @@ from fastkml.enums import Verbosity
 from fastkml.enums import ViewRefreshMode
 from fastkml.helpers import enum_subelement
 from fastkml.helpers import float_subelement
-from fastkml.helpers import simple_text_subelement
 from fastkml.helpers import subelement_enum_kwarg
 from fastkml.helpers import subelement_float_kwarg
 from fastkml.helpers import subelement_text_kwarg
+from fastkml.helpers import text_subelement
 from fastkml.types import Element
 
 
@@ -80,19 +80,19 @@ class Link(_BaseObject):
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
 
-        simple_text_subelement(
+        text_subelement(
             self,
             element=element,
             attr_name="href",
             node_name="href",
         )
-        simple_text_subelement(
+        text_subelement(
             self,
             element=element,
             attr_name="view_format",
             node_name="viewFormat",
         )
-        simple_text_subelement(
+        text_subelement(
             self,
             element=element,
             attr_name="http_query",

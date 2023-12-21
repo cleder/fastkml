@@ -33,8 +33,8 @@ from fastkml.base import _XMLObject
 from fastkml.enums import DataType
 from fastkml.enums import Verbosity
 from fastkml.exceptions import KMLSchemaError
-from fastkml.helpers import simple_text_subelement
 from fastkml.helpers import subelement_text_kwarg
+from fastkml.helpers import text_subelement
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.types import Element
@@ -213,13 +213,13 @@ class Data(_XMLObject):
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
         element.set("name", self.name or "")
-        simple_text_subelement(
+        text_subelement(
             self,
             element=element,
             attr_name="value",
             node_name="value",
         )
-        simple_text_subelement(
+        text_subelement(
             self,
             element=element,
             attr_name="display_name",

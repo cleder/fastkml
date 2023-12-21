@@ -1,4 +1,5 @@
 """Helper functions for fastkml."""
+import logging
 from enum import Enum
 from typing import Dict
 from typing import List
@@ -10,8 +11,10 @@ from fastkml.base import _XMLObject
 from fastkml.enums import Verbosity
 from fastkml.types import Element
 
+logger = logging.getLogger(__name__)
 
-def simple_text_subelement(
+
+def text_subelement(
     obj: _XMLObject,
     *,
     element: Element,
@@ -35,7 +38,7 @@ def bool_subelement(
     node_name: str,
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
-    if getattr(obj, attr_name, None):
+    if getattr(obj, attr_name, None) is not None:
         subelement = config.etree.SubElement(  # type: ignore[attr-defined]
             element,
             f"{obj.ns}{node_name}",
@@ -51,7 +54,7 @@ def int_subelement(
     node_name: str,
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
-    if getattr(obj, attr_name, None):
+    if getattr(obj, attr_name, None) is not None:
         subelement = config.etree.SubElement(  # type: ignore[attr-defined]
             element,
             f"{obj.ns}{node_name}",
@@ -68,7 +71,7 @@ def float_subelement(
     precision: Optional[int],
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
-    if getattr(obj, attr_name, None):
+    if getattr(obj, attr_name, None) is not None:
         subelement = config.etree.SubElement(  # type: ignore[attr-defined]
             element,
             f"{obj.ns}{node_name}",
@@ -154,6 +157,10 @@ def subelement_bool_kwarg(
             return {kwarg: True}
         if node.text.strip().lower() in {"0", "false"}:
             return {kwarg: False}
+        try:
+            return {kwarg: bool(int(float(node.text.strip())))}
+        except ValueError:
+            return {}
     return {}
 
 

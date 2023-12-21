@@ -226,3 +226,13 @@ class Units(REnum):
     fraction = "fraction"
     pixels = "pixels"
     inset_pixels = "insetPixels"
+
+
+@unique
+class PairKey(REnum):
+    """
+    Key for Pair.
+    """
+
+    normal = "normal"
+    highlight = "highlight"
