@@ -87,7 +87,7 @@ class TestDateTime(StdLibrary):
 
     def test_kml_datetime_no_datetime(self) -> None:
         """When we pass dt as None bool() should return False."""
-        kdt = KmlDateTime(None)
+        kdt = KmlDateTime(None)  # type: ignore[arg-type]
 
         assert kdt.resolution == DateTimeResolution.date
         assert not bool(kdt)

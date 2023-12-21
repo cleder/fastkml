@@ -76,7 +76,7 @@ def float_subelement(
             element,
             f"{obj.ns}{node_name}",
         )
-        subelement.text = str(round(getattr(obj, attr_name), precision))
+        subelement.text = str(getattr(obj, attr_name))
 
 
 def enum_subelement(

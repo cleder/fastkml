@@ -744,6 +744,7 @@ class TestStyleFromString:
         assert style_1.bg_color == "ffffffbb"
         assert style_1.text_color == "ff000000"
         assert style_1.display_mode == DisplayMode.default
+        assert style_1.text
         assert "$[geDirections]" in style_1.text
         assert "$[description]" in style_1.text
         k2 = kml.KML.class_from_string(k.to_string())
