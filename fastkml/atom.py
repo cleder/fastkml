@@ -64,6 +64,8 @@ class _AtomObject(_XMLObject):
     The atom tag name is the class name in lower case.
     """
 
+    _default_ns = config.ATOMNS
+
     @classmethod
     def get_tag_name(cls) -> str:
         """Return the tag name."""

@@ -184,6 +184,12 @@ class Schema(_BaseObject):
 class Data(_XMLObject):
     """Represents an untyped name/value pair with optional display name."""
 
+    _default_ns = config.KMLNS
+
+    name: Optional[str]
+    value: Optional[str]
+    display_name: Optional[str]
+
     def __init__(
         self,
         ns: Optional[str] = None,
@@ -284,6 +290,11 @@ class SchemaData(_XMLObject):
     in the same KML file.
     """
 
+    _default_ns = config.KMLNS
+
+    schema_url: Optional[str]
+    data: List[SimpleData]
+
     def __init__(
         self,
         ns: Optional[str] = None,
@@ -350,6 +361,10 @@ class ExtendedData(_XMLObject):
        https://developers.google.com/kml/documentation/extendeddata
 
     """
+
+    _default_ns = config.KMLNS
+
+    elements: List[Union[Data, SchemaData]]
 
     def __init__(
         self,

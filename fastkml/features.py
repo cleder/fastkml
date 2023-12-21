@@ -16,6 +16,7 @@ from pygeoif.types import GeoCollectionType
 from pygeoif.types import GeoType
 
 from fastkml import atom
+from fastkml import config
 from fastkml import gx
 from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
@@ -62,6 +63,23 @@ KmlGeometry = Union[
 
 
 class Snippet(_XMLObject):
+    """
+    A short description of the feature.
+    In Google Earth, this description is displayed in the Places panel
+    under the name of the feature.
+    If a Snippet is not supplied, the first two lines of the <description>
+    are used.
+    In Google Earth, if a Placemark contains both a description and a
+    Snippet, the <Snippet> appears beneath the Placemark in the Places
+    panel, and the <description> appears in the Placemark's description
+    balloon.
+    This tag does not support HTML markup.
+    <Snippet> has a maxLines attribute, an integer that specifies the
+    maximum number of lines to display.
+    """
+
+    _default_ns = config.KMLNS
+
     text: Optional[str]
     max_lines: Optional[int] = None
 

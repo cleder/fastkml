@@ -51,6 +51,8 @@ logger = logging.getLogger(__name__)
 class KML(_XMLObject):
     """represents a KML File."""
 
+    _default_ns = config.KMLNS
+
     _features: List[Union[Folder, Document, Placemark]]
     ns: str
 

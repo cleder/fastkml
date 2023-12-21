@@ -4,6 +4,7 @@ from typing import Dict
 from typing import Optional
 from typing import Union
 
+from fastkml import config
 from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
@@ -428,6 +429,8 @@ class LatLonAltBox(_XMLObject):
     https://developers.google.com/kml/documentation/kmlreference#latlonaltbox
     """
 
+    _default_ns = config.KMLNS
+
     north: Optional[float]
     south: Optional[float]
     east: Optional[float]
@@ -619,6 +622,8 @@ class Lod(_XMLObject):
 
     https://developers.google.com/kml/documentation/kmlreference#elements-specific-to-region
     """
+
+    _default_ns = config.KMLNS
 
     min_lod_pixels: Optional[float]
     max_lod_pixels: Optional[float]

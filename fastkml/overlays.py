@@ -8,6 +8,7 @@ from typing import Optional
 from typing import Union
 
 from fastkml import atom
+from fastkml import config
 from fastkml import gx
 from fastkml.base import _XMLObject
 from fastkml.data import ExtendedData
@@ -222,6 +223,8 @@ class ViewVolume(_XMLObject):
     https://developers.google.com/kml/documentation/kmlreference#viewvolume
     """
 
+    _default_ns = config.KMLNS
+
     left_fow: Optional[float]
     # Angle, in degrees, between the camera's viewing direction and the left side
     # of the view volume.
@@ -408,6 +411,8 @@ class ImagePyramid(_XMLObject):
     When you specify an image pyramid, you also need to modify the <href> in the <Icon>
     element to include specifications for which tiles to load.
     """
+
+    _default_ns = config.KMLNS
 
     tile_size: Optional[int]
     # Size of the tiles, in pixels. Tiles must be square, and <tileSize> must be a power
@@ -788,6 +793,8 @@ class LatLonBox(_XMLObject):
     Values can be ±180. The default is 0 (north).
     Rotations are specified in a counterclockwise direction.
     """
+
+    _default_ns = config.KMLNS
 
     north: Optional[float]
     south: Optional[float]

@@ -70,7 +70,7 @@ class TestBuildKml:
 
     def test_kml(self) -> None:
         """Kml file without contents."""
-        k = kml.KML()
+        k = kml.KML(ns="")
         assert k.features == []
         assert (
             str(k.to_string())[:51]
