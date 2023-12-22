@@ -37,7 +37,7 @@ from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
 from fastkml.helpers import xml_subelement_list
-from fastkml.helpers import xml_subelement_list_kwarg_iterable
+from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.styles import Style
 from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
@@ -157,7 +157,7 @@ class _Container(_Feature):
         name_spaces = kwargs["name_spaces"]
         assert name_spaces is not None
         kwargs.update(
-            xml_subelement_list_kwarg_iterable(
+            xml_subelement_list_kwarg(
                 element=element,
                 ns=ns,
                 name_spaces=name_spaces,
@@ -270,7 +270,7 @@ class Document(_Container):
         name_spaces = kwargs["name_spaces"]
         assert name_spaces is not None
         kwargs.update(
-            xml_subelement_list_kwarg_iterable(
+            xml_subelement_list_kwarg(
                 element=element,
                 ns=ns,
                 name_spaces=name_spaces,

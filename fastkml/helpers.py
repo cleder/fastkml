@@ -267,31 +267,6 @@ def xml_subelement_list_kwarg(
     ns: str,
     name_spaces: Dict[str, str],
     kwarg: str,
-    obj_class: Type[_XMLObject],
-    strict: bool,
-) -> Dict[str, List[_XMLObject]]:
-    if subelements := element.findall(f"{ns}{obj_class.get_tag_name()}"):
-        return {
-            kwarg: [
-                obj_class.class_from_element(
-                    ns=ns,
-                    name_spaces=name_spaces,
-                    element=subelement,
-                    strict=strict,
-                )
-                for subelement in subelements
-            ],
-        }
-    else:
-        return {}
-
-
-def xml_subelement_list_kwarg_iterable(
-    *,
-    element: Element,
-    ns: str,
-    name_spaces: Dict[str, str],
-    kwarg: str,
     obj_classes: Tuple[Type[_XMLObject], ...],
     strict: bool,
 ) -> Dict[str, List[_XMLObject]]:

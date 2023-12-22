@@ -47,7 +47,7 @@ from fastkml.helpers import text_subelement
 from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
-from fastkml.helpers import xml_subelement_list_kwarg_iterable
+from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
@@ -1004,7 +1004,7 @@ class Style(_StyleSelector):
         assert name_spaces is not None
 
         kwargs.update(
-            xml_subelement_list_kwarg_iterable(
+            xml_subelement_list_kwarg(
                 element=element,
                 ns=ns,
                 name_spaces=name_spaces,
@@ -1196,7 +1196,7 @@ class StyleMap(_StyleSelector):
         name_spaces = kwargs["name_spaces"]
         assert name_spaces is not None
         kwargs.update(
-            xml_subelement_list_kwarg_iterable(
+            xml_subelement_list_kwarg(
                 element=element,
                 ns=ns,
                 name_spaces=name_spaces,
