@@ -51,7 +51,7 @@ from fastkml.helpers import text_subelement
 from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
-from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.helpers import xml_subelement_list_kwarg_iterable
 from fastkml.links import Link
 from fastkml.mixins import TimeMixin
 from fastkml.styles import Style
@@ -390,25 +390,16 @@ class _Feature(TimeMixin, _BaseObject):
         )
         name_spaces = kwargs["name_spaces"]
         assert name_spaces is not None
-        kwargs["styles"] = xml_subelement_list_kwarg(
-            element=element,
-            ns=ns,
-            name_spaces=name_spaces,
-            kwarg="styles",
-            obj_class=Style,
-            strict=strict,
-        ).get("styles", [])
-        kwargs["styles"].extend(
-            xml_subelement_list_kwarg(
+        kwargs.update(
+            xml_subelement_list_kwarg_iterable(
                 element=element,
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="styles",
-                obj_class=StyleMap,
+                obj_classes=(Style, StyleMap),
                 strict=strict,
-            ).get("styles", []),
+            ),
         )
-
         kwargs.update(
             xml_subelement_kwarg(
                 element=element,

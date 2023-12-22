@@ -47,7 +47,7 @@ from fastkml.helpers import text_subelement
 from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
-from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.helpers import xml_subelement_list_kwarg_iterable
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
@@ -1003,19 +1003,16 @@ class Style(_StyleSelector):
         name_spaces = kwargs["name_spaces"]
         assert name_spaces is not None
 
-        kwargs["styles"] = []
-        for style in [BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle]:
-            kwargs["styles"].extend(
-                xml_subelement_list_kwarg(
-                    element=element,
-                    ns=ns,
-                    name_spaces=name_spaces,
-                    kwarg="styles",
-                    obj_class=style,
-                    strict=strict,
-                ).get("styles", []),
-            )
-
+        kwargs.update(
+            xml_subelement_list_kwarg_iterable(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="styles",
+                obj_classes=(BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle),
+                strict=strict,
+            ),
+        )
         return kwargs
 
 
@@ -1199,12 +1196,12 @@ class StyleMap(_StyleSelector):
         name_spaces = kwargs["name_spaces"]
         assert name_spaces is not None
         kwargs.update(
-            xml_subelement_list_kwarg(
+            xml_subelement_list_kwarg_iterable(
                 element=element,
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="pairs",
-                obj_class=Pair,
+                obj_classes=(Pair,),
                 strict=strict,
             ),
         )

@@ -40,7 +40,7 @@ from fastkml.containers import Folder
 from fastkml.enums import Verbosity
 from fastkml.features import Placemark
 from fastkml.helpers import xml_subelement_list
-from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.helpers import xml_subelement_list_kwarg_iterable
 from fastkml.overlays import GroundOverlay
 from fastkml.overlays import PhotoOverlay
 from fastkml.types import Element
@@ -127,17 +127,16 @@ class KML(_XMLObject):
         name_spaces = kwargs["name_spaces"]
         assert name_spaces is not None
         kwargs["features"] = []
-        for klass in (Document, Folder, Placemark, GroundOverlay, PhotoOverlay):
-            kwargs["features"].extend(
-                xml_subelement_list_kwarg(
-                    element=element,
-                    ns=ns,
-                    name_spaces=name_spaces,
-                    kwarg="features",
-                    obj_class=klass,
-                    strict=strict,
-                ).get("features", []),
-            )
+        kwargs.update(
+            xml_subelement_list_kwarg_iterable(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="features",
+                obj_classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay),
+                strict=strict,
+            ),
+        )
         return kwargs
 
     @classmethod

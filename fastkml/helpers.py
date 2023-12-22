@@ -19,6 +19,7 @@ from enum import Enum
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Tuple
 from typing import Type
 
 from fastkml import config
@@ -283,3 +284,29 @@ def xml_subelement_list_kwarg(
         }
     else:
         return {}
+
+
+def xml_subelement_list_kwarg_iterable(
+    *,
+    element: Element,
+    ns: str,
+    name_spaces: Dict[str, str],
+    kwarg: str,
+    obj_classes: Tuple[Type[_XMLObject], ...],
+    strict: bool,
+) -> Dict[str, List[_XMLObject]]:
+    args_list = []
+    for obj_class in obj_classes:
+        if subelements := element.findall(f"{ns}{obj_class.get_tag_name()}"):
+            args_list.extend(
+                [
+                    obj_class.class_from_element(
+                        ns=ns,
+                        name_spaces=name_spaces,
+                        element=subelement,
+                        strict=strict,
+                    )
+                    for subelement in subelements
+                ],
+            )
+    return {kwarg: args_list}
