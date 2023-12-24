@@ -156,21 +156,16 @@ class _Container(_Feature):
         kwargs["features"] = []
         name_spaces = kwargs["name_spaces"]
         assert name_spaces is not None
-        for klass in (
-            Folder,
-            Placemark,
-            Document,
-        ):
-            kwargs["features"].extend(
-                xml_subelement_list_kwarg(
-                    element=element,
-                    ns=ns,
-                    name_spaces=name_spaces,
-                    kwarg="features",
-                    obj_class=klass,
-                    strict=strict,
-                ).get("features", []),
-            )
+        kwargs.update(
+            xml_subelement_list_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="features",
+                obj_classes=(Folder, Placemark, Document),
+                strict=strict,
+            ),
+        )
         return kwargs
 
 
@@ -280,7 +275,7 @@ class Document(_Container):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="schemata",
-                obj_class=Schema,
+                obj_classes=(Schema,),
                 strict=strict,
             ),
         )

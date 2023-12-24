@@ -128,17 +128,16 @@ class KML(_XMLObject):
         name_spaces = kwargs["name_spaces"]
         assert name_spaces is not None
         kwargs["features"] = []
-        for klass in (Document, Folder, Placemark, GroundOverlay, PhotoOverlay):
-            kwargs["features"].extend(
-                xml_subelement_list_kwarg(
-                    element=element,
-                    ns=ns,
-                    name_spaces=name_spaces,
-                    kwarg="features",
-                    obj_class=klass,
-                    strict=strict,
-                ).get("features", []),
-            )
+        kwargs.update(
+            xml_subelement_list_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="features",
+                obj_classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay),
+                strict=strict,
+            ),
+        )
         return kwargs
 
     @classmethod

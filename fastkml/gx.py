@@ -400,7 +400,7 @@ class MultiTrack(_Geometry):
                 ns=name_spaces["gx"],
                 name_spaces=name_spaces,
                 kwarg="tracks",
-                obj_class=Track,
+                obj_classes=(Track,),
                 strict=strict,
             ),
         )

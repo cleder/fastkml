@@ -410,26 +410,15 @@ class ExtendedData(_XMLObject):
         )
         name_spaces = kwargs["name_spaces"]
         assert name_spaces is not None
-        kwargs["elements"] = []
-        kwargs["elements"].extend(
+        kwargs.update(
             xml_subelement_list_kwarg(
                 element=element,
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="elements",
-                obj_class=Data,
+                obj_classes=(Data, SchemaData),
                 strict=strict,
-            ).get("elements", []),
-        )
-        kwargs["elements"].extend(
-            xml_subelement_list_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="elements",
-                obj_class=SchemaData,
-                strict=strict,
-            ).get("elements", []),
+            ),
         )
 
         return kwargs

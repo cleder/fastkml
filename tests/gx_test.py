@@ -321,7 +321,7 @@ class TestTrack(StdLibrary):
 class TestMultiTrack(StdLibrary):
     def test_from_multilinestring(self) -> None:
         lines = geo.MultiLineString(
-            ([(0, 0), (1, 1), (1, 2), (2, 2)], [[0.0, 0.0], [1.0, 2.0]]),
+            (((0, 0), (1, 1), (1, 2), (2, 2)), ((0.0, 0.0), (1.0, 2.0))),
         )
 
         mt = MultiTrack(geometry=lines, ns="")

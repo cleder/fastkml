@@ -390,25 +390,16 @@ class _Feature(TimeMixin, _BaseObject):
         )
         name_spaces = kwargs["name_spaces"]
         assert name_spaces is not None
-        kwargs["styles"] = xml_subelement_list_kwarg(
-            element=element,
-            ns=ns,
-            name_spaces=name_spaces,
-            kwarg="styles",
-            obj_class=Style,
-            strict=strict,
-        ).get("styles", [])
-        kwargs["styles"].extend(
+        kwargs.update(
             xml_subelement_list_kwarg(
                 element=element,
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="styles",
-                obj_class=StyleMap,
+                obj_classes=(Style, StyleMap),
                 strict=strict,
-            ).get("styles", []),
+            ),
         )
-
         kwargs.update(
             xml_subelement_kwarg(
                 element=element,
