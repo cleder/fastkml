@@ -16,12 +16,18 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING
+from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Type
 from typing import Union
+
+from typing_extensions import Protocol
+
+from fastkml.enums import Verbosity
+from fastkml.types import Element
 
 if TYPE_CHECKING:
     from fastkml.base import _XMLObject
@@ -37,14 +43,42 @@ known_types = Union[
 ]
 
 
+class GetKWArgs(Protocol):
+    def __call__(
+        self,
+        element: Element,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]],
+        node_name: Optional[str],
+        attr_name: str,
+        classes: Tuple[known_types, ...],
+        strict: bool,
+    ) -> Dict[str, Any]:
+        ...
+
+
+class SetElement(Protocol):
+    def __call__(
+        self,
+        obj: "_XMLObject",
+        element: Element,
+        attr_name: str,
+        node_name: Optional[str],
+        precision: Optional[int],
+        verbosity: Verbosity,
+    ) -> None:
+        ...
+
+
 @dataclass(frozen=True)
 class RegistryItem:
     """A registry item."""
 
     classes: Tuple[known_types, ...]
     attr_name: str
+    get_kwarg: GetKWArgs
+    set_element: SetElement
     node_name: Optional[str] = None
-    iterable: bool = False
 
 
 class Registry:
@@ -69,3 +103,46 @@ class Registry:
         for parent in parents:
             items.extend(self._registry.get(parent, []))
         return items
+
+    def get_kwargs(
+        self,
+        *,
+        cls: Type["_XMLObject"],
+        element: Element,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]],
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = {}
+        for item in self.get(cls):
+            kwargs[item.attr_name] = item.get_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                node_name=item.node_name,
+                attr_name=item.attr_name,
+                classes=item.classes,
+                strict=strict,
+            )
+        return kwargs
+
+    def sub_element(
+        self,
+        *,
+        obj: "_XMLObject",
+        element: Element,
+        precision: Optional[int],
+        verbosity: Verbosity,
+    ) -> None:
+        for item in self.get(type(obj)):
+            item.set_element(
+                obj=obj,
+                element=element,
+                attr_name=item.attr_name,
+                node_name=item.node_name,
+                precision=precision,
+                verbosity=verbosity,
+            )
+
+
+registry = Registry()

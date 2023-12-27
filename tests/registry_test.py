@@ -15,10 +15,27 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test the registry module."""
 from enum import Enum
+from typing import Any
+from typing import Dict
+from typing import Optional
+from typing import Tuple
+from typing import Type
+from typing import Union
 
 from fastkml.base import _XMLObject
+from fastkml.enums import Verbosity
 from fastkml.registry import Registry
 from fastkml.registry import RegistryItem
+from fastkml.types import Element
+
+known_types = Union[
+    Type[_XMLObject],
+    Type[Enum],
+    Type[bool],
+    Type[int],
+    Type[str],
+    Type[float],
+]
 
 
 class A(_XMLObject):
@@ -41,20 +58,62 @@ class D(Mixin, C):
     """D test class."""
 
 
+def set_element(
+    obj: _XMLObject,
+    element: Element,
+    attr_name: str,
+    node_name: Optional[str],
+    precision: Optional[int],
+    verbosity: Verbosity,
+) -> None:
+    """Get an attribute from an XML object."""
+
+
+def get_kwarg(
+    element: Element,
+    ns: str,
+    name_spaces: Optional[Dict[str, str]],
+    node_name: Optional[str],
+    attr_name: str,
+    classes: Tuple[known_types, ...],
+    strict: bool,
+) -> Dict[str, Any]:
+    """Get the kwarg for the constructor from the element."""
+    return {attr_name: None}
+
+
 def test_registry_get_root() -> None:
     """Test the registry when getting the root class."""
     registry = Registry()
-    registry.register(A, RegistryItem((A,), "a"))
-    assert registry.get(A) == [RegistryItem((A,), "a")]
+    registry.register(
+        A,
+        RegistryItem((A,), attr_name="a", get_kwarg=get_kwarg, set_element=set_element),
+    )
+    assert registry.get(A)[0].attr_name == "a"
 
 
 def test_registry_get() -> None:
     """Test the registry."""
     registry = Registry()
-    registry.register(A, RegistryItem((A,), "a"))
-    registry.register(B, RegistryItem((B,), "b"))
-    registry.register(C, RegistryItem((C,), "c"))
-    registry.register(D, RegistryItem((D,), "d"))
+    registry.register(
+        A,
+        RegistryItem((A,), attr_name="a", get_kwarg=get_kwarg, set_element=set_element),
+    )
+    registry.register(
+        B,
+        RegistryItem((B,), attr_name="b", get_kwarg=get_kwarg, set_element=set_element),
+    )
+    registry.register(
+        C,
+        RegistryItem((C,), attr_name="c", get_kwarg=get_kwarg, set_element=set_element),
+    )
+    registry.register(
+        D,
+        RegistryItem((D,), attr_name="d", get_kwarg=get_kwarg, set_element=set_element),
+    )
+    d = D()
+    assert isinstance(d, D)
+    assert isinstance(d, A)
     assert len(registry.get(A)) == 1
     assert len(registry.get(B)) == 2
     assert len(registry.get(C)) == 3
@@ -68,14 +127,58 @@ def test_registry_get() -> None:
 def test_registry_get_multi() -> None:
     """Test the registry with multiple classes."""
     registry = Registry()
-    registry.register(A, RegistryItem((A,), "a"))
-    registry.register(B, RegistryItem((B,), "b"))
-    registry.register(C, RegistryItem((C,), "c"))
-    registry.register(D, RegistryItem((D,), "d"))
-    registry.register(A, RegistryItem((int,), "int"))
-    registry.register(B, RegistryItem((bool,), "bool"))
-    registry.register(C, RegistryItem((float,), "float"))
-    registry.register(D, RegistryItem((Enum,), "enum"))
+    registry.register(
+        A,
+        RegistryItem((A,), attr_name="a", get_kwarg=get_kwarg, set_element=set_element),
+    )
+    registry.register(
+        B,
+        RegistryItem((B,), attr_name="b", get_kwarg=get_kwarg, set_element=set_element),
+    )
+    registry.register(
+        C,
+        RegistryItem((C,), attr_name="c", get_kwarg=get_kwarg, set_element=set_element),
+    )
+    registry.register(
+        D,
+        RegistryItem((D,), attr_name="d", get_kwarg=get_kwarg, set_element=set_element),
+    )
+    registry.register(
+        A,
+        RegistryItem(
+            (int,),
+            attr_name="int",
+            get_kwarg=get_kwarg,
+            set_element=set_element,
+        ),
+    )
+    registry.register(
+        B,
+        RegistryItem(
+            (bool,),
+            attr_name="bool",
+            get_kwarg=get_kwarg,
+            set_element=set_element,
+        ),
+    )
+    registry.register(
+        C,
+        RegistryItem(
+            (float,),
+            attr_name="float",
+            get_kwarg=get_kwarg,
+            set_element=set_element,
+        ),
+    )
+    registry.register(
+        D,
+        RegistryItem(
+            (Enum,),
+            attr_name="enum",
+            get_kwarg=get_kwarg,
+            set_element=set_element,
+        ),
+    )
     assert len(registry.get(A)) == 2
     assert len(registry.get(D)) == 8
     assert registry.get(D)[0].classes == (A,)
