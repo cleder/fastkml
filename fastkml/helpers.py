@@ -159,6 +159,7 @@ def subelement_text_kwarg(
     name_spaces: Optional[Dict[str, str]] = None,
     node_name: str,
     kwarg: str,
+    classes: Tuple[Type[str]] = (str,),
     strict: bool,
 ) -> Dict[str, str]:
     node = element.find(f"{ns}{node_name}")
@@ -174,6 +175,7 @@ def subelement_bool_kwarg(
     name_spaces: Optional[Dict[str, str]] = None,
     node_name: str,
     kwarg: str,
+    classes: Tuple[Type[bool]] = (bool,),
     strict: bool,
 ) -> Dict[str, bool]:
     node = element.find(f"{ns}{node_name}")
@@ -200,6 +202,7 @@ def subelement_int_kwarg(
     name_spaces: Optional[Dict[str, str]] = None,
     node_name: str,
     kwarg: str,
+    classes: Tuple[Type[int]] = (int,),
     strict: bool,
 ) -> Dict[str, int]:
     node = element.find(f"{ns}{node_name}")
@@ -222,6 +225,7 @@ def subelement_float_kwarg(
     name_spaces: Optional[Dict[str, str]] = None,
     node_name: str,
     kwarg: str,
+    classes: Tuple[Type[float]] = (float,),
     strict: bool,
 ) -> Dict[str, float]:
     node = element.find(f"{ns}{node_name}")
@@ -244,14 +248,14 @@ def subelement_enum_kwarg(
     name_spaces: Optional[Dict[str, str]] = None,
     node_name: str,
     kwarg: str,
-    enum_class: Type[Enum],
+    classes: Tuple[Type[Enum]],
     strict: bool,
 ) -> Dict[str, Enum]:
     node = element.find(f"{ns}{node_name}")
     if node is None:
         return {}
     if node.text and node.text.strip():
-        return {kwarg: enum_class(node.text.strip())}
+        return {kwarg: classes[0](node.text.strip())}
     return {}
 
 
@@ -262,14 +266,14 @@ def xml_subelement_kwarg(
     name_spaces: Dict[str, str],
     node_name: Optional[str] = None,
     kwarg: str,
-    obj_class: Type[_XMLObject],
+    classes: Tuple[Type[_XMLObject]],
     strict: bool,
 ) -> Dict[str, _XMLObject]:
-    subelement = element.find(f"{ns}{obj_class.get_tag_name()}")
+    subelement = element.find(f"{ns}{classes[0].get_tag_name()}")
     if subelement is None:
         return {}
     return {
-        kwarg: obj_class.class_from_element(
+        kwarg: classes[0].class_from_element(
             ns=ns,
             name_spaces=name_spaces,
             element=subelement,
@@ -284,11 +288,11 @@ def xml_subelement_list_kwarg(
     ns: str,
     name_spaces: Dict[str, str],
     kwarg: str,
-    obj_classes: Tuple[Type[_XMLObject], ...],
+    classes: Tuple[Type[_XMLObject], ...],
     strict: bool,
 ) -> Dict[str, List[_XMLObject]]:
     args_list = []
-    for obj_class in obj_classes:
+    for obj_class in classes:
         if subelements := element.findall(f"{ns}{obj_class.get_tag_name()}"):
             args_list.extend(
                 [

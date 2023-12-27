@@ -181,7 +181,7 @@ class Link(_BaseObject):
                 ns=ns,
                 node_name="refreshMode",
                 kwarg="refresh_mode",
-                enum_class=RefreshMode,
+                classes=(RefreshMode,),
                 strict=strict,
             ),
         )
@@ -191,7 +191,7 @@ class Link(_BaseObject):
                 ns=ns,
                 node_name="viewRefreshMode",
                 kwarg="view_refresh_mode",
-                enum_class=ViewRefreshMode,
+                classes=(ViewRefreshMode,),
                 strict=strict,
             ),
         )

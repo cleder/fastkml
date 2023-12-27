@@ -262,7 +262,7 @@ class _Geometry(_BaseObject):
                 ns=ns,
                 node_name="altitudeMode",
                 kwarg="altitude_mode",
-                enum_class=AltitudeMode,
+                classes=(AltitudeMode,),
                 strict=strict,
             ),
         )

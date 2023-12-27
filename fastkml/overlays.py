@@ -219,7 +219,7 @@ class _Overlay(_Feature):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="icon",
-                obj_class=Icon,
+                classes=(Icon,),
                 strict=strict,
             ),
         )
@@ -551,7 +551,7 @@ class ImagePyramid(_XMLObject):
                 ns=ns,
                 node_name="gridOrigin",
                 kwarg="grid_origin",
-                enum_class=GridOrigin,
+                classes=(GridOrigin,),
                 strict=strict,
             ),
         )
@@ -748,7 +748,7 @@ class PhotoOverlay(_Overlay):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="view_volume",
-                obj_class=ViewVolume,
+                classes=(ViewVolume,),
                 strict=strict,
             ),
         )
@@ -758,7 +758,7 @@ class PhotoOverlay(_Overlay):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="image_pyramid",
-                obj_class=ImagePyramid,
+                classes=(ImagePyramid,),
                 strict=strict,
             ),
         )
@@ -768,7 +768,7 @@ class PhotoOverlay(_Overlay):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="point",
-                obj_class=Point,
+                classes=(Point,),
                 strict=strict,
             ),
         )
@@ -778,7 +778,7 @@ class PhotoOverlay(_Overlay):
                 ns=ns,
                 node_name="shape",
                 kwarg="shape",
-                enum_class=Shape,
+                classes=(Shape,),
                 strict=strict,
             ),
         )
@@ -1104,7 +1104,7 @@ class GroundOverlay(_Overlay):
                 ns=ns,
                 node_name="altitudeMode",
                 kwarg="altitude_mode",
-                enum_class=AltitudeMode,
+                classes=(AltitudeMode,),
                 strict=strict,
             ),
         )
@@ -1114,7 +1114,7 @@ class GroundOverlay(_Overlay):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="lat_lon_box",
-                obj_class=LatLonBox,
+                classes=(LatLonBox,),
                 strict=strict,
             ),
         )

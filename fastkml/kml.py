@@ -133,7 +133,7 @@ class KML(_XMLObject):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="features",
-                obj_classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay),
+                classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay),
                 strict=strict,
             ),
         )

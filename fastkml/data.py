@@ -416,7 +416,7 @@ class ExtendedData(_XMLObject):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="elements",
-                obj_classes=(Data, SchemaData),
+                classes=(Data, SchemaData),
                 strict=strict,
             ),
         )

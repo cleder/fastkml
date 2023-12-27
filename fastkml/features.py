@@ -396,7 +396,7 @@ class _Feature(TimeMixin, _BaseObject):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="styles",
-                obj_classes=(Style, StyleMap),
+                classes=(Style, StyleMap),
                 strict=strict,
             ),
         )
@@ -406,7 +406,7 @@ class _Feature(TimeMixin, _BaseObject):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="style_url",
-                obj_class=StyleUrl,
+                classes=(StyleUrl,),
                 strict=strict,
             ),
         )
@@ -416,7 +416,7 @@ class _Feature(TimeMixin, _BaseObject):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="times",
-                obj_class=TimeSpan,
+                classes=(TimeSpan,),
                 strict=strict,
             ),
         )
@@ -426,7 +426,7 @@ class _Feature(TimeMixin, _BaseObject):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="times",
-                obj_class=TimeStamp,
+                classes=(TimeStamp,),
                 strict=strict,
             ),
         )
@@ -436,7 +436,7 @@ class _Feature(TimeMixin, _BaseObject):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="extended_data",
-                obj_class=ExtendedData,
+                classes=(ExtendedData,),
                 strict=strict,
             ),
         )
@@ -446,7 +446,7 @@ class _Feature(TimeMixin, _BaseObject):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="view",
-                obj_class=Camera,
+                classes=(Camera,),
                 strict=strict,
             ),
         )
@@ -456,7 +456,7 @@ class _Feature(TimeMixin, _BaseObject):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="view",
-                obj_class=LookAt,
+                classes=(LookAt,),
                 strict=strict,
             ),
         )
@@ -466,7 +466,7 @@ class _Feature(TimeMixin, _BaseObject):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="snippet",
-                obj_class=Snippet,
+                classes=(Snippet,),
                 strict=strict,
             ),
         )
@@ -476,7 +476,7 @@ class _Feature(TimeMixin, _BaseObject):
                 ns=name_spaces["atom"],
                 name_spaces=name_spaces,
                 kwarg="atom_link",
-                obj_class=atom.Link,
+                classes=(atom.Link,),
                 strict=strict,
             ),
         )
@@ -486,7 +486,7 @@ class _Feature(TimeMixin, _BaseObject):
                 ns=name_spaces["atom"],
                 name_spaces=name_spaces,
                 kwarg="atom_author",
-                obj_class=atom.Author,
+                classes=(atom.Author,),
                 strict=strict,
             ),
         )
@@ -656,7 +656,7 @@ class Placemark(_Feature):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="kml_geometry",
-                obj_class=Point,
+                classes=(Point,),
                 strict=strict,
             ),
         )
@@ -666,7 +666,7 @@ class Placemark(_Feature):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="kml_geometry",
-                obj_class=LineString,
+                classes=(LineString,),
                 strict=strict,
             ),
         )
@@ -676,7 +676,7 @@ class Placemark(_Feature):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="kml_geometry",
-                obj_class=Polygon,
+                classes=(Polygon,),
                 strict=strict,
             ),
         )
@@ -686,7 +686,7 @@ class Placemark(_Feature):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="kml_geometry",
-                obj_class=LinearRing,
+                classes=(LinearRing,),
                 strict=strict,
             ),
         )
@@ -696,7 +696,7 @@ class Placemark(_Feature):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="kml_geometry",
-                obj_class=MultiGeometry,
+                classes=(MultiGeometry,),
                 strict=strict,
             ),
         )
@@ -706,7 +706,7 @@ class Placemark(_Feature):
                 ns=name_spaces["gx"],
                 name_spaces=name_spaces,
                 kwarg="kml_geometry",
-                obj_class=gx.MultiTrack,
+                classes=(gx.MultiTrack,),
                 strict=strict,
             ),
         )
@@ -716,7 +716,7 @@ class Placemark(_Feature):
                 ns=name_spaces["gx"],
                 name_spaces=name_spaces,
                 kwarg="kml_geometry",
-                obj_class=gx.Track,
+                classes=(gx.Track,),
                 strict=strict,
             ),
         )
@@ -886,7 +886,7 @@ class NetworkLink(_Feature):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="link",
-                obj_class=Link,
+                classes=(Link,),
                 strict=strict,
             ),
         )

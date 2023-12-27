@@ -162,7 +162,7 @@ class _Container(_Feature):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="features",
-                obj_classes=(Folder, Placemark, Document),
+                classes=(Folder, Placemark, Document),
                 strict=strict,
             ),
         )
@@ -275,7 +275,7 @@ class Document(_Container):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="schemata",
-                obj_classes=(Schema,),
+                classes=(Schema,),
                 strict=strict,
             ),
         )

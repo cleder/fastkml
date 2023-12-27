@@ -235,7 +235,7 @@ class _AbstractView(TimeMixin, _BaseObject):
                 ns=ns,
                 node_name="altitudeMode",
                 kwarg="altitude_mode",
-                enum_class=AltitudeMode,
+                classes=(AltitudeMode,),
                 strict=strict,
             ),
         )
@@ -245,7 +245,7 @@ class _AbstractView(TimeMixin, _BaseObject):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="time_primitive",
-                obj_class=TimeSpan,
+                classes=(TimeSpan,),
                 strict=strict,
             ),
         )
@@ -255,7 +255,7 @@ class _AbstractView(TimeMixin, _BaseObject):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="time_primitive",
-                obj_class=TimeStamp,
+                classes=(TimeStamp,),
                 strict=strict,
             ),
         )
@@ -620,7 +620,7 @@ class LatLonAltBox(_XMLObject):
                 ns=ns,
                 node_name="altitudeMode",
                 kwarg="altitude_mode",
-                enum_class=AltitudeMode,
+                classes=(AltitudeMode,),
                 strict=strict,
             ),
         )
@@ -836,7 +836,7 @@ class Region(_BaseObject):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="lat_lon_alt_box",
-                obj_class=LatLonAltBox,
+                classes=(LatLonAltBox,),
                 strict=strict,
             ),
         )
@@ -846,7 +846,7 @@ class Region(_BaseObject):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="lod",
-                obj_class=Lod,
+                classes=(Lod,),
                 strict=strict,
             ),
         )

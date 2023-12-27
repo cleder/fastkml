@@ -217,7 +217,7 @@ class _ColorStyle(_BaseObject):
                 ns=ns,
                 node_name="colorMode",
                 kwarg="color_mode",
-                enum_class=ColorMode,
+                classes=(ColorMode,),
                 strict=strict,
             ),
         )
@@ -497,7 +497,7 @@ class IconStyle(_ColorStyle):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="icon",
-                obj_class=Icon,
+                classes=(Icon,),
                 strict=strict,
             ),
         )
@@ -507,7 +507,7 @@ class IconStyle(_ColorStyle):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="hot_spot",
-                obj_class=HotSpot,
+                classes=(HotSpot,),
                 strict=strict,
             ),
         )
@@ -928,7 +928,7 @@ class BalloonStyle(_BaseObject):
                 ns=ns,
                 node_name="displayMode",
                 kwarg="display_mode",
-                enum_class=DisplayMode,
+                classes=(DisplayMode,),
                 strict=strict,
             ),
         )
@@ -1009,7 +1009,7 @@ class Style(_StyleSelector):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="styles",
-                obj_classes=(BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle),
+                classes=(BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle),
                 strict=strict,
             ),
         )
@@ -1096,7 +1096,7 @@ class Pair(_BaseObject):
                 ns=ns,
                 node_name="key",
                 kwarg="key",
-                enum_class=PairKey,
+                classes=(PairKey,),
                 strict=strict,
             ),
         )
@@ -1106,7 +1106,7 @@ class Pair(_BaseObject):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="style",
-                obj_class=Style,
+                classes=(Style,),
                 strict=strict,
             ),
         )
@@ -1116,7 +1116,7 @@ class Pair(_BaseObject):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="style",
-                obj_class=StyleUrl,
+                classes=(StyleUrl,),
                 strict=strict,
             ),
         )
@@ -1201,7 +1201,7 @@ class StyleMap(_StyleSelector):
                 ns=ns,
                 name_spaces=name_spaces,
                 kwarg="pairs",
-                obj_classes=(Pair,),
+                classes=(Pair,),
                 strict=strict,
             ),
         )

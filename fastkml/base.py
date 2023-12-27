@@ -128,18 +128,14 @@ class _XMLObject:
         name_spaces = {**config.NAME_SPACES, **name_spaces}
         kwargs: Dict[str, Any] = {"ns": ns, "name_spaces": name_spaces}
         for item in registry.get(cls):
-            kwargs.update(
-                {
-                    item.attr_name: item.get_kwarg(
-                        element=element,
-                        ns=ns,
-                        name_spaces=name_spaces,
-                        node_name=item.node_name,
-                        attr_name=item.attr_name,
-                        classes=item.classes,
-                        strict=strict,
-                    ),
-                },
+            kwargs[item.attr_name] = item.get_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                node_name=item.node_name,
+                attr_name=item.attr_name,
+                classes=item.classes,
+                strict=strict,
             )
         return kwargs
 
