@@ -140,8 +140,7 @@ class TestStdLibrary(StdLibrary):
         assert len(p.extended_data.elements) == 2
         k.append(p)
 
-        k2 = kml.KML.class_from_string(k.to_string(prettyprint=True))
-        k.to_string()
+        k2 = kml.KML.class_from_string(k.to_string())
 
         extended_data = k2.features[0].extended_data
         assert extended_data is not None

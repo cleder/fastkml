@@ -144,8 +144,8 @@ def xml_subelement_list(
     element: Element,
     attr_name: str,
     node_name: Optional[str] = None,
-    precision: Optional[int],
-    verbosity: Verbosity,
+    precision: Optional[int] = None,
+    verbosity: Verbosity = Verbosity.normal,
 ) -> None:
     if getattr(obj, attr_name, None):
         for item in getattr(obj, attr_name):
@@ -287,6 +287,7 @@ def xml_subelement_list_kwarg(
     element: Element,
     ns: str,
     name_spaces: Dict[str, str],
+    node_name: Optional[str],
     kwarg: str,
     classes: Tuple[Type[_XMLObject], ...],
     strict: bool,

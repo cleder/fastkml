@@ -399,6 +399,7 @@ class MultiTrack(_Geometry):
                 element=element,
                 ns=name_spaces["gx"],
                 name_spaces=name_spaces,
+                node_name=None,
                 kwarg="tracks",
                 classes=(Track,),
                 strict=strict,

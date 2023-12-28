@@ -46,11 +46,12 @@ known_types = Union[
 class GetKWArgs(Protocol):
     def __call__(
         self,
+        *,
         element: Element,
         ns: str,
         name_spaces: Optional[Dict[str, str]],
         node_name: Optional[str],
-        attr_name: str,
+        kwarg: str,
         classes: Tuple[known_types, ...],
         strict: bool,
     ) -> Dict[str, Any]:
@@ -61,6 +62,7 @@ class SetElement(Protocol):
     def __call__(
         self,
         obj: "_XMLObject",
+        *,
         element: Element,
         attr_name: str,
         node_name: Optional[str],
@@ -120,7 +122,7 @@ class Registry:
                 ns=ns,
                 name_spaces=name_spaces,
                 node_name=item.node_name,
-                attr_name=item.attr_name,
+                kwarg=item.attr_name,
                 classes=item.classes,
                 strict=strict,
             )
@@ -146,3 +148,5 @@ class Registry:
 
 
 registry = Registry()
+
+__all__ = ["registry", "RegistryItem"]
