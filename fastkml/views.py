@@ -188,8 +188,10 @@ class _AbstractView(TimeMixin, _BaseObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="longitude",
                 kwarg="longitude",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -197,8 +199,10 @@ class _AbstractView(TimeMixin, _BaseObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="latitude",
                 kwarg="latitude",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -206,8 +210,10 @@ class _AbstractView(TimeMixin, _BaseObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="altitude",
                 kwarg="altitude",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -215,8 +221,10 @@ class _AbstractView(TimeMixin, _BaseObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="heading",
                 kwarg="heading",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -224,8 +232,10 @@ class _AbstractView(TimeMixin, _BaseObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="tilt",
                 kwarg="tilt",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -354,8 +364,10 @@ class Camera(_AbstractView):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="roll",
                 kwarg="roll",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -431,8 +443,10 @@ class LookAt(_AbstractView):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="range",
                 kwarg="range",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -565,8 +579,10 @@ class LatLonAltBox(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="north",
                 kwarg="north",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -574,8 +590,10 @@ class LatLonAltBox(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="south",
                 kwarg="south",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -583,8 +601,10 @@ class LatLonAltBox(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="east",
                 kwarg="east",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -592,8 +612,10 @@ class LatLonAltBox(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="west",
                 kwarg="west",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -601,8 +623,10 @@ class LatLonAltBox(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="minAltitude",
                 kwarg="min_altitude",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -610,8 +634,10 @@ class LatLonAltBox(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="maxAltitude",
                 kwarg="max_altitude",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -724,8 +750,10 @@ class Lod(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="minLodPixels",
                 kwarg="min_lod_pixels",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -733,8 +761,10 @@ class Lod(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="maxLodPixels",
                 kwarg="max_lod_pixels",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -742,8 +772,10 @@ class Lod(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="minFadeExtent",
                 kwarg="min_fade_extent",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -751,8 +783,10 @@ class Lod(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="maxFadeExtent",
                 kwarg="max_fade_extent",
+                classes=(float,),
                 strict=strict,
             ),
         )

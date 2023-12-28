@@ -496,8 +496,10 @@ class _Feature(TimeMixin, _BaseObject):
             subelement_text_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="address",
                 kwarg="address",
+                classes=(str,),
                 strict=strict,
             ),
         )
@@ -505,8 +507,10 @@ class _Feature(TimeMixin, _BaseObject):
             subelement_text_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="phoneNumber",
                 kwarg="phone_number",
+                classes=(str,),
                 strict=strict,
             ),
         )
@@ -514,8 +518,10 @@ class _Feature(TimeMixin, _BaseObject):
             subelement_text_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="description",
                 kwarg="description",
+                classes=(str,),
                 strict=strict,
             ),
         )
@@ -523,8 +529,10 @@ class _Feature(TimeMixin, _BaseObject):
             subelement_text_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="name",
                 kwarg="name",
+                classes=(str,),
                 strict=strict,
             ),
         )

@@ -36,7 +36,7 @@ def text_subelement(
     *,
     element: Element,
     attr_name: str,
-    node_name: str,
+    node_name: Optional[str],
     precision: Optional[int] = None,
     verbosity: Optional[Verbosity] = None,
 ) -> None:
@@ -157,10 +157,10 @@ def subelement_text_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Optional[Dict[str, str]] = None,
-    node_name: str,
+    name_spaces: Optional[Dict[str, str]],
+    node_name: Optional[str],
     kwarg: str,
-    classes: Tuple[Type[str]] = (str,),
+    classes: Tuple[known_types, ...],
     strict: bool,
 ) -> Dict[str, str]:
     node = element.find(f"{ns}{node_name}")
@@ -226,9 +226,9 @@ def subelement_float_kwarg(
     element: Element,
     ns: str,
     name_spaces: Optional[Dict[str, str]] = None,
-    node_name: str,
+    node_name: Optional[str],
     kwarg: str,
-    classes: Tuple[Type[float]] = (float,),
+    classes: Tuple[known_types, ...],
     strict: bool,
 ) -> Dict[str, float]:
     node = element.find(f"{ns}{node_name}")

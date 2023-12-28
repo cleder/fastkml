@@ -197,8 +197,10 @@ class _ColorStyle(_BaseObject):
             subelement_text_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="color",
                 kwarg="color",
+                classes=(str,),
                 strict=strict,
             ),
         )
@@ -365,8 +367,10 @@ class Icon(_XMLObject):
             subelement_text_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="href",
                 kwarg="href",
+                classes=(str,),
                 strict=strict,
             ),
         )
@@ -469,8 +473,10 @@ class IconStyle(_ColorStyle):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="scale",
                 kwarg="scale",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -478,8 +484,10 @@ class IconStyle(_ColorStyle):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="heading",
                 kwarg="heading",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -574,8 +582,10 @@ class LineStyle(_ColorStyle):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="width",
                 kwarg="width",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -757,8 +767,10 @@ class LabelStyle(_ColorStyle):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="scale",
                 kwarg="scale",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -886,8 +898,10 @@ class BalloonStyle(_BaseObject):
             subelement_text_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="color",
                 kwarg="bg_color",
+                classes=(str,),
                 strict=strict,
             ),
         )
@@ -895,8 +909,10 @@ class BalloonStyle(_BaseObject):
             subelement_text_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="bgColor",
                 kwarg="bg_color",
+                classes=(str,),
                 strict=strict,
             ),
         )
@@ -904,8 +920,10 @@ class BalloonStyle(_BaseObject):
             subelement_text_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="textColor",
                 kwarg="text_color",
+                classes=(str,),
                 strict=strict,
             ),
         )
@@ -913,8 +931,10 @@ class BalloonStyle(_BaseObject):
             subelement_text_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="text",
                 kwarg="text",
+                classes=(str,),
                 strict=strict,
             ),
         )

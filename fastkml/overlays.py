@@ -199,8 +199,10 @@ class _Overlay(_Feature):
             subelement_text_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="color",
                 kwarg="color",
+                classes=(str,),
                 strict=strict,
             ),
         )
@@ -352,8 +354,10 @@ class ViewVolume(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="leftFov",
                 kwarg="left_fov",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -361,8 +365,10 @@ class ViewVolume(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="rightFov",
                 kwarg="right_fov",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -370,8 +376,10 @@ class ViewVolume(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="bottomFov",
                 kwarg="bottom_fov",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -379,8 +387,10 @@ class ViewVolume(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="topFov",
                 kwarg="top_fov",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -388,8 +398,10 @@ class ViewVolume(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="near",
                 kwarg="near",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -397,8 +409,10 @@ class ViewVolume(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="near",
                 kwarg="near",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -738,8 +752,10 @@ class PhotoOverlay(_Overlay):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="rotation",
                 kwarg="rotation",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -911,8 +927,10 @@ class LatLonBox(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="north",
                 kwarg="north",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -920,8 +938,10 @@ class LatLonBox(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="south",
                 kwarg="south",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -929,8 +949,10 @@ class LatLonBox(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="east",
                 kwarg="east",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -938,8 +960,10 @@ class LatLonBox(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="west",
                 kwarg="west",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -947,8 +971,10 @@ class LatLonBox(_XMLObject):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="rotation",
                 kwarg="rotation",
+                classes=(float,),
                 strict=strict,
             ),
         )
@@ -1095,8 +1121,10 @@ class GroundOverlay(_Overlay):
             subelement_float_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="altitude",
                 kwarg="altitude",
+                classes=(float,),
                 strict=strict,
             ),
         )

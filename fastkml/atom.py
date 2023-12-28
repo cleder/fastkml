@@ -271,8 +271,10 @@ class _Person(_AtomObject):
             subelement_text_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="name",
                 kwarg="name",
+                classes=(str,),
                 strict=strict,
             ),
         )
@@ -280,8 +282,10 @@ class _Person(_AtomObject):
             subelement_text_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="uri",
                 kwarg="uri",
+                classes=(str,),
                 strict=strict,
             ),
         )
@@ -289,8 +293,10 @@ class _Person(_AtomObject):
             subelement_text_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="email",
                 kwarg="email",
+                classes=(str,),
                 strict=strict,
             ),
         )

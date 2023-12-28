@@ -253,8 +253,10 @@ class Data(_XMLObject):
             subelement_text_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="value",
                 kwarg="value",
+                classes=(str,),
                 strict=strict,
             ),
         )
@@ -262,8 +264,10 @@ class Data(_XMLObject):
             subelement_text_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="displayName",
                 kwarg="display_name",
+                classes=(str,),
                 strict=strict,
             ),
         )
