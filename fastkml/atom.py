@@ -42,6 +42,8 @@ from fastkml.config import ATOMNS as NS
 from fastkml.enums import Verbosity
 from fastkml.helpers import subelement_text_kwarg
 from fastkml.helpers import text_subelement
+from fastkml.registry import RegistryItem
+from fastkml.registry import registry
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
@@ -120,19 +122,6 @@ class Link(_AtomObject):
         self.hreflang = hreflang
         self.title = title
         self.length = length
-
-    def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}("
-            f"ns={self.ns!r}, "
-            f"href={self.href!r}, "
-            f"rel={self.rel!r}, "
-            f"type={self.type!r}, "
-            f"hreflang={self.hreflang!r}, "
-            f"title={self.title!r}, "
-            f"length={self.length!r}, "
-            ")"
-        )
 
     def __bool__(self) -> bool:
         return bool(self.href)
@@ -213,94 +202,40 @@ class _Person(_AtomObject):
         self.uri = uri
         self.email = email
 
-    def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}("
-            f"ns={self.ns!r}, "
-            f"name={self.name!r}, "
-            f"uri={self.uri!r}, "
-            f"email={self.email!r}, "
-            ")"
-        )
-
     def __bool__(self) -> bool:
         return bool(self.name)
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        text_subelement(
-            self,
-            element=element,
-            attr_name="name",
-            node_name="name",
-        )
-        text_subelement(
-            self,
-            element=element,
-            attr_name="uri",
-            node_name="uri",
-        )
-        text_subelement(
-            self,
-            element=element,
-            attr_name="email",
-            node_name="email",
-        )
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="name",
-                kwarg="name",
-                classes=(str,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="uri",
-                kwarg="uri",
-                classes=(str,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="email",
-                kwarg="email",
-                classes=(str,),
-                strict=strict,
-            ),
-        )
-        return kwargs
+registry.register(
+    _Person,
+    item=RegistryItem(
+        attr_name="name",
+        node_name="name",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    _Person,
+    item=RegistryItem(
+        attr_name="uri",
+        node_name="uri",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    _Person,
+    item=RegistryItem(
+        attr_name="email",
+        node_name="email",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
 
 
 class Author(_Person):
