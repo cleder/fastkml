@@ -33,7 +33,7 @@ class TestLinearRing(StdLibrary):
 
         assert linear_ring.geometry == lr
         assert linear_ring.altitude_mode is None
-        assert linear_ring.extrude is False
+        assert linear_ring.extrude is None
 
     def test_to_string(self) -> None:
         """Test the to_string method."""

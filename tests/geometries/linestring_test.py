@@ -33,7 +33,7 @@ class TestLineString(StdLibrary):
 
         assert line_string.geometry == ls
         assert line_string.altitude_mode is None
-        assert line_string.extrude is False
+        assert line_string.extrude is None
 
     def test_to_string(self) -> None:
         """Test the to_string method."""

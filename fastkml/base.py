@@ -33,7 +33,6 @@ class _XMLObject:
 
     _default_ns: str = ""
     _node_name: str = ""
-    __name__ = ""
     name_spaces: Dict[str, str]
 
     def __init__(
@@ -58,15 +57,9 @@ class _XMLObject:
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         """Return the KML Object as an Element."""
-        if self.__name__:
-            element: Element = config.etree.Element(  # type: ignore[attr-defined]
-                f"{self.ns}{self.__name__}",
-            )
-        else:
-            msg = "Call of abstract base class, subclasses implement this!"
-            raise NotImplementedError(
-                msg,
-            )
+        element: Element = config.etree.Element(  # type: ignore[attr-defined]
+            f"{self.ns}{self.get_tag_name()}",
+        )
         return element
 
     def to_string(
@@ -101,6 +94,11 @@ class _XMLObject:
                     "UTF-8",
                 ),
             )
+
+    @classmethod
+    def get_tag_name(cls) -> str:
+        """Return the tag name."""
+        return cls.__name__
 
     @classmethod
     def _get_ns(cls, ns: Optional[str]) -> str:

@@ -1,3 +1,18 @@
+# Copyright (C) 2023  Christian Ledermann
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Overlays."""
 
 import logging
@@ -6,7 +21,6 @@ from typing import Dict
 from typing import Iterable
 from typing import Optional
 from typing import Union
-from typing import cast
 
 from fastkml import atom
 from fastkml import config
@@ -24,6 +38,16 @@ from fastkml.geometry import LineString
 from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
+from fastkml.helpers import enum_subelement
+from fastkml.helpers import float_subelement
+from fastkml.helpers import int_subelement
+from fastkml.helpers import subelement_enum_kwarg
+from fastkml.helpers import subelement_float_kwarg
+from fastkml.helpers import subelement_int_kwarg
+from fastkml.helpers import subelement_text_kwarg
+from fastkml.helpers import text_subelement
+from fastkml.helpers import xml_subelement
+from fastkml.helpers import xml_subelement_kwarg
 from fastkml.links import Icon
 from fastkml.styles import Style
 from fastkml.styles import StyleMap
@@ -58,18 +82,18 @@ class _Overlay(_Feature):
     nested hierarchies.
     """
 
-    _color: Optional[str]
+    color: Optional[str]
     # Color values expressed in hexadecimal notation, including opacity (alpha)
     # values. The order of expression is alphaOverlay, blue, green, red
     # (AABBGGRR). The range of values for any one color is 0 to 255 (00 to ff).
     # For opacity, 00 is fully transparent and ff is fully opaque.
 
-    _draw_order: Optional[int]
+    draw_order: Optional[int]
     # Defines the stacking order for the images in overlapping overlays.
     # Overlays with higher <drawOrder> values are drawn on top of those with
     # lower <drawOrder> values.
 
-    _icon: Optional[Icon]
+    icon: Optional[Icon]
     # Defines the image associated with the overlay. Contains an <href> html
     # tag which defines the location of the image to be used as the overlay.
     # The location can be either on a local file system or on a webserver. If
@@ -123,33 +147,9 @@ class _Overlay(_Feature):
             region=region,
             extended_data=extended_data,
         )
-        self._icon = icon
-        self._color = color
-        self._draw_order = draw_order
-
-    @property
-    def color(self) -> Optional[str]:
-        return self._color
-
-    @color.setter
-    def color(self, color: Optional[str]) -> None:
-        self._color = color
-
-    @property
-    def draw_order(self) -> Optional[int]:
-        return self._draw_order
-
-    @draw_order.setter
-    def draw_order(self, value: Optional[int]) -> None:
-        self._draw_order = value
-
-    @property
-    def icon(self) -> Optional[Icon]:
-        return self._icon
-
-    @icon.setter
-    def icon(self, value: Optional[Icon]) -> None:
-        self._icon = value
+        self.icon = icon
+        self.color = color
+        self.draw_order = draw_order
 
     def etree_element(
         self,
@@ -157,20 +157,25 @@ class _Overlay(_Feature):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self._color:
-            color = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}color",
-            )
-            color.text = self._color
-        if self._draw_order:
-            draw_order = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}drawOrder",
-            )
-            draw_order.text = str(self._draw_order)
-        if self._icon:
-            element.append(self._icon.etree_element())
+        text_subelement(
+            self,
+            element=element,
+            attr_name="color",
+            node_name="color",
+        )
+        int_subelement(
+            self,
+            element=element,
+            attr_name="draw_order",
+            node_name="drawOrder",
+        )
+        xml_subelement(
+            self,
+            element=element,
+            attr_name="icon",
+            precision=precision,
+            verbosity=verbosity,
+        )
         return element
 
     @classmethod
@@ -188,23 +193,36 @@ class _Overlay(_Feature):
             element=element,
             strict=strict,
         )
-        color = element.find(f"{ns}color")
-        if color is not None:
-            kwargs["color"] = color.text
-        draw_order = element.find(f"{ns}drawOrder")
-        if draw_order is not None:
-            kwargs["draw_order"] = int(draw_order.text)
-        icon = element.find(f"{ns}Icon")
-        if icon is not None:
-            kwargs["icon"] = cast(
-                Icon,
-                Icon.class_from_element(
-                    ns=ns,
-                    name_spaces=name_spaces,
-                    element=icon,
-                    strict=strict,
-                ),
-            )
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="color",
+                kwarg="color",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_int_kwarg(
+                element=element,
+                ns=ns,
+                node_name="drawOrder",
+                kwarg="draw_order",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="icon",
+                obj_class=Icon,
+                strict=strict,
+            ),
+        )
         return kwargs
 
 
@@ -219,6 +237,8 @@ class ViewVolume(_XMLObject):
 
     https://developers.google.com/kml/documentation/kmlreference#viewvolume
     """
+
+    _default_ns = config.KMLNS
 
     left_fow: Optional[float]
     # Angle, in degrees, between the camera's viewing direction and the left side
@@ -274,31 +294,41 @@ class ViewVolume(_XMLObject):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        left_fov = config.etree.SubElement(  # type: ignore[attr-defined]
-            element,
-            f"{self.ns}leftFov",
+        float_subelement(
+            self,
+            element=element,
+            attr_name="left_fov",
+            node_name="leftFov",
+            precision=precision,
         )
-        left_fov.text = str(self.left_fov)
-        right_fov = config.etree.SubElement(  # type: ignore[attr-defined]
-            element,
-            f"{self.ns}rightFov",
+        float_subelement(
+            self,
+            element=element,
+            attr_name="right_fov",
+            node_name="rightFov",
+            precision=precision,
         )
-        right_fov.text = str(self.right_fov)
-        bottom_fov = config.etree.SubElement(  # type: ignore[attr-defined]
-            element,
-            f"{self.ns}bottomFov",
+        float_subelement(
+            self,
+            element=element,
+            attr_name="bottom_fov",
+            node_name="bottomFov",
+            precision=precision,
         )
-        bottom_fov.text = str(self.bottom_fov)
-        top_fov = config.etree.SubElement(  # type: ignore[attr-defined]
-            element,
-            f"{self.ns}topFov",
+        float_subelement(
+            self,
+            element=element,
+            attr_name="top_fov",
+            node_name="topFov",
+            precision=precision,
         )
-        top_fov.text = str(self.top_fov)
-        near = config.etree.SubElement(  # type: ignore[attr-defined]
-            element,
-            f"{self.ns}near",
+        float_subelement(
+            self,
+            element=element,
+            attr_name="near",
+            node_name="near",
+            precision=precision,
         )
-        near.text = str(self.near)
         return element
 
     @classmethod
@@ -316,21 +346,63 @@ class ViewVolume(_XMLObject):
             element=element,
             strict=strict,
         )
-        left_fov = element.find(f"{ns}leftFov")
-        if left_fov is not None:
-            kwargs["left_fov"] = float(left_fov.text)
-        right_fov = element.find(f"{ns}rightFov")
-        if right_fov is not None:
-            kwargs["right_fov"] = float(right_fov.text)
-        bottom_fov = element.find(f"{ns}bottomFov")
-        if bottom_fov is not None:
-            kwargs["bottom_fov"] = float(bottom_fov.text)
-        top_fov = element.find(f"{ns}topFov")
-        if top_fov is not None:
-            kwargs["top_fov"] = float(top_fov.text)
-        near = element.find(f"{ns}near")
-        if near is not None:
-            kwargs["near"] = float(near.text)
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="leftFov",
+                kwarg="left_fov",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="rightFov",
+                kwarg="right_fov",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="bottomFov",
+                kwarg="bottom_fov",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="topFov",
+                kwarg="top_fov",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="near",
+                kwarg="near",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="near",
+                kwarg="near",
+                strict=strict,
+            ),
+        )
+
         return kwargs
 
 
@@ -354,6 +426,8 @@ class ImagePyramid(_XMLObject):
     When you specify an image pyramid, you also need to modify the <href> in the <Icon>
     element to include specifications for which tiles to load.
     """
+
+    _default_ns = config.KMLNS
 
     tile_size: Optional[int]
     # Size of the tiles, in pixels. Tiles must be square, and <tileSize> must be a power
@@ -400,27 +474,31 @@ class ImagePyramid(_XMLObject):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        tile_size = config.etree.SubElement(  # type: ignore[attr-defined]
-            element,
-            f"{self.ns}tileSize",
+        int_subelement(
+            self,
+            element=element,
+            attr_name="tile_size",
+            node_name="tileSize",
         )
-        tile_size.text = str(self.tile_size)
-        max_width = config.etree.SubElement(  # type: ignore[attr-defined]
-            element,
-            f"{self.ns}maxWidth",
+        int_subelement(
+            self,
+            element=element,
+            attr_name="max_width",
+            node_name="maxWidth",
         )
-        max_width.text = str(self.max_width)
-        max_height = config.etree.SubElement(  # type: ignore[attr-defined]
-            element,
-            f"{self.ns}maxHeight",
+        int_subelement(
+            self,
+            element=element,
+            attr_name="max_height",
+            node_name="maxHeight",
         )
-        max_height.text = str(self.max_height)
-        grid_origin = config.etree.SubElement(  # type: ignore[attr-defined]
-            element,
-            f"{self.ns}gridOrigin",
+        enum_subelement(
+            self,
+            element=element,
+            attr_name="grid_origin",
+            node_name="gridOrigin",
         )
-        assert self.grid_origin is not None
-        grid_origin.text = self.grid_origin.value
+
         return element
 
     @classmethod
@@ -438,18 +516,45 @@ class ImagePyramid(_XMLObject):
             element=element,
             strict=strict,
         )
-        tile_size = element.find(f"{ns}tileSize")
-        if tile_size is not None:
-            kwargs["tile_size"] = int(tile_size.text)
-        max_width = element.find(f"{ns}maxWidth")
-        if max_width is not None:
-            kwargs["max_width"] = int(max_width.text)
-        max_height = element.find(f"{ns}maxHeight")
-        if max_height is not None:
-            kwargs["max_height"] = int(max_height.text)
-        grid_origin = element.find(f"{ns}gridOrigin")
-        if grid_origin is not None:
-            kwargs["grid_origin"] = GridOrigin(grid_origin.text)
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
+        kwargs.update(
+            subelement_int_kwarg(
+                element=element,
+                ns=ns,
+                node_name="tileSize",
+                kwarg="tile_size",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_int_kwarg(
+                element=element,
+                ns=ns,
+                node_name="maxWidth",
+                kwarg="max_width",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_int_kwarg(
+                element=element,
+                ns=ns,
+                node_name="maxHeight",
+                kwarg="max_height",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_enum_kwarg(
+                element=element,
+                ns=ns,
+                node_name="gridOrigin",
+                kwarg="grid_origin",
+                enum_class=GridOrigin,
+                strict=strict,
+            ),
+        )
         return kwargs
 
 
@@ -478,8 +583,6 @@ class PhotoOverlay(_Overlay):
 
     https://developers.google.com/kml/documentation/kmlreference#photooverlay
     """
-
-    __name__ = "PhotoOverlay"
 
     rotation: Optional[float]
     # Adjusts how the photo is placed inside the field of view. This element is
@@ -577,24 +680,40 @@ class PhotoOverlay(_Overlay):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.rotation is not None:
-            rotation = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}rotation",
-            )
-            rotation.text = str(self.rotation)
-        if self.view_volume:
-            element.append(self.view_volume.etree_element())
-        if self.image_pyramid:
-            element.append(self.image_pyramid.etree_element())
-        if self.point:
-            element.append(self.point.etree_element())
-        if self.shape:
-            shape = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}shape",
-            )
-            shape.text = self.shape.value
+        float_subelement(
+            self,
+            element=element,
+            attr_name="rotation",
+            node_name="rotation",
+            precision=precision,
+        )
+        xml_subelement(
+            self,
+            element=element,
+            attr_name="view_volume",
+            precision=precision,
+            verbosity=verbosity,
+        )
+        xml_subelement(
+            self,
+            element=element,
+            attr_name="image_pyramid",
+            precision=precision,
+            verbosity=verbosity,
+        )
+        xml_subelement(
+            self,
+            element=element,
+            attr_name="point",
+            precision=precision,
+            verbosity=verbosity,
+        )
+        enum_subelement(
+            self,
+            element=element,
+            attr_name="shape",
+            node_name="shape",
+        )
         return element
 
     @classmethod
@@ -612,45 +731,58 @@ class PhotoOverlay(_Overlay):
             element=element,
             strict=strict,
         )
-        rotation = element.find(f"{ns}rotation")
-        if rotation is not None:
-            kwargs["rotation"] = float(rotation.text)
-        view_volume = element.find(f"{ns}ViewVolume")
-        if view_volume is not None:
-            kwargs["view_volume"] = cast(
-                ViewVolume,
-                ViewVolume.class_from_element(
-                    ns=ns,
-                    name_spaces=name_spaces,
-                    element=view_volume,
-                    strict=strict,
-                ),
-            )
-        image_pyramid = element.find(f"{ns}ImagePyramid")
-        if image_pyramid is not None:
-            kwargs["image_pyramid"] = cast(
-                ImagePyramid,
-                ImagePyramid.class_from_element(
-                    ns=ns,
-                    name_spaces=name_spaces,
-                    element=image_pyramid,
-                    strict=strict,
-                ),
-            )
-        point = element.find(f"{ns}Point")
-        if point is not None:
-            kwargs["point"] = cast(
-                Point,
-                Point.class_from_element(
-                    ns=ns,
-                    name_spaces=name_spaces,
-                    element=point,
-                    strict=strict,
-                ),
-            )
-        shape = element.find(f"{ns}shape")
-        if shape is not None:
-            kwargs["shape"] = Shape(shape.text)
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="rotation",
+                kwarg="rotation",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="view_volume",
+                obj_class=ViewVolume,
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="image_pyramid",
+                obj_class=ImagePyramid,
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="point",
+                obj_class=Point,
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_enum_kwarg(
+                element=element,
+                ns=ns,
+                node_name="shape",
+                kwarg="shape",
+                enum_class=Shape,
+                strict=strict,
+            ),
+        )
+
         return kwargs
 
 
@@ -677,7 +809,8 @@ class LatLonBox(_XMLObject):
     Rotations are specified in a counterclockwise direction.
     """
 
-    __name__ = "LatLonBox"
+    _default_ns = config.KMLNS
+
     north: Optional[float]
     south: Optional[float]
     east: Optional[float]
@@ -717,32 +850,42 @@ class LatLonBox(_XMLObject):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        north = config.etree.SubElement(  # type: ignore[attr-defined]
-            element,
-            f"{self.ns}north",
+        float_subelement(
+            self,
+            element=element,
+            attr_name="north",
+            node_name="north",
+            precision=precision,
         )
-        north.text = str(self.north)
-        south = config.etree.SubElement(  # type: ignore[attr-defined]
-            element,
-            f"{self.ns}south",
+        float_subelement(
+            self,
+            element=element,
+            attr_name="south",
+            node_name="south",
+            precision=precision,
         )
-        south.text = str(self.south)
-        east = config.etree.SubElement(  # type: ignore[attr-defined]
-            element,
-            f"{self.ns}east",
+        float_subelement(
+            self,
+            element=element,
+            attr_name="east",
+            node_name="east",
+            precision=precision,
         )
-        east.text = str(self.east)
-        west = config.etree.SubElement(  # type: ignore[attr-defined]
-            element,
-            f"{self.ns}west",
+        float_subelement(
+            self,
+            element=element,
+            attr_name="west",
+            node_name="west",
+            precision=precision,
         )
-        west.text = str(self.west)
-        if self.rotation is not None:
-            rotation = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}rotation",
-            )
-            rotation.text = str(self.rotation)
+        float_subelement(
+            self,
+            element=element,
+            attr_name="rotation",
+            node_name="rotation",
+            precision=precision,
+        )
+
         return element
 
     @classmethod
@@ -760,21 +903,53 @@ class LatLonBox(_XMLObject):
             element=element,
             strict=strict,
         )
-        north = element.find(f"{ns}north")
-        if north is not None:
-            kwargs["north"] = float(north.text)
-        south = element.find(f"{ns}south")
-        if south is not None:
-            kwargs["south"] = float(south.text)
-        east = element.find(f"{ns}east")
-        if east is not None:
-            kwargs["east"] = float(east.text)
-        west = element.find(f"{ns}west")
-        if west is not None:
-            kwargs["west"] = float(west.text)
-        rotation = element.find(f"{ns}rotation")
-        if rotation is not None:
-            kwargs["rotation"] = float(rotation.text)
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="north",
+                kwarg="north",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="south",
+                kwarg="south",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="east",
+                kwarg="east",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="west",
+                kwarg="west",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="rotation",
+                kwarg="rotation",
+                strict=strict,
+            ),
+        )
         return kwargs
 
 
@@ -788,8 +963,6 @@ class GroundOverlay(_Overlay):
 
     https://developers.google.com/kml/documentation/kmlreference#groundoverlay
     """
-
-    __name__ = "GroundOverlay"
 
     altitude: Optional[float]
     # Specifies the distance above the earth's surface, in meters, and is
@@ -877,20 +1050,26 @@ class GroundOverlay(_Overlay):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.altitude:
-            altitude = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}altitude",
-            )
-            altitude.text = str(self.altitude)
-            if self.altitude_mode:
-                altitude_mode = config.etree.SubElement(  # type: ignore[attr-defined]
-                    element,
-                    f"{self.ns}altitudeMode",
-                )
-                altitude_mode.text = self.altitude_mode.value
-        if self.lat_lon_box:
-            element.append(self.lat_lon_box.etree_element())
+        float_subelement(
+            self,
+            element=element,
+            attr_name="altitude",
+            node_name="altitude",
+            precision=precision,
+        )
+        enum_subelement(
+            self,
+            element=element,
+            attr_name="altitude_mode",
+            node_name="altitudeMode",
+        )
+        xml_subelement(
+            self,
+            element=element,
+            attr_name="lat_lon_box",
+            precision=precision,
+            verbosity=verbosity,
+        )
         return element
 
     @classmethod
@@ -908,21 +1087,36 @@ class GroundOverlay(_Overlay):
             element=element,
             strict=strict,
         )
-        altitude = element.find(f"{ns}altitude")
-        if altitude is not None:
-            kwargs["altitude"] = float(altitude.text)
-        altitude_mode = element.find(f"{ns}altitudeMode")
-        if altitude_mode is not None:
-            kwargs["altitude_mode"] = AltitudeMode(altitude_mode.text)
-        lat_lon_box = element.find(f"{ns}LatLonBox")
-        if lat_lon_box is not None:
-            kwargs["lat_lon_box"] = cast(
-                LatLonBox,
-                LatLonBox.class_from_element(
-                    ns=ns,
-                    name_spaces=name_spaces,
-                    element=lat_lon_box,
-                    strict=strict,
-                ),
-            )
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="altitude",
+                kwarg="altitude",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_enum_kwarg(
+                element=element,
+                ns=ns,
+                node_name="altitudeMode",
+                kwarg="altitude_mode",
+                enum_class=AltitudeMode,
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="lat_lon_box",
+                obj_class=LatLonBox,
+                strict=strict,
+            ),
+        )
+
         return kwargs

@@ -125,8 +125,7 @@ class KmlDateTime:
         """Parse a KML DateTime string into a KmlDateTime object."""
         resolution = None
         dt = None
-        year_month_day_match = year_month_day.match(datestr)
-        if year_month_day_match:
+        if year_month_day_match := year_month_day.match(datestr):
             year = int(year_month_day_match.group("year"))
             month = int(year_month_day_match.group("month") or 1)
             day = int(year_month_day_match.group("day") or 1)
@@ -154,8 +153,6 @@ class _TimePrimitive(_BaseObject):
 class TimeStamp(_TimePrimitive):
     """Represents a single moment in time."""
 
-    __name__ = "TimeStamp"
-
     def __init__(
         self,
         ns: Optional[str] = None,
@@ -166,6 +163,10 @@ class TimeStamp(_TimePrimitive):
     ) -> None:
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.timestamp = timestamp
+
+    def __bool__(self) -> bool:
+        """Return True if the timestamp is valid."""
+        return bool(self.timestamp)
 
     def etree_element(
         self,
@@ -204,8 +205,6 @@ class TimeStamp(_TimePrimitive):
 class TimeSpan(_TimePrimitive):
     """Represents an extent in time bounded by begin and end dateTimes."""
 
-    __name__ = "TimeSpan"
-
     def __init__(
         self,
         ns: Optional[str] = None,
@@ -219,6 +218,10 @@ class TimeSpan(_TimePrimitive):
         self.begin = begin
         self.end = end
 
+    def __bool__(self) -> bool:
+        """Return True if the begin or end date is valid."""
+        return bool(self.begin) or bool(self.end)
+
     def etree_element(
         self,
         precision: Optional[int] = None,
@@ -226,25 +229,19 @@ class TimeSpan(_TimePrimitive):
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.begin is not None:
-            text = str(self.begin)
-            if text:
+            if text := str(self.begin):
                 begin = config.etree.SubElement(  # type: ignore[attr-defined]
                     element,
                     f"{self.ns}begin",
                 )
                 begin.text = text
         if self.end is not None:
-            text = str(self.end)
-            if text:
+            if text := str(self.end):
                 end = config.etree.SubElement(  # type: ignore[attr-defined]
                     element,
                     f"{self.ns}end",
                 )
                 end.text = text
-        if self.begin == self.end is None:
-            msg = "Either begin, end or both must be set"
-            raise ValueError(msg)
-        # TODO test if end > begin
         return element
 
     @classmethod

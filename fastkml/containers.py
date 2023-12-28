@@ -1,10 +1,24 @@
+# Copyright (C) 2023  Christian Ledermann
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Container classes for KML elements."""
 import logging
 import urllib.parse as urlparse
 from typing import Any
 from typing import Dict
 from typing import Iterable
-from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Union
@@ -22,6 +36,8 @@ from fastkml.geometry import LineString
 from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
+from fastkml.helpers import xml_subelement_list
+from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.styles import Style
 from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
@@ -55,7 +71,7 @@ class _Container(_Feature):
     Folder.
     """
 
-    _features: Optional[List[_Feature]]
+    features: List[_Feature]
 
     def __init__(
         self,
@@ -79,7 +95,7 @@ class _Container(_Feature):
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
         # Container specific
-        features: Optional[List[_Feature]] = None,
+        features: Optional[Iterable[_Feature]] = None,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -102,12 +118,7 @@ class _Container(_Feature):
             region=region,
             extended_data=extended_data,
         )
-        self._features = features or []
-
-    def features(self) -> Iterator[_Feature]:
-        """Iterate over features."""
-        assert self._features is not None
-        yield from self._features
+        self.features = list(features) if features else []
 
     def etree_element(
         self,
@@ -115,7 +126,7 @@ class _Container(_Feature):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        for feature in self.features():
+        for feature in self.features:
             element.append(feature.etree_element())
         return element
 
@@ -124,8 +135,8 @@ class _Container(_Feature):
         if kmlobj is self:
             msg = "Cannot append self"
             raise ValueError(msg)
-        assert self._features is not None
-        self._features.append(kmlobj)
+        assert self.features is not None
+        self.features.append(kmlobj)
 
     @classmethod
     def _get_kwargs(
@@ -143,21 +154,18 @@ class _Container(_Feature):
             strict=strict,
         )
         kwargs["features"] = []
-        folders = element.findall(f"{ns}Folder")
-        kwargs["features"] += [
-            Folder.class_from_element(ns=ns, element=folder, strict=strict)
-            for folder in folders
-        ]
-        placemarks = element.findall(f"{ns}Placemark")
-        kwargs["features"] += [
-            Placemark.class_from_element(ns=ns, element=placemark, strict=strict)
-            for placemark in placemarks
-        ]
-        documents = element.findall(f"{ns}Document")
-        kwargs["features"] += [
-            Document.class_from_element(ns=ns, element=document, strict=strict)
-            for document in documents
-        ]
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
+        kwargs.update(
+            xml_subelement_list_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="features",
+                obj_classes=(Folder, Placemark, Document),
+                strict=strict,
+            ),
+        )
         return kwargs
 
 
@@ -167,8 +175,6 @@ class Folder(_Container):
     (Folders, Placemarks, #NetworkLinks, or #Overlays).
     """
 
-    __name__ = "Folder"
-
 
 class Document(_Container):
     """
@@ -177,8 +183,7 @@ class Document(_Container):
     extended data.
     """
 
-    __name__ = "Document"
-    _schemata: Optional[List[Schema]]
+    schemata: List[Schema]
 
     def __init__(
         self,
@@ -226,15 +231,7 @@ class Document(_Container):
             extended_data=extended_data,
             features=features,
         )
-        self._schemata = list(schemata) if schemata else []
-
-    def schemata(self) -> Iterator[Schema]:
-        if self._schemata:
-            yield from self._schemata
-
-    def append_schema(self, schema: Schema) -> None:
-        assert self._schemata is not None
-        self._schemata.append(schema)
+        self.schemata = list(schemata) if schemata else []
 
     def etree_element(
         self,
@@ -242,14 +239,18 @@ class Document(_Container):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self._schemata is not None:
-            for schema in self._schemata:
-                element.append(schema.etree_element())
+        xml_subelement_list(
+            obj=self,
+            element=element,
+            attr_name="schemata",
+            precision=precision,
+            verbosity=verbosity,
+        )
         return element
 
     def get_style_by_url(self, style_url: str) -> Optional[Union[Style, StyleMap]]:
         id_ = urlparse.urlparse(style_url).fragment
-        return next((style for style in self.styles() if style.id == id_), None)
+        return next((style for style in self.styles if style.id == id_), None)
 
     @classmethod
     def _get_kwargs(
@@ -266,9 +267,16 @@ class Document(_Container):
             element=element,
             strict=strict,
         )
-        schemata = element.findall(f"{ns}Schema")
-        kwargs["schemata"] = [
-            Schema.class_from_element(ns=ns, element=schema, strict=strict)
-            for schema in schemata
-        ]
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
+        kwargs.update(
+            xml_subelement_list_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="schemata",
+                obj_classes=(Schema,),
+                strict=strict,
+            ),
+        )
         return kwargs

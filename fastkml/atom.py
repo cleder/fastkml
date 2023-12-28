@@ -32,7 +32,6 @@ This library only implements a subset of Atom that is useful with KML
 """
 
 import logging
-import re
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -41,19 +40,33 @@ from fastkml import config
 from fastkml.base import _XMLObject
 from fastkml.config import ATOMNS as NS
 from fastkml.enums import Verbosity
+from fastkml.helpers import subelement_text_kwarg
+from fastkml.helpers import text_subelement
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
-regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
-email_match = re.compile(regex).match
 
 
-def check_email(email: str) -> bool:
-    """Check if the email address is valid."""
-    return bool(email_match(email))
+class _AtomObject(_XMLObject):
+    """
+    Baseclass for Atom Objects.
+
+    Atom objects are used in KML to provide information about the author and
+    related website in your KML file. This information is displayed in geo
+    search results, both in Earth browsers such as Google Earth, and in other
+    applications such as Google Maps.
+    The atom tag name is the class name in lower case.
+    """
+
+    _default_ns = config.ATOMNS
+
+    @classmethod
+    def get_tag_name(cls) -> str:
+        """Return the tag name."""
+        return cls.__name__.lower()
 
 
-class Link(_XMLObject):
+class Link(_AtomObject):
     """
     Identifies a related Web page. The rel attribute defines the type of relation.
     A feed is limited to one alternate per type and hreflang.
@@ -61,8 +74,6 @@ class Link(_XMLObject):
     attribute, href, and five optional attributes: rel, type, hreflang,
     title, and length.
     """
-
-    __name__ = "link"
 
     href: Optional[str]
     # href is the URI of the referenced resource
@@ -123,6 +134,9 @@ class Link(_XMLObject):
             ")"
         )
 
+    def __bool__(self) -> bool:
+        return bool(self.href)
+
     def etree_element(
         self,
         precision: Optional[int] = None,
@@ -170,14 +184,12 @@ class Link(_XMLObject):
         return kwargs
 
 
-class _Person(_XMLObject):
+class _Person(_AtomObject):
     """
     <author> and <contributor> describe a person, corporation, or similar
     entity. It has one required element, name, and two optional elements:
     uri, email.
     """
-
-    __name__ = ""
 
     name: Optional[str]
     # conveys a human-readable name for the person.
@@ -211,33 +223,33 @@ class _Person(_XMLObject):
             ")"
         )
 
+    def __bool__(self) -> bool:
+        return bool(self.name)
+
     def etree_element(
         self,
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        self.__name__ = self.__class__.__name__.lower()
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.name:
-            name = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}name",
-            )
-            name.text = self.name
-        else:
-            logger.warning("No Name for person defined")
-        if self.uri:
-            uri = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}uri",
-            )
-            uri.text = self.uri
-        if self.email and check_email(self.email):
-            email = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}email",
-            )
-            email.text = self.email
+        text_subelement(
+            self,
+            element=element,
+            attr_name="name",
+            node_name="name",
+        )
+        text_subelement(
+            self,
+            element=element,
+            attr_name="uri",
+            node_name="uri",
+        )
+        text_subelement(
+            self,
+            element=element,
+            attr_name="email",
+            node_name="email",
+        )
         return element
 
     @classmethod
@@ -255,15 +267,33 @@ class _Person(_XMLObject):
             element=element,
             strict=strict,
         )
-        name = element.find(f"{ns}name")
-        if name is not None:
-            kwargs["name"] = name.text
-        uri = element.find(f"{ns}uri")
-        if uri is not None:
-            kwargs["uri"] = uri.text
-        email = element.find(f"{ns}email")
-        if email is not None:
-            kwargs["email"] = email.text
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="name",
+                kwarg="name",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="uri",
+                kwarg="uri",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="email",
+                kwarg="email",
+                strict=strict,
+            ),
+        )
         return kwargs
 
 
@@ -274,8 +304,6 @@ class Author(_Person):
     A feed/entry may have multiple authors.
     """
 
-    __name__ = "author"
-
 
 class Contributor(_Person):
     """
@@ -283,8 +311,6 @@ class Contributor(_Person):
 
     A feed/entry may have multiple contributor elements.
     """
-
-    __name__ = "contributor"
 
 
 __all__ = ["Author", "Contributor", "Link", "NS"]

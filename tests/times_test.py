@@ -87,7 +87,7 @@ class TestDateTime(StdLibrary):
 
     def test_kml_datetime_no_datetime(self) -> None:
         """When we pass dt as None bool() should return False."""
-        kdt = KmlDateTime(None)
+        kdt = KmlDateTime(None)  # type: ignore[arg-type]
 
         assert kdt.resolution == DateTimeResolution.date
         assert not bool(kdt)
@@ -219,30 +219,29 @@ class TestStdLibrary(StdLibrary):
         ts.end = None
         assert now.dt.isoformat() not in str(ts.to_string())
         assert y2k.dt.isoformat() in str(ts.to_string())
+        assert ts
         ts.begin = None
-        pytest.raises(ValueError, ts.to_string)
+        assert not ts
 
     def test_feature_timestamp(self) -> None:
         now = datetime.datetime.now()
         f = kml.Document()
-        f._times = kml.TimeStamp(timestamp=KmlDateTime(now))
+        f.times = kml.TimeStamp(timestamp=KmlDateTime(now))
         assert f.time_stamp.dt == now
         assert now.isoformat() in str(f.to_string())
         assert "TimeStamp>" in str(f.to_string())
         assert "when>" in str(f.to_string())
-        f._times = kml.TimeStamp(timestamp=KmlDateTime(now.date()))
+        f.times = kml.TimeStamp(timestamp=KmlDateTime(now.date()))
         assert now.date().isoformat() in str(f.to_string())
         assert now.isoformat() not in str(f.to_string())
-        f._times = None
+        f.times = None
         assert "TimeStamp>" not in str(f.to_string())
 
-    @pytest.mark.skip(reason="not yet implemented")
     def test_feature_timespan(self) -> None:
         now = datetime.datetime.now()
         y2k = datetime.datetime(2000, 1, 1)
         f = kml.Document()
-        f.begin = KmlDateTime(y2k)
-        f.end = KmlDateTime(now)
+        f.times = kml.TimeSpan(begin=KmlDateTime(y2k), end=KmlDateTime(now))
         assert f.begin == KmlDateTime(y2k)
         assert f.end == KmlDateTime(now)
         assert now.isoformat() in str(f.to_string())
@@ -250,13 +249,13 @@ class TestStdLibrary(StdLibrary):
         assert "TimeSpan>" in str(f.to_string())
         assert "begin>" in str(f.to_string())
         assert "end>" in str(f.to_string())
-        f.end = None
+        f.times = kml.TimeSpan(begin=KmlDateTime(y2k))
         assert now.isoformat() not in str(f.to_string())
         assert "2000-01-01" in str(f.to_string())
         assert "TimeSpan>" in str(f.to_string())
         assert "begin>" in str(f.to_string())
         assert "end>" not in str(f.to_string())
-        f.begin = None
+        f.times = None
         assert "TimeSpan>" not in str(f.to_string())
 
     def test_read_timestamp_year(self) -> None:

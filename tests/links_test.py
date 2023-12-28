@@ -27,23 +27,25 @@ class TestStdLibrary(StdLibrary):
 
     def test_icon(self) -> None:
         """Test the Icon class."""
-        icon = links.Icon(
+        icon_0 = links.Icon(
             id="icon-01",
             href="http://maps.google.com/mapfiles/kml/paddle/red-circle.png",
-            refresh_mode="onInterval",
+            refresh_mode=RefreshMode("onInterval"),
             refresh_interval=60,
-            view_refresh_mode="onStop",
+            view_refresh_mode=ViewRefreshMode("onStop"),
             view_refresh_time=4,
             view_bound_scale=1.2,
             view_format="BBOX=[bboxWest],[bboxSouth],[bboxEast],[bboxNorth]",
             http_query="clientName=fastkml",
         )
 
+        icon = links.Icon.class_from_string(icon_0.to_string())
+
         assert icon.id == "icon-01"
         assert icon.href == "http://maps.google.com/mapfiles/kml/paddle/red-circle.png"
-        assert icon.refresh_mode == "onInterval"
+        assert icon.refresh_mode == RefreshMode("onInterval")
         assert icon.refresh_interval == 60
-        assert icon.view_refresh_mode == "onStop"
+        assert icon.view_refresh_mode == ViewRefreshMode("onStop")
         assert icon.view_refresh_time == 4
         assert icon.view_bound_scale == 1.2
         assert icon.view_format == "BBOX=[bboxWest],[bboxSouth],[bboxEast],[bboxNorth]"

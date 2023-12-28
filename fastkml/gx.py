@@ -75,7 +75,6 @@ Elements that currently use the gx prefix are:
 The complete XML schema for elements in this extension namespace is
 located at http://developers.google.com/kml/schema/kml22gx.xsd.
 """
-import contextlib
 import datetime
 import logging
 from dataclasses import dataclass
@@ -95,6 +94,10 @@ from fastkml import config
 from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
 from fastkml.geometry import _Geometry
+from fastkml.helpers import bool_subelement
+from fastkml.helpers import subelement_bool_kwarg
+from fastkml.helpers import xml_subelement_list
+from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.types import Element
 
 __all__ = [
@@ -196,8 +199,8 @@ class Track(_Geometry):
         name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        extrude: Optional[bool] = False,
-        tessellate: Optional[bool] = False,
+        extrude: Optional[bool] = None,
+        tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: Optional[geo.LineString] = None,
         track_items: Optional[Sequence[TrackItem]] = None,
@@ -221,26 +224,12 @@ class Track(_Geometry):
             geometry=geometry,
         )
 
-    def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}("
-            f"ns={self.ns!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
-            f"extrude={self.extrude!r}, "
-            f"tessellate={self.tessellate!r}, "
-            f"altitude_mode={self.altitude_mode}, "
-            f"track_items={self.track_items!r}"
-            ")"
-        )
-
     def etree_element(
         self,
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
         name_spaces: Optional[Dict[str, str]] = None,
     ) -> Element:
-        self.__name__ = self.__class__.__name__
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.track_items:
             for track_item in self.track_items:
@@ -329,8 +318,8 @@ class MultiTrack(_Geometry):
         name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        extrude: Optional[bool] = False,
-        tessellate: Optional[bool] = False,
+        extrude: Optional[bool] = None,
+        tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: Optional[geo.MultiLineString] = None,
         tracks: Optional[Sequence[Track]] = None,
@@ -343,7 +332,7 @@ class MultiTrack(_Geometry):
             tracks = multilinestring_to_tracks(geometry, ns=ns)
         elif tracks:
             geometry = tracks_to_geometry(tracks)
-        self.tracks = tracks
+        self.tracks = tracks or []
         self.interpolate = interpolate
         super().__init__(
             ns=ns,
@@ -356,82 +345,28 @@ class MultiTrack(_Geometry):
             geometry=geometry,
         )
 
-    def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}("
-            f"ns={self.ns!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
-            f"extrude={self.extrude!r}, "
-            f"tessellate={self.tessellate!r}, "
-            f"altitude_mode={self.altitude_mode}, "
-            f"tracks={self.tracks!r}, "
-            f"interpolate={self.interpolate!r}"
-            ")"
-        )
-
     def etree_element(
         self,
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
         name_spaces: Optional[Dict[str, str]] = None,
     ) -> Element:
-        self.__name__ = self.__class__.__name__
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.interpolate is not None:
-            i_element = cast(
-                Element,
-                config.etree.SubElement(  # type: ignore[attr-defined]
-                    element,
-                    f"{self.ns}interpolate",
-                ),
-            )
-            i_element.text = str(int(self.interpolate))
-        for track in self.tracks or []:
-            element.append(
-                track.etree_element(
-                    precision=precision,
-                    verbosity=verbosity,
-                    name_spaces=name_spaces,
-                ),
-            )
+        bool_subelement(
+            self,
+            element=element,
+            attr_name="interpolate",
+            node_name="interpolate",
+        )
+        xml_subelement_list(
+            self,
+            element=element,
+            attr_name="tracks",
+            precision=precision,
+            verbosity=verbosity,
+        )
+
         return element
-
-    @classmethod
-    def _get_interpolate(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Optional[bool]:
-        interpolate = element.find(f"{ns}interpolate")
-        if interpolate is None:
-            return None
-        with contextlib.suppress(ValueError):
-            return bool(int(interpolate.text.strip()))
-        return None
-
-    @classmethod
-    def _get_track_kwargs_from_element(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> List[Track]:
-        return [
-            cast(
-                Track,
-                Track.class_from_element(
-                    ns=ns,
-                    element=track,
-                    strict=strict,
-                ),
-            )
-            for track in element.findall(f"{ns}Track")
-            if track is not None
-        ]
 
     @classmethod
     def _get_kwargs(
@@ -448,14 +383,26 @@ class MultiTrack(_Geometry):
             element=element,
             strict=strict,
         )
-        kwargs["interpolate"] = cls._get_interpolate(
-            ns=ns,
-            element=element,
-            strict=strict,
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
+        kwargs.update(
+            subelement_bool_kwarg(
+                element=element,
+                ns=ns,
+                node_name="interpolate",
+                kwarg="interpolate",
+                strict=strict,
+            ),
         )
-        kwargs["tracks"] = cls._get_track_kwargs_from_element(
-            ns=kwargs["name_spaces"].get("gx", ""),
-            element=element,
-            strict=strict,
+        kwargs.update(
+            xml_subelement_list_kwarg(
+                element=element,
+                ns=name_spaces["gx"],
+                name_spaces=name_spaces,
+                kwarg="tracks",
+                obj_classes=(Track,),
+                strict=strict,
+            ),
         )
+
         return kwargs

@@ -21,22 +21,33 @@ part of how your data is displayed.
 """
 
 import logging
-from dataclasses import dataclass
 from typing import Any
 from typing import Dict
 from typing import Iterable
-from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Union
-from typing import cast
 
 from fastkml import config
 from fastkml.base import _BaseObject
+from fastkml.base import _XMLObject
 from fastkml.enums import ColorMode
 from fastkml.enums import DisplayMode
+from fastkml.enums import PairKey
 from fastkml.enums import Units
 from fastkml.enums import Verbosity
+from fastkml.helpers import bool_subelement
+from fastkml.helpers import enum_subelement
+from fastkml.helpers import float_subelement
+from fastkml.helpers import subelement_bool_kwarg
+from fastkml.helpers import subelement_enum_kwarg
+from fastkml.helpers import subelement_float_kwarg
+from fastkml.helpers import subelement_text_kwarg
+from fastkml.helpers import text_subelement
+from fastkml.helpers import xml_subelement
+from fastkml.helpers import xml_subelement_kwarg
+from fastkml.helpers import xml_subelement_list
+from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
@@ -60,8 +71,7 @@ class StyleUrl(_BaseObject):
     use a full URL along with # referencing.
     """
 
-    __name__ = "styleUrl"
-    url = None
+    url: Optional[str]
 
     def __init__(
         self,
@@ -74,17 +84,22 @@ class StyleUrl(_BaseObject):
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.url = url
 
+    def __bool__(self) -> bool:
+        return bool(self.url)
+
     def etree_element(
         self,
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.url:
-            element.text = self.url
-        else:
-            logger.warning("StyleUrl is missing required url.")
+        element.text = self.url or ""
         return element
+
+    @classmethod
+    def get_tag_name(cls) -> str:
+        """Return the tag name."""
+        return "styleUrl"
 
     @classmethod
     def _get_kwargs(
@@ -155,18 +170,18 @@ class _ColorStyle(_BaseObject):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.color:
-            color = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}color",
-            )
-            color.text = self.color
-        if self.color_mode:
-            color_mode = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}colorMode",
-            )
-            color_mode.text = self.color_mode.value
+        text_subelement(
+            obj=self,
+            element=element,
+            attr_name="color",
+            node_name="color",
+        )
+        enum_subelement(
+            obj=self,
+            element=element,
+            attr_name="color_mode",
+            node_name="colorMode",
+        )
         return element
 
     @classmethod
@@ -184,63 +199,199 @@ class _ColorStyle(_BaseObject):
             element=element,
             strict=strict,
         )
-        color_mode = element.find(f"{ns}colorMode")
-        if color_mode is not None:
-            kwargs["color_mode"] = ColorMode(color_mode.text)
-        color = element.find(f"{ns}color")
-        if color is not None:
-            kwargs["color"] = color.text
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
+
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="color",
+                kwarg="color",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_enum_kwarg(
+                element=element,
+                ns=ns,
+                node_name="colorMode",
+                kwarg="color_mode",
+                enum_class=ColorMode,
+                strict=strict,
+            ),
+        )
+
         return kwargs
 
 
-@dataclass(frozen=True)
-class HotSpot:
-    x: float
-    y: float
-    xunits: Units
-    yunits: Units
+class HotSpot(_XMLObject):
+    """
+    Specifies the position within the Icon that is "anchored" to the <Point>.
+
+    x - Either the number of pixels, a fractional component of the icon,
+    or a pixel inset indicating the x component of a point on the icon.
+    y - Either the number of pixels, a fractional component of the icon,
+    or a pixel inset indicating the y component of a point on the icon.
+    xunits - Units in which the x value is specified.
+    A value of fraction indicates the x value is a fraction of the icon.
+    A value of pixels indicates the x value in pixels.
+    A value of insetPixels indicates the indent from the right edge of the icon.
+    yunits - Units in which the y value is specified.
+
+    https://developers.google.com/kml/documentation/kmlreference#hotspot
+    """
+
+    x: Optional[float]
+    y: Optional[float]
+    xunits: Optional[Units]
+    yunits: Optional[Units]
+
+    _default_ns = config.KMLNS
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        xunits: Optional[Units] = None,
+        yunits: Optional[Units] = None,
+    ) -> None:
+        super().__init__(ns=ns, name_spaces=name_spaces)
+        self.x = x
+        self.y = y
+        self.xunits = xunits
+        self.yunits = yunits
+
+    def ___bool__(self) -> bool:
+        return all((self.x is not None, self.y is not None))
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        hot_spot = config.etree.SubElement(  # type: ignore[attr-defined]
+            element,
+            f"{self.ns}hotSpot",
+        )
+        hot_spot.attrib["x"] = str(self.x)
+        hot_spot.attrib["y"] = str(self.y)
+        if self.xunits:
+            hot_spot.attrib["xunits"] = self.xunits.value
+        if self.yunits:
+            hot_spot.attrib["yunits"] = self.yunits.value
+        return element
 
     @classmethod
-    def class_from_element(
+    def get_tag_name(cls) -> str:
+        """Return the tag name."""
+        return "hotSpot"
+
+    @classmethod
+    def _get_kwargs(
         cls,
         *,
         ns: str,
         name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
-    ) -> Optional["HotSpot"]:
-        hot_spot = element.find(f"{ns}hotSpot")
-        if hot_spot is not None:
-            x = hot_spot.attrib.get("x")  # type: ignore[attr-defined]
-            y = hot_spot.attrib.get("y")  # type: ignore[attr-defined]
-            xunits = hot_spot.attrib.get("xunits")  # type: ignore[attr-defined]
-            yunits = hot_spot.attrib.get("yunits")  # type: ignore[attr-defined]
-            x = float(x) if x is not None else 0
-            y = float(y) if y is not None else 0
-            xunits = Units(xunits) if xunits is not None else None
-            yunits = Units(yunits) if yunits is not None else None
-            element.remove(hot_spot)
-            return HotSpot(
-                x=x,
-                y=y,
-                xunits=xunits,
-                yunits=yunits,
-            )
-        return None
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        kwargs["x"] = float(element.get("x"))
+        kwargs["y"] = float(element.get("y"))
+        if element.get("xunits"):
+            kwargs["xunits"] = Units(element.get("xunits"))
+        if element.get("yunits"):
+            kwargs["yunits"] = Units(element.get("yunits"))
+        return kwargs
+
+
+class Icon(_XMLObject):
+    """
+    A custom Icon.
+
+    In <IconStyle>, the only child element of <Icon> is <href>
+    """
+
+    _default_ns = config.KMLNS
+
+    href: Optional[str]
+    # An HTTP address or a local file specification used to load an icon.
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        href: Optional[str] = None,
+    ) -> None:
+        super().__init__(ns=ns, name_spaces=name_spaces)
+        self.href = href
+
+    def __bool__(self) -> bool:
+        return bool(self.href)
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        text_subelement(
+            obj=self,
+            element=element,
+            attr_name="href",
+            node_name="href",
+        )
+        return element
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="href",
+                kwarg="href",
+                strict=strict,
+            ),
+        )
+        return kwargs
 
 
 class IconStyle(_ColorStyle):
     """Specifies how icons for point Placemarks are drawn."""
 
-    __name__ = "IconStyle"
-    scale = 1.0
+    scale: Optional[float]
     # Resizes the icon. (float)
-    heading = None
+    heading: Optional[float]
     # Direction (that is, North, South, East, West), in degrees.
     # Default=0 (North).
-    icon_href = None
+    icon_href: Optional[str]
     # An HTTP address or a local file specification used to load an icon.
-    hot_spot = None
+    hot_spot: Optional[HotSpot]
 
     def __init__(
         self,
@@ -252,7 +403,7 @@ class IconStyle(_ColorStyle):
         color_mode: Optional[ColorMode] = None,
         scale: float = 1.0,
         heading: Optional[float] = None,
-        icon_href: Optional[str] = None,
+        icon: Optional[Icon] = None,
         hot_spot: Optional[HotSpot] = None,
     ) -> None:
         super().__init__(
@@ -266,7 +417,7 @@ class IconStyle(_ColorStyle):
 
         self.scale = scale
         self.heading = heading
-        self.icon_href = icon_href
+        self.icon = icon
         self.hot_spot = hot_spot
 
     def etree_element(
@@ -275,37 +426,34 @@ class IconStyle(_ColorStyle):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.scale is not None:
-            scale = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}scale",
-            )
-            scale.text = str(self.scale)
-        if self.heading is not None:
-            heading = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}heading",
-            )
-            heading.text = str(self.heading)
-        if self.icon_href:
-            icon = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}Icon",
-            )
-            href = config.etree.SubElement(  # type: ignore[attr-defined]
-                icon,
-                f"{self.ns}href",
-            )
-            href.text = self.icon_href
-        if self.hot_spot:
-            hot_spot = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}hotSpot",
-            )
-            hot_spot.attrib["x"] = str(self.hot_spot.x)
-            hot_spot.attrib["y"] = str(self.hot_spot.y)
-            hot_spot.attrib["xunits"] = self.hot_spot.xunits.value
-            hot_spot.attrib["yunits"] = self.hot_spot.yunits.value
+        float_subelement(
+            obj=self,
+            element=element,
+            attr_name="scale",
+            node_name="scale",
+            precision=precision,
+        )
+        float_subelement(
+            obj=self,
+            element=element,
+            attr_name="heading",
+            node_name="heading",
+            precision=precision,
+        )
+        xml_subelement(
+            obj=self,
+            element=element,
+            attr_name="icon",
+            precision=precision,
+            verbosity=verbosity,
+        )
+        xml_subelement(
+            obj=self,
+            element=element,
+            attr_name="hot_spot",
+            precision=precision,
+            verbosity=verbosity,
+        )
         return element
 
     @classmethod
@@ -323,22 +471,45 @@ class IconStyle(_ColorStyle):
             element=element,
             strict=strict,
         )
-        scale = element.find(f"{ns}scale")
-        if scale is not None:
-            kwargs["scale"] = float(scale.text)
-        heading = element.find(f"{ns}heading")
-        if heading is not None:
-            kwargs["heading"] = float(heading.text)
-        icon = element.find(f"{ns}Icon")
-        if icon is not None:
-            href = icon.find(f"{ns}href")
-            if href is not None:
-                kwargs["icon_href"] = href.text
-        kwargs["hot_spot"] = HotSpot.class_from_element(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="scale",
+                kwarg="scale",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="heading",
+                kwarg="heading",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="icon",
+                obj_class=Icon,
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="hot_spot",
+                obj_class=HotSpot,
+                strict=strict,
+            ),
         )
         return kwargs
 
@@ -351,8 +522,7 @@ class LineStyle(_ColorStyle):
     (if extrusion is enabled).
     """
 
-    __name__ = "LineStyle"
-    width = 1.0
+    width: Optional[float]
     # Width of the line, in pixels.
 
     def __init__(
@@ -363,7 +533,7 @@ class LineStyle(_ColorStyle):
         target_id: Optional[str] = None,
         color: Optional[str] = None,
         color_mode: Optional[ColorMode] = None,
-        width: Union[int, float] = 1,
+        width: Optional[float] = None,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -375,18 +545,22 @@ class LineStyle(_ColorStyle):
         )
         self.width = width
 
+    def __bool__(self) -> bool:
+        return self.width is not None
+
     def etree_element(
         self,
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.width is not None:
-            width = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}width",
-            )
-            width.text = str(self.width)
+        float_subelement(
+            obj=self,
+            element=element,
+            attr_name="width",
+            node_name="width",
+            precision=precision,
+        )
         return element
 
     @classmethod
@@ -404,23 +578,32 @@ class LineStyle(_ColorStyle):
             element=element,
             strict=strict,
         )
-        width = element.find(f"{ns}width")
-        if width is not None:
-            kwargs["width"] = float(width.text)
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="width",
+                kwarg="width",
+                strict=strict,
+            ),
+        )
         return kwargs
 
 
 class PolyStyle(_ColorStyle):
     """
+    Drawing style for polygons.
+
     Specifies the drawing style for all polygons, including polygon
     extrusions (which look like the walls of buildings) and line
     extrusions (which look like solid fences).
+
+    https://developers.google.com/kml/documentation/kmlreference#polystyle
     """
 
-    __name__ = "PolyStyle"
-    fill = 1
+    fill: Optional[bool]
     # Boolean value. Specifies whether to fill the polygon.
-    outline = 1
+    outline: Optional[bool]
     # Boolean value. Specifies whether to outline the polygon.
     # Polygon outlines use the current LineStyle.
 
@@ -432,8 +615,8 @@ class PolyStyle(_ColorStyle):
         target_id: Optional[str] = None,
         color: Optional[str] = None,
         color_mode: Optional[ColorMode] = None,
-        fill: int = 1,
-        outline: int = 1,
+        fill: Optional[bool] = None,
+        outline: Optional[bool] = None,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -452,18 +635,18 @@ class PolyStyle(_ColorStyle):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.fill is not None:
-            fill = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}fill",
-            )
-            fill.text = str(self.fill)
-        if self.outline is not None:
-            outline = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}outline",
-            )
-            outline.text = str(self.outline)
+        bool_subelement(
+            obj=self,
+            element=element,
+            attr_name="fill",
+            node_name="fill",
+        )
+        bool_subelement(
+            obj=self,
+            element=element,
+            attr_name="outline",
+            node_name="outline",
+        )
         return element
 
     @classmethod
@@ -481,20 +664,38 @@ class PolyStyle(_ColorStyle):
             element=element,
             strict=strict,
         )
-        fill = element.find(f"{ns}fill")
-        if fill is not None:
-            kwargs["fill"] = strtobool(fill.text)
-        outline = element.find(f"{ns}outline")
-        if outline is not None:
-            kwargs["outline"] = strtobool(outline.text)
+        kwargs.update(
+            subelement_bool_kwarg(
+                element=element,
+                ns=ns,
+                node_name="fill",
+                kwarg="fill",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_bool_kwarg(
+                element=element,
+                ns=ns,
+                node_name="outline",
+                kwarg="outline",
+                strict=strict,
+            ),
+        )
+
         return kwargs
 
 
 class LabelStyle(_ColorStyle):
-    """Specifies how the <name> of a Feature is drawn in the 3D viewer."""
+    """
+    Specifies how the <name> of a Feature is drawn in the 3D viewer.
 
-    __name__ = "LabelStyle"
-    scale = 1.0
+    A custom color, color mode, and scale for the label (name) can be specified.
+
+    https://developers.google.com/kml/documentation/kmlreference#labelstyle
+    """
+
+    scale: Optional[float]
     # Resizes the label.
 
     def __init__(
@@ -505,7 +706,7 @@ class LabelStyle(_ColorStyle):
         target_id: Optional[str] = None,
         color: Optional[str] = None,
         color_mode: Optional[ColorMode] = None,
-        scale: float = 1.0,
+        scale: Optional[float] = None,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -517,18 +718,28 @@ class LabelStyle(_ColorStyle):
         )
         self.scale = scale
 
+    def __bool__(self) -> bool:
+        return any(
+            (
+                self.scale is not None,
+                self.color is not None,
+                self.color_mode is not None,
+            ),
+        )
+
     def etree_element(
         self,
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.scale is not None:
-            scale = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}scale",
-            )
-            scale.text = str(self.scale)
+        float_subelement(
+            obj=self,
+            element=element,
+            attr_name="scale",
+            node_name="scale",
+            precision=precision,
+        )
         return element
 
     @classmethod
@@ -546,9 +757,16 @@ class LabelStyle(_ColorStyle):
             element=element,
             strict=strict,
         )
-        scale = element.find(f"{ns}scale")
-        if scale is not None:
-            kwargs["scale"] = float(scale.text)
+        kwargs.update(
+            subelement_float_kwarg(
+                element=element,
+                ns=ns,
+                node_name="scale",
+                kwarg="scale",
+                strict=strict,
+            ),
+        )
+
         return kwargs
 
 
@@ -559,9 +777,7 @@ class BalloonStyle(_BaseObject):
     The <bgColor>, if specified, is used as the background color of the balloon.
     """
 
-    __name__ = "BalloonStyle"
-
-    bg_color = None
+    bg_color: Optional[str]
     # Background color of the balloon (optional). Color and opacity (alpha)
     # values are expressed in hexadecimal notation. The range of values for
     # any one color is 0 to 255 (00 to ff). The order of expression is
@@ -575,10 +791,10 @@ class BalloonStyle(_BaseObject):
     # Note: The use of the <color> element within <BalloonStyle> has been
     # deprecated. Use <bgColor> instead.
 
-    text_color = None
+    text_color: Optional[str]
     # Foreground color for text. The default is black (ff000000).
 
-    text = None
+    text: Optional[str]
     # Text displayed in the balloon. If no text is specified, Google Earth
     # draws the default balloon (with the Feature <name> in boldface,
     # the Feature <description>, links for driving directions, a white
@@ -628,30 +844,30 @@ class BalloonStyle(_BaseObject):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.bg_color is not None:
-            elem = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}bgColor",
-            )
-            elem.text = self.bg_color
-        if self.text_color is not None:
-            elem = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}textColor",
-            )
-            elem.text = self.text_color
-        if self.text is not None:
-            elem = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}text",
-            )
-            elem.text = self.text
-        if self.display_mode is not None:
-            elem = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}displayMode",
-            )
-            elem.text = self.display_mode.value
+        text_subelement(
+            obj=self,
+            element=element,
+            attr_name="bg_color",
+            node_name="bgColor",
+        )
+        text_subelement(
+            obj=self,
+            element=element,
+            attr_name="text_color",
+            node_name="textColor",
+        )
+        text_subelement(
+            obj=self,
+            element=element,
+            attr_name="text",
+            node_name="text",
+        )
+        enum_subelement(
+            obj=self,
+            element=element,
+            attr_name="display_mode",
+            node_name="displayMode",
+        )
         return element
 
     @classmethod
@@ -669,22 +885,53 @@ class BalloonStyle(_BaseObject):
             element=element,
             strict=strict,
         )
-        bg_color = element.find(f"{ns}bgColor")
-        if bg_color is not None:
-            kwargs["bg_color"] = bg_color.text
-        else:
-            bg_color = element.find(f"{ns}color")
-            if bg_color is not None:
-                kwargs["bg_color"] = bg_color.text
-        text_color = element.find(f"{ns}textColor")
-        if text_color is not None:
-            kwargs["text_color"] = text_color.text
-        text = element.find(f"{ns}text")
-        if text is not None:
-            kwargs["text"] = text.text
-        display_mode = element.find(f"{ns}displayMode")
-        if display_mode is not None:
-            kwargs["display_mode"] = DisplayMode(display_mode.text)
+
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="color",
+                kwarg="bg_color",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="bgColor",
+                kwarg="bg_color",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="textColor",
+                kwarg="text_color",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_text_kwarg(
+                element=element,
+                ns=ns,
+                node_name="text",
+                kwarg="text",
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            subelement_enum_kwarg(
+                element=element,
+                ns=ns,
+                node_name="displayMode",
+                kwarg="display_mode",
+                enum_class=DisplayMode,
+                strict=strict,
+            ),
+        )
         return kwargs
 
 
@@ -702,8 +949,6 @@ class Style(_StyleSelector):
     so that they can be referenced by the individual Features that use them.
     """
 
-    __name__ = "Style"
-
     def __init__(
         self,
         ns: Optional[str] = None,
@@ -713,28 +958,16 @@ class Style(_StyleSelector):
         styles: Optional[Iterable[AnyStyle]] = None,
     ) -> None:
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
-        self._styles: List[AnyStyle] = []
-        if styles:
-            for style in styles:
-                self.append_style(style)
+        self.styles = list(styles) if styles else []
 
     def append_style(
         self,
         style: AnyStyle,
     ) -> None:
         if isinstance(style, (_ColorStyle, BalloonStyle)):
-            self._styles.append(style)
+            self.styles.append(style)
         else:
             raise TypeError
-
-    def styles(
-        self,
-    ) -> Iterator[AnyStyle]:
-        for style in self._styles:
-            if isinstance(style, (_ColorStyle, BalloonStyle)):
-                yield style
-            else:
-                raise TypeError
 
     def etree_element(
         self,
@@ -742,8 +975,14 @@ class Style(_StyleSelector):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        for style in self.styles():
-            element.append(style.etree_element())
+        xml_subelement_list(
+            obj=self,
+            element=element,
+            attr_name="styles",
+            precision=precision,
+            verbosity=verbosity,
+        )
+
         return element
 
     @classmethod
@@ -761,19 +1000,126 @@ class Style(_StyleSelector):
             element=element,
             strict=strict,
         )
-        styles = []
-        for style in [BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle]:
-            style_element = element.find(f"{ns}{style.__name__}")
-            if style_element is not None:
-                styles.append(
-                    style.class_from_element(  # type: ignore[attr-defined]
-                        ns=ns,
-                        name_spaces=name_spaces,
-                        element=style_element,
-                        strict=strict,
-                    ),
-                )
-        kwargs["styles"] = styles
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
+
+        kwargs.update(
+            xml_subelement_list_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="styles",
+                obj_classes=(BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle),
+                strict=strict,
+            ),
+        )
+        return kwargs
+
+
+class Pair(_BaseObject):
+    """
+    Stylemap pair.
+
+    Defines a key/value pair that maps a mode (normal or highlight) to the predefined
+    <styleUrl>.
+    <Pair> contains two elements (both are required):
+        <key>, which identifies the key
+        <styleUrl> or <Style>, which references the style.
+        In <styleUrl>, for referenced style elements that are local to the KML document,
+        a simple # referencing is used.
+        For styles that are contained in external files, use a full URL along with
+        # referencing.
+
+    https://developers.google.com/kml/documentation/kmlreference#stylemap
+    """
+
+    key: Optional[PairKey]
+    style: Optional[Union[StyleUrl, Style]]
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        key: Optional[PairKey] = None,
+        style: Optional[Union[StyleUrl, Style]] = None,
+    ) -> None:
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        self.key = key
+        self.style = style
+
+    def __bool__(self) -> bool:
+        return all((self.key is not None, self.style is not None))
+
+    def etree_element(
+        self,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        element = super().etree_element(precision=precision, verbosity=verbosity)
+        enum_subelement(
+            obj=self,
+            element=element,
+            attr_name="key",
+            node_name="key",
+        )
+        xml_subelement(
+            obj=self,
+            element=element,
+            attr_name="style",
+            precision=precision,
+            verbosity=verbosity,
+        )
+        return element
+
+    @classmethod
+    def _get_kwargs(
+        cls,
+        *,
+        ns: str,
+        name_spaces: Optional[Dict[str, str]] = None,
+        element: Element,
+        strict: bool,
+    ) -> Dict[str, Any]:
+        kwargs = super()._get_kwargs(
+            ns=ns,
+            name_spaces=name_spaces,
+            element=element,
+            strict=strict,
+        )
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
+        kwargs.update(
+            subelement_enum_kwarg(
+                element=element,
+                ns=ns,
+                node_name="key",
+                kwarg="key",
+                enum_class=PairKey,
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="style",
+                obj_class=Style,
+                strict=strict,
+            ),
+        )
+        kwargs.update(
+            xml_subelement_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="style",
+                obj_class=StyleUrl,
+                strict=strict,
+            ),
+        )
         return kwargs
 
 
@@ -783,11 +1129,11 @@ class StyleMap(_StyleSelector):
     Typically a <StyleMap> element is used to provide separate normal and highlighted
     styles for a placemark, so that the highlighted version appears when
     the user mouses over the icon in Google Earth.
+
+    https://developers.google.com/kml/documentation/kmlreference#stylemap
     """
 
-    __name__ = "StyleMap"
-    normal = None
-    highlight = None
+    pairs: List[Pair]
 
     def __init__(
         self,
@@ -795,12 +1141,27 @@ class StyleMap(_StyleSelector):
         name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        normal: Optional[Union[Style, StyleUrl]] = None,
-        highlight: Optional[Union[Style, StyleUrl]] = None,
+        pairs: Optional[Iterable[Pair]] = None,
     ) -> None:
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
-        self.normal = normal
-        self.highlight = highlight
+        self.pairs = list(pairs) if pairs else []
+
+    def __bool__(self) -> bool:
+        return bool(self.pairs)
+
+    @property
+    def normal(self) -> Optional[Union[StyleUrl, Style]]:
+        return next(
+            (pair.style for pair in self.pairs if pair.key == PairKey.normal),
+            None,
+        )
+
+    @property
+    def highlight(self) -> Optional[Union[StyleUrl, Style]]:
+        return next(
+            (pair.style for pair in self.pairs if pair.key == PairKey.highlight),
+            None,
+        )
 
     def etree_element(
         self,
@@ -808,28 +1169,13 @@ class StyleMap(_StyleSelector):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.normal and isinstance(self.normal, (Style, StyleUrl)):
-            pair = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}Pair",
-            )
-            key = config.etree.SubElement(  # type: ignore[attr-defined]
-                pair,
-                f"{self.ns}key",
-            )
-            key.text = "normal"
-            pair.append(self.normal.etree_element())
-        if self.highlight and isinstance(self.highlight, (Style, StyleUrl)):
-            pair = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}Pair",
-            )
-            key = config.etree.SubElement(  # type: ignore[attr-defined]
-                pair,
-                f"{self.ns}key",
-            )
-            key.text = "highlight"
-            pair.append(self.highlight.etree_element())
+        xml_subelement_list(
+            obj=self,
+            element=element,
+            attr_name="pairs",
+            precision=precision,
+            verbosity=verbosity,
+        )
         return element
 
     @classmethod
@@ -847,61 +1193,18 @@ class StyleMap(_StyleSelector):
             element=element,
             strict=strict,
         )
-        pairs = element.findall(f"{ns}Pair")
-        for pair in pairs:
-            key = pair.find(f"{ns}key")
-            style = pair.find(f"{ns}Style")
-            style_url = pair.find(f"{ns}styleUrl")
-            if key is None or key.text not in ["highlight", "normal"]:
-                raise ValueError
-            elif key.text == "highlight":
-                if style is not None:
-                    highlight = cast(
-                        Style,
-                        Style.class_from_element(
-                            ns=ns,
-                            name_spaces=name_spaces,
-                            element=style,
-                            strict=strict,
-                        ),
-                    )
-                elif style_url is not None:
-                    highlight = cast(  # type: ignore[assignment]
-                        StyleUrl,
-                        StyleUrl.class_from_element(
-                            ns=ns,
-                            name_spaces=name_spaces,
-                            element=style_url,
-                            strict=strict,
-                        ),
-                    )
-                else:
-                    raise ValueError
-                kwargs["highlight"] = highlight
-            else:
-                if style is not None:
-                    normal = cast(
-                        Style,
-                        Style.class_from_element(
-                            ns=ns,
-                            name_spaces=name_spaces,
-                            element=style,
-                            strict=strict,
-                        ),
-                    )
-                elif style_url is not None:
-                    normal = cast(  # type: ignore[assignment]
-                        StyleUrl,
-                        StyleUrl.class_from_element(
-                            ns=ns,
-                            name_spaces=name_spaces,
-                            element=style_url,
-                            strict=strict,
-                        ),
-                    )
-                else:
-                    raise ValueError
-                kwargs["normal"] = normal
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
+        kwargs.update(
+            xml_subelement_list_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="pairs",
+                obj_classes=(Pair,),
+                strict=strict,
+            ),
+        )
         return kwargs
 
 

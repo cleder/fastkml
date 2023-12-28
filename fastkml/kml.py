@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2022  Christian Ledermann
+# Copyright (C) 2012-2023 Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -28,7 +28,6 @@ import logging
 from typing import Any
 from typing import Dict
 from typing import Iterable
-from typing import Iterator
 from typing import List
 from typing import Optional
 from typing import Union
@@ -40,6 +39,8 @@ from fastkml.containers import Document
 from fastkml.containers import Folder
 from fastkml.enums import Verbosity
 from fastkml.features import Placemark
+from fastkml.helpers import xml_subelement_list
+from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.overlays import GroundOverlay
 from fastkml.overlays import PhotoOverlay
 from fastkml.types import Element
@@ -49,6 +50,8 @@ logger = logging.getLogger(__name__)
 
 class KML(_XMLObject):
     """represents a KML File."""
+
+    _default_ns = config.KMLNS
 
     _features: List[Union[Folder, Document, Placemark]]
     ns: str
@@ -68,7 +71,7 @@ class KML(_XMLObject):
             ns=ns,
             name_spaces=name_spaces,
         )
-        self._features = list(features) if features is not None else []
+        self.features = list(features) if features is not None else []
 
     def etree_element(
         self,
@@ -85,26 +88,26 @@ class KML(_XMLObject):
             try:
                 root = config.etree.Element(  # type: ignore[attr-defined]
                     f"{self.ns}kml",
-                    # nsmap={None: self.ns[1:-1]},
                 )
             except TypeError:
                 root = config.etree.Element(  # type: ignore[attr-defined]
                     f"{self.ns}kml",
                 )
-        for feature in self.features():
-            root.append(feature.etree_element(precision=precision, verbosity=verbosity))
+        xml_subelement_list(
+            obj=self,
+            element=root,
+            attr_name="features",
+            precision=precision,
+            verbosity=verbosity,
+        )
         return cast(Element, root)
-
-    def features(self) -> Iterator[Union[Folder, Document, Placemark]]:
-        """Iterate over features."""
-        yield from self._features
 
     def append(self, kmlobj: Union[Folder, Document, Placemark]) -> None:
         """Append a feature."""
-        if id(kmlobj) == id(self):
+        if kmlobj is self:
             msg = "Cannot append self"
             raise ValueError(msg)
-        self._features.append(kmlobj)
+        self.features.append(kmlobj)
 
     @classmethod
     def _get_kwargs(
@@ -121,52 +124,19 @@ class KML(_XMLObject):
             element=element,
             strict=strict,
         )
+        name_spaces = kwargs["name_spaces"]
+        assert name_spaces is not None
         kwargs["features"] = []
-        documents = element.findall(f"{ns}Document")
-        for document in documents:
-            kwargs["features"].append(
-                Document.class_from_element(
-                    ns=ns,
-                    element=document,
-                    strict=False,
-                ),
-            )
-        folders = element.findall(f"{ns}Folder")
-        for folder in folders:
-            kwargs["features"].append(
-                Folder.class_from_element(
-                    ns=ns,
-                    element=folder,
-                    strict=False,
-                ),
-            )
-        placemarks = element.findall(f"{ns}Placemark")
-        for placemark in placemarks:
-            kwargs["features"].append(
-                Placemark.class_from_element(
-                    ns=ns,
-                    element=placemark,
-                    strict=False,
-                ),
-            )
-        groundoverlays = element.findall(f"{ns}GroundOverlay")
-        for groundoverlay in groundoverlays:
-            kwargs["features"].append(
-                GroundOverlay.class_from_element(
-                    ns=ns,
-                    element=groundoverlay,
-                    strict=False,
-                ),
-            )
-        photo_overlays = element.findall(f"{ns}PhotoOverlay")
-        for photo_overlay in photo_overlays:
-            kwargs["features"].append(
-                PhotoOverlay.class_from_element(
-                    ns=ns,
-                    element=photo_overlay,
-                    strict=False,
-                ),
-            )
+        kwargs.update(
+            xml_subelement_list_kwarg(
+                element=element,
+                ns=ns,
+                name_spaces=name_spaces,
+                kwarg="features",
+                obj_classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay),
+                strict=strict,
+            ),
+        )
         return kwargs
 
     @classmethod
@@ -203,6 +173,8 @@ class KML(_XMLObject):
             raise TypeError
         if ns is None:
             ns = cast(str, element.tag.rstrip("kml"))
+        name_spaces = name_spaces or {}
+        name_spaces = {**config.NAME_SPACES, **name_spaces}
         return cls.class_from_element(
             ns=ns,
             name_spaces=name_spaces,
@@ -212,10 +184,5 @@ class KML(_XMLObject):
 
 
 __all__ = [
-    "Document",
-    "Folder",
-    "PhotoOverlay",
-    "GroundOverlay",
     "KML",
-    "Placemark",
 ]

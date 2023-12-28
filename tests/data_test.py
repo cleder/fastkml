@@ -43,9 +43,13 @@ class TestStdLibrary(StdLibrary):
         assert s.simple_fields[0] == field
         s.simple_fields = []
         assert not s.simple_fields
-        fields = {"type": "int", "name": "Integer", "display_name": "An Integer"}
-        s.simple_fields = (data.SimpleField(**fields),)
-        assert s.simple_fields[0] == data.SimpleField(**fields)
+        fields = {
+            "type": DataType.int_,
+            "name": "Integer",
+            "display_name": "An Integer",
+        }
+        s.simple_fields = [data.SimpleField(**fields)]  # type: ignore[arg-type]
+        assert s.simple_fields[0] == data.SimpleField(**fields)  # type: ignore[arg-type]
 
     def test_schema_from_string(self) -> None:
         doc = """<Schema name="TrailHeadType" id="TrailHeadTypeId">
@@ -79,8 +83,8 @@ class TestStdLibrary(StdLibrary):
         assert s.to_string() == s1.to_string()
         doc1 = f"<kml><Document>{doc}</Document></kml>"
         k = kml.KML.class_from_string(doc1, ns="")
-        d = next(iter(k.features()))
-        s2 = next(iter(d.schemata()))
+        d = k.features[0]
+        s2 = d.schemata[0]
         # s.ns = config.KMLNS
         assert s.to_string() == s2.to_string()
         k1 = kml.KML.class_from_string(k.to_string())
@@ -93,19 +97,21 @@ class TestStdLibrary(StdLibrary):
 
     def test_schema_data(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"
-        pytest.raises(ValueError, data.SchemaData, ns)
-        pytest.raises(ValueError, data.SchemaData, ns, "")
+        assert not data.SchemaData()
+        assert not data.SchemaData(ns=ns)
         sd = data.SchemaData(ns=ns, schema_url="#default")
+        assert not sd
         sd.append_data(data.SimpleData("text", "Some Text"))
         assert len(sd.data) == 1
+        assert sd
         sd.append_data(data.SimpleData(value=1, name="Integer"))
         assert len(sd.data) == 2
         assert sd.data[0] == data.SimpleData(value="Some Text", name="text")
         assert sd.data[1] == data.SimpleData(value=1, name="Integer")
-        new_data = (
+        new_data = [
             data.SimpleData("text", "Some new Text"),
             data.SimpleData(value=2, name="Integer"),
-        )
+        ]
         sd.data = new_data
         assert len(sd.data) == 2
         assert sd.data[0].name == "text"
@@ -137,7 +143,7 @@ class TestStdLibrary(StdLibrary):
         k2 = kml.KML.class_from_string(k.to_string(prettyprint=True))
         k.to_string()
 
-        extended_data = next(iter(k2.features())).extended_data
+        extended_data = k2.features[0].extended_data
         assert extended_data is not None
         assert len(extended_data.elements), 2
         assert extended_data.elements[0].name == "info"
@@ -168,8 +174,8 @@ class TestStdLibrary(StdLibrary):
 
         k2 = kml.KML.class_from_string(k.to_string())
 
-        document_data = next(iter(k2.features())).extended_data
-        folder_data = next(iter(next(iter(k2.features())).features())).extended_data
+        document_data = k2.features[0].extended_data
+        folder_data = k2.features[0].features[0].extended_data
 
         assert document_data.elements[0].name == "type"
         assert document_data.elements[0].value == "Document"
@@ -209,7 +215,7 @@ class TestStdLibrary(StdLibrary):
 
         k = kml.KML.class_from_string(doc)
 
-        extended_data = next(iter(k.features())).extended_data
+        extended_data = k.features[0].extended_data
 
         assert extended_data.elements[0].name == "holeNumber"
         assert extended_data.elements[0].value == "1"

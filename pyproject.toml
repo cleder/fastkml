@@ -21,6 +21,8 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Text Processing :: Markup :: XML",
+    "Typing :: Typed",
 ]
 dependencies = [
     "arrow",
@@ -64,7 +66,6 @@ linting = [
     "flake8-encodings",
     "flake8-expression-complexity",
     "flake8-length",
-    "flake8-literal",
     "flake8-pep3101",
     "flake8-super",
     "flake8-typing-imports",
@@ -94,6 +95,7 @@ keywords = [
 ]
 
 [project.urls]
+Changelog = "https://github.com/cleder/fastkml/blob/develop/docs/HISTORY.rst"
 Documentation = "https://fastkml.readthedocs.org/"
 Homepage = "https://github.com/cleder/fastkml"
 
@@ -105,6 +107,15 @@ ignore = [
     "test-requirements.txt",
     "tox.ini",
 ]
+
+[tool.coverage.paths]
+source = [
+    "fastkml",
+    "tests",
+]
+
+[tool.coverage.run]
+branch = true
 
 [tool.flake8]
 max_line_length = 89
@@ -126,6 +137,9 @@ ignore_errors = false
 ignore_missing_imports = true
 implicit_reexport = false
 no_implicit_optional = true
+overrides = [
+    { disable_error_code = "attr-defined, union-attr", module = "tests.*" },
+]
 show_error_codes = true
 strict_equality = true
 strict_optional = true
@@ -242,6 +256,10 @@ attr = "fastkml.about.__version__"
 
 [tool.setuptools.packages.find]
 exclude = [
-    "ez_setup",
+    "docs/*",
+]
+include = [
+    "fastkml*",
+    "fastkml/py.typed",
 ]
 namespaces = false
