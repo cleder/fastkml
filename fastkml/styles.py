@@ -53,15 +53,6 @@ from fastkml.types import Element
 logger = logging.getLogger(__name__)
 
 
-def strtobool(val: str) -> int:
-    val = val.lower()
-    if val == "false":
-        return 0
-    if val == "true":
-        return 1
-    return int(float(val))
-
-
 class StyleUrl(_BaseObject):
     """
     URL of a <Style> or <StyleMap> defined in a Document.
@@ -215,6 +206,7 @@ class _ColorStyle(_BaseObject):
             subelement_enum_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="colorMode",
                 kwarg="color_mode",
                 classes=(ColorMode,),
@@ -668,8 +660,10 @@ class PolyStyle(_ColorStyle):
             subelement_bool_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="fill",
                 kwarg="fill",
+                classes=(bool,),
                 strict=strict,
             ),
         )
@@ -677,8 +671,10 @@ class PolyStyle(_ColorStyle):
             subelement_bool_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="outline",
                 kwarg="outline",
+                classes=(bool,),
                 strict=strict,
             ),
         )
@@ -926,6 +922,7 @@ class BalloonStyle(_BaseObject):
             subelement_enum_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="displayMode",
                 kwarg="display_mode",
                 classes=(DisplayMode,),
@@ -1095,6 +1092,7 @@ class Pair(_BaseObject):
             subelement_enum_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="key",
                 kwarg="key",
                 classes=(PairKey,),

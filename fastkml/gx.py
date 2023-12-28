@@ -389,8 +389,10 @@ class MultiTrack(_Geometry):
             subelement_bool_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="interpolate",
                 kwarg="interpolate",
+                classes=(bool,),
                 strict=strict,
             ),
         )

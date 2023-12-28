@@ -233,6 +233,7 @@ class _AbstractView(TimeMixin, _BaseObject):
             subelement_enum_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="altitudeMode",
                 kwarg="altitude_mode",
                 classes=(AltitudeMode,),
@@ -618,6 +619,7 @@ class LatLonAltBox(_XMLObject):
             subelement_enum_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="altitudeMode",
                 kwarg="altitude_mode",
                 classes=(AltitudeMode,),

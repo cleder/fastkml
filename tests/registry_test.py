@@ -60,26 +60,28 @@ class D(Mixin, C):
 
 def set_element(
     obj: _XMLObject,
+    *,
     element: Element,
     attr_name: str,
     node_name: Optional[str],
     precision: Optional[int],
-    verbosity: Verbosity,
+    verbosity: Optional[Verbosity],
 ) -> None:
     """Get an attribute from an XML object."""
 
 
 def get_kwarg(
+    *,
     element: Element,
     ns: str,
     name_spaces: Optional[Dict[str, str]],
     node_name: Optional[str],
-    attr_name: str,
+    kwarg: str,
     classes: Tuple[known_types, ...],
     strict: bool,
 ) -> Dict[str, Any]:
     """Get the kwarg for the constructor from the element."""
-    return {attr_name: None}
+    return {kwarg: None}
 
 
 def test_registry_get_root() -> None:

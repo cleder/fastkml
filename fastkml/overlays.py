@@ -549,6 +549,7 @@ class ImagePyramid(_XMLObject):
             subelement_enum_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="gridOrigin",
                 kwarg="grid_origin",
                 classes=(GridOrigin,),
@@ -776,6 +777,7 @@ class PhotoOverlay(_Overlay):
             subelement_enum_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="shape",
                 kwarg="shape",
                 classes=(Shape,),
@@ -1102,6 +1104,7 @@ class GroundOverlay(_Overlay):
             subelement_enum_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="altitudeMode",
                 kwarg="altitude_mode",
                 classes=(AltitudeMode,),

@@ -179,6 +179,7 @@ class Link(_BaseObject):
             subelement_enum_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="refreshMode",
                 kwarg="refresh_mode",
                 classes=(RefreshMode,),
@@ -189,6 +190,7 @@ class Link(_BaseObject):
             subelement_enum_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="viewRefreshMode",
                 kwarg="view_refresh_mode",
                 classes=(ViewRefreshMode,),

@@ -531,8 +531,10 @@ class _Feature(TimeMixin, _BaseObject):
             subelement_bool_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="visibility",
                 kwarg="visibility",
+                classes=(bool,),
                 strict=strict,
             ),
         )
@@ -540,8 +542,10 @@ class _Feature(TimeMixin, _BaseObject):
             subelement_bool_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="open",
                 kwarg="isopen",
+                classes=(bool,),
                 strict=strict,
             ),
         )
@@ -867,8 +871,10 @@ class NetworkLink(_Feature):
             subelement_bool_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="refreshVisibility",
                 kwarg="refresh_visibility",
+                classes=(bool,),
                 strict=strict,
             ),
         )
@@ -876,8 +882,10 @@ class NetworkLink(_Feature):
             subelement_bool_kwarg(
                 element=element,
                 ns=ns,
+                name_spaces=name_spaces,
                 node_name="flyToView",
                 kwarg="fly_to_view",
+                classes=(bool,),
                 strict=strict,
             ),
         )

@@ -41,6 +41,8 @@ from fastkml.helpers import bool_subelement
 from fastkml.helpers import enum_subelement
 from fastkml.helpers import subelement_bool_kwarg
 from fastkml.helpers import subelement_enum_kwarg
+from fastkml.registry import RegistryItem
+from fastkml.registry import registry
 from fastkml.types import Element
 
 __all__ = [
@@ -162,24 +164,6 @@ class _Geometry(_BaseObject):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        bool_subelement(
-            self,
-            element=element,
-            attr_name="extrude",
-            node_name="extrude",
-        )
-        bool_subelement(
-            self,
-            element=element,
-            attr_name="tessellate",
-            node_name="tessellate",
-        )
-        enum_subelement(
-            self,
-            element=element,
-            attr_name="altitude_mode",
-            node_name="altitudeMode",
-        )
         return element
 
     @classmethod
@@ -239,37 +223,41 @@ class _Geometry(_BaseObject):
             strict=strict,
         )
         kwargs.update(
-            subelement_bool_kwarg(
-                element=element,
-                ns=ns,
-                node_name="extrude",
-                kwarg="extrude",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_bool_kwarg(
-                element=element,
-                ns=ns,
-                node_name="tessellate",
-                kwarg="tessellate",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_enum_kwarg(
-                element=element,
-                ns=ns,
-                node_name="altitudeMode",
-                kwarg="altitude_mode",
-                classes=(AltitudeMode,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
             {"geometry": cls._get_geometry(ns=ns, element=element, strict=strict)},
         )
         return kwargs
+
+
+registry.register(
+    _Geometry,
+    item=RegistryItem(
+        classes=(bool,),
+        attr_name="extrude",
+        node_name="extrude",
+        get_kwarg=subelement_bool_kwarg,
+        set_element=bool_subelement,
+    ),
+)
+registry.register(
+    _Geometry,
+    item=RegistryItem(
+        classes=(bool,),
+        attr_name="tessellate",
+        node_name="tessellate",
+        get_kwarg=subelement_bool_kwarg,
+        set_element=bool_subelement,
+    ),
+)
+registry.register(
+    _Geometry,
+    item=RegistryItem(
+        classes=(AltitudeMode,),
+        attr_name="altitude_mode",
+        node_name="altitudeMode",
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+    ),
+)
 
 
 class Point(_Geometry):

@@ -25,6 +25,7 @@ from typing import Type
 from fastkml import config
 from fastkml.base import _XMLObject
 from fastkml.enums import Verbosity
+from fastkml.registry import known_types
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
@@ -53,7 +54,7 @@ def bool_subelement(
     *,
     element: Element,
     attr_name: str,
-    node_name: str,
+    node_name: Optional[str],
     precision: Optional[int] = None,
     verbosity: Optional[Verbosity] = None,
 ) -> None:
@@ -89,7 +90,7 @@ def float_subelement(
     *,
     element: Element,
     attr_name: str,
-    node_name: str,
+    node_name: Optional[str],
     precision: Optional[int],
     verbosity: Optional[Verbosity] = None,
 ) -> None:
@@ -107,7 +108,7 @@ def enum_subelement(
     *,
     element: Element,
     attr_name: str,
-    node_name: str,
+    node_name: Optional[str],
     precision: Optional[int] = None,
     verbosity: Optional[Verbosity] = None,
 ) -> None:
@@ -172,12 +173,14 @@ def subelement_bool_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Optional[Dict[str, str]] = None,
-    node_name: str,
+    name_spaces: Optional[Dict[str, str]],
+    node_name: Optional[str],
     kwarg: str,
-    classes: Tuple[Type[bool]] = (bool,),
+    classes: Tuple[known_types, ...],
     strict: bool,
 ) -> Dict[str, bool]:
+    assert len(classes) == 1
+    assert issubclass(classes[0], bool)
     node = element.find(f"{ns}{node_name}")
     if node is None:
         return {}
@@ -245,12 +248,14 @@ def subelement_enum_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Optional[Dict[str, str]] = None,
-    node_name: str,
+    name_spaces: Optional[Dict[str, str]],
+    node_name: Optional[str],
     kwarg: str,
-    classes: Tuple[Type[Enum]],
+    classes: Tuple[known_types, ...],
     strict: bool,
 ) -> Dict[str, Enum]:
+    assert len(classes) == 1
+    assert issubclass(classes[0], Enum)
     node = element.find(f"{ns}{node_name}")
     if node is None:
         return {}
