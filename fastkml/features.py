@@ -336,6 +336,7 @@ class _Feature(TimeMixin, _BaseObject):
             self,
             element=element,
             attr_name="styles",
+            node_name="Style",
             precision=precision,
             verbosity=verbosity,
         )
@@ -395,7 +396,7 @@ class _Feature(TimeMixin, _BaseObject):
                 element=element,
                 ns=ns,
                 name_spaces=name_spaces,
-                node_name=None,
+                node_name="",
                 kwarg="styles",
                 classes=(Style, StyleMap),
                 strict=strict,

@@ -144,9 +144,9 @@ def xml_subelement_list(
     *,
     element: Element,
     attr_name: str,
-    node_name: Optional[str] = None,
+    node_name: Optional[str],
     precision: Optional[int] = None,
-    verbosity: Verbosity = Verbosity.normal,
+    verbosity: Optional[Verbosity] = None,
 ) -> None:
     if getattr(obj, attr_name, None):
         for item in getattr(obj, attr_name):
@@ -291,14 +291,19 @@ def xml_subelement_list_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: Optional[Dict[str, str]],
     node_name: Optional[str],
     kwarg: str,
-    classes: Tuple[Type[_XMLObject], ...],
+    classes: Tuple[known_types, ...],
     strict: bool,
 ) -> Dict[str, List[_XMLObject]]:
     args_list = []
+    assert node_name is not None
+    assert name_spaces is not None
     for obj_class in classes:
+        assert issubclass(obj_class, _XMLObject)
+        if ":" in node_name:
+            ns = name_spaces[node_name.split(":")[0]]
         if subelements := element.findall(f"{ns}{obj_class.get_tag_name()}"):
             args_list.extend(
                 [

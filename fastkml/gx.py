@@ -98,6 +98,8 @@ from fastkml.helpers import bool_subelement
 from fastkml.helpers import subelement_bool_kwarg
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.registry import RegistryItem
+from fastkml.registry import registry
 from fastkml.types import Element
 
 __all__ = [
@@ -352,16 +354,11 @@ class MultiTrack(_Geometry):
         name_spaces: Optional[Dict[str, str]] = None,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        bool_subelement(
-            self,
-            element=element,
-            attr_name="interpolate",
-            node_name="interpolate",
-        )
         xml_subelement_list(
             self,
             element=element,
             attr_name="tracks",
+            node_name="gx:Track",
             precision=precision,
             verbosity=verbosity,
         )
@@ -386,22 +383,11 @@ class MultiTrack(_Geometry):
         name_spaces = kwargs["name_spaces"]
         assert name_spaces is not None
         kwargs.update(
-            subelement_bool_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="interpolate",
-                kwarg="interpolate",
-                classes=(bool,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
             xml_subelement_list_kwarg(
                 element=element,
                 ns=name_spaces["gx"],
                 name_spaces=name_spaces,
-                node_name=None,
+                node_name="",
                 kwarg="tracks",
                 classes=(Track,),
                 strict=strict,
@@ -409,3 +395,25 @@ class MultiTrack(_Geometry):
         )
 
         return kwargs
+
+
+registry.register(
+    MultiTrack,
+    item=RegistryItem(
+        classes=(bool,),
+        attr_name="interpolate",
+        node_name="interpolate",
+        get_kwarg=subelement_bool_kwarg,
+        set_element=bool_subelement,
+    ),
+)
+registry.register(
+    MultiTrack,
+    item=RegistryItem(
+        classes=(Track,),
+        attr_name="tracks",
+        node_name="gx:Track",
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
+    ),
+)
