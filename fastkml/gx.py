@@ -81,10 +81,10 @@ from dataclasses import dataclass
 from itertools import zip_longest
 from typing import Any
 from typing import Dict
+from typing import Iterable
 from typing import Iterator
 from typing import List
 from typing import Optional
-from typing import Sequence
 from typing import cast
 
 import arrow
@@ -170,7 +170,7 @@ class TrackItem:
         yield element
 
 
-def track_items_to_geometry(track_items: Sequence[TrackItem]) -> geo.LineString:
+def track_items_to_geometry(track_items: Iterable[TrackItem]) -> geo.LineString:
     return geo.LineString.from_points(
         *[item.coord for item in track_items if item.coord is not None],
     )
@@ -194,6 +194,8 @@ class Track(_Geometry):
     time elements as the object moves through space.
     """
 
+    track_items: List[TrackItem]
+
     def __init__(
         self,
         *,
@@ -205,7 +207,7 @@ class Track(_Geometry):
         tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: Optional[geo.LineString] = None,
-        track_items: Optional[Sequence[TrackItem]] = None,
+        track_items: Optional[Iterable[TrackItem]] = None,
     ) -> None:
         if geometry and track_items:
             msg = "Cannot specify both geometry and track_items"
@@ -214,7 +216,7 @@ class Track(_Geometry):
             track_items = linestring_to_track_items(geometry)
         elif track_items:
             geometry = track_items_to_geometry(track_items)
-        self.track_items = track_items
+        self.track_items = list(track_items) if track_items else []
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -306,13 +308,15 @@ def multilinestring_to_tracks(
     return [Track(ns=ns, geometry=linestring) for linestring in multilinestring.geoms]
 
 
-def tracks_to_geometry(tracks: Sequence[Track]) -> geo.MultiLineString:
+def tracks_to_geometry(tracks: Iterable[Track]) -> geo.MultiLineString:
     return geo.MultiLineString.from_linestrings(
         *[cast(geo.LineString, track.geometry) for track in tracks if track.geometry],
     )
 
 
 class MultiTrack(_Geometry):
+    tracks: List[Track]
+
     def __init__(
         self,
         *,
@@ -324,7 +328,7 @@ class MultiTrack(_Geometry):
         tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: Optional[geo.MultiLineString] = None,
-        tracks: Optional[Sequence[Track]] = None,
+        tracks: Optional[Iterable[Track]] = None,
         interpolate: Optional[bool] = None,
     ) -> None:
         if geometry and tracks:
@@ -334,7 +338,7 @@ class MultiTrack(_Geometry):
             tracks = multilinestring_to_tracks(geometry, ns=ns)
         elif tracks:
             geometry = tracks_to_geometry(tracks)
-        self.tracks = tracks or []
+        self.tracks = list(tracks) if tracks else []
         self.interpolate = interpolate
         super().__init__(
             ns=ns,
