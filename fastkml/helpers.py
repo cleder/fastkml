@@ -128,7 +128,7 @@ def xml_subelement(
     attr_name: str,
     node_name: Optional[str] = None,
     precision: Optional[int],
-    verbosity: Verbosity,
+    verbosity: Optional[Verbosity],
 ) -> None:
     if getattr(obj, attr_name, None):
         element.append(
@@ -268,23 +268,25 @@ def xml_subelement_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
-    node_name: Optional[str] = None,
+    name_spaces: Optional[Dict[str, str]],
+    node_name: Optional[str] = "",
     kwarg: str,
-    classes: Tuple[Type[_XMLObject]],
+    classes: Tuple[known_types, ...],
     strict: bool,
 ) -> Dict[str, _XMLObject]:
-    subelement = element.find(f"{ns}{classes[0].get_tag_name()}")
-    if subelement is None:
-        return {}
-    return {
-        kwarg: classes[0].class_from_element(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=subelement,
-            strict=strict,
-        ),
-    }
+    for cls in classes:
+        assert issubclass(cls, _XMLObject)
+        subelement = element.find(f"{ns}{cls.get_tag_name()}")
+        if subelement is not None:
+            return {
+                kwarg: cls.class_from_element(
+                    ns=ns,
+                    name_spaces=name_spaces,
+                    element=subelement,
+                    strict=strict,
+                ),
+            }
+    return {}
 
 
 def xml_subelement_list_kwarg(

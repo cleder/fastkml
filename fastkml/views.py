@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """KML Views."""
 import logging
-from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Union
@@ -24,7 +23,6 @@ from fastkml import config
 from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
-from fastkml.enums import Verbosity
 from fastkml.helpers import enum_subelement
 from fastkml.helpers import float_subelement
 from fastkml.helpers import subelement_enum_kwarg
@@ -32,9 +30,10 @@ from fastkml.helpers import subelement_float_kwarg
 from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.mixins import TimeMixin
+from fastkml.registry import RegistryItem
+from fastkml.registry import registry
 from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
-from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
 
@@ -108,170 +107,77 @@ class _AbstractView(TimeMixin, _BaseObject):
         self.altitude_mode = altitude_mode
         self.times = time_primitive
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        float_subelement(
-            self,
-            element=element,
-            attr_name="longitude",
-            node_name="longitude",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="latitude",
-            node_name="latitude",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="altitude",
-            node_name="altitude",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="heading",
-            node_name="heading",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="tilt",
-            node_name="tilt",
-            precision=precision,
-        )
-        enum_subelement(
-            self,
-            element=element,
-            attr_name="altitude_mode",
-            node_name="altitudeMode",
-        )
-        xml_subelement(
-            self,
-            element=element,
-            attr_name="times",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        return element
 
-    # TODO: <gx:ViewerOptions>
-    # TODO: <gx:horizFov>
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="longitude",
-                kwarg="longitude",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="latitude",
-                kwarg="latitude",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="altitude",
-                kwarg="altitude",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="heading",
-                kwarg="heading",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="tilt",
-                kwarg="tilt",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_enum_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="altitudeMode",
-                kwarg="altitude_mode",
-                classes=(AltitudeMode,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="time_primitive",
-                classes=(TimeSpan,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="time_primitive",
-                classes=(TimeStamp,),
-                strict=strict,
-            ),
-        )
-
-        return kwargs
+registry.register(
+    _AbstractView,
+    RegistryItem(
+        attr_name="longitude",
+        node_name="longitude",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    _AbstractView,
+    RegistryItem(
+        attr_name="latitude",
+        node_name="latitude",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    _AbstractView,
+    RegistryItem(
+        attr_name="altitude",
+        node_name="altitude",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    _AbstractView,
+    RegistryItem(
+        attr_name="heading",
+        node_name="heading",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    _AbstractView,
+    RegistryItem(
+        attr_name="tilt",
+        node_name="tilt",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    _AbstractView,
+    RegistryItem(
+        attr_name="altitude_mode",
+        node_name="altitudeMode",
+        classes=(AltitudeMode,),
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+    ),
+)
+registry.register(
+    _AbstractView,
+    RegistryItem(
+        attr_name="time_primitive",
+        node_name="TimeStamp",
+        classes=(TimeSpan, TimeStamp),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
 
 
 class Camera(_AbstractView):
@@ -330,54 +236,23 @@ class Camera(_AbstractView):
         )
         self.roll = roll
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        float_subelement(
-            self,
-            element=element,
-            attr_name="roll",
-            node_name="roll",
-            precision=precision,
-        )
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="roll",
-                kwarg="roll",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        return kwargs
+registry.register(
+    Camera,
+    RegistryItem(
+        attr_name="roll",
+        node_name="roll",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
 
 
 class LookAt(_AbstractView):
     range: Optional[float]
     # Distance in meters from the point specified by <longitude>, <latitude>,
-    # and <altitude> to the LookAt position. (See diagram below.)
+    # and <altitude> to the LookAt position.
 
     def __init__(
         self,
@@ -409,48 +284,17 @@ class LookAt(_AbstractView):
         )
         self.range = range
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        float_subelement(
-            self,
-            element=element,
-            attr_name="range",
-            node_name="range",
-            precision=precision,
-        )
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="range",
-                kwarg="range",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        return kwargs
+registry.register(
+    LookAt,
+    RegistryItem(
+        attr_name="range",
+        node_name="range",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
 
 
 class LatLonAltBox(_XMLObject):
@@ -501,159 +345,77 @@ class LatLonAltBox(_XMLObject):
             ),
         )
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        float_subelement(
-            self,
-            element=element,
-            attr_name="north",
-            node_name="north",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="south",
-            node_name="south",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="east",
-            node_name="east",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="west",
-            node_name="west",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="min_altitude",
-            node_name="minAltitude",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="max_altitude",
-            node_name="maxAltitude",
-            precision=precision,
-        )
-        enum_subelement(
-            self,
-            element=element,
-            attr_name="altitude_mode",
-            node_name="altitudeMode",
-        )
 
-        return element
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="north",
-                kwarg="north",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="south",
-                kwarg="south",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="east",
-                kwarg="east",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="west",
-                kwarg="west",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="minAltitude",
-                kwarg="min_altitude",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="maxAltitude",
-                kwarg="max_altitude",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_enum_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="altitudeMode",
-                kwarg="altitude_mode",
-                classes=(AltitudeMode,),
-                strict=strict,
-            ),
-        )
-
-        return kwargs
+registry.register(
+    LatLonAltBox,
+    RegistryItem(
+        attr_name="north",
+        node_name="north",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    LatLonAltBox,
+    RegistryItem(
+        attr_name="south",
+        node_name="south",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    LatLonAltBox,
+    RegistryItem(
+        attr_name="east",
+        node_name="east",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    LatLonAltBox,
+    RegistryItem(
+        attr_name="west",
+        node_name="west",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    LatLonAltBox,
+    RegistryItem(
+        attr_name="min_altitude",
+        node_name="minAltitude",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    LatLonAltBox,
+    RegistryItem(
+        attr_name="max_altitude",
+        node_name="maxAltitude",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    LatLonAltBox,
+    RegistryItem(
+        attr_name="altitude_mode",
+        node_name="altitudeMode",
+        classes=(AltitudeMode,),
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+    ),
+)
 
 
 class Lod(_XMLObject):
@@ -692,106 +454,47 @@ class Lod(_XMLObject):
     def __bool__(self) -> bool:
         return self.min_lod_pixels is not None
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        float_subelement(
-            self,
-            element=element,
-            attr_name="min_lod_pixels",
-            node_name="minLodPixels",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="max_lod_pixels",
-            node_name="maxLodPixels",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="min_fade_extent",
-            node_name="minFadeExtent",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="max_fade_extent",
-            node_name="maxFadeExtent",
-            precision=precision,
-        )
 
-        return element
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="minLodPixels",
-                kwarg="min_lod_pixels",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="maxLodPixels",
-                kwarg="max_lod_pixels",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="minFadeExtent",
-                kwarg="min_fade_extent",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="maxFadeExtent",
-                kwarg="max_fade_extent",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-
-        return kwargs
+registry.register(
+    Lod,
+    RegistryItem(
+        attr_name="min_lod_pixels",
+        node_name="minLodPixels",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    Lod,
+    RegistryItem(
+        attr_name="max_lod_pixels",
+        node_name="maxLodPixels",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    Lod,
+    RegistryItem(
+        attr_name="min_fade_extent",
+        node_name="minFadeExtent",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    Lod,
+    RegistryItem(
+        attr_name="max_fade_extent",
+        node_name="maxFadeExtent",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
 
 
 class Region(_BaseObject):
@@ -826,68 +529,27 @@ class Region(_BaseObject):
     def __bool__(self) -> bool:
         return bool(self.lat_lon_alt_box)
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        xml_subelement(
-            self,
-            element=element,
-            attr_name="lat_lon_alt_box",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        xml_subelement(
-            self,
-            element=element,
-            attr_name="lod",
-            precision=precision,
-            verbosity=verbosity,
-        )
 
-        return element
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="lat_lon_alt_box",
-                classes=(LatLonAltBox,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="lod",
-                classes=(Lod,),
-                strict=strict,
-            ),
-        )
-
-        return kwargs
+registry.register(
+    Region,
+    RegistryItem(
+        attr_name="lat_lon_alt_box",
+        node_name="LatLonAltBox",
+        classes=(LatLonAltBox,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    Region,
+    RegistryItem(
+        attr_name="lod",
+        node_name="Lod",
+        classes=(Lod,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
 
 
 __all__ = [
