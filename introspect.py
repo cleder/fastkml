@@ -175,6 +175,6 @@ def create_registry(module: ModuleType) -> None:
 
 
 if __name__ == "__main__":
-    from fastkml import styles
+    from fastkml import features
 
-    create_registry(styles)
+    create_registry(features)

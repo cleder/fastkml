@@ -194,6 +194,8 @@ class Track(_Geometry):
     time elements as the object moves through space.
     """
 
+    _default_ns = config.GXNS
+
     track_items: List[TrackItem]
 
     def __init__(
@@ -315,6 +317,7 @@ def tracks_to_geometry(tracks: Iterable[Track]) -> geo.MultiLineString:
 
 
 class MultiTrack(_Geometry):
+    _default_ns = config.GXNS
     tracks: List[Track]
 
     def __init__(

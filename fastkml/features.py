@@ -54,6 +54,8 @@ from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.links import Link
 from fastkml.mixins import TimeMixin
+from fastkml.registry import RegistryItem
+from fastkml.registry import registry
 from fastkml.styles import Style
 from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
@@ -276,289 +278,166 @@ class _Feature(TimeMixin, _BaseObject):
         self.extended_data = extended_data
         self.times = times
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        xml_subelement(
-            self,
-            element=element,
-            attr_name="times",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        xml_subelement(
-            self,
-            element=element,
-            attr_name="atom_link",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        xml_subelement(
-            self,
-            element=element,
-            attr_name="atom_author",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        xml_subelement(
-            self,
-            element=element,
-            attr_name="extended_data",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        xml_subelement(
-            self,
-            element=element,
-            attr_name="view",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        xml_subelement(
-            self,
-            element=element,
-            attr_name="style_url",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        xml_subelement(
-            self,
-            element=element,
-            attr_name="snippet",
-            precision=precision,
-            verbosity=verbosity,
-        )
 
-        xml_subelement_list(
-            self,
-            element=element,
-            attr_name="styles",
-            node_name="Style",
-            precision=precision,
-            verbosity=verbosity,
-        )
-
-        text_subelement(
-            self,
-            element=element,
-            attr_name="address",
-            node_name="address",
-        )
-        text_subelement(
-            self,
-            element=element,
-            attr_name="phone_number",
-            node_name="phoneNumber",
-        )
-        text_subelement(
-            self,
-            element=element,
-            attr_name="description",
-            node_name="description",
-        )
-        text_subelement(
-            self,
-            element=element,
-            attr_name="name",
-            node_name="name",
-        )
-        bool_subelement(
-            self,
-            element=element,
-            attr_name="visibility",
-            node_name="visibility",
-        )
-        bool_subelement(self, element=element, attr_name="isopen", node_name="open")
-        return element
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            xml_subelement_list_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="",
-                kwarg="styles",
-                classes=(Style, StyleMap),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="style_url",
-                classes=(StyleUrl,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="times",
-                classes=(TimeSpan,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="times",
-                classes=(TimeStamp,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="extended_data",
-                classes=(ExtendedData,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="view",
-                classes=(Camera,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="view",
-                classes=(LookAt,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="snippet",
-                classes=(Snippet,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=name_spaces["atom"],
-                name_spaces=name_spaces,
-                kwarg="atom_link",
-                classes=(atom.Link,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=name_spaces["atom"],
-                name_spaces=name_spaces,
-                kwarg="atom_author",
-                classes=(atom.Author,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="address",
-                kwarg="address",
-                classes=(str,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="phoneNumber",
-                kwarg="phone_number",
-                classes=(str,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="description",
-                kwarg="description",
-                classes=(str,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="name",
-                kwarg="name",
-                classes=(str,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_bool_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="visibility",
-                kwarg="visibility",
-                classes=(bool,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_bool_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="open",
-                kwarg="isopen",
-                classes=(bool,),
-                strict=strict,
-            ),
-        )
-        return kwargs
+registry.register(
+    _Feature,
+    RegistryItem(
+        attr_name="name",
+        node_name="name",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        attr_name="visibility",
+        node_name="visibility",
+        classes=(bool,),
+        get_kwarg=subelement_bool_kwarg,
+        set_element=bool_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        attr_name="isopen",
+        node_name="open",
+        classes=(bool,),
+        get_kwarg=subelement_bool_kwarg,
+        set_element=bool_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        attr_name="atom_link",
+        node_name="atom:link",
+        classes=(atom.Link,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        attr_name="atom_author",
+        node_name="atom:author",
+        classes=(atom.Author,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        attr_name="address",
+        node_name="address",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        attr_name="phone_number",
+        node_name="phoneNumber",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        attr_name="snippet",
+        node_name="Snippet",
+        classes=(Snippet,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        attr_name="description",
+        node_name="description",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        attr_name="view",
+        node_name="Camera,LookAt",
+        classes=(
+            Camera,
+            LookAt,
+        ),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        attr_name="times",
+        node_name="TimeSpan,TimeStamp",
+        classes=(
+            TimeSpan,
+            TimeStamp,
+        ),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        attr_name="style_url",
+        node_name="styleUrl",
+        classes=(StyleUrl,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        attr_name="styles",
+        node_name="Style,StyleMap",
+        classes=(
+            Style,
+            StyleMap,
+        ),
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        attr_name="region",
+        node_name="region",
+        classes=(Region,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        attr_name="extended_data",
+        node_name="ExtendedData",
+        classes=(ExtendedData,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
 
 
 class Placemark(_Feature):
@@ -737,6 +616,29 @@ class Placemark(_Feature):
         return kwargs
 
 
+registry.register(
+    Placemark,
+    RegistryItem(
+        attr_name="kml_geometry",
+        node_name=(
+            "Point,LineString,LinearRing,Polygon,MultiGeometry,"
+            "gx:MultiTrack,gx:Track"
+        ),
+        classes=(
+            Point,
+            LineString,
+            LinearRing,
+            Polygon,
+            MultiGeometry,
+            gx.MultiTrack,
+            gx.Track,
+        ),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+
+
 class NetworkLink(_Feature):
     """
     References a KML file or KMZ archive on a local or remote network.
@@ -832,80 +734,37 @@ class NetworkLink(_Feature):
         self.fly_to_view = fly_to_view
         self.link = link
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        bool_subelement(
-            self,
-            element=element,
-            attr_name="refresh_visibility",
-            node_name="refreshVisibility",
-        )
-        bool_subelement(
-            self,
-            element=element,
-            attr_name="fly_to_view",
-            node_name="flyToView",
-        )
-        xml_subelement(
-            self,
-            element=element,
-            attr_name="link",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        return element
+    def __bool__(self) -> bool:
+        return bool(self.link)
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            subelement_bool_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="refreshVisibility",
-                kwarg="refresh_visibility",
-                classes=(bool,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_bool_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="flyToView",
-                kwarg="fly_to_view",
-                classes=(bool,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="link",
-                classes=(Link,),
-                strict=strict,
-            ),
-        )
-        return kwargs
+
+registry.register(
+    NetworkLink,
+    RegistryItem(
+        attr_name="refresh_visibility",
+        node_name="refreshVisibility",
+        classes=(bool,),
+        get_kwarg=subelement_bool_kwarg,
+        set_element=bool_subelement,
+    ),
+)
+registry.register(
+    NetworkLink,
+    RegistryItem(
+        attr_name="fly_to_view",
+        node_name="flyToView",
+        classes=(bool,),
+        get_kwarg=subelement_bool_kwarg,
+        set_element=bool_subelement,
+    ),
+)
+registry.register(
+    NetworkLink,
+    RegistryItem(
+        attr_name="link",
+        node_name="Link",
+        classes=(Link,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
