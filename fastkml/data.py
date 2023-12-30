@@ -78,6 +78,9 @@ class SimpleField:
     type: DataType
     display_name: Optional[str] = None
 
+    def __bool__(self) -> bool:
+        return bool(self.name) and bool(self.type)
+
 
 class Schema(_BaseObject):
     """
@@ -119,6 +122,8 @@ class Schema(_BaseObject):
         if self.name:
             element.set("name", self.name)
         for simple_field in self.simple_fields:
+            if not simple_field:
+                continue
             sf = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
                 f"{self.ns}SimpleField",
@@ -204,13 +209,8 @@ class Data(_XMLObject):
         self.value = value
         self.display_name = display_name
 
-    def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}("
-            f"ns='{self.ns}',"
-            f"name='{self.name}', value='{self.value}'"
-            f"display_name='{self.display_name}')"
-        )
+    def __bool__(self) -> bool:
+        return self.name is not None or self.value is not None
 
     def etree_element(
         self,

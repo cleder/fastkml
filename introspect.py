@@ -6,7 +6,6 @@ import inspect
 import typing
 from types import ModuleType
 
-from fastkml import views
 from fastkml.base import _XMLObject
 
 
@@ -146,7 +145,7 @@ def create_registry(module: ModuleType) -> None:
                 except AttributeError:
                     print(f"# XXX: Error in {cls.__name__}: {k} > {v}")
                 print(f"        classes=({classes},),")
-                print("        get_kwarg=xml_subelement_kwarg,")
+                print("        get_kwarg=xml_subelement_list_kwarg,")
                 print("        set_element=xml_subelement_list,")
 
                 print("    ),")
@@ -176,4 +175,6 @@ def create_registry(module: ModuleType) -> None:
 
 
 if __name__ == "__main__":
-    create_registry(views)
+    from fastkml import styles
+
+    create_registry(styles)

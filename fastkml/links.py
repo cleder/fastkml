@@ -34,7 +34,13 @@ class Link(_BaseObject):
     """
     Represents a <Link> element.
 
-    A URL can be passed to the constructor, or the href can be set later.
+    It specifies the location of any of the following:
+
+    - KML files fetched by network links
+    - Image files used in any Overlay
+    - Model files used in the <Model> element
+
+    https://developers.google.com/kml/documentation/kmlreference#link
     """
 
     href: Optional[str]
@@ -71,6 +77,9 @@ class Link(_BaseObject):
         self.view_bound_scale = view_bound_scale
         self.view_format = view_format
         self.http_query = http_query
+
+    def __bool__(self) -> bool:
+        return bool(self.href)
 
 
 registry.register(
@@ -163,6 +172,8 @@ class Icon(Link):
     The required <href> child element defines the location
     of the image to be used as the overlay or as the icon for the placemark.
     This location can either be on a local file system or a remote web server.
+
+    https://developers.google.com/kml/documentation/kmlreference#icon
 
     Todo:
     ----
