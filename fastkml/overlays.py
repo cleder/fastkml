@@ -16,7 +16,6 @@
 """Overlays."""
 
 import logging
-from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import Optional
@@ -30,7 +29,6 @@ from fastkml.data import ExtendedData
 from fastkml.enums import AltitudeMode
 from fastkml.enums import GridOrigin
 from fastkml.enums import Shape
-from fastkml.enums import Verbosity
 from fastkml.features import Snippet
 from fastkml.features import _Feature
 from fastkml.geometry import LinearRing
@@ -49,12 +47,13 @@ from fastkml.helpers import text_subelement
 from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.links import Icon
+from fastkml.registry import RegistryItem
+from fastkml.registry import registry
 from fastkml.styles import Style
 from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
 from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
-from fastkml.types import Element
 from fastkml.views import Camera
 from fastkml.views import LookAt
 from fastkml.views import Region
@@ -151,81 +150,37 @@ class _Overlay(_Feature):
         self.color = color
         self.draw_order = draw_order
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        text_subelement(
-            self,
-            element=element,
-            attr_name="color",
-            node_name="color",
-        )
-        int_subelement(
-            self,
-            element=element,
-            attr_name="draw_order",
-            node_name="drawOrder",
-        )
-        xml_subelement(
-            self,
-            element=element,
-            attr_name="icon",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="color",
-                kwarg="color",
-                classes=(str,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_int_kwarg(
-                element=element,
-                ns=ns,
-                node_name="drawOrder",
-                kwarg="draw_order",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="icon",
-                classes=(Icon,),
-                strict=strict,
-            ),
-        )
-        return kwargs
+registry.register(
+    _Overlay,
+    RegistryItem(
+        attr_name="color",
+        node_name="color",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    _Overlay,
+    RegistryItem(
+        attr_name="draw_order",
+        node_name="drawOrder",
+        classes=(int,),
+        get_kwarg=subelement_int_kwarg,
+        set_element=int_subelement,
+    ),
+)
+registry.register(
+    _Overlay,
+    RegistryItem(
+        attr_name="icon",
+        node_name="Icon",
+        classes=(Icon,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
 
 
 class ViewVolume(_XMLObject):
@@ -290,134 +245,57 @@ class ViewVolume(_XMLObject):
             ],
         )
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        float_subelement(
-            self,
-            element=element,
-            attr_name="left_fov",
-            node_name="leftFov",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="right_fov",
-            node_name="rightFov",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="bottom_fov",
-            node_name="bottomFov",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="top_fov",
-            node_name="topFov",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="near",
-            node_name="near",
-            precision=precision,
-        )
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="leftFov",
-                kwarg="left_fov",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="rightFov",
-                kwarg="right_fov",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="bottomFov",
-                kwarg="bottom_fov",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="topFov",
-                kwarg="top_fov",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="near",
-                kwarg="near",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="near",
-                kwarg="near",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-
-        return kwargs
+registry.register(
+    ViewVolume,
+    RegistryItem(
+        attr_name="left_fov",
+        node_name="leftFov",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    ViewVolume,
+    RegistryItem(
+        attr_name="right_fov",
+        node_name="rightFov",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    ViewVolume,
+    RegistryItem(
+        attr_name="bottom_fov",
+        node_name="bottomFov",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    ViewVolume,
+    RegistryItem(
+        attr_name="top_fov",
+        node_name="topFov",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    ViewVolume,
+    RegistryItem(
+        attr_name="near",
+        node_name="near",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
 
 
 class ImagePyramid(_XMLObject):
@@ -482,95 +360,47 @@ class ImagePyramid(_XMLObject):
             and self.grid_origin is not None
         )
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        int_subelement(
-            self,
-            element=element,
-            attr_name="tile_size",
-            node_name="tileSize",
-        )
-        int_subelement(
-            self,
-            element=element,
-            attr_name="max_width",
-            node_name="maxWidth",
-        )
-        int_subelement(
-            self,
-            element=element,
-            attr_name="max_height",
-            node_name="maxHeight",
-        )
-        enum_subelement(
-            self,
-            element=element,
-            attr_name="grid_origin",
-            node_name="gridOrigin",
-        )
 
-        return element
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            subelement_int_kwarg(
-                element=element,
-                ns=ns,
-                node_name="tileSize",
-                kwarg="tile_size",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_int_kwarg(
-                element=element,
-                ns=ns,
-                node_name="maxWidth",
-                kwarg="max_width",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_int_kwarg(
-                element=element,
-                ns=ns,
-                node_name="maxHeight",
-                kwarg="max_height",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_enum_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="gridOrigin",
-                kwarg="grid_origin",
-                classes=(GridOrigin,),
-                strict=strict,
-            ),
-        )
-        return kwargs
+registry.register(
+    ImagePyramid,
+    RegistryItem(
+        attr_name="tile_size",
+        node_name="tileSize",
+        classes=(int,),
+        get_kwarg=subelement_int_kwarg,
+        set_element=int_subelement,
+    ),
+)
+registry.register(
+    ImagePyramid,
+    RegistryItem(
+        attr_name="max_width",
+        node_name="maxWidth",
+        classes=(int,),
+        get_kwarg=subelement_int_kwarg,
+        set_element=int_subelement,
+    ),
+)
+registry.register(
+    ImagePyramid,
+    RegistryItem(
+        attr_name="max_height",
+        node_name="maxHeight",
+        classes=(int,),
+        get_kwarg=subelement_int_kwarg,
+        set_element=int_subelement,
+    ),
+)
+registry.register(
+    ImagePyramid,
+    RegistryItem(
+        attr_name="grid_origin",
+        node_name="gridOrigin",
+        classes=(GridOrigin,),
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+    ),
+)
 
 
 class PhotoOverlay(_Overlay):
@@ -689,119 +519,57 @@ class PhotoOverlay(_Overlay):
         self.point = point
         self.shape = shape
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        float_subelement(
-            self,
-            element=element,
-            attr_name="rotation",
-            node_name="rotation",
-            precision=precision,
-        )
-        xml_subelement(
-            self,
-            element=element,
-            attr_name="view_volume",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        xml_subelement(
-            self,
-            element=element,
-            attr_name="image_pyramid",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        xml_subelement(
-            self,
-            element=element,
-            attr_name="point",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        enum_subelement(
-            self,
-            element=element,
-            attr_name="shape",
-            node_name="shape",
-        )
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="rotation",
-                kwarg="rotation",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="view_volume",
-                classes=(ViewVolume,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="image_pyramid",
-                classes=(ImagePyramid,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="point",
-                classes=(Point,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_enum_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="shape",
-                kwarg="shape",
-                classes=(Shape,),
-                strict=strict,
-            ),
-        )
-
-        return kwargs
+registry.register(
+    PhotoOverlay,
+    RegistryItem(
+        attr_name="rotation",
+        node_name="rotation",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    PhotoOverlay,
+    RegistryItem(
+        attr_name="view_volume",
+        node_name="ViewVolume",
+        classes=(ViewVolume,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    PhotoOverlay,
+    RegistryItem(
+        attr_name="image_pyramid",
+        node_name="ImagePyramid",
+        classes=(ImagePyramid,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    PhotoOverlay,
+    RegistryItem(
+        attr_name="point",
+        node_name="Point",
+        classes=(Point,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    PhotoOverlay,
+    RegistryItem(
+        attr_name="shape",
+        node_name="shape",
+        classes=(Shape,),
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+    ),
+)
 
 
 class LatLonBox(_XMLObject):
@@ -862,123 +630,57 @@ class LatLonBox(_XMLObject):
             ],
         )
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        float_subelement(
-            self,
-            element=element,
-            attr_name="north",
-            node_name="north",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="south",
-            node_name="south",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="east",
-            node_name="east",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="west",
-            node_name="west",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="rotation",
-            node_name="rotation",
-            precision=precision,
-        )
 
-        return element
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="north",
-                kwarg="north",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="south",
-                kwarg="south",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="east",
-                kwarg="east",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="west",
-                kwarg="west",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="rotation",
-                kwarg="rotation",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        return kwargs
+registry.register(
+    LatLonBox,
+    RegistryItem(
+        attr_name="north",
+        node_name="north",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    LatLonBox,
+    RegistryItem(
+        attr_name="south",
+        node_name="south",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    LatLonBox,
+    RegistryItem(
+        attr_name="east",
+        node_name="east",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    LatLonBox,
+    RegistryItem(
+        attr_name="west",
+        node_name="west",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    LatLonBox,
+    RegistryItem(
+        attr_name="rotation",
+        node_name="rotation",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
 
 
 class GroundOverlay(_Overlay):
@@ -1072,82 +774,34 @@ class GroundOverlay(_Overlay):
         self.altitude_mode = altitude_mode
         self.lat_lon_box = lat_lon_box
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        float_subelement(
-            self,
-            element=element,
-            attr_name="altitude",
-            node_name="altitude",
-            precision=precision,
-        )
-        enum_subelement(
-            self,
-            element=element,
-            attr_name="altitude_mode",
-            node_name="altitudeMode",
-        )
-        xml_subelement(
-            self,
-            element=element,
-            attr_name="lat_lon_box",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="altitude",
-                kwarg="altitude",
-                classes=(float,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_enum_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="altitudeMode",
-                kwarg="altitude_mode",
-                classes=(AltitudeMode,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="lat_lon_box",
-                classes=(LatLonBox,),
-                strict=strict,
-            ),
-        )
-
-        return kwargs
+registry.register(
+    GroundOverlay,
+    RegistryItem(
+        attr_name="altitude",
+        node_name="altitude",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    GroundOverlay,
+    RegistryItem(
+        attr_name="altitude_mode",
+        node_name="altitudeMode",
+        classes=(AltitudeMode,),
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+    ),
+)
+registry.register(
+    GroundOverlay,
+    RegistryItem(
+        attr_name="lat_lon_box",
+        node_name="LatLonBox",
+        classes=(LatLonBox,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)

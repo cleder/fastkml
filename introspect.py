@@ -175,6 +175,6 @@ def create_registry(module: ModuleType) -> None:
 
 
 if __name__ == "__main__":
-    from fastkml import containers
+    from fastkml import overlays
 
-    create_registry(containers)
+    create_registry(overlays)

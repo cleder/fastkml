@@ -20,7 +20,6 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
-from typing import Type
 
 from fastkml import config
 from fastkml.base import _XMLObject
@@ -72,8 +71,8 @@ def int_subelement(
     *,
     element: Element,
     attr_name: str,
-    node_name: str,
-    precision: Optional[int] = None,
+    node_name: Optional[str],
+    precision: Optional[int],
     verbosity: Optional[Verbosity] = None,
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
@@ -203,9 +202,9 @@ def subelement_int_kwarg(
     element: Element,
     ns: str,
     name_spaces: Optional[Dict[str, str]] = None,
-    node_name: str,
+    node_name: Optional[str],
     kwarg: str,
-    classes: Tuple[Type[int]] = (int,),
+    classes: Tuple[known_types, ...],
     strict: bool,
 ) -> Dict[str, int]:
     node = element.find(f"{ns}{node_name}")
