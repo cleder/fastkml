@@ -365,7 +365,7 @@ class TestStdLibrary(StdLibrary):
         assert ts.end.dt == datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc())
 
     def test_feature_fromstring(self) -> None:
-        doc = """<Document>
+        doc = """<Document xmlns="http://www.opengis.net/kml/2.2">
           <name>Document.kml</name>
           <open>1</open>
           <TimeStamp>

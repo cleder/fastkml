@@ -278,17 +278,17 @@ def xml_subelement_kwarg(
         assert issubclass(cls, _XMLObject)
         assert node_name is not None
         assert name_spaces is not None
-        for namespace in (cls._default_ns, ns):
-            subelement = element.find(f"{namespace}{cls.get_tag_name()}")
-            if subelement is not None:
-                return {
-                    kwarg: cls.class_from_element(
-                        ns=namespace,
-                        name_spaces=name_spaces,
-                        element=subelement,
-                        strict=strict,
-                    ),
-                }
+        namespace = ns if cls._default_ns == ns else cls._default_ns
+        subelement = element.find(f"{namespace}{cls.get_tag_name()}")
+        if subelement is not None:
+            return {
+                kwarg: cls.class_from_element(
+                    ns=namespace,
+                    name_spaces=name_spaces,
+                    element=subelement,
+                    strict=strict,
+                ),
+            }
     return {}
 
 
@@ -307,17 +307,17 @@ def xml_subelement_list_kwarg(
     assert name_spaces is not None
     for obj_class in classes:
         assert issubclass(obj_class, _XMLObject)
-        for namespace in (obj_class._default_ns, ns):
-            if subelements := element.findall(f"{namespace}{obj_class.get_tag_name()}"):
-                args_list.extend(
-                    [
-                        obj_class.class_from_element(
-                            ns=namespace,
-                            name_spaces=name_spaces,
-                            element=subelement,
-                            strict=strict,
-                        )
-                        for subelement in subelements
-                    ],
-                )
+        namespace = ns if obj_class._default_ns == ns else obj_class._default_ns
+        if subelements := element.findall(f"{namespace}{obj_class.get_tag_name()}"):
+            args_list.extend(
+                [
+                    obj_class.class_from_element(
+                        ns=namespace,
+                        name_spaces=name_spaces,
+                        element=subelement,
+                        strict=strict,
+                    )
+                    for subelement in subelements
+                ],
+            )
     return {kwarg: args_list}

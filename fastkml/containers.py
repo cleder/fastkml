@@ -16,7 +16,6 @@
 """Container classes for KML elements."""
 import logging
 import urllib.parse as urlparse
-from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -27,7 +26,6 @@ from fastkml import atom
 from fastkml import gx
 from fastkml.data import ExtendedData
 from fastkml.data import Schema
-from fastkml.enums import Verbosity
 from fastkml.features import Placemark
 from fastkml.features import Snippet
 from fastkml.features import _Feature
@@ -38,12 +36,13 @@ from fastkml.geometry import Point
 from fastkml.geometry import Polygon
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.registry import RegistryItem
+from fastkml.registry import registry
 from fastkml.styles import Style
 from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
 from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
-from fastkml.types import Element
 from fastkml.views import Camera
 from fastkml.views import LookAt
 from fastkml.views import Region
@@ -120,16 +119,6 @@ class _Container(_Feature):
         )
         self.features = list(features) if features else []
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        for feature in self.features:
-            element.append(feature.etree_element())
-        return element
-
     def append(self, kmlobj: _Feature) -> None:
         """Append a feature."""
         if kmlobj is self:
@@ -137,37 +126,6 @@ class _Container(_Feature):
             raise ValueError(msg)
         assert self.features is not None
         self.features.append(kmlobj)
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        kwargs["features"] = []
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            xml_subelement_list_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="",
-                kwarg="features",
-                classes=(Folder, Placemark, Document),
-                strict=strict,
-            ),
-        )
-        return kwargs
 
 
 class Folder(_Container):
@@ -234,52 +192,28 @@ class Document(_Container):
         )
         self.schemata = list(schemata) if schemata else []
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        xml_subelement_list(
-            obj=self,
-            element=element,
-            attr_name="schemata",
-            node_name="Schema",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        return element
-
     def get_style_by_url(self, style_url: str) -> Optional[Union[Style, StyleMap]]:
         id_ = urlparse.urlparse(style_url).fragment
         return next((style for style in self.styles if style.id == id_), None)
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            xml_subelement_list_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="",
-                kwarg="schemata",
-                classes=(Schema,),
-                strict=strict,
-            ),
-        )
-        return kwargs
+
+registry.register(
+    _Container,
+    RegistryItem(
+        attr_name="features",
+        node_name="Folder,Placemark,Document",
+        classes=(Folder, Placemark, Document),
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
+    ),
+)
+registry.register(
+    Document,
+    RegistryItem(
+        attr_name="schemata",
+        node_name="Schema",
+        classes=(Schema,),
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
+    ),
+)

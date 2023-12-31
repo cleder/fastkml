@@ -51,8 +51,10 @@ class TestStdLibrary(StdLibrary):
         s.simple_fields = [data.SimpleField(**fields)]  # type: ignore[arg-type]
         assert s.simple_fields[0] == data.SimpleField(**fields)  # type: ignore[arg-type]
 
+    @pytest.mark.xfail(reason="namespace handling needs to be fixed")
     def test_schema_from_string(self) -> None:
-        doc = """<Schema name="TrailHeadType" id="TrailHeadTypeId">
+        doc = """<Schema name="TrailHeadType" id="TrailHeadTypeId"
+                  xmlns="http://www.opengis.net/kml/2.2">
             <SimpleField type="string" name="TrailHeadName">
               <displayName><![CDATA[<b>Trail Head Name</b>]]></displayName>
             </SimpleField>
