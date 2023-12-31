@@ -37,6 +37,8 @@ from fastkml.helpers import subelement_text_kwarg
 from fastkml.helpers import text_subelement
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.registry import RegistryItem
+from fastkml.registry import registry
 from fastkml.types import Element
 
 __all__ = [
@@ -210,7 +212,7 @@ class Data(_XMLObject):
         self.display_name = display_name
 
     def __bool__(self) -> bool:
-        return self.name is not None or self.value is not None
+        return self.value is not None
 
     def etree_element(
         self,
@@ -219,18 +221,6 @@ class Data(_XMLObject):
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
         element.set("name", self.name or "")
-        text_subelement(
-            self,
-            element=element,
-            attr_name="value",
-            node_name="value",
-        )
-        text_subelement(
-            self,
-            element=element,
-            attr_name="display_name",
-            node_name="displayName",
-        )
         return element
 
     @classmethod
@@ -249,30 +239,29 @@ class Data(_XMLObject):
             strict=strict,
         )
         kwargs["name"] = element.get("name")
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="value",
-                kwarg="value",
-                classes=(str,),
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="displayName",
-                kwarg="display_name",
-                classes=(str,),
-                strict=strict,
-            ),
-        )
-
         return kwargs
+
+
+registry.register(
+    Data,
+    RegistryItem(
+        attr_name="value",
+        node_name="value",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    Data,
+    RegistryItem(
+        attr_name="display_name",
+        node_name="displayName",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
 
 
 @dataclass(frozen=True)
