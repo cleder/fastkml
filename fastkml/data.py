@@ -212,7 +212,7 @@ class Data(_XMLObject):
         self.display_name = display_name
 
     def __bool__(self) -> bool:
-        return self.value is not None
+        return bool(self.name) and self.value is not None
 
     def etree_element(
         self,
