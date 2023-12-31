@@ -49,8 +49,8 @@ class GetKWArgs(Protocol):
         *,
         element: Element,
         ns: str,
-        name_spaces: Optional[Dict[str, str]],
-        node_name: Optional[str],
+        name_spaces: Dict[str, str],
+        node_name: str,
         kwarg: str,
         classes: Tuple[known_types, ...],
         strict: bool,
@@ -65,7 +65,7 @@ class SetElement(Protocol):
         *,
         element: Element,
         attr_name: str,
-        node_name: Optional[str],
+        node_name: str,
         precision: Optional[int],
         verbosity: Optional[Verbosity],
     ) -> None:
@@ -80,7 +80,7 @@ class RegistryItem:
     attr_name: str
     get_kwarg: GetKWArgs
     set_element: SetElement
-    node_name: Optional[str] = None
+    node_name: str
 
 
 class Registry:
@@ -112,12 +112,11 @@ class Registry:
         cls: Type["_XMLObject"],
         element: Element,
         ns: str,
-        name_spaces: Optional[Dict[str, str]],
+        name_spaces: Dict[str, str],
         strict: bool,
     ) -> Dict[str, Any]:
-        kwargs = {}
-        for item in self.get(cls):
-            kwargs[item.attr_name] = item.get_kwarg(
+        return {
+            item.attr_name: item.get_kwarg(
                 element=element,
                 ns=ns,
                 name_spaces=name_spaces,
@@ -126,7 +125,8 @@ class Registry:
                 classes=item.classes,
                 strict=strict,
             )
-        return kwargs
+            for item in self.get(cls)
+        }
 
     def sub_element(
         self,

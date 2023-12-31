@@ -35,9 +35,9 @@ def text_subelement(
     *,
     element: Element,
     attr_name: str,
-    node_name: Optional[str],
-    precision: Optional[int] = None,
-    verbosity: Optional[Verbosity] = None,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Optional[Verbosity],
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
     if getattr(obj, attr_name, None):
@@ -53,9 +53,9 @@ def bool_subelement(
     *,
     element: Element,
     attr_name: str,
-    node_name: Optional[str],
-    precision: Optional[int] = None,
-    verbosity: Optional[Verbosity] = None,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Optional[Verbosity],
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
     if getattr(obj, attr_name, None) is not None:
@@ -71,9 +71,9 @@ def int_subelement(
     *,
     element: Element,
     attr_name: str,
-    node_name: Optional[str],
+    node_name: str,
     precision: Optional[int],
-    verbosity: Optional[Verbosity] = None,
+    verbosity: Optional[Verbosity],
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
     if getattr(obj, attr_name, None) is not None:
@@ -89,9 +89,9 @@ def float_subelement(
     *,
     element: Element,
     attr_name: str,
-    node_name: Optional[str],
+    node_name: str,
     precision: Optional[int],
-    verbosity: Optional[Verbosity] = None,
+    verbosity: Optional[Verbosity],
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
     if getattr(obj, attr_name, None) is not None:
@@ -107,9 +107,9 @@ def enum_subelement(
     *,
     element: Element,
     attr_name: str,
-    node_name: Optional[str],
-    precision: Optional[int] = None,
-    verbosity: Optional[Verbosity] = None,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Optional[Verbosity],
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
     if getattr(obj, attr_name, None):
@@ -125,7 +125,7 @@ def xml_subelement(
     *,
     element: Element,
     attr_name: str,
-    node_name: Optional[str] = None,
+    node_name: str,
     precision: Optional[int],
     verbosity: Optional[Verbosity],
 ) -> None:
@@ -143,9 +143,9 @@ def xml_subelement_list(
     *,
     element: Element,
     attr_name: str,
-    node_name: Optional[str],
-    precision: Optional[int] = None,
-    verbosity: Optional[Verbosity] = None,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Optional[Verbosity],
 ) -> None:
     if getattr(obj, attr_name, None):
         for item in getattr(obj, attr_name):
@@ -157,7 +157,7 @@ def subelement_text_kwarg(
     element: Element,
     ns: str,
     name_spaces: Optional[Dict[str, str]],
-    node_name: Optional[str],
+    node_name: str,
     kwarg: str,
     classes: Tuple[known_types, ...],
     strict: bool,
@@ -173,7 +173,7 @@ def subelement_bool_kwarg(
     element: Element,
     ns: str,
     name_spaces: Optional[Dict[str, str]],
-    node_name: Optional[str],
+    node_name: str,
     kwarg: str,
     classes: Tuple[known_types, ...],
     strict: bool,
@@ -201,8 +201,8 @@ def subelement_int_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Optional[Dict[str, str]] = None,
-    node_name: Optional[str],
+    name_spaces: Optional[Dict[str, str]],
+    node_name: str,
     kwarg: str,
     classes: Tuple[known_types, ...],
     strict: bool,
@@ -224,8 +224,8 @@ def subelement_float_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Optional[Dict[str, str]] = None,
-    node_name: Optional[str],
+    name_spaces: Optional[Dict[str, str]],
+    node_name: str,
     kwarg: str,
     classes: Tuple[known_types, ...],
     strict: bool,
@@ -248,7 +248,7 @@ def subelement_enum_kwarg(
     element: Element,
     ns: str,
     name_spaces: Optional[Dict[str, str]],
-    node_name: Optional[str],
+    node_name: str,
     kwarg: str,
     classes: Tuple[known_types, ...],
     strict: bool,
@@ -268,7 +268,7 @@ def xml_subelement_kwarg(
     element: Element,
     ns: str,
     name_spaces: Optional[Dict[str, str]],
-    node_name: Optional[str] = "",
+    node_name: str,
     kwarg: str,
     classes: Tuple[known_types, ...],
     strict: bool,
@@ -296,7 +296,7 @@ def xml_subelement_list_kwarg(
     element: Element,
     ns: str,
     name_spaces: Optional[Dict[str, str]],
-    node_name: Optional[str],
+    node_name: str,
     kwarg: str,
     classes: Tuple[known_types, ...],
     strict: bool,

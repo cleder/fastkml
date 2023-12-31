@@ -63,7 +63,7 @@ def set_element(
     *,
     element: Element,
     attr_name: str,
-    node_name: Optional[str],
+    node_name: str,
     precision: Optional[int],
     verbosity: Optional[Verbosity],
 ) -> None:
@@ -74,8 +74,8 @@ def get_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Optional[Dict[str, str]],
-    node_name: Optional[str],
+    name_spaces: Dict[str, str],
+    node_name: str,
     kwarg: str,
     classes: Tuple[known_types, ...],
     strict: bool,
@@ -89,7 +89,13 @@ def test_registry_get_root() -> None:
     registry = Registry()
     registry.register(
         A,
-        RegistryItem((A,), attr_name="a", get_kwarg=get_kwarg, set_element=set_element),
+        RegistryItem(
+            (A,),
+            attr_name="a",
+            get_kwarg=get_kwarg,
+            set_element=set_element,
+            node_name="a",
+        ),
     )
     assert registry.get(A)[0].attr_name == "a"
 
@@ -99,19 +105,43 @@ def test_registry_get() -> None:
     registry = Registry()
     registry.register(
         A,
-        RegistryItem((A,), attr_name="a", get_kwarg=get_kwarg, set_element=set_element),
+        RegistryItem(
+            (A,),
+            attr_name="a",
+            get_kwarg=get_kwarg,
+            set_element=set_element,
+            node_name="a",
+        ),
     )
     registry.register(
         B,
-        RegistryItem((B,), attr_name="b", get_kwarg=get_kwarg, set_element=set_element),
+        RegistryItem(
+            (B,),
+            attr_name="b",
+            get_kwarg=get_kwarg,
+            set_element=set_element,
+            node_name="b",
+        ),
     )
     registry.register(
         C,
-        RegistryItem((C,), attr_name="c", get_kwarg=get_kwarg, set_element=set_element),
+        RegistryItem(
+            (C,),
+            attr_name="c",
+            get_kwarg=get_kwarg,
+            set_element=set_element,
+            node_name="c",
+        ),
     )
     registry.register(
         D,
-        RegistryItem((D,), attr_name="d", get_kwarg=get_kwarg, set_element=set_element),
+        RegistryItem(
+            (D,),
+            attr_name="d",
+            get_kwarg=get_kwarg,
+            set_element=set_element,
+            node_name="d",
+        ),
     )
     d = D()
     assert isinstance(d, D)
@@ -131,19 +161,43 @@ def test_registry_get_multi() -> None:
     registry = Registry()
     registry.register(
         A,
-        RegistryItem((A,), attr_name="a", get_kwarg=get_kwarg, set_element=set_element),
+        RegistryItem(
+            (A,),
+            attr_name="a",
+            get_kwarg=get_kwarg,
+            set_element=set_element,
+            node_name="a",
+        ),
     )
     registry.register(
         B,
-        RegistryItem((B,), attr_name="b", get_kwarg=get_kwarg, set_element=set_element),
+        RegistryItem(
+            (B,),
+            attr_name="b",
+            get_kwarg=get_kwarg,
+            set_element=set_element,
+            node_name="b",
+        ),
     )
     registry.register(
         C,
-        RegistryItem((C,), attr_name="c", get_kwarg=get_kwarg, set_element=set_element),
+        RegistryItem(
+            (C,),
+            attr_name="c",
+            get_kwarg=get_kwarg,
+            set_element=set_element,
+            node_name="c",
+        ),
     )
     registry.register(
         D,
-        RegistryItem((D,), attr_name="d", get_kwarg=get_kwarg, set_element=set_element),
+        RegistryItem(
+            (D,),
+            attr_name="d",
+            get_kwarg=get_kwarg,
+            set_element=set_element,
+            node_name="d",
+        ),
     )
     registry.register(
         A,
@@ -152,6 +206,7 @@ def test_registry_get_multi() -> None:
             attr_name="int",
             get_kwarg=get_kwarg,
             set_element=set_element,
+            node_name="int",
         ),
     )
     registry.register(
@@ -161,6 +216,7 @@ def test_registry_get_multi() -> None:
             attr_name="bool",
             get_kwarg=get_kwarg,
             set_element=set_element,
+            node_name="bool",
         ),
     )
     registry.register(
@@ -170,6 +226,7 @@ def test_registry_get_multi() -> None:
             attr_name="float",
             get_kwarg=get_kwarg,
             set_element=set_element,
+            node_name="float",
         ),
     )
     registry.register(
@@ -179,6 +236,7 @@ def test_registry_get_multi() -> None:
             attr_name="enum",
             get_kwarg=get_kwarg,
             set_element=set_element,
+            node_name="enum",
         ),
     )
     assert len(registry.get(A)) == 2
