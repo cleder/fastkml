@@ -163,8 +163,7 @@ class _Geometry(_BaseObject):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        return element
+        return super().etree_element(precision=precision, verbosity=verbosity)
 
     @classmethod
     def _get_coordinates(
