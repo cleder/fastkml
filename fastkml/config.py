@@ -18,6 +18,7 @@
 import logging
 import warnings
 from types import ModuleType
+from typing import Final
 
 __all__ = [
     "ATOMNS",
@@ -46,14 +47,18 @@ def set_etree_implementation(implementation: ModuleType) -> None:
     etree = implementation
 
 
+KML: Final = "kml"
+ATOM: Final = "atom"
+GX: Final = "gx"
+
 KMLNS = "{http://www.opengis.net/kml/2.2}"
 ATOMNS = "{http://www.w3.org/2005/Atom}"
 GXNS = "{http://www.google.com/kml/ext/2.2}"
 
 NAME_SPACES = {
-    "kml": KMLNS,
-    "atom": ATOMNS,
-    "gx": GXNS,
+    KML: KMLNS,
+    ATOM: ATOMNS,
+    GX: GXNS,
 }
 
 

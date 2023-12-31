@@ -169,7 +169,7 @@ class Link(_AtomObject):
         kwargs["hreflang"] = element.get("hreflang")
         kwargs["title"] = element.get("title")
         length = element.get("length")
-        kwargs["length"] = int(length) if length else None
+        kwargs["length"] = int(length) if length and length.strip() else None
         return kwargs
 
 
