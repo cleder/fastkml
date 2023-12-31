@@ -51,7 +51,6 @@ class TestStdLibrary(StdLibrary):
         s.simple_fields = [data.SimpleField(**fields)]  # type: ignore[arg-type]
         assert s.simple_fields[0] == data.SimpleField(**fields)  # type: ignore[arg-type]
 
-    @pytest.mark.xfail(reason="namespace handling needs to be fixed")
     def test_schema_from_string(self) -> None:
         doc = """<Schema name="TrailHeadType" id="TrailHeadTypeId"
                   xmlns="http://www.opengis.net/kml/2.2">
@@ -66,7 +65,8 @@ class TestStdLibrary(StdLibrary):
             </SimpleField>
           </Schema> """
 
-        s = kml.Schema.class_from_string(doc, ns="")
+        s = kml.Schema.class_from_string(doc, ns=None)
+
         assert len(s.simple_fields) == 3
         assert s.simple_fields[0].type == DataType("string")
         assert s.simple_fields[1].type == DataType("double")
@@ -77,14 +77,17 @@ class TestStdLibrary(StdLibrary):
         assert s.simple_fields[0].display_name == "<b>Trail Head Name</b>"
         assert s.simple_fields[1].display_name == "<i>The length in miles</i>"
         assert s.simple_fields[2].display_name == "<i>change in altitude</i>"
-        s1 = kml.Schema.class_from_string(s.to_string(), ns="")
+        s1 = kml.Schema.class_from_string(s.to_string(), ns=None)
         assert len(s1.simple_fields) == 3
         assert s1.simple_fields[0].type == DataType("string")
         assert s1.simple_fields[1].name == "TrailLength"
         assert s1.simple_fields[2].display_name == "<i>change in altitude</i>"
         assert s.to_string() == s1.to_string()
-        doc1 = f"<kml><Document>{doc}</Document></kml>"
-        k = kml.KML.class_from_string(doc1, ns="")
+        doc1 = (
+            '<kml xmlns="http://www.opengis.net/kml/2.2">'
+            f"<Document>{doc}</Document></kml>"
+        )
+        k = kml.KML.class_from_string(doc1, ns=None)
         d = k.features[0]
         s2 = d.schemata[0]
         # s.ns = config.KMLNS
