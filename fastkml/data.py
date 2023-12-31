@@ -371,49 +371,17 @@ class ExtendedData(_XMLObject):
     def __bool__(self) -> bool:
         return bool(self.elements)
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        xml_subelement_list(
-            self,
-            element=element,
-            attr_name="elements",
-            node_name="Data",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            xml_subelement_list_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name="",
-                kwarg="elements",
-                classes=(Data, SchemaData),
-                strict=strict,
-            ),
-        )
-
-        return kwargs
+registry.register(
+    ExtendedData,
+    RegistryItem(
+        attr_name="elements",
+        node_name="Data,SchemaData",
+        classes=(
+            Data,
+            SchemaData,
+        ),
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
+    ),
+)
