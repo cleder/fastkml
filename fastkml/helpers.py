@@ -156,7 +156,7 @@ def subelement_text_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Optional[Dict[str, str]],
+    name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
     classes: Tuple[known_types, ...],
@@ -172,7 +172,7 @@ def subelement_bool_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Optional[Dict[str, str]],
+    name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
     classes: Tuple[known_types, ...],
@@ -201,7 +201,7 @@ def subelement_int_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Optional[Dict[str, str]],
+    name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
     classes: Tuple[known_types, ...],
@@ -224,7 +224,7 @@ def subelement_float_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Optional[Dict[str, str]],
+    name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
     classes: Tuple[known_types, ...],
@@ -247,7 +247,7 @@ def subelement_enum_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Optional[Dict[str, str]],
+    name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
     classes: Tuple[known_types, ...],
@@ -267,7 +267,7 @@ def xml_subelement_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Optional[Dict[str, str]],
+    name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
     classes: Tuple[known_types, ...],
@@ -275,8 +275,6 @@ def xml_subelement_kwarg(
 ) -> Dict[str, _XMLObject]:
     for cls in classes:
         assert issubclass(cls, _XMLObject)
-        assert node_name is not None
-        assert name_spaces is not None
         namespace = ns if cls._default_ns == ns else cls._default_ns
         subelement = element.find(f"{namespace}{cls.get_tag_name()}")
         if subelement is not None:
@@ -295,7 +293,7 @@ def xml_subelement_list_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Optional[Dict[str, str]],
+    name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
     classes: Tuple[known_types, ...],
