@@ -1,4 +1,4 @@
-# Copyright (C) 2012  Christian Ledermann
+# Copyright (C) 2012 - 2024 Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -117,19 +117,6 @@ class _Geometry(_BaseObject):
         self.altitude_mode = altitude_mode
         self.geometry = geometry
 
-    def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}("
-            f"ns={self.ns!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
-            f"extrude={self.extrude!r}, "
-            f"tessellate={self.tessellate!r}, "
-            f"altitude_mode={self.altitude_mode} "
-            f"geometry={self.geometry!r}"
-            f")"
-        )
-
     def __bool__(self) -> bool:
         return bool(self.geometry)
 
@@ -156,14 +143,6 @@ class _Geometry(_BaseObject):
             )
             raise KMLWriteError(msg)
         element.text = " ".join(tuples)
-        return element
-
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
         return element
 
     @classmethod

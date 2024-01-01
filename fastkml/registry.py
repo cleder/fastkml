@@ -106,46 +106,6 @@ class Registry:
             items.extend(self._registry.get(parent, []))
         return items
 
-    def get_kwargs(
-        self,
-        *,
-        cls: Type["_XMLObject"],
-        element: Element,
-        ns: str,
-        name_spaces: Dict[str, str],
-        strict: bool,
-    ) -> Dict[str, Any]:
-        return {
-            item.attr_name: item.get_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                node_name=item.node_name,
-                kwarg=item.attr_name,
-                classes=item.classes,
-                strict=strict,
-            )
-            for item in self.get(cls)
-        }
-
-    def sub_element(
-        self,
-        *,
-        obj: "_XMLObject",
-        element: Element,
-        precision: Optional[int],
-        verbosity: Verbosity,
-    ) -> None:
-        for item in self.get(type(obj)):
-            item.set_element(
-                obj=obj,
-                element=element,
-                attr_name=item.attr_name,
-                node_name=item.node_name,
-                precision=precision,
-                verbosity=verbosity,
-            )
-
 
 registry = Registry()
 
