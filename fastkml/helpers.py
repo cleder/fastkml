@@ -149,7 +149,10 @@ def xml_subelement_list(
 ) -> None:
     if getattr(obj, attr_name, None):
         for item in getattr(obj, attr_name):
-            element.append(item.etree_element(precision=precision, verbosity=verbosity))
+            if item:
+                element.append(
+                    item.etree_element(precision=precision, verbosity=verbosity),
+                )
 
 
 def subelement_text_kwarg(
