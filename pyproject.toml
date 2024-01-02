@@ -115,6 +115,12 @@ source = [
     "tests",
 ]
 
+[tool.coverage.report]
+exclude_also = [
+    "...",
+    "if TYPE_CHECKING:",
+]
+
 [tool.coverage.run]
 branch = true
 
