@@ -117,7 +117,7 @@ source = [
 
 [tool.coverage.report]
 exclude_also = [
-    "...",
+    "^\\s*\\.\\.\\.$",
     "if TYPE_CHECKING:",
 ]
 
