@@ -80,6 +80,18 @@ class StyleUrl(_BaseObject):
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.url = url
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for StyleUrl."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"url={self.url!r}, "
+            ")"
+        )
+
     def __bool__(self) -> bool:
         return bool(self.url)
 
@@ -163,6 +175,19 @@ class _ColorStyle(_BaseObject):
         self.color = color
         self.color_mode = color_mode
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for _ColorStyle."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"color={self.color!r}, "
+            f"color_mode={self.color_mode!r}, "
+            ")"
+        )
+
 
 registry.register(
     _ColorStyle,
@@ -225,7 +250,20 @@ class HotSpot(_XMLObject):
         self.xunits = xunits
         self.yunits = yunits
 
-    def ___bool__(self) -> bool:
+    def __repr__(self) -> str:
+        """Create a string (c)representation for HotSpot."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"x={self.x!r}, "
+            f"y={self.y!r}, "
+            f"xunits={self.xunits!r}, "
+            f"yunits={self.yunits!r}, "
+            ")"
+        )
+
+    def __bool__(self) -> bool:
         return all((self.x is not None, self.y is not None))
 
     def etree_element(
@@ -323,6 +361,23 @@ class IconStyle(_ColorStyle):
         self.icon = icon
         self.hot_spot = hot_spot
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for IconStyle."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"color={self.color!r}, "
+            f"color_mode={self.color_mode!r}, "
+            f"scale={self.scale!r}, "
+            f"heading={self.heading!r}, "
+            f"icon={self.icon!r}, "
+            f"hot_spot={self.hot_spot!r}, "
+            ")"
+        )
+
     def ___bool__(self) -> bool:
         return bool(self.icon)
 
@@ -401,6 +456,20 @@ class LineStyle(_ColorStyle):
         )
         self.width = width
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for LineStyle."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"color={self.color!r}, "
+            f"color_mode={self.color_mode!r}, "
+            f"width={self.width!r}, "
+            ")"
+        )
+
     def __bool__(self) -> bool:
         return self.width is not None
 
@@ -455,6 +524,21 @@ class PolyStyle(_ColorStyle):
         )
         self.fill = fill
         self.outline = outline
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for PolyStyle."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"color={self.color!r}, "
+            f"color_mode={self.color_mode!r}, "
+            f"fill={self.fill!r}, "
+            f"outline={self.outline!r}, "
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return self.fill is not None or self.outline is not None
@@ -513,6 +597,20 @@ class LabelStyle(_ColorStyle):
             color_mode=color_mode,
         )
         self.scale = scale
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for LabelStyle."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"color={self.color!r}, "
+            f"color_mode={self.color_mode!r}, "
+            f"scale={self.scale!r}, "
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return any(
@@ -606,6 +704,21 @@ class BalloonStyle(_BaseObject):
         self.text = text
         self.display_mode = display_mode
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for BalloonStyle."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"bg_color={self.bg_color!r}, "
+            f"text_color={self.text_color!r}, "
+            f"text={self.text!r}, "
+            f"display_mode={self.display_mode!r}, "
+            ")"
+        )
+
     def __bool__(self) -> bool:
         return any(
             (
@@ -686,6 +799,18 @@ class Style(_StyleSelector):
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.styles = list(styles) if styles else []
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Style."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"styles={self.styles!r}, "
+            ")"
+        )
+
     def append_style(
         self,
         style: AnyStyle,
@@ -747,6 +872,19 @@ class Pair(_BaseObject):
         self.key = key
         self.style = style
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Pair."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"key={self.key!r}, "
+            f"style={self.style!r}, "
+            ")"
+        )
+
     def __bool__(self) -> bool:
         return all((self.key is not None, self.style is not None))
 
@@ -798,6 +936,18 @@ class StyleMap(_StyleSelector):
     ) -> None:
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.pairs = list(pairs) if pairs else []
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for StyleMap."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"pairs={self.pairs!r}, "
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return bool(self.pairs)
