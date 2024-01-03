@@ -185,7 +185,7 @@ registry.register(
 
 class Icon(Link):
     """
-    Represents an <Icon> element used in Overlays.
+    Represents an <Icon> element used in IconStyle and Overlays.
 
     Defines an image associated with an Icon style or overlay.
     The required <href> child element defines the location

@@ -16,7 +16,11 @@
 
 """Test the kml classes."""
 
+from fastkml import atom
 from fastkml import features
+from fastkml import links
+from fastkml import styles
+from fastkml import views
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -38,26 +42,110 @@ class TestStdLibrary(StdLibrary):
         assert f.times is None
         assert "_Feature>" in str(f.to_string())
 
-    def test_address_string(self) -> None:
-        f = features._Feature()
-        address = "1600 Amphitheatre Parkway, Mountain View, CA 94043, USA"
-        f.address = address
-        assert f.address == address
+    def test_network_link_with_link_parameter_only(self) -> None:
+        """NetworkLink object with Link parameter only"""
+        network_link = features.NetworkLink(
+            link=links.Link(href="http://example.com/kml_file.kml"),
+        )
 
-    def test_address_none(self) -> None:
-        f = features._Feature()
-        f.address = None
-        assert f.address is None
+        assert network_link.link.href == "http://example.com/kml_file.kml"
+        assert bool(network_link)
 
-    def test_phone_number_string(self) -> None:
-        f = features._Feature()
-        f.phone_number = "+1-234-567-8901"
-        assert f.phone_number == "+1-234-567-8901"
+    def test_network_link_with_no_link_parameter_only(self) -> None:
+        """NetworkLink object with no Link."""
+        network_link = features.NetworkLink(link=None)
 
-    def test_phone_number_none(self) -> None:
-        f = features._Feature()
-        f.phone_number = None
-        assert f.phone_number is None
+        assert not bool(network_link)
+
+    def test_network_link_with_optional_parameters(self) -> None:
+        """NetworkLink object with optional parameters."""
+        network_link = features.NetworkLink(
+            name="My NetworkLink",
+            visibility=True,
+            isopen=False,
+            atom_link=atom.Link(href="http://example.com/kml_file.kml"),
+            refresh_visibility=True,
+            fly_to_view=True,
+            link=links.Link(href="http://example.com/kml_file.kml"),
+            id="networklink1",
+            target_id="target1",
+            atom_author=atom.Author(name="John Doe"),
+            address="123 Main St",
+            phone_number="555-1234",
+            snippet=features.Snippet(text="This is a snippet"),
+            description="This is a description",
+            view=views.LookAt(latitude=37.0, longitude=-122.0, altitude=0.0),
+            style_url=styles.StyleUrl(url="#style1"),
+            styles=[styles.Style(id="style1")],
+        )
+
+        assert network_link.name == "My NetworkLink"
+        assert network_link.visibility
+        assert not network_link.isopen
+        assert network_link.atom_link.href == "http://example.com/kml_file.kml"
+        assert network_link.refresh_visibility
+        assert network_link.fly_to_view
+        assert network_link.link.href == "http://example.com/kml_file.kml"
+        assert network_link.id == "networklink1"
+        assert network_link.target_id == "target1"
+        assert network_link.atom_author.name == "John Doe"
+        assert network_link.address == "123 Main St"
+        assert network_link.phone_number == "555-1234"
+        assert network_link.snippet.text == "This is a snippet"
+        assert network_link.description == "This is a description"
+        assert network_link.view.latitude == 37.0
+        assert network_link.view.longitude == -122.0
+        assert network_link.view.altitude == 0.0
+        assert network_link.style_url.url == "#style1"
+        assert len(network_link.styles) == 1
+        assert network_link.styles[0].id == "style1"
+        assert bool(network_link)
+
+    def test_network_link_read(self) -> None:
+        doc = (
+            '<kml:NetworkLink xmlns:atom="http://www.w3.org/2005/Atom" '
+            'xmlns:kml="http://www.opengis.net/kml/2.2" '
+            'id="networklink1" targetId="target1"><kml:name>My NetworkLink</kml:name>'
+            "<kml:visibility>1</kml:visibility><kml:open>0</kml:open>"
+            '<atom:link href="http://example.com/kml_file.kml" /><atom:author>'
+            "<atom:name>John Doe</atom:name></atom:author>"
+            "<kml:address>123 Main St</kml:address>"
+            "<kml:phoneNumber>555-1234</kml:phoneNumber>"
+            "<kml:Snippet>This is a snippet</kml:Snippet>"
+            "<kml:description>This is a description</kml:description>"
+            "<kml:LookAt><kml:longitude>-122.0</kml:longitude>"
+            "<kml:latitude>37.0</kml:latitude><kml:altitude>0.0</kml:altitude>"
+            "<kml:altitudeMode>relativeToGround</kml:altitudeMode></kml:LookAt>"
+            '<kml:styleUrl>#style1</kml:styleUrl><kml:Style id="style1" />'
+            "<kml:refreshVisibility>1</kml:refreshVisibility>"
+            "<kml:flyToView>1</kml:flyToView>"
+            "<kml:Link><kml:href>http://example.com/kml_file.kml</kml:href></kml:Link>"
+            "</kml:NetworkLink>"
+        )
+
+        network_link = features.NetworkLink.class_from_string(doc)
+
+        assert network_link.name == "My NetworkLink"
+        assert network_link.visibility
+        assert not network_link.isopen
+        assert network_link.atom_link.href == "http://example.com/kml_file.kml"
+        assert network_link.refresh_visibility
+        assert network_link.fly_to_view
+        assert network_link.link.href == "http://example.com/kml_file.kml"
+        assert network_link.id == "networklink1"
+        assert network_link.target_id == "target1"
+        assert network_link.atom_author.name == "John Doe"
+        assert network_link.address == "123 Main St"
+        assert network_link.phone_number == "555-1234"
+        assert network_link.snippet.text == "This is a snippet"
+        assert network_link.description == "This is a description"
+        assert network_link.view.latitude == 37.0
+        assert network_link.view.longitude == -122.0
+        assert network_link.view.altitude == 0.0
+        assert network_link.style_url.url == "#style1"
+        assert len(network_link.styles) == 1
+        assert network_link.styles[0].id == "style1"
+        assert bool(network_link)
 
 
 class TestLxml(Lxml, TestStdLibrary):
