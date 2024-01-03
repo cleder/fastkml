@@ -448,7 +448,7 @@ class Placemark(_Feature):
     marks a point on the Earth in the 3D viewer.
     """
 
-    _geometry: Optional[KmlGeometry]
+    kml_geometry: Optional[KmlGeometry]
 
     def __init__(
         self,
@@ -505,11 +505,11 @@ class Placemark(_Feature):
                 ns=ns,
                 name_spaces=name_spaces,
             )
-        self._geometry = kml_geometry
+        self.kml_geometry = kml_geometry
 
     @property
     def geometry(self) -> Optional[AnyGeometryType]:
-        return self._geometry.geometry if self._geometry is not None else None
+        return self.kml_geometry.geometry if self.kml_geometry is not None else None
 
 
 registry.register(

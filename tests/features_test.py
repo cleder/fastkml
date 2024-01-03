@@ -16,8 +16,12 @@
 
 """Test the kml classes."""
 
+import pytest
+from pygeoif import geometry as geo
+
 from fastkml import atom
 from fastkml import features
+from fastkml import geometry
 from fastkml import links
 from fastkml import styles
 from fastkml import views
@@ -41,6 +45,34 @@ class TestStdLibrary(StdLibrary):
         assert f.styles == []
         assert f.times is None
         assert "_Feature>" in str(f.to_string())
+
+    def test_placemark_geometry_parameter_set(self) -> None:
+        """Placemark object can be created with geometry parameter."""
+        geometry = geo.Point(10, 20)
+
+        placemark = features.Placemark(geometry=geometry)
+
+        assert placemark.name is None
+        assert placemark.description is None
+        assert placemark.visibility is None
+        assert placemark.geometry == geometry
+        assert placemark.style_url is None
+        assert "Point" in placemark.to_string()
+
+    def test_placemark_kml_geometry_parameter_set(self) -> None:
+        pt = geo.Point(10, 20)
+        point = geometry.Point(geometry=pt)
+
+        placemark = features.Placemark(kml_geometry=point)
+
+        assert placemark.geometry == pt
+
+    def test_placemark_geometry_and_kml_geometry_parameter_set(self) -> None:
+        pt = geo.Point(10, 20)
+        point = geometry.Point(geometry=pt)
+
+        with pytest.raises(ValueError):
+            features.Placemark(geometry=pt, kml_geometry=point)
 
     def test_network_link_with_link_parameter_only(self) -> None:
         """NetworkLink object with Link parameter only"""
