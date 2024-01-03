@@ -78,6 +78,25 @@ class Link(_BaseObject):
         self.view_format = view_format
         self.http_query = http_query
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Link."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"href={self.href!r}, "
+            f"refresh_mode={self.refresh_mode!r}, "
+            f"refresh_interval={self.refresh_interval!r}, "
+            f"view_refresh_mode={self.view_refresh_mode!r}, "
+            f"view_refresh_time={self.view_refresh_time!r}, "
+            f"view_bound_scale={self.view_bound_scale!r}, "
+            f"view_format={self.view_format!r}, "
+            f"http_query={self.http_query!r}, "
+            ")"
+        )
+
     def __bool__(self) -> bool:
         return bool(self.href)
 
