@@ -70,7 +70,7 @@ def set_element(
     """Get an attribute from an XML object."""
 
 
-def get_kwarg(
+def get_kwarg(  # type: ignore[empty-body]
     *,
     element: Element,
     ns: str,
@@ -81,7 +81,7 @@ def get_kwarg(
     strict: bool,
 ) -> Dict[str, Any]:
     """Get the kwarg for the constructor from the element."""
-    return {kwarg: None}
+    ...
 
 
 def test_registry_get_root() -> None:

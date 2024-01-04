@@ -378,7 +378,7 @@ class IconStyle(_ColorStyle):
             ")"
         )
 
-    def ___bool__(self) -> bool:
+    def __bool__(self) -> bool:
         return bool(self.icon)
 
 
@@ -810,6 +810,9 @@ class Style(_StyleSelector):
             f"styles={self.styles!r}, "
             ")"
         )
+
+    def __bool__(self) -> bool:
+        return bool(self.styles)
 
     def append_style(
         self,
