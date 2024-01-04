@@ -812,7 +812,7 @@ class Style(_StyleSelector):
         )
 
     def __bool__(self) -> bool:
-        return bool(self.styles)
+        return any(self.styles)
 
     def append_style(
         self,
