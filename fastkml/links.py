@@ -14,13 +14,11 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-from typing import Any
 from typing import Dict
 from typing import Optional
 
 from fastkml.base import _BaseObject
 from fastkml.enums import RefreshMode
-from fastkml.enums import Verbosity
 from fastkml.enums import ViewRefreshMode
 from fastkml.helpers import enum_subelement
 from fastkml.helpers import float_subelement
@@ -28,14 +26,21 @@ from fastkml.helpers import subelement_enum_kwarg
 from fastkml.helpers import subelement_float_kwarg
 from fastkml.helpers import subelement_text_kwarg
 from fastkml.helpers import text_subelement
-from fastkml.types import Element
+from fastkml.registry import RegistryItem
+from fastkml.registry import registry
 
 
 class Link(_BaseObject):
     """
     Represents a <Link> element.
 
-    A URL can be passed to the constructor, or the href can be set later.
+    It specifies the location of any of the following:
+
+    - KML files fetched by network links
+    - Image files used in any Overlay
+    - Model files used in the <Model> element
+
+    https://developers.google.com/kml/documentation/kmlreference#link
     """
 
     href: Optional[str]
@@ -73,166 +78,121 @@ class Link(_BaseObject):
         self.view_format = view_format
         self.http_query = http_query
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Link."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"href={self.href!r}, "
+            f"refresh_mode={self.refresh_mode!r}, "
+            f"refresh_interval={self.refresh_interval!r}, "
+            f"view_refresh_mode={self.view_refresh_mode!r}, "
+            f"view_refresh_time={self.view_refresh_time!r}, "
+            f"view_bound_scale={self.view_bound_scale!r}, "
+            f"view_format={self.view_format!r}, "
+            f"http_query={self.http_query!r}, "
+            ")"
+        )
 
-        text_subelement(
-            self,
-            element=element,
-            attr_name="href",
-            node_name="href",
-        )
-        text_subelement(
-            self,
-            element=element,
-            attr_name="view_format",
-            node_name="viewFormat",
-        )
-        text_subelement(
-            self,
-            element=element,
-            attr_name="http_query",
-            node_name="httpQuery",
-        )
-        enum_subelement(
-            self,
-            element=element,
-            attr_name="refresh_mode",
-            node_name="refreshMode",
-        )
-        enum_subelement(
-            self,
-            element=element,
-            attr_name="view_refresh_mode",
-            node_name="viewRefreshMode",
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="view_refresh_time",
-            node_name="viewRefreshTime",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="refresh_interval",
-            node_name="refreshInterval",
-            precision=precision,
-        )
-        float_subelement(
-            self,
-            element=element,
-            attr_name="view_bound_scale",
-            node_name="viewBoundScale",
-            precision=precision,
-        )
-        return element
+    def __bool__(self) -> bool:
+        return bool(self.href)
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                node_name="href",
-                kwarg="href",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                node_name="viewFormat",
-                kwarg="view_format",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                node_name="httpQuery",
-                kwarg="http_query",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_enum_kwarg(
-                element=element,
-                ns=ns,
-                node_name="refreshMode",
-                kwarg="refresh_mode",
-                enum_class=RefreshMode,
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_enum_kwarg(
-                element=element,
-                ns=ns,
-                node_name="viewRefreshMode",
-                kwarg="view_refresh_mode",
-                enum_class=ViewRefreshMode,
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                node_name="refreshInterval",
-                kwarg="refresh_interval",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                node_name="viewRefreshTime",
-                kwarg="view_refresh_time",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                node_name="viewBoundScale",
-                kwarg="view_bound_scale",
-                strict=strict,
-            ),
-        )
-        return kwargs
+
+registry.register(
+    Link,
+    RegistryItem(
+        attr_name="href",
+        node_name="href",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    Link,
+    RegistryItem(
+        attr_name="view_format",
+        node_name="viewFormat",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    Link,
+    RegistryItem(
+        attr_name="http_query",
+        node_name="httpQuery",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    Link,
+    RegistryItem(
+        attr_name="refresh_mode",
+        node_name="refreshMode",
+        classes=(RefreshMode,),
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+    ),
+)
+registry.register(
+    Link,
+    RegistryItem(
+        attr_name="view_refresh_mode",
+        node_name="viewRefreshMode",
+        classes=(ViewRefreshMode,),
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+    ),
+)
+registry.register(
+    Link,
+    RegistryItem(
+        attr_name="refresh_interval",
+        node_name="refreshInterval",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    Link,
+    RegistryItem(
+        attr_name="view_refresh_time",
+        node_name="viewRefreshTime",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    Link,
+    RegistryItem(
+        attr_name="view_bound_scale",
+        node_name="viewBoundScale",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
 
 
 class Icon(Link):
     """
-    Represents an <Icon> element used in Overlays.
+    Represents an <Icon> element used in IconStyle and Overlays.
 
     Defines an image associated with an Icon style or overlay.
     The required <href> child element defines the location
     of the image to be used as the overlay or as the icon for the placemark.
     This location can either be on a local file system or a remote web server.
+
+    https://developers.google.com/kml/documentation/kmlreference#icon
 
     Todo:
     ----

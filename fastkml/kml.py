@@ -84,19 +84,20 @@ class KML(_XMLObject):
         if not self.ns:
             root = config.etree.Element(f"{self.ns}kml")  # type: ignore[attr-defined]
             root.set("xmlns", config.KMLNS[1:-1])
+        elif hasattr(config.etree, "LXML_VERSION"):  # type: ignore[attr-defined]
+            root = config.etree.Element(  # type: ignore[attr-defined]
+                f"{self.ns}kml",
+                nsmap={None: self.ns[1:-1]},
+            )
         else:
-            try:
-                root = config.etree.Element(  # type: ignore[attr-defined]
-                    f"{self.ns}kml",
-                )
-            except TypeError:
-                root = config.etree.Element(  # type: ignore[attr-defined]
-                    f"{self.ns}kml",
-                )
+            root = config.etree.Element(  # type: ignore[attr-defined]
+                f"{self.ns}kml",
+            )
         xml_subelement_list(
             obj=self,
             element=root,
             attr_name="features",
+            node_name="",
             precision=precision,
             verbosity=verbosity,
         )
@@ -132,8 +133,9 @@ class KML(_XMLObject):
                 element=element,
                 ns=ns,
                 name_spaces=name_spaces,
+                node_name="",
                 kwarg="features",
-                obj_classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay),
+                classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay),
                 strict=strict,
             ),
         )
@@ -181,6 +183,15 @@ class KML(_XMLObject):
             strict=strict,
             element=element,
         )
+
+
+# registry.register(KML, RegistryItem(
+#     classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay),
+#     node_name='',
+#     attr_name="features",
+#     get_kwarg=xml_subelement_list_kwarg,
+#     set_element=xml_subelement_list,
+# ))
 
 
 __all__ = [

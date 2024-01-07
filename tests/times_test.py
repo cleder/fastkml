@@ -364,8 +364,8 @@ class TestStdLibrary(StdLibrary):
         assert ts.end.resolution == DateTimeResolution.datetime
         assert ts.end.dt == datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc())
 
-    def test_featurefromstring(self) -> None:
-        doc = """<Document>
+    def test_feature_fromstring(self) -> None:
+        doc = """<Document xmlns="http://www.opengis.net/kml/2.2">
           <name>Document.kml</name>
           <open>1</open>
           <TimeStamp>
@@ -379,15 +379,9 @@ class TestStdLibrary(StdLibrary):
 
         d = kml.Document.class_from_string(doc, ns="")
 
-        assert d.time_stamp.dt == datetime.datetime(
-            1997,
-            7,
-            16,
-            10,
-            30,
-            15,
-            tzinfo=tzoffset(None, 10800),
-        )
+        assert d.time_stamp is None
+        assert d.begin.dt == datetime.datetime(1876, 8, 1, 0, 0, tzinfo=tzutc())
+        assert d.end.dt == datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc())
 
 
 class TestLxml(Lxml, TestStdLibrary):

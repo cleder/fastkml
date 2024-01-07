@@ -37,6 +37,8 @@ from fastkml.helpers import subelement_text_kwarg
 from fastkml.helpers import text_subelement
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.registry import RegistryItem
+from fastkml.registry import registry
 from fastkml.types import Element
 
 __all__ = [
@@ -77,6 +79,9 @@ class SimpleField:
     name: str
     type: DataType
     display_name: Optional[str] = None
+
+    def __bool__(self) -> bool:
+        return bool(self.name) and bool(self.type)
 
 
 class Schema(_BaseObject):
@@ -119,6 +124,8 @@ class Schema(_BaseObject):
         if self.name:
             element.set("name", self.name)
         for simple_field in self.simple_fields:
+            if not simple_field:
+                continue
             sf = config.etree.SubElement(  # type: ignore[attr-defined]
                 element,
                 f"{self.ns}SimpleField",
@@ -204,13 +211,8 @@ class Data(_XMLObject):
         self.value = value
         self.display_name = display_name
 
-    def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}("
-            f"ns='{self.ns}',"
-            f"name='{self.name}', value='{self.value}'"
-            f"display_name='{self.display_name}')"
-        )
+    def __bool__(self) -> bool:
+        return bool(self.name) and self.value is not None
 
     def etree_element(
         self,
@@ -219,18 +221,6 @@ class Data(_XMLObject):
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
         element.set("name", self.name or "")
-        text_subelement(
-            self,
-            element=element,
-            attr_name="value",
-            node_name="value",
-        )
-        text_subelement(
-            self,
-            element=element,
-            attr_name="display_name",
-            node_name="displayName",
-        )
         return element
 
     @classmethod
@@ -249,26 +239,29 @@ class Data(_XMLObject):
             strict=strict,
         )
         kwargs["name"] = element.get("name")
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                node_name="value",
-                kwarg="value",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                node_name="displayName",
-                kwarg="display_name",
-                strict=strict,
-            ),
-        )
-
         return kwargs
+
+
+registry.register(
+    Data,
+    RegistryItem(
+        attr_name="value",
+        node_name="value",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    Data,
+    RegistryItem(
+        attr_name="display_name",
+        node_name="displayName",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
 
 
 @dataclass(frozen=True)
@@ -378,47 +371,17 @@ class ExtendedData(_XMLObject):
     def __bool__(self) -> bool:
         return bool(self.elements)
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        xml_subelement_list(
-            self,
-            element=element,
-            attr_name="elements",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            xml_subelement_list_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="elements",
-                obj_classes=(Data, SchemaData),
-                strict=strict,
-            ),
-        )
-
-        return kwargs
+registry.register(
+    ExtendedData,
+    RegistryItem(
+        attr_name="elements",
+        node_name="Data,SchemaData",
+        classes=(
+            Data,
+            SchemaData,
+        ),
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
+    ),
+)

@@ -1,4 +1,4 @@
-# Copyright (C) 2012  Christian Ledermann
+# Copyright (C) 2012 - 2024 Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -41,6 +41,8 @@ from fastkml.helpers import bool_subelement
 from fastkml.helpers import enum_subelement
 from fastkml.helpers import subelement_bool_kwarg
 from fastkml.helpers import subelement_enum_kwarg
+from fastkml.registry import RegistryItem
+from fastkml.registry import registry
 from fastkml.types import Element
 
 __all__ = [
@@ -115,19 +117,6 @@ class _Geometry(_BaseObject):
         self.altitude_mode = altitude_mode
         self.geometry = geometry
 
-    def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}("
-            f"ns={self.ns!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
-            f"extrude={self.extrude!r}, "
-            f"tessellate={self.tessellate!r}, "
-            f"altitude_mode={self.altitude_mode} "
-            f"geometry={self.geometry!r}"
-            f")"
-        )
-
     def __bool__(self) -> bool:
         return bool(self.geometry)
 
@@ -154,32 +143,6 @@ class _Geometry(_BaseObject):
             )
             raise KMLWriteError(msg)
         element.text = " ".join(tuples)
-        return element
-
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        bool_subelement(
-            self,
-            element=element,
-            attr_name="extrude",
-            node_name="extrude",
-        )
-        bool_subelement(
-            self,
-            element=element,
-            attr_name="tessellate",
-            node_name="tessellate",
-        )
-        enum_subelement(
-            self,
-            element=element,
-            attr_name="altitude_mode",
-            node_name="altitudeMode",
-        )
         return element
 
     @classmethod
@@ -239,37 +202,41 @@ class _Geometry(_BaseObject):
             strict=strict,
         )
         kwargs.update(
-            subelement_bool_kwarg(
-                element=element,
-                ns=ns,
-                node_name="extrude",
-                kwarg="extrude",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_bool_kwarg(
-                element=element,
-                ns=ns,
-                node_name="tessellate",
-                kwarg="tessellate",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_enum_kwarg(
-                element=element,
-                ns=ns,
-                node_name="altitudeMode",
-                kwarg="altitude_mode",
-                enum_class=AltitudeMode,
-                strict=strict,
-            ),
-        )
-        kwargs.update(
             {"geometry": cls._get_geometry(ns=ns, element=element, strict=strict)},
         )
         return kwargs
+
+
+registry.register(
+    _Geometry,
+    item=RegistryItem(
+        classes=(bool,),
+        attr_name="extrude",
+        node_name="extrude",
+        get_kwarg=subelement_bool_kwarg,
+        set_element=bool_subelement,
+    ),
+)
+registry.register(
+    _Geometry,
+    item=RegistryItem(
+        classes=(bool,),
+        attr_name="tessellate",
+        node_name="tessellate",
+        get_kwarg=subelement_bool_kwarg,
+        set_element=bool_subelement,
+    ),
+)
+registry.register(
+    _Geometry,
+    item=RegistryItem(
+        classes=(AltitudeMode,),
+        attr_name="altitude_mode",
+        node_name="altitudeMode",
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+    ),
+)
 
 
 class Point(_Geometry):
