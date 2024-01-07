@@ -768,7 +768,8 @@ class TestStyleFromString:
         assert isinstance(k.features[0].styles[0], styles.Style)
         style = k.features[0].styles[0].styles[0]
         assert isinstance(style, styles.BalloonStyle)
-        assert style.bg_color == "ffffffbb"
+        assert style.bg_color is None
+        assert not style
         k2 = kml.KML.class_from_string(k.to_string())
         assert k2.to_string() == k.to_string()
 

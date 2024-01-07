@@ -20,6 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: GIS",
     "Topic :: Text Processing :: Markup :: XML",
     "Typing :: Typed",
@@ -112,6 +113,13 @@ ignore = [
 source = [
     "fastkml",
     "tests",
+]
+
+[tool.coverage.report]
+exclude_also = [
+    "^\\s*\\.\\.\\.$",
+    "except ImportError:",
+    "if TYPE_CHECKING:",
 ]
 
 [tool.coverage.run]

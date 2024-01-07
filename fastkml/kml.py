@@ -97,6 +97,7 @@ class KML(_XMLObject):
             obj=self,
             element=root,
             attr_name="features",
+            node_name="",
             precision=precision,
             verbosity=verbosity,
         )
@@ -132,8 +133,9 @@ class KML(_XMLObject):
                 element=element,
                 ns=ns,
                 name_spaces=name_spaces,
+                node_name="",
                 kwarg="features",
-                obj_classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay),
+                classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay),
                 strict=strict,
             ),
         )
@@ -181,6 +183,15 @@ class KML(_XMLObject):
             strict=strict,
             element=element,
         )
+
+
+# registry.register(KML, RegistryItem(
+#     classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay),
+#     node_name='',
+#     attr_name="features",
+#     get_kwarg=xml_subelement_list_kwarg,
+#     set_element=xml_subelement_list,
+# ))
 
 
 __all__ = [

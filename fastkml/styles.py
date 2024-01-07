@@ -1,4 +1,4 @@
-# Copyright (C) 2012 - 2022  Christian Ledermann
+# Copyright (C) 2012 - 2023 Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -48,18 +48,12 @@ from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.links import Icon
+from fastkml.registry import RegistryItem
+from fastkml.registry import registry
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
-
-
-def strtobool(val: str) -> int:
-    val = val.lower()
-    if val == "false":
-        return 0
-    if val == "true":
-        return 1
-    return int(float(val))
 
 
 class StyleUrl(_BaseObject):
@@ -69,6 +63,8 @@ class StyleUrl(_BaseObject):
     If the style is in the same file, use a # reference.
     If the style is defined in an external file,
     use a full URL along with # referencing.
+
+    https://developers.google.com/kml/documentation/kmlreference#styleurl
     """
 
     url: Optional[str]
@@ -83,6 +79,18 @@ class StyleUrl(_BaseObject):
     ) -> None:
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.url = url
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for StyleUrl."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"url={self.url!r}, "
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return bool(self.url)
@@ -127,6 +135,8 @@ class _StyleSelector(_BaseObject):
     StyleMap element selects a style based on the current mode of the
     Placemark. An element derived from StyleSelector is uniquely identified
     by its id and its url.
+
+    https://developers.google.com/kml/documentation/kmlreference#styleselector
     """
 
 
@@ -137,6 +147,7 @@ class _ColorStyle(_BaseObject):
     It provides elements for specifying the color and color mode of
     extended style types.
     subclasses are: IconStyle, LabelStyle, LineStyle, PolyStyle.
+    https://developers.google.com/kml/documentation/kmlreference#colorstyle
     """
 
     id = None
@@ -164,65 +175,40 @@ class _ColorStyle(_BaseObject):
         self.color = color
         self.color_mode = color_mode
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        text_subelement(
-            obj=self,
-            element=element,
-            attr_name="color",
-            node_name="color",
-        )
-        enum_subelement(
-            obj=self,
-            element=element,
-            attr_name="color_mode",
-            node_name="colorMode",
-        )
-        return element
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                node_name="color",
-                kwarg="color",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_enum_kwarg(
-                element=element,
-                ns=ns,
-                node_name="colorMode",
-                kwarg="color_mode",
-                enum_class=ColorMode,
-                strict=strict,
-            ),
+    def __repr__(self) -> str:
+        """Create a string (c)representation for _ColorStyle."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"color={self.color!r}, "
+            f"color_mode={self.color_mode!r}, "
+            ")"
         )
 
-        return kwargs
+
+registry.register(
+    _ColorStyle,
+    RegistryItem(
+        attr_name="color",
+        node_name="color",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    _ColorStyle,
+    RegistryItem(
+        attr_name="color_mode",
+        node_name="colorMode",
+        classes=(ColorMode,),
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+    ),
+)
 
 
 class HotSpot(_XMLObject):
@@ -264,7 +250,20 @@ class HotSpot(_XMLObject):
         self.xunits = xunits
         self.yunits = yunits
 
-    def ___bool__(self) -> bool:
+    def __repr__(self) -> str:
+        """Create a string (c)representation for HotSpot."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"x={self.x!r}, "
+            f"y={self.y!r}, "
+            f"xunits={self.xunits!r}, "
+            f"yunits={self.yunits!r}, "
+            ")"
+        )
+
+    def __bool__(self) -> bool:
         return all((self.x is not None, self.y is not None))
 
     def etree_element(
@@ -314,75 +313,17 @@ class HotSpot(_XMLObject):
         return kwargs
 
 
-class Icon(_XMLObject):
-    """
-    A custom Icon.
-
-    In <IconStyle>, the only child element of <Icon> is <href>
-    """
-
-    _default_ns = config.KMLNS
-
-    href: Optional[str]
-    # An HTTP address or a local file specification used to load an icon.
-
-    def __init__(
-        self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
-        href: Optional[str] = None,
-    ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
-        self.href = href
-
-    def __bool__(self) -> bool:
-        return bool(self.href)
-
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        text_subelement(
-            obj=self,
-            element=element,
-            attr_name="href",
-            node_name="href",
-        )
-        return element
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                node_name="href",
-                kwarg="href",
-                strict=strict,
-            ),
-        )
-        return kwargs
-
-
 class IconStyle(_ColorStyle):
-    """Specifies how icons for point Placemarks are drawn."""
+    """
+    Specifies how icons for point Placemarks are drawn.
+
+    The <Icon> element specifies the icon image.
+    The <scale> element specifies the x, y scaling of the icon.
+    The color specified in the <color> element of <IconStyle> is blended with the
+    color of the <Icon>.
+
+    https://developers.google.com/kml/documentation/kmlreference#iconstyle
+    """
 
     scale: Optional[float]
     # Resizes the icon. (float)
@@ -401,7 +342,7 @@ class IconStyle(_ColorStyle):
         target_id: Optional[str] = None,
         color: Optional[str] = None,
         color_mode: Optional[ColorMode] = None,
-        scale: float = 1.0,
+        scale: Optional[float] = None,
         heading: Optional[float] = None,
         icon: Optional[Icon] = None,
         hot_spot: Optional[HotSpot] = None,
@@ -420,106 +361,76 @@ class IconStyle(_ColorStyle):
         self.icon = icon
         self.hot_spot = hot_spot
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        float_subelement(
-            obj=self,
-            element=element,
-            attr_name="scale",
-            node_name="scale",
-            precision=precision,
+    def __repr__(self) -> str:
+        """Create a string (c)representation for IconStyle."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"color={self.color!r}, "
+            f"color_mode={self.color_mode!r}, "
+            f"scale={self.scale!r}, "
+            f"heading={self.heading!r}, "
+            f"icon={self.icon!r}, "
+            f"hot_spot={self.hot_spot!r}, "
+            ")"
         )
-        float_subelement(
-            obj=self,
-            element=element,
-            attr_name="heading",
-            node_name="heading",
-            precision=precision,
-        )
-        xml_subelement(
-            obj=self,
-            element=element,
-            attr_name="icon",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        xml_subelement(
-            obj=self,
-            element=element,
-            attr_name="hot_spot",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                node_name="scale",
-                kwarg="scale",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                node_name="heading",
-                kwarg="heading",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="icon",
-                obj_class=Icon,
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="hot_spot",
-                obj_class=HotSpot,
-                strict=strict,
-            ),
-        )
-        return kwargs
+    def __bool__(self) -> bool:
+        return bool(self.icon)
+
+
+registry.register(
+    IconStyle,
+    RegistryItem(
+        attr_name="scale",
+        node_name="scale",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    IconStyle,
+    RegistryItem(
+        attr_name="heading",
+        node_name="heading",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    IconStyle,
+    RegistryItem(
+        attr_name="icon",
+        node_name="Icon",
+        classes=(Icon,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    IconStyle,
+    RegistryItem(
+        attr_name="hot_spot",
+        node_name="hotSpot",
+        classes=(HotSpot,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
 
 
 class LineStyle(_ColorStyle):
     """
-    Specifies the drawing style (color, color mode, and line width)
-    for all line geometry. Line geometry includes the outlines of
-    outlined polygons and the extruded "tether" of Placemark icons
-    (if extrusion is enabled).
+    The drawing style (color, color mode, and line width) for all line geometry.
+
+    Line geometry includes the outlines of outlined polygons and the extruded "tether"
+    of Placemark icons (if extrusion is enabled).
+    https://developers.google.com/kml/documentation/kmlreference#linestyle
     """
 
     width: Optional[float]
@@ -545,49 +456,34 @@ class LineStyle(_ColorStyle):
         )
         self.width = width
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for LineStyle."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"color={self.color!r}, "
+            f"color_mode={self.color_mode!r}, "
+            f"width={self.width!r}, "
+            ")"
+        )
+
     def __bool__(self) -> bool:
         return self.width is not None
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        float_subelement(
-            obj=self,
-            element=element,
-            attr_name="width",
-            node_name="width",
-            precision=precision,
-        )
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                node_name="width",
-                kwarg="width",
-                strict=strict,
-            ),
-        )
-        return kwargs
+registry.register(
+    LineStyle,
+    RegistryItem(
+        attr_name="width",
+        node_name="width",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
 
 
 class PolyStyle(_ColorStyle):
@@ -629,61 +525,45 @@ class PolyStyle(_ColorStyle):
         self.fill = fill
         self.outline = outline
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        bool_subelement(
-            obj=self,
-            element=element,
-            attr_name="fill",
-            node_name="fill",
-        )
-        bool_subelement(
-            obj=self,
-            element=element,
-            attr_name="outline",
-            node_name="outline",
-        )
-        return element
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        kwargs.update(
-            subelement_bool_kwarg(
-                element=element,
-                ns=ns,
-                node_name="fill",
-                kwarg="fill",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_bool_kwarg(
-                element=element,
-                ns=ns,
-                node_name="outline",
-                kwarg="outline",
-                strict=strict,
-            ),
+    def __repr__(self) -> str:
+        """Create a string (c)representation for PolyStyle."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"color={self.color!r}, "
+            f"color_mode={self.color_mode!r}, "
+            f"fill={self.fill!r}, "
+            f"outline={self.outline!r}, "
+            ")"
         )
 
-        return kwargs
+    def __bool__(self) -> bool:
+        return self.fill is not None or self.outline is not None
+
+
+registry.register(
+    PolyStyle,
+    RegistryItem(
+        attr_name="fill",
+        node_name="fill",
+        classes=(bool,),
+        get_kwarg=subelement_bool_kwarg,
+        set_element=bool_subelement,
+    ),
+)
+registry.register(
+    PolyStyle,
+    RegistryItem(
+        attr_name="outline",
+        node_name="outline",
+        classes=(bool,),
+        get_kwarg=subelement_bool_kwarg,
+        set_element=bool_subelement,
+    ),
+)
 
 
 class LabelStyle(_ColorStyle):
@@ -718,6 +598,20 @@ class LabelStyle(_ColorStyle):
         )
         self.scale = scale
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for LabelStyle."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"color={self.color!r}, "
+            f"color_mode={self.color_mode!r}, "
+            f"scale={self.scale!r}, "
+            ")"
+        )
+
     def __bool__(self) -> bool:
         return any(
             (
@@ -727,47 +621,17 @@ class LabelStyle(_ColorStyle):
             ),
         )
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        float_subelement(
-            obj=self,
-            element=element,
-            attr_name="scale",
-            node_name="scale",
-            precision=precision,
-        )
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        kwargs.update(
-            subelement_float_kwarg(
-                element=element,
-                ns=ns,
-                node_name="scale",
-                kwarg="scale",
-                strict=strict,
-            ),
-        )
-
-        return kwargs
+registry.register(
+    LabelStyle,
+    RegistryItem(
+        attr_name="scale",
+        node_name="scale",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
 
 
 class BalloonStyle(_BaseObject):
@@ -775,6 +639,8 @@ class BalloonStyle(_BaseObject):
     Specifies how the description balloon for placemarks is drawn.
 
     The <bgColor>, if specified, is used as the background color of the balloon.
+
+    https://developers.google.com/kml/documentation/kmlreference#balloonstyle
     """
 
     bg_color: Optional[str]
@@ -838,101 +704,72 @@ class BalloonStyle(_BaseObject):
         self.text = text
         self.display_mode = display_mode
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        text_subelement(
-            obj=self,
-            element=element,
-            attr_name="bg_color",
-            node_name="bgColor",
-        )
-        text_subelement(
-            obj=self,
-            element=element,
-            attr_name="text_color",
-            node_name="textColor",
-        )
-        text_subelement(
-            obj=self,
-            element=element,
-            attr_name="text",
-            node_name="text",
-        )
-        enum_subelement(
-            obj=self,
-            element=element,
-            attr_name="display_mode",
-            node_name="displayMode",
-        )
-        return element
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
+    def __repr__(self) -> str:
+        """Create a string (c)representation for BalloonStyle."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"bg_color={self.bg_color!r}, "
+            f"text_color={self.text_color!r}, "
+            f"text={self.text!r}, "
+            f"display_mode={self.display_mode!r}, "
+            ")"
         )
 
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                node_name="color",
-                kwarg="bg_color",
-                strict=strict,
+    def __bool__(self) -> bool:
+        return any(
+            (
+                self.bg_color is not None,
+                self.text_color is not None,
+                self.text is not None,
+                self.display_mode is not None,
             ),
         )
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                node_name="bgColor",
-                kwarg="bg_color",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                node_name="textColor",
-                kwarg="text_color",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_text_kwarg(
-                element=element,
-                ns=ns,
-                node_name="text",
-                kwarg="text",
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            subelement_enum_kwarg(
-                element=element,
-                ns=ns,
-                node_name="displayMode",
-                kwarg="display_mode",
-                enum_class=DisplayMode,
-                strict=strict,
-            ),
-        )
-        return kwargs
+
+
+registry.register(
+    BalloonStyle,
+    RegistryItem(
+        attr_name="bg_color",
+        node_name="bgColor",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    BalloonStyle,
+    RegistryItem(
+        attr_name="text_color",
+        node_name="textColor",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    BalloonStyle,
+    RegistryItem(
+        attr_name="text",
+        node_name="text",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    BalloonStyle,
+    RegistryItem(
+        attr_name="display_mode",
+        node_name="displayMode",
+        classes=(DisplayMode,),
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+    ),
+)
 
 
 AnyStyle = Union[BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle]
@@ -947,6 +784,8 @@ class Style(_StyleSelector):
     appear in the Places panel of the List view.
     Shared styles are collected in a <Document> and must have an id defined for them
     so that they can be referenced by the individual Features that use them.
+
+    https://developers.google.com/kml/documentation/kmlreference#style
     """
 
     def __init__(
@@ -960,6 +799,21 @@ class Style(_StyleSelector):
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.styles = list(styles) if styles else []
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Style."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"styles={self.styles!r}, "
+            ")"
+        )
+
+    def __bool__(self) -> bool:
+        return any(self.styles)
+
     def append_style(
         self,
         style: AnyStyle,
@@ -969,51 +823,23 @@ class Style(_StyleSelector):
         else:
             raise TypeError
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        xml_subelement_list(
-            obj=self,
-            element=element,
-            attr_name="styles",
-            precision=precision,
-            verbosity=verbosity,
-        )
 
-        return element
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-
-        kwargs.update(
-            xml_subelement_list_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="styles",
-                obj_classes=(BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle),
-                strict=strict,
-            ),
-        )
-        return kwargs
+registry.register(
+    Style,
+    RegistryItem(
+        attr_name="styles",
+        node_name="Style",
+        classes=(
+            BalloonStyle,
+            IconStyle,
+            LabelStyle,
+            LineStyle,
+            PolyStyle,
+        ),
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
+    ),
+)
 
 
 class Pair(_BaseObject):
@@ -1049,78 +875,46 @@ class Pair(_BaseObject):
         self.key = key
         self.style = style
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Pair."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"key={self.key!r}, "
+            f"style={self.style!r}, "
+            ")"
+        )
+
     def __bool__(self) -> bool:
         return all((self.key is not None, self.style is not None))
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        enum_subelement(
-            obj=self,
-            element=element,
-            attr_name="key",
-            node_name="key",
-        )
-        xml_subelement(
-            obj=self,
-            element=element,
-            attr_name="style",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            subelement_enum_kwarg(
-                element=element,
-                ns=ns,
-                node_name="key",
-                kwarg="key",
-                enum_class=PairKey,
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="style",
-                obj_class=Style,
-                strict=strict,
-            ),
-        )
-        kwargs.update(
-            xml_subelement_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="style",
-                obj_class=StyleUrl,
-                strict=strict,
-            ),
-        )
-        return kwargs
+registry.register(
+    Pair,
+    RegistryItem(
+        attr_name="key",
+        node_name="key",
+        classes=(PairKey,),
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+    ),
+)
+registry.register(
+    Pair,
+    RegistryItem(
+        attr_name="style",
+        node_name="style",
+        classes=(
+            StyleUrl,
+            Style,
+        ),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
 
 
 class StyleMap(_StyleSelector):
@@ -1146,6 +940,18 @@ class StyleMap(_StyleSelector):
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.pairs = list(pairs) if pairs else []
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for StyleMap."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"pairs={self.pairs!r}, "
+            ")"
+        )
+
     def __bool__(self) -> bool:
         return bool(self.pairs)
 
@@ -1163,49 +969,17 @@ class StyleMap(_StyleSelector):
             None,
         )
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        xml_subelement_list(
-            obj=self,
-            element=element,
-            attr_name="pairs",
-            precision=precision,
-            verbosity=verbosity,
-        )
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        name_spaces = kwargs["name_spaces"]
-        assert name_spaces is not None
-        kwargs.update(
-            xml_subelement_list_kwarg(
-                element=element,
-                ns=ns,
-                name_spaces=name_spaces,
-                kwarg="pairs",
-                obj_classes=(Pair,),
-                strict=strict,
-            ),
-        )
-        return kwargs
+registry.register(
+    StyleMap,
+    RegistryItem(
+        attr_name="pairs",
+        node_name="Pair",
+        classes=(Pair,),
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
+    ),
+)
 
 
 __all__ = [
