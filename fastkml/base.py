@@ -23,6 +23,7 @@ from typing import cast
 
 from fastkml import config
 from fastkml.enums import Verbosity
+from fastkml.registry import registry
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
@@ -60,6 +61,15 @@ class _XMLObject:
         element: Element = config.etree.Element(  # type: ignore[attr-defined]
             f"{self.ns}{self.get_tag_name()}",
         )
+        for item in registry.get(self.__class__):
+            item.set_element(
+                obj=self,
+                element=element,
+                attr_name=item.attr_name,
+                node_name=item.node_name,
+                precision=precision,
+                verbosity=verbosity,
+            )
         return element
 
     def to_string(
@@ -117,6 +127,18 @@ class _XMLObject:
         name_spaces = name_spaces or {}
         name_spaces = {**config.NAME_SPACES, **name_spaces}
         kwargs: Dict[str, Any] = {"ns": ns, "name_spaces": name_spaces}
+        for item in registry.get(cls):
+            kwargs.update(
+                item.get_kwarg(
+                    element=element,
+                    ns=ns,
+                    name_spaces=name_spaces,
+                    node_name=item.node_name,
+                    kwarg=item.attr_name,
+                    classes=item.classes,
+                    strict=strict,
+                ),
+            )
         return kwargs
 
     @classmethod

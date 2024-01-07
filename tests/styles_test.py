@@ -20,6 +20,7 @@ from fastkml import styles
 from fastkml.enums import ColorMode
 from fastkml.enums import DisplayMode
 from fastkml.enums import PairKey
+from fastkml.enums import Units
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -71,6 +72,40 @@ class TestStdLibrary(StdLibrary):
         assert "<kml:href>http://example.com/icon.png</kml:href>" in serialized
         assert "</kml:Icon>" in serialized
         assert "</kml:IconStyle>" in serialized
+
+    def test_icon_style_with_hot_spot(self) -> None:
+        icon_style = styles.IconStyle(
+            ns="{http://www.opengis.net/kml/2.2}",
+            id="id-1",
+            target_id="target-1",
+            color="ff2200ff",
+            color_mode=ColorMode.random,
+            scale=5.0,
+            heading=20.0,
+            icon=styles.Icon(
+                ns="{http://www.opengis.net/kml/2.2}",
+                id="icon-id",
+                href="",
+            ),
+            hot_spot=styles.HotSpot(
+                ns="{http://www.opengis.net/kml/2.2}",
+                x=0.5,
+                y=0.7,
+                xunits=Units.fraction,
+                yunits=Units.inset_pixels,
+            ),
+        )
+
+        serialized = icon_style.to_string()
+
+        assert "icon-id" not in serialized
+        assert "hotSpot" in serialized
+        assert 'x="0.5"' in serialized
+        assert 'y="0.7"' in serialized
+        assert 'xunits="fraction"' in serialized
+        assert 'yunits="insetPixels"' in serialized
+        assert "Icon>" not in serialized
+        assert "href" not in serialized
 
     def test_icon_style_read(self) -> None:
         icons = styles.IconStyle.class_from_string(

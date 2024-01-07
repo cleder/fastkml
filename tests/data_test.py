@@ -52,7 +52,8 @@ class TestStdLibrary(StdLibrary):
         assert s.simple_fields[0] == data.SimpleField(**fields)  # type: ignore[arg-type]
 
     def test_schema_from_string(self) -> None:
-        doc = """<Schema name="TrailHeadType" id="TrailHeadTypeId">
+        doc = """<Schema name="TrailHeadType" id="TrailHeadTypeId"
+                  xmlns="http://www.opengis.net/kml/2.2">
             <SimpleField type="string" name="TrailHeadName">
               <displayName><![CDATA[<b>Trail Head Name</b>]]></displayName>
             </SimpleField>
@@ -64,7 +65,8 @@ class TestStdLibrary(StdLibrary):
             </SimpleField>
           </Schema> """
 
-        s = kml.Schema.class_from_string(doc, ns="")
+        s = kml.Schema.class_from_string(doc, ns=None)
+
         assert len(s.simple_fields) == 3
         assert s.simple_fields[0].type == DataType("string")
         assert s.simple_fields[1].type == DataType("double")
@@ -75,14 +77,17 @@ class TestStdLibrary(StdLibrary):
         assert s.simple_fields[0].display_name == "<b>Trail Head Name</b>"
         assert s.simple_fields[1].display_name == "<i>The length in miles</i>"
         assert s.simple_fields[2].display_name == "<i>change in altitude</i>"
-        s1 = kml.Schema.class_from_string(s.to_string(), ns="")
+        s1 = kml.Schema.class_from_string(s.to_string(), ns=None)
         assert len(s1.simple_fields) == 3
         assert s1.simple_fields[0].type == DataType("string")
         assert s1.simple_fields[1].name == "TrailLength"
         assert s1.simple_fields[2].display_name == "<i>change in altitude</i>"
         assert s.to_string() == s1.to_string()
-        doc1 = f"<kml><Document>{doc}</Document></kml>"
-        k = kml.KML.class_from_string(doc1, ns="")
+        doc1 = (
+            '<kml xmlns="http://www.opengis.net/kml/2.2">'
+            f"<Document>{doc}</Document></kml>"
+        )
+        k = kml.KML.class_from_string(doc1, ns=None)
         d = k.features[0]
         s2 = d.schemata[0]
         # s.ns = config.KMLNS
@@ -140,8 +145,7 @@ class TestStdLibrary(StdLibrary):
         assert len(p.extended_data.elements) == 2
         k.append(p)
 
-        k2 = kml.KML.class_from_string(k.to_string(prettyprint=True))
-        k.to_string()
+        k2 = kml.KML.class_from_string(k.to_string())
 
         extended_data = k2.features[0].extended_data
         assert extended_data is not None
