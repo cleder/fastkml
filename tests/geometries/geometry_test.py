@@ -18,6 +18,7 @@
 import pytest
 from pygeoif import geometry as geo
 
+from fastkml import exceptions
 from fastkml.geometry import AltitudeMode
 from fastkml.geometry import LinearRing
 from fastkml.geometry import LineString
@@ -337,10 +338,10 @@ class TestGeometry(StdLibrary):
         assert g.altitude_mode == AltitudeMode.relative_to_ground
         assert g.tessellate is True
 
-    def test_from_string_invalid_altitude_mode(self) -> None:
+    def test_from_string_invalid_altitude_mode_strict(self) -> None:
         """Test the from_string method."""
         with pytest.raises(
-            ValueError,
+            exceptions.KMLParseError,
         ):
             _Geometry.class_from_string(
                 '<_Geometry id="my-id" targetId="target_id">'
@@ -348,6 +349,18 @@ class TestGeometry(StdLibrary):
                 "</_Geometry>",
                 ns="",
             )
+
+    def test_from_string_invalid_altitude_mode_relaxed(self) -> None:
+        """Test the from_string method."""
+        geom = _Geometry.class_from_string(
+            '<_Geometry id="my-id" targetId="target_id">'
+            "<altitudeMode>invalid</altitudeMode>"
+            "</_Geometry>",
+            ns="",
+            strict=False,
+        )
+
+        assert geom.altitude_mode is None
 
     def test_from_string_invalid_extrude(self) -> None:
         """Test the from_string method."""

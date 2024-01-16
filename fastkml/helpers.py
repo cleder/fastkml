@@ -24,10 +24,42 @@ from typing import Tuple
 from fastkml import config
 from fastkml.base import _XMLObject
 from fastkml.enums import Verbosity
+from fastkml.exceptions import KMLParseError
 from fastkml.registry import known_types
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
+
+
+def handle_error(
+    *,
+    error: Exception,
+    strict: bool,
+    element: Element,
+    node: Element,
+    expected: str,
+) -> None:
+    """Handle an error."""
+    serialized_element = config.etree.tostring(  # type: ignore[attr-defined]
+        element,
+        encoding="UTF-8",
+    ).decode(
+        "UTF-8",
+    )
+    serialized_node = config.etree.tostring(  # type: ignore[attr-defined]
+        node,
+        encoding="UTF-8",
+    ).decode(
+        "UTF-8",
+    )
+    msg = (
+        f"Error parsing '{serialized_node}' in '{serialized_element}'; "
+        f"expected: {expected}. \n {error}"
+    )
+    if strict:
+        raise KMLParseError(msg) from error
+    else:
+        logger.warning("%s, %s", error, msg)
 
 
 def text_subelement(
@@ -195,8 +227,14 @@ def subelement_bool_kwarg(
             return {kwarg: False}
         try:
             return {kwarg: bool(int(float(node.text.strip())))}
-        except ValueError:
-            return {}
+        except ValueError as exc:
+            handle_error(
+                error=exc,
+                strict=strict,
+                element=element,
+                node=node,
+                expected="Boolean",
+            )
     return {}
 
 
@@ -216,10 +254,14 @@ def subelement_int_kwarg(
     if node.text and node.text.strip():
         try:
             return {kwarg: int(node.text.strip())}
-        except ValueError:
-            if strict:
-                raise
-            return {}
+        except ValueError as exc:
+            handle_error(
+                error=exc,
+                strict=strict,
+                element=element,
+                node=node,
+                expected="Integer",
+            )
     return {}
 
 
@@ -239,10 +281,14 @@ def subelement_float_kwarg(
     if node.text and node.text.strip():
         try:
             return {kwarg: float(node.text.strip())}
-        except ValueError:
-            if strict:
-                raise
-            return {}
+        except ValueError as exc:
+            handle_error(
+                error=exc,
+                strict=strict,
+                element=element,
+                node=node,
+                expected="Float",
+            )
     return {}
 
 
@@ -262,7 +308,16 @@ def subelement_enum_kwarg(
     if node is None:
         return {}
     if node.text and node.text.strip():
-        return {kwarg: classes[0](node.text.strip())}
+        try:
+            return {kwarg: classes[0](node.text.strip())}
+        except ValueError as exc:
+            handle_error(
+                error=exc,
+                strict=strict,
+                element=element,
+                node=node,
+                expected="Enum",
+            )
     return {}
 
 

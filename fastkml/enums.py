@@ -21,24 +21,60 @@ This module contains the enums used in the fastkml package.
 https://developers.google.com/kml/documentation/kmlreference#kml-fields
 
 """
+import logging
 from enum import Enum
 from enum import unique
 from typing import Union
 
 __all__ = ["AltitudeMode", "DateTimeResolution", "Verbosity"]
 
+logger = logging.getLogger(__name__)
 
-class REnum(Enum):
-    """Enum with custom repr for eval roundtrip."""
 
-    def __repr__(self) -> str:
-        """The string representation of the object."""
-        cls_name = self.__class__.__name__
-        return f"{cls_name}.{self.name}"
+class RelaxedEnum(Enum):
+    """
+    Enum with relaxed string value matching.
+
+    This class provides an enum with relaxed value matching, allowing case-insensitive
+    comparison of enum values. If a value is not found in the enum, it will attempt to
+    find a case-insensitive match. If no match is found, a `ValueError` is raised.
+
+    Usage:
+        To use this enum, simply subclass `RelaxedEnum` and define your enum values.
+
+    Example:
+    -------
+        class MyEnum(RelaxedEnum):
+            VALUE1 = "value1"
+            VALUE2 = "value2"
+
+        my_value = MyEnum("VALUE1")  # Case-insensitive match
+        print(my_value)  # Output: MyEnum.VALUE1
+
+    The subclass must define the values as strings.
+    """
+
+    @classmethod
+    def _missing_(cls, value: object) -> "RelaxedEnum":
+        assert isinstance(value, str)
+        value = value.lower()
+        for member in cls:
+            assert isinstance(member.value, str)
+            if member.value.lower() == value.lower():
+                logger.warning(
+                    f"{cls.__name__}: "
+                    f"Found case-insensitive match for {value} in {member.value}",
+                )
+                return member
+        msg = (
+            f"Unknown value '{value}' for {cls.__name__}. "
+            f"Known values are {', '.join(member.value for member in cls)}."
+        )
+        raise ValueError(msg)
 
 
 @unique
-class Verbosity(REnum):
+class Verbosity(Enum):
     """Enum to represent the different verbosity levels."""
 
     quiet = 0
@@ -47,7 +83,7 @@ class Verbosity(REnum):
 
 
 @unique
-class DateTimeResolution(REnum):
+class DateTimeResolution(RelaxedEnum):
     """Enum to represent the different date time resolutions."""
 
     datetime = "dateTime"
@@ -57,7 +93,7 @@ class DateTimeResolution(REnum):
 
 
 @unique
-class AltitudeMode(REnum):
+class AltitudeMode(RelaxedEnum):
     """
     Enum to represent the different altitude modes.
 
@@ -105,7 +141,7 @@ class AltitudeMode(REnum):
 
 
 @unique
-class DataType(REnum):
+class DataType(RelaxedEnum):
     string = "string"
     int_ = "int"
     uint = "uint"
@@ -130,7 +166,7 @@ class DataType(REnum):
 
 
 @unique
-class RefreshMode(REnum):
+class RefreshMode(RelaxedEnum):
     """
     Enum to represent the different refresh modes.
 
@@ -143,7 +179,7 @@ class RefreshMode(REnum):
 
 
 @unique
-class ViewRefreshMode(REnum):
+class ViewRefreshMode(RelaxedEnum):
     """
     Enum to represent the different view refresh modes.
 
@@ -157,7 +193,7 @@ class ViewRefreshMode(REnum):
 
 
 @unique
-class ColorMode(REnum):
+class ColorMode(RelaxedEnum):
     """
     Enum to represent the different color modes.
 
@@ -169,7 +205,7 @@ class ColorMode(REnum):
 
 
 @unique
-class DisplayMode(REnum):
+class DisplayMode(RelaxedEnum):
     """
     DisplayMode for BalloonStyle.
 
@@ -185,7 +221,7 @@ class DisplayMode(REnum):
 
 
 @unique
-class Shape(REnum):
+class Shape(RelaxedEnum):
     """
     Shape for PhotoOverlay.
 
@@ -202,7 +238,7 @@ class Shape(REnum):
 
 
 @unique
-class GridOrigin(REnum):
+class GridOrigin(RelaxedEnum):
     """
     GridOrigin for GroundOverlay.
 
@@ -216,7 +252,7 @@ class GridOrigin(REnum):
 
 
 @unique
-class Units(REnum):
+class Units(RelaxedEnum):
     """
     Units for ScreenOverlay and Hotspot.
 
@@ -229,7 +265,7 @@ class Units(REnum):
 
 
 @unique
-class PairKey(REnum):
+class PairKey(RelaxedEnum):
     """
     Key for Pair.
     """
