@@ -814,15 +814,6 @@ class Style(_StyleSelector):
     def __bool__(self) -> bool:
         return any(self.styles)
 
-    def append_style(
-        self,
-        style: AnyStyle,
-    ) -> None:
-        if isinstance(style, (_ColorStyle, BalloonStyle)):
-            self.styles.append(style)
-        else:
-            raise TypeError
-
 
 registry.register(
     Style,

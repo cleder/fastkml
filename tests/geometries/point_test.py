@@ -75,6 +75,21 @@ class TestPoint(StdLibrary):
         assert point.extrude is None
         assert point.tessellate is None
 
+    def test_from_string_uppercase_altitude_mode(self) -> None:
+        """Test the from_string method for an uppercase altitude mode."""
+        point = cast(
+            Point,
+            Point.class_from_string(
+                '<Point xmlns="http://www.opengis.net/kml/2.2">'
+                "<altitudeMode>RELATIVETOGROUND</altitudeMode>"
+                "<coordinates>1.000000,2.000000</coordinates>"
+                "</Point>",
+            ),
+        )
+
+        assert point.geometry == geo.Point(1, 2)
+        assert point.altitude_mode.value == "relativeToGround"
+
     def test_from_string_3d(self) -> None:
         """Test the from_string method for a 3 dimensional point."""
         point = cast(

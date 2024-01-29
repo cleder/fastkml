@@ -24,7 +24,6 @@ https://developers.google.com/kml/documentation/kmlreference#kml-fields
 import logging
 from enum import Enum
 from enum import unique
-from typing import Union
 
 logger = logging.getLogger(__name__)
 
@@ -148,19 +147,6 @@ class DataType(RelaxedEnum):
     float_ = "float"
     double = "double"
     bool_ = "bool"
-
-    def convert(self, value: str) -> Union[str, int, float, bool]:
-        """Convert the data type to a python type."""
-        if self == DataType.string:
-            return str(value)
-        if self in {DataType.int_, DataType.uint, DataType.short, DataType.ushort}:
-            return int(value)
-        if self in {DataType.float_, DataType.double}:
-            return float(value)
-        if self == DataType.bool_:
-            return bool(int(value))
-        msg = f"Unknown data type {self}"
-        raise ValueError(msg)
 
 
 @unique
