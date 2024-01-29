@@ -83,6 +83,20 @@ class TestLineString(StdLibrary):
                 "</LineString>",
             )
 
+    def test_mixed_2d_3d_coordinates_from_string_relaxed(self) -> None:
+        line_string = LineString.class_from_string(
+            '<LineString xmlns="http://www.opengis.net/kml/2.2">'
+            "<extrude>1</extrude>"
+            "<tessellate>1</tessellate>"
+            "<coordinates>"
+            "-122.364383,37.824664 -122.364152,37.824322,0"
+            "</coordinates>"
+            "</LineString>",
+            strict=False,
+        )
+
+        assert not line_string
+
     def test_empty_from_string(self) -> None:
         """Test the from_string method with an empty LineString."""
         linestring = cast(

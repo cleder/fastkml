@@ -105,6 +105,19 @@ class TestPoint(StdLibrary):
                 ns="",
             )
 
+    def test_empty_from_string_relaxed(self) -> None:
+        """Test that no error is raised when the geometry is empty and not strict."""
+        point = cast(
+            Point,
+            Point.class_from_string(
+                "<Point/>",
+                ns="",
+                strict=False,
+            ),
+        )
+
+        assert point.geometry is None
+
     def test_from_string_empty_coordinates(self) -> None:
         with pytest.raises(
             KMLParseError,

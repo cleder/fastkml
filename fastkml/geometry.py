@@ -706,5 +706,6 @@ def create_kml_geometry(
                     geometry=geom,
                 ),
             )
+    # this should be unreachable, but mypy doesn't know that
     msg = f"Unsupported geometry type {type(geometry)}"  # pragma: no cover
     raise KMLWriteError(msg)  # pragma: no cover

@@ -140,11 +140,34 @@ class TestStdLibrary(StdLibrary):
         </kml:Polygon>
         """
 
-        polygon2 = cast(Polygon, Polygon.class_from_string(doc))
+        polygon = cast(Polygon, Polygon.class_from_string(doc))
 
-        assert polygon2.geometry == geo.Polygon(
+        assert polygon.geometry == geo.Polygon(
             [(-1, -1), (2, -1), (2, 2), (-1, -1)],
             [[(0, 0), (1, 0), (1, 1), (0, 0)]],
+        )
+
+    def test_from_string_exterior_mixed_interior_relaxed(self) -> None:
+        doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:outerBoundaryIs>
+            <kml:LinearRing>
+              <kml:coordinates>-1.000000,-1.000000 2.000000,-1.000000 2.000000,2.000000
+              -1.000000,-1.000000</kml:coordinates>
+            </kml:LinearRing>
+          </kml:outerBoundaryIs>
+          <kml:innerBoundaryIs>
+            <kml:LinearRing>
+              <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000
+              0.000000,0.000000,1.00000</kml:coordinates>
+            </kml:LinearRing>
+          </kml:innerBoundaryIs>
+        </kml:Polygon>
+        """
+
+        polygon = cast(Polygon, Polygon.class_from_string(doc, strict=False))
+
+        assert polygon.geometry == geo.Polygon(
+            ((-1.0, -1.0), (2.0, -1.0), (2.0, 2.0), (-1.0, -1.0)),
         )
 
     def test_empty_polygon(self) -> None:
