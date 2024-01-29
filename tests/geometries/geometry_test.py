@@ -572,6 +572,14 @@ class TestCreateKmlGeometry(StdLibrary):
 
         assert mg.geometry == gc
 
+    def test_create_kml_geometry_non_geometry(self) -> None:
+        """Test the create_kml_geometry function."""
+        with pytest.raises(
+            AttributeError,
+            match="^'str' object has no attribute '__geo_interface__'$",
+        ):
+            create_kml_geometry("not a geometry")  # type: ignore[arg-type]
+
 
 class TestGetGeometryLxml(Lxml, TestGetGeometry):
     """Test with lxml."""

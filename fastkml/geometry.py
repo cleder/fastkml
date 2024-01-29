@@ -82,7 +82,7 @@ def handle_invalid_geometry_error(
     ).decode(
         "UTF-8",
     )
-    msg = f"Invalid coordinates in {error_in_xml}"
+    msg = f"Invalid coordinates in '{error_in_xml}' caused by '{error}'"
     logger.error(msg)
     if strict:
         raise KMLParseError(msg) from error
@@ -706,5 +706,5 @@ def create_kml_geometry(
                     geometry=geom,
                 ),
             )
-    msg = f"Unsupported geometry type {type(geometry)}"
-    raise KMLWriteError(msg)
+    msg = f"Unsupported geometry type {type(geometry)}"  # pragma: no cover
+    raise KMLWriteError(msg)  # pragma: no cover
