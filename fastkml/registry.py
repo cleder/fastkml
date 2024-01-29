@@ -54,8 +54,7 @@ class GetKWArgs(Protocol):
         kwarg: str,
         classes: Tuple[known_types, ...],
         strict: bool,
-    ) -> Dict[str, Any]:
-        ...
+    ) -> Dict[str, Any]: ...
 
 
 class SetElement(Protocol):
@@ -68,8 +67,7 @@ class SetElement(Protocol):
         node_name: str,
         precision: Optional[int],
         verbosity: Optional[Verbosity],
-    ) -> None:
-        ...
+    ) -> None: ...
 
 
 @dataclass(frozen=True)
