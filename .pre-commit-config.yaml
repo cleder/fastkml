@@ -25,7 +25,7 @@ repos:
     hooks:
       - id: pyprojectsort
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.15
+    rev: v0.16
     hooks:
       - id: validate-pyproject
   - repo: https://github.com/ikamensh/flynt/
@@ -42,7 +42,7 @@ repos:
       - id: pyupgrade
         args: ["--py3-plus", "--py37-plus"]
   - repo: https://github.com/psf/black
-    rev: 23.12.1
+    rev: 24.1.1
     hooks:
       - id: black
   - repo: https://github.com/pycqa/isort
