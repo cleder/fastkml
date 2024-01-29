@@ -1,4 +1,4 @@
-# Copyright (C) 2012 - 2023  Christian Ledermann
+# Copyright (C) 2012 - 2024  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -126,6 +126,21 @@ class Link(_AtomObject):
     def __bool__(self) -> bool:
         return bool(self.href)
 
+    def __eq__(self, other: object) -> bool:
+        try:
+            assert isinstance(other, type(self))
+        except AssertionError:
+            return False
+        return (
+            super().__eq__(other)
+            and self.href == other.href
+            and self.rel == other.rel
+            and self.type == other.type
+            and self.hreflang == other.hreflang
+            and self.title == other.title
+            and self.length == other.length
+        )
+
     def etree_element(
         self,
         precision: Optional[int] = None,
@@ -204,6 +219,18 @@ class _Person(_AtomObject):
 
     def __bool__(self) -> bool:
         return bool(self.name)
+
+    def __eq__(self, other: object) -> bool:
+        try:
+            assert isinstance(other, type(self))
+        except AssertionError:
+            return False
+        return (
+            super().__eq__(other)
+            and self.name == other.name
+            and self.uri == other.uri
+            and self.email == other.email
+        )
 
 
 registry.register(

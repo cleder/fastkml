@@ -47,10 +47,22 @@ class _XMLObject:
         self.name_spaces = {**config.NAME_SPACES, **name_spaces}
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(ns={self.ns})"
+        """Create a string (c)representation for _XMLObject."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            ")"
+        )
 
     def __str__(self) -> str:
         return self.to_string()
+
+    def __eq__(self, other: object) -> bool:
+        if type(self) is not type(other):
+            return False
+        assert isinstance(other, type(self))
+        return self.ns == other.ns and self.name_spaces == other.name_spaces
 
     def etree_element(
         self,
@@ -223,18 +235,26 @@ class _BaseObject(_XMLObject):
         self.target_id = target_id
 
     def __eq__(self, other: object) -> bool:
-        assert isinstance(other, self.__class__)
-        return (
-            super().__eq__(other)
-            and self.id == other.id
-            and self.target_id == other.target_id
-        )
+        """Return True if the two objects are equal."""
+        try:
+            assert isinstance(other, type(self))
+            return (
+                super().__eq__(other)
+                and self.id == other.id
+                and self.target_id == other.target_id
+            )
+        except AssertionError:
+            return False
 
     def __repr__(self) -> str:
+        """Create a string (c)representation for _BaseObject."""
         return (
-            f"{self.__class__.__name__}(ns={self.ns!r}, "
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
-            f"(id={self.id!r}, target_id={self.target_id!r})"
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            ")"
         )
 
     def etree_element(

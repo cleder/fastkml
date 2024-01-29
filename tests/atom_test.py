@@ -53,6 +53,23 @@ class TestStdLibrary(StdLibrary):
         assert 'title="Title"' in serialized
         assert 'length="3456"' in serialized
 
+    def test_atom_link_round_trip(self) -> None:
+        link = atom.Link(
+            ns="{http://www.w3.org/2005/Atom}",
+            href="#here",
+            rel="alternate",
+            type="text/html",
+            hreflang="en",
+            title="Title",
+            length=3456,
+        )
+
+        link2 = atom.Link.class_from_string(link.to_string())
+
+        assert link == link2
+        assert link.to_string() == link2.to_string()
+        assert repr(link) == repr(link2)
+
     def test_atom_link_read(self) -> None:
         link = atom.Link.class_from_string(
             '<atom:link xmlns:atom="http://www.w3.org/2005/Atom" '
@@ -106,6 +123,20 @@ class TestStdLibrary(StdLibrary):
         assert a.uri == "http://localhost"
         assert a.email == "cl@donotreply.com"
 
+    def test_atom_author_round_trip(self) -> None:
+        a = atom.Author(
+            ns="{http://www.w3.org/2005/Atom}",
+            name="Nobody",
+            uri="http://localhost",
+            email="cl@donotreply.com",
+        )
+
+        a2 = atom.Author.class_from_string(a.to_string())
+
+        assert a == a2
+        assert a.to_string() == a2.to_string()
+        assert repr(a) == repr(a2)
+
     def test_atom_contributor_read_no_name(self) -> None:
         a = atom.Contributor.class_from_string(
             '<atom:contributor xmlns:atom="http://www.w3.org/2005/Atom">'
@@ -124,22 +155,19 @@ class TestStdLibrary(StdLibrary):
         assert a.name is None
         assert "atom:name" not in a.to_string()
 
-    def test_author_roundtrip(self) -> None:
-        a = atom.Author(name="Christian Ledermann")
-        a.uri = "http://iwlearn.net"
-        a.email = "christian@gmail.com"
-        assert "email>christian@gmail.com</" in str(a.to_string())
-        a2 = atom.Author.class_from_string(a.to_string())
-        assert a.to_string() == a2.to_string()
+    def test_atom_contributor_rountrip(self) -> None:
+        a = atom.Contributor(
+            ns="{http://www.w3.org/2005/Atom}",
+            name="Nobody",
+            uri="http://localhost",
+            email="cl@donotreply.com",
+        )
 
-    def test_link_roundtrip(self) -> None:
-        link = atom.Link(href="http://localhost/", rel="alternate")
-        link.title = "Title"
-        link.type = "text/html"
-        link.hreflang = "en"
-        link.length = 4096
-        l2 = atom.Link.class_from_string(link.to_string())
-        assert link.to_string() == l2.to_string()
+        a2 = atom.Contributor.class_from_string(a.to_string())
+
+        assert a == a2
+        assert a.to_string() == a2.to_string()
+        assert repr(a) == repr(a2)
 
 
 class TestLxml(Lxml, TestStdLibrary):
