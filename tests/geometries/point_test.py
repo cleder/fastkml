@@ -59,8 +59,8 @@ class TestPoint(StdLibrary):
         ):
             point.to_string()
 
-    def test_from_string(self) -> None:
-        """Test the from_string method."""
+    def test_from_string_2d(self) -> None:
+        """Test the from_string method for a 2 dimensional point."""
         point = cast(
             Point,
             Point.class_from_string(
@@ -74,6 +74,25 @@ class TestPoint(StdLibrary):
         assert point.altitude_mode is None
         assert point.extrude is None
         assert point.tessellate is None
+
+    def test_from_string_3d(self) -> None:
+        """Test the from_string method for a 3 dimensional point."""
+        point = cast(
+            Point,
+            Point.class_from_string(
+                '<Point xmlns="http://www.opengis.net/kml/2.2">'
+                "<extrude>1</extrude>"
+                "<tessellate>1</tessellate>"
+                "<altitudeMode>absolute</altitudeMode>"
+                "<coordinates>1.000000,2.000000,3.000000</coordinates>"
+                "</Point>",
+            ),
+        )
+
+        assert point.geometry == geo.Point(1, 2, 3)
+        assert point.altitude_mode.value == "absolute"
+        assert point.extrude
+        assert point.tessellate
 
     def test_empty_from_string(self) -> None:
         """Test the from_string method."""
@@ -103,6 +122,32 @@ class TestPoint(StdLibrary):
         ):
             Point.class_from_string(
                 "<Point><coordinates>1</coordinates></Point>",
+                ns="",
+            )
+
+    def test_from_string_invalid_coordinates_4d(self) -> None:
+        with pytest.raises(
+            KMLParseError,
+            match=(
+                r"Invalid coordinates in <Point\s*>"
+                "<coordinates>1,2,3,4</coordinates></Point>"
+            ),
+        ):
+            Point.class_from_string(
+                "<Point><coordinates>1,2,3,4</coordinates></Point>",
+                ns="",
+            )
+
+    def test_from_string_invalid_coordinates_non_numerical(self) -> None:
+        with pytest.raises(
+            KMLParseError,
+            match=(
+                r"Invalid coordinates in <Point\s*>"
+                "<coordinates>a,b,c</coordinates></Point>"
+            ),
+        ):
+            Point.class_from_string(
+                "<Point><coordinates>a,b,c</coordinates></Point>",
                 ns="",
             )
 

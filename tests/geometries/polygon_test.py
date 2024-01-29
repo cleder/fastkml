@@ -18,7 +18,9 @@
 from typing import cast
 
 import pygeoif.geometry as geo
+import pytest
 
+from fastkml.exceptions import KMLParseError
 from fastkml.geometry import Polygon
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -76,6 +78,20 @@ class TestStdLibrary(StdLibrary):
         polygon2 = cast(Polygon, Polygon.class_from_string(doc))
 
         assert polygon2.geometry == geo.Polygon([(0, 0), (1, 0), (1, 1), (0, 0)])
+
+    def test_from_string_interiors_only(self) -> None:
+        """Test polygon without exterior."""
+        doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:innerBoundaryIs>
+            <kml:LinearRing>
+              <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000
+              0.000000,0.000000</kml:coordinates>
+            </kml:LinearRing>
+          </kml:innerBoundaryIs>
+        </kml:Polygon>"""
+
+        with pytest.raises(KMLParseError, match=r"^Missing outerBoundaryIs in <"):
+            Polygon.class_from_string(doc)
 
     def test_from_string_exterior_interior(self) -> None:
         doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">

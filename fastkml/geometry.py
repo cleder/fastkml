@@ -26,6 +26,7 @@ from typing import Union
 from typing import cast
 
 import pygeoif.geometry as geo
+from pygeoif.exceptions import DimensionError
 from pygeoif.factories import shape
 from pygeoif.types import GeoCollectionType
 from pygeoif.types import GeoType
@@ -67,6 +68,24 @@ MultiGeometryType = Union[
     geo.GeometryCollection,
 ]
 AnyGeometryType = Union[GeometryType, MultiGeometryType]
+
+
+def handle_invalid_geometry_error(
+    *,
+    error: Exception,
+    element: Element,
+    strict: bool,
+) -> None:
+    error_in_xml = config.etree.tostring(  # type: ignore[attr-defined]
+        element,
+        encoding="UTF-8",
+    ).decode(
+        "UTF-8",
+    )
+    msg = f"Invalid coordinates in {error_in_xml}"
+    logger.error(msg)
+    if strict:
+        raise KMLParseError(msg) from error
 
 
 class _Geometry(_BaseObject):
@@ -170,10 +189,17 @@ class _Geometry(_BaseObject):
                 latlons = re.sub(r", +", ",", coordinates.text.strip()).split()
             except AttributeError:
                 return []
-            return [
-                cast(PointType, tuple(float(c) for c in latlon.split(",")))
-                for latlon in latlons
-            ]
+            try:
+                return [
+                    cast(PointType, tuple(float(c) for c in latlon.split(",")))
+                    for latlon in latlons
+                ]
+            except ValueError as error:
+                handle_invalid_geometry_error(
+                    error=error,
+                    element=element,
+                    strict=strict,
+                )
         return []
 
     @classmethod
@@ -281,19 +307,17 @@ class Point(_Geometry):
         ns: str,
         element: Element,
         strict: bool,
-    ) -> geo.Point:
+    ) -> Optional[geo.Point]:
         coords = cls._get_coordinates(ns=ns, element=element, strict=strict)
         try:
             return geo.Point.from_coordinates(coords)
         except (IndexError, TypeError) as e:
-            error = config.etree.tostring(  # type: ignore[attr-defined]
-                element,
-                encoding="UTF-8",
-            ).decode(
-                "UTF-8",
+            handle_invalid_geometry_error(
+                error=e,
+                element=element,
+                strict=strict,
             )
-            msg = f"Invalid coordinates in {error}"
-            raise KMLParseError(msg) from e
+        return None
 
 
 class LineString(_Geometry):
@@ -338,19 +362,17 @@ class LineString(_Geometry):
         ns: str,
         element: Element,
         strict: bool,
-    ) -> geo.LineString:
+    ) -> Optional[geo.LineString]:
         coords = cls._get_coordinates(ns=ns, element=element, strict=strict)
         try:
             return geo.LineString.from_coordinates(coords)
-        except (IndexError, TypeError) as e:
-            error = config.etree.tostring(  # type: ignore[attr-defined]
-                element,
-                encoding="UTF-8",
-            ).decode(
-                "UTF-8",
+        except (IndexError, TypeError, DimensionError) as e:
+            handle_invalid_geometry_error(
+                error=e,
+                element=element,
+                strict=strict,
             )
-            msg = f"Invalid coordinates in {error}"
-            raise KMLParseError(msg) from e
+        return None
 
 
 class LinearRing(LineString):
@@ -384,19 +406,17 @@ class LinearRing(LineString):
         ns: str,
         element: Element,
         strict: bool,
-    ) -> geo.LinearRing:
+    ) -> Optional[geo.LinearRing]:
         coords = cls._get_coordinates(ns=ns, element=element, strict=strict)
         try:
             return cast(geo.LinearRing, geo.LinearRing.from_coordinates(coords))
-        except (IndexError, TypeError) as e:
-            error = config.etree.tostring(  # type: ignore[attr-defined]
-                element,
-                encoding="UTF-8",
-            ).decode(
-                "UTF-8",
+        except (IndexError, TypeError, DimensionError) as e:
+            handle_invalid_geometry_error(
+                error=e,
+                element=element,
+                strict=strict,
             )
-            msg = f"Invalid coordinates in {error}"
-            raise KMLParseError(msg) from e
+        return None
 
 
 class Polygon(_Geometry):
@@ -429,6 +449,8 @@ class Polygon(_Geometry):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
+        if not self.geometry:
+            return element
         assert isinstance(self.geometry, geo.Polygon)
         linear_ring = partial(LinearRing, ns=self.ns, extrude=None, tessellate=None)
         outer_boundary = cast(
@@ -461,7 +483,13 @@ class Polygon(_Geometry):
         return element
 
     @classmethod
-    def _get_geometry(cls, *, ns: str, element: Element, strict: bool) -> geo.Polygon:
+    def _get_geometry(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> Optional[geo.Polygon]:
         outer_boundary = element.find(f"{ns}outerBoundaryIs")
         if outer_boundary is None:
             error = config.etree.tostring(  # type: ignore[attr-defined]
@@ -495,10 +523,15 @@ class Polygon(_Geometry):
                 )
                 msg = f"Missing LinearRing in {error}"
                 raise KMLParseError(msg)
-            interiors.append(
-                LinearRing._get_geometry(ns=ns, element=inner_ring, strict=strict),
-            )
-        return geo.Polygon.from_linear_rings(exterior, *interiors)
+            if hole := LinearRing._get_geometry(
+                ns=ns,
+                element=inner_ring,
+                strict=strict,
+            ):
+                interiors.append(hole)
+        if exterior:
+            return geo.Polygon.from_linear_rings(exterior, *interiors)
+        return None
 
 
 def create_multigeometry(

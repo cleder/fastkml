@@ -1,4 +1,4 @@
-# Copyright (C) 2023  Christian Ledermann
+# Copyright (C) 2023 - 2024 Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -18,7 +18,9 @@
 from typing import cast
 
 import pygeoif.geometry as geo
+import pytest
 
+from fastkml.exceptions import KMLParseError
 from fastkml.geometry import LinearRing
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -60,6 +62,44 @@ class TestLinearRing(StdLibrary):
         )
 
         assert linear_ring.geometry == geo.LinearRing(((0, 0), (1, 0), (1, 1), (0, 0)))
+
+    def test_empty_from_string(self) -> None:
+        """Test the from_string method with an empty LinearRing."""
+        linear_ring = cast(
+            LinearRing,
+            LinearRing.class_from_string(
+                '<kml:LinearRing xmlns:kml="http://www.opengis.net/kml/2.2">'
+                "<kml:coordinates></kml:coordinates>"
+                "</kml:LinearRing>",
+            ),
+        )
+
+        assert linear_ring.geometry.is_empty
+
+    def test_no_coordinates_from_string(self) -> None:
+        """Test the from_string method with an empty LinearRing."""
+        linear_ring = cast(
+            LinearRing,
+            LinearRing.class_from_string(
+                '<kml:LinearRing xmlns:kml="http://www.opengis.net/kml/2.2">'
+                "</kml:LinearRing>",
+            ),
+        )
+
+        assert linear_ring.geometry.is_empty
+
+    def test_from_string_invalid_coordinates_non_numerical(self) -> None:
+        """Test the from_string method with non numerical coordinates."""
+        with pytest.raises(
+            KMLParseError,
+            match=r"^Invalid coordinates in",
+        ):
+            LinearRing.class_from_string(
+                '<kml:LinearRing xmlns:kml="http://www.opengis.net/kml/2.2">'
+                "<kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.0,1.0 "
+                "0.000000,0.000000 1.000000,a</kml:coordinates>"
+                "</kml:LinearRing>",
+            )
 
 
 class TestLinearRingLxml(Lxml, TestLinearRing):

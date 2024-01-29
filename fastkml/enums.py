@@ -26,8 +26,6 @@ from enum import Enum
 from enum import unique
 from typing import Union
 
-__all__ = ["AltitudeMode", "DateTimeResolution", "Verbosity"]
-
 logger = logging.getLogger(__name__)
 
 
@@ -51,7 +49,7 @@ class RelaxedEnum(Enum):
         my_value = MyEnum("VALUE1")  # Case-insensitive match
         print(my_value)  # Output: MyEnum.VALUE1
 
-    The subclass must define the values as strings.
+    The subclass must define all values as strings.
     """
 
     @classmethod

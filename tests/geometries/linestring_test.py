@@ -18,7 +18,9 @@
 from typing import cast
 
 import pygeoif.geometry as geo
+import pytest
 
+from fastkml.exceptions import KMLParseError
 from fastkml.geometry import LineString
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -65,6 +67,67 @@ class TestLineString(StdLibrary):
         assert linestring.geometry == geo.LineString(
             ((-122.364383, 37.824664, 0), (-122.364152, 37.824322, 0)),
         )
+
+    def test_mixed_2d_3d_coordinates_from_string(self) -> None:
+        with pytest.raises(
+            KMLParseError,
+            match=r"^Invalid coordinates in",
+        ):
+            LineString.class_from_string(
+                '<LineString xmlns="http://www.opengis.net/kml/2.2">'
+                "<extrude>1</extrude>"
+                "<tessellate>1</tessellate>"
+                "<coordinates>"
+                "-122.364383,37.824664 -122.364152,37.824322,0"
+                "</coordinates>"
+                "</LineString>",
+            )
+
+    def test_empty_from_string(self) -> None:
+        """Test the from_string method with an empty LineString."""
+        linestring = cast(
+            LineString,
+            LineString.class_from_string(
+                '<LineString xmlns="http://www.opengis.net/kml/2.2">'
+                "<extrude>1</extrude>"
+                "<tessellate>1</tessellate>"
+                "<coordinates>"
+                "</coordinates>"
+                "</LineString>",
+            ),
+        )
+
+        assert linestring.geometry.is_empty
+
+    def test_no_coordinates_from_string(self) -> None:
+        """Test the from_string method with no coordinates."""
+        linestring = cast(
+            LineString,
+            LineString.class_from_string(
+                '<LineString xmlns="http://www.opengis.net/kml/2.2">'
+                "<extrude>1</extrude>"
+                "<tessellate>1</tessellate>"
+                "</LineString>",
+            ),
+        )
+
+        assert linestring.geometry.is_empty
+
+    def test_from_string_invalid_coordinates_non_numerical(self) -> None:
+        """Test the from_string method with invalid coordinates."""
+        with pytest.raises(
+            KMLParseError,
+            match=r"^Invalid coordinates in",
+        ):
+            LineString.class_from_string(
+                '<LineString xmlns="http://www.opengis.net/kml/2.2">'
+                "<extrude>1</extrude>"
+                "<tessellate>1</tessellate>"
+                "<coordinates>"
+                "foo,bar"
+                "</coordinates>"
+                "</LineString>",
+            )
 
 
 class TestLineStringLxml(Lxml, TestLineString):
