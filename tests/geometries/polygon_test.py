@@ -93,6 +93,36 @@ class TestStdLibrary(StdLibrary):
         with pytest.raises(KMLParseError, match=r"^Missing outerBoundaryIs in <"):
             Polygon.class_from_string(doc)
 
+    def test_from_string_exterior_wo_linearring(self) -> None:
+        """Test exterior when no LinearRing in outer boundary."""
+        doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:outerBoundaryIs>
+            <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000
+            0.000000,0.000000</kml:coordinates>
+          </kml:outerBoundaryIs>
+          </kml:Polygon>"""
+
+        with pytest.raises(KMLParseError, match=r"^Missing LinearRing in <"):
+            Polygon.class_from_string(doc)
+
+    def test_from_string_interior_wo_linearring(self) -> None:
+        """Test interior when no LinearRing in inner boundary."""
+        doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
+        <kml:outerBoundaryIs>
+            <kml:LinearRing>
+              <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000
+              0.000000,0.000000</kml:coordinates>
+            </kml:LinearRing>
+          </kml:outerBoundaryIs>
+        <kml:innerBoundaryIs>
+        <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000
+        0.000000,0.000000</kml:coordinates>
+        </kml:innerBoundaryIs>
+        </kml:Polygon>"""
+
+        with pytest.raises(KMLParseError, match=r"^Missing LinearRing in <"):
+            Polygon.class_from_string(doc)
+
     def test_from_string_exterior_interior(self) -> None:
         doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:outerBoundaryIs>

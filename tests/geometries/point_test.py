@@ -151,6 +151,16 @@ class TestPoint(StdLibrary):
                 ns="",
             )
 
+    def test_from_string_invalid_coordinates_nan(self) -> None:
+        with pytest.raises(
+            KMLParseError,
+            match=(r"^Invalid coordinates in"),
+        ):
+            Point.class_from_string(
+                "<Point><coordinates>a,b</coordinates></Point>",
+                ns="",
+            )
+
 
 class TestPointLxml(Lxml, TestPoint):
     """Test with lxml."""
