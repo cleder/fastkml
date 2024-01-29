@@ -219,30 +219,6 @@ class TestKmlFromString:
         k2 = kml.KML.class_from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_document_booleans(self) -> None:
-        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
-        <Document targetId="someTargetId">
-          <name>Document.kml</name>
-          <visibility>true</visibility>
-          <open>1</open>
-        </Document>
-        </kml>"""
-
-        k = kml.KML.class_from_string(doc, strict=False)
-        assert k.features[0].visibility == 1
-        assert k.features[0].isopen == 1
-        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
-        <Document targetId="someTargetId">
-          <name>Document.kml</name>
-          <visibility>0</visibility>
-          <open>false</open>
-        </Document>
-        </kml>"""
-
-        k = kml.KML.class_from_string(doc, strict=False)
-        assert k.features[0].visibility == 0
-        assert k.features[0].isopen == 0
-
     def test_folders(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Folder>

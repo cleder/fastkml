@@ -28,37 +28,6 @@ from tests.base import Lxml
 from tests.base import StdLibrary
 
 
-class TestBaseOverlay(StdLibrary):
-    def test_color_string(self) -> None:
-        o = overlays._Overlay(name="An Overlay")
-        o.color = "00010203"
-        assert o.color == "00010203"
-
-    def test_color_none(self) -> None:
-        o = overlays._Overlay(name="An Overlay")
-        o.color = "00010203"
-        assert o.color == "00010203"
-        o.color = None
-        assert o.color is None
-
-    def test_draw_order_string(self) -> None:
-        o = overlays._Overlay(name="An Overlay")
-        o.draw_order = 1
-        assert o.draw_order == 1
-
-    def test_draw_order_int(self) -> None:
-        o = overlays._Overlay(name="An Overlay")
-        o.draw_order = 1
-        assert o.draw_order == 1
-
-    def test_draw_order_none(self) -> None:
-        o = overlays._Overlay(name="An Overlay")
-        o.draw_order = 1
-        assert o.draw_order == 1
-        o.draw_order = None
-        assert o.draw_order is None
-
-
 class TestGroundOverlay(StdLibrary):
     pass
 
@@ -115,6 +84,26 @@ class TestGroundOverlayString(StdLibrary):
         )
 
         assert g.to_string() == expected.to_string()
+
+    def test_altitude_invalid(self) -> None:
+        g = overlays.GroundOverlay.class_from_string(
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            "<kml:altitude> one two</kml:altitude>"
+            "</kml:GroundOverlay>",
+            strict=False,
+        )
+
+        assert g.altitude is None
+
+    def test_draw_order_from_invalid(self) -> None:
+        g = overlays.GroundOverlay.class_from_string(
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            "<kml:drawOrder>nan</kml:drawOrder>"
+            "</kml:GroundOverlay>",
+            strict=False,
+        )
+
+        assert g.draw_order is None
 
     def test_altitude_from_string(self) -> None:
         g = overlays.GroundOverlay(
@@ -369,10 +358,6 @@ class TestPhotoOverlay(StdLibrary):
         assert po.view.tilt == 50
         assert po.view.roll == 60
         assert po.view.altitude_mode == AltitudeMode("relativeToGround")
-
-
-class TestBaseOverlayLxml(Lxml, TestBaseOverlay):
-    """Test with lxml."""
 
 
 class TestGroundOverlayLxml(Lxml, TestGroundOverlay):
