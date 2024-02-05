@@ -49,6 +49,7 @@ class RelaxedEnum(Enum):
         print(my_value)  # Output: MyEnum.VALUE1
 
     The subclass must define all values as strings.
+
     """
 
     @classmethod

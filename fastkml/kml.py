@@ -160,6 +160,7 @@ class KML(_XMLObject):
         Returns:
         -------
             Geometry object
+
         """
         try:
             element = config.etree.fromstring(  # type: ignore[attr-defined]
