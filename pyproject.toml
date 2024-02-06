@@ -172,6 +172,9 @@ include = [
 
 [tool.ruff]
 fix = true
+target-version = "py38"
+
+[tool.ruff.lint]
 ignore = [
     "ANN101",
     "ANN102",
@@ -239,9 +242,8 @@ select = [
     "W",
     "YTT",
 ]
-target-version = "py38"
 
-[tool.ruff.extend-per-file-ignores]
+[tool.ruff.lint.extend-per-file-ignores]
 "tests/*.py" = [
     "D101",
     "D102",
@@ -254,7 +256,7 @@ target-version = "py38"
     "E501",
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 force-single-line = true
 
 [tool.setuptools]
