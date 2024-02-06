@@ -81,7 +81,6 @@ def get_kwarg(  # type: ignore[empty-body]
     strict: bool,
 ) -> Dict[str, Any]:
     """Get the kwarg for the constructor from the element."""
-    ...
 
 
 def test_registry_get_root() -> None:

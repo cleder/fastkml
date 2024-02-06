@@ -129,6 +129,7 @@ class _Geometry(_BaseObject):
             tessellate: Specifies whether to allow the LineString to follow the terrain.
             altitude_mode: Specifies how altitude components in the <coordinates>
                            element are interpreted.
+
         """
         super().__init__(ns=ns, id=id, name_spaces=name_spaces, target_id=target_id)
         self.extrude = extrude

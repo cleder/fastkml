@@ -192,6 +192,7 @@ class _XMLObject:
         Returns:
         -------
             Geometry object
+
         """
         ns = cls._get_ns(ns)
         return cls.class_from_element(

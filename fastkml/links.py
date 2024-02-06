@@ -199,4 +199,5 @@ class Icon(Link):
     The <gx:x>, <gx:y>, <gx:w>, and <gx:h> elements are used to select one
     icon from an image that contains multiple icons
     (often referred to as an icon palette).
+
     """
