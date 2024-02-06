@@ -116,9 +116,7 @@ class KmlDateTime:
                 if isinstance(self.dt, datetime)
                 else self.dt.isoformat()
             )
-        if self.resolution == DateTimeResolution.datetime:
-            return self.dt.isoformat()
-        raise ValueError
+        return self.dt.isoformat()
 
     @classmethod
     def parse(cls, datestr: str) -> Optional["KmlDateTime"]:

@@ -18,6 +18,7 @@
 import datetime
 
 import pygeoif.geometry as geo
+import pytest
 from dateutil.tz import tzutc
 
 from fastkml.enums import AltitudeMode
@@ -203,6 +204,18 @@ class TestTrack(StdLibrary):
         assert ">1 2</" in track.to_string()
         assert "angles>" in track.to_string()
         assert ">0.0 0.0 0.0</" in track.to_string()
+
+    def test_track_from_track_items_and_geometry(self) -> None:
+        ls = geo.LineString(((1, 2), (2, 0)))
+        time1 = datetime.datetime(2023, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
+        angle = Angle()
+        track_items = [TrackItem(when=time1, coord=geo.Point(1, 2), angle=angle)]
+
+        with pytest.raises(ValueError):
+            Track(
+                track_items=track_items,
+                geometry=ls,
+            )
 
     def test_track_from_track_items_no_coord(self) -> None:
         time1 = datetime.datetime(2023, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
