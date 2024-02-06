@@ -92,14 +92,15 @@ class _XMLObject:
         verbosity: Verbosity = Verbosity.normal,
     ) -> str:
         """Return the KML Object as serialized xml."""
+        element = self.etree_element(
+            precision=precision,
+            verbosity=verbosity,
+        )
         try:
             return cast(
                 str,
                 config.etree.tostring(  # type: ignore[attr-defined]
-                    self.etree_element(
-                        precision=precision,
-                        verbosity=verbosity,
-                    ),
+                    element,
                     encoding="UTF-8",
                     pretty_print=prettyprint,
                 ).decode(
@@ -110,7 +111,7 @@ class _XMLObject:
             return cast(
                 str,
                 config.etree.tostring(  # type: ignore[attr-defined]
-                    self.etree_element(),
+                    element,
                     encoding="UTF-8",
                 ).decode(
                     "UTF-8",

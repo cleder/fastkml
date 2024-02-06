@@ -149,11 +149,13 @@ class _Geometry(_BaseObject):
             Element,
             config.etree.Element(f"{self.ns}coordinates"),  # type: ignore[attr-defined]
         )
+        p = precision if precision is not None else 6
         if len(coordinates[0]) == 2:
-            tuples = (f"{c[0]:f},{c[1]:f}" for c in coordinates)
+            tuples = (f"{c[0]:.{p}f},{c[1]:.{p}f}" for c in coordinates)
         elif len(coordinates[0]) == 3:
             tuples = (
-                f"{c[0]:f},{c[1]:f},{c[2]:f}" for c in coordinates  # type: ignore[misc]
+                f"{c[0]:.{p}f},{c[1]:.{p}f},{c[2]:.{p}f}"  # type: ignore[misc]
+                for c in coordinates
             )
         else:
             msg = (  # type: ignore[unreachable]

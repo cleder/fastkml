@@ -40,7 +40,7 @@ class TestPoint(StdLibrary):
         assert point.altitude_mode is None
         assert point.extrude is None
 
-    def test_to_string(self) -> None:
+    def test_to_string_2d(self) -> None:
         """Test the to_string method."""
         p = geo.Point(1, 2)
 
@@ -48,6 +48,52 @@ class TestPoint(StdLibrary):
 
         assert "Point" in point.to_string()
         assert "coordinates>1.000000,2.000000</" in point.to_string()
+
+    def test_to_string_3d(self) -> None:
+        """Test the to_string method."""
+        p = geo.Point(1, 2, 3)
+
+        point = Point(geometry=p)
+
+        assert "Point" in point.to_string()
+        assert "coordinates>1.000000,2.000000,3.000000</" in point.to_string()
+
+    def test_to_string_2d_precision_0(self) -> None:
+        """Test the to_string method."""
+        p = geo.Point(1, 2)
+
+        point = Point(geometry=p)
+
+        assert "coordinates>1,2</" in point.to_string(precision=0)
+
+    def test_to_string_3d_precision_0(self) -> None:
+        """Test the to_string method."""
+        p = geo.Point(1, 2, 3)
+
+        point = Point(geometry=p)
+
+        assert "coordinates>1,2,3</" in point.to_string(precision=0)
+
+    def test_to_string_2d_precision_10(self) -> None:
+        """Test the to_string method."""
+        p = geo.Point(1, 2)
+
+        point = Point(geometry=p)
+
+        assert "coordinates>1.0000000000,2.0000000000</" in point.to_string(
+            precision=10,
+        )
+
+    def test_to_string_3d_precision_10(self) -> None:
+        """Test the to_string method."""
+        p = geo.Point(1, 2, 3)
+
+        point = Point(geometry=p)
+
+        assert (
+            "coordinates>1.0000000000,2.0000000000,3.0000000000</"
+            in point.to_string(precision=10)
+        )
 
     def test_to_string_empty_geometry(self) -> None:
         """Test the to_string method."""
