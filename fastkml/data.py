@@ -371,6 +371,9 @@ class ExtendedData(_XMLObject):
     def __bool__(self) -> bool:
         return bool(self.elements)
 
+    def to_dict(self) -> Dict[any, any]:
+        return {data.name: data.value for data in self.elements}
+
 
 registry.register(
     ExtendedData,
