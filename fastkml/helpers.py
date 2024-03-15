@@ -39,7 +39,23 @@ def handle_error(
     node: Element,
     expected: str,
 ) -> None:
-    """Handle an error."""
+    """
+    Handle an error.
+
+    Args:
+    ----
+        error (Exception): The exception that occurred.
+        strict (bool): A flag indicating whether to raise an exception or log a warning.
+        element (Element): The XML element being parsed.
+        node (Element): The XML node that caused the error.
+        expected (str): The expected format or value.
+
+    Raises:
+    ------
+        KMLParseError: If `strict` is True, the function raises a `KMLParseError` with
+        the error message.
+
+    """
     serialized_element = config.etree.tostring(  # type: ignore[attr-defined]
         element,
         encoding="UTF-8",
@@ -71,13 +87,59 @@ def text_subelement(
     precision: Optional[int],
     verbosity: Optional[Verbosity],
 ) -> None:
-    """Set the value of an attribute from a subelement with a text node."""
+    """
+    Set the value of an attribute from a subelement with a text node.
+
+    Args:
+    ----
+        obj (_XMLObject): The object from which to retrieve the attribute value.
+        element (Element): The parent element to add the subelement to.
+        attr_name (str): The name of the attribute to retrieve the value from.
+        node_name (str): The name of the subelement to create.
+        precision (Optional[int]): The precision of the attribute value.
+        verbosity (Optional[Verbosity]): The verbosity level.
+
+    Returns:
+    -------
+        None
+
+    """
     if getattr(obj, attr_name, None):
         subelement = config.etree.SubElement(  # type: ignore[attr-defined]
             element,
             f"{obj.ns}{node_name}",
         )
         subelement.text = getattr(obj, attr_name)
+
+
+def text_attribute(
+    obj: _XMLObject,
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Optional[Verbosity],
+) -> None:
+    """
+    Set the value of an attribute from a subelement with a text node.
+
+    Args:
+    ----
+        obj (_XMLObject): The object from which to retrieve the attribute value.
+        element (Element): The parent element to add the subelement to.
+        attr_name (str): The name of the attribute to retrieve the value from.
+        node_name (str): The name of the attribute to be set.
+        precision (Optional[int]): The precision of the attribute value.
+        verbosity (Optional[Verbosity]): The verbosity level.
+
+    Returns:
+    -------
+        None
+
+    """
+    if getattr(obj, attr_name, None):
+        element.set(node_name, getattr(obj, attr_name))
 
 
 def bool_subelement(
@@ -89,7 +151,23 @@ def bool_subelement(
     precision: Optional[int],
     verbosity: Optional[Verbosity],
 ) -> None:
-    """Set the value of an attribute from a subelement with a text node."""
+    """
+    Set the value of an attribute from a subelement with a text node.
+
+    Args:
+    ----
+        obj (_XMLObject): The object from which to retrieve the attribute value.
+        element (Element): The parent element to add the subelement to.
+        attr_name (str): The name of the attribute to retrieve the value from.
+        node_name (str): The name of the subelement to create.
+        precision (Optional[int]): The precision of the attribute value.
+        verbosity (Optional[Verbosity]): The verbosity level.
+
+    Returns:
+    -------
+        None
+
+    """
     if getattr(obj, attr_name, None) is not None:
         subelement = config.etree.SubElement(  # type: ignore[attr-defined]
             element,
@@ -107,13 +185,59 @@ def int_subelement(
     precision: Optional[int],
     verbosity: Optional[Verbosity],
 ) -> None:
-    """Set the value of an attribute from a subelement with a text node."""
+    """
+    Set the value of an attribute from a subelement with a text node.
+
+    Args:
+    ----
+        obj (_XMLObject): The object from which to retrieve the attribute value.
+        element (Element): The parent element to add the subelement to.
+        attr_name (str): The name of the attribute to retrieve the value from.
+        node_name (str): The name of the subelement to create.
+        precision (Optional[int]): The precision of the attribute value.
+        verbosity (Optional[Verbosity]): The verbosity level.
+
+    Returns:
+    -------
+        None: This function does not return anything.
+
+    """
     if getattr(obj, attr_name, None) is not None:
         subelement = config.etree.SubElement(  # type: ignore[attr-defined]
             element,
             f"{obj.ns}{node_name}",
         )
         subelement.text = str(getattr(obj, attr_name))
+
+
+def int_attribute(
+    obj: _XMLObject,
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Optional[Verbosity],
+) -> None:
+    """
+    Set the value of an attribute.
+
+    Args:
+    ----
+        obj (_XMLObject): The object from which to retrieve the attribute value.
+        element (Element): The parent element to add the subelement to.
+        attr_name (str): The name of the attribute to retrieve the value from.
+        node_name (str): The name of the attribute to be set.
+        precision (Optional[int]): The precision of the attribute value.
+        verbosity (Optional[Verbosity]): The verbosity level.
+
+    Returns:
+    -------
+        None: This function does not return anything.
+
+    """
+    if getattr(obj, attr_name, None) is not None:
+        element.set(node_name, str(getattr(obj, attr_name)))
 
 
 def float_subelement(
@@ -203,6 +327,19 @@ def subelement_text_kwarg(
     return {kwarg: node.text.strip()} if node.text and node.text.strip() else {}
 
 
+def attribute_text_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    name_spaces: Dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: Tuple[known_types, ...],
+    strict: bool,
+) -> Dict[str, str]:
+    return {kwarg: element.get(node_name)} if element.get(node_name) else {}
+
+
 def subelement_bool_kwarg(
     *,
     element: Element,
@@ -263,6 +400,19 @@ def subelement_int_kwarg(
                 expected="Integer",
             )
     return {}
+
+
+def attribute_int_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    name_spaces: Dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: Tuple[known_types, ...],
+    strict: bool,
+) -> Dict[str, int]:
+    return {kwarg: int(element.get(node_name))} if element.get(node_name) else {}
 
 
 def subelement_float_kwarg(

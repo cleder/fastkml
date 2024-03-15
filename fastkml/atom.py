@@ -32,19 +32,20 @@ This library only implements a subset of Atom that is useful with KML
 """
 
 import logging
-from typing import Any
 from typing import Dict
 from typing import Optional
 
 from fastkml import config
 from fastkml.base import _XMLObject
 from fastkml.config import ATOMNS as NS
-from fastkml.enums import Verbosity
+from fastkml.helpers import attribute_int_kwarg
+from fastkml.helpers import attribute_text_kwarg
+from fastkml.helpers import int_attribute
 from fastkml.helpers import subelement_text_kwarg
+from fastkml.helpers import text_attribute
 from fastkml.helpers import text_subelement
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
-from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
 
@@ -141,51 +142,68 @@ class Link(_AtomObject):
             and self.length == other.length
         )
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.href:
-            element.set("href", self.href)
-        else:
-            logger.warning("required attribute href missing")
-        if self.rel:
-            element.set("rel", self.rel)
-        if self.type:
-            element.set("type", self.type)
-        if self.hreflang:
-            element.set("hreflang", self.hreflang)
-        if self.title:
-            element.set("title", self.title)
-        if self.length:
-            element.set("length", str(self.length))
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        kwargs["href"] = element.get("href")
-        kwargs["rel"] = element.get("rel")
-        kwargs["type"] = element.get("type")
-        kwargs["hreflang"] = element.get("hreflang")
-        kwargs["title"] = element.get("title")
-        length = element.get("length")
-        kwargs["length"] = int(length) if length and length.strip() else None
-        return kwargs
+registry.register(
+    Link,
+    item=RegistryItem(
+        attr_name="href",
+        node_name="href",
+        classes=(str,),
+        get_kwarg=attribute_text_kwarg,
+        set_element=text_attribute,
+    ),
+)
+registry.register(
+    Link,
+    item=RegistryItem(
+        attr_name="rel",
+        node_name="rel",
+        classes=(str,),
+        get_kwarg=attribute_text_kwarg,
+        set_element=text_attribute,
+    ),
+)
+registry.register(
+    Link,
+    item=RegistryItem(
+        attr_name="type",
+        node_name="type",
+        classes=(str,),
+        get_kwarg=attribute_text_kwarg,
+        set_element=text_attribute,
+    ),
+)
+registry.register(
+    Link,
+    item=RegistryItem(
+        attr_name="hreflang",
+        node_name="hreflang",
+        classes=(str,),
+        get_kwarg=attribute_text_kwarg,
+        set_element=text_attribute,
+    ),
+)
+
+registry.register(
+    Link,
+    item=RegistryItem(
+        attr_name="title",
+        node_name="title",
+        classes=(str,),
+        get_kwarg=attribute_text_kwarg,
+        set_element=text_attribute,
+    ),
+)
+registry.register(
+    Link,
+    item=RegistryItem(
+        attr_name="length",
+        node_name="length",
+        classes=(int,),
+        get_kwarg=attribute_int_kwarg,
+        set_element=int_attribute,
+    ),
+)
 
 
 class _Person(_AtomObject):
