@@ -33,7 +33,9 @@ from fastkml.base import _XMLObject
 from fastkml.enums import DataType
 from fastkml.enums import Verbosity
 from fastkml.exceptions import KMLSchemaError
+from fastkml.helpers import attribute_text_kwarg
 from fastkml.helpers import subelement_text_kwarg
+from fastkml.helpers import text_attribute
 from fastkml.helpers import text_subelement
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
@@ -214,33 +216,17 @@ class Data(_XMLObject):
     def __bool__(self) -> bool:
         return bool(self.name) and self.value is not None
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        element.set("name", self.name or "")
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        kwargs["name"] = element.get("name")
-        return kwargs
-
+registry.register(
+    Data,
+    RegistryItem(
+        attr_name="name",
+        node_name="name",
+        classes=(str,),
+        get_kwarg=attribute_text_kwarg,
+        set_element=text_attribute,
+    ),
+)
 
 registry.register(
     Data,

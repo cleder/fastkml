@@ -271,6 +271,20 @@ def float_subelement(
         subelement.text = str(getattr(obj, attr_name))
 
 
+def float_attribute(
+    obj: _XMLObject,
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Optional[Verbosity],
+) -> None:
+    """Set the value of an attribute."""
+    if getattr(obj, attr_name, None) is not None:
+        element.set(node_name, str(getattr(obj, attr_name)))
+
+
 def enum_subelement(
     obj: _XMLObject,
     *,
@@ -287,6 +301,20 @@ def enum_subelement(
             f"{obj.ns}{node_name}",
         )
         subelement.text = getattr(obj, attr_name).value
+
+
+def enum_attribute(
+    obj: _XMLObject,
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Optional[Verbosity],
+) -> None:
+    """Set the value of an attribute."""
+    if getattr(obj, attr_name, None):
+        element.set(node_name, getattr(obj, attr_name).value)
 
 
 def xml_subelement(
@@ -470,6 +498,19 @@ def subelement_float_kwarg(
     return {}
 
 
+def attribute_float_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    name_spaces: Dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: Tuple[known_types, ...],
+    strict: bool,
+) -> Dict[str, float]:
+    return {kwarg: float(element.get(node_name))} if element.get(node_name) else {}
+
+
 def subelement_enum_kwarg(
     *,
     element: Element,
@@ -497,6 +538,21 @@ def subelement_enum_kwarg(
                 expected="Enum",
             )
     return {}
+
+
+def attribute_enum_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    name_spaces: Dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: Tuple[known_types, ...],
+    strict: bool,
+) -> Dict[str, Enum]:
+    assert len(classes) == 1
+    assert issubclass(classes[0], Enum)
+    return {kwarg: classes[0](element.get(node_name))} if element.get(node_name) else {}
 
 
 def xml_subelement_kwarg(
