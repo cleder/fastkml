@@ -20,7 +20,6 @@ These are the objects that can be added to a KML file.
 """
 
 import logging
-from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -36,7 +35,6 @@ from fastkml import gx
 from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
 from fastkml.data import ExtendedData
-from fastkml.enums import Verbosity
 from fastkml.geometry import AnyGeometryType
 from fastkml.geometry import LinearRing
 from fastkml.geometry import LineString
@@ -44,7 +42,11 @@ from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
 from fastkml.geometry import create_kml_geometry
+from fastkml.helpers import attribute_int_kwarg
 from fastkml.helpers import bool_subelement
+from fastkml.helpers import int_attribute
+from fastkml.helpers import node_text
+from fastkml.helpers import node_text_kwarg
 from fastkml.helpers import subelement_bool_kwarg
 from fastkml.helpers import subelement_text_kwarg
 from fastkml.helpers import text_subelement
@@ -61,7 +63,6 @@ from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
 from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
-from fastkml.types import Element
 from fastkml.views import Camera
 from fastkml.views import LookAt
 from fastkml.views import Region
@@ -111,33 +112,30 @@ class Snippet(_XMLObject):
         self.text = text
         self.max_lines = max_lines
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        element.text = self.text or ""
-        if self.max_lines is not None:
-            element.set("maxLines", str(self.max_lines))
-        return element
-
     def __bool__(self) -> bool:
         return bool(self.text)
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs: Dict[str, Any] = {"text": element.text}
-        if max_lines := element.get("maxLines"):
-            kwargs["max_lines"] = int(max_lines)
-        return kwargs
+
+registry.register(
+    Snippet,
+    RegistryItem(
+        attr_name="text",
+        node_name="",
+        classes=(str,),
+        get_kwarg=node_text_kwarg,
+        set_element=node_text,
+    ),
+)
+registry.register(
+    Snippet,
+    RegistryItem(
+        attr_name="max_lines",
+        node_name="maxLines",
+        classes=(int,),
+        get_kwarg=attribute_int_kwarg,
+        set_element=int_attribute,
+    ),
+)
 
 
 class _Feature(TimeMixin, _BaseObject):

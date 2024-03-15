@@ -78,6 +78,19 @@ def handle_error(
         logger.warning("%s, %s", error, msg)
 
 
+def node_text(
+    obj: _XMLObject,
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Optional[Verbosity],
+) -> None:
+    if getattr(obj, attr_name, None):
+        element.text = getattr(obj, attr_name)
+
+
 def text_subelement(
     obj: _XMLObject,
     *,
@@ -309,6 +322,21 @@ def xml_subelement_list(
                 element.append(
                     item.etree_element(precision=precision, verbosity=verbosity),
                 )
+
+
+def node_text_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    name_spaces: Dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: Tuple[known_types, ...],
+    strict: bool,
+) -> Dict[str, str]:
+    return (
+        {kwarg: element.text.strip()} if element.text and element.text.strip() else {}
+    )
 
 
 def subelement_text_kwarg(
