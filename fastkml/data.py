@@ -27,7 +27,6 @@ from typing import Union
 
 from fastkml import config
 from fastkml.base import _BaseObject
-from fastkml.base import _XMLObject
 from fastkml.enums import DataType
 from fastkml.exceptions import KMLSchemaError
 from fastkml.helpers import attribute_enum_kwarg
@@ -252,7 +251,7 @@ registry.register(
 
 class SimpleData(_BaseObject):
     name: Optional[str]
-    value: Optional[Union[int, str, float, bool]]
+    value: Optional[str]
 
     def __init__(
         self,
@@ -261,7 +260,7 @@ class SimpleData(_BaseObject):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
-        value: Optional[Union[int, str, float, bool]] = None,
+        value: Optional[str] = None,
     ) -> None:
         super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.name = name
@@ -293,7 +292,7 @@ registry.register(
 )
 
 
-class SchemaData(_XMLObject):
+class SchemaData(_BaseObject):
     """
     <SchemaData schemaUrl="anyURI">
     This element is used in conjunction with <Schema> to add typed
@@ -315,10 +314,12 @@ class SchemaData(_XMLObject):
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
         schema_url: Optional[str] = None,
         data: Optional[Iterable[SimpleData]] = None,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.schema_url = schema_url
         self.data = list(data) if data else []
 
@@ -351,7 +352,7 @@ registry.register(
 )
 
 
-class ExtendedData(_XMLObject):
+class ExtendedData(_BaseObject):
     """
     Represents a list of untyped name/value pairs. See docs:
 
@@ -368,9 +369,11 @@ class ExtendedData(_XMLObject):
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
         elements: Optional[Iterable[Union[Data, SchemaData]]] = None,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
         self.elements = list(elements) if elements else []
 
     def __bool__(self) -> bool:
