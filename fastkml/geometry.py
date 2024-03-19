@@ -104,7 +104,7 @@ class _Geometry(_BaseObject):
     extrude: Optional[bool]
     tessellate: Optional[bool]
     altitude_mode: Optional[AltitudeMode]
-    geometry: Optional[AnyGeometryType]
+    _geometry: Optional[AnyGeometryType]
 
     def __init__(
         self,
@@ -135,10 +135,14 @@ class _Geometry(_BaseObject):
         self.extrude = extrude
         self.tessellate = tessellate
         self.altitude_mode = altitude_mode
-        self.geometry = geometry
+        self._geometry = geometry
 
     def __bool__(self) -> bool:
-        return bool(self.geometry)
+        return bool(self._geometry)
+
+    @property
+    def geometry(self) -> Optional[AnyGeometryType]:
+        return self._geometry
 
     def _etree_coordinates(
         self,
