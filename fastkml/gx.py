@@ -85,7 +85,6 @@ from typing import Iterable
 from typing import Iterator
 from typing import List
 from typing import Optional
-from typing import cast
 
 import arrow
 import pygeoif.geometry as geo
@@ -216,8 +215,6 @@ class Track(_Geometry):
             raise ValueError(msg)
         if geometry:
             track_items = linestring_to_track_items(geometry)
-        elif track_items:
-            geometry = track_items_to_geometry(track_items)
         self.track_items = list(track_items) if track_items else []
         super().__init__(
             ns=ns,
@@ -227,8 +224,15 @@ class Track(_Geometry):
             extrude=extrude,
             tessellate=tessellate,
             altitude_mode=altitude_mode,
-            geometry=geometry,
+            geometry=None,
         )
+
+    @property
+    def geometry(self) -> Optional[geo.LineString]:
+        return track_items_to_geometry(self.track_items)
+
+    def __bool__(self) -> bool:
+        return bool(self.track_items)
 
     def etree_element(
         self,
@@ -312,7 +316,7 @@ def multilinestring_to_tracks(
 
 def tracks_to_geometry(tracks: Iterable[Track]) -> geo.MultiLineString:
     return geo.MultiLineString.from_linestrings(
-        *[cast(geo.LineString, track.geometry) for track in tracks if track.geometry],
+        *[track.geometry for track in tracks if track.geometry],
     )
 
 
@@ -339,8 +343,6 @@ class MultiTrack(_Geometry):
             raise ValueError(msg)
         if geometry:
             tracks = multilinestring_to_tracks(geometry, ns=ns)
-        elif tracks:
-            geometry = tracks_to_geometry(tracks)
         self.tracks = list(tracks) if tracks else []
         self.interpolate = interpolate
         super().__init__(
@@ -351,8 +353,15 @@ class MultiTrack(_Geometry):
             extrude=extrude,
             tessellate=tessellate,
             altitude_mode=altitude_mode,
-            geometry=geometry,
+            geometry=None,
         )
+
+    @property
+    def geometry(self) -> Optional[geo.MultiLineString]:
+        return tracks_to_geometry(self.tracks)
+
+    def __bool__(self) -> bool:
+        return bool(self.tracks)
 
 
 registry.register(
