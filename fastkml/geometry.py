@@ -30,7 +30,8 @@ from pygeoif.exceptions import DimensionError
 from pygeoif.factories import shape
 from pygeoif.types import GeoCollectionType
 from pygeoif.types import GeoType
-from pygeoif.types import PointType
+from pygeoif.types import Point2D
+from pygeoif.types import Point3D
 
 from fastkml import config
 from fastkml.base import _BaseObject
@@ -146,7 +147,7 @@ class _Geometry(_BaseObject):
 
     def _etree_coordinates(
         self,
-        coordinates: Sequence[PointType],
+        coordinates: Union[Sequence[Point2D], Sequence[Point3D]],
         precision: Optional[int],
     ) -> Element:
         element = cast(
@@ -176,7 +177,7 @@ class _Geometry(_BaseObject):
         ns: str,
         element: Element,
         strict: bool,
-    ) -> List[PointType]:
+    ) -> Union[List[Point2D], List[Point3D]]:
         """
         Get coordinates from element.
 
@@ -195,9 +196,8 @@ class _Geometry(_BaseObject):
             except AttributeError:
                 return []
             try:
-                return [
-                    cast(PointType, tuple(float(c) for c in latlon.split(",")))
-                    for latlon in latlons
+                return [  # type: ignore[return-value]
+                    tuple(float(c) for c in latlon.split(",")) for latlon in latlons
                 ]
             except ValueError as error:
                 handle_invalid_geometry_error(
@@ -302,7 +302,12 @@ class Point(_Geometry):
         element = super().etree_element(precision=precision, verbosity=verbosity)
         assert isinstance(self.geometry, geo.Point)
         coords = self.geometry.coords
-        element.append(self._etree_coordinates(coords, precision=precision))
+        element.append(
+            self._etree_coordinates(
+                coords,  # type: ignore[arg-type]
+                precision=precision,
+            ),
+        )
         return element
 
     @classmethod
