@@ -508,7 +508,17 @@ def attribute_float_kwarg(
     classes: Tuple[known_types, ...],
     strict: bool,
 ) -> Dict[str, float]:
-    return {kwarg: float(element.get(node_name))} if element.get(node_name) else {}
+    try:
+        return {kwarg: float(element.get(node_name))} if element.get(node_name) else {}
+    except ValueError as exc:
+        handle_error(
+            error=exc,
+            strict=strict,
+            element=element,
+            node=element,
+            expected="Float",
+        )
+    return {}
 
 
 def subelement_enum_kwarg(

@@ -15,12 +15,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the styles classes."""
+import pytest
 
 from fastkml import styles
 from fastkml.enums import ColorMode
 from fastkml.enums import DisplayMode
 from fastkml.enums import PairKey
 from fastkml.enums import Units
+from fastkml.exceptions import KMLParseError
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -129,6 +131,32 @@ class TestStdLibrary(StdLibrary):
         assert icons.hot_spot.y == 0.7
         assert icons.hot_spot.xunits.value == "fraction"
         assert icons.hot_spot.yunits.value == "insetPixels"
+
+    def test_icon_style_with_hot_spot_enum_relaxed(self) -> None:
+        icons = styles.IconStyle.class_from_string(
+            '<kml:IconStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
+            'id="id-1" targetId="target-1">'
+            "<kml:color>ff2200ff</kml:color><kml:colorMode>random</kml:colorMode>"
+            "<kml:scale>5</kml:scale><kml:heading>20</kml:heading><kml:Icon>"
+            "<kml:href>http://example.com/icon.png</kml:href></kml:Icon>"
+            '<kml:hotSpot x="0.5"  y="0.7" xunits="Fraction" yunits="Insetpixels"/>'
+            "</kml:IconStyle>",
+            strict=False,
+        )
+        assert icons.hot_spot.xunits.value == "fraction"
+        assert icons.hot_spot.yunits.value == "insetPixels"
+
+    def test_icon_style_with_hot_spot_enum_strict(self) -> None:
+        with pytest.raises(KMLParseError):
+            styles.IconStyle.class_from_string(
+                '<kml:IconStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
+                'id="id-1" targetId="target-1">'
+                "<kml:color>ff2200ff</kml:color><kml:colorMode>random</kml:colorMode>"
+                "<kml:scale>5</kml:scale><kml:heading>20</kml:heading><kml:Icon>"
+                "<kml:href>http://example.com/icon.png</kml:href></kml:Icon>"
+                '<kml:hotSpot x="0.5"  y="0.7" xunits="Fraction" yunits="Insetpixels"/>'
+                "</kml:IconStyle>"
+            )
 
     def test_line_style(self) -> None:
         lines = styles.LineStyle(
