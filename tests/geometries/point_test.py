@@ -121,7 +121,7 @@ class TestPoint(StdLibrary):
         assert point.extrude is None
         assert point.tessellate is None
 
-    def test_from_string_uppercase_altitude_mode(self) -> None:
+    def test_from_string_uppercase_altitude_mode_relaxed(self) -> None:
         """Test the from_string method for an uppercase altitude mode."""
         point = cast(
             Point,
@@ -130,11 +130,25 @@ class TestPoint(StdLibrary):
                 "<altitudeMode>RELATIVETOGROUND</altitudeMode>"
                 "<coordinates>1.000000,2.000000</coordinates>"
                 "</Point>",
+                strict=False,
             ),
         )
 
         assert point.geometry == geo.Point(1, 2)
         assert point.altitude_mode.value == "relativeToGround"
+
+    def test_from_string_uppercase_altitude_mode_strict(self) -> None:
+        """Test the from_string method for an uppercase altitude mode."""
+        with pytest.raises(
+            KMLParseError,
+            match=r"Value RELATIVETOGROUND is not a valid value for Enum AltitudeMode$",
+        ):
+            assert Point.class_from_string(
+                '<Point xmlns="http://www.opengis.net/kml/2.2">'
+                "<altitudeMode>RELATIVETOGROUND</altitudeMode>"
+                "<coordinates>1.000000,2.000000</coordinates>"
+                "</Point>",
+            )
 
     def test_from_string_3d(self) -> None:
         """Test the from_string method for a 3 dimensional point."""
@@ -231,7 +245,7 @@ class TestPoint(StdLibrary):
     def test_from_string_invalid_coordinates_nan(self) -> None:
         with pytest.raises(
             KMLParseError,
-            match=(r"^Invalid coordinates in"),
+            match=r"^Invalid coordinates in",
         ):
             Point.class_from_string(
                 "<Point><coordinates>a,b</coordinates></Point>",

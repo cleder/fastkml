@@ -526,9 +526,17 @@ def subelement_enum_kwarg(
     node = element.find(f"{ns}{node_name}")
     if node is None:
         return {}
-    if node.text and node.text.strip():
+    node_text = node.text.strip() if node.text else ""
+    if node_text:
         try:
-            return {kwarg: classes[0](node.text.strip())}
+            value = classes[0](node_text)
+            if strict and value.value != node_text:
+                msg = (
+                    f"Value {node_text} is not a valid value for Enum "
+                    f"{classes[0].__name__}"
+                )
+                raise ValueError(msg)
+            return {kwarg: value}
         except ValueError as exc:
             handle_error(
                 error=exc,
@@ -552,7 +560,25 @@ def attribute_enum_kwarg(
 ) -> Dict[str, Enum]:
     assert len(classes) == 1
     assert issubclass(classes[0], Enum)
-    return {kwarg: classes[0](element.get(node_name))} if element.get(node_name) else {}
+    if raw := element.get(node_name):
+        try:
+            value = classes[0](raw)
+            if raw != value.value and strict:
+                msg = (
+                    f"Value {raw} is not a valid value for Enum "
+                    f"{classes[0].__name__}"
+                )
+                raise ValueError(msg)
+            return {kwarg: classes[0](raw)}
+        except ValueError as exc:
+            handle_error(
+                error=exc,
+                strict=strict,
+                element=element,
+                node=element,
+                expected="Enum",
+            )
+    return {}
 
 
 def xml_subelement_kwarg(
