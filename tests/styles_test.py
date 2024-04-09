@@ -155,7 +155,7 @@ class TestStdLibrary(StdLibrary):
                 "<kml:scale>5</kml:scale><kml:heading>20</kml:heading><kml:Icon>"
                 "<kml:href>http://example.com/icon.png</kml:href></kml:Icon>"
                 '<kml:hotSpot x="0.5"  y="0.7" xunits="Fraction" yunits="Insetpixels"/>'
-                "</kml:IconStyle>"
+                "</kml:IconStyle>",
             )
 
     def test_line_style(self) -> None:
