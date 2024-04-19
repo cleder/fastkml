@@ -59,17 +59,6 @@ class TestBuildKml:
         config.set_etree_implementation(xml.etree.ElementTree)
         config.set_default_namespaces()
 
-    def test_kml(self) -> None:
-        """Kml file without contents."""
-        k = kml.KML(ns="")
-        assert k.features == []
-        assert (
-            str(k.to_string())[:51]
-            == '<kml xmlns="http://www.opengis.net/kml/2.2" />'[:51]
-        )
-        k2 = kml.KML.class_from_string(k.to_string(), ns="")
-        assert k.to_string() == k2.to_string()
-
     def test_folder(self) -> None:
         """KML file with folders."""
         ns = "{http://www.opengis.net/kml/2.2}"

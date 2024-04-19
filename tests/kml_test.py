@@ -40,6 +40,17 @@ class TestStdLibrary(StdLibrary):
         assert isinstance(doc.features[0].geometry, geo.LinearRing)
         assert doc.to_string() == doc2.to_string()
 
+    def test_kml(self) -> None:
+        """Kml file without contents."""
+        k = kml.KML(ns="")
+        assert k.features == []
+        assert (
+            k.to_string().strip().replace(" ", "")
+            == '<kmlxmlns="http://www.opengis.net/kml/2.2"/>'
+        )
+        k2 = kml.KML.class_from_string(k.to_string(), ns="")
+        assert k.to_string() == k2.to_string()
+
 
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
