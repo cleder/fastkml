@@ -48,6 +48,8 @@ class _XMLObject:
         self.ns: str = self._default_ns if ns is None else ns
         name_spaces = name_spaces or {}
         self.name_spaces = {**config.NAME_SPACES, **name_spaces}
+        for arg in kwargs:
+            setattr(self, arg, kwargs[arg])
 
     def __repr__(self) -> str:
         """Create a string (c)representation for _XMLObject."""
