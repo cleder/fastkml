@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the geometry classes."""
-from typing import cast
 
 import pygeoif.geometry as geo
 import pytest
@@ -75,7 +74,7 @@ class TestStdLibrary(StdLibrary):
           </kml:outerBoundaryIs>
         </kml:Polygon>"""
 
-        polygon2 = cast(Polygon, Polygon.class_from_string(doc))
+        polygon2 = Polygon.class_from_string(doc)
 
         assert polygon2.geometry == geo.Polygon([(0, 0), (1, 0), (1, 1), (0, 0)])
 
@@ -140,7 +139,7 @@ class TestStdLibrary(StdLibrary):
         </kml:Polygon>
         """
 
-        polygon = cast(Polygon, Polygon.class_from_string(doc))
+        polygon = Polygon.class_from_string(doc)
 
         assert polygon.geometry == geo.Polygon(
             [(-1, -1), (2, -1), (2, 2), (-1, -1)],
@@ -164,7 +163,7 @@ class TestStdLibrary(StdLibrary):
         </kml:Polygon>
         """
 
-        polygon = cast(Polygon, Polygon.class_from_string(doc, strict=False))
+        polygon = Polygon.class_from_string(doc, strict=False)
 
         assert polygon.geometry == geo.Polygon(
             ((-1.0, -1.0), (2.0, -1.0), (2.0, 2.0), (-1.0, -1.0)),
@@ -177,7 +176,7 @@ class TestStdLibrary(StdLibrary):
             "<LinearRing><coordinates/></LinearRing></outerBoundaryIs></Polygon>"
         )
 
-        polygon = cast(Polygon, Polygon.class_from_string(doc, ns=""))
+        polygon = Polygon.class_from_string(doc, ns="")
 
         assert not polygon.geometry
         assert polygon.to_string()

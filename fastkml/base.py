@@ -21,6 +21,8 @@ from typing import Dict
 from typing import Optional
 from typing import cast
 
+from typing_extensions import Self
+
 from fastkml import config
 from fastkml.enums import Verbosity
 from fastkml.registry import registry
@@ -162,7 +164,7 @@ class _XMLObject:
         name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
-    ) -> "_XMLObject":
+    ) -> Self:
         """Creates an XML object from an etree element."""
         kwargs = cls._get_kwargs(
             ns=ns,
@@ -182,7 +184,7 @@ class _XMLObject:
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
         strict: bool = True,
-    ) -> "_XMLObject":
+    ) -> Self:
         """
         Creates a geometry object from a string.
 

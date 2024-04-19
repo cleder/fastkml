@@ -33,6 +33,8 @@ from typing import Optional
 from typing import Union
 from typing import cast
 
+from typing_extensions import Self
+
 from fastkml import config
 from fastkml.base import _XMLObject
 from fastkml.containers import Document
@@ -98,7 +100,7 @@ class KML(_XMLObject):
 
         Returns:
         -------
-            Element: The Element object representing the KML element.
+            Element: The etree Element object representing the KML element.
 
         """
         # self.ns may be empty, which leads to unprefixed kml elements.
@@ -146,7 +148,7 @@ class KML(_XMLObject):
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
         strict: bool = True,
-    ) -> _XMLObject:
+    ) -> Self:
         """
         Create a kml object from a string.
 
@@ -172,10 +174,8 @@ class KML(_XMLObject):
             )
         except TypeError:
             element = config.etree.XML(string)  # type: ignore[attr-defined]
-        if not element.tag.endswith("kml"):
-            raise TypeError
         if ns is None:
-            ns = cast(str, element.tag.rstrip("kml"))
+            ns = cast(str, element.tag[:-3] if element.tag.endswith("kml") else "")
         name_spaces = name_spaces or {}
         name_spaces = {**config.NAME_SPACES, **name_spaces}
         return cls.class_from_element(

@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the geometry classes."""
-from typing import cast
 
 import pygeoif.geometry as geo
 import pytest
@@ -107,13 +106,10 @@ class TestPoint(StdLibrary):
 
     def test_from_string_2d(self) -> None:
         """Test the from_string method for a 2 dimensional point."""
-        point = cast(
-            Point,
-            Point.class_from_string(
-                '<Point xmlns="http://www.opengis.net/kml/2.2">'
-                "<coordinates>1.000000,2.000000</coordinates>"
-                "</Point>",
-            ),
+        point = Point.class_from_string(
+            '<Point xmlns="http://www.opengis.net/kml/2.2">'
+            "<coordinates>1.000000,2.000000</coordinates>"
+            "</Point>",
         )
 
         assert point.geometry == geo.Point(1, 2)
@@ -123,15 +119,12 @@ class TestPoint(StdLibrary):
 
     def test_from_string_uppercase_altitude_mode_relaxed(self) -> None:
         """Test the from_string method for an uppercase altitude mode."""
-        point = cast(
-            Point,
-            Point.class_from_string(
-                '<Point xmlns="http://www.opengis.net/kml/2.2">'
-                "<altitudeMode>RELATIVETOGROUND</altitudeMode>"
-                "<coordinates>1.000000,2.000000</coordinates>"
-                "</Point>",
-                strict=False,
-            ),
+        point = Point.class_from_string(
+            '<Point xmlns="http://www.opengis.net/kml/2.2">'
+            "<altitudeMode>RELATIVETOGROUND</altitudeMode>"
+            "<coordinates>1.000000,2.000000</coordinates>"
+            "</Point>",
+            strict=False,
         )
 
         assert point.geometry == geo.Point(1, 2)
@@ -152,16 +145,13 @@ class TestPoint(StdLibrary):
 
     def test_from_string_3d(self) -> None:
         """Test the from_string method for a 3 dimensional point."""
-        point = cast(
-            Point,
-            Point.class_from_string(
-                '<Point xmlns="http://www.opengis.net/kml/2.2">'
-                "<extrude>1</extrude>"
-                "<tessellate>1</tessellate>"
-                "<altitudeMode>absolute</altitudeMode>"
-                "<coordinates>1.000000,2.000000,3.000000</coordinates>"
-                "</Point>",
-            ),
+        point = Point.class_from_string(
+            '<Point xmlns="http://www.opengis.net/kml/2.2">'
+            "<extrude>1</extrude>"
+            "<tessellate>1</tessellate>"
+            "<altitudeMode>absolute</altitudeMode>"
+            "<coordinates>1.000000,2.000000,3.000000</coordinates>"
+            "</Point>",
         )
 
         assert point.geometry == geo.Point(1, 2, 3)
@@ -182,13 +172,10 @@ class TestPoint(StdLibrary):
 
     def test_empty_from_string_relaxed(self) -> None:
         """Test that no error is raised when the geometry is empty and not strict."""
-        point = cast(
-            Point,
-            Point.class_from_string(
-                "<Point/>",
-                ns="",
-                strict=False,
-            ),
+        point = Point.class_from_string(
+            "<Point/>",
+            ns="",
+            strict=False,
         )
 
         assert point.geometry is None
