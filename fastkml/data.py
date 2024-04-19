@@ -19,6 +19,7 @@ Add Custom Data.
 https://developers.google.com/kml/documentation/extendeddata#example
 """
 import logging
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -89,8 +90,15 @@ class SimpleField(_BaseObject):
         name: Optional[str] = None,
         type: Optional[DataType] = None,
         display_name: Optional[str] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.name = name
         self.type = type
         self.display_name = display_name
@@ -153,11 +161,18 @@ class Schema(_BaseObject):
         target_id: Optional[str] = None,
         name: Optional[str] = None,
         fields: Optional[Iterable[SimpleField]] = None,
+        **kwargs: Any,
     ) -> None:
         if id is None:
             msg = "Id is required for schema"
             raise KMLSchemaError(msg)
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.name = name
         self.fields = list(fields) if fields else []
 
@@ -206,8 +221,15 @@ class Data(_BaseObject):
         name: Optional[str] = None,
         value: Optional[str] = None,
         display_name: Optional[str] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.name = name
         self.value = value
         self.display_name = display_name
@@ -261,8 +283,15 @@ class SimpleData(_BaseObject):
         target_id: Optional[str] = None,
         name: Optional[str] = None,
         value: Optional[str] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.name = name
         self.value = value
 
@@ -318,8 +347,15 @@ class SchemaData(_BaseObject):
         target_id: Optional[str] = None,
         schema_url: Optional[str] = None,
         data: Optional[Iterable[SimpleData]] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.schema_url = schema_url
         self.data = list(data) if data else []
 
@@ -372,8 +408,15 @@ class ExtendedData(_BaseObject):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         elements: Optional[Iterable[Union[Data, SchemaData]]] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.elements = list(elements) if elements else []
 
     def __bool__(self) -> bool:

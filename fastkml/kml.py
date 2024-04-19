@@ -26,6 +26,7 @@ http://schemas.opengis.net/kml/.
 
 """
 import logging
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -67,6 +68,7 @@ class KML(_XMLObject):
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
         features: Optional[Iterable[kml_children]] = None,
+        **kwargs: Any,
     ) -> None:
         """
         Leave the namespace (ns) empty ('') if the 'kml:' prefix is undesired.
@@ -77,6 +79,7 @@ class KML(_XMLObject):
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
+            **kwargs,
         )
         self.features = list(features) if features is not None else []
 

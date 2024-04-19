@@ -118,6 +118,7 @@ class _Geometry(_BaseObject):
         tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: Optional[AnyGeometryType] = None,
+        **kwargs: Any,
     ) -> None:
         """
 
@@ -132,7 +133,13 @@ class _Geometry(_BaseObject):
                            element are interpreted.
 
         """
-        super().__init__(ns=ns, id=id, name_spaces=name_spaces, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            id=id,
+            name_spaces=name_spaces,
+            target_id=target_id,
+            **kwargs,
+        )
         self.extrude = extrude
         self.tessellate = tessellate
         self.altitude_mode = altitude_mode
@@ -282,6 +289,7 @@ class Point(_Geometry):
         tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: geo.Point,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -292,6 +300,7 @@ class Point(_Geometry):
             tessellate=tessellate,
             altitude_mode=altitude_mode,
             geometry=geometry,
+            **kwargs,
         )
 
     def etree_element(
@@ -342,6 +351,7 @@ class LineString(_Geometry):
         tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: geo.LineString,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -352,6 +362,7 @@ class LineString(_Geometry):
             tessellate=tessellate,
             altitude_mode=altitude_mode,
             geometry=geometry,
+            **kwargs,
         )
 
     def etree_element(
@@ -397,6 +408,7 @@ class LinearRing(LineString):
         tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: geo.LinearRing,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -407,6 +419,7 @@ class LinearRing(LineString):
             tessellate=tessellate,
             altitude_mode=altitude_mode,
             geometry=geometry,
+            **kwargs,
         )
 
     @classmethod
@@ -441,6 +454,7 @@ class Polygon(_Geometry):
         tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: geo.Polygon,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -451,6 +465,7 @@ class Polygon(_Geometry):
             tessellate=tessellate,
             altitude_mode=altitude_mode,
             geometry=geometry,
+            **kwargs,
         )
 
     def etree_element(
@@ -603,6 +618,7 @@ class MultiGeometry(_Geometry):
         tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: MultiGeometryType,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -613,6 +629,7 @@ class MultiGeometry(_Geometry):
             tessellate=tessellate,
             altitude_mode=altitude_mode,
             geometry=geometry,
+            **kwargs,
         )
 
     def etree_element(

@@ -32,6 +32,7 @@ This library only implements a subset of Atom that is useful with KML
 """
 
 import logging
+from typing import Any
 from typing import Dict
 from typing import Optional
 
@@ -115,8 +116,9 @@ class Link(_AtomObject):
         hreflang: Optional[str] = None,
         title: Optional[str] = None,
         length: Optional[int] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.href = href
         self.rel = rel
         self.type = type
@@ -229,8 +231,9 @@ class _Person(_AtomObject):
         name: Optional[str] = None,
         uri: Optional[str] = None,
         email: Optional[str] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.name = name
         self.uri = uri
         self.email = email

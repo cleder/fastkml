@@ -16,6 +16,7 @@
 """Overlays."""
 
 import logging
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import Optional
@@ -226,8 +227,9 @@ class ViewVolume(_XMLObject):
         bottom_fov: Optional[float] = None,
         top_fov: Optional[float] = None,
         near: Optional[float] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.left_fov = left_fov
         self.right_fov = right_fov
         self.bottom_fov = bottom_fov
@@ -345,8 +347,9 @@ class ImagePyramid(_XMLObject):
         max_width: Optional[int] = None,
         max_height: Optional[int] = None,
         grid_origin: Optional[GridOrigin] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.tile_size = tile_size
         self.max_width = max_width
         self.max_height = max_height
@@ -488,6 +491,7 @@ class PhotoOverlay(_Overlay):
         image_pyramid: Optional[ImagePyramid] = None,
         point: Optional[Point] = None,
         shape: Optional[Shape] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -512,6 +516,7 @@ class PhotoOverlay(_Overlay):
             color=color,
             draw_order=draw_order,
             icon=icon,
+            **kwargs,
         )
         self.rotation = rotation
         self.view_volume = view_volume
@@ -612,8 +617,9 @@ class LatLonBox(_XMLObject):
         east: Optional[float] = None,
         west: Optional[float] = None,
         rotation: Optional[float] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.north = north
         self.south = south
         self.east = east
@@ -745,6 +751,7 @@ class GroundOverlay(_Overlay):
         altitude: Optional[float] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         lat_lon_box: Optional[LatLonBox] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -769,6 +776,7 @@ class GroundOverlay(_Overlay):
             color=color,
             draw_order=draw_order,
             icon=icon,
+            **kwargs,
         )
         self.altitude = altitude
         self.altitude_mode = altitude_mode

@@ -42,6 +42,7 @@ class _XMLObject:
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize the XML Object."""
         self.ns: str = self._default_ns if ns is None else ns
@@ -232,9 +233,10 @@ class _BaseObject(_XMLObject):
         name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize the KML Object."""
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.id = id
         self.target_id = target_id
 

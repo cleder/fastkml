@@ -21,6 +21,7 @@ part of how your data is displayed.
 """
 
 import logging
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -79,8 +80,15 @@ class StyleUrl(_BaseObject):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         url: Optional[str] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.url = url
 
     def __repr__(self) -> str:
@@ -158,8 +166,15 @@ class _ColorStyle(_BaseObject):
         target_id: Optional[str] = None,
         color: Optional[str] = None,
         color_mode: Optional[ColorMode] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.color = color
         self.color_mode = color_mode
 
@@ -231,8 +246,9 @@ class HotSpot(_XMLObject):
         y: Optional[float] = None,
         xunits: Optional[Units] = None,
         yunits: Optional[Units] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.x = x
         self.y = y
         self.xunits = xunits
@@ -335,6 +351,7 @@ class IconStyle(_ColorStyle):
         heading: Optional[float] = None,
         icon: Optional[Icon] = None,
         hot_spot: Optional[HotSpot] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -343,6 +360,7 @@ class IconStyle(_ColorStyle):
             target_id=target_id,
             color=color,
             color_mode=color_mode,
+            **kwargs,
         )
 
         self.scale = scale
@@ -434,6 +452,7 @@ class LineStyle(_ColorStyle):
         color: Optional[str] = None,
         color_mode: Optional[ColorMode] = None,
         width: Optional[float] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -442,6 +461,7 @@ class LineStyle(_ColorStyle):
             target_id=target_id,
             color=color,
             color_mode=color_mode,
+            **kwargs,
         )
         self.width = width
 
@@ -502,6 +522,7 @@ class PolyStyle(_ColorStyle):
         color_mode: Optional[ColorMode] = None,
         fill: Optional[bool] = None,
         outline: Optional[bool] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -510,6 +531,7 @@ class PolyStyle(_ColorStyle):
             target_id=target_id,
             color=color,
             color_mode=color_mode,
+            **kwargs,
         )
         self.fill = fill
         self.outline = outline
@@ -576,6 +598,7 @@ class LabelStyle(_ColorStyle):
         color: Optional[str] = None,
         color_mode: Optional[ColorMode] = None,
         scale: Optional[float] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -584,6 +607,7 @@ class LabelStyle(_ColorStyle):
             target_id=target_id,
             color=color,
             color_mode=color_mode,
+            **kwargs,
         )
         self.scale = scale
 
@@ -686,8 +710,15 @@ class BalloonStyle(_BaseObject):
         text_color: Optional[str] = None,
         text: Optional[str] = None,
         display_mode: Optional[DisplayMode] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.bg_color = bg_color
         self.text_color = text_color
         self.text = text
@@ -784,8 +815,15 @@ class Style(_StyleSelector):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         styles: Optional[Iterable[AnyStyle]] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.styles = list(styles) if styles else []
 
     def __repr__(self) -> str:
@@ -850,8 +888,15 @@ class Pair(_BaseObject):
         target_id: Optional[str] = None,
         key: Optional[PairKey] = None,
         style: Optional[Union[StyleUrl, Style]] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.key = key
         self.style = style
 
@@ -916,8 +961,15 @@ class StyleMap(_StyleSelector):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         pairs: Optional[Iterable[Pair]] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.pairs = list(pairs) if pairs else []
 
     def __repr__(self) -> str:

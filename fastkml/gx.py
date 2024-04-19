@@ -209,6 +209,7 @@ class Track(_Geometry):
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: Optional[geo.LineString] = None,
         track_items: Optional[Iterable[TrackItem]] = None,
+        **kwargs: Any,
     ) -> None:
         if geometry and track_items:
             msg = "Cannot specify both geometry and track_items"
@@ -225,6 +226,7 @@ class Track(_Geometry):
             tessellate=tessellate,
             altitude_mode=altitude_mode,
             geometry=None,
+            **kwargs,
         )
 
     @property
@@ -337,6 +339,7 @@ class MultiTrack(_Geometry):
         geometry: Optional[geo.MultiLineString] = None,
         tracks: Optional[Iterable[Track]] = None,
         interpolate: Optional[bool] = None,
+        **kwargs: Any,
     ) -> None:
         if geometry and tracks:
             msg = "Cannot specify both geometry and track_items"
@@ -354,6 +357,7 @@ class MultiTrack(_Geometry):
             tessellate=tessellate,
             altitude_mode=altitude_mode,
             geometry=None,
+            **kwargs,
         )
 
     @property

@@ -20,6 +20,7 @@ These are the objects that can be added to a KML file.
 """
 
 import logging
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -107,8 +108,9 @@ class Snippet(_XMLObject):
         name_spaces: Optional[Dict[str, str]] = None,
         text: Optional[str] = None,
         max_lines: Optional[int] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.text = text
         self.max_lines = max_lines
 
@@ -258,8 +260,15 @@ class _Feature(TimeMixin, _BaseObject):
         styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.name = name
         self.description = description
         self.style_url = style_url
@@ -472,6 +481,7 @@ class Placemark(_Feature):
         # Placemark specific
         kml_geometry: Optional[KmlGeometry] = None,
         geometry: Optional[Union[GeoType, GeoCollectionType]] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -493,6 +503,7 @@ class Placemark(_Feature):
             styles=styles,
             region=region,
             extended_data=extended_data,
+            **kwargs,
         )
         if kml_geometry and geometry:
             msg = "You can only specify one of kml_geometry or geometry"
@@ -602,6 +613,7 @@ class NetworkLink(_Feature):
         refresh_visibility: Optional[bool] = None,
         fly_to_view: Optional[bool] = None,
         link: Optional[Link] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -623,6 +635,7 @@ class NetworkLink(_Feature):
             styles=styles,
             region=region,
             extended_data=extended_data,
+            **kwargs,
         )
         self.refresh_visibility = refresh_visibility
         self.fly_to_view = fly_to_view

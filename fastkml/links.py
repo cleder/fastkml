@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
+from typing import Any
 from typing import Dict
 from typing import Optional
 
@@ -66,9 +67,16 @@ class Link(_BaseObject):
         view_bound_scale: Optional[float] = None,
         view_format: Optional[str] = None,
         http_query: Optional[str] = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize the KML Icon Object."""
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.href = href
         self.refresh_mode = refresh_mode
         self.refresh_interval = refresh_interval

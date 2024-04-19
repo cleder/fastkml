@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """KML Views."""
 import logging
+from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Union
@@ -97,8 +98,15 @@ class _AbstractView(TimeMixin, _BaseObject):
         tilt: Optional[float] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         time_primitive: Union[TimeSpan, TimeStamp, None] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.longitude = longitude
         self.latitude = latitude
         self.altitude = altitude
@@ -220,6 +228,7 @@ class Camera(_AbstractView):
         roll: Optional[float] = None,
         altitude_mode: AltitudeMode = AltitudeMode.relative_to_ground,
         time_primitive: Union[TimeSpan, TimeStamp, None] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -233,6 +242,7 @@ class Camera(_AbstractView):
             tilt=tilt,
             altitude_mode=altitude_mode,
             time_primitive=time_primitive,
+            **kwargs,
         )
         self.roll = roll
 
@@ -268,6 +278,7 @@ class LookAt(_AbstractView):
         range: Optional[float] = None,
         altitude_mode: AltitudeMode = AltitudeMode.relative_to_ground,
         time_primitive: Union[TimeSpan, TimeStamp, None] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -281,6 +292,7 @@ class LookAt(_AbstractView):
             tilt=tilt,
             altitude_mode=altitude_mode,
             time_primitive=time_primitive,
+            **kwargs,
         )
         self.range = range
 
@@ -325,8 +337,9 @@ class LatLonAltBox(_XMLObject):
         min_altitude: Optional[float] = None,
         max_altitude: Optional[float] = None,
         altitude_mode: Optional[AltitudeMode] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.north = north
         self.south = south
         self.east = east
@@ -444,8 +457,9 @@ class Lod(_XMLObject):
         max_lod_pixels: Optional[float] = None,
         min_fade_extent: Optional[float] = None,
         max_fade_extent: Optional[float] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.min_lod_pixels = min_lod_pixels
         self.max_lod_pixels = max_lod_pixels
         self.min_fade_extent = min_fade_extent
@@ -521,8 +535,15 @@ class Region(_BaseObject):
         target_id: Optional[str] = None,
         lat_lon_alt_box: Optional[LatLonAltBox] = None,
         lod: Optional[Lod] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.lat_lon_alt_box = lat_lon_alt_box
         self.lod = lod
 

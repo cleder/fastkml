@@ -158,8 +158,15 @@ class TimeStamp(_TimePrimitive):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         timestamp: Optional[KmlDateTime] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.timestamp = timestamp
 
     def __bool__(self) -> bool:
@@ -211,8 +218,15 @@ class TimeSpan(_TimePrimitive):
         target_id: Optional[str] = None,
         begin: Optional[KmlDateTime] = None,
         end: Optional[KmlDateTime] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.begin = begin
         self.end = end
 

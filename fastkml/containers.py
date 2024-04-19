@@ -16,6 +16,7 @@
 """Container classes for KML elements."""
 import logging
 import urllib.parse as urlparse
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -95,6 +96,7 @@ class _Container(_Feature):
         extended_data: Optional[ExtendedData] = None,
         # Container specific
         features: Optional[Iterable[_Feature]] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -116,6 +118,7 @@ class _Container(_Feature):
             styles=styles,
             region=region,
             extended_data=extended_data,
+            **kwargs,
         )
         self.features = list(features) if features else []
 
@@ -167,6 +170,7 @@ class Document(_Container):
         extended_data: Optional[ExtendedData] = None,
         features: Optional[List[_Feature]] = None,
         schemata: Optional[Iterable[Schema]] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -189,6 +193,7 @@ class Document(_Container):
             region=region,
             extended_data=extended_data,
             features=features,
+            **kwargs,
         )
         self.schemata = list(schemata) if schemata else []
 
