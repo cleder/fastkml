@@ -37,6 +37,17 @@ class TestStdLibrary(StdLibrary):
         obj = base._BaseObject(id="id-0", target_id="target-id-0")
         assert str(obj) == obj.to_string()
 
+    def test_custom_kwargs(self) -> None:
+        obj = base._BaseObject(
+            id="id-0",
+            target_id="target-id-0",
+            custom="custom",
+            altkw=2,
+        )
+
+        assert obj.custom == "custom"
+        assert obj.altkw == 2
+
     def test_eq(self) -> None:
         obj1 = base._BaseObject(id="id-0", target_id="target-id-0")
         obj2 = base._BaseObject(id="id-0", target_id="target-id-0")
@@ -113,9 +124,9 @@ class TestLxml(Lxml, TestStdLibrary):
     def test_to_string(self) -> None:
         obj = base._BaseObject(id="id-0")
 
-        assert (
-            obj.to_string()
-            == '<kml:_BaseObject xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0"/>\n'
+        assert obj.to_string() == (
+            '<kml:_BaseObject xmlns:kml="http://www.opengis.net/kml/2.2" '
+            'id="id-0"/>\n'
         )
 
     def test_from_string(self) -> None:
