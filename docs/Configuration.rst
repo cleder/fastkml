@@ -21,7 +21,7 @@ standard ``xml.etree.ElementTree``, you can do this::
 You can pass any module that implements the ``ElementTree`` interface
 to the ``set_etree_implementation`` function.
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> import fastkml.config
     >>> import lxml.etree
@@ -35,8 +35,8 @@ You can add any other namespaces you want to use by calling
 ``fastkml.config.register_namespace`` with the namespace prefix and
 the namespace URI.
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> import fastkml.config
-    >>> fastkml.config.register_namespaces(foo='http://foo.com')
+    >>> fastkml.config.register_namespaces(foo="http://foo.com")
     >>> fastkml.config.set_default_namespaces()

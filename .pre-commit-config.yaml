@@ -78,6 +78,10 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies: [pygeoif>=1.4, arrow]
+  - repo: https://github.com/adamchainz/blacken-docs
+    rev: "1.16.0"
+    hooks:
+      - id: blacken-docs
   # - repo: https://github.com/Lucas-C/pre-commit-hooks-markup
   #   rev: v1.0.1
   #   hooks:

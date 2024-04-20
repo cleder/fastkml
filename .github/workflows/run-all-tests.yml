@@ -101,7 +101,7 @@ jobs:
         run: |
           radon cc --min B fastkml
           radon mi --min B fastkml
-          lizard -l python -w fastkml || true
+          lizard fastkml
 
   pypy:
     runs-on: ubuntu-latest
@@ -124,15 +124,15 @@ jobs:
 
   publish:
     if: "github.event_name == 'push' && github.repository == 'cleder/fastkml'"
-    needs: [cpython, static-tests, pypy, cpython-lxml]
+    needs: [cpython, static-tests, pypy, cpython-lxml, doctest-lxml]
     name: Build and publish to PyPI and TestPyPI
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python 3.9
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: 3.12
       - name: Install pypa/build
         run: >-
           python -m

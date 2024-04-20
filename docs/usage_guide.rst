@@ -8,7 +8,7 @@ Build a KML from Scratch
 
 Example how to build a simple KML file from the Python interpreter.
 
-.. code-block:: python
+.. code-block:: pycon
 
     # Import the library
     >>> from fastkml import kml
@@ -16,28 +16,32 @@ Example how to build a simple KML file from the Python interpreter.
 
     # Create the root KML object
     >>> k = kml.KML()
-    >>> ns = '{http://www.opengis.net/kml/2.2}'
+    >>> ns = "{http://www.opengis.net/kml/2.2}"
 
     # Create a KML Document and add it to the KML root object
-    >>> d = kml.Document(ns=ns, id='docid', name='doc name', description='doc description')
+    >>> d = kml.Document(ns=ns, id="docid", name="doc name", description="doc description")
     >>> k.append(d)
 
     # Create a KML Folder and add it to the Document
-    >>> f = kml.Folder(ns=ns, id='fid', name='f name', description='f description')
+    >>> f = kml.Folder(ns=ns, id="fid", name="f name", description="f description")
     >>> d.append(f)
 
     # Create a KML Folder and nest it in the first Folder
-    >>> nf = kml.Folder(ns=ns, id='nested-fid', name='nested f name', description='nested f description')
+    >>> nf = kml.Folder(
+    ...     ns=ns, id="nested-fid", name="nested f name", description="nested f description"
+    ... )
     >>> f.append(nf)
 
     # Create a second KML Folder within the Document
-    >>> f2 = kml.Folder(ns=ns, id='id2', name='name2', description='description2')
+    >>> f2 = kml.Folder(ns=ns, id="id2", name="name2", description="description2")
     >>> d.append(f2)
 
     # Create a Placemark with a simple polygon geometry and add it to the
     # second folder of the Document
     >>> polygon = Polygon([(0, 0, 0), (1, 1, 0), (1, 0, 1)])
-    >>> p = kml.Placemark(ns=ns, id='id', name='name', description='description', geometry=polygon)
+    >>> p = kml.Placemark(
+    ...     ns=ns, id="id", name="name", description="description", geometry=polygon
+    ... )
     >>> f2.append(p)
 
     # Print out the KML Object as a string
@@ -80,7 +84,7 @@ Read a KML File/String
 
 You can create a KML object by reading a KML file as a string
 
-.. code-block:: python
+.. code-block:: pycon
 
     # Start by importing the kml module
     >>> from fastkml import kml
