@@ -365,7 +365,7 @@ class TestGeometry(StdLibrary):
     def test_from_string_invalid_extrude(self) -> None:
         """Test the from_string method."""
         with pytest.raises(
-            ValueError,
+            exceptions.KMLParseError,
         ):
             _Geometry.class_from_string(
                 '<_Geometry id="my-id" targetId="target_id">'

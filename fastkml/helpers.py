@@ -20,6 +20,7 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import Type
 
 from fastkml import config
 from fastkml.base import _XMLObject
@@ -396,6 +397,14 @@ def attribute_text_kwarg(
     return {kwarg: element.get(node_name)} if element.get(node_name) else {}
 
 
+def _get_boolean_value(text: str, strict: bool) -> bool:
+    if strict:
+        return bool(int(text))
+    if text.lower() in {"1", "true"}:
+        return True
+    return False if text.lower() in {"0", "false"} else bool(int(float(text)))
+
+
 def subelement_bool_kwarg(
     *,
     element: Element,
@@ -412,14 +421,8 @@ def subelement_bool_kwarg(
     if node is None:
         return {}
     if node.text and node.text.strip():
-        if strict:
-            return {kwarg: bool(int(node.text.strip()))}
-        if node.text.strip().lower() in {"1", "true"}:
-            return {kwarg: True}
-        if node.text.strip().lower() in {"0", "false"}:
-            return {kwarg: False}
         try:
-            return {kwarg: bool(int(float(node.text.strip())))}
+            return {kwarg: _get_boolean_value(node.text.strip(), strict)}
         except ValueError as exc:
             handle_error(
                 error=exc,
@@ -521,6 +524,15 @@ def attribute_float_kwarg(
     return {}
 
 
+def _get_enum_value(enum_class: Type[Enum], text: str, strict: bool) -> Enum:
+
+    value = enum_class(text)
+    if strict and value.value != text:
+        msg = f"Value {text} is not a valid value for Enum {enum_class.__name__}"
+        raise ValueError(msg)
+    return value
+
+
 def subelement_enum_kwarg(
     *,
     element: Element,
@@ -539,14 +551,7 @@ def subelement_enum_kwarg(
     node_text = node.text.strip() if node.text else ""
     if node_text:
         try:
-            value = classes[0](node_text)
-            if strict and value.value != node_text:
-                msg = (
-                    f"Value {node_text} is not a valid value for Enum "
-                    f"{classes[0].__name__}"
-                )
-                raise ValueError(msg)
-            return {kwarg: value}
+            return {kwarg: _get_enum_value(classes[0], node_text, strict)}
         except ValueError as exc:
             handle_error(
                 error=exc,

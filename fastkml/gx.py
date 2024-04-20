@@ -254,19 +254,17 @@ class Track(_Geometry):
         return element
 
     @classmethod
-    def track_items_kwargs_from_element(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> List[TrackItem]:
+    def _get_timestamps(cls, element: Element) -> List[Optional[datetime.datetime]]:
         time_stamps: List[Optional[datetime.datetime]] = []
         for time_stamp in element.findall(f"{config.KMLNS}when"):
             if time_stamp is not None and time_stamp.text:
                 time_stamps.append(arrow.get(time_stamp.text).datetime)
             else:
                 time_stamps.append(None)
+        return time_stamps
+
+    @classmethod
+    def _get_coords(cls, element: Element) -> List[Optional[geo.Point]]:
         coords: List[Optional[geo.Point]] = []
         for coord in element.findall(f"{config.GXNS}coord"):
             if coord is not None and coord.text:
@@ -275,12 +273,29 @@ class Track(_Geometry):
                 )
             else:
                 coords.append(None)
+        return coords
+
+    @classmethod
+    def _get_angles(cls, element: Element) -> List[Optional[Angle]]:
         angles: List[Optional[Angle]] = []
         for angle in element.findall(f"{config.GXNS}angles"):
             if angle is not None and angle.text:
                 angles.append(Angle(*[float(a) for a in angle.text.strip().split()]))
             else:
                 angles.append(None)
+        return angles
+
+    @classmethod
+    def track_items_kwargs_from_element(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> List[TrackItem]:
+        time_stamps = cls._get_timestamps(element)
+        coords = cls._get_coords(element)
+        angles = cls._get_angles(element)
         return [
             TrackItem(when=when, coord=coord, angle=angle)
             for when, coord, angle in zip_longest(time_stamps, coords, angles)
