@@ -29,23 +29,21 @@ doc = """<?xml version="1.0" encoding="UTF-8"?>
 </kml>"""
 
 # Create the KML object to store the parsed result
-k = kml.KML()
-
 # Read in the KML string
-k.from_string(doc.encode("utf-8"))
+k = kml.KML.class_from_string(doc.encode("utf-8"))
 
 # Next we perform some simple sanity checks
 
 # Check that the number of features is correct
 # This corresponds to the single ``Document``
-features = list(k.features())
+features = k.features
 print(len(features))
 
 # Check that we can access the features as a generator
 # (The two Placemarks of the Document)
-print(features[0].features())
+print(features[0].features)
 
-f2 = list(features[0].features())
+f2 = features[0].features
 print(len(f2))
 
 
