@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <Document>
+      <name>test</name>
+      <Placemark id="test.5">
+        <Model>
+          <Location>
+            <longitude>2.2945</longitude>
+            <latitude>48.85825</latitude>
+          </Location>
+          <Scale>
+            <x>1</x>
+            <y>1</y>
+            <z>1</z>
+          </Scale>
+          <Link>
+            <href>./cube.dae</href>
+          </Link>
+          <ResourceMap>
+            <Alias>
+              <targetHref>cube2.gif</targetHref>
+              <sourceHref>cube.gif</sourceHref>
+            </Alias>
+          </ResourceMap>
+        </Model>
+      </Placemark>
+    </Document>
+  </Document>
+</kml>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [ERROR] Invalid schemaUrl reference -->
+<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2">
+  <kml:Document>
+    <kml:ExtendedData>
+      <kml:SchemaData schemaUrl="#schema-2">
+        <kml:SimpleData name="myString">ASDF</kml:SimpleData>
+        <kml:SimpleData name="myInt">4</kml:SimpleData>
+      </kml:SchemaData>
+    </kml:ExtendedData>
+  </kml:Document>
+</kml:kml>

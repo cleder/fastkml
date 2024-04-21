@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- refreshMode should be "onInterval" -->
+<Link id="Link-Ok" xmlns="http://www.opengis.net/kml/2.2">
+  <href>https://developers.google.com/kml/documentation/KML_Samples.kml</href>
+  <refreshMode>onChange</refreshMode>
+  <refreshInterval>4</refreshInterval>
+  <viewRefreshMode>never</viewRefreshMode>
+  <viewRefreshTime>4</viewRefreshTime>
+  <viewBoundScale>1</viewBoundScale>
+  <viewFormat>BBOX=[bboxWest],[bboxSouth],[bboxEast],[bboxNorth]</viewFormat>
+  <httpQuery>clientVer=[clientVersion]</httpQuery>
+</Link>

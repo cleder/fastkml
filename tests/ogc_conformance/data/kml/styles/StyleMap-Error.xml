@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [ERROR] Last kml:Pair[4] missing kml:styleUrl | kml:Style | kml:StyleMap -->
+<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2">
+  <kml:Document>
+    <kml:StyleMap id="StyleMap-Error">
+      <kml:Pair>
+        <kml:key>normal</kml:key>
+        <kml:styleUrl>#normalState</kml:styleUrl>
+      </kml:Pair>
+      <kml:Pair>
+        <kml:key>highlight</kml:key>
+        <kml:StyleMap id="myStyleMap">
+          <kml:Pair>
+            <kml:key>normal</kml:key>
+            <kml:styleUrl>http://myserver.com/project.xml#example_style_off</kml:styleUrl>
+          </kml:Pair>
+          <kml:Pair>
+            <kml:key>highlight</kml:key>
+          </kml:Pair>
+        </kml:StyleMap>
+      </kml:Pair>
+    </kml:StyleMap>
+  </kml:Document>
+</kml:kml>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [PASS] SchemaData conforms to referenced Schema -->
+<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2">
+  <kml:Document>
+    <kml:ExtendedData>
+      <kml:SchemaData schemaUrl="http://subversion.galdos.local/svn/galdos.sandbox/data/ogc-kml/2.2/Schema.xml#schema-test">
+        <kml:SimpleData name="strField">ASDF</kml:SimpleData>
+        <kml:SimpleData name="intField">4</kml:SimpleData>
+      </kml:SchemaData>
+    </kml:ExtendedData>
+  </kml:Document>
+</kml:kml>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Polygon xmlns="http://www.opengis.net/kml/2.2">
+  <tessellate>true</tessellate>
+  <altitudeMode>absolute</altitudeMode>
+  <outerBoundaryIs>
+    <LinearRing>
+      <coordinates>
+        -112.3372510731295,36.14888505105317,1784
+        -112.3356128688403,36.14781540589019,1784
+        -112.3368169371048,36.14658677734382,1784
+        -112.3384408457543,36.14762778914076,1784
+        -112.3372510731295,36.14888505105317,1784
+      </coordinates>
+    </LinearRing>
+  </outerBoundaryIs>
+</Polygon>

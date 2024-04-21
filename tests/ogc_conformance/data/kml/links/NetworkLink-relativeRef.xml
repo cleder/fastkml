@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NetworkLink that references a KML resource (KML file) -->
+<NetworkLink xmlns="http://www.opengis.net/kml/2.2">
+	<Link>
+		<href>../Document-clean.kml</href>
+	</Link>
+</NetworkLink>

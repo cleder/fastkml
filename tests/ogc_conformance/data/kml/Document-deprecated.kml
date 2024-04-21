@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"
+  xmlns:atom="http://www.w3.org/2005/Atom"
+  xmlns:xal="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0">
+  <Document id="doc-002">
+    <name>Vestibulum eleifend lobortis lorem.</name>
+    <Style id="style-001">
+      <IconStyle>
+        <Icon>
+          <href>http://barcelona.galdos.local/svn1/sqa/ets-kml/main/test/data/ogc-kml/images/red-stars.png</href>
+        </Icon>
+      </IconStyle>
+    </Style>
+    <Style id="style-002">
+      <IconStyle>
+        <Icon>
+          <href>http://barcelona.galdos.local/svn1/sqa/ets-kml/main/test/data/ogc-kml/images/wht-blank.png</href>
+        </Icon>
+      </IconStyle>
+    </Style>
+    <StyleMap id="stylemap-001">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#style-002</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#style-001</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="khStyle712">
+      <IconStyle id="khIconStyle716">
+        <Icon>
+          <href>http://barcelona.galdos.local/svn1/sqa/ets-kml/main/test/data/ogc-kml/images/9.png</href>
+        </Icon>
+      </IconStyle>
+    </Style>
+    <Style id="khStyle887">
+      <LineStyle id="khLineStyle890">
+        <color>7fffffff</color>
+      </LineStyle>
+      <PolyStyle id="khPolyStyle889">
+        <color>7fa7ce9e</color>
+      </PolyStyle>
+    </Style>
+    <Placemark id="GMPlace">
+      <name>General Motors Place</name>
+      <atom:author>
+        <atom:name>Phineas Fogg</atom:name>
+      </atom:author>
+      <atom:link href="http://en.wikipedia.org/wiki/General_Motors_Place"
+              rel="related" type="text/html" hreflang="en"
+              title="Wikipedia entry" />
+      <xal:AddressDetails>
+        <xal:Address Type="Postal">
+        800 Griffiths Way, Vancouver, BC, Canada V6B 6G1
+        </xal:Address>
+      </xal:AddressDetails>
+      <phoneNumber>tel:+1-604-899-7400</phoneNumber>
+      <Snippet maxLines="1">aka The Garage and GM Place</Snippet>
+      <description>General Motors Place (), sponsored by General Motors Canada,
+      is an indoor arena at 800 Griffiths Way in Vancouver, British Columbia,
+      Canada. Completed in 1995 at a cost of CAD $160 million in private
+      financing, the arena is home to the Vancouver Canucks of the NHL, and
+      was formerly home to the Vancouver Grizzlies of the NBA and the Vancouver
+      Ravens of the NLL. The Grizzlies have since moved to Memphis. The arena
+      seats 18,630 for ice hockey and 19,193 for basketball. It has 88 luxury suites,
+      12 hospitality suites, and 2,195 club seats. The arena replaced the
+      Pacific Coliseum as the main venue for events in Vancouver.
+      </description>
+      <Point>
+        <coordinates>-123.1097,49.2774,0</coordinates>
+      </Point>
+    </Placemark>
+    <GroundOverlay id="Overlay-001">
+      <name>Large-scale overlay on terrain</name>
+      <description>Overlay shows Mount Etna erupting on July 13th, 2001.</description>
+      <Icon>
+        <href>http://barcelona.galdos.local/svn1/sqa/ets-kml/main/test/data/ogc-kml/images/etna.jpg</href>
+      </Icon>
+      <LatLonBox>
+        <north>37.91904192681665</north>
+        <south>37.46543388598137</south>
+        <east>15.35832653742206</east>
+        <west>14.60128369746704</west>
+        <rotation>-0.1556640799496235</rotation>
+      </LatLonBox>
+    </GroundOverlay>
+  </Document>
+</kml>

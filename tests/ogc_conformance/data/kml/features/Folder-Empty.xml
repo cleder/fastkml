@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Folder that is not a descendant of kml:Update cannot be empty -->
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Folder id="doc-001" />
+</kml>

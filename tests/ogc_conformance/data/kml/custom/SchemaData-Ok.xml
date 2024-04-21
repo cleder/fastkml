@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [PASS] SchemaData conform to referenced Schema -->
+<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2">
+  <kml:Document>
+    <kml:ExtendedData>
+      <kml:SchemaData schemaUrl="#schema-1">
+        <kml:SimpleData name="myString">ASDF</kml:SimpleData>
+        <kml:SimpleData name="myInt">4</kml:SimpleData>
+      </kml:SchemaData>
+    </kml:ExtendedData>
+    <kml:Schema id="schema-1" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <kml:SimpleField name="myString" type="xsd:string"/>
+      <kml:SimpleField name="myInt" type="xsd:int"/>
+    </kml:Schema>
+  </kml:Document>
+</kml:kml>
