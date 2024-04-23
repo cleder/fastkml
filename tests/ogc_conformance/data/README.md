@@ -1,6 +1,6 @@
 ## OGC KML 2.2 Conformance Test Suite
 
-This is a copy of [OGC KML 2.2 Conformance Test Suite](https://github.com/opengeospatial/ets-kml22) repository, which is used to test KML 2.2 documents for conformance to the OGC KML 2.2.0 standard.
+This is a copy of the data from the [OGC KML 2.2 Conformance Test Suite](https://github.com/opengeospatial/ets-kml22) repository, which is used to test KML 2.2 documents for conformance to the OGC KML 2.2.0 standard.
 
 ### Scope
 

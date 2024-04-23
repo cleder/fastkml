@@ -398,11 +398,15 @@ def attribute_text_kwarg(
 
 
 def _get_boolean_value(text: str, strict: bool) -> bool:
-    if strict:
-        return bool(int(text))
-    if text.lower() in {"1", "true"}:
+    if not strict:
+        text = text.lower()
+    if text in {"1", "true"}:
         return True
-    return False if text.lower() in {"0", "false"} else bool(int(float(text)))
+    if text in {"0", "false"}:
+        return False
+    if not strict:
+        return bool(float(text))
+    raise ValueError(f"Invalid boolean value: {text}")
 
 
 def subelement_bool_kwarg(
