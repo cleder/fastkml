@@ -177,6 +177,8 @@ class _Geometry(_BaseObject):
             Element,
             config.etree.Element(f"{self.ns}coordinates"),  # type: ignore[attr-defined]
         )
+        if not coordinates:
+            return element
         p = precision if precision is not None else 6
         if len(coordinates[0]) == 2:
             tuples = (f"{c[0]:.{p}f},{c[1]:.{p}f}" for c in coordinates)
