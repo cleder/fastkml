@@ -229,6 +229,23 @@ class Track(_Geometry):
             **kwargs,
         )
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Track."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"extrude={self.extrude!r}, "
+            f"tessellate={self.tessellate!r}, "
+            f"altitude_mode={self.altitude_mode!r}, "
+            f"geometry={self.geometry!r}, "
+            f"track_items={self.track_items!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     @property
     def geometry(self) -> Optional[geo.LineString]:
         return track_items_to_geometry(self.track_items)
@@ -373,6 +390,24 @@ class MultiTrack(_Geometry):
             altitude_mode=altitude_mode,
             geometry=None,
             **kwargs,
+        )
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for MultiTrack."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"extrude={self.extrude!r}, "
+            f"tessellate={self.tessellate!r}, "
+            f"altitude_mode={self.altitude_mode!r}, "
+            f"geometry={self.geometry!r}, "
+            f"tracks={self.tracks!r}, "
+            f"interpolate={self.interpolate!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
         )
 
     @property

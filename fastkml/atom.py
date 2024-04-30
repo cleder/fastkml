@@ -126,6 +126,22 @@ class Link(_AtomObject):
         self.title = title
         self.length = length
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Link."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"href={self.href!r}, "
+            f"rel={self.rel!r}, "
+            f"type={self.type!r}, "
+            f"hreflang={self.hreflang!r}, "
+            f"title={self.title!r}, "
+            f"length={self.length!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     def __bool__(self) -> bool:
         return bool(self.href)
 
@@ -237,6 +253,19 @@ class _Person(_AtomObject):
         self.name = name
         self.uri = uri
         self.email = email
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for _Person."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"name={self.name!r}, "
+            f"uri={self.uri!r}, "
+            f"email={self.email!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return bool(self.name)

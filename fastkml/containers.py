@@ -122,6 +122,34 @@ class _Container(_Feature):
         )
         self.features = list(features) if features else []
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for _Container."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"visibility={self.visibility!r}, "
+            f"isopen={self.isopen!r}, "
+            f"atom_link={self.atom_link!r}, "
+            f"atom_author={self.atom_author!r}, "
+            f"address={self.address!r}, "
+            f"phone_number={self.phone_number!r}, "
+            f"snippet={self.snippet!r}, "
+            f"description={self.description!r}, "
+            f"view={self.view!r}, "
+            f"times={self.times!r}, "
+            f"style_url={self.style_url!r}, "
+            f"styles={self.styles!r}, "
+            f"region={self.region!r}, "
+            f"extended_data={self.extended_data!r}, "
+            f"features={self.features!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     def append(self, kmlobj: _Feature) -> None:
         """Append a feature."""
         if kmlobj is self:
@@ -196,6 +224,35 @@ class Document(_Container):
             **kwargs,
         )
         self.schemata = list(schemata) if schemata else []
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Document."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"visibility={self.visibility!r}, "
+            f"isopen={self.isopen!r}, "
+            f"atom_link={self.atom_link!r}, "
+            f"atom_author={self.atom_author!r}, "
+            f"address={self.address!r}, "
+            f"phone_number={self.phone_number!r}, "
+            f"snippet={self.snippet!r}, "
+            f"description={self.description!r}, "
+            f"view={self.view!r}, "
+            f"times={self.times!r}, "
+            f"style_url={self.style_url!r}, "
+            f"styles={self.styles!r}, "
+            f"region={self.region!r}, "
+            f"extended_data={self.extended_data!r}, "
+            f"features={self.features!r}, "
+            f"schemata={self.schemata!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def get_style_by_url(self, style_url: str) -> Optional[Union[Style, StyleMap]]:
         id_ = urlparse.urlparse(style_url).fragment

@@ -145,6 +145,22 @@ class _Geometry(_BaseObject):
         self.altitude_mode = altitude_mode
         self._geometry = geometry
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for _Geometry."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"extrude={self.extrude!r}, "
+            f"tessellate={self.tessellate!r}, "
+            f"altitude_mode={self.altitude_mode!r}, "
+            f"geometry={self.geometry!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     def __bool__(self) -> bool:
         return bool(self._geometry)
 
@@ -303,6 +319,22 @@ class Point(_Geometry):
             **kwargs,
         )
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Point."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"extrude={self.extrude!r}, "
+            f"tessellate={self.tessellate!r}, "
+            f"altitude_mode={self.altitude_mode!r}, "
+            f"geometry={self.geometry!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     def etree_element(
         self,
         precision: Optional[int] = None,
@@ -365,6 +397,22 @@ class LineString(_Geometry):
             **kwargs,
         )
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for LineString."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"extrude={self.extrude!r}, "
+            f"tessellate={self.tessellate!r}, "
+            f"altitude_mode={self.altitude_mode!r}, "
+            f"geometry={self.geometry!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     def etree_element(
         self,
         precision: Optional[int] = None,
@@ -422,6 +470,22 @@ class LinearRing(LineString):
             **kwargs,
         )
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for LinearRing."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"extrude={self.extrude!r}, "
+            f"tessellate={self.tessellate!r}, "
+            f"altitude_mode={self.altitude_mode!r}, "
+            f"geometry={self.geometry!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     @classmethod
     def _get_geometry(
         cls,
@@ -466,6 +530,22 @@ class Polygon(_Geometry):
             altitude_mode=altitude_mode,
             geometry=geometry,
             **kwargs,
+        )
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Polygon."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"extrude={self.extrude!r}, "
+            f"tessellate={self.tessellate!r}, "
+            f"altitude_mode={self.altitude_mode!r}, "
+            f"geometry={self.geometry!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
         )
 
     def etree_element(
@@ -630,6 +710,22 @@ class MultiGeometry(_Geometry):
             altitude_mode=altitude_mode,
             geometry=geometry,
             **kwargs,
+        )
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for MultiGeometry."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"extrude={self.extrude!r}, "
+            f"tessellate={self.tessellate!r}, "
+            f"altitude_mode={self.altitude_mode!r}, "
+            f"geometry={self.geometry!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
         )
 
     def etree_element(

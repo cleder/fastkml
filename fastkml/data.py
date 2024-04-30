@@ -103,6 +103,21 @@ class SimpleField(_BaseObject):
         self.type = type
         self.display_name = display_name
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for SimpleField."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"type={self.type!r}, "
+            f"display_name={self.display_name!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     def __bool__(self) -> bool:
         return bool(self.name) and bool(self.type)
 
@@ -176,6 +191,20 @@ class Schema(_BaseObject):
         self.name = name
         self.fields = list(fields) if fields else []
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Schema."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"fields={self.fields!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     def append(self, field: SimpleField) -> None:
         """Append a field."""
         self.fields.append(field)
@@ -233,6 +262,21 @@ class Data(_BaseObject):
         self.name = name
         self.value = value
         self.display_name = display_name
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Data."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"value={self.value!r}, "
+            f"display_name={self.display_name!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return bool(self.name) and self.value is not None
@@ -294,6 +338,20 @@ class SimpleData(_BaseObject):
         )
         self.name = name
         self.value = value
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for SimpleData."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"value={self.value!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return bool(self.name) and self.value is not None
@@ -359,6 +417,20 @@ class SchemaData(_BaseObject):
         self.schema_url = schema_url
         self.data = list(data) if data else []
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for SchemaData."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"schema_url={self.schema_url!r}, "
+            f"data={self.data!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     def __bool__(self) -> bool:
         return bool(self.data) and bool(self.schema_url)
 
@@ -418,6 +490,19 @@ class ExtendedData(_BaseObject):
             **kwargs,
         )
         self.elements = list(elements) if elements else []
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for ExtendedData."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"elements={self.elements!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return bool(self.elements)

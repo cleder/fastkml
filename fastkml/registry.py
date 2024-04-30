@@ -90,6 +90,10 @@ class Registry:
         """Initialize the registry."""
         self._registry = {}
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Registry."""
+        return f"{self.__class__.__module__}.{self.__class__.__name__}(" ")"
+
     def register(self, cls: Type["_XMLObject"], item: RegistryItem) -> None:
         """Register a class."""
         existing = self._registry.get(cls, [])

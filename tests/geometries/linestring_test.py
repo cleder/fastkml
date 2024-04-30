@@ -133,6 +133,23 @@ class TestLineString(StdLibrary):
                 "</LineString>",
             )
 
+    @pytest.mark.xfail(reason="pygeoif does not handle NaN values well")
+    def test_from_string_invalid_coordinates_nan(self) -> None:
+        line_string = LineString.class_from_string(
+            '<LineString xmlns="http://www.opengis.net/kml/2.2">'
+            "<extrude>false</extrude>"
+            "<tessellate>true</tessellate>"
+            "<coordinates>"
+            "-70.64950,-35.31494,2178 -70.64898,-35.31520,2121 "
+            "-70.65240,-35.32666,1930 -70.65347,-35.32906,NaN "
+            "-70.65340,-35.33055,1640  -70.64347,-35.34734,1468"
+            "</coordinates>"
+            "</LineString>",
+        )
+
+        assert len(line_string.geometry.coords) == 5
+        assert line_string.to_string()
+
 
 class TestLineStringLxml(Lxml, TestLineString):
     """Test with lxml."""

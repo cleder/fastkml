@@ -88,6 +88,15 @@ class KmlDateTime:
                 else DateTimeResolution.datetime
             )
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for KmlDateTime."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"dt={self.dt!r}, "
+            f"resolution={self.resolution!r}, "
+            ")"
+        )
+
     def __bool__(self) -> bool:
         """Return True if the date or datetime is valid."""
         return isinstance(self.dt, date)
@@ -99,10 +108,6 @@ class KmlDateTime:
             if isinstance(other, KmlDateTime)
             else False
         )
-
-    def __repr__(self) -> str:
-        """Return a string representation of the object."""
-        return f"{self.__class__.__name__}({self.dt!r}, {self.resolution})"
 
     def __str__(self) -> str:
         """Return the KML DateTime string representation of the object."""
@@ -169,6 +174,19 @@ class TimeStamp(_TimePrimitive):
         )
         self.timestamp = timestamp
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for TimeStamp."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"timestamp={self.timestamp!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     def __bool__(self) -> bool:
         """Return True if the timestamp is valid."""
         return bool(self.timestamp)
@@ -229,6 +247,20 @@ class TimeSpan(_TimePrimitive):
         )
         self.begin = begin
         self.end = end
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for TimeSpan."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"begin={self.begin!r}, "
+            f"end={self.end!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         """Return True if the begin or end date is valid."""

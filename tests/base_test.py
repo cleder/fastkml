@@ -48,6 +48,16 @@ class TestStdLibrary(StdLibrary):
         assert obj.custom == "custom"
         assert obj.altkw == 2
 
+    def test_custom_kwargs_splat(self) -> None:
+        obj = base._BaseObject(
+            id="id-0",
+            target_id="target-id-0",
+            custom="custom",
+            altkw=2,
+        )
+
+        assert obj._get_splat() == {"custom": "custom", "altkw": 2}
+
     def test_eq(self) -> None:
         obj1 = base._BaseObject(id="id-0", target_id="target-id-0")
         obj2 = base._BaseObject(id="id-0", target_id="target-id-0")

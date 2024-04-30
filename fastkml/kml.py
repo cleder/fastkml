@@ -83,6 +83,17 @@ class KML(_XMLObject):
         )
         self.features = list(features) if features is not None else []
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for KML."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"features={self.features!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     @classmethod
     def get_tag_name(cls) -> str:
         """Return the tag name."""

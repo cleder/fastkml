@@ -1,4 +1,4 @@
-# Copyright (C) 2012 - 2023  Christian Ledermann
+# Copyright (C) 2012 - 2024 Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -19,6 +19,7 @@ import logging
 from typing import Any
 from typing import Dict
 from typing import Optional
+from typing import Tuple
 from typing import cast
 
 from typing_extensions import Self
@@ -37,6 +38,7 @@ class _XMLObject:
     _default_ns: str = ""
     _node_name: str = ""
     name_spaces: Dict[str, str]
+    __kwarg_keys: Tuple[str, ...]
 
     def __init__(
         self,
@@ -50,6 +52,7 @@ class _XMLObject:
         self.name_spaces = {**config.NAME_SPACES, **name_spaces}
         for arg in kwargs:
             setattr(self, arg, kwargs[arg])
+        self.__kwarg_keys = tuple(kwargs.keys())
 
     def __repr__(self) -> str:
         """Create a string (c)representation for _XMLObject."""
@@ -57,6 +60,7 @@ class _XMLObject:
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
+            f"**kwargs={self._get_splat()!r},"
             ")"
         )
 
@@ -122,6 +126,13 @@ class _XMLObject:
                     "UTF-8",
                 ),
             )
+
+    def _get_splat(self) -> Dict[str, Any]:
+        return {
+            key: getattr(self, key)
+            for key in self.__kwarg_keys
+            if getattr(self, key) is not None
+        }
 
     @classmethod
     def get_tag_name(cls) -> str:
@@ -242,6 +253,18 @@ class _BaseObject(_XMLObject):
         self.id = id
         self.target_id = target_id
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for _BaseObject."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     def __eq__(self, other: object) -> bool:
         """Return True if the two objects are equal."""
         try:
@@ -253,17 +276,6 @@ class _BaseObject(_XMLObject):
             )
         except AssertionError:
             return False
-
-    def __repr__(self) -> str:
-        """Create a string (c)representation for _BaseObject."""
-        return (
-            f"{self.__class__.__module__}.{self.__class__.__name__}("
-            f"ns={self.ns!r}, "
-            f"name_spaces={self.name_spaces!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
-            ")"
-        )
 
     def etree_element(
         self,

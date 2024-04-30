@@ -114,6 +114,18 @@ class Snippet(_XMLObject):
         self.text = text
         self.max_lines = max_lines
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Snippet."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"text={self.text!r}, "
+            f"max_lines={self.max_lines!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     def __bool__(self) -> bool:
         return bool(self.text)
 
@@ -284,6 +296,33 @@ class _Feature(TimeMixin, _BaseObject):
         self.region = region
         self.extended_data = extended_data
         self.times = times
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for _Feature."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"visibility={self.visibility!r}, "
+            f"isopen={self.isopen!r}, "
+            f"atom_link={self.atom_link!r}, "
+            f"atom_author={self.atom_author!r}, "
+            f"address={self.address!r}, "
+            f"phone_number={self.phone_number!r}, "
+            f"snippet={self.snippet!r}, "
+            f"description={self.description!r}, "
+            f"view={self.view!r}, "
+            f"times={self.times!r}, "
+            f"style_url={self.style_url!r}, "
+            f"styles={self.styles!r}, "
+            f"region={self.region!r}, "
+            f"extended_data={self.extended_data!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
 
 registry.register(
@@ -516,6 +555,35 @@ class Placemark(_Feature):
             )
         self.kml_geometry = kml_geometry
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Placemark."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"visibility={self.visibility!r}, "
+            f"isopen={self.isopen!r}, "
+            f"atom_link={self.atom_link!r}, "
+            f"atom_author={self.atom_author!r}, "
+            f"address={self.address!r}, "
+            f"phone_number={self.phone_number!r}, "
+            f"snippet={self.snippet!r}, "
+            f"description={self.description!r}, "
+            f"view={self.view!r}, "
+            f"times={self.times!r}, "
+            f"style_url={self.style_url!r}, "
+            f"styles={self.styles!r}, "
+            f"region={self.region!r}, "
+            f"extended_data={self.extended_data!r}, "
+            f"kml_geometry={self.kml_geometry!r}, "
+            f"geometry={self.geometry!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     @property
     def geometry(self) -> Optional[AnyGeometryType]:
         return self.kml_geometry.geometry if self.kml_geometry is not None else None
@@ -640,6 +708,36 @@ class NetworkLink(_Feature):
         self.refresh_visibility = refresh_visibility
         self.fly_to_view = fly_to_view
         self.link = link
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for NetworkLink."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"visibility={self.visibility!r}, "
+            f"isopen={self.isopen!r}, "
+            f"atom_link={self.atom_link!r}, "
+            f"atom_author={self.atom_author!r}, "
+            f"address={self.address!r}, "
+            f"phone_number={self.phone_number!r}, "
+            f"snippet={self.snippet!r}, "
+            f"description={self.description!r}, "
+            f"view={self.view!r}, "
+            f"times={self.times!r}, "
+            f"style_url={self.style_url!r}, "
+            f"styles={self.styles!r}, "
+            f"region={self.region!r}, "
+            f"extended_data={self.extended_data!r}, "
+            f"refresh_visibility={self.refresh_visibility!r}, "
+            f"fly_to_view={self.fly_to_view!r}, "
+            f"link={self.link!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return bool(self.link)
