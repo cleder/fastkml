@@ -46,6 +46,8 @@ from fastkml.helpers import bool_subelement
 from fastkml.helpers import enum_subelement
 from fastkml.helpers import subelement_bool_kwarg
 from fastkml.helpers import subelement_enum_kwarg
+from fastkml.helpers import xml_subelement
+from fastkml.helpers import xml_subelement_kwarg
 from fastkml.registry import RegistryItem
 from fastkml.registry import known_types
 from fastkml.registry import registry
@@ -122,13 +124,13 @@ def coordinates_subelement(
     """
     if getattr(obj, attr_name, None):
         p = precision if precision is not None else 6
-        coordinates = getattr(obj, attr_name)
-        if len(coordinates[0]) == 2:
-            tuples = (f"{c[0]:.{p}f},{c[1]:.{p}f}" for c in coordinates)
-        elif len(coordinates[0]) == 3:
-            tuples = (f"{c[0]:.{p}f},{c[1]:.{p}f},{c[2]:.{p}f}" for c in coordinates)
+        coords = getattr(obj, attr_name)
+        if len(coords[0]) == 2:
+            tuples = (f"{c[0]:.{p}f},{c[1]:.{p}f}" for c in coords)
+        elif len(coords[0]) == 3:
+            tuples = (f"{c[0]:.{p}f},{c[1]:.{p}f},{c[2]:.{p}f}" for c in coords)
         else:
-            msg = f"Invalid dimensions in coordinates '{coordinates}'"
+            msg = f"Invalid dimensions in coordinates '{coords}'"
             raise KMLWriteError(msg)
         element.text = " ".join(tuples)
 
@@ -191,6 +193,17 @@ class Coordinates(_XMLObject):
     ):
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.coords = coords or []
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Coordinates."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"coords={self.coords!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return bool(self.coords)
@@ -292,7 +305,7 @@ class _Geometry(_BaseObject):
     def geometry(self) -> Optional[AnyGeometryType]:
         return self._geometry
 
-    def _etree_coordinates(
+    def xx_etree_coordinates(
         self,
         coordinates: Union[Sequence[Point2D], Sequence[Point3D]],
         precision: Optional[int],
@@ -367,7 +380,7 @@ class _Geometry(_BaseObject):
         return None
 
     @classmethod
-    def _get_kwargs(
+    def xx_get_kwargs(
         cls,
         *,
         ns: str,
@@ -453,7 +466,7 @@ class Point(_Geometry):
             extrude=extrude,
             tessellate=tessellate,
             altitude_mode=altitude_mode,
-            geometry=geometry,
+            # geometry=geometry,
             **kwargs,
         )
 
@@ -477,57 +490,22 @@ class Point(_Geometry):
         return bool(self.kml_coordinates)
 
     @property
-    def __geometry(self) -> Optional[geo.Point]:
+    def geometry(self) -> Optional[geo.Point]:
         if not self.kml_coordinates:
             return None
         return geo.Point.from_coordinates(self.kml_coordinates.coords)
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        assert isinstance(self.geometry, geo.Point)
-        coords = self.geometry.coords
-        element.append(
-            self._etree_coordinates(
-                coords,  # type: ignore[arg-type]
-                precision=precision,
-            ),
-        )
-        return element
 
-    @classmethod
-    def _get_geometry(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Optional[geo.Point]:
-        coords = cls._get_coordinates(ns=ns, element=element, strict=strict)
-        try:
-            return geo.Point.from_coordinates(coords)
-        except (IndexError, TypeError) as e:
-            handle_invalid_geometry_error(
-                error=e,
-                element=element,
-                strict=strict,
-            )
-        return None
-
-
-# registry.register(
-#     Point,
-#     item=RegistryItem(
-#         classes=(Coordinates,),
-#         attr_name="kml_coordinates",
-#         node_name="coordinates",
-#         get_kwarg=subelement_coordinates_kwarg,
-#         set_element=coordinates_subelement,
-#     ),
-# )
+registry.register(
+    Point,
+    item=RegistryItem(
+        classes=(Coordinates,),
+        attr_name="kml_coordinates",
+        node_name="coordinates",
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
 
 
 class LineString(_Geometry):
@@ -579,8 +557,8 @@ class LineString(_Geometry):
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
         assert isinstance(self.geometry, geo.LineString)
-        coords = self.geometry.coords
-        element.append(self._etree_coordinates(coords, precision=precision))
+        # coords = self.geometry.coords
+        # element.append(self._etree_coordinates(coords, precision=precision))
         return element
 
     @classmethod
