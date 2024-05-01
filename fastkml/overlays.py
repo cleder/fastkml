@@ -408,7 +408,7 @@ class ImagePyramid(_XMLObject):
             f"tile_size={self.tile_size!r}, "
             f"max_width={self.max_width!r}, "
             f"max_height={self.max_height!r}, "
-            f"grid_origin={self.grid_origin!r}, "
+            f"grid_origin={self.grid_origin}, "
             f"**kwargs={self._get_splat()!r},"
             ")"
         )
@@ -612,7 +612,7 @@ class PhotoOverlay(_Overlay):
             f"view_volume={self.view_volume!r}, "
             f"image_pyramid={self.image_pyramid!r}, "
             f"point={self.point!r}, "
-            f"shape={self.shape!r}, "
+            f"shape={self.shape}, "
             f"**kwargs={self._get_splat()!r},"
             ")"
         )
@@ -917,7 +917,7 @@ class GroundOverlay(_Overlay):
             f"draw_order={self.draw_order!r}, "
             f"icon={self.icon!r}, "
             f"altitude={self.altitude!r}, "
-            f"altitude_mode={self.altitude_mode!r}, "
+            f"altitude_mode={self.altitude_mode}, "
             f"lat_lon_box={self.lat_lon_box!r}, "
             f"**kwargs={self._get_splat()!r},"
             ")"

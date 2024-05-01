@@ -93,7 +93,7 @@ class KmlDateTime:
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"dt={self.dt!r}, "
-            f"resolution={self.resolution!r}, "
+            f"resolution={self.resolution}, "
             ")"
         )
 

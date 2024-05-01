@@ -112,7 +112,7 @@ class SimpleField(_BaseObject):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"name={self.name!r}, "
-            f"type={self.type!r}, "
+            f"type={self.type}, "
             f"display_name={self.display_name!r}, "
             f"**kwargs={self._get_splat()!r},"
             ")"

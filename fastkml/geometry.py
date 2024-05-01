@@ -22,6 +22,7 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Sequence
+from typing import Tuple
 from typing import Union
 from typing import cast
 
@@ -30,11 +31,13 @@ from pygeoif.exceptions import DimensionError
 from pygeoif.factories import shape
 from pygeoif.types import GeoCollectionType
 from pygeoif.types import GeoType
+from pygeoif.types import LineType
 from pygeoif.types import Point2D
 from pygeoif.types import Point3D
 
 from fastkml import config
 from fastkml.base import _BaseObject
+from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
 from fastkml.exceptions import KMLParseError
@@ -44,6 +47,7 @@ from fastkml.helpers import enum_subelement
 from fastkml.helpers import subelement_bool_kwarg
 from fastkml.helpers import subelement_enum_kwarg
 from fastkml.registry import RegistryItem
+from fastkml.registry import known_types
 from fastkml.registry import registry
 from fastkml.types import Element
 
@@ -69,6 +73,110 @@ MultiGeometryType = Union[
     geo.GeometryCollection,
 ]
 AnyGeometryType = Union[GeometryType, MultiGeometryType]
+
+
+def coordinates_subelement(
+    obj: _XMLObject,
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Optional[Verbosity],
+) -> None:
+    """
+    Set the value of an attribute from a subelement with a text node.
+
+    Args:
+    ----
+        obj (_XMLObject): The object from which to retrieve the attribute value.
+        element (Element): The parent element to add the subelement to.
+        attr_name (str): The name of the attribute to retrieve the value from.
+        node_name (str): The name of the subelement to create.
+        precision (Optional[int]): The precision of the attribute value.
+        verbosity (Optional[Verbosity]): The verbosity level.
+
+    Returns:
+    -------
+        None
+
+    """
+    if getattr(obj, attr_name, None):
+        p = precision if precision is not None else 6
+        coordinates = getattr(obj, attr_name)
+        if len(coordinates[0]) == 2:
+            tuples = (f"{c[0]:.{p}f},{c[1]:.{p}f}" for c in coordinates)
+        elif len(coordinates[0]) == 3:
+            tuples = (f"{c[0]:.{p}f},{c[1]:.{p}f},{c[2]:.{p}f}" for c in coordinates)
+        else:
+            msg = f"Invalid dimensions in coordinates '{coordinates}'"
+            raise KMLWriteError(msg)
+        element.text = " ".join(tuples)
+
+
+def subelement_coordinates_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    name_spaces: Dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: Tuple[known_types, ...],
+    strict: bool,
+) -> Dict[str, LineType]:
+    # Clean up badly formatted tuples by stripping
+    # space following commas.
+    try:
+        latlons = re.sub(r", +", ",", element.text.strip()).split()
+    except AttributeError:
+        return {}
+    try:
+        return {
+            kwarg: [  # type: ignore[dict-item]
+                tuple(float(c) for c in latlon.split(",")) for latlon in latlons
+            ],
+        }
+    except ValueError as error:
+        handle_invalid_geometry_error(
+            error=error,
+            element=element,
+            strict=strict,
+        )
+        return {}
+
+
+class Coordinates(_XMLObject):
+
+    def __init__(
+        self,
+        *,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        coords: Optional[LineType],
+        **kwargs: Any,
+    ):
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
+        self.coords = coords if coords else []
+
+    def __bool__(self) -> bool:
+        return bool(self.coords)
+
+    @classmethod
+    def get_tag_name(cls) -> str:
+        """Return the tag name."""
+        return cls.__name__.lower()
+
+
+registry.register(
+    Coordinates,
+    item=RegistryItem(
+        classes=(LineType,),  # type: ignore[arg-type]
+        attr_name="coords",
+        node_name="coordinates",
+        get_kwarg=subelement_coordinates_kwarg,
+        set_element=coordinates_subelement,
+    ),
+)
 
 
 def handle_invalid_geometry_error(
@@ -155,7 +263,7 @@ class _Geometry(_BaseObject):
             f"target_id={self.target_id!r}, "
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
-            f"altitude_mode={self.altitude_mode!r}, "
+            f"altitude_mode={self.altitude_mode}, "
             f"geometry={self.geometry!r}, "
             f"**kwargs={self._get_splat()!r},"
             ")"
@@ -331,7 +439,7 @@ class Point(_Geometry):
             f"target_id={self.target_id!r}, "
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
-            f"altitude_mode={self.altitude_mode!r}, "
+            f"altitude_mode={self.altitude_mode}, "
             f"geometry={self.geometry!r}, "
             f"**kwargs={self._get_splat()!r},"
             ")"
@@ -409,7 +517,7 @@ class LineString(_Geometry):
             f"target_id={self.target_id!r}, "
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
-            f"altitude_mode={self.altitude_mode!r}, "
+            f"altitude_mode={self.altitude_mode}, "
             f"geometry={self.geometry!r}, "
             f"**kwargs={self._get_splat()!r},"
             ")"
@@ -482,7 +590,7 @@ class LinearRing(LineString):
             f"target_id={self.target_id!r}, "
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
-            f"altitude_mode={self.altitude_mode!r}, "
+            f"altitude_mode={self.altitude_mode}, "
             f"geometry={self.geometry!r}, "
             f"**kwargs={self._get_splat()!r},"
             ")"
@@ -544,7 +652,7 @@ class Polygon(_Geometry):
             f"target_id={self.target_id!r}, "
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
-            f"altitude_mode={self.altitude_mode!r}, "
+            f"altitude_mode={self.altitude_mode}, "
             f"geometry={self.geometry!r}, "
             f"**kwargs={self._get_splat()!r},"
             ")"
@@ -724,7 +832,7 @@ class MultiGeometry(_Geometry):
             f"target_id={self.target_id!r}, "
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
-            f"altitude_mode={self.altitude_mode!r}, "
+            f"altitude_mode={self.altitude_mode}, "
             f"geometry={self.geometry!r}, "
             f"**kwargs={self._get_splat()!r},"
             ")"
