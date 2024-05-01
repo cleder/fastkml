@@ -67,7 +67,7 @@ class TestLinearRing(StdLibrary):
             "</kml:LinearRing>",
         )
 
-        assert linear_ring.geometry.is_empty
+        assert not linear_ring.geometry
 
     def test_no_coordinates_from_string(self) -> None:
         """Test the from_string method with an empty LinearRing."""
@@ -76,7 +76,7 @@ class TestLinearRing(StdLibrary):
             "</kml:LinearRing>",
         )
 
-        assert linear_ring.geometry.is_empty
+        assert not linear_ring.geometry
 
     def test_from_string_invalid_coordinates_non_numerical(self) -> None:
         """Test the from_string method with non numerical coordinates."""

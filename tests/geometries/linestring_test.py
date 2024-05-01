@@ -104,7 +104,7 @@ class TestLineString(StdLibrary):
             "</LineString>",
         )
 
-        assert linestring.geometry.is_empty
+        assert not linestring.geometry
 
     def test_no_coordinates_from_string(self) -> None:
         """Test the from_string method with no coordinates."""
@@ -115,7 +115,7 @@ class TestLineString(StdLibrary):
             "</LineString>",
         )
 
-        assert linestring.geometry.is_empty
+        assert not linestring.geometry
 
     def test_from_string_invalid_coordinates_non_numerical(self) -> None:
         """Test the from_string method with invalid coordinates."""

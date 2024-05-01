@@ -453,11 +453,12 @@ class Point(_Geometry):
         if geometry is not None and kml_coordinates is not None:
             raise ValueError("geometry and kml_coordinates are mutually exclusive")
         if kml_coordinates is None:
-            self.kml_coordinates = (
+            kml_coordinates = (
                 Coordinates(coords=geometry.coords)  # type: ignore[arg-type]
                 if geometry
                 else None
             )
+        self.kml_coordinates = kml_coordinates
         super().__init__(
             ns=ns,
             id=id,
@@ -519,9 +520,15 @@ class LineString(_Geometry):
         extrude: Optional[bool] = None,
         tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
-        geometry: geo.LineString,
+        geometry: Optional[geo.LineString] = None,
+        kml_coordinates: Optional[Coordinates] = None,
         **kwargs: Any,
     ) -> None:
+        if geometry is not None and kml_coordinates is not None:
+            raise ValueError("geometry and kml_coordinates are mutually exclusive")
+        if kml_coordinates is None:
+            kml_coordinates = Coordinates(coords=geometry.coords) if geometry else None
+        self.kml_coordinates = kml_coordinates
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -530,7 +537,7 @@ class LineString(_Geometry):
             extrude=extrude,
             tessellate=tessellate,
             altitude_mode=altitude_mode,
-            geometry=geometry,
+            # geometry=geometry,
             **kwargs,
         )
 
@@ -550,35 +557,26 @@ class LineString(_Geometry):
             ")"
         )
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        assert isinstance(self.geometry, geo.LineString)
-        # coords = self.geometry.coords
-        # element.append(self._etree_coordinates(coords, precision=precision))
-        return element
+    def __bool__(self) -> bool:
+        return bool(self.kml_coordinates)
 
-    @classmethod
-    def _get_geometry(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Optional[geo.LineString]:
-        coords = cls._get_coordinates(ns=ns, element=element, strict=strict)
-        try:
-            return geo.LineString.from_coordinates(coords)
-        except (IndexError, TypeError, DimensionError) as e:
-            handle_invalid_geometry_error(
-                error=e,
-                element=element,
-                strict=strict,
-            )
-        return None
+    @property
+    def geometry(self) -> Optional[geo.LineString]:
+        if not self.kml_coordinates:
+            return None
+        return geo.LineString.from_coordinates(self.kml_coordinates.coords)
+
+
+registry.register(
+    LineString,
+    item=RegistryItem(
+        classes=(Coordinates,),
+        attr_name="kml_coordinates",
+        node_name="coordinates",
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
 
 
 class LinearRing(LineString):
@@ -592,7 +590,8 @@ class LinearRing(LineString):
         extrude: Optional[bool] = None,
         tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
-        geometry: geo.LinearRing,
+        geometry: Optional[geo.LinearRing] = None,
+        kml_coordinates: Optional[Coordinates] = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(
@@ -604,6 +603,7 @@ class LinearRing(LineString):
             tessellate=tessellate,
             altitude_mode=altitude_mode,
             geometry=geometry,
+            kml_coordinates=kml_coordinates,
             **kwargs,
         )
 
@@ -622,6 +622,12 @@ class LinearRing(LineString):
             f"**kwargs={self._get_splat()!r},"
             ")"
         )
+
+    @property
+    def geometry(self) -> Optional[geo.LineString]:
+        if not self.kml_coordinates:
+            return None
+        return geo.LinearRing.from_coordinates(self.kml_coordinates.coords)
 
     @classmethod
     def _get_geometry(
