@@ -53,6 +53,7 @@ from fastkml.types import Element
 
 __all__ = [
     "AnyGeometryType",
+    "Coordinates",
     "GeometryType",
     "LineString",
     "LinearRing",
@@ -73,6 +74,24 @@ MultiGeometryType = Union[
     geo.GeometryCollection,
 ]
 AnyGeometryType = Union[GeometryType, MultiGeometryType]
+
+
+def handle_invalid_geometry_error(
+    *,
+    error: Exception,
+    element: Element,
+    strict: bool,
+) -> None:
+    error_in_xml = config.etree.tostring(  # type: ignore[attr-defined]
+        element,
+        encoding="UTF-8",
+    ).decode(
+        "UTF-8",
+    )
+    msg = f"Invalid coordinates in '{error_in_xml}' caused by '{error}'"
+    logger.error(msg)
+    if strict:
+        raise KMLParseError(msg) from error
 
 
 def coordinates_subelement(
@@ -146,17 +165,32 @@ def subelement_coordinates_kwarg(
 
 
 class Coordinates(_XMLObject):
+    """
+    Represents a set of coordinates in decimal degrees.
+
+    Attributes
+    ----------
+        coords (LineType): A list of tuples representing the coordinates.
+            Each coord consists of floating point values for
+            longitude, latitude, and altitude.
+            The altitude component is optional.
+            Coordinates are expressed in decimal degrees only.
+
+    """
+
+    _default_ns = config.KMLNS
+    coords: LineType
 
     def __init__(
         self,
         *,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
-        coords: Optional[LineType],
+        coords: Optional[LineType] = None,
         **kwargs: Any,
     ):
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
-        self.coords = coords if coords else []
+        self.coords = coords or []
 
     def __bool__(self) -> bool:
         return bool(self.coords)
@@ -177,24 +211,6 @@ registry.register(
         set_element=coordinates_subelement,
     ),
 )
-
-
-def handle_invalid_geometry_error(
-    *,
-    error: Exception,
-    element: Element,
-    strict: bool,
-) -> None:
-    error_in_xml = config.etree.tostring(  # type: ignore[attr-defined]
-        element,
-        encoding="UTF-8",
-    ).decode(
-        "UTF-8",
-    )
-    msg = f"Invalid coordinates in '{error_in_xml}' caused by '{error}'"
-    logger.error(msg)
-    if strict:
-        raise KMLParseError(msg) from error
 
 
 class _Geometry(_BaseObject):
@@ -404,6 +420,9 @@ registry.register(
 
 
 class Point(_Geometry):
+
+    kml_coordinates: Optional[Coordinates]
+
     def __init__(
         self,
         *,
@@ -414,9 +433,18 @@ class Point(_Geometry):
         extrude: Optional[bool] = None,
         tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
-        geometry: geo.Point,
+        geometry: Optional[geo.Point] = None,
+        kml_coordinates: Optional[Coordinates] = None,
         **kwargs: Any,
     ) -> None:
+        if geometry is not None and kml_coordinates is not None:
+            raise ValueError("geometry and kml_coordinates are mutually exclusive")
+        if kml_coordinates is None:
+            self.kml_coordinates = (
+                Coordinates(coords=geometry.coords)  # type: ignore[arg-type]
+                if geometry
+                else None
+            )
         super().__init__(
             ns=ns,
             id=id,
@@ -440,10 +468,19 @@ class Point(_Geometry):
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
-            f"geometry={self.geometry!r}, "
+            f"kml_coordinates={self.kml_coordinates!r}, "
             f"**kwargs={self._get_splat()!r},"
             ")"
         )
+
+    def __bool__(self) -> bool:
+        return bool(self.kml_coordinates)
+
+    @property
+    def __geometry(self) -> Optional[geo.Point]:
+        if not self.kml_coordinates:
+            return None
+        return geo.Point.from_coordinates(self.kml_coordinates.coords)
 
     def etree_element(
         self,
@@ -479,6 +516,18 @@ class Point(_Geometry):
                 strict=strict,
             )
         return None
+
+
+# registry.register(
+#     Point,
+#     item=RegistryItem(
+#         classes=(Coordinates,),
+#         attr_name="kml_coordinates",
+#         node_name="coordinates",
+#         get_kwarg=subelement_coordinates_kwarg,
+#         set_element=coordinates_subelement,
+#     ),
+# )
 
 
 class LineString(_Geometry):

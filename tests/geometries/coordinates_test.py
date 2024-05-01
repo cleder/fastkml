@@ -29,9 +29,11 @@ class TestCoordinates(StdLibrary):
 
         coordinates = Coordinates(coords=coords)
 
-        assert coordinates.to_string() == (
-            "<coordinates>0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
-            "1.000000,0.000000 0.000000,0.000000</coordinates>"
+        assert coordinates.to_string().strip() == (
+            '<kml:coordinates xmlns:kml="http://www.opengis.net/kml/2.2">'
+            "0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
+            "1.000000,0.000000 0.000000,0.000000"
+            "</kml:coordinates>"
         )
 
     def test_coordinates_from_string(self) -> None:
@@ -45,5 +47,5 @@ class TestCoordinates(StdLibrary):
         assert coordinates.coords == [(0, 0), (1, 0), (1, 1), (0, 0)]
 
 
-class TestCoordinatesLxml(Lxml):
+class TestCoordinatesLxml(Lxml, TestCoordinates):
     pass
