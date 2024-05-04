@@ -32,8 +32,6 @@ from pygeoif.factories import shape
 from pygeoif.types import GeoCollectionType
 from pygeoif.types import GeoType
 from pygeoif.types import LineType
-from pygeoif.types import Point2D
-from pygeoif.types import Point3D
 from typing_extensions import Self
 
 from fastkml import config
@@ -245,7 +243,6 @@ class _Geometry(_BaseObject):
     extrude: Optional[bool]
     tessellate: Optional[bool]
     altitude_mode: Optional[AltitudeMode]
-    _geometry: Optional[AnyGeometryType]
 
     def __init__(
         self,
@@ -257,7 +254,6 @@ class _Geometry(_BaseObject):
         extrude: Optional[bool] = None,
         tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
-        geometry: Optional[AnyGeometryType] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -283,7 +279,6 @@ class _Geometry(_BaseObject):
         self.extrude = extrude
         self.tessellate = tessellate
         self.altitude_mode = altitude_mode
-        self._geometry = geometry
 
     def __repr__(self) -> str:
         """Create a string (c)representation for _Geometry."""
@@ -296,111 +291,9 @@ class _Geometry(_BaseObject):
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
-            f"geometry={self.geometry!r}, "
             f"**kwargs={self._get_splat()!r},"
             ")"
         )
-
-    def __bool__(self) -> bool:
-        return bool(self._geometry)
-
-    @property
-    def geometry(self) -> Optional[AnyGeometryType]:
-        return self._geometry
-
-    def xx_etree_coordinates(
-        self,
-        coordinates: Union[Sequence[Point2D], Sequence[Point3D]],
-        precision: Optional[int],
-    ) -> Element:
-        element = cast(
-            Element,
-            config.etree.Element(f"{self.ns}coordinates"),  # type: ignore[attr-defined]
-        )
-        if not coordinates:
-            return element
-        p = precision if precision is not None else 6
-        if len(coordinates[0]) == 2:
-            tuples = (f"{c[0]:.{p}f},{c[1]:.{p}f}" for c in coordinates)
-        elif len(coordinates[0]) == 3:
-            tuples = (
-                f"{c[0]:.{p}f},{c[1]:.{p}f},{c[2]:.{p}f}"  # type: ignore[misc]
-                for c in coordinates
-            )
-        else:
-            msg = (  # type: ignore[unreachable]
-                f"Invalid dimensions in coordinates '{coordinates}'"
-            )
-            raise KMLWriteError(msg)
-        element.text = " ".join(tuples)
-        return element
-
-    @classmethod
-    def _get_coordinates(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Union[List[Point2D], List[Point3D]]:
-        """
-        Get coordinates from element.
-
-        Coordinates can be any number of tuples separated by a space (potentially any
-        number of whitespace characters).
-        Values in tuples should be separated by commas with no spaces.
-
-        https://developers.google.com/kml/documentation/kmlreference#coordinates
-        """
-        coordinates = element.find(f"{ns}coordinates")
-        if coordinates is not None:
-            # Clean up badly formatted tuples by stripping
-            # space following commas.
-            try:
-                latlons = re.sub(r", +", ",", coordinates.text.strip()).split()
-            except AttributeError:
-                return []
-            try:
-                return [  # type: ignore[return-value]
-                    tuple(float(c) for c in latlon.split(",")) for latlon in latlons
-                ]
-            except ValueError as error:
-                handle_invalid_geometry_error(
-                    error=error,
-                    element=element,
-                    strict=strict,
-                )
-        return []
-
-    @classmethod
-    def _get_geometry(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Optional[AnyGeometryType]:
-        return None
-
-    @classmethod
-    def xx_get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        kwargs.update(
-            {"geometry": cls._get_geometry(ns=ns, element=element, strict=strict)},
-        )
-        return kwargs
 
 
 registry.register(
@@ -469,7 +362,6 @@ class Point(_Geometry):
             extrude=extrude,
             tessellate=tessellate,
             altitude_mode=altitude_mode,
-            # geometry=geometry,
             **kwargs,
         )
 
@@ -490,13 +382,16 @@ class Point(_Geometry):
         )
 
     def __bool__(self) -> bool:
-        return bool(self.kml_coordinates)
+        return bool(self.geometry)
 
     @property
     def geometry(self) -> Optional[geo.Point]:
         if not self.kml_coordinates:
             return None
-        return geo.Point.from_coordinates(self.kml_coordinates.coords)
+        try:
+            return geo.Point.from_coordinates(self.kml_coordinates.coords)
+        except (DimensionError, TypeError):
+            return None
 
 
 registry.register(
@@ -559,13 +454,16 @@ class LineString(_Geometry):
         )
 
     def __bool__(self) -> bool:
-        return bool(self.kml_coordinates)
+        return bool(self.geometry)
 
     @property
     def geometry(self) -> Optional[geo.LineString]:
         if not self.kml_coordinates:
             return None
-        return geo.LineString.from_coordinates(self.kml_coordinates.coords)
+        try:
+            return geo.LineString.from_coordinates(self.kml_coordinates.coords)
+        except DimensionError:
+            return None
 
 
 registry.register(
@@ -628,29 +526,13 @@ class LinearRing(LineString):
     def geometry(self) -> Optional[geo.LinearRing]:
         if not self.kml_coordinates:
             return None
-        return cast(
-            geo.LinearRing,
-            geo.LinearRing.from_coordinates(self.kml_coordinates.coords),
-        )
-
-    @classmethod
-    def _get_geometry(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> Optional[geo.LinearRing]:
-        coords = cls._get_coordinates(ns=ns, element=element, strict=strict)
         try:
-            return cast(geo.LinearRing, geo.LinearRing.from_coordinates(coords))
-        except (IndexError, TypeError, DimensionError) as e:
-            handle_invalid_geometry_error(
-                error=e,
-                element=element,
-                strict=strict,
+            return cast(
+                geo.LinearRing,
+                geo.LinearRing.from_coordinates(self.kml_coordinates.coords),
             )
-        return None
+        except DimensionError:
+            return None
 
 
 class OuterBoundaryIs(_XMLObject):
@@ -682,7 +564,7 @@ class OuterBoundaryIs(_XMLObject):
         )
 
     def __bool__(self) -> bool:
-        return bool(self.kml_geometry)
+        return bool(self.geometry)
 
     @classmethod
     def get_tag_name(cls) -> str:
@@ -738,7 +620,7 @@ class InnerBoundaryIs(_XMLObject):
         )
 
     def __bool__(self) -> bool:
-        return bool(self.kml_geometries)
+        return any(b.geometry for b in self.kml_geometries)
 
     @classmethod
     def get_tag_name(cls) -> str:
@@ -809,7 +691,7 @@ class Polygon(_Geometry):
     def geometry(self) -> Optional[geo.Polygon]:
         if not self.outer_boundary_is:
             return None
-        if self.inner_boundary_is is None:
+        if not self.inner_boundary_is:
             return geo.Polygon.from_linear_rings(
                 cast(geo.LinearRing, self.outer_boundary_is.geometry),
             )
@@ -949,7 +831,7 @@ class MultiGeometry(_Geometry):
         )
 
     def __bool__(self) -> bool:
-        return bool(self.kml_geometries)
+        return bool(self.geometry)
 
     def __repr__(self) -> str:
         """Create a string (c)representation for MultiGeometry."""

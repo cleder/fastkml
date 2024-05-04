@@ -225,7 +225,6 @@ class Track(_Geometry):
             extrude=extrude,
             tessellate=tessellate,
             altitude_mode=altitude_mode,
-            geometry=None,
             **kwargs,
         )
 
@@ -388,7 +387,6 @@ class MultiTrack(_Geometry):
             extrude=extrude,
             tessellate=tessellate,
             altitude_mode=altitude_mode,
-            geometry=None,
             **kwargs,
         )
 
