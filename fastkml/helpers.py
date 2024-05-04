@@ -529,7 +529,6 @@ def attribute_float_kwarg(
 
 
 def _get_enum_value(enum_class: Type[Enum], text: str, strict: bool) -> Enum:
-
     value = enum_class(text)
     if strict and value.value != text:
         msg = f"Value {text} is not a valid value for Enum {enum_class.__name__}"
