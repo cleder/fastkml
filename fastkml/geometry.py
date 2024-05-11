@@ -647,7 +647,6 @@ registry.register(
 
 
 class Polygon(_Geometry):
-
     outer_boundary_is: Optional[OuterBoundaryIs]
     inner_boundary_is: Optional[InnerBoundaryIs]
 
@@ -835,7 +834,6 @@ def create_kml_geometry(
 
 
 class MultiGeometry(_Geometry):
-
     kml_geometries: List[Union[Point, LineString, Polygon, LinearRing, Self]]
 
     def __init__(
