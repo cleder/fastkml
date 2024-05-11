@@ -292,7 +292,7 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
             "</coordinates></LineString></MultiGeometry></MultiGeometry>"
         )
 
-        mg = MultiGeometry.class_from_string(xml, ns="")
+        mg = MultiGeometry.class_from_string(xml)
 
         assert mg.geometry == geo.GeometryCollection(
             (
@@ -360,15 +360,18 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
 
     def test_empty_multi_geometries_read(self) -> None:
         xml = (
-            "<MultiGeometry><extrude>0</extrude><tessellate>0</tessellate>"
+            '<MultiGeometry xmlns="http://www.opengis.net/kml/2.2">'
+            "<extrude>0</extrude><tessellate>0</tessellate>"
             "<MultiGeometry></MultiGeometry></MultiGeometry>"
         )
 
-        mg = MultiGeometry.class_from_string(xml, ns="")
+        mg = MultiGeometry.class_from_string(xml)
 
         assert mg.geometry is None
         assert "MultiGeometry>" in mg.to_string()
         assert "coordinates>" not in mg.to_string()
+        assert mg.extrude is False
+        assert mg.tessellate is False
 
 
 class TestMultiPointLxml(Lxml, TestMultiPointStdLibrary):

@@ -773,19 +773,69 @@ def create_multigeometry(
     return geo.GeometryCollection(geometries)
 
 
-class MultiGeometry(_Geometry):
-    map_to_kml = {
+def create_kml_geometry(
+    geometry: Union[GeoType, GeoCollectionType],
+    *,
+    ns: Optional[str] = None,
+    name_spaces: Optional[Dict[str, str]] = None,
+    id: Optional[str] = None,
+    target_id: Optional[str] = None,
+    extrude: Optional[bool] = None,
+    tessellate: Optional[bool] = None,
+    altitude_mode: Optional[AltitudeMode] = None,
+) -> _Geometry:
+    """
+    Create a KML geometry from a geometry object.
+
+    Args:
+    ----
+        geometry: Geometry object.
+        ns: Namespace of the object
+        id: Id of the object
+        target_id: Target id of the object
+        extrude: Specifies whether to connect the feature to the ground with a line.
+        tessellate: Specifies whether to allow the LineString to follow the terrain.
+        altitude_mode: Specifies how altitude components in the <coordinates>
+                       element are interpreted.
+
+    Returns:
+    -------
+        KML geometry object.
+
+    """
+    _map_to_kml = {
         geo.Point: Point,
-        geo.LineString: LineString,
         geo.Polygon: Polygon,
         geo.LinearRing: LinearRing,
+        geo.LineString: LineString,
+        geo.MultiPoint: MultiGeometry,
+        geo.MultiLineString: MultiGeometry,
+        geo.MultiPolygon: MultiGeometry,
+        geo.GeometryCollection: MultiGeometry,
     }
-    multi_geometries = (
-        geo.MultiPoint,
-        geo.MultiLineString,
-        geo.MultiPolygon,
-        geo.GeometryCollection,
-    )
+    geom = shape(geometry)
+    for geometry_class, kml_class in _map_to_kml.items():
+        if isinstance(geom, geometry_class):
+            return cast(
+                _Geometry,
+                kml_class(
+                    ns=ns,
+                    name_spaces=name_spaces,
+                    id=id,
+                    target_id=target_id,
+                    extrude=extrude,
+                    tessellate=tessellate,
+                    altitude_mode=altitude_mode,
+                    geometry=geom,
+                ),
+            )
+    # this should be unreachable, but mypy doesn't know that
+    msg = f"Unsupported geometry type {type(geometry)}"  # pragma: no cover
+    raise KMLWriteError(msg)  # pragma: no cover
+
+
+class MultiGeometry(_Geometry):
+
     kml_geometries: List[Union[Point, LineString, Polygon, LinearRing, Self]]
 
     def __init__(
@@ -866,64 +916,3 @@ registry.register(
         set_element=xml_subelement_list,
     ),
 )
-
-
-def create_kml_geometry(
-    geometry: Union[GeoType, GeoCollectionType],
-    *,
-    ns: Optional[str] = None,
-    name_spaces: Optional[Dict[str, str]] = None,
-    id: Optional[str] = None,
-    target_id: Optional[str] = None,
-    extrude: Optional[bool] = None,
-    tessellate: Optional[bool] = None,
-    altitude_mode: Optional[AltitudeMode] = None,
-) -> _Geometry:
-    """
-    Create a KML geometry from a geometry object.
-
-    Args:
-    ----
-        geometry: Geometry object.
-        ns: Namespace of the object
-        id: Id of the object
-        target_id: Target id of the object
-        extrude: Specifies whether to connect the feature to the ground with a line.
-        tessellate: Specifies whether to allow the LineString to follow the terrain.
-        altitude_mode: Specifies how altitude components in the <coordinates>
-                       element are interpreted.
-
-    Returns:
-    -------
-        KML geometry object.
-
-    """
-    _map_to_kml = {
-        geo.Point: Point,
-        geo.Polygon: Polygon,
-        geo.LinearRing: LinearRing,
-        geo.LineString: LineString,
-        geo.MultiPoint: MultiGeometry,
-        geo.MultiLineString: MultiGeometry,
-        geo.MultiPolygon: MultiGeometry,
-        geo.GeometryCollection: MultiGeometry,
-    }
-    geom = shape(geometry)
-    for geometry_class, kml_class in _map_to_kml.items():
-        if isinstance(geom, geometry_class):
-            return cast(
-                _Geometry,
-                kml_class(
-                    ns=ns,
-                    name_spaces=name_spaces,
-                    id=id,
-                    target_id=target_id,
-                    extrude=extrude,
-                    tessellate=tessellate,
-                    altitude_mode=altitude_mode,
-                    geometry=geom,
-                ),
-            )
-    # this should be unreachable, but mypy doesn't know that
-    msg = f"Unsupported geometry type {type(geometry)}"  # pragma: no cover
-    raise KMLWriteError(msg)  # pragma: no cover

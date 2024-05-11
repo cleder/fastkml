@@ -171,14 +171,16 @@ class TestStdLibrary(StdLibrary):
     def test_empty_polygon(self) -> None:
         """Test empty polygon."""
         doc = (
-            "<Polygon><tessellate>1</tessellate><outerBoundaryIs>"
-            "<LinearRing><coordinates/></LinearRing></outerBoundaryIs></Polygon>"
+            '<Polygon xmlns="http://www.opengis.net/kml/2.2"><tessellate>1</tessellate>'
+            "<outerBoundaryIs><LinearRing><coordinates/></LinearRing></outerBoundaryIs>"
+            "</Polygon>"
         )
 
-        polygon = Polygon.class_from_string(doc, ns="")
+        polygon = Polygon.class_from_string(doc)
 
         assert not polygon.geometry
-        assert polygon.to_string()
+        assert polygon.outer_boundary_is is not None
+        assert "tessellate>1</" in polygon.to_string()
 
 
 class TestLxml(Lxml, TestStdLibrary):

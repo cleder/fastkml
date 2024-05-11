@@ -176,7 +176,6 @@ class TestPoint(StdLibrary):
     def test_from_string_empty_coordinates(self) -> None:
         point = Point.class_from_string(
             '<Point xmlns="http://www.opengis.net/kml/2.2"><coordinates/></Point>',
-            ns="",
         )
 
         assert not point
