@@ -20,14 +20,76 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import Type
 
 from fastkml import config
 from fastkml.base import _XMLObject
 from fastkml.enums import Verbosity
+from fastkml.exceptions import KMLParseError
 from fastkml.registry import known_types
 from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
+
+
+def handle_error(
+    *,
+    error: Exception,
+    strict: bool,
+    element: Element,
+    node: Element,
+    expected: str,
+) -> None:
+    """
+    Handle an error.
+
+    Args:
+    ----
+        error (Exception): The exception that occurred.
+        strict (bool): A flag indicating whether to raise an exception or log a warning.
+        element (Element): The XML element being parsed.
+        node (Element): The XML node that caused the error.
+        expected (str): The expected format or value.
+
+    Raises:
+    ------
+        KMLParseError: If `strict` is True, the function raises a `KMLParseError` with
+        the error message.
+
+    """
+    serialized_element = config.etree.tostring(  # type: ignore[attr-defined]
+        element,
+        encoding="UTF-8",
+    ).decode(
+        "UTF-8",
+    )
+    serialized_node = config.etree.tostring(  # type: ignore[attr-defined]
+        node,
+        encoding="UTF-8",
+    ).decode(
+        "UTF-8",
+    )
+    msg = (
+        f"Error parsing '{serialized_node}' in '{serialized_element}'; "
+        f"expected: {expected}. \n {error}"
+    )
+    if strict:
+        raise KMLParseError(msg) from error
+    else:
+        logger.warning("%s, %s", error, msg)
+
+
+def node_text(
+    obj: _XMLObject,
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Optional[Verbosity],
+) -> None:
+    if getattr(obj, attr_name, None):
+        element.text = getattr(obj, attr_name)
 
 
 def text_subelement(
@@ -39,13 +101,59 @@ def text_subelement(
     precision: Optional[int],
     verbosity: Optional[Verbosity],
 ) -> None:
-    """Set the value of an attribute from a subelement with a text node."""
+    """
+    Set the value of an attribute from a subelement with a text node.
+
+    Args:
+    ----
+        obj (_XMLObject): The object from which to retrieve the attribute value.
+        element (Element): The parent element to add the subelement to.
+        attr_name (str): The name of the attribute to retrieve the value from.
+        node_name (str): The name of the subelement to create.
+        precision (Optional[int]): The precision of the attribute value.
+        verbosity (Optional[Verbosity]): The verbosity level.
+
+    Returns:
+    -------
+        None
+
+    """
     if getattr(obj, attr_name, None):
         subelement = config.etree.SubElement(  # type: ignore[attr-defined]
             element,
             f"{obj.ns}{node_name}",
         )
         subelement.text = getattr(obj, attr_name)
+
+
+def text_attribute(
+    obj: _XMLObject,
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Optional[Verbosity],
+) -> None:
+    """
+    Set the value of an attribute from a subelement with a text node.
+
+    Args:
+    ----
+        obj (_XMLObject): The object from which to retrieve the attribute value.
+        element (Element): The parent element to add the subelement to.
+        attr_name (str): The name of the attribute to retrieve the value from.
+        node_name (str): The name of the attribute to be set.
+        precision (Optional[int]): The precision of the attribute value.
+        verbosity (Optional[Verbosity]): The verbosity level.
+
+    Returns:
+    -------
+        None
+
+    """
+    if getattr(obj, attr_name, None):
+        element.set(node_name, getattr(obj, attr_name))
 
 
 def bool_subelement(
@@ -57,7 +165,23 @@ def bool_subelement(
     precision: Optional[int],
     verbosity: Optional[Verbosity],
 ) -> None:
-    """Set the value of an attribute from a subelement with a text node."""
+    """
+    Set the value of an attribute from a subelement with a text node.
+
+    Args:
+    ----
+        obj (_XMLObject): The object from which to retrieve the attribute value.
+        element (Element): The parent element to add the subelement to.
+        attr_name (str): The name of the attribute to retrieve the value from.
+        node_name (str): The name of the subelement to create.
+        precision (Optional[int]): The precision of the attribute value.
+        verbosity (Optional[Verbosity]): The verbosity level.
+
+    Returns:
+    -------
+        None
+
+    """
     if getattr(obj, attr_name, None) is not None:
         subelement = config.etree.SubElement(  # type: ignore[attr-defined]
             element,
@@ -75,13 +199,59 @@ def int_subelement(
     precision: Optional[int],
     verbosity: Optional[Verbosity],
 ) -> None:
-    """Set the value of an attribute from a subelement with a text node."""
+    """
+    Set the value of an attribute from a subelement with a text node.
+
+    Args:
+    ----
+        obj (_XMLObject): The object from which to retrieve the attribute value.
+        element (Element): The parent element to add the subelement to.
+        attr_name (str): The name of the attribute to retrieve the value from.
+        node_name (str): The name of the subelement to create.
+        precision (Optional[int]): The precision of the attribute value.
+        verbosity (Optional[Verbosity]): The verbosity level.
+
+    Returns:
+    -------
+        None: This function does not return anything.
+
+    """
     if getattr(obj, attr_name, None) is not None:
         subelement = config.etree.SubElement(  # type: ignore[attr-defined]
             element,
             f"{obj.ns}{node_name}",
         )
         subelement.text = str(getattr(obj, attr_name))
+
+
+def int_attribute(
+    obj: _XMLObject,
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Optional[Verbosity],
+) -> None:
+    """
+    Set the value of an attribute.
+
+    Args:
+    ----
+        obj (_XMLObject): The object from which to retrieve the attribute value.
+        element (Element): The parent element to add the subelement to.
+        attr_name (str): The name of the attribute to retrieve the value from.
+        node_name (str): The name of the attribute to be set.
+        precision (Optional[int]): The precision of the attribute value.
+        verbosity (Optional[Verbosity]): The verbosity level.
+
+    Returns:
+    -------
+        None: This function does not return anything.
+
+    """
+    if getattr(obj, attr_name, None) is not None:
+        element.set(node_name, str(getattr(obj, attr_name)))
 
 
 def float_subelement(
@@ -102,6 +272,20 @@ def float_subelement(
         subelement.text = str(getattr(obj, attr_name))
 
 
+def float_attribute(
+    obj: _XMLObject,
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Optional[Verbosity],
+) -> None:
+    """Set the value of an attribute."""
+    if getattr(obj, attr_name, None) is not None:
+        element.set(node_name, str(getattr(obj, attr_name)))
+
+
 def enum_subelement(
     obj: _XMLObject,
     *,
@@ -118,6 +302,20 @@ def enum_subelement(
             f"{obj.ns}{node_name}",
         )
         subelement.text = getattr(obj, attr_name).value
+
+
+def enum_attribute(
+    obj: _XMLObject,
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Optional[Verbosity],
+) -> None:
+    """Set the value of an attribute."""
+    if getattr(obj, attr_name, None):
+        element.set(node_name, getattr(obj, attr_name).value)
 
 
 def xml_subelement(
@@ -155,6 +353,21 @@ def xml_subelement_list(
                 )
 
 
+def node_text_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    name_spaces: Dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: Tuple[known_types, ...],
+    strict: bool,
+) -> Dict[str, str]:
+    return (
+        {kwarg: element.text.strip()} if element.text and element.text.strip() else {}
+    )
+
+
 def subelement_text_kwarg(
     *,
     element: Element,
@@ -169,6 +382,31 @@ def subelement_text_kwarg(
     if node is None:
         return {}
     return {kwarg: node.text.strip()} if node.text and node.text.strip() else {}
+
+
+def attribute_text_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    name_spaces: Dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: Tuple[known_types, ...],
+    strict: bool,
+) -> Dict[str, str]:
+    return {kwarg: element.get(node_name)} if element.get(node_name) else {}
+
+
+def _get_boolean_value(text: str, strict: bool) -> bool:
+    if not strict:
+        text = text.lower()
+    if text in {"1", "true"}:
+        return True
+    if text in {"0", "false"}:
+        return False
+    if not strict:
+        return bool(float(text))
+    raise ValueError(f"Invalid boolean value: {text}")
 
 
 def subelement_bool_kwarg(
@@ -187,16 +425,16 @@ def subelement_bool_kwarg(
     if node is None:
         return {}
     if node.text and node.text.strip():
-        if strict:
-            return {kwarg: bool(int(node.text.strip()))}
-        if node.text.strip().lower() in {"1", "true"}:
-            return {kwarg: True}
-        if node.text.strip().lower() in {"0", "false"}:
-            return {kwarg: False}
         try:
-            return {kwarg: bool(int(float(node.text.strip())))}
-        except ValueError:
-            return {}
+            return {kwarg: _get_boolean_value(node.text.strip(), strict)}
+        except ValueError as exc:
+            handle_error(
+                error=exc,
+                strict=strict,
+                element=element,
+                node=node,
+                expected="Boolean",
+            )
     return {}
 
 
@@ -216,11 +454,28 @@ def subelement_int_kwarg(
     if node.text and node.text.strip():
         try:
             return {kwarg: int(node.text.strip())}
-        except ValueError:
-            if strict:
-                raise
-            return {}
+        except ValueError as exc:
+            handle_error(
+                error=exc,
+                strict=strict,
+                element=element,
+                node=node,
+                expected="Integer",
+            )
     return {}
+
+
+def attribute_int_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    name_spaces: Dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: Tuple[known_types, ...],
+    strict: bool,
+) -> Dict[str, int]:
+    return {kwarg: int(element.get(node_name))} if element.get(node_name) else {}
 
 
 def subelement_float_kwarg(
@@ -239,11 +494,46 @@ def subelement_float_kwarg(
     if node.text and node.text.strip():
         try:
             return {kwarg: float(node.text.strip())}
-        except ValueError:
-            if strict:
-                raise
-            return {}
+        except ValueError as exc:
+            handle_error(
+                error=exc,
+                strict=strict,
+                element=element,
+                node=node,
+                expected="Float",
+            )
     return {}
+
+
+def attribute_float_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    name_spaces: Dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: Tuple[known_types, ...],
+    strict: bool,
+) -> Dict[str, float]:
+    try:
+        return {kwarg: float(element.get(node_name))} if element.get(node_name) else {}
+    except ValueError as exc:
+        handle_error(
+            error=exc,
+            strict=strict,
+            element=element,
+            node=element,
+            expected="Float",
+        )
+    return {}
+
+
+def _get_enum_value(enum_class: Type[Enum], text: str, strict: bool) -> Enum:
+    value = enum_class(text)
+    if strict and value.value != text:
+        msg = f"Value {text} is not a valid value for Enum {enum_class.__name__}"
+        raise ValueError(msg)
+    return value
 
 
 def subelement_enum_kwarg(
@@ -261,8 +551,51 @@ def subelement_enum_kwarg(
     node = element.find(f"{ns}{node_name}")
     if node is None:
         return {}
-    if node.text and node.text.strip():
-        return {kwarg: classes[0](node.text.strip())}
+    node_text = node.text.strip() if node.text else ""
+    if node_text:
+        try:
+            return {kwarg: _get_enum_value(classes[0], node_text, strict)}
+        except ValueError as exc:
+            handle_error(
+                error=exc,
+                strict=strict,
+                element=element,
+                node=node,
+                expected="Enum",
+            )
+    return {}
+
+
+def attribute_enum_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    name_spaces: Dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: Tuple[known_types, ...],
+    strict: bool,
+) -> Dict[str, Enum]:
+    assert len(classes) == 1
+    assert issubclass(classes[0], Enum)
+    if raw := element.get(node_name):
+        try:
+            value = classes[0](raw)
+            if raw != value.value and strict:
+                msg = (
+                    f"Value {raw} is not a valid value for Enum "
+                    f"{classes[0].__name__}"
+                )
+                raise ValueError(msg)
+            return {kwarg: classes[0](raw)}
+        except ValueError as exc:
+            handle_error(
+                error=exc,
+                strict=strict,
+                element=element,
+                node=element,
+                expected="Enum",
+            )
     return {}
 
 

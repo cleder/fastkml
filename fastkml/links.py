@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
+from typing import Any
 from typing import Dict
 from typing import Optional
 
@@ -66,9 +67,16 @@ class Link(_BaseObject):
         view_bound_scale: Optional[float] = None,
         view_format: Optional[str] = None,
         http_query: Optional[str] = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize the KML Icon Object."""
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.href = href
         self.refresh_mode = refresh_mode
         self.refresh_interval = refresh_interval
@@ -87,13 +95,14 @@ class Link(_BaseObject):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"href={self.href!r}, "
-            f"refresh_mode={self.refresh_mode!r}, "
+            f"refresh_mode={self.refresh_mode}, "
             f"refresh_interval={self.refresh_interval!r}, "
-            f"view_refresh_mode={self.view_refresh_mode!r}, "
+            f"view_refresh_mode={self.view_refresh_mode}, "
             f"view_refresh_time={self.view_refresh_time!r}, "
             f"view_bound_scale={self.view_bound_scale!r}, "
             f"view_format={self.view_format!r}, "
             f"http_query={self.http_query!r}, "
+            f"**kwargs={self._get_splat()!r},"
             ")"
         )
 
@@ -199,4 +208,5 @@ class Icon(Link):
     The <gx:x>, <gx:y>, <gx:w>, and <gx:h> elements are used to select one
     icon from an image that contains multiple icons
     (often referred to as an icon palette).
+
     """

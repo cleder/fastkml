@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [OK] kml:styleUrl refers to item in local file -->
+<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2">
+	<kml:Document>
+		<kml:Placemark>
+			<kml:styleUrl>styles.xml#style-01</kml:styleUrl>
+		</kml:Placemark>
+		<kml:Placemark>
+			<kml:styleUrl>styles.xml#MISSING</kml:styleUrl>
+		</kml:Placemark>
+	</kml:Document>
+</kml:kml>

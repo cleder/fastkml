@@ -15,10 +15,11 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the geometry classes."""
-from typing import cast
 
 import pygeoif.geometry as geo
+import pytest
 
+from fastkml.exceptions import KMLParseError
 from fastkml.geometry import LineString
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -49,22 +50,103 @@ class TestLineString(StdLibrary):
 
     def test_from_string(self) -> None:
         """Test the from_string method."""
-        linestring = cast(
-            LineString,
-            LineString.class_from_string(
-                '<LineString xmlns="http://www.opengis.net/kml/2.2">'
-                "<extrude>1</extrude>"
-                "<tessellate>1</tessellate>"
-                "<coordinates>"
-                "-122.364383,37.824664,0 -122.364152,37.824322,0"
-                "</coordinates>"
-                "</LineString>",
-            ),
+        linestring = LineString.class_from_string(
+            '<LineString xmlns="http://www.opengis.net/kml/2.2">'
+            "<extrude>1</extrude>"
+            "<tessellate>1</tessellate>"
+            "<coordinates>"
+            "-122.364383,37.824664,0 -122.364152,37.824322,0"
+            "</coordinates>"
+            "</LineString>",
         )
 
         assert linestring.geometry == geo.LineString(
             ((-122.364383, 37.824664, 0), (-122.364152, 37.824322, 0)),
         )
+
+    def test_mixed_2d_3d_coordinates_from_string(self) -> None:
+
+        linestring = LineString.class_from_string(
+            '<LineString xmlns="http://www.opengis.net/kml/2.2">'
+            "<extrude>1</extrude>"
+            "<tessellate>1</tessellate>"
+            "<coordinates>"
+            "-122.364383,37.824664 -122.364152,37.824322,0"
+            "</coordinates>"
+            "</LineString>",
+        )
+
+        assert not linestring
+
+    def test_mixed_2d_3d_coordinates_from_string_relaxed(self) -> None:
+        line_string = LineString.class_from_string(
+            '<LineString xmlns="http://www.opengis.net/kml/2.2">'
+            "<extrude>1</extrude>"
+            "<tessellate>1</tessellate>"
+            "<coordinates>"
+            "-122.364383,37.824664 -122.364152,37.824322,0"
+            "</coordinates>"
+            "</LineString>",
+            strict=False,
+        )
+
+        assert not line_string
+
+    def test_empty_from_string(self) -> None:
+        """Test the from_string method with an empty LineString."""
+        linestring = LineString.class_from_string(
+            '<LineString xmlns="http://www.opengis.net/kml/2.2">'
+            "<extrude>1</extrude>"
+            "<tessellate>1</tessellate>"
+            "<coordinates>"
+            "</coordinates>"
+            "</LineString>",
+        )
+
+        assert not linestring.geometry
+
+    def test_no_coordinates_from_string(self) -> None:
+        """Test the from_string method with no coordinates."""
+        linestring = LineString.class_from_string(
+            '<LineString xmlns="http://www.opengis.net/kml/2.2">'
+            "<extrude>1</extrude>"
+            "<tessellate>1</tessellate>"
+            "</LineString>",
+        )
+
+        assert not linestring.geometry
+
+    def test_from_string_invalid_coordinates_non_numerical(self) -> None:
+        """Test the from_string method with invalid coordinates."""
+        with pytest.raises(
+            KMLParseError,
+            match=r"^Invalid coordinates in",
+        ):
+            LineString.class_from_string(
+                '<LineString xmlns="http://www.opengis.net/kml/2.2">'
+                "<extrude>1</extrude>"
+                "<tessellate>1</tessellate>"
+                "<coordinates>"
+                "foo,bar"
+                "</coordinates>"
+                "</LineString>",
+            )
+
+    def test_from_string_invalid_coordinates_nan(self) -> None:
+        line_string = LineString.class_from_string(
+            '<LineString xmlns="http://www.opengis.net/kml/2.2">'
+            "<extrude>false</extrude>"
+            "<tessellate>true</tessellate>"
+            "<coordinates>"
+            "-70.64950,-35.31494,2178 -70.64898,-35.31520,2121 "
+            "-70.65240,-35.32666,1930 -70.65347,-35.32906,NaN "
+            "-70.65340,-35.33055,1640  -70.64347,-35.34734,1468"
+            "</coordinates>"
+            "</LineString>",
+        )
+
+        assert len(line_string.geometry.coords) == 5
+        assert line_string.to_string()
 
 
 class TestLineStringLxml(Lxml, TestLineString):

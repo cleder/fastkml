@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [ERROR] inner ring is not within outer ring -->
+<kml:Placemark xmlns:kml="http://www.opengis.net/kml/2.2"
+	id="Placemark-02">
+	<kml:visibility>true</kml:visibility>
+	<kml:Metadata>
+		<rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+			xmlns:dc="http://purl.org/dc/elements/1.1/">
+			<dc:title xml:lang="en">My folder</dc:title>
+			<dc:identifier>550e8400-e29b-41d4-a716-446655440000</dc:identifier>
+			<dc:language>en</dc:language>
+		</rdf:Description>
+	</kml:Metadata>
+	<kml:Polygon id="Polygon-1">
+		<kml:outerBoundaryIs>
+			<kml:LinearRing>
+				<kml:coordinates>-124.0,50.0 -124.0,46.0 -118.0,46.0 -118.0,50.0
+					-124.0,50.0
+				</kml:coordinates>
+			</kml:LinearRing>
+		</kml:outerBoundaryIs>
+		<kml:innerBoundaryIs>
+			<kml:LinearRing>
+				<kml:coordinates>-122.08,45.42 -122.08,42.42 -120.08,43.42
+					-122.08,45.42
+				</kml:coordinates>
+			</kml:LinearRing>
+		</kml:innerBoundaryIs>
+	</kml:Polygon>
+</kml:Placemark>

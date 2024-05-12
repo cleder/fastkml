@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"
+  xmlns:atom="http://www.w3.org/2005/Atom"
+  xmlns:xal="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0"
+  hint="A processing hint for a KML consumer">
+    <NetworkLinkControl>
+      <minRefreshPeriod>43200</minRefreshPeriod>
+      <maxSessionLength>-1</maxSessionLength>
+      <linkSnippet>
+      <![CDATA[
+      <p xmlns="http://www.w3.org/1999/xhtml">A snippet of <a href="http://www.w3.org/TR/xhtml-basic/">XHTML</a></p>
+      ]]>
+      </linkSnippet>
+      <expires>2008-05-30</expires>
+      <Update>
+        <targetHref>http://barcelona.galdos.local/svn1/sqa/ets-kml/main/test/data/ogc-kml/files/ge_.kmz</targetHref>
+        <Delete>
+          <PhotoOverlay targetId="id_550e8400-e29b-41d4-a716-446655440000" />
+        </Delete>
+        <Create>
+          <Folder targetId="Folder-001">
+			<name>Mauris vulputate pulvinar.</name>
+          </Folder>
+        </Create>
+        <Change>
+          <TimeSpan targetId="id_f272fc30-185d-11dd-bd0b-0800200c9a66">
+            <begin>2008-03-15T00:00:00Z</begin>
+            <end>2008-03-29T00:00:00Z</end>
+          </TimeSpan>
+        </Change>
+      </Update>
+    </NetworkLinkControl>
+	<Document id="doc-001">
+		<name>Vestibulum eleifend lobortis lorem.</name>
+		<Style id="style-001">
+			<IconStyle>
+				<Icon>
+					<href>http://barcelona.galdos.local/svn1/sqa/ets-kml/main/test/data/ogc-kml/images/red-stars.png</href>
+				</Icon>
+			</IconStyle>
+		</Style>
+        <Style id="style-002">
+			<IconStyle>
+				<Icon>
+					<href>http://barcelona.galdos.local/svn1/sqa/ets-kml/main/test/data/ogc-kml/images/wht-blank.png</href>
+				</Icon>
+			</IconStyle>
+		</Style>
+		<StyleMap id="stylemap-001">
+			<Pair>
+				<key>normal</key>
+				<styleUrl>#style-002</styleUrl>
+			</Pair>
+			<Pair>
+				<key>highlight</key>
+				<styleUrl>#style-001</styleUrl>
+			</Pair>
+		</StyleMap>
+        <Style id="khStyle712">
+			<IconStyle id="khIconStyle716">
+				<Icon>
+					<href>http://barcelona.galdos.local/svn1/sqa/ets-kml/main/test/data/ogc-kml/images/9.png</href>
+				</Icon>
+			</IconStyle>
+		</Style>
+		<Style id="khStyle887">
+			<LineStyle id="khLineStyle890">
+				<color>7fffffff</color>
+			</LineStyle>
+			<PolyStyle id="khPolyStyle889">
+				<color>7fa7ce9e</color>
+			</PolyStyle>
+		</Style>
+		<Placemark>
+			<name>General Motors Place</name>
+			<atom:author>
+				<atom:name>Phineas Fogg</atom:name>
+			</atom:author>
+			<atom:link href="http://en.wikipedia.org/wiki/General_Motors_Place"
+              rel="related" type="text/html" hreflang="en"
+              title="Wikipedia entry" />
+      <xal:AddressDetails>
+        <xal:Address Type="Postal">
+        800 Griffiths Way, Vancouver, BC, Canada V6B 6G1
+        </xal:Address>
+      </xal:AddressDetails>
+      <phoneNumber>tel:+1-604-899-7400</phoneNumber>
+      <snippet>Nicknamed The Garage and GM Place</snippet>
+      <description>General Motors Place (), sponsored by General Motors Canada,
+      is an indoor arena at 800 Griffiths Way in Vancouver, British Columbia,
+      Canada. Completed in 1995 at a cost of CAD $160 million in private
+      financing, the arena is home to the Vancouver Canucks of the NHL, and
+      was formerly home to the Vancouver Grizzlies of the NBA and the Vancouver
+      Ravens of the NLL. The Grizzlies have since moved to Memphis. The arena
+      seats 18,630 for ice hockey and 19,193 for basketball. It has 88 luxury suites,
+      12 hospitality suites, and 2,195 club seats. The arena replaced the
+      Pacific Coliseum as the main venue for events in Vancouver.
+      </description>
+			<Point>
+				<coordinates>-123.1097,49.2774,0</coordinates>
+			</Point>
+		</Placemark>
+		<GroundOverlay id="Overlay-001">
+			<name>Large-scale overlay on terrain</name>
+			<description>Overlay shows Mount Etna erupting on July 13th, 2001.</description>
+			<Icon>
+				<href>http://barcelona.galdos.local/svn1/sqa/ets-kml/main/test/data/ogc-kml/images/etna.jpg</href>
+			</Icon>
+			<LatLonBox>
+				<north>37.91904192681665</north>
+				<south>37.46543388598137</south>
+				<east>15.35832653742206</east>
+				<west>14.60128369746704</west>
+				<rotation>-0.1556640799496235</rotation>
+			</LatLonBox>
+		</GroundOverlay>
+		<NetworkLink>
+			<name>Vancouver</name>
+			<open>1</open>
+			<Link>
+				<href>http://barcelona.galdos.local/svn1/sqa/ets-kml/main/test/data/ogc-kml/files/ge_.kmz</href>
+				<refreshMode>onInterval</refreshMode>
+				<refreshInterval>86400</refreshInterval>
+			</Link>
+		</NetworkLink>
+		<Folder id="Folder-001">
+			<name>Nanaimo, BC</name>
+			<LookAt>
+				<longitude>-123.9336542173363</longitude>
+				<latitude>49.16692307094711</latitude>
+				<heading>-126.0570028967645</heading>
+				<tilt>61.61116895973212</tilt>
+				<range>359.3753895394523</range>
+			</LookAt>
+			<Folder>
+				<name>Downtown Virtual Tours</name>
+				<Placemark>
+					<name>HBC Bastion</name>
+					<description><![CDATA[<a target="_new" href="http://citymap.nanaimo.ca/virtual_tours/viewnode.cfm?File_ID=8">Launch Virtual Tour</a>]]></description>
+					<styleUrl>#khStyle712</styleUrl>
+					<Point>
+						<altitudeMode>relativeToGround</altitudeMode>
+						<coordinates>-123.93563168,49.16716103,5</coordinates>
+					</Point>
+				</Placemark>
+				<Placemark>
+					<name>Building</name>
+					<styleUrl>#khStyle887</styleUrl>
+					<Polygon>
+						<extrude>1</extrude>
+						<altitudeMode>absolute</altitudeMode>
+						<outerBoundaryIs>
+							<LinearRing>
+								<coordinates>
+-123.940449937288,49.16927524669021,17 -123.940493701601,49.1694596207446,17 -123.940356261489,49.16947180231761,17 -123.940306243823,49.1692917061711,17 -123.940449937288,49.16927524669021,17
+              </coordinates>
+							</LinearRing>
+						</outerBoundaryIs>
+					</Polygon>
+				</Placemark>
+				<Placemark>
+					<name>Building</name>
+					<styleUrl>#khStyle887</styleUrl>
+					<Polygon>
+						<extrude>1</extrude>
+						<altitudeMode>absolute</altitudeMode>
+						<outerBoundaryIs>
+							<LinearRing>
+								<coordinates>
+-123.940122952744,49.1691287039003,18 -123.940137225952,49.16920143662431,18 -123.939995940886,49.16921364907441,18 -123.939979331833,49.16914300389781,18 -123.940122952744,49.1691287039003,18
+              </coordinates>
+							</LinearRing>
+						</outerBoundaryIs>
+					</Polygon>
+				</Placemark>
+				<Placemark>
+					<name>Building</name>
+					<styleUrl>#khStyle887</styleUrl>
+					<Polygon>
+						<extrude>1</extrude>
+						<altitudeMode>absolute</altitudeMode>
+						<outerBoundaryIs>
+							<LinearRing>
+								<coordinates>
+-123.940353238527,49.1688284179789,15 -123.940328496557,49.1688539816849,15 -123.940305627051,49.1688410371204,15 -123.94029136599,49.1688525752424,15 -123.940275724243,49.16884496803361,15 -123.940267212761,49.16885547002801,15 -123.940250998683,49.1688475077284,15 -123.94024045302,49.1688581162214,15 -123.940221737029,49.1688494547939,15 -123.940211083364,49.1688603339744,15 -123.940178900168,49.1688453966693,15 -123.940163692655,49.1688607198336,15 -123.940136059186,49.1688470945275,15 -123.940162391523,49.1688218776622,15 -123.940122367227,49.1688289487997,15 -123.940128827323,49.1688475131544,15 -123.940088186399,49.16885189119151,15 -123.940058889981,49.1687743342294,15 -123.940146366884,49.16876417866831,15 -123.940150570466,49.16876513375031,15 -123.940183311773,49.16875578354081,15 -123.940200543746,49.168763737562,15 -123.940211624266,49.16875150585231,15 -123.940229767887,49.1687598121941,15 -123.940240426635,49.1687492027812,15 -123.940256088782,49.1687578890722,15 -123.940267772273,49.1687476310603,15 -123.940282259105,49.1687539885572,15 -123.940301511045,49.1687371934515,15 -123.940335907902,49.1687555303004,15 -123.940313690715,49.1687770262802,15 -123.940345414677,49.1687916075398,15 -123.940321043389,49.16881285125181,15 -123.940353238527,49.1688284179789,15
+              </coordinates>
+							</LinearRing>
+						</outerBoundaryIs>
+					</Polygon>
+				</Placemark>
+				<Placemark>
+					<name>Building</name>
+					<styleUrl>#khStyle887</styleUrl>
+					<Polygon>
+						<extrude>1</extrude>
+						<altitudeMode>absolute</altitudeMode>
+						<outerBoundaryIs>
+							<LinearRing>
+								<coordinates>
+-123.935755404797,49.1660852779118,25 -123.93582067022,49.1660311465527,25 -123.935800492118,49.1660168302278,25 -123.936039795526,49.165822245592,25 -123.936064357298,49.1658350873476,25 -123.936179746682,49.1657457438265,25 -123.936369720217,49.1657486103712,25 -123.936512648837,49.1658300134091,25 -123.936229647663,49.16604662814821,25 -123.936209525388,49.1660352793624,25 -123.935976452504,49.16621236606521,25 -123.935755404797,49.1660852779118,25
+              </coordinates>
+							</LinearRing>
+						</outerBoundaryIs>
+						<innerBoundaryIs>
+							<LinearRing>
+								<coordinates>
+-123.935774273544,49.1660841356946,25 -123.935975080821,49.16619960613241,25 -123.936199121569,49.1660294278725,25 -123.936199903082,49.16602888191441,25 -123.936200797694,49.1660283350392,25 -123.936201694,49.16602787808731,25 -123.936202592002,49.16602751105871,25 -123.936203603103,49.1660271431131,25 -123.936204615898,49.16602686509071,25 -123.936205743487,49.1660266760745,25 -123.936206871076,49.1660264870584,25 -123.93620800036,49.16602638796551,25 -123.936209129645,49.1660262888725,25 -123.936210260625,49.1660262797028,25 -123.9362113933,49.1660263604563,25 -123.936212527671,49.16602653113311,25 -123.936213548944,49.1660267027268,25 -123.93621468501,49.16602696332681,25 -123.936215707978,49.1660272248437,25 -123.936216732642,49.1660275762838,25 -123.936217645904,49.16602801856421,25 -123.936218559165,49.16602846084461,25 -123.936228164518,49.1660339590587,25 -123.936493324423,49.1658309795689,25 -123.936364459423,49.1657575567936,25 -123.936186026871,49.1657548664825,25 -123.936074872463,49.1658408480101,25 -123.936074315451,49.1658413022105,25 -123.936073532244,49.1658417582446,25 -123.936072637635,49.1658423051187,25 -123.936071739635,49.1658426721463,25 -123.936070728538,49.16584304009081,25 -123.93606971744,49.1658434080353,25 -123.936068589855,49.16584359705011,25 -123.936067577062,49.16584387507131,25 -123.936066447782,49.1658439741628,25 -123.936065318501,49.1658440732543,25 -123.936064187525,49.1658440824226,25 -123.936063054855,49.1658440016676,25 -123.936061922184,49.1658439209126,25 -123.936060787817,49.16584375023431,25 -123.936059653451,49.1658435795561,25 -123.936058628792,49.1658432281144,25 -123.936057605828,49.1658429665961,25 -123.936056692572,49.1658425243144,25 -123.936055779315,49.1658420820327,25 -123.936041957201,49.165834909184,25 -123.93581858271,49.1660164138055,25 -123.935830850283,49.1660251282083,25 -123.93583153904,49.1660256622482,25 -123.935832229491,49.1660262862113,25 -123.935832806845,49.166026911091,25 -123.9358332711,49.16602753688741,25 -123.935833737051,49.1660282526069,25 -123.935833976805,49.16602897015971,25 -123.935834216559,49.1660296877125,25 -123.935834343216,49.1660304061819,25 -123.935834471567,49.1660312145745,25 -123.935834372027,49.1660319348771,25 -123.935834272488,49.16603265517961,25 -123.935833946752,49.16603337731541,25 -123.935833621016,49.16603409945121,25 -123.935833295281,49.166034821587,25 -123.935832741654,49.1660354556328,25 -123.935832188028,49.1660360896785,25 -123.935831521303,49.1660367246408,25 -123.935774273544,49.1660841356946,25
+              </coordinates>
+							</LinearRing>
+						</innerBoundaryIs>
+					</Polygon>
+				</Placemark>
+			</Folder>
+		</Folder>
+        <Placemark id="VFS">
+          <name>Vancouver Film Studios</name>
+          <atom:link href="http://www.vancouverfilmstudios.com/"
+              rel="related" type="text/html" hreflang="en"
+              title="Welcome to Vancouver Film Studios" />
+          <address>3500 Cornett Rd, Vancouver, BC, Canada</address>
+          <description>
+          Situated on nearly two city blocks of land just fifteen minutes from
+          downtown Vancouver, British Columbia, Vancouver Film Studios (VFS) is
+          Canada’s premier motion picture production complex.
+          </description>
+          <LookAt>
+            <longitude>-123.0281012076333</longitude>
+            <latitude>49.26140654323342</latitude>
+            <altitude>0</altitude>
+            <heading>0</heading>
+            <tilt>51.96</tilt>
+            <range>301.9568</range>
+          </LookAt>
+          <StyleMap>
+            <Pair>
+              <key>normal</key>
+              <Style>
+                <IconStyle>
+                  <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/paddle/go.png</href>
+                  </Icon>
+                </IconStyle>
+                <ListStyle>
+                  <listItemType>check</listItemType>
+                  <bgColor>00ffffff</bgColor>
+                  <ItemIcon>
+                    <state>open closed error fetching0 fetching1 fetching2</state>
+                    <href>http://maps.google.com/mapfiles/kml/paddle/go-lv.png</href>
+                  </ItemIcon>
+                </ListStyle>
+              </Style>
+            </Pair>
+            <Pair>
+              <key>highlight</key>
+              <Style>
+                <IconStyle>
+                  <scale>1.3</scale>
+                  <Icon><href>http://maps.google.com/mapfiles/kml/paddle/go.png</href></Icon>
+                </IconStyle>
+                <ListStyle>
+                  <listItemType>check</listItemType>
+                  <bgColor>00ffffff</bgColor>
+                  <ItemIcon>
+                    <state>open closed error fetching0 fetching1 fetching2</state>
+                    <href>http://maps.google.com/mapfiles/kml/paddle/go-lv.png</href>
+                  </ItemIcon>
+                </ListStyle>
+              </Style>
+            </Pair>
+          </StyleMap>
+          <ExtendedData>
+            <Data name="nStages">
+              <displayName>Number of sound stages</displayName>
+              <value>13</value>
+            </Data>
+            <Data name="helipad">
+              <displayName>Helipad?</displayName>
+              <value>yes</value>
+            </Data>
+          </ExtendedData>
+          <Point>
+            <coordinates>-123.028369,49.26107900000001,0</coordinates>
+          </Point>
+        </Placemark>
+        <Placemark>
+          <description>Navigation buoys in Vancouver harbour</description>
+          <ExtendedData xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+            <rdf:Description xmlns:dct="http://purl.org/dc/terms/">
+              <dct:subject rdf:resource="https://www.dgiwg.org/FAD/servlet/View?i=100262"/>
+              <dct:valid>2007</dct:valid>
+            </rdf:Description>
+          </ExtendedData>
+          <MultiGeometry id="geom-001">
+            <Point id="b385.5"><coordinates>-123.3215766,49.2760338,0</coordinates></Point>
+            <Point id="b386"><coordinates>-123.2643704,49.3301853,0</coordinates></Point>
+            <Point id="b386.3"><coordinates>-123.2477084,49.2890857,0</coordinates></Point>
+          </MultiGeometry>
+        </Placemark>
+        <Placemark>
+          <name>Rivière des Outaouais</name>
+          <open>1</open>
+          <description>
+          Vue du ciel, la rivière des Outaouais est le principal élément naturel
+          de la vallée du même nom. Cette splendide rivière, la deuxième plus
+          grande dans l’est du Canada, possède un bassin hydrographique de 140 000
+          km2 et s’étend sur plus de 1 271 km, en majeure partie dans le Bouclier
+          canadien.
+          </description>
+          <LineString>
+            <coordinates>-74.08,45.45,19 -74.25,45.51,23 -74.33,45.51,22 -74.36,45.55,22
+            -74.39,45.57,29 -74.44,45.57,35 -74.48,45.60,35 -74.52,45.59,32 -74.55,45.60,32
+            -74.60,45.62,32
+            </coordinates>
+          </LineString>
+        </Placemark>
+        <Placemark id="place-100">
+          <description>Sampling loop</description>
+          <LinearRing>
+            <tessellate>false</tessellate>
+            <coordinates>-65.679,47.43 -65.73,47.456 -65.72,47.461 -65.669,47.439 -65.679,47.43</coordinates>
+          </LinearRing>
+        </Placemark>
+        <Placemark id="VPL">
+          <name>Vancouver Public Library</name>
+          <atom:link href="http://www.vpl.ca/"
+              rel="related" type="text/html" hreflang="en"
+              title="Vancouver Public Library - Home" />
+          <description>
+          Funded by the City of Vancouver, Vancouver Public Library is the third
+          largest public library system in Canada, with over 373,000 cardholders
+          and more than 9 million items borrowed annually. Today, with exceptional
+          collections, services and technologies offered at 22 branches and an
+          extensive virtual library, VPL is accessible to all citizens of Vancouver.
+          </description>
+          <Model>
+            <altitudeMode>absolute</altitudeMode>
+            <Location>
+              <longitude>-123.115776547816</longitude>
+              <latitude>49.279804095564</latitude>
+              <altitude>21.614010375743</altitude>
+            </Location>
+            <Scale><x>1</x><y>1</y><z>1</z></Scale>
+            <Link><href>http://barcelona.galdos.local/svn1/sqa/ets-kml/main/test/data/ogc-kml/files/PublicLibrary.dae</href></Link>
+            <ResourceMap id="map01">
+              <Alias>
+                <targetHref>http://barcelona.galdos.local/svn1/sqa/ets-kml/main/test/data/ogc-kml/images/Concrete2.jpg</targetHref>
+                <sourceHref>../images/Concrete.jpg</sourceHref>
+              </Alias>
+            </ResourceMap>
+          </Model>
+		</Placemark>
+        <ScreenOverlay>
+          <name>Nullam eu massa in est semper dictum.</name>
+          <open>true</open>
+          <snippet>Aliquam faucibus placerat risus. Donec tellus urna, ultrices
+          sit amet, dictum in, cursus ut, nulla. Nulla non metus.</snippet>
+          <drawOrder>1</drawOrder>
+          <Icon>
+            <href>http://barcelona.galdos.local/svn1/sqa/ets-kml/main/test/data/ogc-kml/images/red-stars.png</href>
+          </Icon>
+          <overlayXY x="0" y="1" xunits="fraction" yunits="fraction" />
+          <screenXY x="0" y="1" xunits="fraction" yunits="fraction" />
+          <rotationXY x="0" y="0" xunits="fraction" yunits="fraction" />
+          <size x="0" y="0" xunits="fraction" yunits="fraction" />
+        </ScreenOverlay>
+        <PhotoOverlay>
+          <Camera>
+            <longitude>8.230</longitude>
+            <latitude>46.707</latitude>
+            <altitude>100</altitude>
+            <heading>0</heading>
+            <tilt>90</tilt>
+            <roll>0</roll>
+            <altitudeMode>relativeToGround</altitudeMode>
+          </Camera>
+          <Icon>
+            <href>http://barcelona.galdos.local/svn1/sqa/ets-kml/main/test/data/ogc-kml/images/mountain.jpg</href>
+          </Icon>
+          <rotation>0</rotation>
+          <ViewVolume>
+           <leftFov>-180</leftFov>
+           <rightFov>180</rightFov>
+           <bottomFov>0</bottomFov>
+           <topFov>90</topFov>
+           <near>20000</near>
+          </ViewVolume>
+          <Point>
+           <altitudeMode>clampToGround</altitudeMode>
+           <coordinates>8.230,46.707,0</coordinates>
+          </Point>
+          <shape>sphere</shape>
+        </PhotoOverlay>
+</Document>
+</kml>

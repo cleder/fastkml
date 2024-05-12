@@ -33,6 +33,51 @@ class TestStdLibrary(StdLibrary):
             'id="id-0" targetId="target-id-0" />'
         )
 
+    def test_str(self) -> None:
+        obj = base._BaseObject(id="id-0", target_id="target-id-0")
+        assert str(obj) == obj.to_string()
+
+    def test_custom_kwargs(self) -> None:
+        obj = base._BaseObject(
+            id="id-0",
+            target_id="target-id-0",
+            custom="custom",
+            altkw=2,
+        )
+
+        assert obj.custom == "custom"
+        assert obj.altkw == 2
+
+    def test_custom_kwargs_splat(self) -> None:
+        obj = base._BaseObject(
+            id="id-0",
+            target_id="target-id-0",
+            custom="custom",
+            altkw=2,
+        )
+
+        assert obj._get_splat() == {"custom": "custom", "altkw": 2}
+
+    def test_eq(self) -> None:
+        obj1 = base._BaseObject(id="id-0", target_id="target-id-0")
+        obj2 = base._BaseObject(id="id-0", target_id="target-id-0")
+        assert obj1 == obj2
+
+    def test_ne(self) -> None:
+        obj1 = base._BaseObject(id="id-0", target_id="target-id-0")
+        obj2 = base._BaseObject(id="id-1", target_id="target-id-0")
+        assert obj1 != obj2
+
+    def test_ne_basexml(self) -> None:
+        obj1 = object()
+        obj2 = base._XMLObject()
+        assert obj1 != obj2
+
+    def test_ne_basexml_2(self) -> None:
+        obj1 = base._XMLObject()
+        obj2 = base._BaseObject()
+        assert obj1 != obj2
+
     def test_to_str_empty_ns(self) -> None:
         obj = base._BaseObject(ns="", id="id-0", target_id="target-id-0")
 
@@ -65,6 +110,23 @@ class TestStdLibrary(StdLibrary):
         assert be.target_id == ""
         assert be.ns == "{http://www.opengis.net/kml/2.2}"
 
+    def test_xml_object_roundtrip(self) -> None:
+        obj = base._XMLObject()
+        obj2 = base._XMLObject.class_from_string(obj.to_string())
+
+        assert obj == obj2
+        assert str(obj) == obj2.to_string()
+        assert repr(obj) == repr(obj2)
+
+    def test_base_object_roundtrip(self) -> None:
+        obj = base._BaseObject(id="id-0", target_id="target-id-0")
+
+        obj2 = base._BaseObject.class_from_string(obj.to_string())
+
+        assert obj == obj2
+        assert str(obj) == obj2.to_string()
+        assert repr(obj) == repr(obj2)
+
 
 class TestLxml(Lxml, TestStdLibrary):
     """Test the base object with lxml."""
@@ -72,9 +134,9 @@ class TestLxml(Lxml, TestStdLibrary):
     def test_to_string(self) -> None:
         obj = base._BaseObject(id="id-0")
 
-        assert (
-            obj.to_string()
-            == '<kml:_BaseObject xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0"/>\n'
+        assert obj.to_string() == (
+            '<kml:_BaseObject xmlns:kml="http://www.opengis.net/kml/2.2" '
+            'id="id-0"/>\n'
         )
 
     def test_from_string(self) -> None:

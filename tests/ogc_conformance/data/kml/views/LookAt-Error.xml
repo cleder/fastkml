@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [ERROR] altitudeMode is "absolute" but missing kml:altitude element -->
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Placemark>
+    <name>LookAt.kml</name>
+    <LookAt>
+      <longitude>-122.363</longitude>
+      <latitude>37.81</latitude>
+      <range>500</range>
+      <tilt>45</tilt>
+      <heading>0</heading>
+      <altitudeMode>absolute</altitudeMode>
+    </LookAt>
+    <Point>
+      <coordinates>-122.363,37.82,0</coordinates>
+    </Point>
+  </Placemark>
+</kml>

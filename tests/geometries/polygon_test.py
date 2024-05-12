@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the geometry classes."""
-from typing import cast
 
 import pygeoif.geometry as geo
 
@@ -73,9 +72,54 @@ class TestStdLibrary(StdLibrary):
           </kml:outerBoundaryIs>
         </kml:Polygon>"""
 
-        polygon2 = cast(Polygon, Polygon.class_from_string(doc))
+        polygon2 = Polygon.class_from_string(doc)
 
         assert polygon2.geometry == geo.Polygon([(0, 0), (1, 0), (1, 1), (0, 0)])
+
+    def test_from_string_interiors_only(self) -> None:
+        """Test polygon without exterior."""
+        doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:innerBoundaryIs>
+            <kml:LinearRing>
+              <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000
+              0.000000,0.000000</kml:coordinates>
+            </kml:LinearRing>
+          </kml:innerBoundaryIs>
+        </kml:Polygon>"""
+
+        assert not Polygon.class_from_string(doc)
+
+    def test_from_string_exterior_wo_linearring(self) -> None:
+        """Test exterior when no LinearRing in outer boundary."""
+        doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:outerBoundaryIs>
+            <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000
+            0.000000,0.000000</kml:coordinates>
+          </kml:outerBoundaryIs>
+          </kml:Polygon>"""
+
+        assert not Polygon.class_from_string(doc)
+
+    def test_from_string_interior_wo_linearring(self) -> None:
+        """Test interior when no LinearRing in inner boundary."""
+        doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
+        <kml:outerBoundaryIs>
+            <kml:LinearRing>
+              <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000
+              0.000000,0.000000</kml:coordinates>
+            </kml:LinearRing>
+          </kml:outerBoundaryIs>
+        <kml:innerBoundaryIs>
+        <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000
+        0.000000,0.000000</kml:coordinates>
+        </kml:innerBoundaryIs>
+        </kml:Polygon>"""
+
+        poly = Polygon.class_from_string(doc)
+
+        assert poly.geometry == geo.Polygon(
+            ((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0)),
+        )
 
     def test_from_string_exterior_interior(self) -> None:
         doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
@@ -94,24 +138,49 @@ class TestStdLibrary(StdLibrary):
         </kml:Polygon>
         """
 
-        polygon2 = cast(Polygon, Polygon.class_from_string(doc))
+        polygon = Polygon.class_from_string(doc)
 
-        assert polygon2.geometry == geo.Polygon(
+        assert polygon.geometry == geo.Polygon(
             [(-1, -1), (2, -1), (2, 2), (-1, -1)],
             [[(0, 0), (1, 0), (1, 1), (0, 0)]],
+        )
+
+    def test_from_string_exterior_mixed_interior_relaxed(self) -> None:
+        doc = """<kml:Polygon xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:outerBoundaryIs>
+            <kml:LinearRing>
+              <kml:coordinates>-1.000000,-1.000000 2.000000,-1.000000 2.000000,2.000000
+              -1.000000,-1.000000</kml:coordinates>
+            </kml:LinearRing>
+          </kml:outerBoundaryIs>
+          <kml:innerBoundaryIs>
+            <kml:LinearRing>
+              <kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.000000,1.000000
+              0.000000,0.000000,1.00000</kml:coordinates>
+            </kml:LinearRing>
+          </kml:innerBoundaryIs>
+        </kml:Polygon>
+        """
+
+        polygon = Polygon.class_from_string(doc, strict=False)
+
+        assert polygon.geometry == geo.Polygon(
+            ((-1.0, -1.0), (2.0, -1.0), (2.0, 2.0), (-1.0, -1.0)),
         )
 
     def test_empty_polygon(self) -> None:
         """Test empty polygon."""
         doc = (
-            "<Polygon><tessellate>1</tessellate><outerBoundaryIs>"
-            "<LinearRing><coordinates/></LinearRing></outerBoundaryIs></Polygon>"
+            '<Polygon xmlns="http://www.opengis.net/kml/2.2"><tessellate>1</tessellate>'
+            "<outerBoundaryIs><LinearRing><coordinates/></LinearRing></outerBoundaryIs>"
+            "</Polygon>"
         )
 
-        polygon = cast(Polygon, Polygon.class_from_string(doc, ns=""))
+        polygon = Polygon.class_from_string(doc)
 
         assert not polygon.geometry
-        assert polygon.to_string()
+        assert polygon.outer_boundary_is is not None
+        assert "tessellate>1</" in polygon.to_string()
 
 
 class TestLxml(Lxml, TestStdLibrary):

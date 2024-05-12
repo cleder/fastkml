@@ -85,7 +85,6 @@ from typing import Iterable
 from typing import Iterator
 from typing import List
 from typing import Optional
-from typing import cast
 
 import arrow
 import pygeoif.geometry as geo
@@ -158,7 +157,11 @@ class TrackItem:
             f"{name_spaces.get('gx', '')}coord",
         )
         if self.coord:
-            element.text = " ".join([str(c) for c in self.coord.coords[0]])
+            element.text = " ".join(
+                [
+                    str(c) for c in self.coord.coords[0]  # type:ignore[misc]
+                ],
+            )
         yield element
         element = config.etree.Element(  # type: ignore[attr-defined]
             f"{name_spaces.get('gx', '')}angles",
@@ -210,14 +213,13 @@ class Track(_Geometry):
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: Optional[geo.LineString] = None,
         track_items: Optional[Iterable[TrackItem]] = None,
+        **kwargs: Any,
     ) -> None:
         if geometry and track_items:
             msg = "Cannot specify both geometry and track_items"
             raise ValueError(msg)
         if geometry:
             track_items = linestring_to_track_items(geometry)
-        elif track_items:
-            geometry = track_items_to_geometry(track_items)
         self.track_items = list(track_items) if track_items else []
         super().__init__(
             ns=ns,
@@ -227,8 +229,32 @@ class Track(_Geometry):
             extrude=extrude,
             tessellate=tessellate,
             altitude_mode=altitude_mode,
-            geometry=geometry,
+            **kwargs,
         )
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Track."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"extrude={self.extrude!r}, "
+            f"tessellate={self.tessellate!r}, "
+            f"altitude_mode={self.altitude_mode}, "
+            f"geometry={self.geometry!r}, "
+            f"track_items={self.track_items!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
+    @property
+    def geometry(self) -> Optional[geo.LineString]:
+        return track_items_to_geometry(self.track_items)
+
+    def __bool__(self) -> bool:
+        return bool(self.track_items)
 
     def etree_element(
         self,
@@ -248,19 +274,17 @@ class Track(_Geometry):
         return element
 
     @classmethod
-    def track_items_kwargs_from_element(
-        cls,
-        *,
-        ns: str,
-        element: Element,
-        strict: bool,
-    ) -> List[TrackItem]:
+    def _get_timestamps(cls, element: Element) -> List[Optional[datetime.datetime]]:
         time_stamps: List[Optional[datetime.datetime]] = []
         for time_stamp in element.findall(f"{config.KMLNS}when"):
             if time_stamp is not None and time_stamp.text:
                 time_stamps.append(arrow.get(time_stamp.text).datetime)
             else:
                 time_stamps.append(None)
+        return time_stamps
+
+    @classmethod
+    def _get_coords(cls, element: Element) -> List[Optional[geo.Point]]:
         coords: List[Optional[geo.Point]] = []
         for coord in element.findall(f"{config.GXNS}coord"):
             if coord is not None and coord.text:
@@ -269,12 +293,29 @@ class Track(_Geometry):
                 )
             else:
                 coords.append(None)
+        return coords
+
+    @classmethod
+    def _get_angles(cls, element: Element) -> List[Optional[Angle]]:
         angles: List[Optional[Angle]] = []
         for angle in element.findall(f"{config.GXNS}angles"):
             if angle is not None and angle.text:
                 angles.append(Angle(*[float(a) for a in angle.text.strip().split()]))
             else:
                 angles.append(None)
+        return angles
+
+    @classmethod
+    def track_items_kwargs_from_element(
+        cls,
+        *,
+        ns: str,
+        element: Element,
+        strict: bool,
+    ) -> List[TrackItem]:
+        time_stamps = cls._get_timestamps(element)
+        coords = cls._get_coords(element)
+        angles = cls._get_angles(element)
         return [
             TrackItem(when=when, coord=coord, angle=angle)
             for when, coord, angle in zip_longest(time_stamps, coords, angles)
@@ -312,7 +353,7 @@ def multilinestring_to_tracks(
 
 def tracks_to_geometry(tracks: Iterable[Track]) -> geo.MultiLineString:
     return geo.MultiLineString.from_linestrings(
-        *[cast(geo.LineString, track.geometry) for track in tracks if track.geometry],
+        *[track.geometry for track in tracks if track.geometry],
     )
 
 
@@ -333,14 +374,13 @@ class MultiTrack(_Geometry):
         geometry: Optional[geo.MultiLineString] = None,
         tracks: Optional[Iterable[Track]] = None,
         interpolate: Optional[bool] = None,
+        **kwargs: Any,
     ) -> None:
         if geometry and tracks:
             msg = "Cannot specify both geometry and track_items"
             raise ValueError(msg)
         if geometry:
             tracks = multilinestring_to_tracks(geometry, ns=ns)
-        elif tracks:
-            geometry = tracks_to_geometry(tracks)
         self.tracks = list(tracks) if tracks else []
         self.interpolate = interpolate
         super().__init__(
@@ -351,8 +391,33 @@ class MultiTrack(_Geometry):
             extrude=extrude,
             tessellate=tessellate,
             altitude_mode=altitude_mode,
-            geometry=geometry,
+            **kwargs,
         )
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for MultiTrack."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"extrude={self.extrude!r}, "
+            f"tessellate={self.tessellate!r}, "
+            f"altitude_mode={self.altitude_mode}, "
+            f"geometry={self.geometry!r}, "
+            f"tracks={self.tracks!r}, "
+            f"interpolate={self.interpolate!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
+    @property
+    def geometry(self) -> Optional[geo.MultiLineString]:
+        return tracks_to_geometry(self.tracks)
+
+    def __bool__(self) -> bool:
+        return bool(self.tracks)
 
 
 registry.register(

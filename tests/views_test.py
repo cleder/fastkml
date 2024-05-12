@@ -175,6 +175,81 @@ class TestStdLibrary(StdLibrary):
         assert look_at.begin is None
         assert look_at.end is None
 
+    def test_region_with_all_optional_parameters(self) -> None:
+        """Region object can be initialized with all optional parameters."""
+        region = views.Region(
+            id="region1",
+            lat_lon_alt_box=views.LatLonAltBox(
+                north=37.85,
+                south=37.80,
+                east=-122.35,
+                west=-122.40,
+                min_altitude=0,
+                max_altitude=1000,
+                altitude_mode=AltitudeMode.clamp_to_ground,
+            ),
+            lod=views.Lod(
+                min_lod_pixels=256,
+                max_lod_pixels=1024,
+                min_fade_extent=0,
+                max_fade_extent=512,
+            ),
+        )
+
+        assert region.id == "region1"
+        assert region.lat_lon_alt_box.north == 37.85
+        assert region.lat_lon_alt_box.south == 37.80
+        assert region.lat_lon_alt_box.east == -122.35
+        assert region.lat_lon_alt_box.west == -122.40
+        assert region.lat_lon_alt_box.min_altitude == 0
+        assert region.lat_lon_alt_box.max_altitude == 1000
+        assert region.lat_lon_alt_box.altitude_mode == AltitudeMode.clamp_to_ground
+        assert region.lod.min_lod_pixels == 256
+        assert region.lod.max_lod_pixels == 1024
+        assert region.lod.min_fade_extent == 0
+        assert region.lod.max_fade_extent == 512
+        assert region
+
+    def test_region_read(self) -> None:
+        doc = (
+            '<kml:Region xmlns:kml="http://www.opengis.net/kml/2.2" '
+            'id="region1"><kml:LatLonAltBox><kml:north>37.85</kml:north>'
+            "<kml:south>37.8</kml:south><kml:east>-122.35</kml:east>"
+            "<kml:west>-122.4</kml:west><kml:minAltitude>0</kml:minAltitude>"
+            "<kml:maxAltitude>1000</kml:maxAltitude>"
+            "<kml:altitudeMode>clampToGround</kml:altitudeMode>"
+            "</kml:LatLonAltBox><kml:Lod><kml:minLodPixels>256</kml:minLodPixels>"
+            "<kml:maxLodPixels>1024</kml:maxLodPixels>"
+            "<kml:minFadeExtent>0</kml:minFadeExtent>"
+            "<kml:maxFadeExtent>512</kml:maxFadeExtent></kml:Lod></kml:Region>"
+        )
+
+        region = views.Region.class_from_string(doc)
+
+        assert region.id == "region1"
+        assert region.lat_lon_alt_box.north == 37.85
+        assert region.lat_lon_alt_box.south == 37.80
+        assert region.lat_lon_alt_box.east == -122.35
+        assert region.lat_lon_alt_box.west == -122.40
+        assert region.lat_lon_alt_box.min_altitude == 0
+        assert region.lat_lon_alt_box.max_altitude == 1000
+        assert region.lat_lon_alt_box.altitude_mode == AltitudeMode.clamp_to_ground
+        assert region.lod.min_lod_pixels == 256
+        assert region.lod.max_lod_pixels == 1024
+        assert region.lod.min_fade_extent == 0
+        assert region.lod.max_fade_extent == 512
+        assert region
+
+    def test_initialized_with_empty_lat_lon_alt_box(self) -> None:
+        """Region object can be initialized with empty LatLonAltBox object."""
+        lat_lon_alt_box = views.LatLonAltBox()
+
+        region = views.Region(lat_lon_alt_box=lat_lon_alt_box)
+
+        assert not region
+        assert region.lat_lon_alt_box == lat_lon_alt_box
+        assert region.lod is None
+
 
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""

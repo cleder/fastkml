@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2">
+	<kml:Document>
+		<kml:Style id="style-01">
+			<kml:LineStyle>
+				<kml:color>ff0000ff</kml:color>
+				<kml:width>15</kml:width>
+			</kml:LineStyle>
+		</kml:Style>
+	</kml:Document>
+</kml:kml>

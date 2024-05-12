@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [ERROR] LineString must have at least two coord tuples -->
+<Placemark xmlns="http://www.opengis.net/kml/2.2">
+	<name>Alpha</name>
+	<LineString>
+		<tessellate>1</tessellate>
+		<coordinates>
+			-122.378009,37.830128,0
+		</coordinates>
+	</LineString>
+</Placemark>

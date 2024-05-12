@@ -1,4 +1,4 @@
-# Copyright (C) 2012 - 2023  Christian Ledermann
+# Copyright (C) 2012 - 2024 Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -19,7 +19,10 @@ import logging
 from typing import Any
 from typing import Dict
 from typing import Optional
+from typing import Tuple
 from typing import cast
+
+from typing_extensions import Self
 
 from fastkml import config
 from fastkml.enums import Verbosity
@@ -35,22 +38,40 @@ class _XMLObject:
     _default_ns: str = ""
     _node_name: str = ""
     name_spaces: Dict[str, str]
+    __kwarg_keys: Tuple[str, ...]
 
     def __init__(
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize the XML Object."""
         self.ns: str = self._default_ns if ns is None else ns
         name_spaces = name_spaces or {}
         self.name_spaces = {**config.NAME_SPACES, **name_spaces}
+        for arg in kwargs:
+            setattr(self, arg, kwargs[arg])
+        self.__kwarg_keys = tuple(kwargs.keys())
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(ns={self.ns})"
+        """Create a string (c)representation for _XMLObject."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __str__(self) -> str:
         return self.to_string()
+
+    def __eq__(self, other: object) -> bool:
+        if type(self) is not type(other):
+            return False
+        assert isinstance(other, type(self))
+        return self.ns == other.ns and self.name_spaces == other.name_spaces
 
     def etree_element(
         self,
@@ -80,14 +101,15 @@ class _XMLObject:
         verbosity: Verbosity = Verbosity.normal,
     ) -> str:
         """Return the KML Object as serialized xml."""
+        element = self.etree_element(
+            precision=precision,
+            verbosity=verbosity,
+        )
         try:
             return cast(
                 str,
                 config.etree.tostring(  # type: ignore[attr-defined]
-                    self.etree_element(
-                        precision=precision,
-                        verbosity=verbosity,
-                    ),
+                    element,
                     encoding="UTF-8",
                     pretty_print=prettyprint,
                 ).decode(
@@ -98,12 +120,19 @@ class _XMLObject:
             return cast(
                 str,
                 config.etree.tostring(  # type: ignore[attr-defined]
-                    self.etree_element(),
+                    element,
                     encoding="UTF-8",
                 ).decode(
                     "UTF-8",
                 ),
             )
+
+    def _get_splat(self) -> Dict[str, Any]:
+        return {
+            key: getattr(self, key)
+            for key in self.__kwarg_keys
+            if getattr(self, key) is not None
+        }
 
     @classmethod
     def get_tag_name(cls) -> str:
@@ -149,7 +178,7 @@ class _XMLObject:
         name_spaces: Optional[Dict[str, str]] = None,
         element: Element,
         strict: bool,
-    ) -> "_XMLObject":
+    ) -> Self:
         """Creates an XML object from an etree element."""
         kwargs = cls._get_kwargs(
             ns=ns,
@@ -169,7 +198,7 @@ class _XMLObject:
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
         strict: bool = True,
-    ) -> "_XMLObject":
+    ) -> Self:
         """
         Creates a geometry object from a string.
 
@@ -180,6 +209,7 @@ class _XMLObject:
         Returns:
         -------
             Geometry object
+
         """
         ns = cls._get_ns(ns)
         return cls.class_from_element(
@@ -216,26 +246,36 @@ class _BaseObject(_XMLObject):
         name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
+        **kwargs: Any,
     ) -> None:
         """Initialize the KML Object."""
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.id = id
         self.target_id = target_id
 
-    def __eq__(self, other: object) -> bool:
-        assert isinstance(other, self.__class__)
+    def __repr__(self) -> str:
+        """Create a string (c)representation for _BaseObject."""
         return (
-            super().__eq__(other)
-            and self.id == other.id
-            and self.target_id == other.target_id
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
         )
 
-    def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}(ns={self.ns!r}, "
-            f"name_spaces={self.name_spaces!r}, "
-            f"(id={self.id!r}, target_id={self.target_id!r})"
-        )
+    def __eq__(self, other: object) -> bool:
+        """Return True if the two objects are equal."""
+        try:
+            assert isinstance(other, type(self))
+            return (
+                super().__eq__(other)
+                and self.id == other.id
+                and self.target_id == other.target_id
+            )
+        except AssertionError:
+            return False
 
     def etree_element(
         self,

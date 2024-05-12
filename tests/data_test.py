@@ -33,23 +33,23 @@ class TestStdLibrary(StdLibrary):
     def test_schema(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"
         s = kml.Schema(ns=ns, id="some_id")
-        assert not list(s.simple_fields)
+        assert not list(s.fields)
         field = data.SimpleField(
             name="Integer",
             type=DataType.int_,
             display_name="An Integer",
         )
         s.append(field)
-        assert s.simple_fields[0] == field
-        s.simple_fields = []
-        assert not s.simple_fields
+        assert s.fields[0] == field
+        s.fields = []
+        assert not s.fields
         fields = {
             "type": DataType.int_,
             "name": "Integer",
             "display_name": "An Integer",
         }
-        s.simple_fields = [data.SimpleField(**fields)]  # type: ignore[arg-type]
-        assert s.simple_fields[0] == data.SimpleField(**fields)  # type: ignore[arg-type]
+        s.fields = [data.SimpleField(**fields)]  # type: ignore[arg-type]
+        assert s.fields[0] == data.SimpleField(**fields)  # type: ignore[arg-type]
 
     def test_schema_from_string(self) -> None:
         doc = """<Schema name="TrailHeadType" id="TrailHeadTypeId"
@@ -67,21 +67,21 @@ class TestStdLibrary(StdLibrary):
 
         s = kml.Schema.class_from_string(doc, ns=None)
 
-        assert len(s.simple_fields) == 3
-        assert s.simple_fields[0].type == DataType("string")
-        assert s.simple_fields[1].type == DataType("double")
-        assert s.simple_fields[2].type == DataType("int")
-        assert s.simple_fields[0].name == "TrailHeadName"
-        assert s.simple_fields[1].name == "TrailLength"
-        assert s.simple_fields[2].name == "ElevationGain"
-        assert s.simple_fields[0].display_name == "<b>Trail Head Name</b>"
-        assert s.simple_fields[1].display_name == "<i>The length in miles</i>"
-        assert s.simple_fields[2].display_name == "<i>change in altitude</i>"
+        assert len(s.fields) == 3
+        assert s.fields[0].type == DataType("string")
+        assert s.fields[1].type == DataType("double")
+        assert s.fields[2].type == DataType("int")
+        assert s.fields[0].name == "TrailHeadName"
+        assert s.fields[1].name == "TrailLength"
+        assert s.fields[2].name == "ElevationGain"
+        assert s.fields[0].display_name == "<b>Trail Head Name</b>"
+        assert s.fields[1].display_name == "<i>The length in miles</i>"
+        assert s.fields[2].display_name == "<i>change in altitude</i>"
         s1 = kml.Schema.class_from_string(s.to_string(), ns=None)
-        assert len(s1.simple_fields) == 3
-        assert s1.simple_fields[0].type == DataType("string")
-        assert s1.simple_fields[1].name == "TrailLength"
-        assert s1.simple_fields[2].display_name == "<i>change in altitude</i>"
+        assert len(s1.fields) == 3
+        assert s1.fields[0].type == DataType("string")
+        assert s1.fields[1].name == "TrailLength"
+        assert s1.fields[2].display_name == "<i>change in altitude</i>"
         assert s.to_string() == s1.to_string()
         doc1 = (
             '<kml xmlns="http://www.opengis.net/kml/2.2">'
@@ -90,7 +90,6 @@ class TestStdLibrary(StdLibrary):
         k = kml.KML.class_from_string(doc1, ns=None)
         d = k.features[0]
         s2 = d.schemata[0]
-        # s.ns = config.KMLNS
         assert s.to_string() == s2.to_string()
         k1 = kml.KML.class_from_string(k.to_string())
         assert "Schema" in k1.to_string()
@@ -106,21 +105,22 @@ class TestStdLibrary(StdLibrary):
         assert not data.SchemaData(ns=ns)
         sd = data.SchemaData(ns=ns, schema_url="#default")
         assert not sd
-        sd.append_data(data.SimpleData("text", "Some Text"))
+        sd.append_data(data.SimpleData(value="text", name="Some Text"))
         assert len(sd.data) == 1
         assert sd
         sd.append_data(data.SimpleData(value=1, name="Integer"))
         assert len(sd.data) == 2
-        assert sd.data[0] == data.SimpleData(value="Some Text", name="text")
-        assert sd.data[1] == data.SimpleData(value=1, name="Integer")
+        assert sd.data[0].value == "text"
+        assert sd.data[0].name == "Some Text"
+        assert sd.data[1].value == 1
         new_data = [
-            data.SimpleData("text", "Some new Text"),
+            data.SimpleData(value="text", name="Some new Text"),
             data.SimpleData(value=2, name="Integer"),
         ]
         sd.data = new_data
         assert len(sd.data) == 2
-        assert sd.data[0].name == "text"
-        assert sd.data[0].value == "Some new Text"
+        assert sd.data[0].value == "text"
+        assert sd.data[0].name == "Some new Text"
         assert sd.data[1].name == "Integer"
         assert sd.data[1].value == 2
 
@@ -231,21 +231,22 @@ class TestStdLibrary(StdLibrary):
             "<i>The par for this hole is </i>" in extended_data.elements[1].display_name
         )
         sd = extended_data.elements[2]
-        assert sd.data[0] == data.SimpleData(
-            name="TrailHeadName",
-            value="Mount Everest",
-        )
-        assert sd.data[1] == data.SimpleData(name="TrailLength", value="347.45")
-        assert sd.data[2] == data.SimpleData(name="ElevationGain", value="10000")
+        assert sd.data[0].name == "TrailHeadName"
+        assert sd.data[0].value == "Mount Everest"
+        assert sd.data[1].name == "TrailLength"
+        assert sd.data[1].value == "347.45"
+        assert sd.data[2].name == "ElevationGain"
+        assert sd.data[2].value == "10000"
 
     def test_schema_data_from_str(self) -> None:
-        doc = """<SchemaData schemaUrl="#TrailHeadTypeId">
+        doc = """<SchemaData schemaUrl="#TrailHeadTypeId"
+                 xmlns="http://www.opengis.net/kml/2.2">
           <SimpleData name="TrailHeadName">Pi in the sky</SimpleData>
           <SimpleData name="TrailLength">3.14159</SimpleData>
           <SimpleData name="ElevationGain">10</SimpleData>
         </SchemaData>"""
 
-        sd = data.SchemaData.class_from_string(doc, ns="")
+        sd = data.SchemaData.class_from_string(doc)
         assert sd.schema_url == "#TrailHeadTypeId"
         assert sd.data[0].name == "TrailHeadName"
         assert sd.data[0].value == "Pi in the sky"
@@ -253,7 +254,7 @@ class TestStdLibrary(StdLibrary):
         assert sd.data[1].value == "3.14159"
         assert sd.data[2].name == "ElevationGain"
         assert sd.data[2].value == "10"
-        sd1 = data.SchemaData.class_from_string(sd.to_string(), ns="")
+        sd1 = data.SchemaData.class_from_string(sd.to_string())
         assert sd1.schema_url == "#TrailHeadTypeId"
         assert sd.to_string() == sd1.to_string()
 

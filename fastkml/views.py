@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """KML Views."""
 import logging
+from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Union
@@ -97,8 +98,15 @@ class _AbstractView(TimeMixin, _BaseObject):
         tilt: Optional[float] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         time_primitive: Union[TimeSpan, TimeStamp, None] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.longitude = longitude
         self.latitude = latitude
         self.altitude = altitude
@@ -106,6 +114,25 @@ class _AbstractView(TimeMixin, _BaseObject):
         self.tilt = tilt
         self.altitude_mode = altitude_mode
         self.times = time_primitive
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for _AbstractView."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"longitude={self.longitude!r}, "
+            f"latitude={self.latitude!r}, "
+            f"altitude={self.altitude!r}, "
+            f"heading={self.heading!r}, "
+            f"tilt={self.tilt!r}, "
+            f"altitude_mode={self.altitude_mode}, "
+            f"time_primitive={self.times!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
 
 registry.register(
@@ -220,6 +247,7 @@ class Camera(_AbstractView):
         roll: Optional[float] = None,
         altitude_mode: AltitudeMode = AltitudeMode.relative_to_ground,
         time_primitive: Union[TimeSpan, TimeStamp, None] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -233,8 +261,29 @@ class Camera(_AbstractView):
             tilt=tilt,
             altitude_mode=altitude_mode,
             time_primitive=time_primitive,
+            **kwargs,
         )
         self.roll = roll
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Camera."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"longitude={self.longitude!r}, "
+            f"latitude={self.latitude!r}, "
+            f"altitude={self.altitude!r}, "
+            f"heading={self.heading!r}, "
+            f"tilt={self.tilt!r}, "
+            f"roll={self.roll!r}, "
+            f"altitude_mode={self.altitude_mode}, "
+            f"time_primitive={self.times!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
 
 registry.register(
@@ -268,6 +317,7 @@ class LookAt(_AbstractView):
         range: Optional[float] = None,
         altitude_mode: AltitudeMode = AltitudeMode.relative_to_ground,
         time_primitive: Union[TimeSpan, TimeStamp, None] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -281,8 +331,29 @@ class LookAt(_AbstractView):
             tilt=tilt,
             altitude_mode=altitude_mode,
             time_primitive=time_primitive,
+            **kwargs,
         )
         self.range = range
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for LookAt."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"longitude={self.longitude!r}, "
+            f"latitude={self.latitude!r}, "
+            f"altitude={self.altitude!r}, "
+            f"heading={self.heading!r}, "
+            f"tilt={self.tilt!r}, "
+            f"range={self.range!r}, "
+            f"altitude_mode={self.altitude_mode}, "
+            f"time_primitive={self.times!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
 
 registry.register(
@@ -325,8 +396,9 @@ class LatLonAltBox(_XMLObject):
         min_altitude: Optional[float] = None,
         max_altitude: Optional[float] = None,
         altitude_mode: Optional[AltitudeMode] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.north = north
         self.south = south
         self.east = east
@@ -334,6 +406,23 @@ class LatLonAltBox(_XMLObject):
         self.min_altitude = min_altitude
         self.max_altitude = max_altitude
         self.altitude_mode = altitude_mode
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for LatLonAltBox."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"north={self.north!r}, "
+            f"south={self.south!r}, "
+            f"east={self.east!r}, "
+            f"west={self.west!r}, "
+            f"min_altitude={self.min_altitude!r}, "
+            f"max_altitude={self.max_altitude!r}, "
+            f"altitude_mode={self.altitude_mode}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return all(
@@ -444,12 +533,27 @@ class Lod(_XMLObject):
         max_lod_pixels: Optional[float] = None,
         min_fade_extent: Optional[float] = None,
         max_fade_extent: Optional[float] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.min_lod_pixels = min_lod_pixels
         self.max_lod_pixels = max_lod_pixels
         self.min_fade_extent = min_fade_extent
         self.max_fade_extent = max_fade_extent
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Lod."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"min_lod_pixels={self.min_lod_pixels!r}, "
+            f"max_lod_pixels={self.max_lod_pixels!r}, "
+            f"min_fade_extent={self.min_fade_extent!r}, "
+            f"max_fade_extent={self.max_fade_extent!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return self.min_lod_pixels is not None
@@ -521,10 +625,31 @@ class Region(_BaseObject):
         target_id: Optional[str] = None,
         lat_lon_alt_box: Optional[LatLonAltBox] = None,
         lod: Optional[Lod] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.lat_lon_alt_box = lat_lon_alt_box
         self.lod = lod
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Region."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"lat_lon_alt_box={self.lat_lon_alt_box!r}, "
+            f"lod={self.lod!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return bool(self.lat_lon_alt_box)

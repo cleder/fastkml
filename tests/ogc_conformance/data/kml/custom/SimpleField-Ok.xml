@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [ERROR] SimpleField has unsupported data type -->
+<Schema id="schema-2" xmlns="http://www.opengis.net/kml/2.2">
+	<SimpleField name="approved" type="boolean" />
+</Schema>

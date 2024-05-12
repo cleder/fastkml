@@ -1,4 +1,5 @@
 """Introspection utilities."""
+
 # flake8: noqa
 import collections.abc
 import enum

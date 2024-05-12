@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [ERROR] kml:Update/kml:targetHref cannot be dereferenced -->
+<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2">
+	<kml:NetworkLinkControl>
+		<kml:Update>
+			<kml:targetHref>does-not-exist.kml</kml:targetHref>
+			<kml:Create>
+				<kml:Folder />
+			</kml:Create>
+		</kml:Update>
+	</kml:NetworkLinkControl>
+</kml:kml>

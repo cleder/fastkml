@@ -54,8 +54,7 @@ class GetKWArgs(Protocol):
         kwarg: str,
         classes: Tuple[known_types, ...],
         strict: bool,
-    ) -> Dict[str, Any]:
-        ...
+    ) -> Dict[str, Any]: ...
 
 
 class SetElement(Protocol):
@@ -68,8 +67,7 @@ class SetElement(Protocol):
         node_name: str,
         precision: Optional[int],
         verbosity: Optional[Verbosity],
-    ) -> None:
-        ...
+    ) -> None: ...
 
 
 @dataclass(frozen=True)
@@ -91,6 +89,10 @@ class Registry:
     def __init__(self) -> None:
         """Initialize the registry."""
         self._registry = {}
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Registry."""
+        return f"{self.__class__.__module__}.{self.__class__.__name__}(" ")"
 
     def register(self, cls: Type["_XMLObject"], item: RegistryItem) -> None:
         """Register a class."""

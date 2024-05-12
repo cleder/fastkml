@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2023  Christian Ledermann
+# Copyright (C) 2022 - 2024 Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -19,7 +19,6 @@ Add Custom Data.
 https://developers.google.com/kml/documentation/extendeddata#example
 """
 import logging
-from dataclasses import dataclass
 from typing import Any
 from typing import Dict
 from typing import Iterable
@@ -29,17 +28,20 @@ from typing import Union
 
 from fastkml import config
 from fastkml.base import _BaseObject
-from fastkml.base import _XMLObject
 from fastkml.enums import DataType
-from fastkml.enums import Verbosity
 from fastkml.exceptions import KMLSchemaError
+from fastkml.helpers import attribute_enum_kwarg
+from fastkml.helpers import attribute_text_kwarg
+from fastkml.helpers import enum_attribute
+from fastkml.helpers import node_text
+from fastkml.helpers import node_text_kwarg
 from fastkml.helpers import subelement_text_kwarg
+from fastkml.helpers import text_attribute
 from fastkml.helpers import text_subelement
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
-from fastkml.types import Element
 
 __all__ = [
     "Data",
@@ -52,8 +54,7 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 
-@dataclass(frozen=True)
-class SimpleField:
+class SimpleField(_BaseObject):
     """
     A SimpleField always has both name and type attributes.
 
@@ -76,12 +77,81 @@ class SimpleField:
     HTML markup.
     """
 
-    name: str
-    type: DataType
-    display_name: Optional[str] = None
+    name: Optional[str]
+    type: Optional[DataType]
+    display_name: Optional[str]
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        name: Optional[str] = None,
+        type: Optional[DataType] = None,
+        display_name: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
+        self.name = name
+        self.type = type
+        self.display_name = display_name
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for SimpleField."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"type={self.type}, "
+            f"display_name={self.display_name!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return bool(self.name) and bool(self.type)
+
+
+registry.register(
+    SimpleField,
+    RegistryItem(
+        attr_name="name",
+        node_name="name",
+        classes=(str,),
+        get_kwarg=attribute_text_kwarg,
+        set_element=text_attribute,
+    ),
+)
+registry.register(
+    SimpleField,
+    RegistryItem(
+        attr_name="type",
+        node_name="type",
+        classes=(DataType,),
+        get_kwarg=attribute_enum_kwarg,
+        set_element=enum_attribute,
+    ),
+)
+registry.register(
+    SimpleField,
+    RegistryItem(
+        attr_name="display_name",
+        node_name="displayName",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
 
 
 class Schema(_BaseObject):
@@ -95,6 +165,9 @@ class Schema(_BaseObject):
 
     """
 
+    name: Optional[str]
+    fields: List[SimpleField]
+
     def __init__(
         self,
         ns: Optional[str] = None,
@@ -103,92 +176,63 @@ class Schema(_BaseObject):
         target_id: Optional[str] = None,
         name: Optional[str] = None,
         fields: Optional[Iterable[SimpleField]] = None,
+        **kwargs: Any,
     ) -> None:
         if id is None:
             msg = "Id is required for schema"
             raise KMLSchemaError(msg)
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.name = name
-        self.simple_fields = list(fields) if fields else []
+        self.fields = list(fields) if fields else []
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Schema."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"fields={self.fields!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def append(self, field: SimpleField) -> None:
         """Append a field."""
-        self.simple_fields.append(field)
-
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.name:
-            element.set("name", self.name)
-        for simple_field in self.simple_fields:
-            if not simple_field:
-                continue
-            sf = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}SimpleField",
-            )
-            sf.set("type", simple_field.type.value)
-            sf.set("name", simple_field.name)
-            if simple_field.display_name:
-                dn = config.etree.SubElement(  # type: ignore[attr-defined]
-                    sf,
-                    f"{self.ns}displayName",
-                )
-                dn.text = simple_field.display_name
-        return element
-
-    @classmethod
-    def _get_fields_kwargs_from_element(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> List[SimpleField]:
-        def get_display_name(field: Element) -> Optional[str]:
-            display_name = field.find(f"{ns}displayName")
-            return display_name.text if display_name is not None else None
-
-        return [
-            SimpleField(
-                name=field.get("name"),
-                type=DataType(field.get("type")),
-                display_name=get_display_name(field),
-            )
-            for field in element.findall(f"{ns}SimpleField")
-            if field is not None
-        ]
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        kwargs["name"] = element.get("name")
-        kwargs["fields"] = cls._get_fields_kwargs_from_element(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        return kwargs
+        self.fields.append(field)
 
 
-class Data(_XMLObject):
+registry.register(
+    Schema,
+    RegistryItem(
+        attr_name="name",
+        node_name="name",
+        classes=(str,),
+        get_kwarg=attribute_text_kwarg,
+        set_element=text_attribute,
+    ),
+)
+registry.register(
+    Schema,
+    RegistryItem(
+        attr_name="fields",
+        node_name="SimpleField",
+        classes=(SimpleField,),
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
+    ),
+)
+
+
+class Data(_BaseObject):
     """Represents an untyped name/value pair with optional display name."""
 
     _default_ns = config.KMLNS
@@ -201,46 +245,53 @@ class Data(_XMLObject):
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
         name: Optional[str] = None,
         value: Optional[str] = None,
         display_name: Optional[str] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
-
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.name = name
         self.value = value
         self.display_name = display_name
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Data."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"value={self.value!r}, "
+            f"display_name={self.display_name!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     def __bool__(self) -> bool:
         return bool(self.name) and self.value is not None
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        element.set("name", self.name or "")
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        kwargs["name"] = element.get("name")
-        return kwargs
-
+registry.register(
+    Data,
+    RegistryItem(
+        attr_name="name",
+        node_name="name",
+        classes=(str,),
+        get_kwarg=attribute_text_kwarg,
+        set_element=text_attribute,
+    ),
+)
 
 registry.register(
     Data,
@@ -264,13 +315,71 @@ registry.register(
 )
 
 
-@dataclass(frozen=True)
-class SimpleData:
-    name: str
-    value: Union[int, str, float, bool]
+class SimpleData(_BaseObject):
+    name: Optional[str]
+    value: Optional[str]
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        name: Optional[str] = None,
+        value: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
+        self.name = name
+        self.value = value
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for SimpleData."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"value={self.value!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
+    def __bool__(self) -> bool:
+        return bool(self.name) and self.value is not None
 
 
-class SchemaData(_XMLObject):
+registry.register(
+    SimpleData,
+    RegistryItem(
+        attr_name="value",
+        node_name="value",
+        classes=(str,),
+        get_kwarg=node_text_kwarg,
+        set_element=node_text,
+    ),
+)
+registry.register(
+    SimpleData,
+    RegistryItem(
+        attr_name="name",
+        node_name="name",
+        classes=(str,),
+        get_kwarg=attribute_text_kwarg,
+        set_element=text_attribute,
+    ),
+)
+
+
+class SchemaData(_BaseObject):
     """
     <SchemaData schemaUrl="anyURI">
     This element is used in conjunction with <Schema> to add typed
@@ -292,12 +401,35 @@ class SchemaData(_XMLObject):
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
         schema_url: Optional[str] = None,
         data: Optional[Iterable[SimpleData]] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.schema_url = schema_url
         self.data = list(data) if data else []
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for SchemaData."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"schema_url={self.schema_url!r}, "
+            f"data={self.data!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return bool(self.data) and bool(self.schema_url)
@@ -305,48 +437,30 @@ class SchemaData(_XMLObject):
     def append_data(self, data: SimpleData) -> None:
         self.data.append(data)
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.schema_url:
-            element.set("schemaUrl", self.schema_url)
-        for data in self.data:
-            sd = config.etree.SubElement(  # type: ignore[attr-defined]
-                element,
-                f"{self.ns}SimpleData",
-            )
-            sd.set("name", data.name)
-            sd.text = data.value
-        return element
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        kwargs["schema_url"] = element.get("schemaUrl")
-        kwargs["data"] = [
-            SimpleData(name=sd.get("name"), value=sd.text)
-            for sd in element.findall(f"{ns}SimpleData")
-            if sd is not None
-        ]
-        return kwargs
+registry.register(
+    SchemaData,
+    RegistryItem(
+        attr_name="schema_url",
+        node_name="schemaUrl",
+        classes=(str,),
+        get_kwarg=attribute_text_kwarg,
+        set_element=text_attribute,
+    ),
+)
+registry.register(
+    SchemaData,
+    RegistryItem(
+        attr_name="data",
+        node_name="SimpleData",
+        classes=(SimpleData,),
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
+    ),
+)
 
 
-class ExtendedData(_XMLObject):
+class ExtendedData(_BaseObject):
     """
     Represents a list of untyped name/value pairs. See docs:
 
@@ -363,10 +477,32 @@ class ExtendedData(_XMLObject):
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
         elements: Optional[Iterable[Union[Data, SchemaData]]] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.elements = list(elements) if elements else []
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for ExtendedData."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"elements={self.elements!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return bool(self.elements)

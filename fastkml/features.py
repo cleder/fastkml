@@ -36,7 +36,6 @@ from fastkml import gx
 from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
 from fastkml.data import ExtendedData
-from fastkml.enums import Verbosity
 from fastkml.geometry import AnyGeometryType
 from fastkml.geometry import LinearRing
 from fastkml.geometry import LineString
@@ -44,7 +43,11 @@ from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
 from fastkml.geometry import create_kml_geometry
+from fastkml.helpers import attribute_int_kwarg
 from fastkml.helpers import bool_subelement
+from fastkml.helpers import int_attribute
+from fastkml.helpers import node_text
+from fastkml.helpers import node_text_kwarg
 from fastkml.helpers import subelement_bool_kwarg
 from fastkml.helpers import subelement_text_kwarg
 from fastkml.helpers import text_subelement
@@ -61,7 +64,6 @@ from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
 from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
-from fastkml.types import Element
 from fastkml.views import Camera
 from fastkml.views import LookAt
 from fastkml.views import Region
@@ -106,38 +108,48 @@ class Snippet(_XMLObject):
         name_spaces: Optional[Dict[str, str]] = None,
         text: Optional[str] = None,
         max_lines: Optional[int] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.text = text
         self.max_lines = max_lines
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        element.text = self.text or ""
-        if self.max_lines is not None:
-            element.set("maxLines", str(self.max_lines))
-        return element
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Snippet."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"text={self.text!r}, "
+            f"max_lines={self.max_lines!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return bool(self.text)
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs: Dict[str, Any] = {"text": element.text}
-        if max_lines := element.get("maxLines"):
-            kwargs["max_lines"] = int(max_lines)
-        return kwargs
+
+registry.register(
+    Snippet,
+    RegistryItem(
+        attr_name="text",
+        node_name="",
+        classes=(str,),
+        get_kwarg=node_text_kwarg,
+        set_element=node_text,
+    ),
+)
+registry.register(
+    Snippet,
+    RegistryItem(
+        attr_name="max_lines",
+        node_name="maxLines",
+        classes=(int,),
+        get_kwarg=attribute_int_kwarg,
+        set_element=int_attribute,
+    ),
+)
 
 
 class _Feature(TimeMixin, _BaseObject):
@@ -260,8 +272,15 @@ class _Feature(TimeMixin, _BaseObject):
         styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.name = name
         self.description = description
         self.style_url = style_url
@@ -277,6 +296,33 @@ class _Feature(TimeMixin, _BaseObject):
         self.region = region
         self.extended_data = extended_data
         self.times = times
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for _Feature."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"visibility={self.visibility!r}, "
+            f"isopen={self.isopen!r}, "
+            f"atom_link={self.atom_link!r}, "
+            f"atom_author={self.atom_author!r}, "
+            f"address={self.address!r}, "
+            f"phone_number={self.phone_number!r}, "
+            f"snippet={self.snippet!r}, "
+            f"description={self.description!r}, "
+            f"view={self.view!r}, "
+            f"times={self.times!r}, "
+            f"style_url={self.style_url!r}, "
+            f"styles={self.styles!r}, "
+            f"region={self.region!r}, "
+            f"extended_data={self.extended_data!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
 
 registry.register(
@@ -474,6 +520,7 @@ class Placemark(_Feature):
         # Placemark specific
         kml_geometry: Optional[KmlGeometry] = None,
         geometry: Optional[Union[GeoType, GeoCollectionType]] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -495,6 +542,7 @@ class Placemark(_Feature):
             styles=styles,
             region=region,
             extended_data=extended_data,
+            **kwargs,
         )
         if kml_geometry and geometry:
             msg = "You can only specify one of kml_geometry or geometry"
@@ -506,6 +554,35 @@ class Placemark(_Feature):
                 name_spaces=name_spaces,
             )
         self.kml_geometry = kml_geometry
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Placemark."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"visibility={self.visibility!r}, "
+            f"isopen={self.isopen!r}, "
+            f"atom_link={self.atom_link!r}, "
+            f"atom_author={self.atom_author!r}, "
+            f"address={self.address!r}, "
+            f"phone_number={self.phone_number!r}, "
+            f"snippet={self.snippet!r}, "
+            f"description={self.description!r}, "
+            f"view={self.view!r}, "
+            f"times={self.times!r}, "
+            f"style_url={self.style_url!r}, "
+            f"styles={self.styles!r}, "
+            f"region={self.region!r}, "
+            f"extended_data={self.extended_data!r}, "
+            f"kml_geometry={self.kml_geometry!r}, "
+            f"geometry={self.geometry!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     @property
     def geometry(self) -> Optional[AnyGeometryType]:
@@ -604,6 +681,7 @@ class NetworkLink(_Feature):
         refresh_visibility: Optional[bool] = None,
         fly_to_view: Optional[bool] = None,
         link: Optional[Link] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -625,10 +703,41 @@ class NetworkLink(_Feature):
             styles=styles,
             region=region,
             extended_data=extended_data,
+            **kwargs,
         )
         self.refresh_visibility = refresh_visibility
         self.fly_to_view = fly_to_view
         self.link = link
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for NetworkLink."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"visibility={self.visibility!r}, "
+            f"isopen={self.isopen!r}, "
+            f"atom_link={self.atom_link!r}, "
+            f"atom_author={self.atom_author!r}, "
+            f"address={self.address!r}, "
+            f"phone_number={self.phone_number!r}, "
+            f"snippet={self.snippet!r}, "
+            f"description={self.description!r}, "
+            f"view={self.view!r}, "
+            f"times={self.times!r}, "
+            f"style_url={self.style_url!r}, "
+            f"styles={self.styles!r}, "
+            f"region={self.region!r}, "
+            f"extended_data={self.extended_data!r}, "
+            f"refresh_visibility={self.refresh_visibility!r}, "
+            f"fly_to_view={self.fly_to_view!r}, "
+            f"link={self.link!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return bool(self.link)

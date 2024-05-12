@@ -31,6 +31,7 @@ coverage.xml
 nosetests.xml
 .ruff_cache/
 monkeytype.sqlite3
+.hypothesis/
 
 # Translations
 *.mo

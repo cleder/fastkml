@@ -18,6 +18,7 @@
 import datetime
 
 import pygeoif.geometry as geo
+import pytest
 from dateutil.tz import tzutc
 
 from fastkml.enums import AltitudeMode
@@ -203,6 +204,18 @@ class TestTrack(StdLibrary):
         assert ">1 2</" in track.to_string()
         assert "angles>" in track.to_string()
         assert ">0.0 0.0 0.0</" in track.to_string()
+
+    def test_track_from_track_items_and_geometry(self) -> None:
+        ls = geo.LineString(((1, 2), (2, 0)))
+        time1 = datetime.datetime(2023, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
+        angle = Angle()
+        track_items = [TrackItem(when=time1, coord=geo.Point(1, 2), angle=angle)]
+
+        with pytest.raises(ValueError):
+            Track(
+                track_items=track_items,
+                geometry=ls,
+            )
 
     def test_track_from_track_items_no_coord(self) -> None:
         time1 = datetime.datetime(2023, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
@@ -429,6 +442,29 @@ class TestMultiTrack(StdLibrary):
         assert "coord>" in track.to_string()
         assert "angles>" in track.to_string()
         assert "when>" in track.to_string()
+
+    def test_from_multilinestring_and_tracks(self) -> None:
+        lines = geo.MultiLineString(
+            (((0, 0), (1, 1), (1, 2), (2, 2)), ((0.0, 0.0), (1.0, 2.0))),
+        )
+        track_items = [
+            TrackItem(
+                when=datetime.datetime(
+                    2010,
+                    5,
+                    28,
+                    2,
+                    2,
+                    55,
+                    tzinfo=tzutc(),
+                ),
+                coord=geo.Point(-122.203451, 37.374706, 141.800003),
+                angle=Angle(heading=1.0, tilt=2.0, roll=3.0),
+            ),
+        ]
+
+        with pytest.raises(ValueError):
+            MultiTrack(geometry=lines, tracks=[Track(track_items=track_items)])
 
 
 class TestLxml(Lxml, TestStdLibrary):

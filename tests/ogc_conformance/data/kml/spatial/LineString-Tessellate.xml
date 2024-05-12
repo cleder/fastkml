@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- default altitudeMode is 'clampToGround' -->
+<LineString xmlns="http://www.opengis.net/kml/2.2">
+    <tessellate>1</tessellate>
+    <coordinates>-122.378009,37.830128,0 -122.377885,37.830379,0</coordinates>
+</LineString>

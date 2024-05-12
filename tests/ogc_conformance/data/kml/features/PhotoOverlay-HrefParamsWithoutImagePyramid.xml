@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ERROR: Icon/href params are present but no ImagePyramid -->
+<kml:PhotoOverlay xmlns:kml="http://www.opengis.net/kml/2.2">
+  <kml:Icon>
+    <kml:href>http://www.example.com/$[level]/file_x_$[x]_y_$[y].jpg</kml:href>
+  </kml:Icon>
+</kml:PhotoOverlay>

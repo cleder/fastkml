@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [ERROR] kml:Alias with missing sourceHref  -->
+<kml:Model xmlns:kml="http://www.opengis.net/kml/2.2">
+  <kml:Location />
+  <kml:Link>
+    <kml:href>./un.dae</kml:href>
+  </kml:Link>
+  <kml:ResourceMap>
+    <kml:Alias>
+      <kml:targetHref>01.jpg</kml:targetHref>
+      <kml:sourceHref>../../img/_01.jpg</kml:sourceHref>
+    </kml:Alias>
+  </kml:ResourceMap>
+</kml:Model>

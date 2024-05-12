@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- NetworkLink that references non-existent resource -->
+<NetworkLink xmlns="http://www.opengis.net/kml/2.2">
+	<Link>
+		<href>http://www.w3schools.com/xml/missing.xml</href>
+	</Link>
+</NetworkLink>

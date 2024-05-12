@@ -15,8 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 import xml.etree.ElementTree
 
-import pytest
-from pygeoif.geometry import LinearRing
 from pygeoif.geometry import MultiPoint
 from pygeoif.geometry import Polygon
 
@@ -28,13 +26,6 @@ from fastkml import kml
 from fastkml import styles
 from fastkml.enums import ColorMode
 from fastkml.enums import DisplayMode
-
-try:
-    import lxml
-
-    LXML = True
-except ImportError:
-    LXML = False
 
 
 class TestBaseClasses:
@@ -67,17 +58,6 @@ class TestBuildKml:
         """Always test with the same parser."""
         config.set_etree_implementation(xml.etree.ElementTree)
         config.set_default_namespaces()
-
-    def test_kml(self) -> None:
-        """Kml file without contents."""
-        k = kml.KML(ns="")
-        assert k.features == []
-        assert (
-            str(k.to_string())[:51]
-            == '<kml xmlns="http://www.opengis.net/kml/2.2" />'[:51]
-        )
-        k2 = kml.KML.class_from_string(k.to_string(), ns="")
-        assert k.to_string() == k2.to_string()
 
     def test_folder(self) -> None:
         """KML file with folders."""
@@ -218,30 +198,6 @@ class TestKmlFromString:
         assert len(k.features[0].features) == 2
         k2 = kml.KML.class_from_string(k.to_string())
         assert k.to_string() == k2.to_string()
-
-    def test_document_booleans(self) -> None:
-        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
-        <Document targetId="someTargetId">
-          <name>Document.kml</name>
-          <visibility>true</visibility>
-          <open>1</open>
-        </Document>
-        </kml>"""
-
-        k = kml.KML.class_from_string(doc, strict=False)
-        assert k.features[0].visibility == 1
-        assert k.features[0].isopen == 1
-        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
-        <Document targetId="someTargetId">
-          <name>Document.kml</name>
-          <visibility>0</visibility>
-          <open>false</open>
-        </Document>
-        </kml>"""
-
-        k = kml.KML.class_from_string(doc, strict=False)
-        assert k.features[0].visibility == 0
-        assert k.features[0].isopen == 0
 
     def test_folders(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
@@ -508,21 +464,6 @@ class TestKmlFromString:
         k.features[0].snippet = features.Snippet(text="", max_lines=4)
         assert "Snippet" not in k.to_string()
 
-    def test_from_wrong_string(self) -> None:
-        pytest.raises(TypeError, kml.KML.class_from_string, "<xml></xml>")
-
-    def test_from_string_with_unbound_prefix(self) -> None:
-        if LXML:
-            config.set_etree_implementation(lxml.etree)
-            doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
-        <Placemark>
-        <ExtendedData>
-          <lc:attachment>image.png</lc:attachment>
-        </ExtendedData>
-        </Placemark> </kml>"""
-            k = kml.KML.class_from_string(doc)
-            assert len(k.features) == 1
-
     def test_address(self) -> None:
         doc = kml.Document.class_from_string(
             """
@@ -581,19 +522,6 @@ class TestKmlFromString:
         )
 
         doc2 = kml.KML.class_from_string(doc.to_string())
-        assert doc.to_string() == doc2.to_string()
-
-    def test_linarring_placemark(self) -> None:
-        doc = kml.KML.class_from_string(
-            """<kml xmlns="http://www.opengis.net/kml/2.2">
-        <Placemark>
-          <LinearRing>
-            <coordinates>0.0,0.0 1.0,0.0 1.0,1.0 0.0,0.0</coordinates>
-          </LinearRing>
-        </Placemark> </kml>""",
-        )
-        doc2 = kml.KML.class_from_string(doc.to_string())
-        assert isinstance(doc.features[0].geometry, LinearRing)
         assert doc.to_string() == doc2.to_string()
 
 

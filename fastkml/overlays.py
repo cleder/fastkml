@@ -16,6 +16,7 @@
 """Overlays."""
 
 import logging
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import Optional
@@ -150,6 +151,35 @@ class _Overlay(_Feature):
         self.color = color
         self.draw_order = draw_order
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for _Overlay."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"visibility={self.visibility!r}, "
+            f"isopen={self.isopen!r}, "
+            f"atom_link={self.atom_link!r}, "
+            f"atom_author={self.atom_author!r}, "
+            f"address={self.address!r}, "
+            f"phone_number={self.phone_number!r}, "
+            f"snippet={self.snippet!r}, "
+            f"description={self.description!r}, "
+            f"view={self.view!r}, "
+            f"times={self.times!r}, "
+            f"style_url={self.style_url!r}, "
+            f"styles={self.styles!r}, "
+            f"region={self.region!r}, "
+            f"extended_data={self.extended_data!r}, "
+            f"color={self.color!r}, "
+            f"draw_order={self.draw_order!r}, "
+            f"icon={self.icon!r}, "
+            ")"
+        )
+
 
 registry.register(
     _Overlay,
@@ -226,13 +256,29 @@ class ViewVolume(_XMLObject):
         bottom_fov: Optional[float] = None,
         top_fov: Optional[float] = None,
         near: Optional[float] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.left_fov = left_fov
         self.right_fov = right_fov
         self.bottom_fov = bottom_fov
         self.top_fov = top_fov
         self.near = near
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for ViewVolume."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"left_fov={self.left_fov!r}, "
+            f"right_fov={self.right_fov!r}, "
+            f"bottom_fov={self.bottom_fov!r}, "
+            f"top_fov={self.top_fov!r}, "
+            f"near={self.near!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return all(
@@ -345,12 +391,27 @@ class ImagePyramid(_XMLObject):
         max_width: Optional[int] = None,
         max_height: Optional[int] = None,
         grid_origin: Optional[GridOrigin] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.tile_size = tile_size
         self.max_width = max_width
         self.max_height = max_height
         self.grid_origin = grid_origin
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for ImagePyramid."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"tile_size={self.tile_size!r}, "
+            f"max_width={self.max_width!r}, "
+            f"max_height={self.max_height!r}, "
+            f"grid_origin={self.grid_origin}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return (
@@ -488,6 +549,7 @@ class PhotoOverlay(_Overlay):
         image_pyramid: Optional[ImagePyramid] = None,
         point: Optional[Point] = None,
         shape: Optional[Shape] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -512,12 +574,48 @@ class PhotoOverlay(_Overlay):
             color=color,
             draw_order=draw_order,
             icon=icon,
+            **kwargs,
         )
         self.rotation = rotation
         self.view_volume = view_volume
         self.image_pyramid = image_pyramid
         self.point = point
         self.shape = shape
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for PhotoOverlay."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"visibility={self.visibility!r}, "
+            f"isopen={self.isopen!r}, "
+            f"atom_link={self.atom_link!r}, "
+            f"atom_author={self.atom_author!r}, "
+            f"address={self.address!r}, "
+            f"phone_number={self.phone_number!r}, "
+            f"snippet={self.snippet!r}, "
+            f"description={self.description!r}, "
+            f"view={self.view!r}, "
+            f"times={self.times!r}, "
+            f"style_url={self.style_url!r}, "
+            f"styles={self.styles!r}, "
+            f"region={self.region!r}, "
+            f"extended_data={self.extended_data!r}, "
+            f"color={self.color!r}, "
+            f"draw_order={self.draw_order!r}, "
+            f"icon={self.icon!r}, "
+            f"rotation={self.rotation!r}, "
+            f"view_volume={self.view_volume!r}, "
+            f"image_pyramid={self.image_pyramid!r}, "
+            f"point={self.point!r}, "
+            f"shape={self.shape}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
 
 registry.register(
@@ -612,13 +710,29 @@ class LatLonBox(_XMLObject):
         east: Optional[float] = None,
         west: Optional[float] = None,
         rotation: Optional[float] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.north = north
         self.south = south
         self.east = east
         self.west = west
         self.rotation = rotation
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for LatLonBox."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"north={self.north!r}, "
+            f"south={self.south!r}, "
+            f"east={self.east!r}, "
+            f"west={self.west!r}, "
+            f"rotation={self.rotation!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         return all(
@@ -745,6 +859,7 @@ class GroundOverlay(_Overlay):
         altitude: Optional[float] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         lat_lon_box: Optional[LatLonBox] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -769,10 +884,44 @@ class GroundOverlay(_Overlay):
             color=color,
             draw_order=draw_order,
             icon=icon,
+            **kwargs,
         )
         self.altitude = altitude
         self.altitude_mode = altitude_mode
         self.lat_lon_box = lat_lon_box
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for GroundOverlay."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"visibility={self.visibility!r}, "
+            f"isopen={self.isopen!r}, "
+            f"atom_link={self.atom_link!r}, "
+            f"atom_author={self.atom_author!r}, "
+            f"address={self.address!r}, "
+            f"phone_number={self.phone_number!r}, "
+            f"snippet={self.snippet!r}, "
+            f"description={self.description!r}, "
+            f"view={self.view!r}, "
+            f"times={self.times!r}, "
+            f"style_url={self.style_url!r}, "
+            f"styles={self.styles!r}, "
+            f"region={self.region!r}, "
+            f"extended_data={self.extended_data!r}, "
+            f"color={self.color!r}, "
+            f"draw_order={self.draw_order!r}, "
+            f"icon={self.icon!r}, "
+            f"altitude={self.altitude!r}, "
+            f"altitude_mode={self.altitude_mode}, "
+            f"lat_lon_box={self.lat_lon_box!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
 
 registry.register(

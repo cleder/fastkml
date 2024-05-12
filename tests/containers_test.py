@@ -16,12 +16,54 @@
 
 """Test the kml classes."""
 
+
+from fastkml import kml
 from tests.base import Lxml
 from tests.base import StdLibrary
 
 
 class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
+
+    def test_document_boolean_visibility(self) -> None:
+        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document targetId="someTargetId">
+          <name>Document.kml</name>
+          <visibility>true</visibility>
+          <open>1</open>
+        </Document>
+        </kml>"""
+
+        k = kml.KML.class_from_string(doc, strict=False)
+        assert k.features[0].visibility
+        assert k.features[0].isopen
+
+    def test_document_boolean_open(self) -> None:
+        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document targetId="someTargetId">
+          <name>Document.kml</name>
+          <visibility>0</visibility>
+          <open>false</open>
+        </Document>
+        </kml>"""
+
+        k = kml.KML.class_from_string(doc, strict=False)
+        assert k.features[0].visibility == 0
+        assert k.features[0].isopen is False
+
+    def test_document_boolean_visibility_invalid(self) -> None:
+        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document targetId="someTargetId">
+          <name>Document.kml</name>
+          <visibility>invalid</visibility>
+          <open>1</open>
+        </Document>
+        </kml>"""
+
+        d = kml.KML.class_from_string(doc, strict=False)
+
+        assert d.features[0].visibility is None
+        assert d.features[0].isopen
 
 
 class TestLxml(Lxml, TestStdLibrary):

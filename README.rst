@@ -16,61 +16,65 @@ Geometries are handled as pygeoif_ objects.
 
 Fastkml is continually tested
 
-.. image:: https://github.com/cleder/fastkml/actions/workflows/run-all-tests.yml/badge.svg?branch=main
+|test| |cov| |black| |mypy| |commit|
+
+.. |test| image:: https://github.com/cleder/fastkml/actions/workflows/run-all-tests.yml/badge.svg?branch=main
     :target: https://github.com/cleder/fastkml/actions/workflows/run-all-tests.yml
     :alt: Test
 
-.. image:: http://codecov.io/github/cleder/fastkml/coverage.svg?branch=main
+.. |cov| image:: http://codecov.io/github/cleder/fastkml/coverage.svg?branch=main
     :target: http://codecov.io/github/cleder/fastkml?branch=main
     :alt: codecov.io
 
-.. image:: https://img.shields.io/badge/code_style-black-000000.svg
+.. |black| image:: https://img.shields.io/badge/code_style-black-000000.svg
     :target: https://github.com/psf/black
     :alt: Black
 
-.. image:: https://img.shields.io/badge/type_checker-mypy-blue
+.. |mypy| image:: https://img.shields.io/badge/type_checker-mypy-blue
     :target: http://mypy-lang.org/
     :alt: Mypy
 
-.. image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit
+.. |commit| image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit
    :target: https://github.com/pre-commit/pre-commit
    :alt: pre-commit
 
 Is Maintained and documented:
 
-.. image:: https://img.shields.io/pypi/v/fastkml.svg
+|pypi| |status| |license| |doc| |stats| |pyversion| |pyimpl| |dependencies| |downloads|
+
+.. |pypi| image:: https://img.shields.io/pypi/v/fastkml.svg
     :target: https://pypi.python.org/pypi/fastkml
     :alt: Latest PyPI version
 
-.. image:: https://img.shields.io/pypi/status/fastkml.svg
+.. |status| image:: https://img.shields.io/pypi/status/fastkml.svg
     :target: https://pypi.python.org/pypi/fastkml/
     :alt: Development Status
 
-.. image:: https://img.shields.io/pypi/l/fastkml
+.. |license| image:: https://img.shields.io/pypi/l/fastkml
     :target: https://www.gnu.org/licenses/lgpl-3.0.en.html
     :alt: LGPL - License
 
-.. image:: https://readthedocs.org/projects/fastkml/badge/
+.. |doc| image:: https://readthedocs.org/projects/fastkml/badge/
     :target: https://fastkml.readthedocs.org/
     :alt: Documentation
 
-.. image:: https://www.openhub.net/p/fastkml/widgets/project_thin_badge.gif
+.. |stats| image:: https://www.openhub.net/p/fastkml/widgets/project_thin_badge.gif
     :target: https://www.openhub.net/p/fastkml
     :alt: Statistics from OpenHub
 
-.. image:: https://img.shields.io/pypi/pyversions/fastkml.svg
+.. |pyversion| image:: https://img.shields.io/pypi/pyversions/fastkml.svg
     :target: https://pypi.python.org/pypi/fastkml/
     :alt: Supported Python versions
 
-.. image:: https://img.shields.io/pypi/implementation/fastkml.svg
+.. |pyimpl| image:: https://img.shields.io/pypi/implementation/fastkml.svg
     :target: https://pypi.python.org/pypi/fastkml/
     :alt: Supported Python implementations
 
-.. image:: https://img.shields.io/librariesio/release/pypi/fastkml
+.. |dependencies| image:: https://img.shields.io/librariesio/release/pypi/fastkml
     :target: https://libraries.io/pypi/fastkml
     :alt: Libraries.io dependency status for latest release
 
-.. image:: https://static.pepy.tech/badge/fastkml/month
+.. |downloads| image:: https://static.pepy.tech/badge/fastkml/month
     :target: https://pepy.tech/project/fastkml
     :alt: Downloads
 

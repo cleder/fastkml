@@ -88,6 +88,15 @@ class KmlDateTime:
                 else DateTimeResolution.datetime
             )
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for KmlDateTime."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"dt={self.dt!r}, "
+            f"resolution={self.resolution}, "
+            ")"
+        )
+
     def __bool__(self) -> bool:
         """Return True if the date or datetime is valid."""
         return isinstance(self.dt, date)
@@ -99,10 +108,6 @@ class KmlDateTime:
             if isinstance(other, KmlDateTime)
             else False
         )
-
-    def __repr__(self) -> str:
-        """Return a string representation of the object."""
-        return f"{self.__class__.__name__}({self.dt!r}, {self.resolution})"
 
     def __str__(self) -> str:
         """Return the KML DateTime string representation of the object."""
@@ -116,9 +121,7 @@ class KmlDateTime:
                 if isinstance(self.dt, datetime)
                 else self.dt.isoformat()
             )
-        if self.resolution == DateTimeResolution.datetime:
-            return self.dt.isoformat()
-        raise ValueError
+        return self.dt.isoformat()
 
     @classmethod
     def parse(cls, datestr: str) -> Optional["KmlDateTime"]:
@@ -160,9 +163,29 @@ class TimeStamp(_TimePrimitive):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         timestamp: Optional[KmlDateTime] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.timestamp = timestamp
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for TimeStamp."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"timestamp={self.timestamp!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         """Return True if the timestamp is valid."""
@@ -213,10 +236,31 @@ class TimeSpan(_TimePrimitive):
         target_id: Optional[str] = None,
         begin: Optional[KmlDateTime] = None,
         end: Optional[KmlDateTime] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.begin = begin
         self.end = end
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for TimeSpan."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"begin={self.begin!r}, "
+            f"end={self.end!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def __bool__(self) -> bool:
         """Return True if the begin or end date is valid."""

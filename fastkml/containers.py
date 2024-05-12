@@ -16,6 +16,7 @@
 """Container classes for KML elements."""
 import logging
 import urllib.parse as urlparse
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -95,6 +96,7 @@ class _Container(_Feature):
         extended_data: Optional[ExtendedData] = None,
         # Container specific
         features: Optional[Iterable[_Feature]] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -116,8 +118,37 @@ class _Container(_Feature):
             styles=styles,
             region=region,
             extended_data=extended_data,
+            **kwargs,
         )
         self.features = list(features) if features else []
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for _Container."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"visibility={self.visibility!r}, "
+            f"isopen={self.isopen!r}, "
+            f"atom_link={self.atom_link!r}, "
+            f"atom_author={self.atom_author!r}, "
+            f"address={self.address!r}, "
+            f"phone_number={self.phone_number!r}, "
+            f"snippet={self.snippet!r}, "
+            f"description={self.description!r}, "
+            f"view={self.view!r}, "
+            f"times={self.times!r}, "
+            f"style_url={self.style_url!r}, "
+            f"styles={self.styles!r}, "
+            f"region={self.region!r}, "
+            f"extended_data={self.extended_data!r}, "
+            f"features={self.features!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def append(self, kmlobj: _Feature) -> None:
         """Append a feature."""
@@ -167,6 +198,7 @@ class Document(_Container):
         extended_data: Optional[ExtendedData] = None,
         features: Optional[List[_Feature]] = None,
         schemata: Optional[Iterable[Schema]] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -189,8 +221,38 @@ class Document(_Container):
             region=region,
             extended_data=extended_data,
             features=features,
+            **kwargs,
         )
         self.schemata = list(schemata) if schemata else []
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Document."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"visibility={self.visibility!r}, "
+            f"isopen={self.isopen!r}, "
+            f"atom_link={self.atom_link!r}, "
+            f"atom_author={self.atom_author!r}, "
+            f"address={self.address!r}, "
+            f"phone_number={self.phone_number!r}, "
+            f"snippet={self.snippet!r}, "
+            f"description={self.description!r}, "
+            f"view={self.view!r}, "
+            f"times={self.times!r}, "
+            f"style_url={self.style_url!r}, "
+            f"styles={self.styles!r}, "
+            f"region={self.region!r}, "
+            f"extended_data={self.extended_data!r}, "
+            f"features={self.features!r}, "
+            f"schemata={self.schemata!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
 
     def get_style_by_url(self, style_url: str) -> Optional[Union[Style, StyleMap]]:
         id_ = urlparse.urlparse(style_url).fragment

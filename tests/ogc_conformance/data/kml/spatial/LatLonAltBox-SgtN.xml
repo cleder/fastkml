@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [ERROR] south greater than north -->
+<kml:LatLonAltBox xmlns:kml="http://www.opengis.net/kml/2.2">
+	<kml:north>10.0</kml:north>
+	<kml:south>11.0</kml:south>
+	<kml:east>70.0</kml:east>
+	<kml:west>-60.0</kml:west>
+	<kml:minAltitude>10.0</kml:minAltitude>
+	<kml:maxAltitude>10.0</kml:maxAltitude>
+	<kml:altitudeMode>absolute</kml:altitudeMode>
+</kml:LatLonAltBox>

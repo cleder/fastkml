@@ -35,10 +35,15 @@ from fastkml.enums import ColorMode
 from fastkml.enums import DisplayMode
 from fastkml.enums import PairKey
 from fastkml.enums import Units
-from fastkml.enums import Verbosity
+from fastkml.helpers import attribute_enum_kwarg
+from fastkml.helpers import attribute_float_kwarg
 from fastkml.helpers import bool_subelement
+from fastkml.helpers import enum_attribute
 from fastkml.helpers import enum_subelement
+from fastkml.helpers import float_attribute
 from fastkml.helpers import float_subelement
+from fastkml.helpers import node_text
+from fastkml.helpers import node_text_kwarg
 from fastkml.helpers import subelement_bool_kwarg
 from fastkml.helpers import subelement_enum_kwarg
 from fastkml.helpers import subelement_float_kwarg
@@ -51,7 +56,6 @@ from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.links import Icon
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
-from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
 
@@ -76,8 +80,15 @@ class StyleUrl(_BaseObject):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         url: Optional[str] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.url = url
 
     def __repr__(self) -> str:
@@ -89,43 +100,29 @@ class StyleUrl(_BaseObject):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"url={self.url!r}, "
+            f"**kwargs={self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
         return bool(self.url)
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        element.text = self.url or ""
-        return element
-
     @classmethod
     def get_tag_name(cls) -> str:
         """Return the tag name."""
         return "styleUrl"
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        kwargs["url"] = element.text
-        return kwargs
+
+registry.register(
+    StyleUrl,
+    RegistryItem(
+        attr_name="url",
+        node_name="styleUrl",
+        classes=(str,),
+        get_kwarg=node_text_kwarg,
+        set_element=node_text,
+    ),
+)
 
 
 class _StyleSelector(_BaseObject):
@@ -170,8 +167,15 @@ class _ColorStyle(_BaseObject):
         target_id: Optional[str] = None,
         color: Optional[str] = None,
         color_mode: Optional[ColorMode] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.color = color
         self.color_mode = color_mode
 
@@ -184,7 +188,8 @@ class _ColorStyle(_BaseObject):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"color={self.color!r}, "
-            f"color_mode={self.color_mode!r}, "
+            f"color_mode={self.color_mode}, "
+            f"**kwargs={self._get_splat()!r},"
             ")"
         )
 
@@ -243,8 +248,9 @@ class HotSpot(_XMLObject):
         y: Optional[float] = None,
         xunits: Optional[Units] = None,
         yunits: Optional[Units] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.x = x
         self.y = y
         self.xunits = xunits
@@ -258,59 +264,61 @@ class HotSpot(_XMLObject):
             f"name_spaces={self.name_spaces!r}, "
             f"x={self.x!r}, "
             f"y={self.y!r}, "
-            f"xunits={self.xunits!r}, "
-            f"yunits={self.yunits!r}, "
+            f"xunits={self.xunits}, "
+            f"yunits={self.yunits}, "
+            f"**kwargs={self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
         return all((self.x is not None, self.y is not None))
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        hot_spot = config.etree.SubElement(  # type: ignore[attr-defined]
-            element,
-            f"{self.ns}hotSpot",
-        )
-        hot_spot.attrib["x"] = str(self.x)
-        hot_spot.attrib["y"] = str(self.y)
-        if self.xunits:
-            hot_spot.attrib["xunits"] = self.xunits.value
-        if self.yunits:
-            hot_spot.attrib["yunits"] = self.yunits.value
-        return element
-
     @classmethod
     def get_tag_name(cls) -> str:
         """Return the tag name."""
         return "hotSpot"
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        kwargs["x"] = float(element.get("x"))
-        kwargs["y"] = float(element.get("y"))
-        if element.get("xunits"):
-            kwargs["xunits"] = Units(element.get("xunits"))
-        if element.get("yunits"):
-            kwargs["yunits"] = Units(element.get("yunits"))
-        return kwargs
+
+registry.register(
+    HotSpot,
+    RegistryItem(
+        attr_name="x",
+        node_name="x",
+        classes=(float,),
+        get_kwarg=attribute_float_kwarg,
+        set_element=float_attribute,
+    ),
+)
+registry.register(
+    HotSpot,
+    RegistryItem(
+        attr_name="y",
+        node_name="y",
+        classes=(float,),
+        get_kwarg=attribute_float_kwarg,
+        set_element=float_attribute,
+    ),
+)
+registry.register(
+    HotSpot,
+    RegistryItem(
+        attr_name="xunits",
+        node_name="xunits",
+        classes=(Units,),
+        get_kwarg=attribute_enum_kwarg,
+        set_element=enum_attribute,
+    ),
+)
+registry.register(
+    HotSpot,
+    RegistryItem(
+        attr_name="yunits",
+        node_name="yunits",
+        classes=(Units,),
+        get_kwarg=attribute_enum_kwarg,
+        set_element=enum_attribute,
+    ),
+)
 
 
 class IconStyle(_ColorStyle):
@@ -346,6 +354,7 @@ class IconStyle(_ColorStyle):
         heading: Optional[float] = None,
         icon: Optional[Icon] = None,
         hot_spot: Optional[HotSpot] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -354,6 +363,7 @@ class IconStyle(_ColorStyle):
             target_id=target_id,
             color=color,
             color_mode=color_mode,
+            **kwargs,
         )
 
         self.scale = scale
@@ -370,11 +380,12 @@ class IconStyle(_ColorStyle):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"color={self.color!r}, "
-            f"color_mode={self.color_mode!r}, "
+            f"color_mode={self.color_mode}, "
             f"scale={self.scale!r}, "
             f"heading={self.heading!r}, "
             f"icon={self.icon!r}, "
             f"hot_spot={self.hot_spot!r}, "
+            f"**kwargs={self._get_splat()!r},"
             ")"
         )
 
@@ -445,6 +456,7 @@ class LineStyle(_ColorStyle):
         color: Optional[str] = None,
         color_mode: Optional[ColorMode] = None,
         width: Optional[float] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -453,6 +465,7 @@ class LineStyle(_ColorStyle):
             target_id=target_id,
             color=color,
             color_mode=color_mode,
+            **kwargs,
         )
         self.width = width
 
@@ -465,8 +478,9 @@ class LineStyle(_ColorStyle):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"color={self.color!r}, "
-            f"color_mode={self.color_mode!r}, "
+            f"color_mode={self.color_mode}, "
             f"width={self.width!r}, "
+            f"**kwargs={self._get_splat()!r},"
             ")"
         )
 
@@ -513,6 +527,7 @@ class PolyStyle(_ColorStyle):
         color_mode: Optional[ColorMode] = None,
         fill: Optional[bool] = None,
         outline: Optional[bool] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -521,6 +536,7 @@ class PolyStyle(_ColorStyle):
             target_id=target_id,
             color=color,
             color_mode=color_mode,
+            **kwargs,
         )
         self.fill = fill
         self.outline = outline
@@ -534,9 +550,10 @@ class PolyStyle(_ColorStyle):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"color={self.color!r}, "
-            f"color_mode={self.color_mode!r}, "
+            f"color_mode={self.color_mode}, "
             f"fill={self.fill!r}, "
             f"outline={self.outline!r}, "
+            f"**kwargs={self._get_splat()!r},"
             ")"
         )
 
@@ -587,6 +604,7 @@ class LabelStyle(_ColorStyle):
         color: Optional[str] = None,
         color_mode: Optional[ColorMode] = None,
         scale: Optional[float] = None,
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -595,6 +613,7 @@ class LabelStyle(_ColorStyle):
             target_id=target_id,
             color=color,
             color_mode=color_mode,
+            **kwargs,
         )
         self.scale = scale
 
@@ -607,8 +626,9 @@ class LabelStyle(_ColorStyle):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"color={self.color!r}, "
-            f"color_mode={self.color_mode!r}, "
+            f"color_mode={self.color_mode}, "
             f"scale={self.scale!r}, "
+            f"**kwargs={self._get_splat()!r},"
             ")"
         )
 
@@ -697,8 +717,15 @@ class BalloonStyle(_BaseObject):
         text_color: Optional[str] = None,
         text: Optional[str] = None,
         display_mode: Optional[DisplayMode] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.bg_color = bg_color
         self.text_color = text_color
         self.text = text
@@ -715,7 +742,8 @@ class BalloonStyle(_BaseObject):
             f"bg_color={self.bg_color!r}, "
             f"text_color={self.text_color!r}, "
             f"text={self.text!r}, "
-            f"display_mode={self.display_mode!r}, "
+            f"display_mode={self.display_mode}, "
+            f"**kwargs={self._get_splat()!r},"
             ")"
         )
 
@@ -795,8 +823,15 @@ class Style(_StyleSelector):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         styles: Optional[Iterable[AnyStyle]] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.styles = list(styles) if styles else []
 
     def __repr__(self) -> str:
@@ -808,20 +843,12 @@ class Style(_StyleSelector):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"styles={self.styles!r}, "
+            f"**kwargs={self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
         return any(self.styles)
-
-    def append_style(
-        self,
-        style: AnyStyle,
-    ) -> None:
-        if isinstance(style, (_ColorStyle, BalloonStyle)):
-            self.styles.append(style)
-        else:
-            raise TypeError
 
 
 registry.register(
@@ -870,8 +897,15 @@ class Pair(_BaseObject):
         target_id: Optional[str] = None,
         key: Optional[PairKey] = None,
         style: Optional[Union[StyleUrl, Style]] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.key = key
         self.style = style
 
@@ -883,8 +917,9 @@ class Pair(_BaseObject):
             f"name_spaces={self.name_spaces!r}, "
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
-            f"key={self.key!r}, "
+            f"key={self.key}, "
             f"style={self.style!r}, "
+            f"**kwargs={self._get_splat()!r},"
             ")"
         )
 
@@ -936,8 +971,15 @@ class StyleMap(_StyleSelector):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         pairs: Optional[Iterable[Pair]] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.pairs = list(pairs) if pairs else []
 
     def __repr__(self) -> str:
@@ -949,6 +991,7 @@ class StyleMap(_StyleSelector):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"pairs={self.pairs!r}, "
+            f"**kwargs={self._get_splat()!r},"
             ")"
         )
 

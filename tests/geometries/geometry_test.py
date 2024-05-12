@@ -18,6 +18,7 @@
 import pytest
 from pygeoif import geometry as geo
 
+from fastkml import exceptions
 from fastkml.geometry import AltitudeMode
 from fastkml.geometry import LinearRing
 from fastkml.geometry import LineString
@@ -163,7 +164,7 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.class_from_string(doc)
 
-        assert len(g.geometry) == 2
+        assert len(g.geometry) == 2  # type: ignore[arg-type]
 
     def test_multilinestring(self) -> None:
         doc = """
@@ -179,7 +180,7 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.class_from_string(doc)
 
-        assert len(g.geometry) == 2
+        assert len(g.geometry) == 2  # type: ignore[arg-type]
 
     def test_multipolygon(self) -> None:
         doc = """
@@ -211,7 +212,7 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.class_from_string(doc)
 
-        assert len(g.geometry) == 2
+        assert len(g.geometry) == 2  # type: ignore[arg-type]
 
     def test_geometrycollection(self) -> None:
         doc = """
@@ -237,7 +238,7 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.class_from_string(doc)
 
-        assert len(g.geometry) == 4
+        assert len(g.geometry) == 4  # type: ignore[arg-type]
 
     def test_geometrycollection_with_linearring(self) -> None:
         doc = """
@@ -253,7 +254,7 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.class_from_string(doc)
 
-        assert len(g.geometry) == 2
+        assert len(g.geometry) == 2  # type: ignore[arg-type]
         assert g.geometry.geom_type == "GeometryCollection"
 
 
@@ -337,10 +338,10 @@ class TestGeometry(StdLibrary):
         assert g.altitude_mode == AltitudeMode.relative_to_ground
         assert g.tessellate is True
 
-    def test_from_string_invalid_altitude_mode(self) -> None:
+    def test_from_string_invalid_altitude_mode_strict(self) -> None:
         """Test the from_string method."""
         with pytest.raises(
-            ValueError,
+            exceptions.KMLParseError,
         ):
             _Geometry.class_from_string(
                 '<_Geometry id="my-id" targetId="target_id">'
@@ -349,10 +350,22 @@ class TestGeometry(StdLibrary):
                 ns="",
             )
 
+    def test_from_string_invalid_altitude_mode_relaxed(self) -> None:
+        """Test the from_string method."""
+        geom = _Geometry.class_from_string(
+            '<_Geometry id="my-id" targetId="target_id">'
+            "<altitudeMode>invalid</altitudeMode>"
+            "</_Geometry>",
+            ns="",
+            strict=False,
+        )
+
+        assert geom.altitude_mode is None
+
     def test_from_string_invalid_extrude(self) -> None:
         """Test the from_string method."""
         with pytest.raises(
-            ValueError,
+            exceptions.KMLParseError,
         ):
             _Geometry.class_from_string(
                 '<_Geometry id="my-id" targetId="target_id">'
@@ -531,9 +544,9 @@ class TestCreateKmlGeometry(StdLibrary):
 
     def test_create_kml_geometry_geometrycollection_roundtrip(self) -> None:
         multipoint = geo.MultiPoint([(0, 0), (1, 1), (1, 2), (2, 2)])
-        gc1 = geo.GeometryCollection([multipoint, geo.Point(0, 0)])
+        gc1 = geo.GeometryCollection([geo.Point(0, 0), multipoint])
         line1 = geo.LineString([(0, 0), (3, 1)])
-        gc2 = geo.GeometryCollection([gc1, line1])
+        gc2 = geo.GeometryCollection([line1, gc1])
         poly1 = geo.Polygon([(0, 0), (1, 1), (1, 0), (0, 0)])
         e = [(0, 0), (0, 2), (2, 2), (2, 0), (0, 0)]
         i = [(1, 0), (0.5, 0.5), (1, 1), (1.5, 0.5), (1, 0)]
@@ -544,13 +557,13 @@ class TestCreateKmlGeometry(StdLibrary):
         line = geo.LineString([(0, 0), (1, 1)])
         gc = geo.GeometryCollection(
             [
-                gc2,
                 p0,
                 p1,
                 line,
                 poly1,
                 poly2,
                 ring,
+                gc2,
             ],
         )
         g = create_kml_geometry(gc)
@@ -558,6 +571,14 @@ class TestCreateKmlGeometry(StdLibrary):
         mg = MultiGeometry.class_from_string(g.to_string())
 
         assert mg.geometry == gc
+
+    def test_create_kml_geometry_non_geometry(self) -> None:
+        """Test the create_kml_geometry function."""
+        with pytest.raises(
+            AttributeError,
+            match="^'str' object has no attribute '__geo_interface__'$",
+        ):
+            create_kml_geometry("not a geometry")  # type: ignore[arg-type]
 
 
 class TestGetGeometryLxml(Lxml, TestGetGeometry):

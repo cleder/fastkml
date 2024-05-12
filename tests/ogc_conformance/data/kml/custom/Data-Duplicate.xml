@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [PASS] Data/@name are distinct -->
+<kml xmlns="http://www.opengis.net/kml/2.2">
+	<Placemark>
+		<name>Club house</name>
+		<ExtendedData>
+			<Data name="holeNumber">
+				<value>1</value>
+			</Data>
+			<Data name="holeYardage">
+				<value>234</value>
+			</Data>
+			<Data name="holeNumber">
+				<value>4</value>
+			</Data>
+		</ExtendedData>
+	</Placemark>
+</kml>

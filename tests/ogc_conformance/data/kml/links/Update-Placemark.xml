@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [PASS] kml:Update/kml:targetHref refers to a valid KML resource -->
+<kml:kml xmlns:kml="http://www.opengis.net/kml/2.2">
+  <kml:NetworkLinkControl>
+    <kml:Update>
+      <kml:targetHref>../Document-places.kml</kml:targetHref>
+      <kml:Change>
+        <kml:Placemark targetId="pm123">
+          <name>Name changed by Update</name>
+        </kml:Placemark>
+      </kml:Change>
+    </kml:Update>
+  </kml:NetworkLinkControl>
+</kml:kml>

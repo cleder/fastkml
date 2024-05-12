@@ -1,4 +1,4 @@
-# Copyright (C) 2012 - 2023  Christian Ledermann
+# Copyright (C) 2012 - 2024  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -39,12 +39,14 @@ from typing import Optional
 from fastkml import config
 from fastkml.base import _XMLObject
 from fastkml.config import ATOMNS as NS
-from fastkml.enums import Verbosity
+from fastkml.helpers import attribute_int_kwarg
+from fastkml.helpers import attribute_text_kwarg
+from fastkml.helpers import int_attribute
 from fastkml.helpers import subelement_text_kwarg
+from fastkml.helpers import text_attribute
 from fastkml.helpers import text_subelement
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
-from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
 
@@ -114,8 +116,9 @@ class Link(_AtomObject):
         hreflang: Optional[str] = None,
         title: Optional[str] = None,
         length: Optional[int] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.href = href
         self.rel = rel
         self.type = type
@@ -123,54 +126,102 @@ class Link(_AtomObject):
         self.title = title
         self.length = length
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Link."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"href={self.href!r}, "
+            f"rel={self.rel!r}, "
+            f"type={self.type!r}, "
+            f"hreflang={self.hreflang!r}, "
+            f"title={self.title!r}, "
+            f"length={self.length!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     def __bool__(self) -> bool:
         return bool(self.href)
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.href:
-            element.set("href", self.href)
-        else:
-            logger.warning("required attribute href missing")
-        if self.rel:
-            element.set("rel", self.rel)
-        if self.type:
-            element.set("type", self.type)
-        if self.hreflang:
-            element.set("hreflang", self.hreflang)
-        if self.title:
-            element.set("title", self.title)
-        if self.length:
-            element.set("length", str(self.length))
-        return element
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
+    def __eq__(self, other: object) -> bool:
+        try:
+            assert isinstance(other, type(self))
+        except AssertionError:
+            return False
+        return (
+            super().__eq__(other)
+            and self.href == other.href
+            and self.rel == other.rel
+            and self.type == other.type
+            and self.hreflang == other.hreflang
+            and self.title == other.title
+            and self.length == other.length
         )
-        kwargs["href"] = element.get("href")
-        kwargs["rel"] = element.get("rel")
-        kwargs["type"] = element.get("type")
-        kwargs["hreflang"] = element.get("hreflang")
-        kwargs["title"] = element.get("title")
-        length = element.get("length")
-        kwargs["length"] = int(length) if length and length.strip() else None
-        return kwargs
+
+
+registry.register(
+    Link,
+    item=RegistryItem(
+        attr_name="href",
+        node_name="href",
+        classes=(str,),
+        get_kwarg=attribute_text_kwarg,
+        set_element=text_attribute,
+    ),
+)
+registry.register(
+    Link,
+    item=RegistryItem(
+        attr_name="rel",
+        node_name="rel",
+        classes=(str,),
+        get_kwarg=attribute_text_kwarg,
+        set_element=text_attribute,
+    ),
+)
+registry.register(
+    Link,
+    item=RegistryItem(
+        attr_name="type",
+        node_name="type",
+        classes=(str,),
+        get_kwarg=attribute_text_kwarg,
+        set_element=text_attribute,
+    ),
+)
+registry.register(
+    Link,
+    item=RegistryItem(
+        attr_name="hreflang",
+        node_name="hreflang",
+        classes=(str,),
+        get_kwarg=attribute_text_kwarg,
+        set_element=text_attribute,
+    ),
+)
+
+registry.register(
+    Link,
+    item=RegistryItem(
+        attr_name="title",
+        node_name="title",
+        classes=(str,),
+        get_kwarg=attribute_text_kwarg,
+        set_element=text_attribute,
+    ),
+)
+registry.register(
+    Link,
+    item=RegistryItem(
+        attr_name="length",
+        node_name="length",
+        classes=(int,),
+        get_kwarg=attribute_int_kwarg,
+        set_element=int_attribute,
+    ),
+)
 
 
 class _Person(_AtomObject):
@@ -196,14 +247,40 @@ class _Person(_AtomObject):
         name: Optional[str] = None,
         uri: Optional[str] = None,
         email: Optional[str] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.name = name
         self.uri = uri
         self.email = email
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for _Person."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"name={self.name!r}, "
+            f"uri={self.uri!r}, "
+            f"email={self.email!r}, "
+            f"**kwargs={self._get_splat()!r},"
+            ")"
+        )
+
     def __bool__(self) -> bool:
         return bool(self.name)
+
+    def __eq__(self, other: object) -> bool:
+        try:
+            assert isinstance(other, type(self))
+        except AssertionError:
+            return False
+        return (
+            super().__eq__(other)
+            and self.name == other.name
+            and self.uri == other.uri
+            and self.email == other.email
+        )
 
 
 registry.register(

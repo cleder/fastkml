@@ -27,7 +27,7 @@ classifiers = [
 ]
 dependencies = [
     "arrow",
-    "pygeoif>=1.1",
+    "pygeoif>=1.5",
     "typing-extensions>4",
 ]
 description = "Fast KML processing in python"
@@ -118,6 +118,7 @@ source = [
 [tool.coverage.report]
 exclude_also = [
     "^\\s*\\.\\.\\.$",
+    "except AssertionError:",
     "except ImportError:",
     "if TYPE_CHECKING:",
 ]
@@ -171,6 +172,9 @@ include = [
 
 [tool.ruff]
 fix = true
+target-version = "py38"
+
+[tool.ruff.lint]
 ignore = [
     "ANN101",
     "ANN102",
@@ -238,9 +242,8 @@ select = [
     "W",
     "YTT",
 ]
-target-version = "py38"
 
-[tool.ruff.extend-per-file-ignores]
+[tool.ruff.lint.extend-per-file-ignores]
 "tests/*.py" = [
     "D101",
     "D102",
@@ -253,7 +256,7 @@ target-version = "py38"
     "E501",
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 force-single-line = true
 
 [tool.setuptools]

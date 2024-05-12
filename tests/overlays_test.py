@@ -16,43 +16,16 @@
 
 """Test the kml classes."""
 
+from pygeoif import geometry as geo
+
+from fastkml import enums
+from fastkml import geometry
 from fastkml import links
 from fastkml import overlays
 from fastkml import views
 from fastkml.enums import AltitudeMode
 from tests.base import Lxml
 from tests.base import StdLibrary
-
-
-class TestBaseOverlay(StdLibrary):
-    def test_color_string(self) -> None:
-        o = overlays._Overlay(name="An Overlay")
-        o.color = "00010203"
-        assert o.color == "00010203"
-
-    def test_color_none(self) -> None:
-        o = overlays._Overlay(name="An Overlay")
-        o.color = "00010203"
-        assert o.color == "00010203"
-        o.color = None
-        assert o.color is None
-
-    def test_draw_order_string(self) -> None:
-        o = overlays._Overlay(name="An Overlay")
-        o.draw_order = 1
-        assert o.draw_order == 1
-
-    def test_draw_order_int(self) -> None:
-        o = overlays._Overlay(name="An Overlay")
-        o.draw_order = 1
-        assert o.draw_order == 1
-
-    def test_draw_order_none(self) -> None:
-        o = overlays._Overlay(name="An Overlay")
-        o.draw_order = 1
-        assert o.draw_order == 1
-        o.draw_order = None
-        assert o.draw_order is None
 
 
 class TestGroundOverlay(StdLibrary):
@@ -111,6 +84,26 @@ class TestGroundOverlayString(StdLibrary):
         )
 
         assert g.to_string() == expected.to_string()
+
+    def test_altitude_invalid(self) -> None:
+        g = overlays.GroundOverlay.class_from_string(
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            "<kml:altitude> one two</kml:altitude>"
+            "</kml:GroundOverlay>",
+            strict=False,
+        )
+
+        assert g.altitude is None
+
+    def test_draw_order_from_invalid(self) -> None:
+        g = overlays.GroundOverlay.class_from_string(
+            '<kml:GroundOverlay xmlns:kml="http://www.opengis.net/kml/2.2">'
+            "<kml:drawOrder>nan</kml:drawOrder>"
+            "</kml:GroundOverlay>",
+            strict=False,
+        )
+
+        assert g.draw_order is None
 
     def test_altitude_from_string(self) -> None:
         g = overlays.GroundOverlay(
@@ -213,6 +206,105 @@ class TestGroundOverlayString(StdLibrary):
 
 
 class TestPhotoOverlay(StdLibrary):
+    def test_create_photo_overlay_with_all_optional_parameters(self) -> None:
+        """Create a PhotoOverlay object with all optional parameters."""
+        photo_overlay = overlays.PhotoOverlay(
+            id="photo_overlay_1",
+            name="Photo Overlay",
+            visibility=True,
+            description="This is a photo overlay",
+            icon=links.Icon(href="https://example.com/photo.jpg"),
+            view=views.LookAt(
+                longitude=-122.0822035425683,
+                latitude=37.42228990140251,
+                altitude=0,
+                heading=0,
+                tilt=0,
+                range=1000,
+                altitude_mode=AltitudeMode.clamp_to_ground,
+            ),
+            point=geometry.Point(
+                id="point_1",
+                geometry=geo.Point(-122.0822035425683, 37.42228990140251, 0),
+            ),
+            shape=enums.Shape.rectangle,
+            rotation=0,
+            view_volume=overlays.ViewVolume(
+                left_fov=-60,
+                right_fov=60,
+                bottom_fov=-45,
+                top_fov=45,
+                near=1,
+            ),
+            image_pyramid=overlays.ImagePyramid(
+                tile_size=256,
+                max_width=2048,
+                max_height=2048,
+                grid_origin=enums.GridOrigin.lower_left,
+            ),
+        )
+        assert photo_overlay.id == "photo_overlay_1"
+        assert photo_overlay.name == "Photo Overlay"
+        assert photo_overlay.visibility
+        assert photo_overlay.description == "This is a photo overlay"
+        assert photo_overlay.shape == enums.Shape.rectangle
+        assert photo_overlay.rotation == 0
+
+    def test_read_photo_overlay(self) -> None:
+        """Read a PhotoOverlay object from a KML file."""
+        doc = (
+            '<kml:PhotoOverlay xmlns:kml="http://www.opengis.net/kml/2.2" '
+            'id="photo_overlay_1"><kml:name>Photo Overlay</kml:name>'
+            "<kml:visibility>1</kml:visibility>"
+            "<kml:description>This is a photo overlay</kml:description>"
+            "<kml:LookAt><kml:longitude>-122.0822035425683</kml:longitude>"
+            "<kml:latitude>37.42228990140251</kml:latitude>"
+            "<kml:altitude>0</kml:altitude><kml:heading>0</kml:heading>"
+            "<kml:tilt>0</kml:tilt><kml:altitudeMode>clampToGround</kml:altitudeMode>"
+            "<kml:range>1000</kml:range></kml:LookAt>"
+            "<kml:Icon><kml:href>https://example.com/photo.jpg</kml:href></kml:Icon>"
+            "<kml:rotation>0</kml:rotation>"
+            "<kml:ViewVolume><kml:leftFov>-60</kml:leftFov>"
+            "<kml:rightFov>60</kml:rightFov><kml:bottomFov>-45</kml:bottomFov>"
+            "<kml:topFov>45</kml:topFov><kml:near>1</kml:near>"
+            "</kml:ViewVolume><kml:ImagePyramid><kml:tileSize>256</kml:tileSize>"
+            "<kml:maxWidth>2048</kml:maxWidth><kml:maxHeight>2048</kml:maxHeight>"
+            "<kml:gridOrigin>lowerLeft</kml:gridOrigin></kml:ImagePyramid>"
+            '<kml:Point id="point_1">'
+            "<kml:coordinates>-122.082204,37.422290,0.000000</kml:coordinates>"
+            "</kml:Point><kml:shape>rectangle</kml:shape></kml:PhotoOverlay>"
+        )
+
+        p_overlay = overlays.PhotoOverlay.class_from_string(doc)
+
+        assert p_overlay.id == "photo_overlay_1"
+        assert p_overlay.name == "Photo Overlay"
+        assert p_overlay.visibility
+        assert p_overlay.description == "This is a photo overlay"
+        assert p_overlay.shape == enums.Shape.rectangle
+        assert p_overlay.rotation == 0
+        assert p_overlay.view.longitude == -122.0822035425683
+        assert p_overlay.view.latitude == 37.42228990140251
+        assert p_overlay.view.altitude == 0
+        assert p_overlay.view.heading == 0
+        assert p_overlay.view.tilt == 0
+        assert p_overlay.view.range == 1000
+        assert p_overlay.view.altitude_mode == AltitudeMode.clamp_to_ground
+        assert p_overlay.icon.href == "https://example.com/photo.jpg"
+        assert p_overlay.view_volume.left_fov == -60
+        assert p_overlay.view_volume.right_fov == 60
+        assert p_overlay.view_volume.bottom_fov == -45
+        assert p_overlay.view_volume.top_fov == 45
+        assert p_overlay.view_volume.near == 1
+        assert p_overlay.image_pyramid.tile_size == 256
+        assert p_overlay.image_pyramid.max_width == 2048
+        assert p_overlay.image_pyramid.max_height == 2048
+        assert p_overlay.image_pyramid.grid_origin == enums.GridOrigin.lower_left
+        assert p_overlay.point.id == "point_1"
+        assert p_overlay.point.geometry.x == -122.082204
+        assert p_overlay.point.geometry.y == 37.422290
+        assert p_overlay.point.geometry.z == 0
+
     def test_camera_altitude_int(self) -> None:
         po = overlays.PhotoOverlay(view=views.Camera())
         po.view.altitude = 123
@@ -266,10 +358,6 @@ class TestPhotoOverlay(StdLibrary):
         assert po.view.tilt == 50
         assert po.view.roll == 60
         assert po.view.altitude_mode == AltitudeMode("relativeToGround")
-
-
-class TestBaseOverlayLxml(Lxml, TestBaseOverlay):
-    """Test with lxml."""
 
 
 class TestGroundOverlayLxml(Lxml, TestGroundOverlay):

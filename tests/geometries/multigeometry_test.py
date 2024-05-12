@@ -29,7 +29,7 @@ class TestMultiPointStdLibrary(StdLibrary):
         """Test with one point."""
         p = geo.MultiPoint([(1, 2)])
 
-        mg = MultiGeometry(ns="", geometry=p)
+        mg = MultiGeometry(geometry=p)
 
         assert "coordinates>1.000000,2.000000</" in mg.to_string()
         assert "MultiGeometry>" in mg.to_string()
@@ -39,7 +39,7 @@ class TestMultiPointStdLibrary(StdLibrary):
         """Test with two points."""
         p = geo.MultiPoint([(1, 2), (3, 4)])
 
-        mg = MultiGeometry(ns="", geometry=p)
+        mg = MultiGeometry(geometry=p)
 
         assert "coordinates>1.000000,2.000000</" in mg.to_string()
         assert "coordinates>3.000000,4.000000</" in mg.to_string()
@@ -48,12 +48,14 @@ class TestMultiPointStdLibrary(StdLibrary):
 
     def test_2_points_read(self) -> None:
         xml = (
-            "<MultiGeometry><extrude>0</extrude><tessellate>0</tessellate>"
-            "<Point><coordinates>1.000000,2.000000</coordinates></Point>"
-            "<Point><coordinates>3.000000,4.000000</coordinates></Point></MultiGeometry>"
+            '<kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">'
+            "<kml:extrude>0</kml:extrude><kml:tessellate>0</kml:tessellate>"
+            "<kml:Point><kml:coordinates>1.000000,2.000000</kml:coordinates></kml:Point>"
+            "<kml:Point><kml:coordinates>3.000000,4.000000"
+            "</kml:coordinates></kml:Point></kml:MultiGeometry>"
         )
 
-        mg = MultiGeometry.class_from_string(xml, ns="")
+        mg = MultiGeometry.class_from_string(xml)
 
         assert mg.geometry == geo.MultiPoint([(1, 2), (3, 4)])
 
@@ -63,7 +65,7 @@ class TestMultiLineStringStdLibrary(StdLibrary):
         """Test with one linestring."""
         p = geo.MultiLineString([[(1, 2), (3, 4)]])
 
-        mg = MultiGeometry(ns="", geometry=p)
+        mg = MultiGeometry(geometry=p)
 
         assert "coordinates>1.000000,2.000000 3.000000,4.000000</" in mg.to_string()
         assert "MultiGeometry>" in mg.to_string()
@@ -73,7 +75,7 @@ class TestMultiLineStringStdLibrary(StdLibrary):
         """Test with two linestrings."""
         p = geo.MultiLineString([[(1, 2), (3, 4)], [(5, 6), (7, 8)]])
 
-        mg = MultiGeometry(ns="", geometry=p)
+        mg = MultiGeometry(geometry=p)
 
         assert "coordinates>1.000000,2.000000 3.000000,4.000000</" in mg.to_string()
         assert "coordinates>5.000000,6.000000 7.000000,8.000000</" in mg.to_string()
@@ -82,11 +84,12 @@ class TestMultiLineStringStdLibrary(StdLibrary):
 
     def test_2_linestrings_read(self) -> None:
         xml = (
-            "<MultiGeometry><extrude>0</extrude><tessellate>0</tessellate>"
-            "<LineString><coordinates>1.000000,2.000000 3.000000,4.000000</coordinates>"
-            "</LineString><LineString>"
-            "<coordinates>5.000000,6.000000 7.000000,8.000000</coordinates>"
-            "</LineString></MultiGeometry>"
+            '<kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">'
+            "<kml:extrude>0</kml:extrude><kml:tessellate>0</kml:tessellate>"
+            "<kml:LineString><kml:coordinates>1.000000,2.000000 3.000000,4.000000"
+            "</kml:coordinates></kml:LineString><kml:LineString>"
+            "<kml:coordinates>5.000000,6.000000 7.000000,8.000000</kml:coordinates>"
+            "</kml:LineString></kml:MultiGeometry>"
         )
 
         mg = MultiGeometry.class_from_string(xml, ns="")
@@ -97,7 +100,9 @@ class TestMultiLineStringStdLibrary(StdLibrary):
 class TestMultiPolygonStdLibrary(StdLibrary):
     def test_1_polygon(self) -> None:
         """Test with one polygon."""
-        p = geo.MultiPolygon([[[[1, 2], [3, 4], [5, 6], [1, 2]]]])
+        p = geo.MultiPolygon(
+            [(((1, 2), (3, 4), (5, 6), (1, 2)),)],
+        )
 
         mg = MultiGeometry(ns="", geometry=p)
 
@@ -120,15 +125,15 @@ class TestMultiPolygonStdLibrary(StdLibrary):
                 ),
             ],
         )
-        mg = MultiGeometry(ns="", geometry=p)
+        mg = MultiGeometry(geometry=p)
 
         assert (
             "coordinates>0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
-            "1.000000,0.000000 0.000000,0.000000</coordinates" in mg.to_string()
+            "1.000000,0.000000 0.000000,0.000000</" in mg.to_string()
         )
         assert (
             "coordinates>0.250000,0.250000 0.250000,0.500000 0.500000,0.500000 "
-            "0.500000,0.250000 0.250000,0.250000</coordinates" in mg.to_string()
+            "0.500000,0.250000 0.250000,0.250000</" in mg.to_string()
         )
         assert "MultiGeometry>" in mg.to_string()
         assert "Polygon>" in mg.to_string()
@@ -147,19 +152,19 @@ class TestMultiPolygonStdLibrary(StdLibrary):
             ],
         )
 
-        mg = MultiGeometry(ns="", geometry=p)
+        mg = MultiGeometry(geometry=p)
 
         assert (
             "coordinates>0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
-            "1.000000,0.000000 0.000000,0.000000</coordinates" in mg.to_string()
+            "1.000000,0.000000 0.000000,0.000000</" in mg.to_string()
         )
         assert (
             "coordinates>0.100000,0.100000 0.100000,0.200000 0.200000,0.200000 "
-            "0.200000,0.100000 0.100000,0.100000</coordinates" in mg.to_string()
+            "0.200000,0.100000 0.100000,0.100000</" in mg.to_string()
         )
         assert (
             "coordinates>0.000000,0.000000 0.000000,2.000000 1.000000,1.000000 "
-            "1.000000,0.000000 0.000000,0.000000</coordinates" in mg.to_string()
+            "1.000000,0.000000 0.000000,0.000000</" in mg.to_string()
         )
         assert "MultiGeometry>" in mg.to_string()
         assert "Polygon>" in mg.to_string()
@@ -168,7 +173,8 @@ class TestMultiPolygonStdLibrary(StdLibrary):
 
     def test_2_polygons_read(self) -> None:
         xml = (
-            "<MultiGeometry><extrude>0</extrude><tessellate>0</tessellate>"
+            '<MultiGeometry xmlns="http://www.opengis.net/kml/2.2">'
+            "<extrude>0</extrude><tessellate>0</tessellate>"
             "<Polygon><outerBoundaryIs><LinearRing>"
             "<coordinates>0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
             "1.000000,0.000000 0.000000,0.000000</coordinates>"
@@ -183,7 +189,7 @@ class TestMultiPolygonStdLibrary(StdLibrary):
             "</LinearRing></outerBoundaryIs></Polygon></MultiGeometry>"
         )
 
-        mg = MultiGeometry.class_from_string(xml, ns="")
+        mg = MultiGeometry.class_from_string(xml)
 
         assert mg.geometry == geo.MultiPolygon(
             [
@@ -203,7 +209,7 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
         """Test with one point."""
         p = geo.GeometryCollection([geo.Point(1, 2)])
 
-        mg = MultiGeometry(ns="", geometry=p)
+        mg = MultiGeometry(geometry=p)
 
         assert "coordinates>1.000000,2.000000</" in mg.to_string()
         assert "MultiGeometry>" in mg.to_string()
@@ -219,7 +225,7 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
         )
         gc = geo.GeometryCollection([p, ls, lr, poly])
 
-        mg = MultiGeometry(ns="", geometry=gc)
+        mg = MultiGeometry(geometry=gc)
 
         assert "Point>" in mg.to_string()
         assert "LineString>" in mg.to_string()
@@ -257,7 +263,8 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
 
     def test_multi_geometries_read(self) -> None:
         xml = (
-            "<MultiGeometry><extrude>0</extrude><tessellate>0</tessellate>"
+            '<MultiGeometry xmlns="http://www.opengis.net/kml/2.2">'
+            "<extrude>0</extrude><tessellate>0</tessellate>"
             "<MultiGeometry><Point><coordinates>1.000000,2.000000</coordinates></Point>"
             "<LineString><coordinates>1.000000,2.000000 2.000000,0.000000</coordinates>"
             "</LineString><LinearRing><coordinates>0.000000,0.000000 0.000000,1.000000 "
@@ -285,7 +292,7 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
             "</coordinates></LineString></MultiGeometry></MultiGeometry>"
         )
 
-        mg = MultiGeometry.class_from_string(xml, ns="")
+        mg = MultiGeometry.class_from_string(xml)
 
         assert mg.geometry == geo.GeometryCollection(
             (
@@ -353,15 +360,18 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
 
     def test_empty_multi_geometries_read(self) -> None:
         xml = (
-            "<MultiGeometry><extrude>0</extrude><tessellate>0</tessellate>"
+            '<MultiGeometry xmlns="http://www.opengis.net/kml/2.2">'
+            "<extrude>0</extrude><tessellate>0</tessellate>"
             "<MultiGeometry></MultiGeometry></MultiGeometry>"
         )
 
-        mg = MultiGeometry.class_from_string(xml, ns="")
+        mg = MultiGeometry.class_from_string(xml)
 
         assert mg.geometry is None
         assert "MultiGeometry>" in mg.to_string()
         assert "coordinates>" not in mg.to_string()
+        assert mg.extrude is False
+        assert mg.tessellate is False
 
 
 class TestMultiPointLxml(Lxml, TestMultiPointStdLibrary):

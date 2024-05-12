@@ -44,7 +44,7 @@ class Element(Protocol):
     tag: str
     text: str
 
-    def set(self, tag: str, value: str) -> None:  # noqa: A003
+    def set(self, tag: str, value: str) -> None:
         """Set the value of the tag."""
 
     def get(self, tag: str) -> str:
