@@ -20,7 +20,6 @@ import pygeoif.geometry as geo
 import pytest
 
 from fastkml.exceptions import KMLParseError
-from fastkml.exceptions import KMLWriteError
 from fastkml.geometry import Point
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -98,11 +97,7 @@ class TestPoint(StdLibrary):
         """Test the to_string method."""
         point = Point(geometry=geo.Point(None, None))  # type: ignore[arg-type]
 
-        with pytest.raises(
-            KMLWriteError,
-            match=r"Invalid dimensions in coordinates '\(\(\),\)'",
-        ):
-            point.to_string()
+        assert not point
 
     def test_from_string_2d(self) -> None:
         """Test the from_string method for a 2 dimensional point."""
@@ -161,14 +156,12 @@ class TestPoint(StdLibrary):
 
     def test_empty_from_string(self) -> None:
         """Test the from_string method."""
-        with pytest.raises(
-            KMLParseError,
-            match=r"^Invalid coordinates in '<Point\s*/>",
-        ):
-            Point.class_from_string(
-                "<Point/>",
-                ns="",
-            )
+        point = Point.class_from_string(
+            "<Point/>",
+            ns="",
+        )
+
+        assert not point
 
     def test_empty_from_string_relaxed(self) -> None:
         """Test that no error is raised when the geometry is empty and not strict."""
@@ -181,52 +174,38 @@ class TestPoint(StdLibrary):
         assert point.geometry is None
 
     def test_from_string_empty_coordinates(self) -> None:
-        with pytest.raises(
-            KMLParseError,
-            match=r"^Invalid coordinates in '<Point\s*><coordinates\s*/></Point>",
-        ):
-            Point.class_from_string(
-                "<Point><coordinates/></Point>",
-                ns="",
-            )
+        point = Point.class_from_string(
+            '<Point xmlns="http://www.opengis.net/kml/2.2"><coordinates/></Point>',
+        )
+
+        assert not point
+        assert point.geometry is None
 
     def test_from_string_invalid_coordinates(self) -> None:
-        with pytest.raises(
-            KMLParseError,
-            match=(
-                r"^Invalid coordinates in '<Point\s*>"
-                "<coordinates>1</coordinates></Point>"
-            ),
-        ):
-            Point.class_from_string(
-                "<Point><coordinates>1</coordinates></Point>",
-                ns="",
-            )
+
+        point = Point.class_from_string(
+            '<Point xmlns="http://www.opengis.net/kml/2.2">'
+            "<coordinates>1</coordinates></Point>",
+        )
+
+        assert not point
 
     def test_from_string_invalid_coordinates_4d(self) -> None:
-        with pytest.raises(
-            KMLParseError,
-            match=(
-                r"^Invalid coordinates in '<Point\s*>"
-                "<coordinates>1,2,3,4</coordinates></Point>"
-            ),
-        ):
-            Point.class_from_string(
-                "<Point><coordinates>1,2,3,4</coordinates></Point>",
-                ns="",
-            )
+
+        point = Point.class_from_string(
+            '<Point xmlns="http://www.opengis.net/kml/2.2">'
+            "<coordinates>1,2,3,4</coordinates></Point>",
+        )
+        assert not point
 
     def test_from_string_invalid_coordinates_non_numerical(self) -> None:
         with pytest.raises(
             KMLParseError,
-            match=(
-                r"^Invalid coordinates in '<Point\s*>"
-                "<coordinates>a,b,c</coordinates></Point>"
-            ),
+            match=r"^Invalid coordinates in",
         ):
             Point.class_from_string(
-                "<Point><coordinates>a,b,c</coordinates></Point>",
-                ns="",
+                '<Point xmlns="http://www.opengis.net/kml/2.2">'
+                "<coordinates>a,b,c</coordinates></Point>",
             )
 
     def test_from_string_invalid_coordinates_nan(self) -> None:
@@ -235,8 +214,8 @@ class TestPoint(StdLibrary):
             match=r"^Invalid coordinates in",
         ):
             Point.class_from_string(
-                "<Point><coordinates>a,b</coordinates></Point>",
-                ns="",
+                '<Point xmlns="http://www.opengis.net/kml/2.2">'
+                "<coordinates>a,b</coordinates></Point>",
             )
 
 

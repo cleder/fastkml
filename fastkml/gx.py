@@ -157,7 +157,11 @@ class TrackItem:
             f"{name_spaces.get('gx', '')}coord",
         )
         if self.coord:
-            element.text = " ".join([str(c) for c in self.coord.coords[0]])
+            element.text = " ".join(
+                [
+                    str(c) for c in self.coord.coords[0]  # type:ignore[misc]
+                ],
+            )
         yield element
         element = config.etree.Element(  # type: ignore[attr-defined]
             f"{name_spaces.get('gx', '')}angles",
@@ -225,7 +229,6 @@ class Track(_Geometry):
             extrude=extrude,
             tessellate=tessellate,
             altitude_mode=altitude_mode,
-            geometry=None,
             **kwargs,
         )
 
@@ -388,7 +391,6 @@ class MultiTrack(_Geometry):
             extrude=extrude,
             tessellate=tessellate,
             altitude_mode=altitude_mode,
-            geometry=None,
             **kwargs,
         )
 

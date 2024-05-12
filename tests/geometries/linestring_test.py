@@ -65,19 +65,18 @@ class TestLineString(StdLibrary):
         )
 
     def test_mixed_2d_3d_coordinates_from_string(self) -> None:
-        with pytest.raises(
-            KMLParseError,
-            match=r"^Invalid coordinates in",
-        ):
-            LineString.class_from_string(
-                '<LineString xmlns="http://www.opengis.net/kml/2.2">'
-                "<extrude>1</extrude>"
-                "<tessellate>1</tessellate>"
-                "<coordinates>"
-                "-122.364383,37.824664 -122.364152,37.824322,0"
-                "</coordinates>"
-                "</LineString>",
-            )
+
+        linestring = LineString.class_from_string(
+            '<LineString xmlns="http://www.opengis.net/kml/2.2">'
+            "<extrude>1</extrude>"
+            "<tessellate>1</tessellate>"
+            "<coordinates>"
+            "-122.364383,37.824664 -122.364152,37.824322,0"
+            "</coordinates>"
+            "</LineString>",
+        )
+
+        assert not linestring
 
     def test_mixed_2d_3d_coordinates_from_string_relaxed(self) -> None:
         line_string = LineString.class_from_string(
@@ -104,7 +103,7 @@ class TestLineString(StdLibrary):
             "</LineString>",
         )
 
-        assert linestring.geometry.is_empty
+        assert not linestring.geometry
 
     def test_no_coordinates_from_string(self) -> None:
         """Test the from_string method with no coordinates."""
@@ -115,7 +114,7 @@ class TestLineString(StdLibrary):
             "</LineString>",
         )
 
-        assert linestring.geometry.is_empty
+        assert not linestring.geometry
 
     def test_from_string_invalid_coordinates_non_numerical(self) -> None:
         """Test the from_string method with invalid coordinates."""
@@ -133,7 +132,6 @@ class TestLineString(StdLibrary):
                 "</LineString>",
             )
 
-    @pytest.mark.xfail(reason="pygeoif does not handle NaN values well")
     def test_from_string_invalid_coordinates_nan(self) -> None:
         line_string = LineString.class_from_string(
             '<LineString xmlns="http://www.opengis.net/kml/2.2">'

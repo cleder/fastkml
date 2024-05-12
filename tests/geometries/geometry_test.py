@@ -164,7 +164,7 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.class_from_string(doc)
 
-        assert len(g.geometry) == 2
+        assert len(g.geometry) == 2  # type: ignore[arg-type]
 
     def test_multilinestring(self) -> None:
         doc = """
@@ -180,7 +180,7 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.class_from_string(doc)
 
-        assert len(g.geometry) == 2
+        assert len(g.geometry) == 2  # type: ignore[arg-type]
 
     def test_multipolygon(self) -> None:
         doc = """
@@ -212,7 +212,7 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.class_from_string(doc)
 
-        assert len(g.geometry) == 2
+        assert len(g.geometry) == 2  # type: ignore[arg-type]
 
     def test_geometrycollection(self) -> None:
         doc = """
@@ -238,7 +238,7 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.class_from_string(doc)
 
-        assert len(g.geometry) == 4
+        assert len(g.geometry) == 4  # type: ignore[arg-type]
 
     def test_geometrycollection_with_linearring(self) -> None:
         doc = """
@@ -254,7 +254,7 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.class_from_string(doc)
 
-        assert len(g.geometry) == 2
+        assert len(g.geometry) == 2  # type: ignore[arg-type]
         assert g.geometry.geom_type == "GeometryCollection"
 
 
@@ -544,9 +544,9 @@ class TestCreateKmlGeometry(StdLibrary):
 
     def test_create_kml_geometry_geometrycollection_roundtrip(self) -> None:
         multipoint = geo.MultiPoint([(0, 0), (1, 1), (1, 2), (2, 2)])
-        gc1 = geo.GeometryCollection([multipoint, geo.Point(0, 0)])
+        gc1 = geo.GeometryCollection([geo.Point(0, 0), multipoint])
         line1 = geo.LineString([(0, 0), (3, 1)])
-        gc2 = geo.GeometryCollection([gc1, line1])
+        gc2 = geo.GeometryCollection([line1, gc1])
         poly1 = geo.Polygon([(0, 0), (1, 1), (1, 0), (0, 0)])
         e = [(0, 0), (0, 2), (2, 2), (2, 0), (0, 0)]
         i = [(1, 0), (0.5, 0.5), (1, 1), (1.5, 0.5), (1, 0)]
@@ -557,13 +557,13 @@ class TestCreateKmlGeometry(StdLibrary):
         line = geo.LineString([(0, 0), (1, 1)])
         gc = geo.GeometryCollection(
             [
-                gc2,
                 p0,
                 p1,
                 line,
                 poly1,
                 poly2,
                 ring,
+                gc2,
             ],
         )
         g = create_kml_geometry(gc)

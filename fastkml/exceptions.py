@@ -30,3 +30,8 @@ class KMLWriteError(FastKMLError):
 
 class KMLSchemaError(FastKMLError):
     """Raised when there is an error with the KML Schema."""
+
+
+# geometry and kml_coordinates are mutually exclusive
+class GeometryError(FastKMLError):
+    """Raised when there is an error with the geometry."""

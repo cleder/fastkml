@@ -27,7 +27,7 @@ classifiers = [
 ]
 dependencies = [
     "arrow",
-    "pygeoif>=1.4",
+    "pygeoif>=1.5",
     "typing-extensions>4",
 ]
 description = "Fast KML processing in python"
