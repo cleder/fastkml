@@ -13,4 +13,3 @@ build:
     - name: "Type check"
       command: "mypy fastkml"
       description: "Type check with mypy"
-
