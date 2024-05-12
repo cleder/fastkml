@@ -18,6 +18,7 @@ import logging
 import re
 from typing import Any
 from typing import Dict
+from typing import Final
 from typing import Iterable
 from typing import List
 from typing import Optional
@@ -39,6 +40,7 @@ from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
+from fastkml.exceptions import GeometryError
 from fastkml.exceptions import KMLParseError
 from fastkml.exceptions import KMLWriteError
 from fastkml.helpers import bool_subelement
@@ -77,6 +79,8 @@ MultiGeometryType = Union[
     geo.GeometryCollection,
 ]
 AnyGeometryType = Union[GeometryType, MultiGeometryType]
+
+MsgMutualExclusive: Final = "Geometry and kml coordinates are mutually exclusive"
 
 
 def handle_invalid_geometry_error(
@@ -146,8 +150,28 @@ def subelement_coordinates_kwarg(
     classes: Tuple[known_types, ...],
     strict: bool,
 ) -> Dict[str, LineType]:
-    # Clean up badly formatted tuples by stripping
-    # space following commas.
+    """
+    Extracts coordinates from a subelement and returns them as a dictionary.
+
+    Args:
+    ----
+        element (Element): The XML element containing the coordinates.
+        ns (str): The namespace of the XML element.
+        name_spaces (Dict[str, str]): A dictionary mapping namespace prefixes to URIs.
+        node_name (str): The name of the XML node containing the coordinates.
+        kwarg (str): The name of the keyword argument to store the coordinates.
+        classes (Tuple[known_types, ...]): A tuple of known types for validation.
+        strict (bool): A flag indicating whether to raise an error for invalid geometry.
+
+    Returns:
+    -------
+        Dict[str, LineType]: A dictionary containing the extracted coordinates.
+
+    Raises:
+    ------
+        ValueError: If the coordinates are not in the expected format.
+
+    """
     try:
         latlons = re.sub(r", +", ",", element.text.strip()).split()
     except AttributeError:
@@ -329,6 +353,17 @@ registry.register(
 
 
 class Point(_Geometry):
+    """
+    A geographic location defined by longitude, latitude, and (optional) altitude.
+
+    When a Point is contained by a Placemark, the point itself determines the position
+    of the Placemark's name and icon.
+    When a Point is extruded, it is connected to the ground with a line.
+    This "tether" uses the current LineStyle.
+
+    https://developers.google.com/kml/documentation/kmlreference#point
+    """
+
     kml_coordinates: Optional[Coordinates]
 
     def __init__(
@@ -345,8 +380,30 @@ class Point(_Geometry):
         kml_coordinates: Optional[Coordinates] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Point object.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace for the element.
+            name_spaces (Optional[Dict[str, str]]): The namespace dictionary for the
+            element.
+            id (Optional[str]): The ID of the element.
+            target_id (Optional[str]): The target ID of the element.
+            extrude (Optional[bool]): Whether to extrude the geometry.
+            tessellate (Optional[bool]): Whether to tessellate the geometry.
+            altitude_mode (Optional[AltitudeMode]): The altitude mode of the geometry.
+            geometry (Optional[geo.Point]): The geometry object.
+            kml_coordinates (Optional[Coordinates]): The KML coordinates of the point.
+            **kwargs (Any): Additional keyword arguments.
+
+        Raises:
+        ------
+            GeometryError: If both `geometry` and `kml_coordinates` are provided.
+
+        """
         if geometry is not None and kml_coordinates is not None:
-            raise ValueError("geometry and kml_coordinates are mutually exclusive")
+            raise GeometryError(MsgMutualExclusive)
         if kml_coordinates is None:
             kml_coordinates = (
                 Coordinates(coords=geometry.coords)  # type: ignore[arg-type]
@@ -366,7 +423,14 @@ class Point(_Geometry):
         )
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for Point."""
+        """
+        Return a string representation of the Point object.
+
+        Returns
+        -------
+            str: The string representation of the Point object.
+
+        """
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
@@ -382,10 +446,27 @@ class Point(_Geometry):
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the Point object has a valid geometry.
+
+        Returns
+        -------
+            bool: True if the Point object has a valid geometry, False otherwise.
+
+        """
         return bool(self.geometry)
 
     @property
     def geometry(self) -> Optional[geo.Point]:
+        """
+        Get the geometry object of the Point.
+
+        Returns
+        -------
+            Optional[geo.Point]: The geometry object of the Point,
+            or None if it doesn't exist.
+
+        """
         if not self.kml_coordinates:
             return None
         try:
@@ -407,6 +488,19 @@ registry.register(
 
 
 class LineString(_Geometry):
+    """
+    Defines a connected set of line segments.
+
+    Use <LineStyle> to specify the color, color mode, and width of the line.
+    When a LineString is extruded, the line is extended to the ground, forming a polygon
+    that looks somewhat like a wall or fence.
+    For extruded LineStrings, the line itself uses the current LineStyle, and the
+    extrusion uses the current PolyStyle.
+    See the KML Tutorial for examples of LineStrings (or paths).
+
+    https://developers.google.com/kml/documentation/kmlreference#linestring
+    """
+
     def __init__(
         self,
         *,
@@ -421,8 +515,29 @@ class LineString(_Geometry):
         kml_coordinates: Optional[Coordinates] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a LineString object.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace of the element.
+            name_spaces (Optional[Dict[str, str]]): The namespaces used in the element.
+            id (Optional[str]): The ID of the element.
+            target_id (Optional[str]): The target ID of the element.
+            extrude (Optional[bool]): Whether to extrude the geometry.
+            tessellate (Optional[bool]): Whether to tessellate the geometry.
+            altitude_mode (Optional[AltitudeMode]): The altitude mode of the geometry.
+            geometry (Optional[geo.LineString]): The LineString geometry.
+            kml_coordinates (Optional[Coordinates]): The KML coordinates of the geometry.
+            **kwargs (Any): Additional keyword arguments.
+
+        Raises:
+        ------
+            ValueError: If both `geometry` and `kml_coordinates` are provided.
+
+        """
         if geometry is not None and kml_coordinates is not None:
-            raise ValueError("geometry and kml_coordinates are mutually exclusive")
+            raise GeometryError(MsgMutualExclusive)
         if kml_coordinates is None:
             kml_coordinates = Coordinates(coords=geometry.coords) if geometry else None
         self.kml_coordinates = kml_coordinates
@@ -454,10 +569,27 @@ class LineString(_Geometry):
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the LineString object is non-empty.
+
+        Returns
+        -------
+            bool: True if the LineString object is non-empty, False otherwise.
+
+        """
         return bool(self.geometry)
 
     @property
     def geometry(self) -> Optional[geo.LineString]:
+        """
+        Get the LineString geometry.
+
+        Returns
+        -------
+            Optional[geo.LineString]: The LineString geometry, or None if it doesn't
+            exist.
+
+        """
         if not self.kml_coordinates:
             return None
         try:
@@ -479,6 +611,16 @@ registry.register(
 
 
 class LinearRing(LineString):
+    """
+    Defines a closed line string, typically the outer boundary of a Polygon.
+
+    Optionally, a LinearRing can also be used as the inner boundary of a Polygon to
+    create holes in the Polygon.
+    A Polygon can contain multiple <LinearRing> elements used as inner boundaries.
+
+    https://developers.google.com/kml/documentation/kmlreference#linearring
+    """
+
     def __init__(
         self,
         *,
@@ -524,6 +666,15 @@ class LinearRing(LineString):
 
     @property
     def geometry(self) -> Optional[geo.LinearRing]:
+        """
+        Get the geometry of the LinearRing.
+
+        Returns
+        -------
+            Optional[geo.LinearRing]: The geometry of the LinearRing,
+            or None if kml_coordinates is not set or if there is a DimensionError.
+
+        """
         if not self.kml_coordinates:
             return None
         try:
@@ -536,6 +687,16 @@ class LinearRing(LineString):
 
 
 class OuterBoundaryIs(_XMLObject):
+    """
+    Represents the outer boundary of a polygon in KML.
+
+    Attributes
+    ----------
+        kml_geometry (Optional[LinearRing]): The KML geometry representing the outer
+        boundary.
+
+    """
+
     _default_ns = config.KMLNS
     kml_geometry: Optional[LinearRing]
 
@@ -549,7 +710,7 @@ class OuterBoundaryIs(_XMLObject):
         **kwargs: Any,
     ) -> None:
         if geometry is not None and kml_geometry is not None:
-            raise ValueError("geometry and kml_coordinates are mutually exclusive")
+            raise GeometryError(MsgMutualExclusive)
         if kml_geometry is None:
             kml_geometry = (
                 LinearRing(ns=ns, name_spaces=name_spaces, geometry=geometry)
@@ -589,6 +750,8 @@ registry.register(
 
 
 class InnerBoundaryIs(_XMLObject):
+    """Represents the inner boundary of a polygon in KML."""
+
     _default_ns = config.KMLNS
     kml_geometries: List[LinearRing]
 
@@ -602,7 +765,7 @@ class InnerBoundaryIs(_XMLObject):
         **kwargs: Any,
     ) -> None:
         if geometries is not None and kml_geometries is not None:
-            raise ValueError("geometries and kml_coordinates are mutually exclusive")
+            raise GeometryError(MsgMutualExclusive)
         if kml_geometries is None:
             kml_geometries = (
                 [
@@ -620,15 +783,24 @@ class InnerBoundaryIs(_XMLObject):
         )
 
     def __bool__(self) -> bool:
+        """
+        Returns True if any of the inner boundary geometries exist, False otherwise.
+        """
         return any(b.geometry for b in self.kml_geometries)
 
     @classmethod
     def get_tag_name(cls) -> str:
-        """Return the tag name."""
+        """
+        Returns the tag name of the element.
+        """
         return "innerBoundaryIs"
 
     @property
     def geometries(self) -> Optional[Iterable[geo.LinearRing]]:
+        """
+        Returns the list of LinearRing objects representing the inner boundary.
+        If no inner boundary geometries exist, returns None.
+        """
         if not self.kml_geometries:
             return None
         return [lr.geometry for lr in self.kml_geometries if lr.geometry]
@@ -647,6 +819,33 @@ registry.register(
 
 
 class Polygon(_Geometry):
+    """
+    A Polygon is defined by an outer boundary and 0 or more inner boundaries.
+
+    The boundaries, in turn, are defined by LinearRings.
+    When a Polygon is extruded, its boundaries are connected to the ground to form
+    additional polygons, which gives the appearance of a building or a box.
+    Extruded Polygons use <PolyStyle> for their color, color mode, and fill.
+
+    The <coordinates> for polygons must be specified in counterclockwise order.
+
+    The outer boundary is represented by the `outer_boundary_is` attribute,
+    which is an instance of the `OuterBoundaryIs` class.
+    The inner boundaries are represented by the `inner_boundary_is` attribute,
+    which is an instance of the `InnerBoundaryIs` class.
+
+    The `geometry` property returns a `geo.Polygon` object representing the
+    geometry of the Polygon.
+
+    Example usage:
+    ```
+    polygon = Polygon(outer_boundary_is=outer_boundary, inner_boundary_is=inner_boundary)
+    print(polygon.geometry)
+    ```
+
+    https://developers.google.com/kml/documentation/kmlreference#polygon
+    """
+
     outer_boundary_is: Optional[OuterBoundaryIs]
     inner_boundary_is: Optional[InnerBoundaryIs]
 
@@ -666,7 +865,7 @@ class Polygon(_Geometry):
         **kwargs: Any,
     ) -> None:
         if outer_boundary_is is not None and geometry is not None:
-            raise ValueError("outer_boundary_is and geometry are mutually exclusive")
+            raise GeometryError(MsgMutualExclusive)
         if geometry is not None:
             outer_boundary_is = OuterBoundaryIs(geometry=geometry.exterior)
             inner_boundary_is = InnerBoundaryIs(geometries=geometry.interiors)
@@ -834,6 +1033,10 @@ def create_kml_geometry(
 
 
 class MultiGeometry(_Geometry):
+    """
+    A container for zero or more geometry primitives associated with the same feature.
+    """
+
     kml_geometries: List[Union[Point, LineString, Polygon, LinearRing, Self]]
 
     def __init__(
@@ -853,7 +1056,7 @@ class MultiGeometry(_Geometry):
         **kwargs: Any,
     ) -> None:
         if kml_geometries is not None and geometry is not None:
-            raise ValueError("kml_geometries and geometry are mutually exclusive")
+            raise GeometryError(MsgMutualExclusive)
         if geometry is not None:
             kml_geometries = [
                 create_kml_geometry(  # type: ignore[misc]
@@ -879,10 +1082,15 @@ class MultiGeometry(_Geometry):
         )
 
     def __bool__(self) -> bool:
+        """
+        Returns True if the MultiGeometry has a geometry, False otherwise.
+        """
         return bool(self.geometry)
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for MultiGeometry."""
+        """
+        Returns a string representation of the MultiGeometry.
+        """
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
@@ -899,6 +1107,9 @@ class MultiGeometry(_Geometry):
 
     @property
     def geometry(self) -> Optional[MultiGeometryType]:
+        """
+        Returns the geometry of the MultiGeometry.
+        """
         return create_multigeometry(
             [geom.geometry for geom in self.kml_geometries if geom.geometry],
         )
