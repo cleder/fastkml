@@ -133,6 +133,7 @@ class Snippet(_XMLObject):
 registry.register(
     Snippet,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="text",
         node_name="",
         classes=(str,),
@@ -143,6 +144,7 @@ registry.register(
 registry.register(
     Snippet,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="max_lines",
         node_name="maxLines",
         classes=(int,),
@@ -328,6 +330,7 @@ class _Feature(TimeMixin, _BaseObject):
 registry.register(
     _Feature,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="name",
         node_name="name",
         classes=(str,),
@@ -338,6 +341,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="visibility",
         node_name="visibility",
         classes=(bool,),
@@ -348,6 +352,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="isopen",
         node_name="open",
         classes=(bool,),
@@ -358,6 +363,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="atom_link",
         node_name="atom:link",
         classes=(atom.Link,),
@@ -368,6 +374,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="atom_author",
         node_name="atom:author",
         classes=(atom.Author,),
@@ -378,6 +385,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="address",
         node_name="address",
         classes=(str,),
@@ -388,6 +396,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="phone_number",
         node_name="phoneNumber",
         classes=(str,),
@@ -398,6 +407,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="snippet",
         node_name="Snippet",
         classes=(Snippet,),
@@ -408,6 +418,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="description",
         node_name="description",
         classes=(str,),
@@ -418,6 +429,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="view",
         node_name="Camera,LookAt",
         classes=(
@@ -431,6 +443,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="times",
         node_name="TimeSpan,TimeStamp",
         classes=(
@@ -444,6 +457,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="style_url",
         node_name="styleUrl",
         classes=(StyleUrl,),
@@ -454,6 +468,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="styles",
         node_name="Style,StyleMap",
         classes=(
@@ -467,6 +482,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="region",
         node_name="region",
         classes=(Region,),
@@ -477,6 +493,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="extended_data",
         node_name="ExtendedData",
         classes=(ExtendedData,),
@@ -592,6 +609,7 @@ class Placemark(_Feature):
 registry.register(
     Placemark,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="kml_geometry",
         node_name=(
             "Point,LineString,LinearRing,Polygon,MultiGeometry,"
@@ -746,6 +764,7 @@ class NetworkLink(_Feature):
 registry.register(
     NetworkLink,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="refresh_visibility",
         node_name="refreshVisibility",
         classes=(bool,),
@@ -756,6 +775,7 @@ registry.register(
 registry.register(
     NetworkLink,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="fly_to_view",
         node_name="flyToView",
         classes=(bool,),
@@ -766,6 +786,7 @@ registry.register(
 registry.register(
     NetworkLink,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="link",
         node_name="Link",
         classes=(Link,),

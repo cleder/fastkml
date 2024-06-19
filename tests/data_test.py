@@ -108,21 +108,21 @@ class TestStdLibrary(StdLibrary):
         sd.append_data(data.SimpleData(value="text", name="Some Text"))
         assert len(sd.data) == 1
         assert sd
-        sd.append_data(data.SimpleData(value=1, name="Integer"))
+        sd.append_data(data.SimpleData(value="1", name="Integer"))
         assert len(sd.data) == 2
         assert sd.data[0].value == "text"
         assert sd.data[0].name == "Some Text"
-        assert sd.data[1].value == 1
+        assert sd.data[1].value == "1"
         new_data = [
             data.SimpleData(value="text", name="Some new Text"),
-            data.SimpleData(value=2, name="Integer"),
+            data.SimpleData(value="2", name="Integer"),
         ]
         sd.data = new_data
         assert len(sd.data) == 2
         assert sd.data[0].value == "text"
         assert sd.data[0].name == "Some new Text"
         assert sd.data[1].name == "Integer"
-        assert sd.data[1].value == 2
+        assert sd.data[1].value == "2"
 
     def test_untyped_extended_data(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"
@@ -223,10 +223,12 @@ class TestStdLibrary(StdLibrary):
 
         assert extended_data.elements[0].name == "holeNumber"
         assert extended_data.elements[0].value == "1"
+        assert isinstance(extended_data.elements[0].display_name, str)
         assert "<b>This is hole </b>" in extended_data.elements[0].display_name
 
         assert extended_data.elements[1].name == "holePar"
         assert extended_data.elements[1].value == "4"
+        assert isinstance(extended_data.elements[1].display_name, str)
         assert (
             "<i>The par for this hole is </i>" in extended_data.elements[1].display_name
         )
@@ -259,18 +261,19 @@ class TestStdLibrary(StdLibrary):
         assert sd.to_string() == sd1.to_string()
 
     def test_data_from_string(self) -> None:
-        doc = """<Data name="holeNumber">
+        doc = """<Data name="holeNumber" xmlns="http://www.opengis.net/kml/2.2">
           <displayName><![CDATA[
               <b>This is hole </b>
           ]]></displayName>
           <value>1</value>
         </Data>"""
 
-        d = data.Data.class_from_string(doc, ns="")
+        d = data.Data.class_from_string(doc)
         assert d.name == "holeNumber"
         assert d.value == "1"
+        assert isinstance(d.display_name, str)
         assert "<b>This is hole </b>" in d.display_name
-        d1 = data.Data.class_from_string(d.to_string(), ns="")
+        d1 = data.Data.class_from_string(d.to_string())
         assert d1.name == "holeNumber"
         assert d.to_string() == d1.to_string()
 

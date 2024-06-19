@@ -19,10 +19,10 @@ from pygeoif.geometry import MultiPoint
 from pygeoif.geometry import Polygon
 
 from fastkml import atom
-from fastkml import base
 from fastkml import config
 from fastkml import features
 from fastkml import kml
+from fastkml import kml_base
 from fastkml import styles
 from fastkml.enums import ColorMode
 from fastkml.enums import DisplayMode
@@ -39,10 +39,10 @@ class TestBaseClasses:
         config.set_default_namespaces()
 
     def test_base_object(self) -> None:
-        bo = base._BaseObject(id="id0")
+        bo = kml_base._BaseObject(id="id0")
         assert bo.id == "id0"
         assert bo.ns == config.KMLNS
-        assert bo.target_id is None
+        assert bo.target_id == ""
         bo.target_id = "target"
         assert bo.target_id == "target"
         bo.ns = ""

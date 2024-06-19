@@ -125,6 +125,7 @@ class SimpleField(_BaseObject):
 registry.register(
     SimpleField,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="name",
         node_name="name",
         classes=(str,),
@@ -135,6 +136,7 @@ registry.register(
 registry.register(
     SimpleField,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="type",
         node_name="type",
         classes=(DataType,),
@@ -145,6 +147,7 @@ registry.register(
 registry.register(
     SimpleField,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="display_name",
         node_name="displayName",
         classes=(str,),
@@ -213,6 +216,7 @@ class Schema(_BaseObject):
 registry.register(
     Schema,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="name",
         node_name="name",
         classes=(str,),
@@ -223,6 +227,7 @@ registry.register(
 registry.register(
     Schema,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="fields",
         node_name="SimpleField",
         classes=(SimpleField,),
@@ -285,6 +290,7 @@ class Data(_BaseObject):
 registry.register(
     Data,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="name",
         node_name="name",
         classes=(str,),
@@ -296,6 +302,7 @@ registry.register(
 registry.register(
     Data,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="value",
         node_name="value",
         classes=(str,),
@@ -306,6 +313,7 @@ registry.register(
 registry.register(
     Data,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="display_name",
         node_name="displayName",
         classes=(str,),
@@ -360,6 +368,7 @@ class SimpleData(_BaseObject):
 registry.register(
     SimpleData,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="value",
         node_name="value",
         classes=(str,),
@@ -370,6 +379,7 @@ registry.register(
 registry.register(
     SimpleData,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="name",
         node_name="name",
         classes=(str,),
@@ -441,6 +451,7 @@ class SchemaData(_BaseObject):
 registry.register(
     SchemaData,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="schema_url",
         node_name="schemaUrl",
         classes=(str,),
@@ -451,6 +462,7 @@ registry.register(
 registry.register(
     SchemaData,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="data",
         node_name="SimpleData",
         classes=(SimpleData,),
@@ -511,6 +523,7 @@ class ExtendedData(_BaseObject):
 registry.register(
     ExtendedData,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="elements",
         node_name="Data,SchemaData",
         classes=(

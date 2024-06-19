@@ -184,6 +184,7 @@ class _Overlay(_Feature):
 registry.register(
     _Overlay,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="color",
         node_name="color",
         classes=(str,),
@@ -194,6 +195,7 @@ registry.register(
 registry.register(
     _Overlay,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="draw_order",
         node_name="drawOrder",
         classes=(int,),
@@ -204,6 +206,7 @@ registry.register(
 registry.register(
     _Overlay,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="icon",
         node_name="Icon",
         classes=(Icon,),
@@ -295,6 +298,7 @@ class ViewVolume(_XMLObject):
 registry.register(
     ViewVolume,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="left_fov",
         node_name="leftFov",
         classes=(float,),
@@ -305,6 +309,7 @@ registry.register(
 registry.register(
     ViewVolume,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="right_fov",
         node_name="rightFov",
         classes=(float,),
@@ -315,6 +320,7 @@ registry.register(
 registry.register(
     ViewVolume,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="bottom_fov",
         node_name="bottomFov",
         classes=(float,),
@@ -325,6 +331,7 @@ registry.register(
 registry.register(
     ViewVolume,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="top_fov",
         node_name="topFov",
         classes=(float,),
@@ -335,6 +342,7 @@ registry.register(
 registry.register(
     ViewVolume,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="near",
         node_name="near",
         classes=(float,),
@@ -425,6 +433,7 @@ class ImagePyramid(_XMLObject):
 registry.register(
     ImagePyramid,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="tile_size",
         node_name="tileSize",
         classes=(int,),
@@ -435,6 +444,7 @@ registry.register(
 registry.register(
     ImagePyramid,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="max_width",
         node_name="maxWidth",
         classes=(int,),
@@ -445,6 +455,7 @@ registry.register(
 registry.register(
     ImagePyramid,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="max_height",
         node_name="maxHeight",
         classes=(int,),
@@ -455,6 +466,7 @@ registry.register(
 registry.register(
     ImagePyramid,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="grid_origin",
         node_name="gridOrigin",
         classes=(GridOrigin,),
@@ -621,6 +633,7 @@ class PhotoOverlay(_Overlay):
 registry.register(
     PhotoOverlay,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="rotation",
         node_name="rotation",
         classes=(float,),
@@ -631,6 +644,7 @@ registry.register(
 registry.register(
     PhotoOverlay,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="view_volume",
         node_name="ViewVolume",
         classes=(ViewVolume,),
@@ -641,6 +655,7 @@ registry.register(
 registry.register(
     PhotoOverlay,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="image_pyramid",
         node_name="ImagePyramid",
         classes=(ImagePyramid,),
@@ -651,6 +666,7 @@ registry.register(
 registry.register(
     PhotoOverlay,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="point",
         node_name="Point",
         classes=(Point,),
@@ -661,6 +677,7 @@ registry.register(
 registry.register(
     PhotoOverlay,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="shape",
         node_name="shape",
         classes=(Shape,),
@@ -748,6 +765,7 @@ class LatLonBox(_XMLObject):
 registry.register(
     LatLonBox,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="north",
         node_name="north",
         classes=(float,),
@@ -758,6 +776,7 @@ registry.register(
 registry.register(
     LatLonBox,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="south",
         node_name="south",
         classes=(float,),
@@ -768,6 +787,7 @@ registry.register(
 registry.register(
     LatLonBox,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="east",
         node_name="east",
         classes=(float,),
@@ -778,6 +798,7 @@ registry.register(
 registry.register(
     LatLonBox,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="west",
         node_name="west",
         classes=(float,),
@@ -788,6 +809,7 @@ registry.register(
 registry.register(
     LatLonBox,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="rotation",
         node_name="rotation",
         classes=(float,),
@@ -927,6 +949,7 @@ class GroundOverlay(_Overlay):
 registry.register(
     GroundOverlay,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="altitude",
         node_name="altitude",
         classes=(float,),
@@ -937,6 +960,7 @@ registry.register(
 registry.register(
     GroundOverlay,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="altitude_mode",
         node_name="altitudeMode",
         classes=(AltitudeMode,),
@@ -947,6 +971,7 @@ registry.register(
 registry.register(
     GroundOverlay,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="lat_lon_box",
         node_name="LatLonBox",
         classes=(LatLonBox,),

@@ -113,6 +113,7 @@ class Link(_BaseObject):
 registry.register(
     Link,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="href",
         node_name="href",
         classes=(str,),
@@ -123,6 +124,7 @@ registry.register(
 registry.register(
     Link,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="view_format",
         node_name="viewFormat",
         classes=(str,),
@@ -133,6 +135,7 @@ registry.register(
 registry.register(
     Link,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="http_query",
         node_name="httpQuery",
         classes=(str,),
@@ -143,6 +146,7 @@ registry.register(
 registry.register(
     Link,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="refresh_mode",
         node_name="refreshMode",
         classes=(RefreshMode,),
@@ -153,6 +157,7 @@ registry.register(
 registry.register(
     Link,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="view_refresh_mode",
         node_name="viewRefreshMode",
         classes=(ViewRefreshMode,),
@@ -163,6 +168,7 @@ registry.register(
 registry.register(
     Link,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="refresh_interval",
         node_name="refreshInterval",
         classes=(float,),
@@ -173,6 +179,7 @@ registry.register(
 registry.register(
     Link,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="view_refresh_time",
         node_name="viewRefreshTime",
         classes=(float,),
@@ -183,6 +190,7 @@ registry.register(
 registry.register(
     Link,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="view_bound_scale",
         node_name="viewBoundScale",
         classes=(float,),

@@ -164,6 +164,7 @@ class Link(_AtomObject):
 registry.register(
     Link,
     item=RegistryItem(
+        ns_ids=("atom",),
         attr_name="href",
         node_name="href",
         classes=(str,),
@@ -174,6 +175,7 @@ registry.register(
 registry.register(
     Link,
     item=RegistryItem(
+        ns_ids=("atom",),
         attr_name="rel",
         node_name="rel",
         classes=(str,),
@@ -184,6 +186,7 @@ registry.register(
 registry.register(
     Link,
     item=RegistryItem(
+        ns_ids=("atom",),
         attr_name="type",
         node_name="type",
         classes=(str,),
@@ -194,6 +197,7 @@ registry.register(
 registry.register(
     Link,
     item=RegistryItem(
+        ns_ids=("atom",),
         attr_name="hreflang",
         node_name="hreflang",
         classes=(str,),
@@ -205,6 +209,7 @@ registry.register(
 registry.register(
     Link,
     item=RegistryItem(
+        ns_ids=("atom",),
         attr_name="title",
         node_name="title",
         classes=(str,),
@@ -215,6 +220,7 @@ registry.register(
 registry.register(
     Link,
     item=RegistryItem(
+        ns_ids=("atom",),
         attr_name="length",
         node_name="length",
         classes=(int,),
@@ -286,6 +292,7 @@ class _Person(_AtomObject):
 registry.register(
     _Person,
     item=RegistryItem(
+        ns_ids=("atom",),
         attr_name="name",
         node_name="name",
         classes=(str,),
@@ -296,6 +303,7 @@ registry.register(
 registry.register(
     _Person,
     item=RegistryItem(
+        ns_ids=("atom",),
         attr_name="uri",
         node_name="uri",
         classes=(str,),
@@ -306,6 +314,7 @@ registry.register(
 registry.register(
     _Person,
     item=RegistryItem(
+        ns_ids=("atom",),
         attr_name="email",
         node_name="email",
         classes=(str,),

@@ -423,6 +423,7 @@ class MultiTrack(_Geometry):
 registry.register(
     MultiTrack,
     item=RegistryItem(
+        ns_ids=("gx",),
         classes=(bool,),
         attr_name="interpolate",
         node_name="interpolate",
@@ -433,6 +434,7 @@ registry.register(
 registry.register(
     MultiTrack,
     item=RegistryItem(
+        ns_ids=("gx",),
         classes=(Track,),
         attr_name="tracks",
         node_name="gx:Track",
