@@ -27,7 +27,6 @@ from typing import Optional
 from typing import Union
 
 from fastkml import config
-from fastkml.base import _BaseObject
 from fastkml.enums import DataType
 from fastkml.exceptions import KMLSchemaError
 from fastkml.helpers import attribute_enum_kwarg
@@ -40,6 +39,7 @@ from fastkml.helpers import text_attribute
 from fastkml.helpers import text_subelement
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.kml_base import _BaseObject
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 

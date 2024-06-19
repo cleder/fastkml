@@ -33,7 +33,6 @@ from pygeoif.types import GeoType
 from fastkml import atom
 from fastkml import config
 from fastkml import gx
-from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
 from fastkml.data import ExtendedData
 from fastkml.geometry import AnyGeometryType
@@ -55,6 +54,7 @@ from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.kml_base import _BaseObject
 from fastkml.links import Link
 from fastkml.mixins import TimeMixin
 from fastkml.registry import RegistryItem

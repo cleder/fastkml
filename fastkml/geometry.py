@@ -36,7 +36,6 @@ from pygeoif.types import LineType
 from typing_extensions import Self
 
 from fastkml import config
-from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
@@ -51,6 +50,7 @@ from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.kml_base import _BaseObject
 from fastkml.registry import RegistryItem
 from fastkml.registry import known_types
 from fastkml.registry import registry

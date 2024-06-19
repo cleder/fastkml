@@ -18,7 +18,6 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 
-from fastkml.base import _BaseObject
 from fastkml.enums import RefreshMode
 from fastkml.enums import ViewRefreshMode
 from fastkml.helpers import enum_subelement
@@ -27,6 +26,7 @@ from fastkml.helpers import subelement_enum_kwarg
 from fastkml.helpers import subelement_float_kwarg
 from fastkml.helpers import subelement_text_kwarg
 from fastkml.helpers import text_subelement
+from fastkml.kml_base import _BaseObject
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 

@@ -21,7 +21,6 @@ from typing import Optional
 from typing import Union
 
 from fastkml import config
-from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
 from fastkml.helpers import enum_subelement
@@ -30,6 +29,7 @@ from fastkml.helpers import subelement_enum_kwarg
 from fastkml.helpers import subelement_float_kwarg
 from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
+from fastkml.kml_base import _BaseObject
 from fastkml.mixins import TimeMixin
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry

@@ -29,7 +29,6 @@ from typing import Optional
 from typing import Union
 
 from fastkml import config
-from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
 from fastkml.enums import ColorMode
 from fastkml.enums import DisplayMode
@@ -53,6 +52,7 @@ from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.kml_base import _BaseObject
 from fastkml.links import Icon
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry

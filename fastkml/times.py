@@ -25,9 +25,9 @@ from typing import Union
 import arrow
 
 from fastkml import config
-from fastkml.base import _BaseObject
 from fastkml.enums import DateTimeResolution
 from fastkml.enums import Verbosity
+from fastkml.kml_base import _BaseObject
 from fastkml.types import Element
 
 # regular expression to parse a gYearMonth string
