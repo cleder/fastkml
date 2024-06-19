@@ -97,6 +97,16 @@ class TestStdLibrary(StdLibrary):
         assert be.id == "id-0"
         assert be.target_id == "target-id-0"
 
+    def test_from_string_attr_ns_prefix(self) -> None:
+        be = kml_base._BaseObject.class_from_string(
+            string=(
+                '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" '
+                'kml:id="id-0" kml:targetId="target-id-0" />'
+            ),
+        )
+        assert be.id == "id-0"
+        assert be.target_id == "target-id-0"
+
     def test_base_class_from_string(self) -> None:
         be = kml_base._BaseObject.class_from_string(
             '<test id="id-0" targetId="td-00" />',

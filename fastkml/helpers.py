@@ -394,7 +394,8 @@ def attribute_text_kwarg(
     classes: Tuple[known_types, ...],
     strict: bool,
 ) -> Dict[str, str]:
-    return {kwarg: element.get(node_name)} if element.get(node_name) else {}
+    attr = element.get(f"{ns}{node_name}")
+    return {kwarg: attr} if attr else {}
 
 
 def _get_boolean_value(text: str, strict: bool) -> bool:
@@ -475,7 +476,8 @@ def attribute_int_kwarg(
     classes: Tuple[known_types, ...],
     strict: bool,
 ) -> Dict[str, int]:
-    return {kwarg: int(element.get(node_name))} if element.get(node_name) else {}
+    attr = element.get(f"{ns}{node_name}")
+    return {kwarg: int(attr)} if attr else {}
 
 
 def subelement_float_kwarg(
@@ -515,8 +517,9 @@ def attribute_float_kwarg(
     classes: Tuple[known_types, ...],
     strict: bool,
 ) -> Dict[str, float]:
+    attr = element.get(f"{ns}{node_name}")
     try:
-        return {kwarg: float(element.get(node_name))} if element.get(node_name) else {}
+        return {kwarg: float(attr)} if attr else {}
     except ValueError as exc:
         handle_error(
             error=exc,
@@ -578,7 +581,7 @@ def attribute_enum_kwarg(
 ) -> Dict[str, Enum]:
     assert len(classes) == 1
     assert issubclass(classes[0], Enum)
-    if raw := element.get(node_name):
+    if raw := element.get(f"{ns}{node_name}"):
         try:
             value = classes[0](raw)
             if raw != value.value and strict:

@@ -124,7 +124,7 @@ class SimpleField(_BaseObject):
 registry.register(
     SimpleField,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("", "kml"),
         attr_name="name",
         node_name="name",
         classes=(str,),
@@ -135,7 +135,7 @@ registry.register(
 registry.register(
     SimpleField,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("", "kml"),
         attr_name="type",
         node_name="type",
         classes=(DataType,),
@@ -215,7 +215,7 @@ class Schema(_BaseObject):
 registry.register(
     Schema,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("", "kml"),
         attr_name="name",
         node_name="name",
         classes=(str,),
@@ -287,7 +287,7 @@ class Data(_BaseObject):
 registry.register(
     Data,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("", "kml"),
         attr_name="name",
         node_name="name",
         classes=(str,),
@@ -299,7 +299,7 @@ registry.register(
 registry.register(
     Data,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("", "kml"),
         attr_name="value",
         node_name="value",
         classes=(str,),
@@ -376,7 +376,7 @@ registry.register(
 registry.register(
     SimpleData,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("", "kml"),
         attr_name="name",
         node_name="name",
         classes=(str,),
@@ -446,7 +446,7 @@ class SchemaData(_BaseObject):
 registry.register(
     SchemaData,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("", "kml"),
         attr_name="schema_url",
         node_name="schemaUrl",
         classes=(str,),

@@ -85,7 +85,7 @@ class _BaseObject(_XMLObject):
 registry.register(
     _BaseObject,
     item=RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("", "kml"),
         attr_name="id",
         node_name="id",
         classes=(str,),
@@ -97,7 +97,7 @@ registry.register(
 registry.register(
     _BaseObject,
     item=RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("", "kml"),
         attr_name="target_id",
         node_name="targetId",
         classes=(str,),

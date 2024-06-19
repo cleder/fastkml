@@ -141,7 +141,7 @@ registry.register(
 registry.register(
     Snippet,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("", "kml"),
         attr_name="max_lines",
         node_name="maxLines",
         classes=(int,),

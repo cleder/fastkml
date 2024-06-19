@@ -285,7 +285,7 @@ class HotSpot(_XMLObject):
 registry.register(
     HotSpot,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("", "kml"),
         attr_name="x",
         node_name="x",
         classes=(float,),
@@ -296,7 +296,7 @@ registry.register(
 registry.register(
     HotSpot,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("", "kml"),
         attr_name="y",
         node_name="y",
         classes=(float,),
@@ -307,7 +307,7 @@ registry.register(
 registry.register(
     HotSpot,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("", "kml"),
         attr_name="xunits",
         node_name="xunits",
         classes=(Units,),
@@ -318,7 +318,7 @@ registry.register(
 registry.register(
     HotSpot,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("", "kml"),
         attr_name="yunits",
         node_name="yunits",
         classes=(Units,),

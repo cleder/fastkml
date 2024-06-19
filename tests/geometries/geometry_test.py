@@ -42,6 +42,18 @@ class TestGetGeometry(StdLibrary):
 
         assert g.altitude_mode == AltitudeMode("clampToGround")
 
+    def test_gx_altitude_mode(self) -> None:
+        doc = (
+            '<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2" '
+            'xmlns:gx="http://www.google.com/kml/ext/2.2">'
+            "<kml:coordinates>0.000000,1.000000</kml:coordinates>"
+            "<gx:altitudeMode>clampToSeaFloor</gx:altitudeMode>"
+            "</kml:Point>"
+        )
+        g = Point.class_from_string(doc)
+
+        assert g.altitude_mode == AltitudeMode("clampToSeaFloor")
+
     def test_extrude(self) -> None:
         doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:coordinates>0.000000,1.000000</kml:coordinates>

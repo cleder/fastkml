@@ -346,7 +346,7 @@ registry.register(
 registry.register(
     _Geometry,
     item=RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", "gx"),
         classes=(AltitudeMode,),
         attr_name="altitude_mode",
         node_name="altitudeMode",
