@@ -26,8 +26,6 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-from fastkml import config
-from fastkml.base import _BaseObject
 from fastkml.enums import DataType
 from fastkml.exceptions import KMLSchemaError
 from fastkml.helpers import attribute_enum_kwarg
@@ -40,6 +38,7 @@ from fastkml.helpers import text_attribute
 from fastkml.helpers import text_subelement
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.kml_base import _BaseObject
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 
@@ -125,6 +124,7 @@ class SimpleField(_BaseObject):
 registry.register(
     SimpleField,
     RegistryItem(
+        ns_ids=("", "kml"),
         attr_name="name",
         node_name="name",
         classes=(str,),
@@ -135,6 +135,7 @@ registry.register(
 registry.register(
     SimpleField,
     RegistryItem(
+        ns_ids=("", "kml"),
         attr_name="type",
         node_name="type",
         classes=(DataType,),
@@ -145,6 +146,7 @@ registry.register(
 registry.register(
     SimpleField,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="display_name",
         node_name="displayName",
         classes=(str,),
@@ -213,6 +215,7 @@ class Schema(_BaseObject):
 registry.register(
     Schema,
     RegistryItem(
+        ns_ids=("", "kml"),
         attr_name="name",
         node_name="name",
         classes=(str,),
@@ -223,6 +226,7 @@ registry.register(
 registry.register(
     Schema,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="fields",
         node_name="SimpleField",
         classes=(SimpleField,),
@@ -234,8 +238,6 @@ registry.register(
 
 class Data(_BaseObject):
     """Represents an untyped name/value pair with optional display name."""
-
-    _default_ns = config.KMLNS
 
     name: Optional[str]
     value: Optional[str]
@@ -285,6 +287,7 @@ class Data(_BaseObject):
 registry.register(
     Data,
     RegistryItem(
+        ns_ids=("", "kml"),
         attr_name="name",
         node_name="name",
         classes=(str,),
@@ -296,6 +299,7 @@ registry.register(
 registry.register(
     Data,
     RegistryItem(
+        ns_ids=("", "kml"),
         attr_name="value",
         node_name="value",
         classes=(str,),
@@ -306,6 +310,7 @@ registry.register(
 registry.register(
     Data,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="display_name",
         node_name="displayName",
         classes=(str,),
@@ -360,6 +365,7 @@ class SimpleData(_BaseObject):
 registry.register(
     SimpleData,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="value",
         node_name="value",
         classes=(str,),
@@ -370,6 +376,7 @@ registry.register(
 registry.register(
     SimpleData,
     RegistryItem(
+        ns_ids=("", "kml"),
         attr_name="name",
         node_name="name",
         classes=(str,),
@@ -391,8 +398,6 @@ class SchemaData(_BaseObject):
     in an external KML file, or a reference to a Schema ID defined
     in the same KML file.
     """
-
-    _default_ns = config.KMLNS
 
     schema_url: Optional[str]
     data: List[SimpleData]
@@ -441,6 +446,7 @@ class SchemaData(_BaseObject):
 registry.register(
     SchemaData,
     RegistryItem(
+        ns_ids=("", "kml"),
         attr_name="schema_url",
         node_name="schemaUrl",
         classes=(str,),
@@ -451,6 +457,7 @@ registry.register(
 registry.register(
     SchemaData,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="data",
         node_name="SimpleData",
         classes=(SimpleData,),
@@ -468,8 +475,6 @@ class ExtendedData(_BaseObject):
        https://developers.google.com/kml/documentation/extendeddata
 
     """
-
-    _default_ns = config.KMLNS
 
     elements: List[Union[Data, SchemaData]]
 
@@ -511,6 +516,7 @@ class ExtendedData(_BaseObject):
 registry.register(
     ExtendedData,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="elements",
         node_name="Data,SchemaData",
         classes=(

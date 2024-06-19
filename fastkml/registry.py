@@ -74,6 +74,7 @@ class SetElement(Protocol):
 class RegistryItem:
     """A registry item."""
 
+    ns_ids: Tuple[str, ...]
     classes: Tuple[known_types, ...]
     attr_name: str
     get_kwarg: GetKWArgs

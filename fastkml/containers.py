@@ -262,6 +262,7 @@ class Document(_Container):
 registry.register(
     _Container,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="features",
         node_name="Folder,Placemark,Document",
         classes=(Folder, Placemark, Document),
@@ -272,6 +273,7 @@ registry.register(
 registry.register(
     Document,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="schemata",
         node_name="Schema",
         classes=(Schema,),

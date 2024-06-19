@@ -12,6 +12,9 @@ reviews:
   auto_review:
     enabled: true
     drafts: false
+    base_branches:
+      - develop
+      - main
 chat:
   auto_reply: true
 knowledge_base:

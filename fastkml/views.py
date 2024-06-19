@@ -21,7 +21,6 @@ from typing import Optional
 from typing import Union
 
 from fastkml import config
-from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
 from fastkml.helpers import enum_subelement
@@ -30,6 +29,7 @@ from fastkml.helpers import subelement_enum_kwarg
 from fastkml.helpers import subelement_float_kwarg
 from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
+from fastkml.kml_base import _BaseObject
 from fastkml.mixins import TimeMixin
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
@@ -138,6 +138,7 @@ class _AbstractView(TimeMixin, _BaseObject):
 registry.register(
     _AbstractView,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="longitude",
         node_name="longitude",
         classes=(float,),
@@ -148,6 +149,7 @@ registry.register(
 registry.register(
     _AbstractView,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="latitude",
         node_name="latitude",
         classes=(float,),
@@ -158,6 +160,7 @@ registry.register(
 registry.register(
     _AbstractView,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="altitude",
         node_name="altitude",
         classes=(float,),
@@ -168,6 +171,7 @@ registry.register(
 registry.register(
     _AbstractView,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="heading",
         node_name="heading",
         classes=(float,),
@@ -178,6 +182,7 @@ registry.register(
 registry.register(
     _AbstractView,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="tilt",
         node_name="tilt",
         classes=(float,),
@@ -188,6 +193,7 @@ registry.register(
 registry.register(
     _AbstractView,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="altitude_mode",
         node_name="altitudeMode",
         classes=(AltitudeMode,),
@@ -198,6 +204,7 @@ registry.register(
 registry.register(
     _AbstractView,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="time_primitive",
         node_name="TimeStamp",
         classes=(TimeSpan, TimeStamp),
@@ -289,6 +296,7 @@ class Camera(_AbstractView):
 registry.register(
     Camera,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="roll",
         node_name="roll",
         classes=(float,),
@@ -359,6 +367,7 @@ class LookAt(_AbstractView):
 registry.register(
     LookAt,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="range",
         node_name="range",
         classes=(float,),
@@ -438,6 +447,7 @@ class LatLonAltBox(_XMLObject):
 registry.register(
     LatLonAltBox,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="north",
         node_name="north",
         classes=(float,),
@@ -448,6 +458,7 @@ registry.register(
 registry.register(
     LatLonAltBox,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="south",
         node_name="south",
         classes=(float,),
@@ -458,6 +469,7 @@ registry.register(
 registry.register(
     LatLonAltBox,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="east",
         node_name="east",
         classes=(float,),
@@ -468,6 +480,7 @@ registry.register(
 registry.register(
     LatLonAltBox,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="west",
         node_name="west",
         classes=(float,),
@@ -478,6 +491,7 @@ registry.register(
 registry.register(
     LatLonAltBox,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="min_altitude",
         node_name="minAltitude",
         classes=(float,),
@@ -488,6 +502,7 @@ registry.register(
 registry.register(
     LatLonAltBox,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="max_altitude",
         node_name="maxAltitude",
         classes=(float,),
@@ -498,6 +513,7 @@ registry.register(
 registry.register(
     LatLonAltBox,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="altitude_mode",
         node_name="altitudeMode",
         classes=(AltitudeMode,),
@@ -562,6 +578,7 @@ class Lod(_XMLObject):
 registry.register(
     Lod,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="min_lod_pixels",
         node_name="minLodPixels",
         classes=(float,),
@@ -572,6 +589,7 @@ registry.register(
 registry.register(
     Lod,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="max_lod_pixels",
         node_name="maxLodPixels",
         classes=(float,),
@@ -582,6 +600,7 @@ registry.register(
 registry.register(
     Lod,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="min_fade_extent",
         node_name="minFadeExtent",
         classes=(float,),
@@ -592,6 +611,7 @@ registry.register(
 registry.register(
     Lod,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="max_fade_extent",
         node_name="maxFadeExtent",
         classes=(float,),
@@ -658,6 +678,7 @@ class Region(_BaseObject):
 registry.register(
     Region,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="lat_lon_alt_box",
         node_name="LatLonAltBox",
         classes=(LatLonAltBox,),
@@ -668,6 +689,7 @@ registry.register(
 registry.register(
     Region,
     RegistryItem(
+        ns_ids=("kml",),
         attr_name="lod",
         node_name="Lod",
         classes=(Lod,),

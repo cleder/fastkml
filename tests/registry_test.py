@@ -89,7 +89,8 @@ def test_registry_get_root() -> None:
     registry.register(
         A,
         RegistryItem(
-            (A,),
+            ns_ids=("kml",),
+            classes=(A,),
             attr_name="a",
             get_kwarg=get_kwarg,
             set_element=set_element,
@@ -105,7 +106,8 @@ def test_registry_get() -> None:
     registry.register(
         A,
         RegistryItem(
-            (A,),
+            ns_ids=("kml",),
+            classes=(A,),
             attr_name="a",
             get_kwarg=get_kwarg,
             set_element=set_element,
@@ -115,7 +117,8 @@ def test_registry_get() -> None:
     registry.register(
         B,
         RegistryItem(
-            (B,),
+            ns_ids=("kml",),
+            classes=(B,),
             attr_name="b",
             get_kwarg=get_kwarg,
             set_element=set_element,
@@ -125,7 +128,8 @@ def test_registry_get() -> None:
     registry.register(
         C,
         RegistryItem(
-            (C,),
+            ns_ids=("kml",),
+            classes=(C,),
             attr_name="c",
             get_kwarg=get_kwarg,
             set_element=set_element,
@@ -135,7 +139,8 @@ def test_registry_get() -> None:
     registry.register(
         D,
         RegistryItem(
-            (D,),
+            ns_ids=("kml",),
+            classes=(D,),
             attr_name="d",
             get_kwarg=get_kwarg,
             set_element=set_element,
@@ -161,7 +166,8 @@ def test_registry_get_multi() -> None:
     registry.register(
         A,
         RegistryItem(
-            (A,),
+            ns_ids=("kml",),
+            classes=(A,),
             attr_name="a",
             get_kwarg=get_kwarg,
             set_element=set_element,
@@ -171,7 +177,8 @@ def test_registry_get_multi() -> None:
     registry.register(
         B,
         RegistryItem(
-            (B,),
+            ns_ids=("kml",),
+            classes=(B,),
             attr_name="b",
             get_kwarg=get_kwarg,
             set_element=set_element,
@@ -181,7 +188,8 @@ def test_registry_get_multi() -> None:
     registry.register(
         C,
         RegistryItem(
-            (C,),
+            ns_ids=("kml",),
+            classes=(C,),
             attr_name="c",
             get_kwarg=get_kwarg,
             set_element=set_element,
@@ -191,7 +199,8 @@ def test_registry_get_multi() -> None:
     registry.register(
         D,
         RegistryItem(
-            (D,),
+            ns_ids=("kml",),
+            classes=(D,),
             attr_name="d",
             get_kwarg=get_kwarg,
             set_element=set_element,
@@ -201,7 +210,8 @@ def test_registry_get_multi() -> None:
     registry.register(
         A,
         RegistryItem(
-            (int,),
+            ns_ids=("kml",),
+            classes=(int,),
             attr_name="int",
             get_kwarg=get_kwarg,
             set_element=set_element,
@@ -211,7 +221,8 @@ def test_registry_get_multi() -> None:
     registry.register(
         B,
         RegistryItem(
-            (bool,),
+            ns_ids=("kml",),
+            classes=(bool,),
             attr_name="bool",
             get_kwarg=get_kwarg,
             set_element=set_element,
@@ -221,7 +232,8 @@ def test_registry_get_multi() -> None:
     registry.register(
         C,
         RegistryItem(
-            (float,),
+            ns_ids=("kml",),
+            classes=(float,),
             attr_name="float",
             get_kwarg=get_kwarg,
             set_element=set_element,
@@ -231,7 +243,8 @@ def test_registry_get_multi() -> None:
     registry.register(
         D,
         RegistryItem(
-            (Enum,),
+            ns_ids=("kml",),
+            classes=(Enum,),
             attr_name="enum",
             get_kwarg=get_kwarg,
             set_element=set_element,

@@ -42,6 +42,18 @@ class TestGetGeometry(StdLibrary):
 
         assert g.altitude_mode == AltitudeMode("clampToGround")
 
+    def test_gx_altitude_mode(self) -> None:
+        doc = (
+            '<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2" '
+            'xmlns:gx="http://www.google.com/kml/ext/2.2">'
+            "<kml:coordinates>0.000000,1.000000</kml:coordinates>"
+            "<gx:altitudeMode>clampToSeaFloor</gx:altitudeMode>"
+            "</kml:Point>"
+        )
+        g = Point.class_from_string(doc)
+
+        assert g.altitude_mode == AltitudeMode("clampToSeaFloor")
+
     def test_extrude(self) -> None:
         doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:coordinates>0.000000,1.000000</kml:coordinates>
@@ -266,8 +278,8 @@ class TestGeometry(StdLibrary):
         g = _Geometry()
 
         assert g.ns == "{http://www.opengis.net/kml/2.2}"
-        assert g.target_id is None
-        assert g.id is None
+        assert g.target_id == ""
+        assert g.id == ""
         assert g.extrude is None
         assert g.altitude_mode is None
         assert g.tessellate is None
@@ -323,15 +335,15 @@ class TestGeometry(StdLibrary):
     def test_from_string(self) -> None:
         """Test the from_string method."""
         g = _Geometry.class_from_string(
-            '<_Geometry id="my-id" targetId="target_id">'
+            '<_Geometry id="my-id" targetId="target_id" '
+            'xmlns="http://www.opengis.net/kml/2.2">'
             "<extrude>1</extrude>"
             "<altitudeMode>relativeToGround</altitudeMode>"
             "<tessellate>1</tessellate>"
             "</_Geometry>",
-            ns="",
         )
 
-        assert g.ns == ""
+        assert g.ns == "{http://www.opengis.net/kml/2.2}"
         assert g.target_id == "target_id"
         assert g.id == "my-id"
         assert g.extrude is True
@@ -344,19 +356,19 @@ class TestGeometry(StdLibrary):
             exceptions.KMLParseError,
         ):
             _Geometry.class_from_string(
-                '<_Geometry id="my-id" targetId="target_id">'
+                '<_Geometry id="my-id" targetId="target_id" '
+                'xmlns="http://www.opengis.net/kml/2.2">'
                 "<altitudeMode>invalid</altitudeMode>"
                 "</_Geometry>",
-                ns="",
             )
 
     def test_from_string_invalid_altitude_mode_relaxed(self) -> None:
         """Test the from_string method."""
         geom = _Geometry.class_from_string(
-            '<_Geometry id="my-id" targetId="target_id">'
+            '<_Geometry id="my-id" targetId="target_id" '
+            'xmlns="http://www.opengis.net/kml/2.2">'
             "<altitudeMode>invalid</altitudeMode>"
             "</_Geometry>",
-            ns="",
             strict=False,
         )
 
@@ -368,19 +380,18 @@ class TestGeometry(StdLibrary):
             exceptions.KMLParseError,
         ):
             _Geometry.class_from_string(
-                '<_Geometry id="my-id" targetId="target_id">'
+                '<_Geometry id="my-id" targetId="target_id" '
+                'xmlns="http://www.opengis.net/kml/2.2">'
                 "<extrude>invalid</extrude>"
                 "</_Geometry>",
-                ns="",
             )
 
     def test_from_minimal_string(self) -> None:
         g = _Geometry.class_from_string(
-            "<_Geometry/>",
-            ns="",
+            '<_Geometry xmlns="http://www.opengis.net/kml/2.2/" />',
         )
 
-        assert g.ns == ""
+        assert g.ns == "{http://www.opengis.net/kml/2.2}"
         assert g.target_id == ""
         assert g.id == ""
         assert g.extrude is None

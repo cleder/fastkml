@@ -394,7 +394,8 @@ def attribute_text_kwarg(
     classes: Tuple[known_types, ...],
     strict: bool,
 ) -> Dict[str, str]:
-    return {kwarg: element.get(node_name)} if element.get(node_name) else {}
+    attr = element.get(f"{ns}{node_name}")
+    return {kwarg: attr} if attr else {}
 
 
 def _get_boolean_value(text: str, strict: bool) -> bool:
@@ -475,7 +476,8 @@ def attribute_int_kwarg(
     classes: Tuple[known_types, ...],
     strict: bool,
 ) -> Dict[str, int]:
-    return {kwarg: int(element.get(node_name))} if element.get(node_name) else {}
+    attr = element.get(f"{ns}{node_name}")
+    return {kwarg: int(attr)} if attr else {}
 
 
 def subelement_float_kwarg(
@@ -515,8 +517,9 @@ def attribute_float_kwarg(
     classes: Tuple[known_types, ...],
     strict: bool,
 ) -> Dict[str, float]:
+    attr = element.get(f"{ns}{node_name}")
     try:
-        return {kwarg: float(element.get(node_name))} if element.get(node_name) else {}
+        return {kwarg: float(attr)} if attr else {}
     except ValueError as exc:
         handle_error(
             error=exc,
@@ -578,7 +581,7 @@ def attribute_enum_kwarg(
 ) -> Dict[str, Enum]:
     assert len(classes) == 1
     assert issubclass(classes[0], Enum)
-    if raw := element.get(node_name):
+    if raw := element.get(f"{ns}{node_name}"):
         try:
             value = classes[0](raw)
             if raw != value.value and strict:
@@ -611,12 +614,11 @@ def xml_subelement_kwarg(
 ) -> Dict[str, _XMLObject]:
     for cls in classes:
         assert issubclass(cls, _XMLObject)
-        namespace = ns if cls._default_ns == ns else cls._default_ns
-        subelement = element.find(f"{namespace}{cls.get_tag_name()}")
+        subelement = element.find(f"{ns}{cls.get_tag_name()}")
         if subelement is not None:
             return {
                 kwarg: cls.class_from_element(
-                    ns=namespace,
+                    ns=ns,
                     name_spaces=name_spaces,
                     element=subelement,
                     strict=strict,
@@ -640,12 +642,11 @@ def xml_subelement_list_kwarg(
     assert name_spaces is not None
     for obj_class in classes:
         assert issubclass(obj_class, _XMLObject)
-        namespace = ns if obj_class._default_ns == ns else obj_class._default_ns
-        if subelements := element.findall(f"{namespace}{obj_class.get_tag_name()}"):
+        if subelements := element.findall(f"{ns}{obj_class.get_tag_name()}"):
             args_list.extend(
                 [
                     obj_class.class_from_element(
-                        ns=namespace,
+                        ns=ns,
                         name_spaces=name_spaces,
                         element=subelement,
                         strict=strict,

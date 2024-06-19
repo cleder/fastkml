@@ -36,7 +36,6 @@ from pygeoif.types import LineType
 from typing_extensions import Self
 
 from fastkml import config
-from fastkml.base import _BaseObject
 from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
@@ -51,6 +50,7 @@ from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.kml_base import _BaseObject
 from fastkml.registry import RegistryItem
 from fastkml.registry import known_types
 from fastkml.registry import registry
@@ -242,6 +242,7 @@ class Coordinates(_XMLObject):
 registry.register(
     Coordinates,
     item=RegistryItem(
+        ns_ids=("kml",),
         classes=(LineType,),  # type: ignore[arg-type]
         attr_name="coords",
         node_name="coordinates",
@@ -323,6 +324,7 @@ class _Geometry(_BaseObject):
 registry.register(
     _Geometry,
     item=RegistryItem(
+        ns_ids=("kml",),
         classes=(bool,),
         attr_name="extrude",
         node_name="extrude",
@@ -333,6 +335,7 @@ registry.register(
 registry.register(
     _Geometry,
     item=RegistryItem(
+        ns_ids=("kml",),
         classes=(bool,),
         attr_name="tessellate",
         node_name="tessellate",
@@ -343,6 +346,7 @@ registry.register(
 registry.register(
     _Geometry,
     item=RegistryItem(
+        ns_ids=("kml", "gx"),
         classes=(AltitudeMode,),
         attr_name="altitude_mode",
         node_name="altitudeMode",
@@ -478,6 +482,7 @@ class Point(_Geometry):
 registry.register(
     Point,
     item=RegistryItem(
+        ns_ids=("kml",),
         classes=(Coordinates,),
         attr_name="kml_coordinates",
         node_name="coordinates",
@@ -601,6 +606,7 @@ class LineString(_Geometry):
 registry.register(
     LineString,
     item=RegistryItem(
+        ns_ids=("kml",),
         classes=(Coordinates,),
         attr_name="kml_coordinates",
         node_name="coordinates",
@@ -740,6 +746,7 @@ class OuterBoundaryIs(_XMLObject):
 registry.register(
     OuterBoundaryIs,
     item=RegistryItem(
+        ns_ids=("kml",),
         classes=(LinearRing,),
         attr_name="kml_geometry",
         node_name="LinearRing",
@@ -809,6 +816,7 @@ class InnerBoundaryIs(_XMLObject):
 registry.register(
     InnerBoundaryIs,
     item=RegistryItem(
+        ns_ids=("kml",),
         classes=(LinearRing,),
         attr_name="kml_geometries",
         node_name="LinearRing",
@@ -918,6 +926,7 @@ class Polygon(_Geometry):
 registry.register(
     Polygon,
     item=RegistryItem(
+        ns_ids=("kml",),
         classes=(OuterBoundaryIs,),
         attr_name="outer_boundary_is",
         node_name="outerBoundaryIs",
@@ -928,6 +937,7 @@ registry.register(
 registry.register(
     Polygon,
     item=RegistryItem(
+        ns_ids=("kml",),
         classes=(InnerBoundaryIs,),
         attr_name="inner_boundary_is",
         node_name="innerBoundaryIs",
@@ -1118,6 +1128,7 @@ class MultiGeometry(_Geometry):
 registry.register(
     MultiGeometry,
     item=RegistryItem(
+        ns_ids=("kml",),
         classes=(Point, LineString, Polygon, LinearRing, MultiGeometry),
         attr_name="kml_geometries",
         node_name="(Point|LineString|Polygon|LinearRing|MultiGeometry)",
