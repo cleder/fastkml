@@ -31,7 +31,6 @@ from pygeoif.types import GeoCollectionType
 from pygeoif.types import GeoType
 
 from fastkml import atom
-from fastkml import config
 from fastkml import gx
 from fastkml.base import _XMLObject
 from fastkml.data import ExtendedData
@@ -96,8 +95,6 @@ class Snippet(_XMLObject):
     <Snippet> has a maxLines attribute, an integer that specifies the
     maximum number of lines to display.
     """
-
-    _default_ns = config.KMLNS
 
     text: Optional[str]
     max_lines: Optional[int] = None
@@ -363,7 +360,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("atom",),
         attr_name="atom_link",
         node_name="atom:link",
         classes=(atom.Link,),
@@ -374,7 +371,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("atom",),
         attr_name="atom_author",
         node_name="atom:author",
         classes=(atom.Author,),

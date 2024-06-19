@@ -26,7 +26,6 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-from fastkml import config
 from fastkml.enums import DataType
 from fastkml.exceptions import KMLSchemaError
 from fastkml.helpers import attribute_enum_kwarg
@@ -240,8 +239,6 @@ registry.register(
 class Data(_BaseObject):
     """Represents an untyped name/value pair with optional display name."""
 
-    _default_ns = config.KMLNS
-
     name: Optional[str]
     value: Optional[str]
     display_name: Optional[str]
@@ -402,8 +399,6 @@ class SchemaData(_BaseObject):
     in the same KML file.
     """
 
-    _default_ns = config.KMLNS
-
     schema_url: Optional[str]
     data: List[SimpleData]
 
@@ -480,8 +475,6 @@ class ExtendedData(_BaseObject):
        https://developers.google.com/kml/documentation/extendeddata
 
     """
-
-    _default_ns = config.KMLNS
 
     elements: List[Union[Data, SchemaData]]
 

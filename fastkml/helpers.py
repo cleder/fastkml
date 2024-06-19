@@ -611,12 +611,11 @@ def xml_subelement_kwarg(
 ) -> Dict[str, _XMLObject]:
     for cls in classes:
         assert issubclass(cls, _XMLObject)
-        namespace = ns if cls._default_ns == ns else cls._default_ns
-        subelement = element.find(f"{namespace}{cls.get_tag_name()}")
+        subelement = element.find(f"{ns}{cls.get_tag_name()}")
         if subelement is not None:
             return {
                 kwarg: cls.class_from_element(
-                    ns=namespace,
+                    ns=ns,
                     name_spaces=name_spaces,
                     element=subelement,
                     strict=strict,
@@ -640,12 +639,11 @@ def xml_subelement_list_kwarg(
     assert name_spaces is not None
     for obj_class in classes:
         assert issubclass(obj_class, _XMLObject)
-        namespace = ns if obj_class._default_ns == ns else obj_class._default_ns
-        if subelements := element.findall(f"{namespace}{obj_class.get_tag_name()}"):
+        if subelements := element.findall(f"{ns}{obj_class.get_tag_name()}"):
             args_list.extend(
                 [
                     obj_class.class_from_element(
-                        ns=namespace,
+                        ns=ns,
                         name_spaces=name_spaces,
                         element=subelement,
                         strict=strict,
