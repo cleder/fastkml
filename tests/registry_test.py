@@ -97,6 +97,7 @@ def test_registry_get_root() -> None:
             node_name="a",
         ),
     )
+
     assert registry.get(A)[0].attr_name == "a"
 
 
@@ -148,6 +149,7 @@ def test_registry_get() -> None:
         ),
     )
     d = D()
+
     assert isinstance(d, D)
     assert isinstance(d, A)
     assert len(registry.get(A)) == 1
@@ -251,6 +253,7 @@ def test_registry_get_multi() -> None:
             node_name="enum",
         ),
     )
+
     assert len(registry.get(A)) == 2
     assert len(registry.get(D)) == 8
     assert registry.get(D)[0].classes == (A,)
@@ -261,3 +264,9 @@ def test_registry_get_multi() -> None:
     assert registry.get(D)[5].classes == (float,)
     assert registry.get(D)[6].classes == (D,)
     assert registry.get(D)[7].classes == (Enum,)
+
+
+def test_registry_repr() -> None:
+    registry = Registry()
+
+    assert repr(registry) == "fastkml.registry.Registry({})"

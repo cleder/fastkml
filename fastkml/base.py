@@ -158,7 +158,6 @@ class _XMLObject:
         kwargs: Dict[str, Any] = {"ns": ns, "name_spaces": name_spaces}
         for item in registry.get(cls):
             for name_space in item.ns_ids:
-                # breakpoint()
                 kwarg = item.get_kwarg(
                     element=element,
                     ns=name_spaces.get(name_space, ""),
