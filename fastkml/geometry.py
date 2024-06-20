@@ -89,7 +89,7 @@ def handle_invalid_geometry_error(
     element: Element,
     strict: bool,
 ) -> None:
-    error_in_xml = config.etree.tostring(  # type: ignore[attr-defined]
+    error_in_xml = config.etree.tostring(
         element,
         encoding="UTF-8",
     ).decode(

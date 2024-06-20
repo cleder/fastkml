@@ -197,7 +197,7 @@ class TimeStamp(_TimePrimitive):
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        when = config.etree.SubElement(  # type: ignore[attr-defined]
+        when = config.etree.SubElement(
             element,
             f"{self.ns}when",
         )
@@ -274,14 +274,14 @@ class TimeSpan(_TimePrimitive):
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.begin is not None:
             if text := str(self.begin):
-                begin = config.etree.SubElement(  # type: ignore[attr-defined]
+                begin = config.etree.SubElement(
                     element,
                     f"{self.ns}begin",
                 )
                 begin.text = text
         if self.end is not None:
             if text := str(self.end):
-                end = config.etree.SubElement(  # type: ignore[attr-defined]
+                end = config.etree.SubElement(
                     element,
                     f"{self.ns}end",
                 )

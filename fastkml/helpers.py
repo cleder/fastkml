@@ -57,13 +57,13 @@ def handle_error(
         the error message.
 
     """
-    serialized_element = config.etree.tostring(  # type: ignore[attr-defined]
+    serialized_element = config.etree.tostring(
         element,
         encoding="UTF-8",
     ).decode(
         "UTF-8",
     )
-    serialized_node = config.etree.tostring(  # type: ignore[attr-defined]
+    serialized_node = config.etree.tostring(  #
         node,
         encoding="UTF-8",
     ).decode(
@@ -119,7 +119,7 @@ def text_subelement(
 
     """
     if getattr(obj, attr_name, None):
-        subelement = config.etree.SubElement(  # type: ignore[attr-defined]
+        subelement = config.etree.SubElement(
             element,
             f"{obj.ns}{node_name}",
         )
@@ -183,7 +183,7 @@ def bool_subelement(
 
     """
     if getattr(obj, attr_name, None) is not None:
-        subelement = config.etree.SubElement(  # type: ignore[attr-defined]
+        subelement = config.etree.SubElement(
             element,
             f"{obj.ns}{node_name}",
         )
@@ -217,7 +217,7 @@ def int_subelement(
 
     """
     if getattr(obj, attr_name, None) is not None:
-        subelement = config.etree.SubElement(  # type: ignore[attr-defined]
+        subelement = config.etree.SubElement(
             element,
             f"{obj.ns}{node_name}",
         )
@@ -265,7 +265,7 @@ def float_subelement(
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
     if getattr(obj, attr_name, None) is not None:
-        subelement = config.etree.SubElement(  # type: ignore[attr-defined]
+        subelement = config.etree.SubElement(
             element,
             f"{obj.ns}{node_name}",
         )
@@ -297,7 +297,7 @@ def enum_subelement(
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
     if getattr(obj, attr_name, None):
-        subelement = config.etree.SubElement(  # type: ignore[attr-defined]
+        subelement = config.etree.SubElement(
             element,
             f"{obj.ns}{node_name}",
         )

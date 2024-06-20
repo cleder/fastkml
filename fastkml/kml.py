@@ -121,17 +121,17 @@ class KML(_XMLObject):
         # However, in this case the xlmns should still be mentioned on the kml
         # element, just without prefix.
         if not self.ns:
-            root = config.etree.Element(  # type: ignore[attr-defined]
+            root = config.etree.Element(
                 f"{self.ns}{self.get_tag_name()}",
             )
             root.set("xmlns", config.KMLNS[1:-1])
-        elif hasattr(config.etree, "LXML_VERSION"):  # type: ignore[attr-defined]
-            root = config.etree.Element(  # type: ignore[attr-defined]
+        elif hasattr(config.etree, "LXML_VERSION"):
+            root = config.etree.Element(
                 f"{self.ns}{self.get_tag_name()}",
                 nsmap={None: self.ns[1:-1]},
             )
         else:
-            root = config.etree.Element(  # type: ignore[attr-defined]
+            root = config.etree.Element(
                 f"{self.ns}{self.get_tag_name()}",
             )
         xml_subelement_list(
@@ -179,15 +179,15 @@ class KML(_XMLObject):
 
         """
         try:
-            element = config.etree.fromstring(  # type: ignore[attr-defined]
+            element = config.etree.fromstring(
                 string,
-                parser=config.etree.XMLParser(  # type: ignore[attr-defined]
+                parser=config.etree.XMLParser(
                     huge_tree=True,
                     recover=True,
                 ),
             )
         except TypeError:
-            element = config.etree.XML(string)  # type: ignore[attr-defined]
+            element = config.etree.XML(string)
         if ns is None:
             ns = cast(str, element.tag[:-3] if element.tag.endswith("kml") else "")
         name_spaces = name_spaces or {}

@@ -178,6 +178,7 @@ target-version = "py38"
 ignore = [
     "ANN101",
     "ANN102",
+    "ANN401",
     "D203",
     "D212",
     "FA100",

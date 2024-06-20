@@ -147,13 +147,13 @@ class TrackItem:
     ) -> Iterator[Element]:
         name_spaces = name_spaces or {}
         name_spaces = {**config.NAME_SPACES, **name_spaces}
-        element: Element = config.etree.Element(  # type: ignore[attr-defined]
+        element: Element = config.etree.Element(
             f"{name_spaces.get('kml', '')}when",
         )
         if self.when:
             element.text = self.when.isoformat()
         yield element
-        element = config.etree.Element(  # type: ignore[attr-defined]
+        element = config.etree.Element(
             f"{name_spaces.get('gx', '')}coord",
         )
         if self.coord:
@@ -163,7 +163,7 @@ class TrackItem:
                 ],
             )
         yield element
-        element = config.etree.Element(  # type: ignore[attr-defined]
+        element = config.etree.Element(
             f"{name_spaces.get('gx', '')}angles",
         )
         if self.angle:
