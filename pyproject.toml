@@ -245,6 +245,10 @@ select = [
 ]
 
 [tool.ruff.lint.extend-per-file-ignores]
+"fastkml/helpers.py" = [
+    "ARG001",
+    "PLR0913",
+]
 "tests/*.py" = [
     "D101",
     "D102",
