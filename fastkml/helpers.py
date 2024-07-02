@@ -63,7 +63,7 @@ def handle_error(
     ).decode(
         "UTF-8",
     )
-    serialized_node = config.etree.tostring(  #
+    serialized_node = config.etree.tostring(
         node,
         encoding="UTF-8",
     ).decode(
