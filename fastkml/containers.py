@@ -63,9 +63,9 @@ KmlGeometry = Union[
 
 class _Container(_Feature):
     """
-    A Container element holds one or more Features.
+    A Container element that holds one or more Features.
 
-    It allows the creation of nested hierarchies.
+    Supports the creation of nested hierarchies.
     subclasses are:
     Document,
     Folder.
