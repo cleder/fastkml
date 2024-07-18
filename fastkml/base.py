@@ -116,7 +116,7 @@ class _XMLObject:
         if type(self) is not type(other):
             return False
         assert isinstance(other, type(self))  # noqa: S101
-        return self.ns == other.ns and self.name_spaces == other.name_spaces
+        return self.__dict__ == other.__dict__
 
     def etree_element(
         self,

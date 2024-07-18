@@ -330,7 +330,6 @@ class TestGeometry(StdLibrary):
         assert "extrude>1</" in g.to_string()
         assert "altitudeMode>relativeToGround<" in g.to_string()
         assert "tessellate>1<" in g.to_string()
-        # assert not g.to_string()
 
     def test_from_string(self) -> None:
         """Test the from_string method."""

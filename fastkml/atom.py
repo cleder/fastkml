@@ -177,35 +177,6 @@ class Link(_AtomObject):
         """
         return bool(self.href)
 
-    def __eq__(self, other: object) -> bool:
-        """
-        Check if the Link object is equal to another object.
-
-        Parameters
-        ----------
-        other : object
-            The object to compare with.
-
-        Returns
-        -------
-        bool
-            True if the Link object is equal to the other object, False otherwise.
-
-        """
-        try:
-            assert isinstance(other, type(self))  # noqa: S101
-        except AssertionError:
-            return False
-        return (
-            super().__eq__(other)
-            and self.href == other.href
-            and self.rel == other.rel
-            and self.type == other.type
-            and self.hreflang == other.hreflang
-            and self.title == other.title
-            and self.length == other.length
-        )
-
 
 registry.register(
     Link,
@@ -349,31 +320,6 @@ class _Person(_AtomObject):
 
         """
         return bool(self.name)
-
-    def __eq__(self, other: object) -> bool:
-        """
-        Check if the _Person object is equal to another object.
-
-        Args:
-        ----
-            other (object): The object to compare with.
-
-        Returns:
-        -------
-            bool: True if the _Person object is equal to the other object,
-            False otherwise.
-
-        """
-        try:
-            assert isinstance(other, type(self))  # noqa: S101
-        except AssertionError:
-            return False
-        return (
-            super().__eq__(other)
-            and self.name == other.name
-            and self.uri == other.uri
-            and self.email == other.email
-        )
 
 
 registry.register(

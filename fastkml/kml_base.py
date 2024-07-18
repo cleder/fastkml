@@ -98,30 +98,6 @@ class _BaseObject(_XMLObject):
             ")"
         )
 
-    def __eq__(self, other: object) -> bool:
-        """
-        Return True if the two objects are equal.
-
-        Parameters
-        ----------
-        other: (object)
-            The object to compare with.
-
-        Returns
-        -------
-        bool: True if the two objects are equal, False otherwise.
-
-        """
-        try:
-            assert isinstance(other, type(self))  # noqa: S101
-            return (
-                super().__eq__(other)
-                and self.id == other.id
-                and self.target_id == other.target_id
-            )
-        except AssertionError:
-            return False
-
 
 registry.register(
     _BaseObject,
