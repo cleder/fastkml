@@ -191,12 +191,13 @@ registry.register(
 
 class _Feature(TimeMixin, _BaseObject):
     """
-    Abstract element representing a feature in KML.
+    Abstract base class representing a feature in KML.
 
-    Subclasses are:
+    Direct known subclasses:
         - Container (Document, Folder)
         - Placemark
         - Overlay
+        - NetworkLink
         - NetworkLink.
     """
 
