@@ -63,9 +63,9 @@ KmlGeometry = Union[
 
 class _Container(_Feature):
     """
-    abstract element; do not create
-    A Container element holds one or more Features and allows the
-    creation of nested hierarchies.
+    A Container element holds one or more Features.
+
+    It allows the creation of nested hierarchies.
     subclasses are:
     Document,
     Folder.
@@ -73,11 +73,11 @@ class _Container(_Feature):
 
     features: List[_Feature]
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
-        id: Optional[str] = None,
+        id: Optional[str] = None,  # noqa: A002
         target_id: Optional[str] = None,
         name: Optional[str] = None,
         visibility: Optional[bool] = None,
@@ -155,31 +155,33 @@ class _Container(_Feature):
         if kmlobj is self:
             msg = "Cannot append self"
             raise ValueError(msg)
-        assert self.features is not None
+        assert self.features is not None  # noqa: S101
         self.features.append(kmlobj)
 
 
 class Folder(_Container):
     """
-    A Folder is used to arrange other Features hierarchically
-    (Folders, Placemarks, #NetworkLinks, or #Overlays).
+    A Folder is used to arrange other Features hierarchically.
+
+    It may contain Folders, Placemarks, NetworkLinks, or Overlays.
     """
 
 
 class Document(_Container):
     """
-    A Document is a container for features and styles. This element is
-    required if your KML file uses shared styles or schemata for typed
+    A Document is a container for features and styles.
+
+    This element is required if your KML file uses shared styles or schemata for typed
     extended data.
     """
 
     schemata: List[Schema]
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
-        id: Optional[str] = None,
+        id: Optional[str] = None,  # noqa: A002
         target_id: Optional[str] = None,
         name: Optional[str] = None,
         visibility: Optional[bool] = None,
@@ -200,6 +202,40 @@ class Document(_Container):
         schemata: Optional[Iterable[Schema]] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new instance of the class.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace.
+            name_spaces (Optional[Dict[str, str]]):
+                The dictionary of namespace prefixes and URIs.
+            id (Optional[str]): The ID of the container.
+            target_id (Optional[str]): The target ID.
+            name (Optional[str]): The name of the container.
+            visibility (Optional[bool]): The visibility flag.
+            isopen (Optional[bool]): The isopen flag.
+            atom_link (Optional[atom.Link]): The Atom link.
+            atom_author (Optional[atom.Author]): The Atom author.
+            address (Optional[str]): The address.
+            phone_number (Optional[str]): The phone number.
+            snippet (Optional[Snippet]): The snippet.
+            description (Optional[str]): The description.
+            view (Optional[Union[Camera, LookAt]]): The view.
+            times (Optional[Union[TimeSpan, TimeStamp]]): The times.
+            style_url (Optional[StyleUrl]): The style URL.
+            styles (Optional[Iterable[Union[Style, StyleMap]]]): The styles.
+            region (Optional[Region]): The region.
+            extended_data (Optional[ExtendedData]): The extended data.
+            features (Optional[List[_Feature]]): The list of features.
+            schemata (Optional[Iterable[Schema]]): The schemata.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -255,6 +291,20 @@ class Document(_Container):
         )
 
     def get_style_by_url(self, style_url: str) -> Optional[Union[Style, StyleMap]]:
+        """
+        Get a style by URL.
+
+        Parameters
+        ----------
+        style_url : str
+            The URL of the style.
+
+        Returns
+        -------
+        Optional[Union[Style, StyleMap]]
+            The style object if found, otherwise None.
+
+        """
         id_ = urlparse.urlparse(style_url).fragment
         return next((style for style in self.styles if style.id == id_), None)
 
