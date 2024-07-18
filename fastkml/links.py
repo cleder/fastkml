@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-
+"""Link and Icon elements."""
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -107,6 +107,15 @@ class Link(_BaseObject):
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the link has a valid href.
+
+        Returns
+        -------
+        bool
+            True if the link has a valid href, False otherwise.
+
+        """
         return bool(self.href)
 
 
