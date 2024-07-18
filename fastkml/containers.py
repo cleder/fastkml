@@ -73,11 +73,11 @@ class _Container(_Feature):
 
     features: List[_Feature]
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
-        id: Optional[str] = None,  # noqa: A002
+        id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
         visibility: Optional[bool] = None,
@@ -177,11 +177,11 @@ class Document(_Container):
 
     schemata: List[Schema]
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
-        id: Optional[str] = None,  # noqa: A002
+        id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
         visibility: Optional[bool] = None,

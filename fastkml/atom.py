@@ -90,13 +90,13 @@ class Link(_AtomObject):
     title: Optional[str]
     length: Optional[int]
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
         href: Optional[str] = None,
         rel: Optional[str] = None,
-        type: Optional[str] = None,  # noqa: A002
+        type: Optional[str] = None,
         hreflang: Optional[str] = None,
         title: Optional[str] = None,
         length: Optional[int] = None,
@@ -292,7 +292,7 @@ class _Person(_AtomObject):
     uri: Optional[str]
     email: Optional[str]
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,

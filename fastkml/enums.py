@@ -54,14 +54,16 @@ class RelaxedEnum(Enum):
 
     @classmethod
     def _missing_(cls, value: object) -> "RelaxedEnum":
-        assert isinstance(value, str)
+        assert isinstance(value, str)  # noqa: S101
         value = value.lower()
         for member in cls:
-            assert isinstance(member.value, str)
+            assert isinstance(member.value, str)  # noqa: S101
             if member.value.lower() == value.lower():
                 logger.warning(
-                    f"{cls.__name__}: "
-                    f"Found case-insensitive match for {value} in {member.value}",
+                    "%s: Found case-insensitive match for %s in %r",
+                    cls.__name__,
+                    value,
+                    member.value,
                 )
                 return member
         msg = (
@@ -140,6 +142,8 @@ class AltitudeMode(RelaxedEnum):
 
 @unique
 class DataType(RelaxedEnum):
+    """Data type for SimpleField in extended data."""
+
     string = "string"
     int_ = "int"
     uint = "uint"
@@ -251,9 +255,7 @@ class Units(RelaxedEnum):
 
 @unique
 class PairKey(RelaxedEnum):
-    """
-    Key for Pair.
-    """
+    """Key for Pair."""
 
     normal = "normal"
     highlight = "highlight"
