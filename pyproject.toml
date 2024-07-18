@@ -176,12 +176,14 @@ target-version = "py38"
 
 [tool.ruff.lint]
 ignore = [
+    "A002",
     "ANN101",
     "ANN102",
     "ANN401",
     "D203",
     "D212",
     "FA100",
+    "PLR0913",
 ]
 select = [
     "A",
@@ -245,6 +247,10 @@ select = [
 ]
 
 [tool.ruff.lint.extend-per-file-ignores]
+"fastkml/helpers.py" = [
+    "ARG001",
+    "PLR0913",
+]
 "tests/*.py" = [
     "D101",
     "D102",

@@ -83,6 +83,7 @@ KmlGeometry = Union[
 class Snippet(_XMLObject):
     """
     A short description of the feature.
+
     In Google Earth, this description is displayed in the Places panel
     under the name of the feature.
     If a Snippet is not supplied, the first two lines of the <description>
@@ -107,12 +108,40 @@ class Snippet(_XMLObject):
         max_lines: Optional[int] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Feature object.
+
+        Args:
+        ----
+            ns : str, optional
+                The namespace for the feature.
+            name_spaces : dict[str, str], optional
+                A dictionary of namespace prefixes and URIs.
+            text : str, optional
+                The text content of the feature.
+            max_lines : int, optional
+                The maximum number of lines for the feature.
+            **kwargs : Any
+                Additional keyword arguments.
+
+        Returns:
+        -------
+        None
+
+        """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.text = text
         self.max_lines = max_lines
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for Snippet."""
+        """
+        Create a string representation for Snippet.
+
+        Returns
+        -------
+            str: The string representation of the Snippet object.
+
+        """
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
@@ -124,6 +153,15 @@ class Snippet(_XMLObject):
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the feature has text.
+
+        Returns
+        -------
+        bool
+            True if the feature has text, False otherwise.
+
+        """
         return bool(self.text)
 
 
@@ -153,102 +191,30 @@ registry.register(
 
 class _Feature(TimeMixin, _BaseObject):
     """
-    abstract element; do not create
-    subclasses are:
-        * Container (Document, Folder)
-        * Placemark
-        * Overlay
-        * NetworkLink.
+    Abstract base class representing a feature in KML.
+
+    Direct known subclasses:
+        - Container (Document, Folder)
+        - Placemark
+        - Overlay
+        - NetworkLink
+        - NetworkLink.
     """
 
     name: Optional[str]
-    # User-defined text displayed in the 3D viewer as the label for the
-    # object (for example, for a Placemark, Folder, or NetworkLink).
-
     visibility: Optional[bool]
-    # Boolean value. Specifies whether the feature is drawn in the 3D
-    # viewer when it is initially loaded. In order for a feature to be
-    # visible, the <visibility> tag of all its ancestors must also be
-    # set to 1.
-
     isopen: Optional[bool]
-    # Boolean value. Specifies whether a Document or Folder appears
-    # closed or open when first loaded into the Places panel.
-    # 0=collapsed (the default), 1=expanded.
-
     atom_author: Optional[atom.Author]
-    # KML 2.2 supports new elements for including data about the author
-    # and related website in your KML file. This information is displayed
-    # in geo search results, both in Earth browsers such as Google Earth,
-    # and in other applications such as Google Maps.
-
     atom_link: Optional[atom.Link]
-    # Specifies the URL of the website containing this KML or KMZ file.
-
     address: Optional[str]
-    # A string value representing an unstructured address written as a
-    # standard street, city, state address, and/or as a postal code.
-    # You can use the <address> tag to specify the location of a point
-    # instead of using latitude and longitude coordinates.
-
     phone_number: Optional[str]
-    # A string value representing a telephone number.
-    # This element is used by Google Maps Mobile only.
-
     snippet: Optional[Snippet]
-    # _snippet is either a tuple of a string Snippet.text and an integer
-    # Snippet.maxLines or a string
-    #
-    # A short description of the feature. In Google Earth, this
-    # description is displayed in the Places panel under the name of the
-    # feature. If a Snippet is not supplied, the first two lines of
-    # the <description> are used. In Google Earth, if a Placemark
-    # contains both a description and a Snippet, the <Snippet> appears
-    # beneath the Placemark in the Places panel, and the <description>
-    # appears in the Placemark's description balloon. This tag does not
-    # support HTML markup. <Snippet> has a maxLines attribute, an integer
-    # that specifies the maximum number of lines to display.
-
     description: Optional[str]
-    # User-supplied content that appears in the description balloon.
-
     style_url: Optional[StyleUrl]
-    # URL of a <Style> or <StyleMap> defined in a Document.
-    # If the style is in the same file, use a # reference.
-    # If the style is defined in an external file, use a full URL
-    # along with # referencing.
-
     styles: List[Union[Style, StyleMap]]
-    # One or more Styles and StyleMaps can be defined to customize the
-    # appearance of any element derived from Feature or of the Geometry
-    # in a Placemark.
-    # A style defined within a Feature is called an "inline style" and
-    # applies only to the Feature that contains it. A style defined as
-    # the child of a <Document> is called a "shared style." A shared
-    # style must have an id defined for it. This id is referenced by one
-    # or more Features within the <Document>. In cases where a style
-    # element is defined both in a shared style and in an inline style
-    # for a Feature—that is, a Folder, GroundOverlay, NetworkLink,
-    # Placemark, or ScreenOverlay—the value for the Feature's inline
-    # style takes precedence over the value for the shared style.
-
     view: Union[Camera, LookAt, None]
-
     region: Optional[Region]
-    # Features and geometry associated with a Region are drawn only when
-    # the Region is active.
-
     extended_data: Optional[ExtendedData]
-    # Allows you to add custom data to a KML file. This data can be
-    # (1) data that references an external XML schema,
-    # (2) untyped data/value pairs, or
-    # (3) typed data.
-    # A given KML Feature can contain a combination of these types of
-    # custom data.
-    #
-    # (2 and 3) are already implemented, see data.py for more information.
-    #
-    # <Metadata> (deprecated in KML 2.2; use <ExtendedData> instead)
 
     def __init__(
         self,
@@ -273,6 +239,42 @@ class _Feature(TimeMixin, _BaseObject):
         extended_data: Optional[ExtendedData] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize the _Feature object.
+
+        Args:
+        ----
+            ns (Optional[str]): Namespace for the element.
+            name_spaces (Optional[Dict[str, str]]):
+                Dictionary of namespace prefixes and URIs.
+            id (Optional[str]): ID of the element.
+            target_id (Optional[str]): ID of the target element.
+            name (Optional[str]): User-defined text displayed in the 3D viewer as the
+                label for the object.
+            visibility (Optional[bool]): Specifies whether the feature is drawn in the
+                3D viewer when it is initially loaded.
+            isopen (Optional[bool]): Specifies whether a Document or Folder appears
+                closed or open when first loaded into the Places panel.
+            atom_link (Optional[atom.Link]): URL of the website containing this KML or
+                KMZ file.
+            atom_author (Optional[atom.Author]): Information about the author and
+                related website in the KML file.
+            address (Optional[str]): Unstructured address written as a standard street,
+                city, state address, and/or as a postal code.
+            phone_number (Optional[str]): Telephone number associated with the feature.
+            snippet (Optional[Snippet]): Short description of the feature.
+            description (Optional[str]): User-supplied content that appears in the
+                description balloon.
+            view (Optional[Union[Camera, LookAt]]): Camera or LookAt view associated.
+            times (Optional[Union[TimeSpan, TimeStamp]]): Time information associated.
+            style_url (Optional[StyleUrl]): URL of a Style or StyleMap.
+            styles (Optional[Iterable[Union[Style, StyleMap]]]): Styles and StyleMaps
+                defined to customize the appearance of the feature.
+            region (Optional[Region]): Region associated with the feature.
+            extended_data (Optional[ExtendedData]): Custom data added to the KML file.
+            **kwargs (Any): Additional keyword arguments.
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -297,7 +299,14 @@ class _Feature(TimeMixin, _BaseObject):
         self.times = times
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for _Feature."""
+        """
+        Return a string representation of the _Feature object.
+
+        Returns
+        -------
+            str: String representation of the _Feature object.
+
+        """
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
@@ -503,6 +512,7 @@ registry.register(
 class Placemark(_Feature):
     """
     A Placemark is a Feature with associated Geometry.
+
     In Google Earth, a Placemark appears as a list item in the Places
     panel. A Placemark with a Point has an icon associated with it that
     marks a point on the Earth in the 3D viewer.
@@ -536,6 +546,62 @@ class Placemark(_Feature):
         geometry: Optional[Union[GeoType, GeoCollectionType]] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Feature object.
+
+        Parameters
+        ----------
+        ns : str, optional
+            The namespace for the feature.
+        name_spaces : dict[str, str], optional
+            The dictionary of namespace prefixes and URIs.
+        id : str, optional
+            The ID of the feature.
+        target_id : str, optional
+            The target ID of the feature.
+        name : str, optional
+            The name of the feature.
+        visibility : bool, optional
+            The visibility of the feature.
+        isopen : bool, optional
+            The open status of the feature.
+        atom_link : atom.Link, optional
+            The Atom link associated with the feature.
+        atom_author : atom.Author, optional
+            The Atom author associated with the feature.
+        address : str, optional
+            The address of the feature.
+        phone_number : str, optional
+            The phone number of the feature.
+        snippet : Snippet, optional
+            The snippet of the feature.
+        description : str, optional
+            The description of the feature.
+        view : Union[Camera, LookAt], optional
+            The view associated with the feature.
+        times : Union[TimeSpan, TimeStamp], optional
+            The times associated with the feature.
+        style_url : StyleUrl, optional
+            The style URL of the feature.
+        styles : Iterable[Union[Style, StyleMap]], optional
+            The styles associated with the feature.
+        region : Region, optional
+            The region associated with the feature.
+        extended_data : ExtendedData, optional
+            The extended data associated with the feature.
+        kml_geometry : KmlGeometry, optional
+            The KML geometry associated with the feature.
+        geometry : Union[GeoType, GeoCollectionType], optional
+            The geometry associated with the feature.
+        **kwargs : Any
+            Additional keyword arguments.
+
+        Raises
+        ------
+        ValueError
+            If both `kml_geometry` and `geometry` are specified.
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -570,7 +636,14 @@ class Placemark(_Feature):
         self.kml_geometry = kml_geometry
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for Placemark."""
+        """
+        Return a string representation of the Placemark object.
+
+        Returns
+        -------
+            str: A string representation of the Placemark object.
+
+        """
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
@@ -600,6 +673,15 @@ class Placemark(_Feature):
 
     @property
     def geometry(self) -> Optional[AnyGeometryType]:
+        """
+        Returns the geometry associated with this feature.
+
+        Returns
+        -------
+            Optional[AnyGeometryType]: The geometry associated with this feature,
+            or None if no geometry is present.
+
+        """
         return self.kml_geometry.geometry if self.kml_geometry is not None else None
 
 
@@ -698,6 +780,63 @@ class NetworkLink(_Feature):
         link: Optional[Link] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Feature object.
+
+        Parameters
+        ----------
+        ns : str, optional
+            The namespace for the feature.
+        name_spaces : dict[str, str], optional
+            The dictionary of namespace prefixes and URIs.
+        id : str, optional
+            The ID of the feature.
+        target_id : str, optional
+            The target ID of the feature.
+        name : str, optional
+            The name of the feature.
+        visibility : bool, optional
+            The visibility of the feature.
+        isopen : bool, optional
+            Whether the feature is open.
+        atom_link : atom.Link, optional
+            The Atom link associated with the feature.
+        atom_author : atom.Author, optional
+            The Atom author associated with the feature.
+        address : str, optional
+            The address of the feature.
+        phone_number : str, optional
+            The phone number of the feature.
+        snippet : Snippet, optional
+            The snippet associated with the feature.
+        description : str, optional
+            The description of the feature.
+        view : Union[Camera, LookAt], optional
+            The view associated with the feature.
+        times : Union[TimeSpan, TimeStamp], optional
+            The times associated with the feature.
+        style_url : StyleUrl, optional
+            The style URL of the feature.
+        styles : Iterable[Union[Style, StyleMap]], optional
+            The styles associated with the feature.
+        region : Region, optional
+            The region associated with the feature.
+        extended_data : ExtendedData, optional
+            The extended data associated with the feature.
+        refresh_visibility : bool, optional
+            The refresh visibility of the feature (NetworkLink specific).
+        fly_to_view : bool, optional
+            Whether to fly to the view (NetworkLink specific).
+        link : Link, optional
+            The link associated with the feature.
+        **kwargs : Any
+            Additional keyword arguments.
+
+        Returns
+        -------
+        None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -725,7 +864,14 @@ class NetworkLink(_Feature):
         self.link = link
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for NetworkLink."""
+        """
+        Return a string representation of the NetworkLink object.
+
+        Returns
+        -------
+            str: A string representation of the NetworkLink object.
+
+        """
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
@@ -755,6 +901,15 @@ class NetworkLink(_Feature):
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the feature has a link.
+
+        Returns
+        -------
+        bool
+            True if the feature has a link, False otherwise.
+
+        """
         return bool(self.link)
 
 

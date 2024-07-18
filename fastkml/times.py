@@ -138,7 +138,7 @@ class KmlDateTime:
                 resolution = DateTimeResolution.year_month
             if year_month_day_match.group("month") is None:
                 resolution = DateTimeResolution.year
-        elif len(datestr) > 10:
+        elif len(datestr) > 10:  # noqa: PLR2004
             dt = arrow.get(datestr).datetime
             resolution = DateTimeResolution.datetime
         return cls(dt, resolution) if dt else None
@@ -146,7 +146,7 @@ class KmlDateTime:
 
 class _TimePrimitive(_BaseObject):
     """
-    This is an abstract element and cannot be used directly in a KML file.
+    Abstract element that cannot be used directly in a KML file.
 
     This element is extended by the <TimeSpan> and <TimeStamp> elements.
     https://developers.google.com/kml/documentation/kmlreference#timeprimitive
@@ -165,6 +165,29 @@ class TimeStamp(_TimePrimitive):
         timestamp: Optional[KmlDateTime] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new instance of the Times class.
+
+        Args:
+        ----
+            ns : str, optional
+                The namespace for the element, by default None.
+            name_spaces : dict[str, str], optional
+                The dictionary of namespace prefixes and URIs, by default None.
+            id : str, optional
+                The ID of the element, by default None.
+            target_id : str, optional
+                The target ID of the element, by default None.
+            timestamp : KmlDateTime, optional
+                The timestamp of the element, by default None.
+            **kwargs : Any
+                Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -196,6 +219,19 @@ class TimeStamp(_TimePrimitive):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
+        """
+        Create an ElementTree element representing the TimeStamp object.
+
+        Args:
+        ----
+            precision (Optional[int]): The precision of the timestamp.
+            verbosity (Verbosity): The verbosity level of the element.
+
+        Returns:
+        -------
+            Element: The ElementTree element representing the TimeStamp object.
+
+        """
         element = super().etree_element(precision=precision, verbosity=verbosity)
         when = config.etree.SubElement(
             element,
@@ -238,6 +274,25 @@ class TimeSpan(_TimePrimitive):
         end: Optional[KmlDateTime] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new instance of the Times class.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace for the element.
+            name_spaces (Optional[Dict[str, str]]): The dictionary of namespace prefixes
+                and URIs.
+            id (Optional[str]): The ID of the element.
+            target_id (Optional[str]): The target ID of the element.
+            begin (Optional[KmlDateTime]): The begin time.
+            end (Optional[KmlDateTime]): The end time.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -271,15 +326,28 @@ class TimeSpan(_TimePrimitive):
         precision: Optional[int] = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
+        """
+        Create an Element object representing the time interval.
+
+        Args:
+        ----
+            precision (Optional[int]): The precision of the time values.
+            verbosity (Verbosity): The verbosity level for the element.
+
+        Returns:
+        -------
+            Element: The created Element object.
+
+        """
         element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.begin is not None:
+        if self.begin is not None:  # noqa: SIM102
             if text := str(self.begin):
                 begin = config.etree.SubElement(
                     element,
                     f"{self.ns}begin",
                 )
                 begin.text = text
-        if self.end is not None:
+        if self.end is not None:  # noqa: SIM102
             if text := str(self.end):
                 end = config.etree.SubElement(
                     element,

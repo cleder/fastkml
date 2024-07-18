@@ -26,17 +26,21 @@ logger = logging.getLogger(__name__)
 
 
 class TimeMixin:
+    """Mixin for classes that have a time element."""
+
     times: Optional[Union[TimeSpan, TimeStamp]] = None
 
     @property
     def time_stamp(self) -> Optional[KmlDateTime]:
-        """This just returns the datetime portion of the timestamp."""
+        """Return the timestamp."""
         return self.times.timestamp if isinstance(self.times, TimeStamp) else None
 
     @property
     def begin(self) -> Optional[KmlDateTime]:
+        """Return the start time of a time span."""
         return self.times.begin if isinstance(self.times, TimeSpan) else None
 
     @property
     def end(self) -> Optional[KmlDateTime]:
+        """Return the end time of a time span."""
         return self.times.end if isinstance(self.times, TimeSpan) else None

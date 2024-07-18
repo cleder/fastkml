@@ -15,6 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """
+Basic Atom support for KML.
+
 KML 2.2 supports new elements for including data about the author and related
 website in your KML file. This information is displayed in geo search results,
 both in Earth browsers such as Google Earth, and in other applications such as
@@ -72,7 +74,9 @@ class _AtomObject(_XMLObject):
 
 class Link(_AtomObject):
     """
-    Identifies a related Web page. The rel attribute defines the type of relation.
+    Identifies a related Web page.
+
+    The rel attribute defines the type of relation.
     A feed is limited to one alternate per type and hreflang.
     <link> is patterned after html's link element. It has one required
     attribute, href, and five optional attributes: rel, type, hreflang,
@@ -80,31 +84,11 @@ class Link(_AtomObject):
     """
 
     href: Optional[str]
-    # href is the URI of the referenced resource
-
     rel: Optional[str]
-    # rel contains a single link relationship type.
-    # It can be a full URI, or one of the following predefined values
-    # (default=alternate):
-    # alternate: an alternate representation
-    # enclosure: a related resource which is potentially large in size
-    # and might require special handling, for example an audio or video
-    # recording.
-    # related: an document related to the entry or feed.
-    # self: the feed itself.
-    # via: the source of the information provided in the entry.
-
     type: Optional[str]
-    # indicates the media type of the resource
-
     hreflang: Optional[str]
-    # indicates the language of the referenced resource
-
     title: Optional[str]
-    # human readable information about the link
-
     length: Optional[int]
-    # the length of the resource, in bytes
 
     def __init__(
         self,
@@ -118,6 +102,37 @@ class Link(_AtomObject):
         length: Optional[int] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Link object.
+
+        Parameters
+        ----------
+        ns : str, optional
+            The namespace of the Link object.
+        name_spaces : dict, optional
+            The dictionary of namespace prefixes and URIs.
+        href : str, optional
+            The URI of the referenced resource.
+        rel : str, optional
+            The link relationship type. It can be a full URI or one of the
+            following predefined values: 'alternate', 'enclosure', 'related',
+            'self', or 'via'.
+        type : str, optional
+            The media type of the resource.
+        hreflang : str, optional
+            The language of the referenced resource.
+        title : str, optional
+            Human-readable information about the link.
+        length : int, optional
+            The length of the resource in bytes.
+        kwargs : dict, optional
+            Additional keyword arguments.
+
+        Returns
+        -------
+        None
+
+        """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.href = href
         self.rel = rel
@@ -127,7 +142,15 @@ class Link(_AtomObject):
         self.length = length
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for Link."""
+        """
+        Return a string representation of the Link object.
+
+        Returns
+        -------
+        str
+            The string representation of the Link object.
+
+        """
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
@@ -143,11 +166,34 @@ class Link(_AtomObject):
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the Link object is truthy.
+
+        Returns
+        -------
+        bool
+            True if the Link object has a href attribute, False otherwise.
+
+        """
         return bool(self.href)
 
     def __eq__(self, other: object) -> bool:
+        """
+        Check if the Link object is equal to another object.
+
+        Parameters
+        ----------
+        other : object
+            The object to compare with.
+
+        Returns
+        -------
+        bool
+            True if the Link object is equal to the other object, False otherwise.
+
+        """
         try:
-            assert isinstance(other, type(self))
+            assert isinstance(other, type(self))  # noqa: S101
         except AssertionError:
             return False
         return (
@@ -232,19 +278,19 @@ registry.register(
 
 class _Person(_AtomObject):
     """
-    <author> and <contributor> describe a person, corporation, or similar
-    entity. It has one required element, name, and two optional elements:
-    uri, email.
+    Represents a person, corporation, or similar entity.
+
+    Attributes
+    ----------
+        name (Optional[str]): A human-readable name for the person.
+        uri (Optional[str]): A home page for the person.
+        email (Optional[str]): An email address for the person.
+
     """
 
     name: Optional[str]
-    # conveys a human-readable name for the person.
-
     uri: Optional[str]
-    # contains a home page for the person.
-
     email: Optional[str]
-    # contains an email address for the person.
 
     def __init__(
         self,
@@ -255,13 +301,33 @@ class _Person(_AtomObject):
         email: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new instance of the _Person class.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace for the XML element.
+            name_spaces (Optional[Dict[str, str]]): The namespace dictionary.
+            name (Optional[str]): A human-readable name for the person.
+            uri (Optional[str]): A home page for the person.
+            email (Optional[str]): An email address for the person.
+            **kwargs: Additional keyword arguments.
+
+        """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.name = name
         self.uri = uri
         self.email = email
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for _Person."""
+        """
+        Return a string representation of the _Person object.
+
+        Returns
+        -------
+            str: The string representation of the _Person object.
+
+        """
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
@@ -274,11 +340,32 @@ class _Person(_AtomObject):
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the _Person object has a name.
+
+        Returns
+        -------
+            bool: True if the _Person object has a name, False otherwise.
+
+        """
         return bool(self.name)
 
     def __eq__(self, other: object) -> bool:
+        """
+        Check if the _Person object is equal to another object.
+
+        Args:
+        ----
+            other (object): The object to compare with.
+
+        Returns:
+        -------
+            bool: True if the _Person object is equal to the other object,
+            False otherwise.
+
+        """
         try:
-            assert isinstance(other, type(self))
+            assert isinstance(other, type(self))  # noqa: S101
         except AssertionError:
             return False
         return (

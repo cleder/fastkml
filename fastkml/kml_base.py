@@ -50,7 +50,7 @@ class _BaseObject(_XMLObject):
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
-        id: Optional[str] = None,  # noqa: A002
+        id: Optional[str] = None,
         target_id: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
