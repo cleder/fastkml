@@ -133,6 +133,10 @@ class TestParseKML(StdLibrary):
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
 
+
+class TestLxmlParseKML(Lxml, TestParseKML):
+    """Test with Lxml."""
+
     def test_from_string_with_unbound_prefix(self) -> None:
         doc = io.StringIO(
             '<kml xmlns="http://www.opengis.net/kml/2.2">'
@@ -144,7 +148,3 @@ class TestLxml(Lxml, TestStdLibrary):
         k = kml.KML.parse(doc, ns="{http://www.opengis.net/kml/2.2}")
         assert len(k.features) == 1
         assert isinstance(k.features[0], features.Placemark)
-
-
-class TestLxmlParseKML(Lxml, TestParseKML):
-    """Test with Lxml."""
