@@ -15,13 +15,19 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the kml class."""
+import pathlib
 
 import pygeoif as geo
 
 from fastkml import features
 from fastkml import kml
+from fastkml.containers import Document
+from fastkml.features import Placemark
 from tests.base import Lxml
 from tests.base import StdLibrary
+
+BASEDIR = pathlib.Path(__file__).parent
+KMLFILEDIR = BASEDIR / "ogc_conformance" / "data" / "kml"
 
 
 class TestStdLibrary(StdLibrary):
@@ -52,6 +58,77 @@ class TestStdLibrary(StdLibrary):
         assert k.to_string() == k2.to_string()
 
 
+class TestParseKML(StdLibrary):
+    def test_parse_kml(self) -> None:
+        empty_placemark = KMLFILEDIR / "emptyPlacemarkWithoutId.xml"
+
+        doc = kml.KML.parse(empty_placemark)
+
+        assert doc == kml.KML(
+            ns="{http://www.opengis.net/kml/2.2}",
+            features=[
+                Document(
+                    ns="{http://www.opengis.net/kml/2.2}",
+                    id="doc-001",
+                    target_id="",
+                    name="Vestibulum eleifend lobortis lorem.",
+                    features=[
+                        Placemark(
+                            ns="{http://www.opengis.net/kml/2.2}",
+                        ),
+                    ],
+                    schemata=[],
+                ),
+            ],
+        )
+
+    def test_parse_kml_filename(self) -> None:
+        empty_placemark = str(KMLFILEDIR / "emptyPlacemarkWithoutId.xml")
+
+        doc = kml.KML.parse(empty_placemark)
+
+        assert doc == kml.KML(
+            ns="{http://www.opengis.net/kml/2.2}",
+            features=[
+                Document(
+                    ns="{http://www.opengis.net/kml/2.2}",
+                    id="doc-001",
+                    target_id="",
+                    name="Vestibulum eleifend lobortis lorem.",
+                    features=[
+                        Placemark(
+                            ns="{http://www.opengis.net/kml/2.2}",
+                        ),
+                    ],
+                    schemata=[],
+                ),
+            ],
+        )
+
+    def test_parse_kml_fileobject(self) -> None:
+        empty_placemark = KMLFILEDIR / "emptyPlacemarkWithoutId.xml"
+        with empty_placemark.open() as f:
+            doc = kml.KML.parse(f)
+
+        assert doc == kml.KML(
+            ns="{http://www.opengis.net/kml/2.2}",
+            features=[
+                Document(
+                    ns="{http://www.opengis.net/kml/2.2}",
+                    id="doc-001",
+                    target_id="",
+                    name="Vestibulum eleifend lobortis lorem.",
+                    features=[
+                        Placemark(
+                            ns="{http://www.opengis.net/kml/2.2}",
+                        ),
+                    ],
+                    schemata=[],
+                ),
+            ],
+        )
+
+
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
 
@@ -65,3 +142,7 @@ class TestLxml(Lxml, TestStdLibrary):
         k = kml.KML.class_from_string(doc)
         assert len(k.features) == 1
         assert isinstance(k.features[0], features.Placemark)
+
+
+class TestLxmlParseKML(Lxml, TestParseKML):
+    """Test with Lxml."""

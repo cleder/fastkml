@@ -26,7 +26,10 @@ http://schemas.opengis.net/kml/.
 
 """
 import logging
+from pathlib import Path
+from typing import IO
 from typing import Any
+from typing import AnyStr
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -197,6 +200,56 @@ class KML(_XMLObject):
             name_spaces=name_spaces,
             strict=strict,
             element=element,
+        )
+
+    @classmethod
+    def parse(
+        cls,
+        file: Union[Path, str, IO[AnyStr]],
+        *,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        strict: bool = True,
+    ) -> Self:
+        """
+        Parse a KML file and return a KML object.
+
+        Args:
+        ----
+            file: The file to parse
+
+        Keyword Args:
+        ------------
+            ns (Optional[str]): The namespace of the KML file.
+                If not provided, it will be inferred from the root element.
+            name_spaces (Optional[Dict[str, str]]): Additional namespaces.
+            strict (bool): Whether to enforce strict parsing rules. Defaults to True.
+
+        Returns:
+        -------
+            KML object: The parsed KML object.
+
+        """
+        try:
+            tree = config.etree.parse(
+                file,
+                parser=config.etree.XMLParser(
+                    huge_tree=True,
+                    recover=True,
+                ),
+            )
+        except TypeError:
+            tree = config.etree.parse(file)
+        root = tree.getroot()
+        if ns is None:
+            ns = cast(str, root.tag[:-3] if root.tag.endswith("kml") else "")
+        name_spaces = name_spaces or {}
+        name_spaces = {**config.NAME_SPACES, **name_spaces}
+        return cls.class_from_element(
+            ns=ns,
+            name_spaces=name_spaces,
+            strict=strict,
+            element=root,
         )
 
 
