@@ -239,7 +239,7 @@ class Track(_Geometry):
     time elements as the object moves through space.
     """
 
-    _default_ns = config.GXNS
+    _default_nsid = config.GX
 
     track_items: List[TrackItem]
 
@@ -603,7 +603,7 @@ class MultiTrack(_Geometry):
     between the two tracks.
     """
 
-    _default_ns = config.GXNS
+    _default_nsid = config.GX
     tracks: List[Track]
 
     def __init__(

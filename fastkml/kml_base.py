@@ -41,7 +41,7 @@ class _BaseObject(_XMLObject):
     mechanism is to be used.
     """
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
 
     id = None
     target_id = None

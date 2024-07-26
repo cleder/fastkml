@@ -283,7 +283,7 @@ class ViewVolume(_XMLObject):
     https://developers.google.com/kml/documentation/kmlreference#viewvolume
     """
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
 
     left_fow: Optional[float]
     # Angle, in degrees, between the camera's viewing direction and the left side
@@ -463,7 +463,7 @@ class ImagePyramid(_XMLObject):
     element to include specifications for which tiles to load.
     """
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
 
     tile_size: Optional[int]
     # Size of the tiles, in pixels. Tiles must be square, and <tileSize> must be a power
@@ -902,7 +902,7 @@ class LatLonBox(_XMLObject):
     Rotations are specified in a counterclockwise direction.
     """
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
 
     north: Optional[float]
     south: Optional[float]

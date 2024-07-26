@@ -294,7 +294,7 @@ class HotSpot(_XMLObject):
     xunits: Optional[Units]
     yunits: Optional[Units]
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
 
     def __init__(
         self,

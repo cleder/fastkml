@@ -61,7 +61,7 @@ kml_children = Union[Folder, Document, Placemark, GroundOverlay, PhotoOverlay]
 class KML(_XMLObject):
     """represents a KML File."""
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
 
     _features: List[kml_children]
     ns: str

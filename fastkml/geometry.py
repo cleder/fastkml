@@ -234,7 +234,7 @@ class Coordinates(_XMLObject):
 
     """
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
     coords: LineType
 
     def __init__(
@@ -790,7 +790,7 @@ class OuterBoundaryIs(_XMLObject):
 
     """
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
     kml_geometry: Optional[LinearRing]
 
     def __init__(
@@ -886,7 +886,7 @@ class OuterBoundaryIs(_XMLObject):
 registry.register(
     OuterBoundaryIs,
     item=RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         classes=(LinearRing,),
         attr_name="kml_geometry",
         node_name="LinearRing",
@@ -899,7 +899,7 @@ registry.register(
 class InnerBoundaryIs(_XMLObject):
     """Represents the inner boundary of a polygon in KML."""
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
     kml_geometries: List[LinearRing]
 
     def __init__(

@@ -37,7 +37,7 @@ __all__ = ["_XMLObject"]
 class _XMLObject:
     """XML Baseclass."""
 
-    _default_ns: str = ""
+    _default_nsid: str = ""
     _node_name: str = ""
     name_spaces: Dict[str, str]
     __kwarg_keys: Tuple[str, ...]
@@ -61,9 +61,11 @@ class _XMLObject:
             Additional keyword arguments.
 
         """
-        self.ns: str = self._default_ns if ns is None else ns
         name_spaces = name_spaces or {}
         self.name_spaces = {**config.NAME_SPACES, **name_spaces}
+        self.ns: str = (
+            self.name_spaces.get(self._default_nsid, "") if ns is None else ns
+        )
         for arg in kwargs:
             setattr(self, arg, kwargs[arg])
         self.__kwarg_keys = tuple(kwargs.keys())
@@ -234,7 +236,7 @@ class _XMLObject:
         return cls.__name__
 
     @classmethod
-    def _get_ns(cls, ns: Optional[str]) -> str:
+    def _get_ns(cls, ns: Optional[str], name_spaces: Dict[str, str]) -> str:
         """
         Get the namespace.
 
@@ -242,6 +244,8 @@ class _XMLObject:
         ----------
         ns : Optional[str]
             The namespace.
+        name_spaces : Dict[str, str]
+            The dictionary of namespace prefixes and URIs.
 
         Returns
         -------
@@ -249,7 +253,7 @@ class _XMLObject:
             The namespace.
 
         """
-        return cls._default_ns if ns is None else ns
+        return name_spaces.get(cls._default_nsid, "") if ns is None else ns
 
     @classmethod
     def _get_kwargs(
@@ -369,7 +373,9 @@ class _XMLObject:
             The XML object.
 
         """
-        ns = cls._get_ns(ns)
+        name_spaces = name_spaces or {}
+        name_spaces = {**config.NAME_SPACES, **name_spaces}
+        ns = cls._get_ns(ns, name_spaces=name_spaces)
         return cls.class_from_element(
             ns=ns,
             name_spaces=name_spaces,

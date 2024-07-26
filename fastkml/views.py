@@ -481,7 +481,7 @@ class LatLonAltBox(_XMLObject):
     https://developers.google.com/kml/documentation/kmlreference#latlonaltbox
     """
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
 
     north: Optional[float]
     south: Optional[float]
@@ -662,7 +662,7 @@ class Lod(_XMLObject):
     https://developers.google.com/kml/documentation/kmlreference#elements-specific-to-region
     """
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
 
     min_lod_pixels: Optional[float]
     max_lod_pixels: Optional[float]
