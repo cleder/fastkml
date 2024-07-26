@@ -171,7 +171,8 @@ class KML(_XMLObject):
 
         Args:
         ----
-            file: The file to parse. Can be a file path (str or Path), or a file-like object.
+            file: The file to parse.
+                Can be a file path (str or Path), or a file-like object.
 
         Keyword Args:
         ------------
