@@ -200,6 +200,8 @@ class KML(_XMLObject):
         if ns is None:
             ns = cast(str, root.tag[:-3] if root.tag.endswith("kml") else "")
         name_spaces = name_spaces or {}
+        if ns:
+            name_spaces["kml"] = ns
         name_spaces = {**config.NAME_SPACES, **name_spaces}
         return cls.class_from_element(
             ns=ns,
