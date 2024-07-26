@@ -26,7 +26,10 @@ http://schemas.opengis.net/kml/.
 
 """
 import logging
+from pathlib import Path
+from typing import IO
 from typing import Any
+from typing import AnyStr
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -155,48 +158,54 @@ class KML(_XMLObject):
         self.features.append(kmlobj)
 
     @classmethod
-    def class_from_string(
+    def parse(
         cls,
-        string: str,
+        file: Union[Path, str, IO[AnyStr]],
         *,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
         strict: bool = True,
     ) -> Self:
         """
-        Create a kml object from a string.
+        Parse a KML file and return a KML object.
 
         Args:
         ----
-            string: String representation (serialized XML) of the kml object
-            ns: Namespace of the element (default: None)
-            name_spaces: Dictionary of namespace prefixes and URIs (default: None)
-            strict: Whether to enforce strict parsing (default: True)
+            file: The file to parse.
+                Can be a file path (str or Path), or a file-like object.
+
+        Keyword Args:
+        ------------
+            ns (Optional[str]): The namespace of the KML file.
+                If not provided, it will be inferred from the root element.
+            name_spaces (Optional[Dict[str, str]]): Additional namespaces.
+            strict (bool): Whether to enforce strict parsing rules. Defaults to True.
 
         Returns:
         -------
-            Geometry object
+            KML object: The parsed KML object.
 
         """
         try:
-            element = config.etree.fromstring(
-                string,
+            tree = config.etree.parse(
+                file,
                 parser=config.etree.XMLParser(
                     huge_tree=True,
                     recover=True,
                 ),
             )
         except TypeError:
-            element = config.etree.XML(string)
+            tree = config.etree.parse(file)
+        root = tree.getroot()
         if ns is None:
-            ns = cast(str, element.tag[:-3] if element.tag.endswith("kml") else "")
+            ns = cast(str, root.tag[:-3] if root.tag.endswith("kml") else "")
         name_spaces = name_spaces or {}
         name_spaces = {**config.NAME_SPACES, **name_spaces}
         return cls.class_from_element(
             ns=ns,
             name_spaces=name_spaces,
             strict=strict,
-            element=element,
+            element=root,
         )
 
 
