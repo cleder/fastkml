@@ -158,51 +158,6 @@ class KML(_XMLObject):
         self.features.append(kmlobj)
 
     @classmethod
-    def class_from_string(
-        cls,
-        string: str,
-        *,
-        ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
-        strict: bool = True,
-    ) -> Self:
-        """
-        Create a kml object from a string.
-
-        Args:
-        ----
-            string: String representation (serialized XML) of the kml object
-            ns: Namespace of the element (default: None)
-            name_spaces: Dictionary of namespace prefixes and URIs (default: None)
-            strict: Whether to enforce strict parsing (default: True)
-
-        Returns:
-        -------
-            Geometry object
-
-        """
-        try:
-            element = config.etree.fromstring(
-                string,
-                parser=config.etree.XMLParser(
-                    huge_tree=True,
-                    recover=True,
-                ),
-            )
-        except TypeError:
-            element = config.etree.XML(string)
-        if ns is None:
-            ns = cast(str, element.tag[:-3] if element.tag.endswith("kml") else "")
-        name_spaces = name_spaces or {}
-        name_spaces = {**config.NAME_SPACES, **name_spaces}
-        return cls.class_from_element(
-            ns=ns,
-            name_spaces=name_spaces,
-            strict=strict,
-            element=element,
-        )
-
-    @classmethod
     def parse(
         cls,
         file: Union[Path, str, IO[AnyStr]],

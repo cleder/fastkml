@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the kml class."""
+import io
 import pathlib
 
 import pygeoif as geo
@@ -133,13 +134,14 @@ class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
 
     def test_from_string_with_unbound_prefix(self) -> None:
-        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
-            <Placemark>
-            <ExtendedData>
-            <lc:attachment>image.png</lc:attachment>
-            </ExtendedData>
-            </Placemark> </kml>"""
-        k = kml.KML.class_from_string(doc)
+        doc = io.StringIO(
+            '<kml xmlns="http://www.opengis.net/kml/2.2">'
+            "<Placemark><ExtendedData>"
+            "<lc:attachment>image.png</lc:attachment>"
+            "</ExtendedData>"
+            "</Placemark> </kml>",
+        )
+        k = kml.KML.parse(doc, ns="{http://www.opengis.net/kml/2.2}")
         assert len(k.features) == 1
         assert isinstance(k.features[0], features.Placemark)
 
