@@ -161,7 +161,7 @@ class Link(_AtomObject):
             f"hreflang={self.hreflang!r}, "
             f"title={self.title!r}, "
             f"length={self.length!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -306,7 +306,7 @@ class _Person(_AtomObject):
             f"name={self.name!r}, "
             f"uri={self.uri!r}, "
             f"email={self.email!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 

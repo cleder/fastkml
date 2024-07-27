@@ -125,7 +125,7 @@ class StyleUrl(_BaseObject):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"url={self.url!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -243,7 +243,7 @@ class _ColorStyle(_BaseObject):
             f"target_id={self.target_id!r}, "
             f"color={self.color!r}, "
             f"color_mode={self.color_mode}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -341,7 +341,7 @@ class HotSpot(_XMLObject):
             f"y={self.y!r}, "
             f"xunits={self.xunits}, "
             f"yunits={self.yunits}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -495,7 +495,7 @@ class IconStyle(_ColorStyle):
             f"heading={self.heading!r}, "
             f"icon={self.icon!r}, "
             f"hot_spot={self.hot_spot!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -623,7 +623,7 @@ class LineStyle(_ColorStyle):
             f"color={self.color!r}, "
             f"color_mode={self.color_mode}, "
             f"width={self.width!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -726,7 +726,7 @@ class PolyStyle(_ColorStyle):
             f"color_mode={self.color_mode}, "
             f"fill={self.fill!r}, "
             f"outline={self.outline!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -831,7 +831,7 @@ class LabelStyle(_ColorStyle):
             f"color={self.color!r}, "
             f"color_mode={self.color_mode}, "
             f"scale={self.scale!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -977,7 +977,7 @@ class BalloonStyle(_BaseObject):
             f"text_color={self.text_color!r}, "
             f"text={self.text!r}, "
             f"display_mode={self.display_mode}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -1112,7 +1112,7 @@ class Style(_StyleSelector):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"styles={self.styles!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -1223,7 +1223,7 @@ class Pair(_BaseObject):
             f"target_id={self.target_id!r}, "
             f"key={self.key}, "
             f"style={self.style!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -1324,7 +1324,7 @@ class StyleMap(_StyleSelector):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"pairs={self.pairs!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 

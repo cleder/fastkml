@@ -148,7 +148,7 @@ class Snippet(_XMLObject):
             f"name_spaces={self.name_spaces!r}, "
             f"text={self.text!r}, "
             f"max_lines={self.max_lines!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -328,7 +328,7 @@ class _Feature(TimeMixin, _BaseObject):
             f"styles={self.styles!r}, "
             f"region={self.region!r}, "
             f"extended_data={self.extended_data!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -666,8 +666,7 @@ class Placemark(_Feature):
             f"region={self.region!r}, "
             f"extended_data={self.extended_data!r}, "
             f"kml_geometry={self.kml_geometry!r}, "
-            f"geometry={self.geometry!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -896,7 +895,7 @@ class NetworkLink(_Feature):
             f"refresh_visibility={self.refresh_visibility!r}, "
             f"fly_to_view={self.fly_to_view!r}, "
             f"link={self.link!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 

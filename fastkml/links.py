@@ -102,7 +102,7 @@ class Link(_BaseObject):
             f"view_bound_scale={self.view_bound_scale!r}, "
             f"view_format={self.view_format!r}, "
             f"http_query={self.http_query!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 

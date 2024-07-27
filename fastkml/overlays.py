@@ -361,7 +361,7 @@ class ViewVolume(_XMLObject):
             f"bottom_fov={self.bottom_fov!r}, "
             f"top_fov={self.top_fov!r}, "
             f"near={self.near!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -532,7 +532,7 @@ class ImagePyramid(_XMLObject):
             f"max_width={self.max_width!r}, "
             f"max_height={self.max_height!r}, "
             f"grid_origin={self.grid_origin}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -817,7 +817,7 @@ class PhotoOverlay(_Overlay):
             f"image_pyramid={self.image_pyramid!r}, "
             f"point={self.point!r}, "
             f"shape={self.shape}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -966,7 +966,7 @@ class LatLonBox(_XMLObject):
             f"east={self.east!r}, "
             f"west={self.west!r}, "
             f"rotation={self.rotation!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -1232,7 +1232,7 @@ class GroundOverlay(_Overlay):
             f"altitude={self.altitude!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"lat_lon_box={self.lat_lon_box!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 

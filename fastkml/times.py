@@ -206,7 +206,7 @@ class TimeStamp(_TimePrimitive):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"timestamp={self.timestamp!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -313,7 +313,7 @@ class TimeSpan(_TimePrimitive):
             f"target_id={self.target_id!r}, "
             f"begin={self.begin!r}, "
             f"end={self.end!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 

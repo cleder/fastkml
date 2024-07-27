@@ -166,7 +166,7 @@ class _AbstractView(TimeMixin, _BaseObject):
             f"tilt={self.tilt!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"time_primitive={self.times!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -350,7 +350,7 @@ class Camera(_AbstractView):
             f"roll={self.roll!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"time_primitive={self.times!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -456,7 +456,7 @@ class LookAt(_AbstractView):
             f"range={self.range!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"time_primitive={self.times!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -548,7 +548,7 @@ class LatLonAltBox(_XMLObject):
             f"min_altitude={self.min_altitude!r}, "
             f"max_altitude={self.max_altitude!r}, "
             f"altitude_mode={self.altitude_mode}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -714,7 +714,7 @@ class Lod(_XMLObject):
             f"max_lod_pixels={self.max_lod_pixels!r}, "
             f"min_fade_extent={self.min_fade_extent!r}, "
             f"max_fade_extent={self.max_fade_extent!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -846,7 +846,7 @@ class Region(_BaseObject):
             f"target_id={self.target_id!r}, "
             f"lat_lon_alt_box={self.lat_lon_alt_box!r}, "
             f"lod={self.lod!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 

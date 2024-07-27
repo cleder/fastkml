@@ -146,7 +146,7 @@ class _Container(_Feature):
             f"region={self.region!r}, "
             f"extended_data={self.extended_data!r}, "
             f"features={self.features!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -286,7 +286,7 @@ class Document(_Container):
             f"extended_data={self.extended_data!r}, "
             f"features={self.features!r}, "
             f"schemata={self.schemata!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 

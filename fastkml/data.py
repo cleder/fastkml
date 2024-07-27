@@ -140,7 +140,7 @@ class SimpleField(_BaseObject):
             f"name={self.name!r}, "
             f"type={self.type}, "
             f"display_name={self.display_name!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -272,7 +272,7 @@ class Schema(_BaseObject):
             f"target_id={self.target_id!r}, "
             f"name={self.name!r}, "
             f"fields={self.fields!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -381,7 +381,7 @@ class Data(_BaseObject):
             f"name={self.name!r}, "
             f"value={self.value!r}, "
             f"display_name={self.display_name!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -490,7 +490,7 @@ class SimpleData(_BaseObject):
             f"target_id={self.target_id!r}, "
             f"name={self.name!r}, "
             f"value={self.value!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -593,7 +593,7 @@ class SchemaData(_BaseObject):
             f"target_id={self.target_id!r}, "
             f"schema_url={self.schema_url!r}, "
             f"data={self.data!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -703,7 +703,7 @@ class ExtendedData(_BaseObject):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"elements={self.elements!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 

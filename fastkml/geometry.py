@@ -270,7 +270,7 @@ class Coordinates(_XMLObject):
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
             f"coords={self.coords!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -372,7 +372,7 @@ class _Geometry(_BaseObject):
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -501,7 +501,7 @@ class Point(_Geometry):
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"kml_coordinates={self.kml_coordinates!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -625,7 +625,7 @@ class LineString(_Geometry):
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"geometry={self.geometry!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -753,7 +753,7 @@ class LinearRing(LineString):
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"geometry={self.geometry!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -1148,7 +1148,7 @@ class Polygon(_Geometry):
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"geometry={self.geometry!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -1374,7 +1374,7 @@ class MultiGeometry(_Geometry):
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"geometry={self.geometry!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 

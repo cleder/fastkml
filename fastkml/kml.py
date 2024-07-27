@@ -93,7 +93,7 @@ class KML(_XMLObject):
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
             f"features={self.features!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 

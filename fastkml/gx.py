@@ -327,7 +327,7 @@ class Track(_Geometry):
             f"altitude_mode={self.altitude_mode}, "
             f"geometry={self.geometry!r}, "
             f"track_items={self.track_items!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -676,7 +676,7 @@ class MultiTrack(_Geometry):
             f"geometry={self.geometry!r}, "
             f"tracks={self.tracks!r}, "
             f"interpolate={self.interpolate!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
