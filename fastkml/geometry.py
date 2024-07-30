@@ -1147,7 +1147,8 @@ class Polygon(_Geometry):
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
-            f"geometry={self.geometry!r}, "
+            f"outer_boundary_is={self.outer_boundary_is!r}, "
+            f"inner_boundary_is={self.inner_boundary_is!r}, "
             f"**{self._get_splat()!r},"
             ")"
         )
@@ -1373,7 +1374,7 @@ class MultiGeometry(_Geometry):
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
-            f"geometry={self.geometry!r}, "
+            f"kml_geometries={self.kml_geometries!r}, "
             f"**{self._get_splat()!r},"
             ")"
         )
