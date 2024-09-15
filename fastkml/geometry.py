@@ -138,6 +138,7 @@ def coordinates_subelement(
     node_name: str,  # noqa: ARG001
     precision: Optional[int],
     verbosity: Optional[Verbosity],  # noqa: ARG001
+    default: Any,  # noqa: ARG001
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -150,6 +151,7 @@ def coordinates_subelement(
         node_name (str): The name of the subelement to create.
         precision (Optional[int]): The precision of the attribute value.
         verbosity (Optional[Verbosity]): The verbosity level.
+        default (Any): The default value of the attribute (unused).
 
     Returns:
     -------
