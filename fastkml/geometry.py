@@ -410,6 +410,7 @@ registry.register(
         node_name="altitudeMode",
         get_kwarg=subelement_enum_kwarg,
         set_element=enum_subelement,
+        default=AltitudeMode.clamp_to_ground,
     ),
 )
 

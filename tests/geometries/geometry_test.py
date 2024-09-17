@@ -19,6 +19,7 @@ import pytest
 from pygeoif import geometry as geo
 
 from fastkml import exceptions
+from fastkml.enums import Verbosity
 from fastkml.geometry import AltitudeMode
 from fastkml.geometry import LinearRing
 from fastkml.geometry import LineString
@@ -330,6 +331,84 @@ class TestGeometry(StdLibrary):
         assert "extrude>1</" in g.to_string()
         assert "altitudeMode>relativeToGround<" in g.to_string()
         assert "tessellate>1<" in g.to_string()
+
+    def test_to_string_terse_default(self) -> None:
+        """Test that with terse verbosity, only the necessary elements are included."""
+        g = _Geometry(
+            ns="{http://www.opengis.net/kml/2.3}",
+            target_id="target_id",
+            id="my-id",
+            altitude_mode=AltitudeMode.clamp_to_ground,
+        )
+
+        xml = g.to_string(verbosity=Verbosity.terse)
+
+        assert "altitudeMode" not in xml
+        assert "clampToGround" not in xml
+
+    def test_to_string_terse(self) -> None:
+        """Test that with terse verbosity, only the necessary elements are included."""
+        g = _Geometry(
+            ns="{http://www.opengis.net/kml/2.3}",
+            target_id="target_id",
+            id="my-id",
+            altitude_mode=AltitudeMode.relative_to_ground,
+        )
+
+        xml = g.to_string(verbosity=Verbosity.terse)
+
+        assert "altitudeMode>relativeToGround<" in xml
+
+    def test_to_string_terse_unset(self) -> None:
+        """Test that with terse verbosity, only the necessary elements are included."""
+        g = _Geometry(
+            ns="{http://www.opengis.net/kml/2.3}",
+            target_id="target_id",
+            id="my-id",
+        )
+
+        xml = g.to_string(verbosity=Verbosity.terse)
+
+        assert "altitudeMode" not in xml
+        assert "clampToGround" not in xml
+
+    def test_to_string_verbose(self) -> None:
+        """Test that with verbose verbosity, all elements are included."""
+        g = _Geometry(
+            ns="{http://www.opengis.net/kml/2.3}",
+            target_id="target_id",
+            altitude_mode=AltitudeMode.relative_to_ground,
+            id="my-id",
+        )
+
+        xml = g.to_string(verbosity=Verbosity.verbose)
+
+        assert "altitudeMode>relativeToGround<" in xml
+
+    def test_to_string_verbose_default_set(self) -> None:
+        """Test that with verbose verbosity, all elements are included."""
+        g = _Geometry(
+            ns="{http://www.opengis.net/kml/2.3}",
+            target_id="target_id",
+            altitude_mode=AltitudeMode.clamp_to_ground,
+            id="my-id",
+        )
+
+        xml = g.to_string(verbosity=Verbosity.verbose)
+
+        assert "altitudeMode>clampToGround<" in xml
+
+    def test_to_string_verbose_default(self) -> None:
+        """Test that with verbose verbosity, all elements are included."""
+        g = _Geometry(
+            ns="{http://www.opengis.net/kml/2.3}",
+            target_id="target_id",
+            id="my-id",
+        )
+
+        xml = g.to_string(verbosity=Verbosity.verbose)
+
+        assert "altitudeMode>clampToGround<" in xml
 
     def test_from_string(self) -> None:
         """Test the from_string method."""
