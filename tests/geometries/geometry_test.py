@@ -82,6 +82,7 @@ class TestGetGeometry(StdLibrary):
 
         g = Point.class_from_string(doc)
 
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "Point",
             "bbox": (0.0, 1.0, 0.0, 1.0),
@@ -95,6 +96,7 @@ class TestGetGeometry(StdLibrary):
 
         g = LineString.class_from_string(doc)
 
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "LineString",
             "bbox": (0.0, 0.0, 1.0, 1.0),
@@ -110,6 +112,7 @@ class TestGetGeometry(StdLibrary):
 
         g = LinearRing.class_from_string(doc)
 
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "LinearRing",
             "bbox": (0.0, 0.0, 1.0, 1.0),
@@ -129,6 +132,7 @@ class TestGetGeometry(StdLibrary):
 
         g = Polygon.class_from_string(doc)
 
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "Polygon",
             "bbox": (0.0, 0.0, 1.0, 1.0),
@@ -154,6 +158,7 @@ class TestGetGeometry(StdLibrary):
 
         g = Polygon.class_from_string(doc)
 
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "Polygon",
             "bbox": (-1.0, -1.0, 2.0, 2.0),
@@ -267,7 +272,8 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.class_from_string(doc)
 
-        assert len(g.geometry) == 2  # type: ignore[arg-type]
+        assert g.geometry
+        assert len(g.geometry) == 2
         assert g.geometry.geom_type == "GeometryCollection"
 
 
@@ -518,6 +524,8 @@ class TestCreateKmlGeometry(StdLibrary):
         """Test the create_kml_geometry function."""
         g = create_kml_geometry(geo.Point(0, 1))
 
+        assert isinstance(g, Point)
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "Point",
             "bbox": (0.0, 1.0, 0.0, 1.0),
@@ -530,6 +538,8 @@ class TestCreateKmlGeometry(StdLibrary):
         """Test the create_kml_geometry function."""
         g = create_kml_geometry(geo.LineString([(0, 0), (1, 1)]))
 
+        assert isinstance(g, LineString)
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "LineString",
             "bbox": (0.0, 0.0, 1.0, 1.0),
@@ -542,6 +552,8 @@ class TestCreateKmlGeometry(StdLibrary):
         """Test the create_kml_geometry function."""
         g = create_kml_geometry(geo.LinearRing([(0, 0), (1, 1), (1, 0), (0, 0)]))
 
+        assert isinstance(g, LinearRing)
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "LinearRing",
             "bbox": (0.0, 0.0, 1.0, 1.0),
@@ -557,6 +569,8 @@ class TestCreateKmlGeometry(StdLibrary):
         """Test the create_kml_geometry function."""
         g = create_kml_geometry(geo.Polygon([(0, 0), (1, 1), (1, 0), (0, 0)]))
 
+        assert isinstance(g, Polygon)
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "Polygon",
             "bbox": (0.0, 0.0, 1.0, 1.0),
@@ -572,6 +586,8 @@ class TestCreateKmlGeometry(StdLibrary):
         """Test the create_kml_geometry function."""
         g = create_kml_geometry(geo.MultiPoint([(0, 0), (1, 1), (1, 0), (2, 2)]))
 
+        assert isinstance(g, MultiGeometry)
+        assert g.geometry
         assert len(g.geometry) == 4
         assert "MultiGeometry>" in g.to_string()
         assert "Point>" in g.to_string()
@@ -586,6 +602,8 @@ class TestCreateKmlGeometry(StdLibrary):
             geo.MultiLineString([[(0, 0), (1, 1)], [(0, 0), (1, 1)]]),
         )
 
+        assert isinstance(g, MultiGeometry)
+        assert g.geometry
         assert len(g.geometry) == 2
         assert "MultiGeometry>" in g.to_string()
         assert "LineString>" in g.to_string()
@@ -605,6 +623,9 @@ class TestCreateKmlGeometry(StdLibrary):
                 ),
             ),
         )
+
+        assert isinstance(g, MultiGeometry)
+        assert g.geometry
         assert len(g.geometry) == 2
         assert "MultiGeometry>" in g.to_string()
         assert "Polygon>" in g.to_string()
@@ -638,6 +659,8 @@ class TestCreateKmlGeometry(StdLibrary):
 
         g = create_kml_geometry(gc)
 
+        assert isinstance(g, MultiGeometry)
+        assert g.geometry
         assert len(g.geometry) == 7
         assert "MultiGeometry>" in g.to_string()
         assert "LineString>" in g.to_string()
