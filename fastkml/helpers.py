@@ -85,7 +85,7 @@ def get_value(
     *,
     attr_name: str,
     verbosity: Optional[Verbosity],
-    default: Optional[Any] = None,
+    default: Optional[Any],
 ) -> Optional[Any]:
     """
     Get the value of an attribute from an object.
@@ -117,7 +117,7 @@ def node_text(
     node_name: str,
     precision: Optional[int],
     verbosity: Optional[Verbosity],
-    default: Optional[str] = None,
+    default: Optional[str],
 ) -> None:
     """
     Set the text of an XML element based on the attribute value in the given object.
@@ -162,7 +162,7 @@ def text_subelement(
     node_name: str,
     precision: Optional[int],
     verbosity: Optional[Verbosity],
-    default: Optional[str] = None,
+    default: Optional[str],
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -203,7 +203,7 @@ def text_attribute(
     node_name: str,
     precision: Optional[int],
     verbosity: Optional[Verbosity],
-    default: Optional[str] = None,
+    default: Optional[str],
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -240,7 +240,7 @@ def bool_subelement(
     node_name: str,
     precision: Optional[int],
     verbosity: Optional[Verbosity],
-    default: Optional[bool] = None,
+    default: Optional[bool],
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -277,7 +277,7 @@ def int_subelement(
     node_name: str,
     precision: Optional[int],
     verbosity: Optional[Verbosity],
-    default: Optional[int] = None,
+    default: Optional[int],
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -314,7 +314,7 @@ def int_attribute(
     node_name: str,
     precision: Optional[int],
     verbosity: Optional[Verbosity],
-    default: Optional[int] = None,
+    default: Optional[int],
 ) -> None:
     """
     Set the value of an attribute.
@@ -347,7 +347,7 @@ def float_subelement(
     node_name: str,
     precision: Optional[int],
     verbosity: Optional[Verbosity],
-    default: Optional[float] = None,
+    default: Optional[float],
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
     value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
@@ -367,7 +367,7 @@ def float_attribute(
     node_name: str,
     precision: Optional[int],
     verbosity: Optional[Verbosity],
-    default: Optional[float] = None,
+    default: Optional[float],
 ) -> None:
     """Set the value of an attribute."""
     value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
@@ -383,7 +383,7 @@ def enum_subelement(
     node_name: str,
     precision: Optional[int],
     verbosity: Optional[Verbosity],
-    default: Optional[Enum] = None,
+    default: Optional[Enum],
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
     value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
@@ -403,7 +403,7 @@ def enum_attribute(
     node_name: str,
     precision: Optional[int],
     verbosity: Optional[Verbosity],
-    default: Optional[Enum] = None,
+    default: Optional[Enum],
 ) -> None:
     """Set the value of an attribute."""
     value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
@@ -419,7 +419,7 @@ def xml_subelement(
     node_name: str,
     precision: Optional[int],
     verbosity: Optional[Verbosity],
-    default: Optional[_XMLObject] = None,
+    default: Optional[_XMLObject],
 ) -> None:
     """
     Add a subelement to an XML element based on the value of an attribute of an object.
@@ -456,7 +456,7 @@ def xml_subelement_list(
     node_name: str,
     precision: Optional[int],
     verbosity: Optional[Verbosity],
-    default: Optional[List[_XMLObject]] = None,
+    default: Optional[List[_XMLObject]],
 ) -> None:
     """
     Add subelements to an XML element based on a list attribute of an object.
