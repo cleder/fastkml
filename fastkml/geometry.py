@@ -388,6 +388,7 @@ registry.register(
         node_name="extrude",
         get_kwarg=subelement_bool_kwarg,
         set_element=bool_subelement,
+        default=False,
     ),
 )
 registry.register(
@@ -399,6 +400,7 @@ registry.register(
         node_name="tessellate",
         get_kwarg=subelement_bool_kwarg,
         set_element=bool_subelement,
+        default=False,
     ),
 )
 registry.register(

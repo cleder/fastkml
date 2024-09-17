@@ -339,12 +339,16 @@ class TestGeometry(StdLibrary):
             target_id="target_id",
             id="my-id",
             altitude_mode=AltitudeMode.clamp_to_ground,
+            extrude=False,
+            tessellate=False,
         )
 
         xml = g.to_string(verbosity=Verbosity.terse)
 
         assert "altitudeMode" not in xml
         assert "clampToGround" not in xml
+        assert "extrude" not in xml
+        assert "tessellate" not in xml
 
     def test_to_string_terse(self) -> None:
         """Test that with terse verbosity, only the necessary elements are included."""
@@ -353,11 +357,15 @@ class TestGeometry(StdLibrary):
             target_id="target_id",
             id="my-id",
             altitude_mode=AltitudeMode.relative_to_ground,
+            extrude=True,
+            tessellate=True,
         )
 
         xml = g.to_string(verbosity=Verbosity.terse)
 
         assert "altitudeMode>relativeToGround<" in xml
+        assert "extrude>1</" in xml
+        assert "tessellate>1<" in xml
 
     def test_to_string_terse_unset(self) -> None:
         """Test that with terse verbosity, only the necessary elements are included."""
@@ -371,6 +379,8 @@ class TestGeometry(StdLibrary):
 
         assert "altitudeMode" not in xml
         assert "clampToGround" not in xml
+        assert "extrude" not in xml
+        assert "tessellate" not in xml
 
     def test_to_string_verbose(self) -> None:
         """Test that with verbose verbosity, all elements are included."""
@@ -384,6 +394,8 @@ class TestGeometry(StdLibrary):
         xml = g.to_string(verbosity=Verbosity.verbose)
 
         assert "altitudeMode>relativeToGround<" in xml
+        assert "extrude>0<" in xml
+        assert "tessellate>0<" in xml
 
     def test_to_string_verbose_default_set(self) -> None:
         """Test that with verbose verbosity, all elements are included."""
@@ -392,11 +404,15 @@ class TestGeometry(StdLibrary):
             target_id="target_id",
             altitude_mode=AltitudeMode.clamp_to_ground,
             id="my-id",
+            extrude=False,
+            tessellate=False,
         )
 
         xml = g.to_string(verbosity=Verbosity.verbose)
 
         assert "altitudeMode>clampToGround<" in xml
+        assert "extrude>0<" in xml
+        assert "tessellate>0<" in xml
 
     def test_to_string_verbose_default(self) -> None:
         """Test that with verbose verbosity, all elements are included."""
@@ -409,6 +425,8 @@ class TestGeometry(StdLibrary):
         xml = g.to_string(verbosity=Verbosity.verbose)
 
         assert "altitudeMode>clampToGround<" in xml
+        assert "extrude>0<" in xml
+        assert "tessellate>0<" in xml
 
     def test_from_string(self) -> None:
         """Test the from_string method."""
