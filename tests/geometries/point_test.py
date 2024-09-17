@@ -123,6 +123,7 @@ class TestPoint(StdLibrary):
         )
 
         assert point.geometry == geo.Point(1, 2)
+        assert point.altitude_mode
         assert point.altitude_mode.value == "relativeToGround"
 
     def test_from_string_uppercase_altitude_mode_strict(self) -> None:
@@ -150,6 +151,7 @@ class TestPoint(StdLibrary):
         )
 
         assert point.geometry == geo.Point(1, 2, 3)
+        assert point.altitude_mode
         assert point.altitude_mode.value == "absolute"
         assert point.extrude
         assert point.tessellate

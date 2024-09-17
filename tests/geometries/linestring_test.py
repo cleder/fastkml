@@ -145,6 +145,7 @@ class TestLineString(StdLibrary):
             "</LineString>",
         )
 
+        assert line_string.geometry
         assert len(line_string.geometry.coords) == 5
         assert line_string.to_string()
 
