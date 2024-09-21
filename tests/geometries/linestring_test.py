@@ -19,6 +19,8 @@
 import pygeoif.geometry as geo
 import pytest
 
+from fastkml import exceptions
+from fastkml.enums import Verbosity
 from fastkml.exceptions import KMLParseError
 from fastkml.geometry import LineString
 from tests.base import Lxml
@@ -148,6 +150,75 @@ class TestLineString(StdLibrary):
         assert line_string.geometry
         assert len(line_string.geometry.coords) == 5
         assert line_string.to_string()
+
+    def test_from_string_invalid_extrude(self) -> None:
+        """Test the from_string method."""
+        with pytest.raises(
+            exceptions.KMLParseError,
+        ):
+            LineString.class_from_string(
+                '<LineString id="my-id" targetId="target_id" '
+                'xmlns="http://www.opengis.net/kml/2.2">'
+                "<extrude>invalid</extrude>"
+                "</LineString>",
+            )
+
+    def test_from_string_invalid_tesselate(self) -> None:
+        """Test the from_string method."""
+        with pytest.raises(
+            exceptions.KMLParseError,
+        ):
+            LineString.class_from_string(
+                '<LineString id="my-id" targetId="target_id" '
+                'xmlns="http://www.opengis.net/kml/2.2">'
+                "<tessellate>invalid</tessellate>"
+                "</LineString>",
+            )
+
+    def test_to_string_terse_default(self) -> None:
+        ls = geo.LineString(((1, 2), (2, 0)))
+        line_string = LineString(geometry=ls, extrude=False, tessellate=False)
+
+        xml = line_string.to_string(verbosity=Verbosity.terse)
+
+        assert "tessellate" not in xml
+        assert "extrude" not in xml
+
+    def test_to_string_terse(self) -> None:
+        ls = geo.LineString(((1, 2), (2, 0)))
+        line_string = LineString(geometry=ls, extrude=True, tessellate=True)
+
+        xml = line_string.to_string(verbosity=Verbosity.terse)
+
+        assert "tessellate>1</" in xml
+        assert "extrude>1</" in xml
+
+    def test_to_string_verbose_default(self) -> None:
+        ls = geo.LineString(((1, 2), (2, 0)))
+        line_string = LineString(geometry=ls, extrude=False, tessellate=False)
+
+        xml = line_string.to_string(verbosity=Verbosity.verbose)
+
+        assert "tessellate>0</" in xml
+        assert "extrude>0</" in xml
+
+    def test_to_string_verbose(self) -> None:
+        ls = geo.LineString(((1, 2), (2, 0)))
+        line_string = LineString(geometry=ls, extrude=True, tessellate=True)
+
+        xml = line_string.to_string(verbosity=Verbosity.verbose)
+
+        assert "tessellate>1</" in xml
+        assert "extrude>1</" in xml
+
+    def test_to_string_verbose_none(self) -> None:
+        ls = geo.LineString(((1, 2), (2, 0)))
+        line_string = LineString(geometry=ls)
+
+        xml = line_string.to_string(verbosity=Verbosity.verbose)
+
+        assert "tessellate>0</" in xml
+        assert "extrude>0</" in xml
 
 
 class TestLineStringLxml(Lxml, TestLineString):

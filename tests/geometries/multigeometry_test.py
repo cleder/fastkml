@@ -368,10 +368,10 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
         mg = MultiGeometry.class_from_string(xml)
 
         assert mg.geometry is None
-        assert "MultiGeometry>" in mg.to_string()
-        assert "coordinates>" not in mg.to_string()
-        assert mg.extrude is False
-        assert mg.tessellate is False
+        assert "MultiGeometry" in mg.to_string()
+        assert "coordinates" not in mg.to_string()
+        assert not hasattr(mg, "extrude")
+        assert not hasattr(mg, "tessellate")
 
 
 class TestMultiPointLxml(Lxml, TestMultiPointStdLibrary):

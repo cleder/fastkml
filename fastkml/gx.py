@@ -250,8 +250,6 @@ class Track(_Geometry):
         name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        extrude: Optional[bool] = None,
-        tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: Optional[geo.LineString] = None,
         track_items: Optional[Iterable[TrackItem]] = None,
@@ -270,10 +268,6 @@ class Track(_Geometry):
             The ID of the GX object, by default None
         target_id : Optional[str], optional
             The target ID of the GX object, by default None
-        extrude : Optional[bool], optional
-            Whether to extrude the GX object, by default None
-        tessellate : Optional[bool], optional
-            Whether to tessellate the GX object, by default None
         altitude_mode : Optional[AltitudeMode], optional
             The altitude mode of the GX object, by default None
         geometry : Optional[geo.LineString], optional
@@ -300,8 +294,6 @@ class Track(_Geometry):
             name_spaces=name_spaces,
             id=id,
             target_id=target_id,
-            extrude=extrude,
-            tessellate=tessellate,
             altitude_mode=altitude_mode,
             **kwargs,
         )
@@ -322,8 +314,6 @@ class Track(_Geometry):
             f"name_spaces={self.name_spaces!r}, "
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
-            f"extrude={self.extrude!r}, "
-            f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"geometry={self.geometry!r}, "
             f"track_items={self.track_items!r}, "
@@ -613,8 +603,6 @@ class MultiTrack(_Geometry):
         name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        extrude: Optional[bool] = None,
-        tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: Optional[geo.MultiLineString] = None,
         tracks: Optional[Iterable[Track]] = None,
@@ -631,8 +619,6 @@ class MultiTrack(_Geometry):
                 and URIs.
             id (Optional[str]): The ID of the GX object.
             target_id (Optional[str]): The target ID of the GX object.
-            extrude (Optional[bool]): The extrude flag of the GX object.
-            tessellate (Optional[bool]): The tessellate flag of the GX object.
             altitude_mode (Optional[AltitudeMode]): The altitude mode of the GX object.
             geometry (Optional[geo.MultiLineString]): The geometry of the GX object.
             tracks (Optional[Iterable[Track]]): The tracks of the GX object.
@@ -645,7 +631,7 @@ class MultiTrack(_Geometry):
 
         """
         if geometry and tracks:
-            msg = "Cannot specify both geometry and track_items"
+            msg = "Cannot specify both geometry and tracks"
             raise ValueError(msg)
         if geometry:
             tracks = multilinestring_to_tracks(geometry, ns=ns)
@@ -656,8 +642,6 @@ class MultiTrack(_Geometry):
             name_spaces=name_spaces,
             id=id,
             target_id=target_id,
-            extrude=extrude,
-            tessellate=tessellate,
             altitude_mode=altitude_mode,
             **kwargs,
         )
@@ -670,8 +654,6 @@ class MultiTrack(_Geometry):
             f"name_spaces={self.name_spaces!r}, "
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
-            f"extrude={self.extrude!r}, "
-            f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"geometry={self.geometry!r}, "
             f"tracks={self.tracks!r}, "

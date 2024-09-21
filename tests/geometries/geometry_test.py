@@ -73,7 +73,7 @@ class TestGetGeometry(StdLibrary):
 
         g = Point.class_from_string(doc)
 
-        assert g.tessellate is True
+        assert not hasattr(g, "tessellate")
 
     def test_point(self) -> None:
         doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
@@ -287,9 +287,7 @@ class TestGeometry(StdLibrary):
         assert g.ns == "{http://www.opengis.net/kml/2.2}"
         assert g.target_id == ""
         assert g.id == ""
-        assert g.extrude is None
         assert g.altitude_mode is None
-        assert g.tessellate is None
 
     def test_init_with_args(self) -> None:
         """Test the init method with arguments."""
@@ -297,17 +295,13 @@ class TestGeometry(StdLibrary):
             ns="",
             target_id="target_id",
             id="id",
-            extrude=True,
             altitude_mode=AltitudeMode.clamp_to_ground,
-            tessellate=True,
         )
 
         assert g.ns == ""
         assert g.target_id == "target_id"
         assert g.id == "id"
-        assert g.extrude is True
         assert g.altitude_mode == AltitudeMode.clamp_to_ground
-        assert g.tessellate is True
 
     def test_to_string(self) -> None:
         """Test the to_string method."""
@@ -334,9 +328,9 @@ class TestGeometry(StdLibrary):
         assert "http://www.opengis.net/kml/2.3" in g.to_string()
         assert 'targetId="target_id"' in g.to_string()
         assert 'id="my-id"' in g.to_string()
-        assert "extrude>1</" in g.to_string()
+        assert "extrude" not in g.to_string()
         assert "altitudeMode>relativeToGround<" in g.to_string()
-        assert "tessellate>1<" in g.to_string()
+        assert "tessellate" not in g.to_string()
 
     def test_to_string_terse_default(self) -> None:
         """Test that with terse verbosity, only the necessary elements are included."""
@@ -345,16 +339,12 @@ class TestGeometry(StdLibrary):
             target_id="target_id",
             id="my-id",
             altitude_mode=AltitudeMode.clamp_to_ground,
-            extrude=False,
-            tessellate=False,
         )
 
         xml = g.to_string(verbosity=Verbosity.terse)
 
         assert "altitudeMode" not in xml
         assert "clampToGround" not in xml
-        assert "extrude" not in xml
-        assert "tessellate" not in xml
 
     def test_to_string_terse(self) -> None:
         """Test that with terse verbosity, only the necessary elements are included."""
@@ -363,15 +353,11 @@ class TestGeometry(StdLibrary):
             target_id="target_id",
             id="my-id",
             altitude_mode=AltitudeMode.relative_to_ground,
-            extrude=True,
-            tessellate=True,
         )
 
         xml = g.to_string(verbosity=Verbosity.terse)
 
         assert "altitudeMode>relativeToGround<" in xml
-        assert "extrude>1</" in xml
-        assert "tessellate>1<" in xml
 
     def test_to_string_terse_unset(self) -> None:
         """Test that with terse verbosity, only the necessary elements are included."""
@@ -385,8 +371,6 @@ class TestGeometry(StdLibrary):
 
         assert "altitudeMode" not in xml
         assert "clampToGround" not in xml
-        assert "extrude" not in xml
-        assert "tessellate" not in xml
 
     def test_to_string_verbose(self) -> None:
         """Test that with verbose verbosity, all elements are included."""
@@ -400,8 +384,6 @@ class TestGeometry(StdLibrary):
         xml = g.to_string(verbosity=Verbosity.verbose)
 
         assert "altitudeMode>relativeToGround<" in xml
-        assert "extrude>0<" in xml
-        assert "tessellate>0<" in xml
 
     def test_to_string_verbose_default_set(self) -> None:
         """Test that with verbose verbosity, all elements are included."""
@@ -410,15 +392,11 @@ class TestGeometry(StdLibrary):
             target_id="target_id",
             altitude_mode=AltitudeMode.clamp_to_ground,
             id="my-id",
-            extrude=False,
-            tessellate=False,
         )
 
         xml = g.to_string(verbosity=Verbosity.verbose)
 
         assert "altitudeMode>clampToGround<" in xml
-        assert "extrude>0<" in xml
-        assert "tessellate>0<" in xml
 
     def test_to_string_verbose_default(self) -> None:
         """Test that with verbose verbosity, all elements are included."""
@@ -431,8 +409,6 @@ class TestGeometry(StdLibrary):
         xml = g.to_string(verbosity=Verbosity.verbose)
 
         assert "altitudeMode>clampToGround<" in xml
-        assert "extrude>0<" in xml
-        assert "tessellate>0<" in xml
 
     def test_from_string(self) -> None:
         """Test the from_string method."""
@@ -448,9 +424,9 @@ class TestGeometry(StdLibrary):
         assert g.ns == "{http://www.opengis.net/kml/2.2}"
         assert g.target_id == "target_id"
         assert g.id == "my-id"
-        assert g.extrude is True
         assert g.altitude_mode == AltitudeMode.relative_to_ground
-        assert g.tessellate is True
+        assert not hasattr(g, "tessellate")
+        assert not hasattr(g, "extrude")
 
     def test_from_string_invalid_altitude_mode_strict(self) -> None:
         """Test the from_string method."""
@@ -476,18 +452,6 @@ class TestGeometry(StdLibrary):
 
         assert geom.altitude_mode is None
 
-    def test_from_string_invalid_extrude(self) -> None:
-        """Test the from_string method."""
-        with pytest.raises(
-            exceptions.KMLParseError,
-        ):
-            _Geometry.class_from_string(
-                '<_Geometry id="my-id" targetId="target_id" '
-                'xmlns="http://www.opengis.net/kml/2.2">'
-                "<extrude>invalid</extrude>"
-                "</_Geometry>",
-            )
-
     def test_from_minimal_string(self) -> None:
         g = _Geometry.class_from_string(
             '<_Geometry xmlns="http://www.opengis.net/kml/2.2/" />',
@@ -496,9 +460,7 @@ class TestGeometry(StdLibrary):
         assert g.ns == "{http://www.opengis.net/kml/2.2}"
         assert g.target_id == ""
         assert g.id == ""
-        assert g.extrude is None
         assert g.altitude_mode is None
-        assert g.tessellate is None
 
     def test_from_string_omitting_ns(self) -> None:
         """Test the from_string method."""
@@ -514,9 +476,9 @@ class TestGeometry(StdLibrary):
         assert g.ns == "{http://www.opengis.net/kml/2.2}"
         assert g.target_id == "target_id"
         assert g.id == "my-id"
-        assert g.extrude is True
         assert g.altitude_mode == AltitudeMode.relative_to_ground
-        assert g.tessellate is True
+        assert not hasattr(g, "tessellate")
+        assert not hasattr(g, "extrude")
 
 
 class TestCreateKmlGeometry(StdLibrary):
