@@ -262,6 +262,9 @@ select = [
 "tests/oldunit_test.py" = [
     "E501",
 ]
+"tests/repr_eq_test.py" = [
+    "E501",
+]
 
 [tool.ruff.lint.isort]
 force-single-line = true

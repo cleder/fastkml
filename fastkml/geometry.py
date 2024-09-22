@@ -869,6 +869,17 @@ class OuterBoundaryIs(_XMLObject):
         """
         return bool(self.geometry)
 
+    def __repr__(self) -> str:
+        """Create a string (c)representation for OuterBoundaryIs."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"kml_geometry={self.kml_geometry!r}, "
+            f"**{self._get_splat()},"
+            ")"
+        )
+
     @classmethod
     def get_tag_name(cls) -> str:
         """
@@ -973,6 +984,17 @@ class InnerBoundaryIs(_XMLObject):
     def __bool__(self) -> bool:
         """Return True if any of the inner boundary geometries exist."""
         return any(b.geometry for b in self.kml_geometries)
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for InnerBoundaryIs."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"kml_geometries={self.kml_geometries!r}, "
+            f"**{self._get_splat()},"
+            ")"
+        )
 
     @classmethod
     def get_tag_name(cls) -> str:

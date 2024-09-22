@@ -636,7 +636,11 @@ class LineStyle(_ColorStyle):
             bool: True if the width is not None, False otherwise.
 
         """
-        return self.width is not None
+        return (
+            self.width is not None
+            or self.color is not None
+            or self.color_mode is not None
+        )
 
 
 registry.register(
@@ -739,7 +743,12 @@ class PolyStyle(_ColorStyle):
             bool: True if the style has a fill or outline, False otherwise.
 
         """
-        return self.fill is not None or self.outline is not None
+        return (
+            self.fill is not None
+            or self.outline is not None
+            or self.color is not None
+            or self.color_mode is not None
+        )
 
 
 registry.register(

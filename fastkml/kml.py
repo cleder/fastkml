@@ -63,7 +63,7 @@ class KML(_XMLObject):
 
     _default_nsid = config.KML
 
-    _features: List[kml_children]
+    features: List[kml_children]
     ns: str
 
     def __init__(
