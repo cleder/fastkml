@@ -115,11 +115,7 @@ Optional
     pip install --pre "fastkml[lxml]"
 
 Limitations
-===========
-
-*Tesselate*, *Extrude* and *Altitude Mode* are assigned to a Geometry or
-Geometry collection (MultiGeometry). You cannot assign different values of
-*Tesselate*, *Extrude* or *Altitude Mode* on parts of a MultiGeometry.
+============
 
 Currently, the only major feature missing for the full Google Earth experience
 is the `gx extension
