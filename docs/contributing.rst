@@ -11,58 +11,49 @@ especially in the following ways:
 * Commenting on open issues and pull requests
 * Suggesting new features
 
+Setting Up Your Environment
+---------------------------
 
-Pull Requests
--------------
+First, clone the repository:
 
-Start by submitting a pull request on GitHub against the ``develop`` branch of the
-repository. Your pull request should provide a good description of the change
-you are making, and/or the bug that you are fixing.
+.. code-block:: bash
 
+    git clone https://github.com/yourusername/fastkml.git
+    cd fastkml
 
-Running Tests Locally
----------------------
+Next, set up a virtual environment. This helps to manage dependencies and avoid conflicts:
 
-You can make use of tox_ >= 1.8 to test the entire matrix of options:
+.. code-block:: bash
 
-* with / without lxml
-* py36,py37,py38,py39
+    python3 -m venv venv
+    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 
-as well as pep8 style checking in a single call (this approximates what happens
-when the package is run through Travis-CI)
+Then, install the required packages:
 
-.. code-block:: python
+.. code-block:: bash
 
-    # Install tox
-    pip install tox>=1.8
+    pip install -e ".[dev]"
 
-    # Run tox
-    tox
+Install the ``pre-commit`` hook with:
 
-    # Or optionally
-    # (to skip tests for Python versions you do not have installed)
-    tox --skip-missing-interpreters
+.. code-block:: bash
 
-This will run through all of the tests and produce an output similar to::
+    pre-commit install
 
-    ______________________________________________________ summary ______________________________________________________
-    SKIPPED:  py36: InterpreterNotFound: python3.6
-      py37: commands succeeded
-      py38: commands succeeded
-      py39: commands succeeded
-    SKIPPED:  py36-lxml: InterpreterNotFound: python3.6
-      py37-lxml: commands succeeded
-      py38-lxml: commands succeeded
-      py39-lxml: commands succeeded
-      pep8: commands succeeded
-      docs: commands succeeded
-      congratulations :)
+and check the code with:
 
-You are primarily looking for the ``congratulations :)`` line at the bottom,
-signifying that the code is working as expected on all configurations
-available.
+.. code-block:: bash
 
-.. _tox: https://pypi.python.org/pypi/tox
+    pre-commit run --all-files
+
+Running the Tests
+-----------------
+
+To run the tests, simply use:
+
+.. code-block:: bash
+
+    pytest
 
 coverage
 ~~~~~~~~
@@ -70,17 +61,13 @@ coverage
 You can also run the tests with coverage_ to see which lines are covered by the
 tests. This is useful for writing new tests to cover any uncovered lines::
 
-    pytest tests --cov=fastkml --cov=tests --cov-report=xml
+.. code-block:: bash
+
+    pytest  --cov=fastkml --cov-report=term
 
 
-pre-commit
-~~~~~~~~~~~
+Tips
+----
 
-Install the ``pre-commit`` hook with::
-
-    pip install pre-commit
-    pre-commit install
-
-and check the code with::
-
-    pre-commit run --all-files
+- Commit often, commit early.
+- Make a draft PR while you are still working on it to give your work some visibility.
