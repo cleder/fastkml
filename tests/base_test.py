@@ -46,8 +46,8 @@ class TestStdLibrary(StdLibrary):
             altkw=2,
         )
 
-        assert obj.custom == "custom"
-        assert obj.altkw == 2
+        assert obj.custom == "custom"  # type: ignore[attr-defined]
+        assert obj.altkw == 2  # type: ignore[attr-defined]
 
     def test_custom_kwargs_splat(self) -> None:
         obj = kml_base._BaseObject(
