@@ -63,7 +63,15 @@ class TestBoundaries(StdLibrary):
             kml_geometry=LinearRing(kml_coordinates=Coordinates(coords=coords)),
         )
 
-        assert inner_boundary.geometry == geo.LinearRing(coords)
+def test_inner_boundary(self) -> None:
+    """Test the init method and __bool__."""
+    coords = ((1, 2), (2, 0), (0, 0), (1, 2))
+    inner_boundary = InnerBoundaryIs(
+        kml_geometry=LinearRing(kml_coordinates=Coordinates(coords=coords)),
+    )
+
+    assert inner_boundary.geometry == geo.LinearRing(coords)
+    assert bool(inner_boundary) is True
         assert inner_boundary.to_string(prettyprint=False).strip() == (
             '<kml:innerBoundaryIs xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:LinearRing><kml:coordinates>"

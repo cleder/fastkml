@@ -911,7 +911,7 @@ class InnerBoundaryIs(_XMLObject):
     """Represents the inner boundary of a polygon in KML."""
 
     _default_nsid = config.KML
-    kml_geometry: LinearRing
+    kml_geometry: Optional[LinearRing]
 
     def __init__(
         self,
@@ -932,7 +932,7 @@ class InnerBoundaryIs(_XMLObject):
         name_spaces : Optional[Dict[str, str]], optional
             The namespace dictionary for the KML element, by default None.
         geometry : Optional[geo.LinearRing], optional
-            The geometrY to be converted to a KML geometry, by default None.
+            The geometry to be converted to a KML geometry, by default None.
         kml_geometry : Optional[LinearRing], optional
             The KML geometry, by default None.
         **kwargs : Any

@@ -180,6 +180,8 @@ class TestStdLibrary(StdLibrary):
 
         assert not polygon.geometry
         assert polygon.outer_boundary is not None
+        assert isinstance(polygon.outer_boundary, LinearRing)
+        assert len(polygon.inner_boundaries) == 0
         assert "tessellate>1</" in polygon.to_string()
 
 
