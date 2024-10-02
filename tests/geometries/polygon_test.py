@@ -18,6 +18,7 @@
 
 import pygeoif.geometry as geo
 
+from fastkml.geometry import OuterBoundaryIs
 from fastkml.geometry import Polygon
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -180,7 +181,7 @@ class TestStdLibrary(StdLibrary):
 
         assert not polygon.geometry
         assert polygon.outer_boundary is not None
-        assert isinstance(polygon.outer_boundary, LinearRing)
+        assert isinstance(polygon.outer_boundary, OuterBoundaryIs)
         assert len(polygon.inner_boundaries) == 0
         assert "tessellate>1</" in polygon.to_string()
 

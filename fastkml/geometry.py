@@ -1035,7 +1035,7 @@ class Polygon(_Geometry):
     """
 
     outer_boundary: Optional[OuterBoundaryIs]
-    inner_boundaries: Optional[List[InnerBoundaryIs]]
+    inner_boundaries: List[InnerBoundaryIs]
 
     def __init__(
         self,
