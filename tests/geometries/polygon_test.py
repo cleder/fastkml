@@ -179,7 +179,7 @@ class TestStdLibrary(StdLibrary):
         polygon = Polygon.class_from_string(doc)
 
         assert not polygon.geometry
-        assert polygon.outer_boundary_is is not None
+        assert polygon.outer_boundary is not None
         assert "tessellate>1</" in polygon.to_string()
 
 

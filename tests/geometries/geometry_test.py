@@ -64,7 +64,7 @@ class TestGetGeometry(StdLibrary):
 
         assert g.extrude is True
 
-    def test_tesselate(self) -> None:
+    def test_tessellate(self) -> None:
         doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:coordinates>0.000000,1.000000</kml:coordinates>
           <kml:tessellate>1</kml:tessellate>
@@ -224,7 +224,8 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.class_from_string(doc)
 
-        assert len(g.geometry) == 2  # type: ignore[arg-type]
+        assert g.geometry is not None
+        assert len(g.geometry) == 2
 
     def test_geometrycollection(self) -> None:
         doc = """
@@ -464,6 +465,7 @@ class TestCreateKmlGeometry(StdLibrary):
         g = create_kml_geometry(geo.Polygon([(0, 0), (1, 1), (1, 0), (0, 0)]))
 
         assert isinstance(g, Polygon)
+        assert g.geometry is not None
         assert g.geometry.__geo_interface__ == {
             "type": "Polygon",
             "bbox": (0.0, 0.0, 1.0, 1.0),
