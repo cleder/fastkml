@@ -477,7 +477,7 @@ class TestRepr(StdLibrary):
                                             extrude=True,
                                             tessellate=None,
                                             altitude_mode=AltitudeMode.absolute,
-                                            outer_boundary_is=fastkml.geometry.OuterBoundaryIs(
+                                            outer_boundary=fastkml.geometry.OuterBoundaryIs(
                                                 ns="{http://www.opengis.net/kml/2.2}",
                                                 name_spaces={
                                                     "kml": "{http://www.opengis.net/kml/2.2}",
@@ -527,7 +527,6 @@ class TestRepr(StdLibrary):
                                                     ),
                                                 ),
                                             ),
-                                            inner_boundary_is=None,
                                         ),
                                     ),
                                     fastkml.features.Placemark(
@@ -576,7 +575,7 @@ class TestRepr(StdLibrary):
                                             extrude=True,
                                             tessellate=None,
                                             altitude_mode=AltitudeMode.absolute,
-                                            outer_boundary_is=fastkml.geometry.OuterBoundaryIs(
+                                            outer_boundary=fastkml.geometry.OuterBoundaryIs(
                                                 ns="{http://www.opengis.net/kml/2.2}",
                                                 name_spaces={
                                                     "kml": "{http://www.opengis.net/kml/2.2}",
@@ -626,7 +625,6 @@ class TestRepr(StdLibrary):
                                                     ),
                                                 ),
                                             ),
-                                            inner_boundary_is=None,
                                         ),
                                     ),
                                     fastkml.features.Placemark(
@@ -675,7 +673,7 @@ class TestRepr(StdLibrary):
                                             extrude=True,
                                             tessellate=None,
                                             altitude_mode=AltitudeMode.absolute,
-                                            outer_boundary_is=fastkml.geometry.OuterBoundaryIs(
+                                            outer_boundary=fastkml.geometry.OuterBoundaryIs(
                                                 ns="{http://www.opengis.net/kml/2.2}",
                                                 name_spaces={
                                                     "kml": "{http://www.opengis.net/kml/2.2}",
@@ -870,7 +868,6 @@ class TestRepr(StdLibrary):
                                                     ),
                                                 ),
                                             ),
-                                            inner_boundary_is=None,
                                         ),
                                     ),
                                     fastkml.features.Placemark(
@@ -919,7 +916,7 @@ class TestRepr(StdLibrary):
                                             extrude=True,
                                             tessellate=None,
                                             altitude_mode=AltitudeMode.absolute,
-                                            outer_boundary_is=fastkml.geometry.OuterBoundaryIs(
+                                            outer_boundary=fastkml.geometry.OuterBoundaryIs(
                                                 ns="{http://www.opengis.net/kml/2.2}",
                                                 name_spaces={
                                                     "kml": "{http://www.opengis.net/kml/2.2}",
@@ -1004,15 +1001,15 @@ class TestRepr(StdLibrary):
                                                     ),
                                                 ),
                                             ),
-                                            inner_boundary_is=fastkml.geometry.InnerBoundaryIs(
-                                                ns="{http://www.opengis.net/kml/2.2}",
-                                                name_spaces={
-                                                    "kml": "{http://www.opengis.net/kml/2.2}",
-                                                    "atom": "{http://www.w3.org/2005/Atom}",
-                                                    "gx": "{http://www.google.com/kml/ext/2.2}",
-                                                },
-                                                kml_geometries=[
-                                                    fastkml.geometry.LinearRing(
+                                            inner_boundaries=[
+                                                fastkml.geometry.InnerBoundaryIs(
+                                                    ns="{http://www.opengis.net/kml/2.2}",
+                                                    name_spaces={
+                                                        "kml": "{http://www.opengis.net/kml/2.2}",
+                                                        "atom": "{http://www.w3.org/2005/Atom}",
+                                                        "gx": "{http://www.google.com/kml/ext/2.2}",
+                                                    },
+                                                    kml_geometry=fastkml.geometry.LinearRing(
                                                         ns="{http://www.opengis.net/kml/2.2}",
                                                         name_spaces={
                                                             "kml": "{http://www.opengis.net/kml/2.2}",
@@ -1364,8 +1361,8 @@ class TestRepr(StdLibrary):
                                                             ),
                                                         ),
                                                     ),
-                                                ],
-                                            ),
+                                                ),
+                                            ],
                                         ),
                                     ),
                                 ],
@@ -1796,7 +1793,7 @@ class TestRepr(StdLibrary):
                         address=None,
                         phone_number=None,
                         snippet=None,
-                        description="Vue du ciel, la rivière des Outaouais est le principal élément naturel\n          de la vallée du même nom. Cette splendide rivière, la deuxième plus\n          grande dans l'est du Canada, possède un bassin hydrographique de 140 000\n          km2 et s'étend sur plus de 1 271 km, en majeure partie dans le Bouclier\n          canadien.",
+                        description="Vue du ciel, la rivière des Outaouais est le principal élément naturel\n          de la vallée du même nom. Cette splendide rivière, la deuxième plus\n          grande dans l'est du Canada, possède un bassin hydrographique de 140 000\n          km2 et s'étend sure plus de 1 271 km, en majeure partie dans le Bouclier\n          canadien.",
                         view=None,
                         times=None,
                         style_url=None,
