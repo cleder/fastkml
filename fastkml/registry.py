@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+"""Registry for XML objects."""
 from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING
@@ -87,13 +88,18 @@ class Registry:
 
     _registry: Dict[Type["_XMLObject"], List[RegistryItem]]
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        registry: Optional[Dict[Type["_XMLObject"], List[RegistryItem]]] = None,
+    ) -> None:
         """Initialize the registry."""
-        self._registry = {}
+        self._registry = registry or {}
 
     def __repr__(self) -> str:
         """Create a string (c)representation for Registry."""
-        return f"{self.__class__.__module__}.{self.__class__.__name__}(" ")"
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}({self._registry})"
+        )
 
     def register(self, cls: Type["_XMLObject"], item: RegistryItem) -> None:
         """Register a class."""

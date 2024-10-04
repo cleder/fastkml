@@ -15,6 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """
+KML Styles.
+
 Once you've created features within Google Earth and examined the KML
 code Google Earth generates, you'll notice how styles are an important
 part of how your data is displayed.
@@ -82,6 +84,29 @@ class StyleUrl(_BaseObject):
         url: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Style object.
+
+        Args:
+        ----
+        ns : str, optional
+            The namespace of the Style object.
+        name_spaces : dict, optional
+            A dictionary of namespace prefixes and their corresponding URIs.
+        id : str, optional
+            The ID of the Style object.
+        target_id : str, optional
+            The ID of the target object that this Style object applies to.
+        url : str, optional
+            The URL of the Style object.
+        **kwargs : Any
+            Additional keyword arguments.
+
+        Returns:
+        -------
+        None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -100,11 +125,20 @@ class StyleUrl(_BaseObject):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"url={self.url!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the style has a URL.
+
+        Returns
+        -------
+        bool
+            True if the style has a URL, False otherwise.
+
+        """
         return bool(self.url)
 
     @classmethod
@@ -128,7 +162,8 @@ registry.register(
 
 class _StyleSelector(_BaseObject):
     """
-    This is an abstract element and cannot be used directly in a KML file.
+    Abstract element that cannot be used directly in a KML file.
+
     It is the base type for the <Style> and <StyleMap> elements. The
     StyleMap element selects a style based on the current mode of the
     Placemark. An element derived from StyleSelector is uniquely identified
@@ -140,8 +175,8 @@ class _StyleSelector(_BaseObject):
 
 class _ColorStyle(_BaseObject):
     """
-    abstract element; do not create.
-    This is an abstract element and cannot be used directly in a KML file.
+    Abstract element that cannot be used directly in a KML file.
+
     It provides elements for specifying the color and color mode of
     extended style types.
     subclasses are: IconStyle, LabelStyle, LineStyle, PolyStyle.
@@ -170,6 +205,24 @@ class _ColorStyle(_BaseObject):
         color_mode: Optional[ColorMode] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Style object.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace of the style.
+            name_spaces (Optional[Dict[str, str]]): The dictionary of namespaces.
+            id (Optional[str]): The ID of the style.
+            target_id (Optional[str]): The target ID of the style.
+            color (Optional[str]): The color of the style.
+            color_mode (Optional[ColorMode]): The color mode of the style.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -190,7 +243,7 @@ class _ColorStyle(_BaseObject):
             f"target_id={self.target_id!r}, "
             f"color={self.color!r}, "
             f"color_mode={self.color_mode}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -241,7 +294,7 @@ class HotSpot(_XMLObject):
     xunits: Optional[Units]
     yunits: Optional[Units]
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
 
     def __init__(
         self,
@@ -253,6 +306,25 @@ class HotSpot(_XMLObject):
         yunits: Optional[Units] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Style element.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace for the element.
+            name_spaces (Optional[Dict[str, str]]): The dictionary of namespace prefixes
+                and URIs.
+            x (Optional[float]): The x-coordinate of the point.
+            y (Optional[float]): The y-coordinate of the point.
+            xunits (Optional[Units]): The units for the x-coordinate.
+            yunits (Optional[Units]): The units for the y-coordinate.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.x = x
         self.y = y
@@ -269,11 +341,19 @@ class HotSpot(_XMLObject):
             f"y={self.y!r}, "
             f"xunits={self.xunits}, "
             f"yunits={self.yunits}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if both x and y attributes are not None.
+
+        Returns
+        -------
+            bool: True if both x and y are not None, False otherwise.
+
+        """
         return all((self.x is not None, self.y is not None))
 
     @classmethod
@@ -363,6 +443,29 @@ class IconStyle(_ColorStyle):
         hot_spot: Optional[HotSpot] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Style object.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace for the Style object.
+            name_spaces (Optional[Dict[str, str]]): The dictionary of namespace prefixes
+                and URIs.
+            id (Optional[str]): The ID of the Style object.
+            target_id (Optional[str]): The target ID of the Style object.
+            color (Optional[str]): The color of the Style object.
+            color_mode (Optional[ColorMode]): The color mode of the Style object.
+            scale (Optional[float]): The scale of the Style object.
+            heading (Optional[float]): The heading of the Style object.
+            icon (Optional[Icon]): The icon of the Style object.
+            hot_spot (Optional[HotSpot]): The hot spot of the Style object.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -392,11 +495,20 @@ class IconStyle(_ColorStyle):
             f"heading={self.heading!r}, "
             f"icon={self.icon!r}, "
             f"hot_spot={self.hot_spot!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the Style has an icon.
+
+        Returns
+        -------
+        bool
+            True if the Style has an icon, False otherwise.
+
+        """
         return bool(self.icon)
 
 
@@ -469,6 +581,26 @@ class LineStyle(_ColorStyle):
         width: Optional[float] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Style object.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace for the Style object.
+            name_spaces (Optional[Dict[str, str]]): The dictionary of namespace prefixes
+                and URIs.
+            id (Optional[str]): The ID of the Style object.
+            target_id (Optional[str]): The target ID of the Style object.
+            color (Optional[str]): The color of the Style object.
+            color_mode (Optional[ColorMode]): The color mode of the Style object.
+            width (Optional[float]): The width of the Style object.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -491,12 +623,24 @@ class LineStyle(_ColorStyle):
             f"color={self.color!r}, "
             f"color_mode={self.color_mode}, "
             f"width={self.width!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
-        return self.width is not None
+        """
+        Check if the style has a width defined.
+
+        Returns
+        -------
+            bool: True if the width is not None, False otherwise.
+
+        """
+        return (
+            self.width is not None
+            or self.color is not None
+            or self.color_mode is not None
+        )
 
 
 registry.register(
@@ -541,6 +685,27 @@ class PolyStyle(_ColorStyle):
         outline: Optional[bool] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Style object.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace for the style.
+            name_spaces (Optional[Dict[str, str]]): The dictionary of namespace prefixes
+                and URIs.
+            id (Optional[str]): The ID of the style.
+            target_id (Optional[str]): The ID of the target element.
+            color (Optional[str]): The color of the style.
+            color_mode (Optional[ColorMode]): The color mode of the style.
+            fill (Optional[bool]): Whether to fill the style.
+            outline (Optional[bool]): Whether to outline the style.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -565,12 +730,25 @@ class PolyStyle(_ColorStyle):
             f"color_mode={self.color_mode}, "
             f"fill={self.fill!r}, "
             f"outline={self.outline!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
-        return self.fill is not None or self.outline is not None
+        """
+        Return True if the style has a fill or outline, False otherwise.
+
+        Returns
+        -------
+            bool: True if the style has a fill or outline, False otherwise.
+
+        """
+        return (
+            self.fill is not None
+            or self.outline is not None
+            or self.color is not None
+            or self.color_mode is not None
+        )
 
 
 registry.register(
@@ -620,6 +798,26 @@ class LabelStyle(_ColorStyle):
         scale: Optional[float] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Style object.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace for the style.
+            name_spaces (Optional[Dict[str, str]]): The dictionary of namespace prefixes
+                and URIs.
+            id (Optional[str]): The ID of the style.
+            target_id (Optional[str]): The ID of the target element.
+            color (Optional[str]): The color of the style.
+            color_mode (Optional[ColorMode]): The color mode of the style.
+            scale (Optional[float]): The scale of the style.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -642,11 +840,20 @@ class LabelStyle(_ColorStyle):
             f"color={self.color!r}, "
             f"color_mode={self.color_mode}, "
             f"scale={self.scale!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the Style has any non-None attributes.
+
+        Returns
+        -------
+            bool: True if any of the following attributes are not None:
+                scale, color, color_mode.
+
+        """
         return any(
             (
                 self.scale is not None,
@@ -734,6 +941,27 @@ class BalloonStyle(_BaseObject):
         display_mode: Optional[DisplayMode] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Style object.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace for the style.
+            name_spaces (Optional[Dict[str, str]]): The dictionary of namespace prefixes
+            and URIs.
+            id (Optional[str]): The ID of the style.
+            target_id (Optional[str]): The ID of the target element.
+            bg_color (Optional[str]): The background color of the style.
+            text_color (Optional[str]): The text color of the style.
+            text (Optional[str]): The text content of the style.
+            display_mode (Optional[DisplayMode]): The display mode of the style.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -758,11 +986,24 @@ class BalloonStyle(_BaseObject):
             f"text_color={self.text_color!r}, "
             f"text={self.text!r}, "
             f"display_mode={self.display_mode}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the Style has any non-None attributes.
+
+        Returns
+        -------
+            bool: True if any of the following attributes are not None:
+                - bg_color
+                - text_color
+                - text
+                - display_mode
+            False otherwise.
+
+        """
         return any(
             (
                 self.bg_color is not None,
@@ -844,6 +1085,24 @@ class Style(_StyleSelector):
         styles: Optional[Iterable[AnyStyle]] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Style element.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace for the element.
+            name_spaces (Optional[Dict[str, str]]): The dictionary of namespace prefixes
+                and URIs.
+            id (Optional[str]): The ID of the element.
+            target_id (Optional[str]): The target ID of the element.
+            styles (Optional[Iterable[AnyStyle]]): The list of styles.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -862,11 +1121,20 @@ class Style(_StyleSelector):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"styles={self.styles!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the Styles object contains any styles.
+
+        Returns
+        -------
+        bool
+            True if the Styles object contains any styles, False otherwise.
+
+        """
         return any(self.styles)
 
 
@@ -919,6 +1187,31 @@ class Pair(_BaseObject):
         style: Optional[Union[StyleUrl, Style]] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a StyleSelector object.
+
+        Args:
+        ----
+            ns : Optional[str]
+                The namespace of the element.
+            name_spaces : Optional[Dict[str, str]]
+                The dictionary of namespace prefixes and URIs.
+            id : Optional[str]
+                The ID of the element.
+            target_id : Optional[str]
+                The target ID of the element.
+            key : Optional[PairKey]
+                The key of the element.
+            style : Optional[Union[StyleUrl, Style]]
+                The style or style URL of the element.
+            kwargs : Any
+                Additional keyword arguments.
+
+        Returns:
+        -------
+         None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -939,11 +1232,19 @@ class Pair(_BaseObject):
             f"target_id={self.target_id!r}, "
             f"key={self.key}, "
             f"style={self.style!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the StyleMap has both a key and a style.
+
+        Returns
+        -------
+            bool: True if the StyleMap has both a key and a style, False otherwise.
+
+        """
         return all((self.key is not None, self.style is not None))
 
 
@@ -977,6 +1278,7 @@ registry.register(
 class StyleMap(_StyleSelector):
     """
     A <StyleMap> maps between two different Styles.
+
     Typically a <StyleMap> element is used to provide separate normal and highlighted
     styles for a placemark, so that the highlighted version appears when
     the user mouses over the icon in Google Earth.
@@ -995,6 +1297,24 @@ class StyleMap(_StyleSelector):
         pairs: Optional[Iterable[Pair]] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new Style object.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace of the style.
+            name_spaces (Optional[Dict[str, str]]): The dictionary of namespace prefixes
+                and URIs.
+            id (Optional[str]): The ID of the style.
+            target_id (Optional[str]): The ID of the target element.
+            pairs (Optional[Iterable[Pair]]): The list of pairs.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -1013,15 +1333,32 @@ class StyleMap(_StyleSelector):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"pairs={self.pairs!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the Style has any pairs.
+
+        Returns
+        -------
+        bool
+            True if the Style has any pairs, False otherwise.
+
+        """
         return bool(self.pairs)
 
     @property
     def normal(self) -> Optional[Union[StyleUrl, Style]]:
+        """
+        Get the normal style for the feature.
+
+        Returns
+        -------
+            The normal style for the feature, if available. Otherwise, returns None.
+
+        """
         return next(
             (pair.style for pair in self.pairs if pair.key == PairKey.normal),
             None,
@@ -1029,6 +1366,15 @@ class StyleMap(_StyleSelector):
 
     @property
     def highlight(self) -> Optional[Union[StyleUrl, Style]]:
+        """
+        Return the highlight style associated with this StyleMap.
+
+        Returns
+        -------
+            The highlight style, which can be either a StyleUrl or a Style object.
+            If no highlight style is found, None is returned.
+
+        """
         return next(
             (pair.style for pair in self.pairs if pair.key == PairKey.highlight),
             None,

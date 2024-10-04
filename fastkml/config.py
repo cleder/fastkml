@@ -25,6 +25,7 @@ __all__ = [
     "DEFAULT_NAME_SPACES",
     "GXNS",
     "KMLNS",
+    "etree",
     "register_namespaces",
     "set_default_namespaces",
     "set_etree_implementation",

@@ -17,6 +17,7 @@
 """Test the styles classes."""
 import pytest
 
+from fastkml import links
 from fastkml import styles
 from fastkml.enums import ColorMode
 from fastkml.enums import DisplayMode
@@ -58,7 +59,7 @@ class TestStdLibrary(StdLibrary):
             color_mode=ColorMode("random"),
             scale=1.0,
             heading=0,
-            icon=styles.Icon(href="http://example.com/icon.png"),
+            icon=links.Icon(href="http://example.com/icon.png"),
         )
 
         serialized = icons.to_string()
@@ -84,7 +85,7 @@ class TestStdLibrary(StdLibrary):
             color_mode=ColorMode.random,
             scale=5.0,
             heading=20.0,
-            icon=styles.Icon(
+            icon=links.Icon(
                 ns="{http://www.opengis.net/kml/2.2}",
                 id="icon-id",
                 href="",
@@ -318,7 +319,7 @@ class TestStdLibrary(StdLibrary):
             color_mode=ColorMode.random,
             scale=1.0,
             heading=0,
-            icon=styles.Icon(href="http://example.com/icon.png"),
+            icon=links.Icon(href="http://example.com/icon.png"),
         )
         lines = styles.LineStyle(
             id="id-l0",
@@ -358,13 +359,13 @@ class TestStdLibrary(StdLibrary):
 
         serialized = style.to_string()
 
-        assert '<kml:Style xmlns:kml="http://www.opengis.net/kml/2.2" '
-        assert 'id="id-0" '
-        assert 'targetId="target-0">'
+        assert '<kml:Style xmlns:kml="http://www.opengis.net/kml/2.2" ' in serialized
+        assert 'id="id-0" ' in serialized
+        assert 'targetId="target-0">' in serialized
         assert "<kml:IconStyle" in serialized
         assert "<kml:Icon>" in serialized
         assert "</kml:Icon>" in serialized
-        assert "</kml:IconStyle>"
+        assert "</kml:IconStyle>" in serialized
         assert "<kml:LineStyle" in serialized
         assert "<kml:BalloonStyle " in serialized
         assert "<kml:LabelStyle " in serialized
@@ -412,6 +413,7 @@ class TestStdLibrary(StdLibrary):
 
         assert style.id == "id-0"
         assert style.target_id == "target-0"
+        assert isinstance(style.styles[0], styles.BalloonStyle)
         assert style.styles[0].id == "id-b0"
         assert style.styles[0].target_id == "target-b0"
         assert style.styles[0].bg_color == "7fff0000"
@@ -419,6 +421,7 @@ class TestStdLibrary(StdLibrary):
         assert style.styles[0].text == "<b>Hello</b>"
         assert style.styles[0].display_mode == DisplayMode.hide
 
+        assert isinstance(style.styles[1], styles.IconStyle)
         assert style.styles[1].id == "id-i0"
         assert style.styles[1].target_id == "target-i0"
         assert style.styles[1].color == "ff0000ff"
@@ -427,18 +430,21 @@ class TestStdLibrary(StdLibrary):
         assert style.styles[1].heading == 0
         assert style.styles[1].icon.href == "http://example.com/icon.png"
 
+        assert isinstance(style.styles[2], styles.LabelStyle)
         assert style.styles[2].id == "id-a0"
         assert style.styles[2].target_id == "target-a0"
         assert style.styles[2].color == "ff0000ff"
         assert style.styles[2].color_mode == ColorMode.random
         assert style.styles[2].scale == 1.0
 
+        assert isinstance(style.styles[3], styles.LineStyle)
         assert style.styles[3].id == "id-l0"
         assert style.styles[3].target_id == "target-l0"
         assert style.styles[3].color == "ff0000ff"
         assert style.styles[3].color_mode == ColorMode.normal
         assert style.styles[3].width == 1.0
 
+        assert isinstance(style.styles[4], styles.PolyStyle)
         assert style.styles[4].id == "id-p0"
         assert style.styles[4].target_id == "target-p0"
         assert style.styles[4].color == "ff0000ff"
@@ -446,7 +452,7 @@ class TestStdLibrary(StdLibrary):
         assert style.styles[4].fill == 0
         assert style.styles[4].outline == 1
 
-    def test_stylemap(self) -> None:
+    def test_stylemap(self) -> None:  # noqa: PLR0915
         url = styles.StyleUrl(id="id-0", url="#style-0", target_id="target-0")
         icons = styles.IconStyle(
             id="id-i0",
@@ -455,7 +461,7 @@ class TestStdLibrary(StdLibrary):
             color_mode=ColorMode.random,
             scale=1.0,
             heading=0,
-            icon=styles.Icon(href="http://example.com/icon.png"),
+            icon=links.Icon(href="http://example.com/icon.png"),
         )
         lines = styles.LineStyle(
             id="id-l0",

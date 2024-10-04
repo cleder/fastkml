@@ -41,18 +41,19 @@ logger = logging.getLogger(__name__)
 
 class _AbstractView(TimeMixin, _BaseObject):
     """
-    This is an abstract element and cannot be used directly in a KML file.
+    Abstract element that cannot be used directly in a KML file.
+
     This element is extended by the <Camera> and <LookAt> elements.
     """
 
     longitude: Optional[float]
     # Longitude of the virtual camera (eye point). Angular distance in degrees,
     # relative to the Prime Meridian. Values west of the Meridian range from
-    # −180 to 0 degrees. Values east of the Meridian range from 0 to 180 degrees.
+    # -180 to 0 degrees. Values east of the Meridian range from 0 to 180 degrees.
 
     latitude: Optional[float]
     # Latitude of the virtual camera. Degrees north or south of the Equator
-    # (0 degrees). Values range from −90 degrees to 90 degrees.
+    # (0 degrees). Values range from -90 degrees to 90 degrees.
 
     altitude: Optional[float]
     # Distance of the camera from the earth's surface, in meters. Interpreted
@@ -100,6 +101,41 @@ class _AbstractView(TimeMixin, _BaseObject):
         time_primitive: Union[TimeSpan, TimeStamp, None] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new View object.
+
+        Parameters
+        ----------
+        ns : Optional[str]
+            The namespace for the view.
+        name_spaces : Optional[Dict[str, str]]
+            The dictionary of namespace prefixes and URIs.
+        id : Optional[str]
+            The ID of the view.
+        target_id : Optional[str]
+            The ID of the target view.
+        longitude : Optional[float]
+            The longitude coordinate of the view.
+        latitude : Optional[float]
+            The latitude coordinate of the view.
+        altitude : Optional[float]
+            The altitude coordinate of the view.
+        heading : Optional[float]
+            The heading angle of the view.
+        tilt : Optional[float]
+            The tilt angle of the view.
+        altitude_mode : Optional[AltitudeMode]
+            The altitude mode of the view.
+        time_primitive : Union[TimeSpan, TimeStamp, None]
+            The time primitive associated with the view.
+        kwargs : Any
+            Additional keyword arguments.
+
+        Returns
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -130,7 +166,7 @@ class _AbstractView(TimeMixin, _BaseObject):
             f"tilt={self.tilt!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"time_primitive={self.times!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -216,9 +252,10 @@ registry.register(
 
 class Camera(_AbstractView):
     """
-    Defines the virtual camera that views the scene. This element defines
-    the position of the camera relative to the Earth's surface as well
-    as the viewing direction of the camera. The camera position is defined
+    Defines the virtual camera that views the scene.
+
+    This element defines the position of the camera relative to the Earth's surface
+    as well as the viewing direction of the camera. The camera position is defined
     by <longitude>, <latitude>, <altitude>, and either <altitudeMode> or
     <gx:altitudeMode>. The viewing direction of the camera is defined by
     <heading>, <tilt>, and <roll>. <Camera> can be a child element of any
@@ -238,7 +275,7 @@ class Camera(_AbstractView):
 
     roll: Optional[float]
     # Rotation, in degrees, of the camera around the Z axis. Values range from
-    # −180 to +180 degrees.
+    # -180 to +180 degrees.
 
     def __init__(
         self,
@@ -256,6 +293,31 @@ class Camera(_AbstractView):
         time_primitive: Union[TimeSpan, TimeStamp, None] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new View object.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace for the view.
+            name_spaces (Optional[Dict[str, str]]): The dictionary of namespaces.
+            id (Optional[str]): The ID of the view.
+            target_id (Optional[str]): The target ID of the view.
+            longitude (Optional[float]): The longitude of the view.
+            latitude (Optional[float]): The latitude of the view.
+            altitude (Optional[float]): The altitude of the view.
+            heading (Optional[float]): The heading of the view.
+            tilt (Optional[float]): The tilt of the view.
+            roll (Optional[float]): The roll of the view.
+            altitude_mode (AltitudeMode): The altitude mode of the view.
+            time_primitive (Union[TimeSpan, TimeStamp, None]): The time primitive of the
+                view.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -288,7 +350,7 @@ class Camera(_AbstractView):
             f"roll={self.roll!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"time_primitive={self.times!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -307,6 +369,16 @@ registry.register(
 
 
 class LookAt(_AbstractView):
+    """
+    Defines a virtual camera that is associated with any element derived from Feature.
+
+    The LookAt element positions the "camera" in relation to the object that is being
+    viewed. In Google Earth, the view "flies to" this LookAt viewpoint when the user
+    double-clicks an item in the Places panel or double-clicks an icon in the 3D viewer.
+
+    https://developers.google.com/kml/documentation/kmlreference#lookat
+    """
+
     range: Optional[float]
     # Distance in meters from the point specified by <longitude>, <latitude>,
     # and <altitude> to the LookAt position.
@@ -327,6 +399,31 @@ class LookAt(_AbstractView):
         time_primitive: Union[TimeSpan, TimeStamp, None] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new instance of the class.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace for the element.
+            name_spaces (Optional[Dict[str, str]]): The dictionary of namespaces.
+            id (Optional[str]): The ID of the element.
+            target_id (Optional[str]): The target ID of the element.
+            longitude (Optional[float]): The longitude value.
+            latitude (Optional[float]): The latitude value.
+            altitude (Optional[float]): The altitude value.
+            heading (Optional[float]): The heading value.
+            tilt (Optional[float]): The tilt value.
+            range (Optional[float]): The range value.
+            altitude_mode (AltitudeMode): The altitude mode. Defaults to
+                AltitudeMode.relative_to_ground.
+            time_primitive (Union[TimeSpan, TimeStamp, None]): The time primitive.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -359,7 +456,7 @@ class LookAt(_AbstractView):
             f"range={self.range!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"time_primitive={self.times!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -384,7 +481,7 @@ class LatLonAltBox(_XMLObject):
     https://developers.google.com/kml/documentation/kmlreference#latlonaltbox
     """
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
 
     north: Optional[float]
     south: Optional[float]
@@ -407,6 +504,28 @@ class LatLonAltBox(_XMLObject):
         altitude_mode: Optional[AltitudeMode] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new View object.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace for the view.
+            name_spaces (Optional[Dict[str, str]]): A dictionary of namespace prefixes
+                and URIs.
+            north (Optional[float]): The northern latitude of the view.
+            south (Optional[float]): The southern latitude of the view.
+            east (Optional[float]): The eastern longitude of the view.
+            west (Optional[float]): The western longitude of the view.
+            min_altitude (Optional[float]): The minimum altitude of the view.
+            max_altitude (Optional[float]): The maximum altitude of the view.
+            altitude_mode (Optional[AltitudeMode]): The altitude mode of the view.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.north = north
         self.south = south
@@ -429,11 +548,19 @@ class LatLonAltBox(_XMLObject):
             f"min_altitude={self.min_altitude!r}, "
             f"max_altitude={self.max_altitude!r}, "
             f"altitude_mode={self.altitude_mode}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if all the attributes (north, south, east, west) are not None.
+
+        Returns
+        -------
+            bool: True if all attributes are not None, False otherwise.
+
+        """
         return all(
             (
                 self.north is not None,
@@ -526,6 +653,7 @@ registry.register(
 class Lod(_XMLObject):
     """
     Lod is an abbreviation for Level of Detail.
+
     <Lod> describes the size of the projected region on the screen that is required in
     order for the region to be considered "active."
     Also specifies the size of the pixel ramp used for fading in
@@ -534,7 +662,7 @@ class Lod(_XMLObject):
     https://developers.google.com/kml/documentation/kmlreference#elements-specific-to-region
     """
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
 
     min_lod_pixels: Optional[float]
     max_lod_pixels: Optional[float]
@@ -551,6 +679,25 @@ class Lod(_XMLObject):
         max_fade_extent: Optional[float] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new instance of the View class.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace for the view.
+            name_spaces (Optional[Dict[str, str]]): The dictionary of namespace prefixes
+                and URIs.
+            min_lod_pixels (Optional[float]): The minimum level of detail in pixels.
+            max_lod_pixels (Optional[float]): The maximum level of detail in pixels.
+            min_fade_extent (Optional[float]): The minimum fade extent in pixels.
+            max_fade_extent (Optional[float]): The maximum fade extent in pixels.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.min_lod_pixels = min_lod_pixels
         self.max_lod_pixels = max_lod_pixels
@@ -567,11 +714,19 @@ class Lod(_XMLObject):
             f"max_lod_pixels={self.max_lod_pixels!r}, "
             f"min_fade_extent={self.min_fade_extent!r}, "
             f"max_fade_extent={self.max_fade_extent!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the object is considered True or False.
+
+        Returns
+        -------
+            bool: True if the `min_lod_pixels` attribute is not None, False otherwise.
+
+        """
         return self.min_lod_pixels is not None
 
 
@@ -623,8 +778,7 @@ registry.register(
 
 class Region(_BaseObject):
     """
-    A <Region> contains a bounding box (<LatLonAltBox>) that describes an area of
-    interest defined by geographic coordinates and altitudes.
+    A region contains a bounding box that describes an area of interest.
 
     In addition, a Region contains an LOD (level of detail) extent (<Lod>),
     which is a pair of projected coordinate bounding boxes that describe
@@ -647,6 +801,31 @@ class Region(_BaseObject):
         lod: Optional[Lod] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new instance of the View class.
+
+        Args:
+        ----
+        ns : Optional[str]
+            The namespace of the view.
+        name_spaces : Optional[Dict[str, str]]
+            The dictionary of namespace prefixes and URIs.
+        id : Optional[str]
+            The ID of the view.
+        target_id : Optional[str]
+            The target ID of the view.
+        lat_lon_alt_box : Optional[LatLonAltBox]
+            The latitude, longitude, and altitude box of the view.
+        lod : Optional[Lod]
+            The level of detail of the view.
+        **kwargs : Any
+            Additional keyword arguments.
+
+        Returns:
+        -------
+        None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -667,11 +846,19 @@ class Region(_BaseObject):
             f"target_id={self.target_id!r}, "
             f"lat_lon_alt_box={self.lat_lon_alt_box!r}, "
             f"lod={self.lod!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the object is considered True or False.
+
+        Returns
+        -------
+            bool: True if the `lat_lon_alt_box` attribute is not empty, False otherwise.
+
+        """
         return bool(self.lat_lon_alt_box)
 
 

@@ -16,7 +16,7 @@
 """
 Add Custom Data.
 
-https://developers.google.com/kml/documentation/extendeddata#example
+https://developers.google.com/kml/documentation/extendeddata
 """
 import logging
 from typing import Any
@@ -91,6 +91,26 @@ class SimpleField(_BaseObject):
         display_name: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new instance of the Data class.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace of the data.
+            name_spaces (Optional[Dict[str, str]]):
+                The dictionary of namespace prefixes and URIs.
+            id (Optional[str]): The ID of the data.
+            target_id (Optional[str]): The target ID of the data.
+            name (Optional[str]): The name of the data.
+            type (Optional[DataType]): The type of the data.
+            display_name (Optional[str]): The display name of the data.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -103,7 +123,14 @@ class SimpleField(_BaseObject):
         self.display_name = display_name
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for SimpleField."""
+        """
+        Return a string representation of the SimpleField object.
+
+        Returns
+        -------
+            str: A string representation of the SimpleField object.
+
+        """
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
@@ -113,11 +140,19 @@ class SimpleField(_BaseObject):
             f"name={self.name!r}, "
             f"type={self.type}, "
             f"display_name={self.display_name!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the object is considered True or False.
+
+        Returns
+        -------
+            bool: True if both the name and type are non-empty, False otherwise.
+
+        """
         return bool(self.name) and bool(self.type)
 
 
@@ -180,6 +215,32 @@ class Schema(_BaseObject):
         fields: Optional[Iterable[SimpleField]] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Schema object.
+
+        Parameters
+        ----------
+        ns : str, optional
+            The namespace of the schema.
+        name_spaces : dict[str, str], optional
+            The dictionary of namespace prefixes and URIs.
+        id : str, optional
+            The unique identifier for the schema.
+        target_id : str, optional
+            The target identifier for the schema.
+        name : str, optional
+            The name of the schema.
+        fields : Iterable[SimpleField], optional
+            The list of fields in the schema.
+        **kwargs : Any
+            Additional keyword arguments.
+
+        Raises
+        ------
+        KMLSchemaError
+            If the id is not provided.
+
+        """
         if id is None:
             msg = "Id is required for schema"
             raise KMLSchemaError(msg)
@@ -194,7 +255,15 @@ class Schema(_BaseObject):
         self.fields = list(fields) if fields else []
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for Schema."""
+        """
+        Return a string representation of the Schema object.
+
+        Returns
+        -------
+        str
+            The string representation of the Schema object.
+
+        """
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
@@ -203,12 +272,20 @@ class Schema(_BaseObject):
             f"target_id={self.target_id!r}, "
             f"name={self.name!r}, "
             f"fields={self.fields!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def append(self, field: SimpleField) -> None:
-        """Append a field."""
+        """
+        Append a field to the schema.
+
+        Parameters
+        ----------
+        field : SimpleField
+            The field to be appended.
+
+        """
         self.fields.append(field)
 
 
@@ -254,6 +331,26 @@ class Data(_BaseObject):
         display_name: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new instance of the Data class.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace of the data.
+            name_spaces (Optional[Dict[str, str]]):
+                The dictionary of namespace prefixes and URIs.
+            id (Optional[str]): The ID of the data.
+            target_id (Optional[str]): The target ID of the data.
+            name (Optional[str]): The name of the data.
+            value (Optional[str]): The value of the data.
+            display_name (Optional[str]): The display name of the data.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -266,7 +363,15 @@ class Data(_BaseObject):
         self.display_name = display_name
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for Data."""
+        """
+        Create a string representation for Data.
+
+        Returns
+        -------
+        str
+            The string representation of the Data object.
+
+        """
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
@@ -276,11 +381,20 @@ class Data(_BaseObject):
             f"name={self.name!r}, "
             f"value={self.value!r}, "
             f"display_name={self.display_name!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the Data object is truthy.
+
+        Returns
+        -------
+        bool
+            True if the Data object has a name and a non-None value, False otherwise.
+
+        """
         return bool(self.name) and self.value is not None
 
 
@@ -334,6 +448,21 @@ class SimpleData(_BaseObject):
         value: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a SimpleData object.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace of the object.
+            name_spaces (Optional[Dict[str, str]]):
+                The dictionary of namespace prefixes and URIs.
+            id (Optional[str]): The ID of the object.
+            target_id (Optional[str]): The target ID of the object.
+            name (Optional[str]): The name of the object.
+            value (Optional[str]): The value of the object.
+            **kwargs: Additional keyword arguments.
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -345,7 +474,14 @@ class SimpleData(_BaseObject):
         self.value = value
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for SimpleData."""
+        """
+        Return a string representation of the SimpleData object.
+
+        Returns
+        -------
+            str: The string representation of the SimpleData object.
+
+        """
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
@@ -354,11 +490,19 @@ class SimpleData(_BaseObject):
             f"target_id={self.target_id!r}, "
             f"name={self.name!r}, "
             f"value={self.value!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the SimpleData object is truthy.
+
+        Returns
+        -------
+            bool: True if the name and the value attribute are set, False otherwise.
+
+        """
         return bool(self.name) and self.value is not None
 
 
@@ -388,15 +532,13 @@ registry.register(
 
 class SchemaData(_BaseObject):
     """
-    <SchemaData schemaUrl="anyURI">
-    This element is used in conjunction with <Schema> to add typed
+    Represents the SchemaData element in KML.
+
+    The SchemaData element is used in conjunction with Schema to add typed
     custom data to a KML Feature. The Schema element (identified by the
     schemaUrl attribute) declares the custom data type. The actual data
     objects ("instances" of the custom data) are defined using the
     SchemaData element.
-    The <schemaURL> can be a full URL, a reference to a Schema ID defined
-    in an external KML file, or a reference to a Schema ID defined
-    in the same KML file.
     """
 
     schema_url: Optional[str]
@@ -412,6 +554,25 @@ class SchemaData(_BaseObject):
         data: Optional[Iterable[SimpleData]] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new instance of the Data class.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace for the data.
+            name_spaces (Optional[Dict[str, str]]):
+                The dictionary of namespace prefixes and URIs.
+            id (Optional[str]): The ID of the data.
+            target_id (Optional[str]): The target ID of the data.
+            schema_url (Optional[str]): The URL of the schema for the data.
+            data (Optional[Iterable[SimpleData]]): The iterable of SimpleData objects.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -423,7 +584,7 @@ class SchemaData(_BaseObject):
         self.data = list(data) if data else []
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for SchemaData."""
+        """Create a string representation for SchemaData."""
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
@@ -432,14 +593,31 @@ class SchemaData(_BaseObject):
             f"target_id={self.target_id!r}, "
             f"schema_url={self.schema_url!r}, "
             f"data={self.data!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the SchemaData object contains data.
+
+        Returns
+        -------
+            bool: True if the SchemaData object contains data and a
+                schema URL, False otherwise.
+
+        """
         return bool(self.data) and bool(self.schema_url)
 
     def append_data(self, data: SimpleData) -> None:
+        """
+        Append a SimpleData object to the SchemaData.
+
+        Args:
+        ----
+            data (SimpleData): The SimpleData object to be appended.
+
+        """
         self.data.append(data)
 
 
@@ -468,13 +646,7 @@ registry.register(
 
 
 class ExtendedData(_BaseObject):
-    """
-    Represents a list of untyped name/value pairs. See docs:
-
-    -> 'Adding Untyped Name/Value Pairs'
-       https://developers.google.com/kml/documentation/extendeddata
-
-    """
+    """Represents a list of untyped name/value pairs."""
 
     elements: List[Union[Data, SchemaData]]
 
@@ -487,6 +659,25 @@ class ExtendedData(_BaseObject):
         elements: Optional[Iterable[Union[Data, SchemaData]]] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new instance of the Data class.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace for the data.
+            name_spaces (Optional[Dict[str, str]]):
+                The dictionary of namespace prefixes and URIs.
+            id (Optional[str]): The ID of the data.
+            target_id (Optional[str]): The target ID of the data.
+            elements (Optional[Iterable[Union[Data, SchemaData]]]):
+                The iterable of data elements.
+            **kwargs (Any): Additional keyword arguments.
+
+        Returns:
+        -------
+            - None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -497,7 +688,14 @@ class ExtendedData(_BaseObject):
         self.elements = list(elements) if elements else []
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for ExtendedData."""
+        """
+        Return a string representation of the ExtendedData object.
+
+        Returns
+        -------
+            str: A string representation of the ExtendedData object.
+
+        """
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
@@ -505,11 +703,20 @@ class ExtendedData(_BaseObject):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"elements={self.elements!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the object has any elements.
+
+        Returns
+        -------
+        bool
+            True if the object has elements, False otherwise.
+
+        """
         return bool(self.elements)
 
 

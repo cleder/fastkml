@@ -126,6 +126,61 @@ class _Overlay(_Feature):
         draw_order: Optional[int] = None,
         icon: Optional[Icon] = None,
     ) -> None:
+        """
+        Initialize an Overlay object.
+
+        Parameters
+        ----------
+        ns : Optional[str]
+            The namespace of the element.
+        name_spaces : Optional[Dict[str, str]]
+            The dictionary of namespace prefixes and URIs.
+        id : Optional[str]
+            The ID of the element.
+        target_id : Optional[str]
+            The target ID of the element.
+        name : Optional[str]
+            The name of the element.
+        visibility : Optional[bool]
+            The visibility of the element.
+        isopen : Optional[bool]
+            The open state of the element.
+        atom_link : Optional[atom.Link]
+            The Atom link associated with the element.
+        atom_author : Optional[atom.Author]
+            The Atom author associated with the element.
+        address : Optional[str]
+            The address associated with the element.
+        phone_number : Optional[str]
+            The phone number associated with the element.
+        snippet : Optional[Snippet]
+            The snippet associated with the element.
+        description : Optional[str]
+            The description of the element.
+        view : Optional[Union[Camera, LookAt]]
+            The view associated with the element.
+        times : Optional[Union[TimeSpan, TimeStamp]]
+            The times associated with the element.
+        style_url : Optional[StyleUrl]
+            The style URL associated with the element.
+        styles : Optional[Iterable[Union[Style, StyleMap]]]
+            The styles associated with the element.
+        region : Optional[Region]
+            The region associated with the element.
+        extended_data : Optional[ExtendedData]
+            The extended data associated with the element.
+        color : Optional[str]
+            The color of the overlay.
+        draw_order : Optional[int]
+            The draw order of the overlay.
+        icon : Optional[Icon]
+            The icon associated with the overlay.
+
+        Returns
+        -------
+        None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -228,7 +283,7 @@ class ViewVolume(_XMLObject):
     https://developers.google.com/kml/documentation/kmlreference#viewvolume
     """
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
 
     left_fow: Optional[float]
     # Angle, in degrees, between the camera's viewing direction and the left side
@@ -261,6 +316,33 @@ class ViewVolume(_XMLObject):
         near: Optional[float] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new Overlay object.
+
+        Parameters
+        ----------
+        ns : Optional[str]
+            The namespace for the Overlay element. Defaults to None.
+        name_spaces : Optional[Dict[str, str]]
+            A dictionary of namespace prefixes and URIs. Defaults to None.
+        left_fov : Optional[float]
+            The left field of view angle in degrees. Defaults to None.
+        right_fov : Optional[float]
+            The right field of view angle in degrees. Defaults to None.
+        bottom_fov : Optional[float]
+            The bottom field of view angle in degrees. Defaults to None.
+        top_fov : Optional[float]
+            The top field of view angle in degrees. Defaults to None.
+        near : Optional[float]
+            The near clipping distance in meters. Defaults to None.
+        **kwargs : Any
+            Additional keyword arguments.
+
+        Returns
+        -------
+        None
+
+        """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.left_fov = left_fov
         self.right_fov = right_fov
@@ -279,11 +361,19 @@ class ViewVolume(_XMLObject):
             f"bottom_fov={self.bottom_fov!r}, "
             f"top_fov={self.top_fov!r}, "
             f"near={self.near!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if all the required attributes are not None.
+
+        Returns
+        -------
+            bool: True if all the required attributes are not None, False otherwise.
+
+        """
         return all(
             [
                 self.left_fov is not None,
@@ -373,7 +463,7 @@ class ImagePyramid(_XMLObject):
     element to include specifications for which tiles to load.
     """
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
 
     tile_size: Optional[int]
     # Size of the tiles, in pixels. Tiles must be square, and <tileSize> must be a power
@@ -401,6 +491,31 @@ class ImagePyramid(_XMLObject):
         grid_origin: Optional[GridOrigin] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new Overlay object.
+
+        Parameters
+        ----------
+        ns : Optional[str]
+            The namespace for the overlay.
+        name_spaces : Optional[Dict[str, str]]
+            A dictionary of namespace prefixes and URIs.
+        tile_size : Optional[int]
+            The size of each tile in pixels.
+        max_width : Optional[int]
+            The maximum width of the overlay.
+        max_height : Optional[int]
+            The maximum height of the overlay.
+        grid_origin : Optional[GridOrigin]
+            The origin of the grid.
+        **kwargs : Any
+            Additional keyword arguments.
+
+        Returns
+        -------
+        None
+
+        """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.tile_size = tile_size
         self.max_width = max_width
@@ -417,11 +532,19 @@ class ImagePyramid(_XMLObject):
             f"max_width={self.max_width!r}, "
             f"max_height={self.max_height!r}, "
             f"grid_origin={self.grid_origin}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the overlay has all the required attributes set.
+
+        Returns
+        -------
+            bool: True if all the required attributes are set, False otherwise.
+
+        """
         return (
             self.tile_size is not None
             and self.max_width is not None
@@ -478,6 +601,8 @@ registry.register(
 
 class PhotoOverlay(_Overlay):
     """
+    PhotoOverlays are photographs that are directly embedded in the Earth's landscape.
+
     The <PhotoOverlay> element allows you to geographically locate a photograph
     on the Earth and to specify viewing parameters for this PhotoOverlay.
     The PhotoOverlay can be a simple 2D rectangle, a partial or full cylinder,
@@ -563,6 +688,73 @@ class PhotoOverlay(_Overlay):
         shape: Optional[Shape] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new Overlay object.
+
+        Args:
+        ----
+            ns : Optional[str]
+                The namespace for the element.
+            name_spaces : Optional[Dict[str, str]]
+                The dictionary of namespace prefixes and URIs.
+            id : Optional[str]
+                The ID of the element.
+            target_id : Optional[str]
+                The target ID of the element.
+            name : Optional[str]
+                The name of the element.
+            visibility : Optional[bool]
+                The visibility of the element.
+            isopen : Optional[bool]
+                The open status of the element.
+            atom_link : Optional[atom.Link]
+                The Atom link associated with the element.
+            atom_author : Optional[atom.Author]
+                The Atom author associated with the element.
+            address : Optional[str]
+                The address associated with the element.
+            phone_number : Optional[str]
+                The phone number associated with the element.
+            snippet : Optional[Snippet]
+                The snippet associated with the element.
+            description : Optional[str]
+                The description of the element.
+            view : Optional[Union[Camera, LookAt]]
+                The view associated with the element.
+            times : Optional[Union[TimeSpan, TimeStamp]]
+                The times associated with the element.
+            style_url : Optional[StyleUrl]
+                The style URL associated with the element.
+            styles : Optional[Iterable[Union[Style, StyleMap]]]
+                The styles associated with the element.
+            region : Optional[Region]
+                The region associated with the element.
+            extended_data : Optional[ExtendedData]
+                The extended data associated with the element.
+            color : Optional[str]
+                The color associated with the element.
+            draw_order : Optional[int]
+                The draw order of the element.
+            icon : Optional[Icon]
+                The icon associated with the element.
+            rotation : Optional[float]
+                The rotation of the element (specific to Photo Overlay).
+            view_volume : Optional[ViewVolume]
+                The view volume of the element (specific to Photo Overlay).
+            image_pyramid : Optional[ImagePyramid]
+                The image pyramid of the element (specific to Photo Overlay).
+            point : Optional[Point]
+                The point associated with the element (specific to Photo Overlay).
+            shape : Optional[Shape]
+                The shape associated with the element (specific to Photo Overlay).
+            kwargs : Any
+                Additional keyword arguments.
+
+        Returns:
+        -------
+            None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -625,7 +817,7 @@ class PhotoOverlay(_Overlay):
             f"image_pyramid={self.image_pyramid!r}, "
             f"point={self.point!r}, "
             f"shape={self.shape}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -689,8 +881,8 @@ registry.register(
 
 class LatLonBox(_XMLObject):
     """
-    Specifies where the top, bottom, right, and left sides of a bounding box for the
-    ground overlay are aligned.
+    Specifies the top, bottom, right, and left sides of a bounding box for an overlay.
+
     Also, optionally the rotation of the overlay.
 
     <north> Specifies the latitude of the north edge of the bounding box,
@@ -710,7 +902,7 @@ class LatLonBox(_XMLObject):
     Rotations are specified in a counterclockwise direction.
     """
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
 
     north: Optional[float]
     south: Optional[float]
@@ -729,6 +921,33 @@ class LatLonBox(_XMLObject):
         rotation: Optional[float] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new Overlay object.
+
+        Args:
+        ----
+            ns : Optional[str]
+                The namespace for the Overlay element.
+            name_spaces : Optional[Dict[str, str]]
+                A dictionary of namespace prefixes and URIs.
+            north : Optional[float]
+                The northern latitude of the Overlay's bounding box.
+            south : Optional[float]
+                The southern latitude of the Overlay's bounding box.
+            east : Optional[float]
+                The eastern longitude of the Overlay's bounding box.
+            west : Optional[float]
+                The western longitude of the Overlay's bounding box.
+            rotation : Optional[float]
+                The rotation angle of the Overlay.
+            **kwargs : Any
+                Additional keyword arguments.
+
+        Returns:
+        -------
+         None
+
+        """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.north = north
         self.south = south
@@ -747,11 +966,19 @@ class LatLonBox(_XMLObject):
             f"east={self.east!r}, "
             f"west={self.west!r}, "
             f"rotation={self.rotation!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if all the attributes necessary for bounding box calculation are not None.
+
+        Returns
+        -------
+            bool: True if all attributes (north, south, east, west) are not None.
+
+        """
         return all(
             [
                 self.north is not None,
@@ -821,8 +1048,9 @@ registry.register(
 
 class GroundOverlay(_Overlay):
     """
-    This element draws an image overlay draped onto the terrain. The <href>
-    child of <Icon> specifies the image to be used as the overlay. This file
+    Draw an image overlay draped onto the terrain.
+
+    The <href> child of <Icon> specifies the image to be used as the overlay. This file
     can be either on a local file system or on a web server. If this element
     is omitted or contains no <href>, a rectangle is drawn using the color and
     LatLonBox bounds defined by the ground overlay.
@@ -883,6 +1111,69 @@ class GroundOverlay(_Overlay):
         lat_lon_box: Optional[LatLonBox] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a new Overlay object.
+
+        Args:
+        ----
+        ns : Optional[str]
+            The namespace of the element.
+        name_spaces : Optional[Dict[str, str]]
+            The dictionary of namespace prefixes and URIs.
+        id : Optional[str]
+            The ID of the element.
+        target_id : Optional[str]
+            The target ID of the element.
+        name : Optional[str]
+            The name of the element.
+        visibility : Optional[bool]
+            The visibility of the element.
+        isopen : Optional[bool]
+            The open state of the element.
+        atom_link : Optional[atom.Link]
+            The Atom link associated with the element.
+        atom_author : Optional[atom.Author]
+            The Atom author associated with the element.
+        address : Optional[str]
+            The address of the element.
+        phone_number : Optional[str]
+            The phone number of the element.
+        snippet : Optional[Snippet]
+            The snippet associated with the element.
+        description : Optional[str]
+            The description of the element.
+        view : Optional[Union[Camera, LookAt]]
+            The view associated with the element.
+        times : Optional[Union[TimeSpan, TimeStamp]]
+            The times associated with the element.
+        style_url : Optional[StyleUrl]
+            The style URL of the element.
+        styles : Optional[Iterable[Union[Style, StyleMap]]]
+            The styles associated with the element.
+        region : Optional[Region]
+            The region associated with the element.
+        extended_data : Optional[ExtendedData]
+            The extended data associated with the element.
+        color : Optional[str]
+            The color of the element.
+        draw_order : Optional[int]
+            The draw order of the element.
+        icon : Optional[Icon]
+            The icon associated with the element.
+        altitude : Optional[float]
+            The altitude of the element.
+        altitude_mode : Optional[AltitudeMode]
+            The altitude mode of the element.
+        lat_lon_box : Optional[LatLonBox]
+            The latitude-longitude box associated with the element.
+        kwargs : Any
+            Additional keyword arguments.
+
+        Returns:
+        -------
+        None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -941,7 +1232,7 @@ class GroundOverlay(_Overlay):
             f"altitude={self.altitude!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"lat_lon_box={self.lat_lon_box!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 

@@ -26,7 +26,10 @@ http://schemas.opengis.net/kml/.
 
 """
 import logging
+from pathlib import Path
+from typing import IO
 from typing import Any
+from typing import AnyStr
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -58,9 +61,9 @@ kml_children = Union[Folder, Document, Placemark, GroundOverlay, PhotoOverlay]
 class KML(_XMLObject):
     """represents a KML File."""
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
 
-    _features: List[kml_children]
+    features: List[kml_children]
     ns: str
 
     def __init__(
@@ -90,7 +93,7 @@ class KML(_XMLObject):
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
             f"features={self.features!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -121,17 +124,17 @@ class KML(_XMLObject):
         # However, in this case the xlmns should still be mentioned on the kml
         # element, just without prefix.
         if not self.ns:
-            root = config.etree.Element(  # type: ignore[attr-defined]
+            root = config.etree.Element(
                 f"{self.ns}{self.get_tag_name()}",
             )
             root.set("xmlns", config.KMLNS[1:-1])
-        elif hasattr(config.etree, "LXML_VERSION"):  # type: ignore[attr-defined]
-            root = config.etree.Element(  # type: ignore[attr-defined]
+        elif hasattr(config.etree, "LXML_VERSION"):
+            root = config.etree.Element(
                 f"{self.ns}{self.get_tag_name()}",
                 nsmap={None: self.ns[1:-1]},
             )
         else:
-            root = config.etree.Element(  # type: ignore[attr-defined]
+            root = config.etree.Element(
                 f"{self.ns}{self.get_tag_name()}",
             )
         xml_subelement_list(
@@ -155,48 +158,56 @@ class KML(_XMLObject):
         self.features.append(kmlobj)
 
     @classmethod
-    def class_from_string(
+    def parse(
         cls,
-        string: str,
+        file: Union[Path, str, IO[AnyStr]],
         *,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
         strict: bool = True,
     ) -> Self:
         """
-        Create a kml object from a string.
+        Parse a KML file and return a KML object.
 
         Args:
         ----
-            string: String representation (serialized XML) of the kml object
-            ns: Namespace of the element (default: None)
-            name_spaces: Dictionary of namespace prefixes and URIs (default: None)
-            strict: Whether to enforce strict parsing (default: True)
+            file: The file to parse.
+                Can be a file path (str or Path), or a file-like object.
+
+        Keyword Args:
+        ------------
+            ns (Optional[str]): The namespace of the KML file.
+                If not provided, it will be inferred from the root element.
+            name_spaces (Optional[Dict[str, str]]): Additional namespaces.
+            strict (bool): Whether to enforce strict parsing rules. Defaults to True.
 
         Returns:
         -------
-            Geometry object
+            KML object: The parsed KML object.
 
         """
         try:
-            element = config.etree.fromstring(  # type: ignore[attr-defined]
-                string,
-                parser=config.etree.XMLParser(  # type: ignore[attr-defined]
+            tree = config.etree.parse(
+                file,
+                parser=config.etree.XMLParser(
                     huge_tree=True,
                     recover=True,
                 ),
             )
         except TypeError:
-            element = config.etree.XML(string)  # type: ignore[attr-defined]
+            tree = config.etree.parse(file)
+        root = tree.getroot()
         if ns is None:
-            ns = cast(str, element.tag[:-3] if element.tag.endswith("kml") else "")
+            ns = cast(str, root.tag[:-3] if root.tag.endswith("kml") else "")
         name_spaces = name_spaces or {}
+        if ns:
+            name_spaces["kml"] = ns
         name_spaces = {**config.NAME_SPACES, **name_spaces}
         return cls.class_from_element(
             ns=ns,
             name_spaces=name_spaces,
             strict=strict,
-            element=element,
+            element=root,
         )
 
 

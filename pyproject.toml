@@ -147,7 +147,8 @@ ignore_missing_imports = true
 implicit_reexport = false
 no_implicit_optional = true
 overrides = [
-    { disable_error_code = "attr-defined, union-attr", module = "tests.*" },
+    { disable_error_code = "attr-defined, union-attr", module = "tests.oldunit_test" },
+    { disable_error_code = "union-attr", module = "tests.*" },
 ]
 show_error_codes = true
 strict_equality = true
@@ -176,11 +177,14 @@ target-version = "py38"
 
 [tool.ruff.lint]
 ignore = [
+    "A002",
     "ANN101",
     "ANN102",
+    "ANN401",
     "D203",
     "D212",
     "FA100",
+    "PLR0913",
 ]
 select = [
     "A",
@@ -244,15 +248,23 @@ select = [
 ]
 
 [tool.ruff.lint.extend-per-file-ignores]
+"fastkml/helpers.py" = [
+    "ARG001",
+    "PLR0913",
+]
 "tests/*.py" = [
     "D101",
     "D102",
     "D103",
+    "D104",
     "PLR2004",
     "S101",
     "SLF001",
 ]
 "tests/oldunit_test.py" = [
+    "E501",
+]
+"tests/repr_eq_test.py" = [
     "E501",
 ]
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2021 - 2023  Christian Ledermann
+# Copyright (C) 2021 - 2024  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -46,8 +46,8 @@ class TestStdLibrary(StdLibrary):
             altkw=2,
         )
 
-        assert obj.custom == "custom"
-        assert obj.altkw == 2
+        assert obj.custom == "custom"  # type: ignore[attr-defined]
+        assert obj.altkw == 2  # type: ignore[attr-defined]
 
     def test_custom_kwargs_splat(self) -> None:
         obj = kml_base._BaseObject(
@@ -125,7 +125,7 @@ class TestStdLibrary(StdLibrary):
 
     def test_xml_object_roundtrip(self) -> None:
         obj = base._XMLObject()
-        obj2 = base._XMLObject.class_from_string(obj.to_string())
+        obj2 = base._XMLObject.class_from_string(obj.to_string(), ns="")
 
         assert obj == obj2
         assert str(obj) == obj2.to_string()

@@ -13,6 +13,17 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+"""
+Classes and functions for working with geometries in KML files.
+
+The classes in this module represent different types of geometries, such as points,
+lines, polygons, and multi-geometries.
+These geometries can be used to define the shape and location of features in KML files.
+
+The module also provides functions for handling coordinates and extracting them from XML
+elements.
+
+"""
 
 import logging
 import re
@@ -89,7 +100,25 @@ def handle_invalid_geometry_error(
     element: Element,
     strict: bool,
 ) -> None:
-    error_in_xml = config.etree.tostring(  # type: ignore[attr-defined]
+    """
+    Handle an invalid geometry error.
+
+    Args:
+    ----
+        error (Exception): The exception that occurred.
+        element (Element): The XML element that caused the error.
+        strict (bool): Flag indicating whether to raise an exception or not.
+
+    Returns:
+    -------
+        None
+
+    Raises:
+    ------
+        KMLParseError: If `strict` is True, raise a KMLParseError.
+
+    """
+    error_in_xml = config.etree.tostring(
         element,
         encoding="UTF-8",
     ).decode(
@@ -106,9 +135,9 @@ def coordinates_subelement(
     *,
     element: Element,
     attr_name: str,
-    node_name: str,
+    node_name: str,  # noqa: ARG001
     precision: Optional[int],
-    verbosity: Optional[Verbosity],
+    verbosity: Optional[Verbosity],  # noqa: ARG001
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -130,9 +159,9 @@ def coordinates_subelement(
     if getattr(obj, attr_name, None):
         p = precision if precision is not None else 6
         coords = getattr(obj, attr_name)
-        if len(coords[0]) == 2:
+        if len(coords[0]) == 2:  # noqa: PLR2004
             tuples = (f"{c[0]:.{p}f},{c[1]:.{p}f}" for c in coords)
-        elif len(coords[0]) == 3:
+        elif len(coords[0]) == 3:  # noqa: PLR2004
             tuples = (f"{c[0]:.{p}f},{c[1]:.{p}f},{c[2]:.{p}f}" for c in coords)
         else:
             msg = f"Invalid dimensions in coordinates '{coords}'"
@@ -143,15 +172,15 @@ def coordinates_subelement(
 def subelement_coordinates_kwarg(
     *,
     element: Element,
-    ns: str,
-    name_spaces: Dict[str, str],
-    node_name: str,
+    ns: str,  # noqa: ARG001
+    name_spaces: Dict[str, str],  # noqa: ARG001
+    node_name: str,  # noqa: ARG001
     kwarg: str,
-    classes: Tuple[known_types, ...],
+    classes: Tuple[known_types, ...],  # noqa: ARG001
     strict: bool,
 ) -> Dict[str, LineType]:
     """
-    Extracts coordinates from a subelement and returns them as a dictionary.
+    Extract coordinates from a subelement and returns them as a dictionary.
 
     Args:
     ----
@@ -205,7 +234,7 @@ class Coordinates(_XMLObject):
 
     """
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
     coords: LineType
 
     def __init__(
@@ -215,7 +244,22 @@ class Coordinates(_XMLObject):
         name_spaces: Optional[Dict[str, str]] = None,
         coords: Optional[LineType] = None,
         **kwargs: Any,
-    ):
+    ) -> None:
+        """
+        Initialize a Geometry object.
+
+        Parameters
+        ----------
+        ns : str, optional
+            The namespace for the element.
+        name_spaces : dict, optional
+            A dictionary of namespace prefixes and URIs.
+        coords : LineType, optional
+            The coordinates of the geometry.
+        **kwargs : dict
+            Additional keyword arguments.
+
+        """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.coords = coords or []
 
@@ -226,11 +270,20 @@ class Coordinates(_XMLObject):
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
             f"coords={self.coords!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the geometry has any coordinates.
+
+        Returns
+        -------
+        bool
+            True if the geometry has coordinates, False otherwise.
+
+        """
         return bool(self.coords)
 
     @classmethod
@@ -282,16 +335,19 @@ class _Geometry(_BaseObject):
         **kwargs: Any,
     ) -> None:
         """
+        Initialize a _Geometry object.
 
         Args:
         ----
-            ns: Namespace of the object
-            id: Id of the object
-            target_id: Target id of the object
+            ns: Namespace of the object.
+            name_spaces: Name spaces of the object.
+            id: Id of the object.
+            target_id: Target id of the object.
             extrude: Specifies whether to connect the feature to the ground with a line.
             tessellate: Specifies whether to allow the LineString to follow the terrain.
             altitude_mode: Specifies how altitude components in the <coordinates>
                            element are interpreted.
+            **kwargs: Additional keyword arguments.
 
         """
         super().__init__(
@@ -316,7 +372,7 @@ class _Geometry(_BaseObject):
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -445,7 +501,7 @@ class Point(_Geometry):
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"kml_coordinates={self.kml_coordinates!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -533,7 +589,7 @@ class LineString(_Geometry):
             tessellate (Optional[bool]): Whether to tessellate the geometry.
             altitude_mode (Optional[AltitudeMode]): The altitude mode of the geometry.
             geometry (Optional[geo.LineString]): The LineString geometry.
-            kml_coordinates (Optional[Coordinates]): The KML coordinates of the geometry.
+            kml_coordinates (Optional[Coordinates]): The coordinates of the geometry.
             **kwargs (Any): Additional keyword arguments.
 
         Raises:
@@ -569,7 +625,7 @@ class LineString(_Geometry):
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"geometry={self.geometry!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -641,6 +697,37 @@ class LinearRing(LineString):
         kml_coordinates: Optional[Coordinates] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Geometry object.
+
+        Parameters
+        ----------
+        ns : str, optional
+            The namespace for the element.
+        name_spaces : dict[str, str], optional
+            A dictionary of namespace prefixes and URIs.
+        id : str, optional
+            The ID of the element.
+        target_id : str, optional
+            The target ID of the element.
+        extrude : bool, optional
+            Whether to extrude the geometry.
+        tessellate : bool, optional
+            Whether to tessellate the geometry.
+        altitude_mode : AltitudeMode, optional
+            The altitude mode of the geometry.
+        geometry : geo.LinearRing, optional
+            The geometry object.
+        kml_coordinates : Coordinates, optional
+            The KML coordinates.
+        **kwargs : Any
+            Additional keyword arguments.
+
+        Returns
+        -------
+        None
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -666,7 +753,7 @@ class LinearRing(LineString):
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"geometry={self.geometry!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -698,12 +785,12 @@ class OuterBoundaryIs(_XMLObject):
 
     Attributes
     ----------
-        kml_geometry (Optional[LinearRing]): The KML geometry representing the outer
-        boundary.
+    kml_geometry : Optional[LinearRing]
+        The KML geometry representing the outer boundary.
 
     """
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
     kml_geometry: Optional[LinearRing]
 
     def __init__(
@@ -715,6 +802,33 @@ class OuterBoundaryIs(_XMLObject):
         kml_geometry: Optional[LinearRing] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Boundary object.
+
+        Parameters
+        ----------
+        ns : str, optional
+            The namespace for the KML element.
+        name_spaces : dict, optional
+            A dictionary of namespace prefixes and URIs.
+        geometry : fastkml.geometry.LinearRing, optional
+            The geometry object.
+        kml_geometry : fastkml.geometry.LinearRing, optional
+            The KML geometry object.
+        **kwargs : Any
+            Additional keyword arguments.
+
+        Raises
+        ------
+        GeometryError
+            If both `geometry` and `kml_geometry` are provided.
+
+        Notes
+        -----
+        If `kml_geometry` is not provided, it will be created based on the `geometry`
+        parameter.
+
+        """
         if geometry is not None and kml_geometry is not None:
             raise GeometryError(MsgMutualExclusive)
         if kml_geometry is None:
@@ -731,22 +845,59 @@ class OuterBoundaryIs(_XMLObject):
         )
 
     def __bool__(self) -> bool:
+        """
+        Check if the OuterBoundaryIs object is valid.
+
+        Returns
+        -------
+        bool
+            True if the object has a valid geometry, False otherwise.
+
+        """
         return bool(self.geometry)
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for OuterBoundaryIs."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"kml_geometry={self.kml_geometry!r}, "
+            f"**{self._get_splat()},"
+            ")"
+        )
 
     @classmethod
     def get_tag_name(cls) -> str:
-        """Return the tag name."""
+        """
+        Get the tag name for the OuterBoundaryIs object.
+
+        Returns
+        -------
+        str
+            The tag name.
+
+        """
         return "outerBoundaryIs"
 
     @property
     def geometry(self) -> Optional[geo.LinearRing]:
+        """
+        Get the geometry of the OuterBoundaryIs object.
+
+        Returns
+        -------
+        Optional[geo.LinearRing]
+            The geometry object representing the outer boundary.
+
+        """
         return self.kml_geometry.geometry if self.kml_geometry else None
 
 
 registry.register(
     OuterBoundaryIs,
     item=RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         classes=(LinearRing,),
         attr_name="kml_geometry",
         node_name="LinearRing",
@@ -759,30 +910,52 @@ registry.register(
 class InnerBoundaryIs(_XMLObject):
     """Represents the inner boundary of a polygon in KML."""
 
-    _default_ns = config.KMLNS
-    kml_geometries: List[LinearRing]
+    _default_nsid = config.KML
+    kml_geometry: Optional[LinearRing]
 
     def __init__(
         self,
         *,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
-        geometries: Optional[Iterable[geo.LinearRing]] = None,
-        kml_geometries: Optional[Iterable[LinearRing]] = None,
+        geometry: Optional[geo.LinearRing] = None,
+        kml_geometry: Optional[LinearRing] = None,
         **kwargs: Any,
     ) -> None:
-        if geometries is not None and kml_geometries is not None:
+        """
+        Initialize a Geometry object.
+
+        Parameters
+        ----------
+        ns : Optional[str], optional
+            The namespace for the KML element, by default None.
+        name_spaces : Optional[Dict[str, str]], optional
+            The namespace dictionary for the KML element, by default None.
+        geometry : Optional[geo.LinearRing], optional
+            The geometry to be converted to a KML geometry, by default None.
+        kml_geometry : Optional[LinearRing], optional
+            The KML geometry, by default None.
+        **kwargs : Any
+            Additional keyword arguments.
+
+        Raises
+        ------
+        GeometryError
+            If both `geometry` and `kml_geometry` are provided.
+
+        Notes
+        -----
+        - If `geometry` is provided, it will be converted to KML geometries and
+            stored in `kml_geometry`.
+        - If `geometry` and `kml_geometry` are both provided, a GeometryError will be
+            raised.
+
+        """
+        if geometry is not None and kml_geometry is not None:
             raise GeometryError(MsgMutualExclusive)
-        if kml_geometries is None:
-            kml_geometries = (
-                [
-                    LinearRing(ns=ns, name_spaces=name_spaces, geometry=lr)
-                    for lr in geometries
-                ]
-                if geometries
-                else None
-            )
-        self.kml_geometries = list(kml_geometries) if kml_geometries else []
+        if kml_geometry is None:
+            kml_geometry = LinearRing(ns=ns, name_spaces=name_spaces, geometry=geometry)
+        self.kml_geometry = kml_geometry
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -790,27 +963,33 @@ class InnerBoundaryIs(_XMLObject):
         )
 
     def __bool__(self) -> bool:
-        """
-        Returns True if any of the inner boundary geometries exist, False otherwise.
-        """
-        return any(b.geometry for b in self.kml_geometries)
+        """Return True if any of the inner boundary geometries exist."""
+        return bool(self.kml_geometry)
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for InnerBoundaryIs."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"kml_geometry={self.kml_geometry!r}, "
+            f"**{self._get_splat()},"
+            ")"
+        )
 
     @classmethod
     def get_tag_name(cls) -> str:
-        """
-        Returns the tag name of the element.
-        """
+        """Return the tag name of the element."""
         return "innerBoundaryIs"
 
     @property
-    def geometries(self) -> Optional[Iterable[geo.LinearRing]]:
+    def geometry(self) -> Optional[geo.LinearRing]:
         """
-        Returns the list of LinearRing objects representing the inner boundary.
+        Return the list of LinearRing objects representing the inner boundary.
+
         If no inner boundary geometries exist, returns None.
         """
-        if not self.kml_geometries:
-            return None
-        return [lr.geometry for lr in self.kml_geometries if lr.geometry]
+        return self.kml_geometry.geometry if self.kml_geometry else None
 
 
 registry.register(
@@ -818,10 +997,10 @@ registry.register(
     item=RegistryItem(
         ns_ids=("kml",),
         classes=(LinearRing,),
-        attr_name="kml_geometries",
+        attr_name="kml_geometry",
         node_name="LinearRing",
-        get_kwarg=xml_subelement_list_kwarg,
-        set_element=xml_subelement_list,
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
     ),
 )
 
@@ -847,15 +1026,16 @@ class Polygon(_Geometry):
 
     Example usage:
     ```
-    polygon = Polygon(outer_boundary_is=outer_boundary, inner_boundary_is=inner_boundary)
+    polygon = Polygon(outer_boundary_is=outer_boundary,
+        inner_boundary_is=inner_boundary)
     print(polygon.geometry)
     ```
 
     https://developers.google.com/kml/documentation/kmlreference#polygon
     """
 
-    outer_boundary_is: Optional[OuterBoundaryIs]
-    inner_boundary_is: Optional[InnerBoundaryIs]
+    outer_boundary: Optional[OuterBoundaryIs]
+    inner_boundaries: List[InnerBoundaryIs]
 
     def __init__(
         self,
@@ -867,18 +1047,58 @@ class Polygon(_Geometry):
         extrude: Optional[bool] = None,
         tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
-        outer_boundary_is: Optional[OuterBoundaryIs] = None,
-        inner_boundary_is: Optional[InnerBoundaryIs] = None,
+        outer_boundary: Optional[OuterBoundaryIs] = None,
+        inner_boundaries: Optional[Iterable[InnerBoundaryIs]] = None,
         geometry: Optional[geo.Polygon] = None,
         **kwargs: Any,
     ) -> None:
-        if outer_boundary_is is not None and geometry is not None:
+        """
+        Initialize a Geometry object.
+
+        Parameters
+        ----------
+        ns : Optional[str]
+            The namespace of the element.
+        name_spaces : Optional[Dict[str, str]]
+            The dictionary of namespace prefixes and URIs.
+        id : Optional[str]
+            The ID of the element.
+        target_id : Optional[str]
+            The target ID of the element.
+        extrude : Optional[bool]
+            The extrude flag of the element.
+        tessellate : Optional[bool]
+            The tessellate flag of the element.
+        altitude_mode : Optional[AltitudeMode]
+            The altitude mode of the element.
+        outer_boundary : Optional[OuterBoundaryIs]
+            The outer boundary of the element.
+        inner_boundaries : Optional[Iterable[InnerBoundaryIs]]
+            The inner boundaries of the element.
+        geometry : Optional[geo.Polygon]
+            The geometry object of the element.
+        **kwargs : Any
+            Additional keyword arguments.
+
+        Raises
+        ------
+        GeometryError
+            If both outer_boundary_is and geometry are provided.
+
+        Returns
+        -------
+        None
+
+        """
+        if outer_boundary is not None and geometry is not None:
             raise GeometryError(MsgMutualExclusive)
         if geometry is not None:
-            outer_boundary_is = OuterBoundaryIs(geometry=geometry.exterior)
-            inner_boundary_is = InnerBoundaryIs(geometries=geometry.interiors)
-        self.outer_boundary_is = outer_boundary_is
-        self.inner_boundary_is = inner_boundary_is
+            outer_boundary = OuterBoundaryIs(geometry=geometry.exterior)
+            inner_boundaries = [
+                InnerBoundaryIs(geometry=interior) for interior in geometry.interiors
+            ]
+        self.outer_boundary = outer_boundary
+        self.inner_boundaries = list(inner_boundaries) if inner_boundaries else []
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -891,23 +1111,53 @@ class Polygon(_Geometry):
         )
 
     def __bool__(self) -> bool:
-        return bool(self.outer_boundary_is)
+        """
+        Return True if the outer boundary is defined, False otherwise.
+
+        Returns
+        -------
+        bool
+            True if the outer boundary is defined, False otherwise.
+
+        """
+        return bool(self.outer_boundary)
 
     @property
     def geometry(self) -> Optional[geo.Polygon]:
-        if not self.outer_boundary_is:
+        """
+        Get the geometry object representing the geometry of the Polygon.
+
+        Returns
+        -------
+        Optional[geo.Polygon]
+            The geometry object representing the geometry of the Polygon.
+
+        """
+        if not self.outer_boundary:
             return None
-        if not self.inner_boundary_is:
+        if not self.inner_boundaries:
             return geo.Polygon.from_linear_rings(
-                cast(geo.LinearRing, self.outer_boundary_is.geometry),
+                cast(geo.LinearRing, self.outer_boundary.geometry),
             )
-        return geo.Polygon.from_linear_rings(  # type: ignore[misc]
-            cast(geo.LinearRing, self.outer_boundary_is.geometry),
-            *self.inner_boundary_is.geometries,
+        return geo.Polygon.from_linear_rings(
+            cast(geo.LinearRing, self.outer_boundary.geometry),
+            *[
+                interior.geometry
+                for interior in self.inner_boundaries
+                if interior.geometry is not None
+            ],
         )
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for Polygon."""
+        """
+        Create a string representation for Polygon.
+
+        Returns
+        -------
+        str
+            The string representation for Polygon.
+
+        """
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
@@ -917,8 +1167,9 @@ class Polygon(_Geometry):
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
-            f"geometry={self.geometry!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"outer_boundary={self.outer_boundary!r}, "
+            f"inner_boundaries={self.inner_boundaries!r}, "
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -928,7 +1179,7 @@ registry.register(
     item=RegistryItem(
         ns_ids=("kml",),
         classes=(OuterBoundaryIs,),
-        attr_name="outer_boundary_is",
+        attr_name="outer_boundary",
         node_name="outerBoundaryIs",
         get_kwarg=xml_subelement_kwarg,
         set_element=xml_subelement,
@@ -939,10 +1190,10 @@ registry.register(
     item=RegistryItem(
         ns_ids=("kml",),
         classes=(InnerBoundaryIs,),
-        attr_name="inner_boundary_is",
+        attr_name="inner_boundaries",
         node_name="innerBoundaryIs",
-        get_kwarg=xml_subelement_kwarg,
-        set_element=xml_subelement,
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
     ),
 )
 
@@ -999,6 +1250,7 @@ def create_kml_geometry(
     ----
         geometry: Geometry object.
         ns: Namespace of the object
+        name_spaces: Name spaces of the object
         id: Id of the object
         target_id: Target id of the object
         extrude: Specifies whether to connect the feature to the ground with a line.
@@ -1043,9 +1295,7 @@ def create_kml_geometry(
 
 
 class MultiGeometry(_Geometry):
-    """
-    A container for zero or more geometry primitives associated with the same feature.
-    """
+    """A container for zero or more geometry primitives."""
 
     kml_geometries: List[Union[Point, LineString, Polygon, LinearRing, Self]]
 
@@ -1065,6 +1315,44 @@ class MultiGeometry(_Geometry):
         geometry: Optional[MultiGeometryType] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a Geometry object.
+
+        Parameters
+        ----------
+        ns : str, optional
+            The namespace for the KML element.
+        name_spaces : dict, optional
+            A dictionary of namespace prefixes and URIs.
+        id : str, optional
+            The ID of the KML element.
+        target_id : str, optional
+            The target ID of the KML element.
+        extrude : bool, optional
+            Specifies whether to extend the geometry to the ground.
+        tessellate : bool, optional
+            Specifies whether to allow the geometry to follow the terrain.
+        altitude_mode : AltitudeMode, optional
+            The altitude mode of the geometry.
+        kml_geometries : iterable of Point, LineString, Polygon, LinearRing,
+            MultiGeometry
+            A collection of KML geometries.
+        geometry : MultiGeometryType, optional
+            A multi-geometry object.
+        **kwargs : any
+            Additional keyword arguments.
+
+        Raises
+        ------
+        GeometryError
+            If both `kml_geometries` and `geometry` are provided.
+
+        Notes
+        -----
+        - If `geometry` is provided, it will be converted into a collection of KML
+            geometries.
+
+        """
         if kml_geometries is not None and geometry is not None:
             raise GeometryError(MsgMutualExclusive)
         if geometry is not None:
@@ -1092,15 +1380,11 @@ class MultiGeometry(_Geometry):
         )
 
     def __bool__(self) -> bool:
-        """
-        Returns True if the MultiGeometry has a geometry, False otherwise.
-        """
+        """Return True if the MultiGeometry has a geometry, False otherwise."""
         return bool(self.geometry)
 
     def __repr__(self) -> str:
-        """
-        Returns a string representation of the MultiGeometry.
-        """
+        """Return a string representation of the MultiGeometry."""
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
@@ -1110,16 +1394,14 @@ class MultiGeometry(_Geometry):
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
-            f"geometry={self.geometry!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"kml_geometries={self.kml_geometries!r}, "
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     @property
     def geometry(self) -> Optional[MultiGeometryType]:
-        """
-        Returns the geometry of the MultiGeometry.
-        """
+        """Return the geometry of the MultiGeometry."""
         return create_multigeometry(
             [geom.geometry for geom in self.kml_geometries if geom.geometry],
         )

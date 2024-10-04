@@ -15,6 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """
+KML Extension Namespace and the gx prefix.
+
 With the launch of Google Earth 5.0, Google has provided extensions to KML
 to support a number of new features. These extensions use the gx prefix
 and the following namespace URI::
@@ -141,19 +143,33 @@ class TrackItem:
     def etree_elements(
         self,
         *,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
+        precision: Optional[int] = None,  # noqa: ARG002
+        verbosity: Verbosity = Verbosity.normal,  # noqa: ARG002
         name_spaces: Optional[Dict[str, str]] = None,
     ) -> Iterator[Element]:
+        """
+        Generate XML elements for the gx:when, gx:coord, and gx:angles elements.
+
+        Args:
+        ----
+            precision (Optional[int]): The precision of the coordinates.
+            verbosity (Verbosity): The verbosity level. Defaults to Verbosity.normal.
+            name_spaces (Optional[Dict[str, str]]): Additional XML namespaces.
+
+        Yields:
+        ------
+            Element: The generated XML elements.
+
+        """
         name_spaces = name_spaces or {}
         name_spaces = {**config.NAME_SPACES, **name_spaces}
-        element: Element = config.etree.Element(  # type: ignore[attr-defined]
+        element: Element = config.etree.Element(
             f"{name_spaces.get('kml', '')}when",
         )
         if self.when:
             element.text = self.when.isoformat()
         yield element
-        element = config.etree.Element(  # type: ignore[attr-defined]
+        element = config.etree.Element(
             f"{name_spaces.get('gx', '')}coord",
         )
         if self.coord:
@@ -163,7 +179,7 @@ class TrackItem:
                 ],
             )
         yield element
-        element = config.etree.Element(  # type: ignore[attr-defined]
+        element = config.etree.Element(
             f"{name_spaces.get('gx', '')}angles",
         )
         if self.angle:
@@ -174,12 +190,38 @@ class TrackItem:
 
 
 def track_items_to_geometry(track_items: Iterable[TrackItem]) -> geo.LineString:
+    """
+    Convert a sequence of TrackItems to a LineString geometry.
+
+    Args:
+    ----
+        track_items : Iterable[TrackItem]
+            A sequence of TrackItems.
+
+    Returns:
+    -------
+        geo.LineString
+            A LineString geometry representing the track.
+
+    """
     return geo.LineString.from_points(
         *[item.coord for item in track_items if item.coord is not None],
     )
 
 
 def linestring_to_track_items(linestring: geo.LineString) -> List[TrackItem]:
+    """
+    Convert a LineString to a list of TrackItems.
+
+    Args:
+    ----
+        linestring (LineString): The LineString to convert.
+
+    Returns:
+    -------
+        List[TrackItem]: A list of TrackItems representing the points in the LineString.
+
+    """
     return [TrackItem(coord=point) for point in linestring.geoms]
 
 
@@ -197,7 +239,7 @@ class Track(_Geometry):
     time elements as the object moves through space.
     """
 
-    _default_ns = config.GXNS
+    _default_nsid = config.GX
 
     track_items: List[TrackItem]
 
@@ -215,6 +257,38 @@ class Track(_Geometry):
         track_items: Optional[Iterable[TrackItem]] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a GX object.
+
+        Parameters
+        ----------
+        ns : Optional[str], optional
+            The namespace for the GX object, by default None
+        name_spaces : Optional[Dict[str, str]], optional
+            A dictionary of namespace prefixes and URIs, by default None
+        id : Optional[str], optional
+            The ID of the GX object, by default None
+        target_id : Optional[str], optional
+            The target ID of the GX object, by default None
+        extrude : Optional[bool], optional
+            Whether to extrude the GX object, by default None
+        tessellate : Optional[bool], optional
+            Whether to tessellate the GX object, by default None
+        altitude_mode : Optional[AltitudeMode], optional
+            The altitude mode of the GX object, by default None
+        geometry : Optional[geo.LineString], optional
+            The geometry of the GX object, by default None
+        track_items : Optional[Iterable[TrackItem]], optional
+            The track items of the GX object, by default None
+        **kwargs : Any, optional
+            Additional keyword arguments.
+
+        Raises
+        ------
+        ValueError
+            If both `geometry` and `track_items` are specified.
+
+        """
         if geometry and track_items:
             msg = "Cannot specify both geometry and track_items"
             raise ValueError(msg)
@@ -233,7 +307,15 @@ class Track(_Geometry):
         )
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for Track."""
+        """
+        Create a string representation for Track.
+
+        Returns
+        -------
+        str
+            The string representation of the Track object.
+
+        """
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
@@ -245,15 +327,33 @@ class Track(_Geometry):
             f"altitude_mode={self.altitude_mode}, "
             f"geometry={self.geometry!r}, "
             f"track_items={self.track_items!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     @property
     def geometry(self) -> Optional[geo.LineString]:
+        """
+        Get the geometry of the track.
+
+        Returns
+        -------
+        Optional[geo.LineString]
+            The geometry of the track.
+
+        """
         return track_items_to_geometry(self.track_items)
 
     def __bool__(self) -> bool:
+        """
+        Check if the track has any track items.
+
+        Returns
+        -------
+        bool
+            True if the track has track items, False otherwise.
+
+        """
         return bool(self.track_items)
 
     def etree_element(
@@ -262,6 +362,24 @@ class Track(_Geometry):
         verbosity: Verbosity = Verbosity.normal,
         name_spaces: Optional[Dict[str, str]] = None,
     ) -> Element:
+        """
+        Get the ElementTree element representation of the track.
+
+        Parameters
+        ----------
+        precision : Optional[int], optional
+            The precision for floating-point values, by default None
+        verbosity : Verbosity, optional
+            The verbosity level for the element, by default Verbosity.normal
+        name_spaces : Optional[Dict[str, str]], optional
+            A dictionary of namespace prefixes and URIs, by default None
+
+        Returns
+        -------
+        Element
+            The ElementTree element representation of the track.
+
+        """
         element = super().etree_element(precision=precision, verbosity=verbosity)
         if self.track_items:
             for track_item in self.track_items:
@@ -275,6 +393,20 @@ class Track(_Geometry):
 
     @classmethod
     def _get_timestamps(cls, element: Element) -> List[Optional[datetime.datetime]]:
+        """
+        Get the timestamps from the XML element.
+
+        Parameters
+        ----------
+        element : Element
+            The XML element.
+
+        Returns
+        -------
+        List[Optional[datetime.datetime]]
+            The list of timestamps.
+
+        """
         time_stamps: List[Optional[datetime.datetime]] = []
         for time_stamp in element.findall(f"{config.KMLNS}when"):
             if time_stamp is not None and time_stamp.text:
@@ -285,6 +417,20 @@ class Track(_Geometry):
 
     @classmethod
     def _get_coords(cls, element: Element) -> List[Optional[geo.Point]]:
+        """
+        Get the coordinates from the XML element.
+
+        Parameters
+        ----------
+        element : Element
+            The XML element.
+
+        Returns
+        -------
+        List[Optional[geo.Point]]
+            The list of coordinates.
+
+        """
         coords: List[Optional[geo.Point]] = []
         for coord in element.findall(f"{config.GXNS}coord"):
             if coord is not None and coord.text:
@@ -297,6 +443,20 @@ class Track(_Geometry):
 
     @classmethod
     def _get_angles(cls, element: Element) -> List[Optional[Angle]]:
+        """
+        Get the angles from the XML element.
+
+        Parameters
+        ----------
+        element : Element
+            The XML element.
+
+        Returns
+        -------
+        List[Optional[Angle]]
+            The list of angles.
+
+        """
         angles: List[Optional[Angle]] = []
         for angle in element.findall(f"{config.GXNS}angles"):
             if angle is not None and angle.text:
@@ -309,10 +469,28 @@ class Track(_Geometry):
     def track_items_kwargs_from_element(
         cls,
         *,
-        ns: str,
+        ns: str,  # noqa: ARG003
         element: Element,
-        strict: bool,
+        strict: bool,  # noqa: ARG003
     ) -> List[TrackItem]:
+        """
+        Get the track item keyword arguments from the XML element.
+
+        Parameters
+        ----------
+        ns : str
+            The namespace for the GX object.
+        element : Element
+            The XML element.
+        strict : bool
+            Whether to enforce strict parsing.
+
+        Returns
+        -------
+        List[TrackItem]
+            The list of track items.
+
+        """
         time_stamps = cls._get_timestamps(element)
         coords = cls._get_coords(element)
         angles = cls._get_angles(element)
@@ -330,6 +508,26 @@ class Track(_Geometry):
         element: Element,
         strict: bool,
     ) -> Dict[str, Any]:
+        """
+        Get the keyword arguments for the track.
+
+        Parameters
+        ----------
+        ns : str
+            The namespace for the GX object.
+        name_spaces : Optional[Dict[str, str]], optional
+            A dictionary of namespace prefixes and URIs, by default None
+        element : Element
+            The XML element.
+        strict : bool
+            Whether to enforce strict parsing.
+
+        Returns
+        -------
+        Dict[str, Any]
+            The keyword arguments for the track.
+
+        """
         kwargs = super()._get_kwargs(
             ns=ns,
             name_spaces=name_spaces,
@@ -348,17 +546,64 @@ def multilinestring_to_tracks(
     multilinestring: geo.MultiLineString,
     ns: Optional[str],
 ) -> List[Track]:
+    """
+    Convert a MultiLineString to a list of Track objects.
+
+    Args:
+    ----
+        multilinestring : geo.MultiLineString:
+            The MultiLineString to convert.
+        ns : str, optional:
+            The namespace for the Track objects.
+
+    Returns:
+    -------
+        List[Track]:
+            A list of Track objects.
+
+    """
     return [Track(ns=ns, geometry=linestring) for linestring in multilinestring.geoms]
 
 
 def tracks_to_geometry(tracks: Iterable[Track]) -> geo.MultiLineString:
+    """
+    Convert a collection of tracks to a MultiLineString geometry.
+
+    Args:
+    ----
+        tracks : Iterable[Track]
+            A collection of tracks.
+
+    Returns:
+    -------
+        geo.MultiLineString
+            A MultiLineString geometry representing the tracks.
+
+    """
     return geo.MultiLineString.from_linestrings(
         *[track.geometry for track in tracks if track.geometry],
     )
 
 
 class MultiTrack(_Geometry):
-    _default_ns = config.GXNS
+    """
+    A MultiTrack is a collection of tracks.
+
+    A multi-track element is used to combine multiple track elements into a single
+    conceptual unit. For example, suppose you collect GPS data for a day's bike ride
+    that includes several rest stops and a stop for lunch. Because of the interruptions
+    in time, one bike ride might appear as four different tracks when the times and
+    positions are plotted.
+    Grouping these <gx:Track> elements into one <gx:MultiTrack> container causes them to
+    be displayed in Google Earth as sections of a single path.
+    When the icon reaches the end of one segment, it moves to the beginning of the next
+    segment.
+    The <gx:interpolate> element specifies whether to stop at the end of one track and
+    jump immediately to the start of the next one, or to interpolate the missing values
+    between the two tracks.
+    """
+
+    _default_nsid = config.GX
     tracks: List[Track]
 
     def __init__(
@@ -376,6 +621,29 @@ class MultiTrack(_Geometry):
         interpolate: Optional[bool] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Initialize a GX object.
+
+        Args:
+        ----
+            ns (Optional[str]): The namespace for the GX object.
+            name_spaces (Optional[Dict[str, str]]): The dictionary of namespace prefixes
+                and URIs.
+            id (Optional[str]): The ID of the GX object.
+            target_id (Optional[str]): The target ID of the GX object.
+            extrude (Optional[bool]): The extrude flag of the GX object.
+            tessellate (Optional[bool]): The tessellate flag of the GX object.
+            altitude_mode (Optional[AltitudeMode]): The altitude mode of the GX object.
+            geometry (Optional[geo.MultiLineString]): The geometry of the GX object.
+            tracks (Optional[Iterable[Track]]): The tracks of the GX object.
+            interpolate (Optional[bool]): The interpolate flag of the GX object.
+            **kwargs (Any): Additional keyword arguments.
+
+        Raises:
+        ------
+            ValueError: If both geometry and tracks are specified.
+
+        """
         if geometry and tracks:
             msg = "Cannot specify both geometry and track_items"
             raise ValueError(msg)
@@ -408,15 +676,32 @@ class MultiTrack(_Geometry):
             f"geometry={self.geometry!r}, "
             f"tracks={self.tracks!r}, "
             f"interpolate={self.interpolate!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
 
     @property
     def geometry(self) -> Optional[geo.MultiLineString]:
+        """
+        Get the geometry of the gx object.
+
+        Returns
+        -------
+            Optional[geo.MultiLineString]: The geometry of the gx object.
+
+        """
         return tracks_to_geometry(self.tracks)
 
     def __bool__(self) -> bool:
+        """
+        Check if the object has any tracks.
+
+        Returns
+        -------
+        bool
+            True if the object has tracks, False otherwise.
+
+        """
         return bool(self.tracks)
 
 

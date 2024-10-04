@@ -26,6 +26,8 @@ from fastkml.helpers import text_attribute
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 
+__all__ = ["_BaseObject"]
+
 
 class _BaseObject(_XMLObject):
     """
@@ -39,7 +41,7 @@ class _BaseObject(_XMLObject):
     mechanism is to be used.
     """
 
-    _default_ns = config.KMLNS
+    _default_nsid = config.KML
 
     id = None
     target_id = None
@@ -52,34 +54,49 @@ class _BaseObject(_XMLObject):
         target_id: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
-        """Initialize the KML Object."""
+        """
+        Initialize the KML Object.
+
+        Parameters
+        ----------
+        ns: (Optional[str])
+            The namespace of the KML object.
+        name_spaces: (Optional[Dict[str, str]])
+            The dictionary of namespace prefixes and URIs.
+        id: (Optional[str])
+            The id attribute of the KML object.
+        target_id: (Optional[str])
+            The targetId attribute of the KML object.
+        kwargs: (Any)
+            Additional keyword arguments.
+
+        Returns
+        -------
+        None
+
+        """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.id = id or ""
         self.target_id = target_id or ""
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for _BaseObject."""
+        """
+        Create a string representation for _BaseObject.
+
+        Returns
+        -------
+        str: The string representation of _BaseObject.
+
+        """
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
-            f"**kwargs={self._get_splat()!r},"
+            f"**{self._get_splat()!r},"
             ")"
         )
-
-    def __eq__(self, other: object) -> bool:
-        """Return True if the two objects are equal."""
-        try:
-            assert isinstance(other, type(self))
-            return (
-                super().__eq__(other)
-                and self.id == other.id
-                and self.target_id == other.target_id
-            )
-        except AssertionError:
-            return False
 
 
 registry.register(

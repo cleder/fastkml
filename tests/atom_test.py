@@ -155,7 +155,7 @@ class TestStdLibrary(StdLibrary):
         assert a.name is None
         assert "atom:name" not in a.to_string()
 
-    def test_atom_contributor_rountrip(self) -> None:
+    def test_atom_contributor_roundtrip(self) -> None:
         a = atom.Contributor(
             ns="{http://www.w3.org/2005/Atom}",
             name="Nobody",
