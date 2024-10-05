@@ -1,0 +1,6 @@
+[default.extend-words]
+lod = "lod"
+Lod = "Lod"
+
+[files]
+extend-exclude = ["tests/ogc_conformance/data/kml/*.kml"]

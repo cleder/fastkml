@@ -146,7 +146,8 @@ ignore_missing_imports = true
 implicit_reexport = false
 no_implicit_optional = true
 overrides = [
-    { disable_error_code = "attr-defined, union-attr", module = "tests.*" },
+    { disable_error_code = "attr-defined, union-attr", module = "tests.oldunit_test" },
+    { disable_error_code = "union-attr", module = "tests.*" },
 ]
 show_error_codes = true
 strict_equality = true

@@ -16,7 +16,7 @@
 
 """Test the configuration options."""
 
-import xml.etree.ElementTree
+import xml.etree.ElementTree as ET
 
 import pytest
 
@@ -31,7 +31,7 @@ from fastkml import config
 
 
 def test_set_etree_implementation_xml() -> None:
-    config.set_etree_implementation(xml.etree.ElementTree)
+    config.set_etree_implementation(ET)
 
     assert config.etree.__name__ == "xml.etree.ElementTree"
 
@@ -45,7 +45,7 @@ def test_set_etree_implementation_lxml() -> None:
 
 def test_register_namespaces() -> None:
     """Register namespaces for use in etree."""
-    config.set_etree_implementation(xml.etree.ElementTree)
+    config.set_etree_implementation(ET)
     ns = {
         "real_person": "http://people.example.com",
         "role": "http://characters.example.com",
@@ -67,7 +67,7 @@ def test_default_registered_namespaces() -> None:
 
 def test_set_default_namespaces() -> None:
     """Set the default namespaces."""
-    config.set_etree_implementation(xml.etree.ElementTree)
+    config.set_etree_implementation(ET)
     config.etree._namespace_map = {}
 
     config.set_default_namespaces()

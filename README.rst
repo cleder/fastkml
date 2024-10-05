@@ -115,7 +115,7 @@ Optional
     pip install --pre "fastkml[lxml]"
 
 Limitations
-============
+===========
 
 Currently, the only major feature missing for the full Google Earth experience
 is the `gx extension

@@ -19,8 +19,8 @@ import pytest
 from pygeoif import geometry as geo
 
 from fastkml import exceptions
+from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
-from fastkml.geometry import AltitudeMode
 from fastkml.geometry import LinearRing
 from fastkml.geometry import LineString
 from fastkml.geometry import MultiGeometry
@@ -65,7 +65,7 @@ class TestGetGeometry(StdLibrary):
 
         assert g.extrude is True
 
-    def test_tesselate(self) -> None:
+    def test_tessellate(self) -> None:
         doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
           <kml:coordinates>0.000000,1.000000</kml:coordinates>
           <kml:tessellate>1</kml:tessellate>
@@ -230,7 +230,8 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.class_from_string(doc)
 
-        assert len(g.geometry) == 2  # type: ignore[arg-type]
+        assert g.geometry is not None
+        assert len(g.geometry) == 2
 
     def test_geometrycollection(self) -> None:
         doc = """
