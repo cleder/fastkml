@@ -747,6 +747,7 @@ class NetworkLink(_Feature):
     For example, Google Earth would fly to the <LookAt> view of the parent Document,
     not the <LookAt> of the Placemarks contained within the Document.
     <Link>(required)
+
     https://developers.google.com/kml/documentation/kmlreference#networklink
     """
 

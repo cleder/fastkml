@@ -67,7 +67,7 @@ class SetElement(Protocol):
         attr_name: str,
         node_name: str,
         precision: Optional[int],
-        verbosity: Optional[Verbosity],
+        verbosity: Verbosity,
         default: Any,
     ) -> None: ...
 
