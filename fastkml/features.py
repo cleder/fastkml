@@ -353,6 +353,7 @@ registry.register(
         classes=(bool,),
         get_kwarg=subelement_bool_kwarg,
         set_element=bool_subelement,
+        default=True,
     ),
 )
 registry.register(
@@ -364,6 +365,7 @@ registry.register(
         classes=(bool,),
         get_kwarg=subelement_bool_kwarg,
         set_element=bool_subelement,
+        default=False,
     ),
 )
 registry.register(
@@ -745,7 +747,7 @@ class NetworkLink(_Feature):
     For example, Google Earth would fly to the <LookAt> view of the parent Document,
     not the <LookAt> of the Placemarks contained within the Document.
     <Link>(required)
-       https://developers.google.com/kml/documentation/kmlreference#link
+    https://developers.google.com/kml/documentation/kmlreference#networklink
     """
 
     refresh_visibility: Optional[bool]
@@ -921,6 +923,7 @@ registry.register(
         classes=(bool,),
         get_kwarg=subelement_bool_kwarg,
         set_element=bool_subelement,
+        default=False,
     ),
 )
 registry.register(
@@ -932,6 +935,7 @@ registry.register(
         classes=(bool,),
         get_kwarg=subelement_bool_kwarg,
         set_element=bool_subelement,
+        default=False,
     ),
 )
 registry.register(
