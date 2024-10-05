@@ -82,16 +82,12 @@ class TestGetGxGeometry(StdLibrary):
                 ns="",
                 id="",
                 target_id="",
-                extrude=None,
-                tessellate=None,
                 altitude_mode=None,
                 tracks=[
                     Track(
                         ns="{http://www.google.com/kml/ext/2.2}",
                         id="",
                         target_id="",
-                        extrude=None,
-                        tessellate=None,
                         altitude_mode=None,
                         track_items=[
                             TrackItem(
@@ -124,8 +120,6 @@ class TestGetGxGeometry(StdLibrary):
                         ns="{http://www.google.com/kml/ext/2.2}",
                         id="",
                         target_id="",
-                        extrude=None,
-                        tessellate=None,
                         altitude_mode=None,
                         track_items=[
                             TrackItem(
@@ -171,16 +165,12 @@ class TestTrack(StdLibrary):
             id="track1",
             target_id="track2",
             altitude_mode=AltitudeMode.absolute,
-            extrude=True,
-            tessellate=True,
             geometry=ls,
         )
 
         assert "<Track " in track.to_string()
         assert 'id="track1"' in track.to_string()
         assert 'targetId="track2"' in track.to_string()
-        assert "extrude>1</extrude>" in track.to_string()
-        assert "tessellate>1</tessellate>" in track.to_string()
         assert "altitudeMode>absolute</altitudeMode>" in track.to_string()
         assert "coord>" in track.to_string()
         assert "angles" in track.to_string()
@@ -211,7 +201,10 @@ class TestTrack(StdLibrary):
         angle = Angle()
         track_items = [TrackItem(when=time1, coord=geo.Point(1, 2), angle=angle)]
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match="^Cannot specify both geometry and track_items$",
+        ):
             Track(
                 track_items=track_items,
                 geometry=ls,
@@ -268,8 +261,6 @@ class TestTrack(StdLibrary):
             ns="",
             id="",
             target_id="",
-            extrude=None,
-            tessellate=None,
             altitude_mode=None,
             track_items=[
                 TrackItem(
@@ -345,16 +336,12 @@ class TestMultiTrack(StdLibrary):
                 ns="",
                 id=None,
                 target_id=None,
-                extrude=None,
-                tessellate=None,
                 altitude_mode=None,
                 tracks=[
                     Track(
                         ns="",
                         id=None,
                         target_id=None,
-                        extrude=None,
-                        tessellate=None,
                         altitude_mode=None,
                         track_items=[
                             TrackItem(when=None, coord=geo.Point(0, 0), angle=None),
@@ -367,8 +354,6 @@ class TestMultiTrack(StdLibrary):
                         ns="",
                         id=None,
                         target_id=None,
-                        extrude=None,
-                        tessellate=None,
                         altitude_mode=None,
                         track_items=[
                             TrackItem(when=None, coord=geo.Point(0.0, 0.0), angle=None),
@@ -463,7 +448,10 @@ class TestMultiTrack(StdLibrary):
             ),
         ]
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match="^Cannot specify both geometry and tracks$",
+        ):
             MultiTrack(geometry=lines, tracks=[Track(track_items=track_items)])
 
 

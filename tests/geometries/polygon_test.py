@@ -18,6 +18,8 @@
 
 import pygeoif.geometry as geo
 
+from fastkml.enums import AltitudeMode
+from fastkml.enums import Verbosity
 from fastkml.geometry import OuterBoundaryIs
 from fastkml.geometry import Polygon
 from tests.base import Lxml
@@ -61,6 +63,69 @@ class TestStdLibrary(StdLibrary):
             "0.100000,0.100000 0.100000,0.900000 0.900000,0.900000 "
             "0.900000,0.100000 0.100000,0.100000"
         ) in polygon.to_string()
+
+    def test_exterior_interior_tessellate_extrude_altitude_mode(self) -> None:
+        """
+        Test exterior and interior with tessellate, extrude and altitude mode.
+
+        This should be set on the Polygon level, not on the LinearRing level.
+        """
+        poly = geo.Polygon(
+            [(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)],
+            [[(0.1, 0.1), (0.1, 0.9), (0.9, 0.9), (0.9, 0.1), (0.1, 0.1)]],
+        )
+        polygon = Polygon(
+            ns="",
+            geometry=poly,
+            extrude=True,
+            tessellate=True,
+            altitude_mode=AltitudeMode.relative_to_ground,
+        )
+
+        xml = polygon.to_string()
+        assert xml.count("extrude>1</") == 1
+        assert xml.count("tessellate>1</") == 1
+        assert xml.count("altitudeMode>relativeToGround</") == 1
+
+    def test_to_string_terse_default(self) -> None:
+        """Test the to_string method, exclude default for extrude in terse mode."""
+        poly = geo.Polygon([(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)])
+
+        polygon = Polygon(ns="", geometry=poly, extrude=False)
+
+        assert "extrude>0</" not in polygon.to_string(verbosity=Verbosity.terse)
+
+    def test_to_string_terse_non_default(self) -> None:
+        """Test the to_string method, include extrude when true in terse mode."""
+        poly = geo.Polygon([(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)])
+
+        polygon = Polygon(ns="", geometry=poly, extrude=True)
+
+        assert "extrude>1</" in polygon.to_string(verbosity=Verbosity.terse)
+
+    def test_to_string_verbose_default(self) -> None:
+        """Test the to_string method, include default for extrude in verbose mode."""
+        poly = geo.Polygon([(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)])
+
+        polygon = Polygon(ns="", geometry=poly, extrude=False)
+
+        assert "extrude>0</" in polygon.to_string(verbosity=Verbosity.verbose)
+
+    def test_to_string_verbose_non_default(self) -> None:
+        """Test the to_string method, include extrude when true in verbose mode."""
+        poly = geo.Polygon([(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)])
+
+        polygon = Polygon(ns="", geometry=poly, extrude=True)
+
+        assert "extrude>1</" in polygon.to_string(verbosity=Verbosity.verbose)
+
+    def test_to_string_verbose_none(self) -> None:
+        """Test the to_string method, include extrude when true in verbose mode."""
+        poly = geo.Polygon([(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)])
+
+        polygon = Polygon(ns="", geometry=poly)
+
+        assert "extrude>0</" in polygon.to_string(verbosity=Verbosity.verbose)
 
     def test_from_string_exterior_only(self) -> None:
         """Test exterior only."""

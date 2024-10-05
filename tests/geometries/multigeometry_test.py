@@ -17,6 +17,7 @@
 """Test the geometry classes."""
 import pygeoif.geometry as geo
 
+from fastkml.enums import Verbosity
 from fastkml.geometry import MultiGeometry
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -261,6 +262,33 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
         assert "Polygon>" in mg.to_string()
         assert "MultiGeometry>" in mg.to_string()
 
+    def test_multi_geometries_verbose(self) -> None:
+        p = geo.Point(1, 2)
+        ls = geo.LineString(((1, 2), (2, 0)))
+        lr = geo.LinearRing(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)))
+        poly = geo.Polygon(
+            [(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)],
+            [[(0.1, 0.1), (0.1, 0.9), (0.9, 0.9), (0.9, 0.1), (0.1, 0.1)]],
+        )
+        gc = geo.GeometryCollection([p, ls, lr, poly])
+        mp = geo.MultiPolygon(
+            [
+                (
+                    ((0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0.0)),
+                    [((0.1, 0.1), (0.1, 0.2), (0.2, 0.2), (0.2, 0.1))],
+                ),
+                (((0.0, 0.0), (0.0, 2.0), (1.0, 1.0), (1.0, 0.0)),),
+            ],
+        )
+        ml = geo.MultiLineString([[(1, 2), (3, 4)], [(5, 6), (7, 8)]])
+        mgc = geo.GeometryCollection([gc, mp, ml])
+        mg = MultiGeometry(ns="", geometry=mgc)
+
+        xml = mg.to_string(verbosity=Verbosity.verbose)
+        assert xml.count("tessellate>0<") == 12  # points do not have tessellate
+        assert xml.count("extrude>0<") == 13
+        assert xml.count("altitudeMode>clampToGround<") == 13
+
     def test_multi_geometries_read(self) -> None:
         xml = (
             '<MultiGeometry xmlns="http://www.opengis.net/kml/2.2">'
@@ -368,10 +396,10 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
         mg = MultiGeometry.class_from_string(xml)
 
         assert mg.geometry is None
-        assert "MultiGeometry>" in mg.to_string()
-        assert "coordinates>" not in mg.to_string()
-        assert mg.extrude is False
-        assert mg.tessellate is False
+        assert "MultiGeometry" in mg.to_string()
+        assert "coordinates" not in mg.to_string()
+        assert not hasattr(mg, "extrude")
+        assert not hasattr(mg, "tessellate")
 
 
 class TestMultiPointLxml(Lxml, TestMultiPointStdLibrary):

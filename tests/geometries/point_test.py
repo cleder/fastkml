@@ -19,6 +19,7 @@
 import pygeoif.geometry as geo
 import pytest
 
+from fastkml.enums import Verbosity
 from fastkml.exceptions import KMLParseError
 from fastkml.geometry import Point
 from tests.base import Lxml
@@ -55,6 +56,51 @@ class TestPoint(StdLibrary):
 
         assert "Point" in point.to_string()
         assert "coordinates>1.000000,2.000000,3.000000</" in point.to_string()
+
+    def test_to_string_terse_default(self) -> None:
+        """Test the to_string method, exclude default for extrude in terse mode."""
+        p = geo.Point(1, 2)
+
+        point = Point(geometry=p, extrude=False)
+
+        assert "coordinates>" in point.to_string(verbosity=Verbosity.terse)
+        assert "extrude" not in point.to_string(verbosity=Verbosity.terse)
+
+    def test_to_string_terse_non_default(self) -> None:
+        """Test the to_string method, include extrude when true in terse mode."""
+        p = geo.Point(1, 2)
+
+        point = Point(geometry=p, extrude=True)
+
+        assert "coordinates>" in point.to_string(verbosity=Verbosity.terse)
+        assert "extrude>1</" in point.to_string(verbosity=Verbosity.terse)
+
+    def test_to_string_verbose_default(self) -> None:
+        """Test the to_string method, include default for extrude in verbose mode."""
+        p = geo.Point(1, 2)
+
+        point = Point(geometry=p, extrude=False)
+
+        assert "coordinates>" in point.to_string(verbosity=Verbosity.verbose)
+        assert "extrude>0</" in point.to_string(verbosity=Verbosity.verbose)
+
+    def test_to_string_verbose_non_default(self) -> None:
+        """Test the to_string method, include extrude when true in verbose mode."""
+        p = geo.Point(1, 2)
+
+        point = Point(geometry=p, extrude=True)
+
+        assert "coordinates>" in point.to_string(verbosity=Verbosity.verbose)
+        assert "extrude>1</" in point.to_string(verbosity=Verbosity.verbose)
+
+    def test_to_string_verbose_none(self) -> None:
+        """Test the to_string method, include extrude when true in verbose mode."""
+        p = geo.Point(1, 2)
+
+        point = Point(geometry=p, extrude=False)
+
+        assert "coordinates>" in point.to_string(verbosity=Verbosity.verbose)
+        assert "extrude>0</" in point.to_string(verbosity=Verbosity.verbose)
 
     def test_to_string_2d_precision_0(self) -> None:
         """Test the to_string method."""
@@ -110,7 +156,6 @@ class TestPoint(StdLibrary):
         assert point.geometry == geo.Point(1, 2)
         assert point.altitude_mode is None
         assert point.extrude is None
-        assert point.tessellate is None
 
     def test_from_string_uppercase_altitude_mode_relaxed(self) -> None:
         """Test the from_string method for an uppercase altitude mode."""
@@ -123,6 +168,7 @@ class TestPoint(StdLibrary):
         )
 
         assert point.geometry == geo.Point(1, 2)
+        assert point.altitude_mode
         assert point.altitude_mode.value == "relativeToGround"
 
     def test_from_string_uppercase_altitude_mode_strict(self) -> None:
@@ -150,9 +196,9 @@ class TestPoint(StdLibrary):
         )
 
         assert point.geometry == geo.Point(1, 2, 3)
+        assert point.altitude_mode
         assert point.altitude_mode.value == "absolute"
         assert point.extrude
-        assert point.tessellate
 
     def test_empty_from_string(self) -> None:
         """Test the from_string method."""
@@ -206,16 +252,6 @@ class TestPoint(StdLibrary):
             Point.class_from_string(
                 '<Point xmlns="http://www.opengis.net/kml/2.2">'
                 "<coordinates>a,b,c</coordinates></Point>",
-            )
-
-    def test_from_string_invalid_coordinates_nan(self) -> None:
-        with pytest.raises(
-            KMLParseError,
-            match=r"^Invalid coordinates in",
-        ):
-            Point.class_from_string(
-                '<Point xmlns="http://www.opengis.net/kml/2.2">'
-                "<coordinates>a,b</coordinates></Point>",
             )
 
 

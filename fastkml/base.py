@@ -152,6 +152,7 @@ class _XMLObject:
                 node_name=item.node_name,
                 precision=precision,
                 verbosity=verbosity,
+                default=item.default,
             )
         return element
 

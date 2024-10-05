@@ -77,7 +77,7 @@ class RelaxedEnum(Enum):
 class Verbosity(Enum):
     """Enum to represent the different verbosity levels."""
 
-    quiet = 0
+    terse = 0
     normal = 1
     verbose = 2
 

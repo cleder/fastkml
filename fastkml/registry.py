@@ -67,7 +67,8 @@ class SetElement(Protocol):
         attr_name: str,
         node_name: str,
         precision: Optional[int],
-        verbosity: Optional[Verbosity],
+        verbosity: Verbosity,
+        default: Any,
     ) -> None: ...
 
 
@@ -81,6 +82,7 @@ class RegistryItem:
     get_kwarg: GetKWArgs
     set_element: SetElement
     node_name: str
+    default: Any = None
 
 
 class Registry:

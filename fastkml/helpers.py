@@ -17,6 +17,7 @@
 
 import logging
 from enum import Enum
+from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -79,6 +80,35 @@ def handle_error(
     logger.warning("%s, %s", error, msg)
 
 
+def get_value(
+    obj: _XMLObject,
+    *,
+    attr_name: str,
+    verbosity: Verbosity,
+    default: Optional[Any],
+) -> Optional[Any]:
+    """
+    Get the value of an attribute from an object.
+
+    If the verbosity is set to `Verbosity.terse`, the function returns `None` if the
+    attribute value is equal to the default value. If the verbosity is set to
+    `Verbosity.verbose`, the function returns the default value if the attribute value
+    is `None`.
+
+    Args:
+    ----
+        obj (_XMLObject): The object to get the attribute value from.
+        attr_name (str): The name of the attribute to retrieve.
+        verbosity (Optional[Verbosity]): The verbosity.
+        default (Optional[Any]): The default value.
+
+    """
+    value = getattr(obj, attr_name, None)
+    if value is None and default is not None and verbosity == Verbosity.verbose:
+        return default
+    return None if value == default and verbosity == Verbosity.terse else value
+
+
 def node_text(
     obj: _XMLObject,
     *,
@@ -86,7 +116,8 @@ def node_text(
     attr_name: str,
     node_name: str,
     precision: Optional[int],
-    verbosity: Optional[Verbosity],
+    verbosity: Verbosity,
+    default: Optional[str],
 ) -> None:
     """
     Set the text of an XML element based on the attribute value in the given object.
@@ -105,6 +136,8 @@ def node_text(
         The precision to use when converting numeric values to text (unused).
     verbosity : Optional[Verbosity]
         The verbosity level for logging (unused).
+    default : Optional[str]
+        The default value for the attribute.
 
     Returns
     -------
@@ -112,8 +145,13 @@ def node_text(
         This function does not return anything.
 
     """
-    if getattr(obj, attr_name, None):
-        element.text = getattr(obj, attr_name)
+    if value := get_value(
+        obj,
+        attr_name=attr_name,
+        verbosity=verbosity,
+        default=default,
+    ):
+        element.text = value
 
 
 def text_subelement(
@@ -123,7 +161,8 @@ def text_subelement(
     attr_name: str,
     node_name: str,
     precision: Optional[int],
-    verbosity: Optional[Verbosity],
+    verbosity: Verbosity,
+    default: Optional[str],
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -136,18 +175,24 @@ def text_subelement(
         node_name (str): The name of the subelement to create.
         precision (Optional[int]): The precision of the attribute value.
         verbosity (Optional[Verbosity]): The verbosity level.
+        default (Optional[str]): The default value for the attribute.
 
     Returns:
     -------
         None
 
     """
-    if getattr(obj, attr_name, None):
+    if value := get_value(
+        obj,
+        attr_name=attr_name,
+        verbosity=verbosity,
+        default=default,
+    ):
         subelement = config.etree.SubElement(
             element,
             f"{obj.ns}{node_name}",
         )
-        subelement.text = getattr(obj, attr_name)
+        subelement.text = value
 
 
 def text_attribute(
@@ -157,7 +202,8 @@ def text_attribute(
     attr_name: str,
     node_name: str,
     precision: Optional[int],
-    verbosity: Optional[Verbosity],
+    verbosity: Verbosity,
+    default: Optional[str],
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -170,14 +216,20 @@ def text_attribute(
         node_name (str): The name of the attribute to be set.
         precision (Optional[int]): The precision of the attribute value.
         verbosity (Optional[Verbosity]): The verbosity level.
+        default (Optional[str]): The default value for the attribute.
 
     Returns:
     -------
         None
 
     """
-    if getattr(obj, attr_name, None):
-        element.set(node_name, getattr(obj, attr_name))
+    if value := get_value(
+        obj,
+        attr_name=attr_name,
+        verbosity=verbosity,
+        default=default,
+    ):
+        element.set(node_name, value)
 
 
 def bool_subelement(
@@ -187,7 +239,8 @@ def bool_subelement(
     attr_name: str,
     node_name: str,
     precision: Optional[int],
-    verbosity: Optional[Verbosity],
+    verbosity: Verbosity,
+    default: Optional[bool],
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -200,18 +253,20 @@ def bool_subelement(
         node_name (str): The name of the subelement to create.
         precision (Optional[int]): The precision of the attribute value.
         verbosity (Optional[Verbosity]): The verbosity level.
+        default (Optional[bool]): The default value for the attribute.
 
     Returns:
     -------
         None
 
     """
-    if getattr(obj, attr_name, None) is not None:
+    value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
+    if value is not None:
         subelement = config.etree.SubElement(
             element,
             f"{obj.ns}{node_name}",
         )
-        subelement.text = str(int(getattr(obj, attr_name)))
+        subelement.text = str(int(value))
 
 
 def int_subelement(
@@ -221,7 +276,8 @@ def int_subelement(
     attr_name: str,
     node_name: str,
     precision: Optional[int],
-    verbosity: Optional[Verbosity],
+    verbosity: Verbosity,
+    default: Optional[int],
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -234,18 +290,20 @@ def int_subelement(
         node_name (str): The name of the subelement to create.
         precision (Optional[int]): The precision of the attribute value.
         verbosity (Optional[Verbosity]): The verbosity level.
+        default (Optional[int]): The default value for the attribute.
 
     Returns:
     -------
         None: This function does not return anything.
 
     """
-    if getattr(obj, attr_name, None) is not None:
+    value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
+    if value is not None:
         subelement = config.etree.SubElement(
             element,
             f"{obj.ns}{node_name}",
         )
-        subelement.text = str(getattr(obj, attr_name))
+        subelement.text = str(value)
 
 
 def int_attribute(
@@ -255,7 +313,8 @@ def int_attribute(
     attr_name: str,
     node_name: str,
     precision: Optional[int],
-    verbosity: Optional[Verbosity],
+    verbosity: Verbosity,
+    default: Optional[int],
 ) -> None:
     """
     Set the value of an attribute.
@@ -268,14 +327,16 @@ def int_attribute(
         node_name (str): The name of the attribute to be set.
         precision (Optional[int]): The precision of the attribute value.
         verbosity (Optional[Verbosity]): The verbosity level.
+        default (Optional[int]): The default value for the attribute.
 
     Returns:
     -------
         None: This function does not return anything.
 
     """
-    if getattr(obj, attr_name, None) is not None:
-        element.set(node_name, str(getattr(obj, attr_name)))
+    value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
+    if value is not None:
+        element.set(node_name, str(value))
 
 
 def float_subelement(
@@ -285,15 +346,17 @@ def float_subelement(
     attr_name: str,
     node_name: str,
     precision: Optional[int],
-    verbosity: Optional[Verbosity],
+    verbosity: Verbosity,
+    default: Optional[float],
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
-    if getattr(obj, attr_name, None) is not None:
+    value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
+    if value is not None:
         subelement = config.etree.SubElement(
             element,
             f"{obj.ns}{node_name}",
         )
-        subelement.text = str(getattr(obj, attr_name))
+        subelement.text = str(value)
 
 
 def float_attribute(
@@ -303,11 +366,13 @@ def float_attribute(
     attr_name: str,
     node_name: str,
     precision: Optional[int],
-    verbosity: Optional[Verbosity],
+    verbosity: Verbosity,
+    default: Optional[float],
 ) -> None:
     """Set the value of an attribute."""
-    if getattr(obj, attr_name, None) is not None:
-        element.set(node_name, str(getattr(obj, attr_name)))
+    value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
+    if value is not None:
+        element.set(node_name, str(value))
 
 
 def enum_subelement(
@@ -317,15 +382,17 @@ def enum_subelement(
     attr_name: str,
     node_name: str,
     precision: Optional[int],
-    verbosity: Optional[Verbosity],
+    verbosity: Verbosity,
+    default: Optional[Enum],
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
-    if getattr(obj, attr_name, None):
+    value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
+    if value is not None:
         subelement = config.etree.SubElement(
             element,
             f"{obj.ns}{node_name}",
         )
-        subelement.text = getattr(obj, attr_name).value
+        subelement.text = value.value
 
 
 def enum_attribute(
@@ -335,11 +402,13 @@ def enum_attribute(
     attr_name: str,
     node_name: str,
     precision: Optional[int],
-    verbosity: Optional[Verbosity],
+    verbosity: Verbosity,
+    default: Optional[Enum],
 ) -> None:
     """Set the value of an attribute."""
-    if getattr(obj, attr_name, None):
-        element.set(node_name, getattr(obj, attr_name).value)
+    value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
+    if value is not None:
+        element.set(node_name, value.value)
 
 
 def xml_subelement(
@@ -349,7 +418,8 @@ def xml_subelement(
     attr_name: str,
     node_name: str,
     precision: Optional[int],
-    verbosity: Optional[Verbosity],
+    verbosity: Verbosity,
+    default: Optional[_XMLObject],
 ) -> None:
     """
     Add a subelement to an XML element based on the value of an attribute of an object.
@@ -362,6 +432,7 @@ def xml_subelement(
         node_name (str): The name of the XML node for the subelement (unused).
         precision (Optional[int]): The precision for formatting numerical values.
         verbosity (Optional[Verbosity]): The verbosity level for the subelement.
+        default (Optional[_XMLObject]): The default value for the attribute (unused).
 
     Returns:
     -------
@@ -384,7 +455,8 @@ def xml_subelement_list(
     attr_name: str,
     node_name: str,
     precision: Optional[int],
-    verbosity: Optional[Verbosity],
+    verbosity: Verbosity,
+    default: Optional[List[_XMLObject]],
 ) -> None:
     """
     Add subelements to an XML element based on a list attribute of an object.
@@ -397,6 +469,7 @@ def xml_subelement_list(
         node_name (str): The name of the XML node for each subelement (unused).
         precision (Optional[int]): The precision for floating-point values.
         verbosity (Optional[Verbosity]): The verbosity level for the XML output.
+        default (Optional[List[_XMLObject]]): The default value for the attribute.
 
     Returns:
     -------

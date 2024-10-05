@@ -1,4 +1,4 @@
-# Copyright (C) 2021 - 2023  Christian Ledermann
+# Copyright (C) 2021 - 2024  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -20,6 +20,7 @@ from pygeoif import geometry as geo
 
 from fastkml import exceptions
 from fastkml.enums import AltitudeMode
+from fastkml.enums import Verbosity
 from fastkml.geometry import LinearRing
 from fastkml.geometry import LineString
 from fastkml.geometry import MultiGeometry
@@ -72,7 +73,7 @@ class TestGetGeometry(StdLibrary):
 
         g = Point.class_from_string(doc)
 
-        assert g.tessellate is True
+        assert not hasattr(g, "tessellate")
 
     def test_point(self) -> None:
         doc = """<kml:Point xmlns:kml="http://www.opengis.net/kml/2.2">
@@ -81,6 +82,7 @@ class TestGetGeometry(StdLibrary):
 
         g = Point.class_from_string(doc)
 
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "Point",
             "bbox": (0.0, 1.0, 0.0, 1.0),
@@ -94,6 +96,7 @@ class TestGetGeometry(StdLibrary):
 
         g = LineString.class_from_string(doc)
 
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "LineString",
             "bbox": (0.0, 0.0, 1.0, 1.0),
@@ -109,6 +112,7 @@ class TestGetGeometry(StdLibrary):
 
         g = LinearRing.class_from_string(doc)
 
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "LinearRing",
             "bbox": (0.0, 0.0, 1.0, 1.0),
@@ -128,6 +132,7 @@ class TestGetGeometry(StdLibrary):
 
         g = Polygon.class_from_string(doc)
 
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "Polygon",
             "bbox": (0.0, 0.0, 1.0, 1.0),
@@ -153,6 +158,7 @@ class TestGetGeometry(StdLibrary):
 
         g = Polygon.class_from_string(doc)
 
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "Polygon",
             "bbox": (-1.0, -1.0, 2.0, 2.0),
@@ -267,7 +273,8 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.class_from_string(doc)
 
-        assert len(g.geometry) == 2  # type: ignore[arg-type]
+        assert g.geometry
+        assert len(g.geometry) == 2
         assert g.geometry.geom_type == "GeometryCollection"
 
 
@@ -281,9 +288,7 @@ class TestGeometry(StdLibrary):
         assert g.ns == "{http://www.opengis.net/kml/2.2}"
         assert g.target_id == ""
         assert g.id == ""
-        assert g.extrude is None
         assert g.altitude_mode is None
-        assert g.tessellate is None
 
     def test_init_with_args(self) -> None:
         """Test the init method with arguments."""
@@ -291,17 +296,13 @@ class TestGeometry(StdLibrary):
             ns="",
             target_id="target_id",
             id="id",
-            extrude=True,
             altitude_mode=AltitudeMode.clamp_to_ground,
-            tessellate=True,
         )
 
         assert g.ns == ""
         assert g.target_id == "target_id"
         assert g.id == "id"
-        assert g.extrude is True
         assert g.altitude_mode == AltitudeMode.clamp_to_ground
-        assert g.tessellate is True
 
     def test_to_string(self) -> None:
         """Test the to_string method."""
@@ -328,9 +329,87 @@ class TestGeometry(StdLibrary):
         assert "http://www.opengis.net/kml/2.3" in g.to_string()
         assert 'targetId="target_id"' in g.to_string()
         assert 'id="my-id"' in g.to_string()
-        assert "extrude>1</" in g.to_string()
+        assert "extrude" not in g.to_string()
         assert "altitudeMode>relativeToGround<" in g.to_string()
-        assert "tessellate>1<" in g.to_string()
+        assert "tessellate" not in g.to_string()
+
+    def test_to_string_terse_default(self) -> None:
+        """Test that with terse verbosity, only the necessary elements are included."""
+        g = _Geometry(
+            ns="{http://www.opengis.net/kml/2.3}",
+            target_id="target_id",
+            id="my-id",
+            altitude_mode=AltitudeMode.clamp_to_ground,
+        )
+
+        xml = g.to_string(verbosity=Verbosity.terse)
+
+        assert "altitudeMode" not in xml
+        assert "clampToGround" not in xml
+
+    def test_to_string_terse(self) -> None:
+        """Test that with terse verbosity, only the necessary elements are included."""
+        g = _Geometry(
+            ns="{http://www.opengis.net/kml/2.3}",
+            target_id="target_id",
+            id="my-id",
+            altitude_mode=AltitudeMode.relative_to_ground,
+        )
+
+        xml = g.to_string(verbosity=Verbosity.terse)
+
+        assert "altitudeMode>relativeToGround<" in xml
+
+    def test_to_string_terse_unset(self) -> None:
+        """Test that with terse verbosity, only the necessary elements are included."""
+        g = _Geometry(
+            ns="{http://www.opengis.net/kml/2.3}",
+            target_id="target_id",
+            id="my-id",
+        )
+
+        xml = g.to_string(verbosity=Verbosity.terse)
+
+        assert "altitudeMode" not in xml
+        assert "clampToGround" not in xml
+
+    def test_to_string_verbose(self) -> None:
+        """Test that with verbose verbosity, all elements are included."""
+        g = _Geometry(
+            ns="{http://www.opengis.net/kml/2.3}",
+            target_id="target_id",
+            altitude_mode=AltitudeMode.relative_to_ground,
+            id="my-id",
+        )
+
+        xml = g.to_string(verbosity=Verbosity.verbose)
+
+        assert "altitudeMode>relativeToGround<" in xml
+
+    def test_to_string_verbose_default_set(self) -> None:
+        """Test that with verbose verbosity, all elements are included."""
+        g = _Geometry(
+            ns="{http://www.opengis.net/kml/2.3}",
+            target_id="target_id",
+            altitude_mode=AltitudeMode.clamp_to_ground,
+            id="my-id",
+        )
+
+        xml = g.to_string(verbosity=Verbosity.verbose)
+
+        assert "altitudeMode>clampToGround<" in xml
+
+    def test_to_string_verbose_default(self) -> None:
+        """Test that with verbose verbosity, all elements are included."""
+        g = _Geometry(
+            ns="{http://www.opengis.net/kml/2.3}",
+            target_id="target_id",
+            id="my-id",
+        )
+
+        xml = g.to_string(verbosity=Verbosity.verbose)
+
+        assert "altitudeMode>clampToGround<" in xml
 
     def test_from_string(self) -> None:
         """Test the from_string method."""
@@ -346,9 +425,9 @@ class TestGeometry(StdLibrary):
         assert g.ns == "{http://www.opengis.net/kml/2.2}"
         assert g.target_id == "target_id"
         assert g.id == "my-id"
-        assert g.extrude is True
         assert g.altitude_mode == AltitudeMode.relative_to_ground
-        assert g.tessellate is True
+        assert not hasattr(g, "tessellate")
+        assert not hasattr(g, "extrude")
 
     def test_from_string_invalid_altitude_mode_strict(self) -> None:
         """Test the from_string method."""
@@ -374,18 +453,6 @@ class TestGeometry(StdLibrary):
 
         assert geom.altitude_mode is None
 
-    def test_from_string_invalid_extrude(self) -> None:
-        """Test the from_string method."""
-        with pytest.raises(
-            exceptions.KMLParseError,
-        ):
-            _Geometry.class_from_string(
-                '<_Geometry id="my-id" targetId="target_id" '
-                'xmlns="http://www.opengis.net/kml/2.2">'
-                "<extrude>invalid</extrude>"
-                "</_Geometry>",
-            )
-
     def test_from_minimal_string(self) -> None:
         g = _Geometry.class_from_string(
             '<_Geometry xmlns="http://www.opengis.net/kml/2.2/" />',
@@ -394,9 +461,7 @@ class TestGeometry(StdLibrary):
         assert g.ns == "{http://www.opengis.net/kml/2.2}"
         assert g.target_id == ""
         assert g.id == ""
-        assert g.extrude is None
         assert g.altitude_mode is None
-        assert g.tessellate is None
 
     def test_from_string_omitting_ns(self) -> None:
         """Test the from_string method."""
@@ -412,9 +477,9 @@ class TestGeometry(StdLibrary):
         assert g.ns == "{http://www.opengis.net/kml/2.2}"
         assert g.target_id == "target_id"
         assert g.id == "my-id"
-        assert g.extrude is True
         assert g.altitude_mode == AltitudeMode.relative_to_ground
-        assert g.tessellate is True
+        assert not hasattr(g, "tessellate")
+        assert not hasattr(g, "extrude")
 
 
 class TestCreateKmlGeometry(StdLibrary):
@@ -423,6 +488,7 @@ class TestCreateKmlGeometry(StdLibrary):
         g = create_kml_geometry(geo.Point(0, 1))
 
         assert isinstance(g, Point)
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "Point",
             "bbox": (0.0, 1.0, 0.0, 1.0),
@@ -436,6 +502,7 @@ class TestCreateKmlGeometry(StdLibrary):
         g = create_kml_geometry(geo.LineString([(0, 0), (1, 1)]))
 
         assert isinstance(g, LineString)
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "LineString",
             "bbox": (0.0, 0.0, 1.0, 1.0),
@@ -449,6 +516,7 @@ class TestCreateKmlGeometry(StdLibrary):
         g = create_kml_geometry(geo.LinearRing([(0, 0), (1, 1), (1, 0), (0, 0)]))
 
         assert isinstance(g, LinearRing)
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "LinearRing",
             "bbox": (0.0, 0.0, 1.0, 1.0),
@@ -465,7 +533,7 @@ class TestCreateKmlGeometry(StdLibrary):
         g = create_kml_geometry(geo.Polygon([(0, 0), (1, 1), (1, 0), (0, 0)]))
 
         assert isinstance(g, Polygon)
-        assert g.geometry is not None
+        assert g.geometry
         assert g.geometry.__geo_interface__ == {
             "type": "Polygon",
             "bbox": (0.0, 0.0, 1.0, 1.0),
@@ -482,7 +550,7 @@ class TestCreateKmlGeometry(StdLibrary):
         g = create_kml_geometry(geo.MultiPoint([(0, 0), (1, 1), (1, 0), (2, 2)]))
 
         assert isinstance(g, MultiGeometry)
-        assert g.geometry is not None
+        assert g.geometry
         assert len(g.geometry) == 4
         assert "MultiGeometry>" in g.to_string()
         assert "Point>" in g.to_string()
@@ -498,7 +566,7 @@ class TestCreateKmlGeometry(StdLibrary):
         )
 
         assert isinstance(g, MultiGeometry)
-        assert g.geometry is not None
+        assert g.geometry
         assert len(g.geometry) == 2
         assert "MultiGeometry>" in g.to_string()
         assert "LineString>" in g.to_string()
@@ -520,7 +588,7 @@ class TestCreateKmlGeometry(StdLibrary):
         )
 
         assert isinstance(g, MultiGeometry)
-        assert g.geometry is not None
+        assert g.geometry
         assert len(g.geometry) == 2
         assert "MultiGeometry>" in g.to_string()
         assert "Polygon>" in g.to_string()
@@ -555,7 +623,7 @@ class TestCreateKmlGeometry(StdLibrary):
         g = create_kml_geometry(gc)
 
         assert isinstance(g, MultiGeometry)
-        assert g.geometry is not None
+        assert g.geometry
         assert len(g.geometry) == 7
         assert "MultiGeometry>" in g.to_string()
         assert "LineString>" in g.to_string()

@@ -138,6 +138,7 @@ def coordinates_subelement(
     node_name: str,  # noqa: ARG001
     precision: Optional[int],
     verbosity: Optional[Verbosity],  # noqa: ARG001
+    default: Any,  # noqa: ARG001
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -150,6 +151,7 @@ def coordinates_subelement(
         node_name (str): The name of the subelement to create.
         precision (Optional[int]): The precision of the attribute value.
         verbosity (Optional[Verbosity]): The verbosity level.
+        default (Any): The default value of the attribute (unused).
 
     Returns:
     -------
@@ -318,8 +320,6 @@ class _Geometry(_BaseObject):
 
     """
 
-    extrude: Optional[bool]
-    tessellate: Optional[bool]
     altitude_mode: Optional[AltitudeMode]
 
     def __init__(
@@ -329,8 +329,6 @@ class _Geometry(_BaseObject):
         name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        extrude: Optional[bool] = None,
-        tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         **kwargs: Any,
     ) -> None:
@@ -357,8 +355,6 @@ class _Geometry(_BaseObject):
             target_id=target_id,
             **kwargs,
         )
-        self.extrude = extrude
-        self.tessellate = tessellate
         self.altitude_mode = altitude_mode
 
     def __repr__(self) -> str:
@@ -369,8 +365,6 @@ class _Geometry(_BaseObject):
             f"name_spaces={self.name_spaces!r}, "
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
-            f"extrude={self.extrude!r}, "
-            f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"**{self._get_splat()!r},"
             ")"
@@ -380,34 +374,13 @@ class _Geometry(_BaseObject):
 registry.register(
     _Geometry,
     item=RegistryItem(
-        ns_ids=("kml",),
-        classes=(bool,),
-        attr_name="extrude",
-        node_name="extrude",
-        get_kwarg=subelement_bool_kwarg,
-        set_element=bool_subelement,
-    ),
-)
-registry.register(
-    _Geometry,
-    item=RegistryItem(
-        ns_ids=("kml",),
-        classes=(bool,),
-        attr_name="tessellate",
-        node_name="tessellate",
-        get_kwarg=subelement_bool_kwarg,
-        set_element=bool_subelement,
-    ),
-)
-registry.register(
-    _Geometry,
-    item=RegistryItem(
         ns_ids=("kml", "gx"),
         classes=(AltitudeMode,),
         attr_name="altitude_mode",
         node_name="altitudeMode",
         get_kwarg=subelement_enum_kwarg,
         set_element=enum_subelement,
+        default=AltitudeMode.clamp_to_ground,
     ),
 )
 
@@ -424,6 +397,7 @@ class Point(_Geometry):
     https://developers.google.com/kml/documentation/kmlreference#point
     """
 
+    extrude: Optional[bool]
     kml_coordinates: Optional[Coordinates]
 
     def __init__(
@@ -434,7 +408,6 @@ class Point(_Geometry):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         extrude: Optional[bool] = None,
-        tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         geometry: Optional[geo.Point] = None,
         kml_coordinates: Optional[Coordinates] = None,
@@ -471,13 +444,13 @@ class Point(_Geometry):
                 else None
             )
         self.kml_coordinates = kml_coordinates
+        self.extrude = extrude
+        kwargs.pop("tessellate", None)
         super().__init__(
             ns=ns,
             id=id,
             name_spaces=name_spaces,
             target_id=target_id,
-            extrude=extrude,
-            tessellate=tessellate,
             altitude_mode=altitude_mode,
             **kwargs,
         )
@@ -498,7 +471,6 @@ class Point(_Geometry):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"extrude={self.extrude!r}, "
-            f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"kml_coordinates={self.kml_coordinates!r}, "
             f"**{self._get_splat()!r},"
@@ -546,6 +518,18 @@ registry.register(
         set_element=xml_subelement,
     ),
 )
+registry.register(
+    Point,
+    item=RegistryItem(
+        ns_ids=("kml",),
+        classes=(bool,),
+        attr_name="extrude",
+        node_name="extrude",
+        get_kwarg=subelement_bool_kwarg,
+        set_element=bool_subelement,
+        default=False,
+    ),
+)
 
 
 class LineString(_Geometry):
@@ -561,6 +545,10 @@ class LineString(_Geometry):
 
     https://developers.google.com/kml/documentation/kmlreference#linestring
     """
+
+    extrude: Optional[bool]
+    tessellate: Optional[bool]
+    kml_coordinates: Optional[Coordinates]
 
     def __init__(
         self,
@@ -602,13 +590,13 @@ class LineString(_Geometry):
         if kml_coordinates is None:
             kml_coordinates = Coordinates(coords=geometry.coords) if geometry else None
         self.kml_coordinates = kml_coordinates
+        self.extrude = extrude
+        self.tessellate = tessellate
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
             id=id,
             target_id=target_id,
-            extrude=extrude,
-            tessellate=tessellate,
             altitude_mode=altitude_mode,
             **kwargs,
         )
@@ -668,6 +656,31 @@ registry.register(
         node_name="coordinates",
         get_kwarg=xml_subelement_kwarg,
         set_element=xml_subelement,
+    ),
+)
+
+registry.register(
+    LineString,
+    item=RegistryItem(
+        ns_ids=("kml",),
+        classes=(bool,),
+        attr_name="extrude",
+        node_name="extrude",
+        get_kwarg=subelement_bool_kwarg,
+        set_element=bool_subelement,
+        default=False,
+    ),
+)
+registry.register(
+    LineString,
+    item=RegistryItem(
+        ns_ids=("kml",),
+        classes=(bool,),
+        attr_name="tessellate",
+        node_name="tessellate",
+        get_kwarg=subelement_bool_kwarg,
+        set_element=bool_subelement,
+        default=False,
     ),
 )
 
@@ -1034,6 +1047,8 @@ class Polygon(_Geometry):
     https://developers.google.com/kml/documentation/kmlreference#polygon
     """
 
+    extrude: Optional[bool]
+    tessellate: Optional[bool]
     outer_boundary: Optional[OuterBoundaryIs]
     inner_boundaries: List[InnerBoundaryIs]
 
@@ -1099,13 +1114,13 @@ class Polygon(_Geometry):
             ]
         self.outer_boundary = outer_boundary
         self.inner_boundaries = list(inner_boundaries) if inner_boundaries else []
+        self.extrude = extrude
+        self.tessellate = tessellate
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
             id=id,
             target_id=target_id,
-            extrude=extrude,
-            tessellate=tessellate,
             altitude_mode=altitude_mode,
             **kwargs,
         )
@@ -1194,6 +1209,30 @@ registry.register(
         node_name="innerBoundaryIs",
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
+    ),
+)
+registry.register(
+    Polygon,
+    item=RegistryItem(
+        ns_ids=("kml",),
+        classes=(bool,),
+        attr_name="extrude",
+        node_name="extrude",
+        get_kwarg=subelement_bool_kwarg,
+        set_element=bool_subelement,
+        default=False,
+    ),
+)
+registry.register(
+    Polygon,
+    item=RegistryItem(
+        ns_ids=("kml",),
+        classes=(bool,),
+        attr_name="tessellate",
+        node_name="tessellate",
+        get_kwarg=subelement_bool_kwarg,
+        set_element=bool_subelement,
+        default=False,
     ),
 )
 
@@ -1294,7 +1333,7 @@ def create_kml_geometry(
     raise KMLWriteError(msg)  # pragma: no cover
 
 
-class MultiGeometry(_Geometry):
+class MultiGeometry(_BaseObject):
     """A container for zero or more geometry primitives."""
 
     kml_geometries: List[Union[Point, LineString, Polygon, LinearRing, Self]]
@@ -1328,17 +1367,26 @@ class MultiGeometry(_Geometry):
             The ID of the KML element.
         target_id : str, optional
             The target ID of the KML element.
-        extrude : bool, optional
-            Specifies whether to extend the geometry to the ground.
-        tessellate : bool, optional
-            Specifies whether to allow the geometry to follow the terrain.
-        altitude_mode : AltitudeMode, optional
-            The altitude mode of the geometry.
         kml_geometries : iterable of Point, LineString, Polygon, LinearRing,
             MultiGeometry
             A collection of KML geometries.
         geometry : MultiGeometryType, optional
             A multi-geometry object.
+            Parameters for geometry and kml_geometries are mutually exclusive.
+            When geometry is provided, kml_geometries will be created from it and
+            you can specify additional parameters like extrude, tessellate, and
+            altitude_mode which will be set on the individual geometries.
+        extrude : bool, optional
+            Specifies whether to extend the geometry to the ground.
+            This is not set on the multi-geometry itself, but on the individual
+            geometries.
+        tessellate : bool, optional
+            Specifies whether to allow the geometry to follow the terrain.
+            This is not set on the multi-geometry itself, but on the individual
+            geometries.
+        altitude_mode : AltitudeMode, optional
+            The altitude mode of the geometry. This is not set on the multi-geometry
+            itself, but on the individual geometries.
         **kwargs : any
             Additional keyword arguments.
 
@@ -1373,9 +1421,6 @@ class MultiGeometry(_Geometry):
             name_spaces=name_spaces,
             id=id,
             target_id=target_id,
-            extrude=extrude,
-            tessellate=tessellate,
-            altitude_mode=altitude_mode,
             **kwargs,
         )
 
@@ -1391,9 +1436,6 @@ class MultiGeometry(_Geometry):
             f"name_spaces={self.name_spaces!r}, "
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
-            f"extrude={self.extrude!r}, "
-            f"tessellate={self.tessellate!r}, "
-            f"altitude_mode={self.altitude_mode}, "
             f"kml_geometries={self.kml_geometries!r}, "
             f"**{self._get_splat()!r},"
             ")"
