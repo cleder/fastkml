@@ -66,6 +66,7 @@ def set_element(
     node_name: str,
     precision: Optional[int],
     verbosity: Optional[Verbosity],
+    default: Any,
 ) -> None:
     """Get an attribute from an XML object."""
 
