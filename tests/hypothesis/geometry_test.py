@@ -15,19 +15,22 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Property based tests of the Geometry classes."""
-
+import string
 import typing
 
 from hypothesis import given
+from hypothesis import strategies as st
 from pygeoif.geometry import LinearRing
 from pygeoif.geometry import LineString
 from pygeoif.geometry import Point
 from pygeoif.geometry import Polygon
 from pygeoif.hypothesis.strategies import epsg4326
 from pygeoif.hypothesis.strategies import line_coords
+from pygeoif.hypothesis.strategies import points
 
 import fastkml.geometry
 from fastkml.enums import AltitudeMode
+from fastkml.enums import Verbosity
 
 eval_locals = {
     "Point": Point,
@@ -37,6 +40,8 @@ eval_locals = {
     "AltitudeMode": AltitudeMode,
     "fastkml": fastkml,
 }
+
+ID_TEXT = string.ascii_letters + string.digits + string.punctuation
 
 
 @given(
@@ -73,3 +78,137 @@ def test_coordinates_repr_roundtrip(
     new_c = eval(repr(coordinate), {}, eval_locals)  # noqa: S307
 
     assert coordinate == new_c
+
+
+@given(
+    id=st.one_of(st.none(), st.text(alphabet=string.printable)),
+    target_id=st.one_of(st.none(), st.text(alphabet=string.printable)),
+    extrude=st.one_of(st.none(), st.booleans()),
+    altitude_mode=st.one_of(st.none(), st.sampled_from(fastkml.enums.AltitudeMode)),
+    geometry=st.one_of(
+        st.none(),
+        points(srs=epsg4326),
+    ),
+)
+def test_point_repr_roundtrip(
+    id: typing.Optional[str],
+    target_id: typing.Optional[str],
+    extrude: typing.Optional[bool],
+    altitude_mode: typing.Optional[AltitudeMode],
+    geometry: typing.Optional[Point],
+) -> None:
+    point = fastkml.geometry.Point(
+        id=id,
+        target_id=target_id,
+        extrude=extrude,
+        altitude_mode=altitude_mode,
+        geometry=geometry,
+    )
+
+    new_p = eval(repr(point), {}, eval_locals)  # noqa: S307
+
+    assert point == new_p
+
+
+@given(
+    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
+    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
+    extrude=st.one_of(st.none(), st.booleans()),
+    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+    geometry=st.one_of(
+        st.none(),
+        points(srs=epsg4326),
+    ),
+)
+def test_point_str_roundtrip(
+    id: typing.Optional[str],
+    target_id: typing.Optional[str],
+    extrude: typing.Optional[bool],
+    altitude_mode: typing.Optional[AltitudeMode],
+    geometry: typing.Optional[Point],
+) -> None:
+    point = fastkml.geometry.Point(
+        id=id,
+        target_id=target_id,
+        extrude=extrude,
+        altitude_mode=altitude_mode,
+        geometry=geometry,
+    )
+
+    new_p = fastkml.geometry.Point.class_from_string(point.to_string(precision=15))
+
+    assert point.to_string() == new_p.to_string()
+
+
+@given(
+    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
+    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
+    extrude=st.one_of(st.none(), st.booleans()),
+    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+    geometry=st.one_of(
+        st.none(),
+        points(srs=epsg4326),
+    ),
+)
+def test_point_str_roundtrip_terse(
+    id: typing.Optional[str],
+    target_id: typing.Optional[str],
+    extrude: typing.Optional[bool],
+    altitude_mode: typing.Optional[AltitudeMode],
+    geometry: typing.Optional[Point],
+) -> None:
+    point = fastkml.geometry.Point(
+        id=id,
+        target_id=target_id,
+        extrude=extrude,
+        altitude_mode=altitude_mode,
+        geometry=geometry,
+    )
+
+    new_p = fastkml.geometry.Point.class_from_string(
+        point.to_string(precision=15, verbosity=Verbosity.terse),
+    )
+
+    assert (new_p.altitude_mode is None) or (
+        new_p.altitude_mode != AltitudeMode.clamp_to_ground
+    )
+    assert (new_p.extrude is None) or (new_p.extrude is True)
+    assert point.to_string(verbosity=Verbosity.verbose) == new_p.to_string(
+        verbosity=Verbosity.verbose,
+    )
+
+
+@given(
+    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
+    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
+    extrude=st.one_of(st.none(), st.booleans()),
+    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+    geometry=st.one_of(
+        st.none(),
+        points(srs=epsg4326),
+    ),
+)
+def test_point_str_roundtrip_verbose(
+    id: typing.Optional[str],
+    target_id: typing.Optional[str],
+    extrude: typing.Optional[bool],
+    altitude_mode: typing.Optional[AltitudeMode],
+    geometry: typing.Optional[Point],
+) -> None:
+    point = fastkml.geometry.Point(
+        id=id,
+        target_id=target_id,
+        extrude=extrude,
+        altitude_mode=altitude_mode,
+        geometry=geometry,
+    )
+
+    new_p = fastkml.geometry.Point.class_from_string(
+        point.to_string(precision=15, verbosity=Verbosity.verbose),
+    )
+
+    assert isinstance(new_p.altitude_mode, AltitudeMode)
+    assert isinstance(new_p.extrude, bool)
+    assert point.to_string(verbosity=Verbosity.terse) == new_p.to_string(
+        verbosity=Verbosity.terse,
+    )
