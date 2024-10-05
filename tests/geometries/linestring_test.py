@@ -163,7 +163,7 @@ class TestLineString(StdLibrary):
                 "</LineString>",
             )
 
-    def test_from_string_invalid_tesselate(self) -> None:
+    def test_from_string_invalid_tessellate(self) -> None:
         """Test the from_string method."""
         with pytest.raises(
             exceptions.KMLParseError,
