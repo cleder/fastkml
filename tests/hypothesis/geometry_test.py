@@ -84,7 +84,7 @@ def test_coordinates_repr_roundtrip(
     id=st.one_of(st.none(), st.text(alphabet=string.printable)),
     target_id=st.one_of(st.none(), st.text(alphabet=string.printable)),
     extrude=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(fastkml.enums.AltitudeMode)),
+    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
     geometry=st.one_of(
         st.none(),
         points(srs=epsg4326),

@@ -118,6 +118,7 @@ source = [
 [tool.coverage.report]
 exclude_also = [
     "^\\s*\\.\\.\\.$",
+    "class \\w+\\(Protocol\\)\\:",
     "except AssertionError:",
     "except ImportError:",
     "if TYPE_CHECKING:",
