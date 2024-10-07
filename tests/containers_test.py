@@ -18,12 +18,15 @@
 
 
 from fastkml import kml
+from fastkml import containers
+from fastkml import features
 from tests.base import Lxml
 from tests.base import StdLibrary
+import pytest
 
 
 class TestStdLibrary(StdLibrary):
-    """Test with the standard library."""
+    """Test with the standard library."""          
 
     def test_document_boolean_visibility(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
@@ -64,6 +67,28 @@ class TestStdLibrary(StdLibrary):
 
         assert d.features[0].visibility is None
         assert d.features[0].isopen
+    
+    def test_container_creation(self)->None:
+        container = containers._Container(
+            ns="ns",
+            id="id",
+            target_id="target_id",
+            name="name"
+        )
+        assert container.ns == "ns"
+        assert container.name == "name"
+    def test_container_feature_append(self)->None:
+        container = containers._Container(
+            ns="ns",
+            id="id",
+            target_id="target_id",
+            name="name"
+        )
+        feature = features._Feature(name="new_feature")
+        assert container.append(feature) is None
+        with pytest.raises(ValueError):
+            container.append(container)
+
 
 
 class TestLxml(Lxml, TestStdLibrary):
