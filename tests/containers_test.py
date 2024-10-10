@@ -17,9 +17,7 @@
 """Test the kml classes."""
 
 
-from fastkml import kml
-from fastkml import containers
-from fastkml import features
+from fastkml import kml, containers, features
 from tests.base import Lxml
 from tests.base import StdLibrary
 import pytest
@@ -88,6 +86,14 @@ class TestStdLibrary(StdLibrary):
         assert container.append(feature) is None
         with pytest.raises(ValueError):
             container.append(container)
+    
+    def test_document_container_get_style_url(self)->None:
+        document = containers.Document(
+            name="Document",
+            ns="ns",
+            style_url="www.styleurl.com"
+        )
+        assert document.get_style_by_url(style_url="www.styleurl.com") is None
 
 
 
