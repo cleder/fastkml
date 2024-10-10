@@ -16,6 +16,8 @@
 
 """Test the Outer and Inner Boundary classes."""
 
+import pytest
+from fastkml.exceptions import GeometryError
 import pygeoif.geometry as geo
 
 from fastkml.geometry import Coordinates
@@ -41,6 +43,16 @@ class TestBoundaries(StdLibrary):
             "1.000000,2.000000 2.000000,0.000000 0.000000,0.000000 1.000000,2.000000"
             "</kml:coordinates></kml:LinearRing></kml:outerBoundaryIs>"
         )
+    def test_outer_boundry_geometry_error(self) -> None:
+        """Test GeometryError."""
+        p = geo.Point(1, 2)
+        coords = ((1, 2), (2, 0), (0, 0), (1, 2))
+
+        with pytest.raises(GeometryError):
+            OuterBoundaryIs(
+                kml_geometry=LinearRing(kml_coordinates=Coordinates(coords=coords)),
+                geometry=p
+            )
 
     def test_read_outer_boundary(self) -> None:
         """Test the from_string method."""
@@ -72,6 +84,17 @@ class TestBoundaries(StdLibrary):
             "1.000000,2.000000 2.000000,0.000000 0.000000,0.000000 1.000000,2.000000"
             "</kml:coordinates></kml:LinearRing></kml:innerBoundaryIs>"
         )
+    
+    def test_inner_boundry_geometry_error(self) -> None:
+        """Test GeometryError."""
+        p = geo.Point(1, 2)
+        coords = ((1, 2), (2, 0), (0, 0), (1, 2))
+
+        with pytest.raises(GeometryError):
+            InnerBoundaryIs(
+                kml_geometry=LinearRing(kml_coordinates=Coordinates(coords=coords)),
+                geometry=p
+            )
 
     def test_read_inner_boundary_multiple_linestrings(self) -> None:
         """

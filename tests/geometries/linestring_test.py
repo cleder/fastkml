@@ -21,8 +21,8 @@ import pytest
 
 from fastkml import exceptions
 from fastkml.enums import Verbosity
-from fastkml.exceptions import KMLParseError
-from fastkml.geometry import LineString
+from fastkml.exceptions import GeometryError, KMLParseError
+from fastkml.geometry import Coordinates, LineString
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -37,6 +37,14 @@ class TestLineString(StdLibrary):
         assert line_string.geometry == ls
         assert line_string.altitude_mode is None
         assert line_string.extrude is None
+    
+    def test_geometry_error(self) -> None:
+        """Test GeometryError."""
+        p = geo.Point(1, 2)
+        q = Coordinates(ns="ns")
+
+        with pytest.raises(GeometryError):
+            LineString(geometry=p, kml_coordinates=q)
 
     def test_to_string(self) -> None:
         """Test the to_string method."""
