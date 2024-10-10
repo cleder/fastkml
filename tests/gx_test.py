@@ -50,6 +50,13 @@ class TestGetGxGeometry(StdLibrary):
             "bbox": (0.0, 0.0, 1.0, 1.0),
             "coordinates": ((0.0, 0.0), (1.0, 1.0)),
         }
+    
+    def test_track_etree_element(self) -> None:
+        g = Track()
+
+        g.etree_element()
+
+        assert g.track_items == []
 
     def test_multitrack(self) -> None:
         doc = """
@@ -329,6 +336,8 @@ class TestMultiTrack(StdLibrary):
         )
 
         mt = MultiTrack(geometry=lines, ns="")
+
+        assert mt.__bool__() is True
 
         assert (
             mt.to_string()
