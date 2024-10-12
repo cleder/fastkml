@@ -26,6 +26,7 @@ from pygeoif.geometry import Point
 from pygeoif.geometry import Polygon
 from pygeoif.hypothesis.strategies import epsg4326
 from pygeoif.hypothesis.strategies import line_coords
+from pygeoif.hypothesis.strategies import line_strings
 from pygeoif.hypothesis.strategies import points
 
 import fastkml.geometry
@@ -214,4 +215,145 @@ def test_point_str_roundtrip_verbose(
     assert point.to_string(verbosity=Verbosity.terse, precision=16) == new_p.to_string(
         verbosity=Verbosity.terse,
         precision=16,
+    )
+
+
+@given(
+    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
+    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
+    extrude=st.one_of(st.none(), st.booleans()),
+    tessellate=st.one_of(st.none(), st.booleans()),
+    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+    geometry=st.one_of(
+        st.none(),
+        line_strings(srs=epsg4326),
+    ),
+)
+def test_linestring_repr_roundtrip(
+    id: typing.Optional[str],
+    target_id: typing.Optional[str],
+    extrude: typing.Optional[bool],
+    tessellate: typing.Optional[bool],
+    altitude_mode: typing.Optional[AltitudeMode],
+    geometry: typing.Optional[LineString],
+) -> None:
+    line = fastkml.geometry.LineString(
+        id=id,
+        target_id=target_id,
+        extrude=extrude,
+        tessellate=tessellate,
+        altitude_mode=altitude_mode,
+        geometry=geometry,
+    )
+
+    new_l = eval(repr(line), {}, eval_locals)  # noqa: S307
+
+    assert line == new_l
+
+
+@given(
+    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
+    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
+    extrude=st.one_of(st.none(), st.booleans()),
+    tessellate=st.one_of(st.none(), st.booleans()),
+    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+    geometry=st.one_of(
+        st.none(),
+        line_strings(srs=epsg4326),
+    ),
+)
+def test_linestring_str_roundtrip(
+    id: typing.Optional[str],
+    target_id: typing.Optional[str],
+    extrude: typing.Optional[bool],
+    tessellate: typing.Optional[bool],
+    altitude_mode: typing.Optional[AltitudeMode],
+    geometry: typing.Optional[LineString],
+) -> None:
+    line = fastkml.geometry.LineString(
+        id=id,
+        target_id=target_id,
+        extrude=extrude,
+        tessellate=tessellate,
+        altitude_mode=altitude_mode,
+        geometry=geometry,
+    )
+
+    new_l = fastkml.geometry.LineString.class_from_string(line.to_string())
+
+    assert line.to_string() == new_l.to_string()
+    assert line == new_l
+
+
+@given(
+    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
+    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
+    extrude=st.one_of(st.none(), st.booleans()),
+    tessellate=st.one_of(st.none(), st.booleans()),
+    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+    geometry=st.one_of(
+        st.none(),
+        line_strings(srs=epsg4326),
+    ),
+)
+def test_linestring_str_roundtrip_terse(
+    id: typing.Optional[str],
+    target_id: typing.Optional[str],
+    extrude: typing.Optional[bool],
+    tessellate: typing.Optional[bool],
+    altitude_mode: typing.Optional[AltitudeMode],
+    geometry: typing.Optional[LineString],
+) -> None:
+    line = fastkml.geometry.LineString(
+        id=id,
+        target_id=target_id,
+        extrude=extrude,
+        tessellate=tessellate,
+        altitude_mode=altitude_mode,
+        geometry=geometry,
+    )
+
+    new_l = fastkml.geometry.LineString.class_from_string(
+        line.to_string(verbosity=Verbosity.terse),
+    )
+
+    assert line.to_string(verbosity=Verbosity.verbose) == new_l.to_string(
+        verbosity=Verbosity.verbose,
+    )
+
+
+@given(
+    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
+    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
+    extrude=st.one_of(st.none(), st.booleans()),
+    tessellate=st.one_of(st.none(), st.booleans()),
+    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+    geometry=st.one_of(
+        st.none(),
+        line_strings(srs=epsg4326),
+    ),
+)
+def test_linestring_str_roundtrip_verbose(
+    id: typing.Optional[str],
+    target_id: typing.Optional[str],
+    extrude: typing.Optional[bool],
+    tessellate: typing.Optional[bool],
+    altitude_mode: typing.Optional[AltitudeMode],
+    geometry: typing.Optional[LineString],
+) -> None:
+    line = fastkml.geometry.LineString(
+        id=id,
+        target_id=target_id,
+        extrude=extrude,
+        tessellate=tessellate,
+        altitude_mode=altitude_mode,
+        geometry=geometry,
+    )
+
+    new_l = fastkml.geometry.LineString.class_from_string(
+        line.to_string(verbosity=Verbosity.verbose),
+    )
+
+    assert line.to_string(verbosity=Verbosity.terse) == new_l.to_string(
+        verbosity=Verbosity.terse,
     )
