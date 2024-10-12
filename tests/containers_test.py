@@ -24,7 +24,7 @@ import pytest
 
 
 class TestStdLibrary(StdLibrary):
-    """Test with the standard library."""          
+    """Test with the standard library."""
 
     def test_document_boolean_visibility(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
