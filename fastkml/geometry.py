@@ -159,13 +159,12 @@ def coordinates_subelement(
 
     """
     if getattr(obj, attr_name, None):
-        p = precision if precision is not None else 6
         coords = getattr(obj, attr_name)
-        if len(coords[0]) == 2:  # noqa: PLR2004
-            tuples = (f"{c[0]:.{p}f},{c[1]:.{p}f}" for c in coords)
-        elif len(coords[0]) == 3:  # noqa: PLR2004
-            tuples = (f"{c[0]:.{p}f},{c[1]:.{p}f},{c[2]:.{p}f}" for c in coords)
+        if precision is None:
+            tuples = (",".join(str(c) for c in coord) for coord in coords)
         else:
+            tuples = (",".join(f"{c:.{precision}f}" for c in coord) for coord in coords)
+        if len(coords[0]) not in (2, 3):
             msg = f"Invalid dimensions in coordinates '{coords}'"
             raise KMLWriteError(msg)
         element.text = " ".join(tuples)

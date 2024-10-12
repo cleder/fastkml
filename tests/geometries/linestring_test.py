@@ -47,7 +47,7 @@ class TestLineString(StdLibrary):
         assert "LineString" in line_string.to_string()
         assert (
             "coordinates>1.000000,2.000000 2.000000,0.000000</"
-            in line_string.to_string()
+            in line_string.to_string(precision=6)
         )
 
     def test_from_string(self) -> None:

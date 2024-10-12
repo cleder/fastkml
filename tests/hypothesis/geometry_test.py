@@ -135,9 +135,10 @@ def test_point_str_roundtrip(
         geometry=geometry,
     )
 
-    new_p = fastkml.geometry.Point.class_from_string(point.to_string(precision=15))
+    new_p = fastkml.geometry.Point.class_from_string(point.to_string())
 
     assert point.to_string() == new_p.to_string()
+    assert point.geometry == new_p.geometry
 
 
 @given(
@@ -173,8 +174,9 @@ def test_point_str_roundtrip_terse(
         new_p.altitude_mode != AltitudeMode.clamp_to_ground
     )
     assert (new_p.extrude is None) or (new_p.extrude is True)
-    assert point.to_string(verbosity=Verbosity.verbose) == new_p.to_string(
+    assert point.to_string(verbosity=Verbosity.verbose, precision=6) == new_p.to_string(
         verbosity=Verbosity.verbose,
+        precision=6,
     )
 
 
@@ -204,11 +206,12 @@ def test_point_str_roundtrip_verbose(
     )
 
     new_p = fastkml.geometry.Point.class_from_string(
-        point.to_string(precision=15, verbosity=Verbosity.verbose),
+        point.to_string(verbosity=Verbosity.verbose),
     )
 
     assert isinstance(new_p.altitude_mode, AltitudeMode)
     assert isinstance(new_p.extrude, bool)
-    assert point.to_string(verbosity=Verbosity.terse) == new_p.to_string(
+    assert point.to_string(verbosity=Verbosity.terse, precision=16) == new_p.to_string(
         verbosity=Verbosity.terse,
+        precision=16,
     )
