@@ -28,6 +28,7 @@ from pygeoif.hypothesis.strategies import epsg4326
 from pygeoif.hypothesis.strategies import line_coords
 from pygeoif.hypothesis.strategies import line_strings
 from pygeoif.hypothesis.strategies import points
+from pygeoif.hypothesis.strategies import polygons
 
 import fastkml.geometry
 from fastkml.enums import AltitudeMode
@@ -356,4 +357,145 @@ def test_linestring_str_roundtrip_verbose(
 
     assert line.to_string(verbosity=Verbosity.terse) == new_l.to_string(
         verbosity=Verbosity.terse,
+    )
+
+
+@given(
+    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
+    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
+    extrude=st.one_of(st.none(), st.booleans()),
+    tessellate=st.one_of(st.none(), st.booleans()),
+    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+    geometry=st.one_of(
+        st.none(),
+        polygons(srs=epsg4326),
+    ),
+)
+def test_polygon_repr_roundtrip(
+    id: typing.Optional[str],
+    target_id: typing.Optional[str],
+    extrude: typing.Optional[bool],
+    tessellate: typing.Optional[bool],
+    altitude_mode: typing.Optional[AltitudeMode],
+    geometry: typing.Optional[Polygon],
+) -> None:
+    polygon = fastkml.geometry.Polygon(
+        id=id,
+        target_id=target_id,
+        extrude=extrude,
+        tessellate=tessellate,
+        altitude_mode=altitude_mode,
+        geometry=geometry,
+    )
+
+    new_p = eval(repr(polygon), {}, eval_locals)  # noqa: S307
+
+    assert polygon == new_p
+
+
+@given(
+    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
+    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
+    extrude=st.one_of(st.none(), st.booleans()),
+    tessellate=st.one_of(st.none(), st.booleans()),
+    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+    geometry=st.one_of(
+        st.none(),
+        polygons(srs=epsg4326),
+    ),
+)
+def test_polygon_str_roundtrip(
+    id: typing.Optional[str],
+    target_id: typing.Optional[str],
+    extrude: typing.Optional[bool],
+    tessellate: typing.Optional[bool],
+    altitude_mode: typing.Optional[AltitudeMode],
+    geometry: typing.Optional[Polygon],
+) -> None:
+    polygon = fastkml.geometry.Polygon(
+        id=id,
+        target_id=target_id,
+        extrude=extrude,
+        tessellate=tessellate,
+        altitude_mode=altitude_mode,
+        geometry=geometry,
+    )
+
+    new_p = fastkml.geometry.Polygon.class_from_string(polygon.to_string())
+
+    assert polygon.to_string() == new_p.to_string()
+    assert polygon == new_p
+
+
+@given(
+    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
+    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
+    extrude=st.one_of(st.none(), st.booleans()),
+    tessellate=st.one_of(st.none(), st.booleans()),
+    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+    geometry=st.one_of(
+        st.none(),
+        polygons(srs=epsg4326),
+    ),
+)
+def test_polygon_str_roundtrip_terse(
+    id: typing.Optional[str],
+    target_id: typing.Optional[str],
+    extrude: typing.Optional[bool],
+    tessellate: typing.Optional[bool],
+    altitude_mode: typing.Optional[AltitudeMode],
+    geometry: typing.Optional[Polygon],
+) -> None:
+    polygon = fastkml.geometry.Polygon(
+        id=id,
+        target_id=target_id,
+        extrude=extrude,
+        tessellate=tessellate,
+        altitude_mode=altitude_mode,
+        geometry=geometry,
+    )
+
+    new_p = fastkml.geometry.Polygon.class_from_string(
+        polygon.to_string(verbosity=Verbosity.terse),
+    )
+
+    assert polygon.to_string(verbosity=Verbosity.verbose) == new_p.to_string(
+        verbosity=Verbosity.verbose,
+    )
+
+
+@given(
+    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
+    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
+    extrude=st.one_of(st.none(), st.booleans()),
+    tessellate=st.one_of(st.none(), st.booleans()),
+    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+    geometry=st.one_of(
+        st.none(),
+        polygons(srs=epsg4326),
+    ),
+)
+def test_polygon_str_roundtrip_verbose(
+    id: typing.Optional[str],
+    target_id: typing.Optional[str],
+    extrude: typing.Optional[bool],
+    tessellate: typing.Optional[bool],
+    altitude_mode: typing.Optional[AltitudeMode],
+    geometry: typing.Optional[Polygon],
+) -> None:
+    polygon = fastkml.geometry.Polygon(
+        id=id,
+        target_id=target_id,
+        extrude=extrude,
+        tessellate=tessellate,
+        altitude_mode=altitude_mode,
+        geometry=geometry,
+    )
+
+    new_p = fastkml.geometry.Polygon.class_from_string(
+        polygon.to_string(verbosity=Verbosity.verbose),
+    )
+
+    assert polygon.to_string(verbosity=Verbosity.verbose) == new_p.to_string(
+        verbosity=Verbosity.verbose,
     )
