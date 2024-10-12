@@ -29,6 +29,9 @@ from fastkml.enums import AltitudeMode
 from fastkml.enums import PairKey
 from tests.base import Lxml
 from tests.base import StdLibrary
+from fastkml.kml import KML, Document, Placemark  
+from fastkml.geometry import Point, Polygon, LineString, LinearRing
+from fastkml.kml import AltitudeMode, PairKey
 
 eval_locals = {
     "Point": Point,
@@ -1920,38 +1923,58 @@ class TestRepr(StdLibrary):
         ],
     )
 
+class TestRepr:
     def diff_compare(self, a: str, b: str) -> None:
         """Compare two strings and print the differences."""
         differ = difflib.Differ()
+        # Compare line by line and print differences where found
         for line, d in enumerate(differ.compare(a.split(), b.split())):
             if d[0] in ("+", "-"):
-                print(line, d)  # noqa: T201
+                print(f"Line {line}: {d}")  # noqa: T201
 
+        # Compare chunks of 100 characters and print differences where found
         for i, chunk in enumerate(zip(wrap(a, 100), wrap(b, 100))):
             if chunk[0] != chunk[1]:
-                print(i * 100)  # noqa: T201
-                print(chunk[0])  # noqa: T201
-                print(chunk[1])  # noqa: T201
+                print(f"Difference at position {i * 100}:")  # noqa: T201
+                print(f"Expected: {chunk[0]}")  # noqa: T201
+                print(f"Actual: {chunk[1]}")  # noqa: T201
 
     def test_repr(self) -> None:
         """Test the __repr__ method."""
+        # Define the eval_locals dictionary (you may need to import relevant classes)
+        eval_locals = {
+            "KML": fastkml.kml.KML,
+            "Document": fastkml.kml.Document,
+            "Placemark": fastkml.kml.Placemark,
+            # Add any other necessary classes or functions from fastkml
+        }
+
+        # Recreate the document using eval and the repr of self.clean_doc
         new_doc = eval(repr(self.clean_doc), {}, eval_locals)  # noqa: S307
 
-        assert new_doc == self.clean_doc
-        assert repr(new_doc) == repr(self.clean_doc)
+        # Test if the newly created document is equal to the original
+        assert new_doc == self.clean_doc, "Reconstructed document does not match the original"
+
+        # Test if the repr of the new document is identical to the original
+        assert repr(new_doc) == repr(self.clean_doc), "__repr__ mismatch between the two documents"
 
     def test_str(self) -> None:
         """Test the __str__ method."""
-        assert str(self.clean_doc) == self.clean_doc.to_string()
+        # Test if the string representation matches the output of to_string method
+        assert str(self.clean_doc) == self.clean_doc.to_string(), "__str__ method mismatch"
 
     def test_eq_str_round_trip(self) -> None:
         """Test the equality of the original and the round-tripped document."""
+        # Create a new document by converting the original to a string and back
         new_doc = fastkml.KML.class_from_string(self.clean_doc.to_string(precision=15))
 
-        assert str(self.clean_doc) == str(new_doc)
-        assert repr(new_doc) == repr(self.clean_doc)
-        # srict equality is not a given new_doc == self.clean_doc
+        # Test if the string representation of both documents are identical
+        assert str(self.clean_doc) == str(new_doc), "String representation mismatch after round trip"
+        assert repr(new_doc) == repr(self.clean_doc), "__repr__ mismatch after round trip"
+        # Strict equality is not always a given, but you can test for logical equality here
+        # assert new_doc == self.clean_doc, "Strict equality test failed"  # Uncomment if needed
 
 
 class TestReprLxml(Lxml, TestRepr):
     """Test the __repr__ and __str__ methods of the KML document with lxml."""
+    pass
