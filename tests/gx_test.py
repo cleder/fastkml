@@ -50,7 +50,7 @@ class TestGetGxGeometry(StdLibrary):
             "bbox": (0.0, 0.0, 1.0, 1.0),
             "coordinates": ((0.0, 0.0), (1.0, 1.0)),
         }
-    
+
     def test_track_etree_element(self) -> None:
         g = Track()
 

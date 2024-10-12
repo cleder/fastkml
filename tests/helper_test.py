@@ -1,6 +1,12 @@
 from unittest.mock import Mock, patch
-from fastkml.helpers import attribute_enum_kwarg, attribute_float_kwarg, enum_attribute, float_attribute, node_text, subelement_enum_kwarg, subelement_float_kwarg, subelement_int_kwarg
-from fastkml.types import Element
+from fastkml.helpers import attribute_enum_kwarg
+from fastkml.helpers import attribute_float_kwarg
+from fastkml.helpers import enum_attribute
+from fastkml.helpers import float_attribute
+from fastkml.helpers import node_text
+from fastkml.helpers import subelement_enum_kwarg
+from fastkml.helpers import subelement_float_kwarg
+from fastkml.helpers import subelement_int_kwarg
 from tests.base import StdLibrary
 from enum import Enum
 
@@ -8,8 +14,10 @@ from enum import Enum
 class Node:
     text: str
 
+
 class Color(Enum):
     RED = 1
+
 
 class TestStdLibrary(StdLibrary):
     @patch('fastkml.helpers.get_value')
@@ -39,7 +47,7 @@ class TestStdLibrary(StdLibrary):
             default="default"
         )
         assert res is None
-    
+
     @patch('fastkml.helpers.get_value')
     def test_enum_attribute(self, mock_get_value) -> None:
         mock_get_value.return_value = None
@@ -53,7 +61,7 @@ class TestStdLibrary(StdLibrary):
             default="default"
         )
         assert res is None
-    
+
     def test_subelement_int_kwarg(self):
         node = Node()
         node.text = None
@@ -69,7 +77,7 @@ class TestStdLibrary(StdLibrary):
                 strict=False
             )
         assert res == {}
-    
+
     def test_subelement_float_kwarg(self):
         node = Node()
         node.text = None
@@ -85,7 +93,7 @@ class TestStdLibrary(StdLibrary):
                 strict=False
             )
         assert res == {}
-    
+
     @patch('fastkml.helpers.handle_error')
     def test_attribute_float_kwarg(self, mock_handle_error) -> None:
         element = Mock()
@@ -102,7 +110,6 @@ class TestStdLibrary(StdLibrary):
         )
         assert res == {}
 
-    
     def test_subelement_enum_kwarg(self) -> None:
         node = Node()
         node.text = None
@@ -118,7 +125,7 @@ class TestStdLibrary(StdLibrary):
             strict=True
         )
         assert res == {}
-    
+
     def test_attribute_enum_kwarg(self) -> None:
         element = Mock()
         element.get.return_value = None

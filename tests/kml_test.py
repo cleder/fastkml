@@ -175,7 +175,7 @@ class TestParseKML(StdLibrary):
                 ),
             ],
         )
-    
+
     @patch('fastkml.config.etree')
     def test_kml_etree_element(self, mock_etree) -> None:
 
@@ -184,7 +184,12 @@ class TestParseKML(StdLibrary):
 
         doc = kml.KML.parse(empty_placemark)
 
-        assert doc.etree_element() == config.etree.Element( f"{doc.ns}{doc.get_tag_name()}", nsmap={None: doc.ns[1:-1]},)
+        res = config.etree.Element(
+            f"{doc.ns}{doc.get_tag_name()}",
+            nsmap={None: doc.ns[1:-1]}
+        )
+
+        assert doc.etree_element() == res
 
     def test_kml_append(self) -> None:
         empty_placemark = KMLFILEDIR / "emptyPlacemarkWithoutId.xml"
@@ -193,6 +198,7 @@ class TestParseKML(StdLibrary):
 
         with pytest.raises(ValueError):
             doc.append(doc)
+
 
 class TestParseKMLNone(StdLibrary):
     def test_kml_parse(self) -> None:

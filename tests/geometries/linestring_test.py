@@ -37,7 +37,7 @@ class TestLineString(StdLibrary):
         assert line_string.geometry == ls
         assert line_string.altitude_mode is None
         assert line_string.extrude is None
-    
+
     def test_geometry_error(self) -> None:
         """Test GeometryError."""
         p = geo.Point(1, 2)

@@ -39,7 +39,7 @@ class TestPoint(StdLibrary):
         assert point.geometry == p
         assert point.altitude_mode is None
         assert point.extrude is None
-    
+
     def test_geometry_error(self) -> None:
         """Test GeometryError."""
         p = geo.Point(1, 2)

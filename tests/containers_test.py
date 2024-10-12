@@ -65,8 +65,8 @@ class TestStdLibrary(StdLibrary):
 
         assert d.features[0].visibility is None
         assert d.features[0].isopen
-    
-    def test_container_creation(self)->None:
+
+    def test_container_creation(self) -> None:
         container = containers._Container(
             ns="ns",
             id="id",
@@ -75,7 +75,8 @@ class TestStdLibrary(StdLibrary):
         )
         assert container.ns == "ns"
         assert container.name == "name"
-    def test_container_feature_append(self)->None:
+
+    def test_container_feature_append(self) -> None:
         container = containers._Container(
             ns="ns",
             id="id",
@@ -86,8 +87,8 @@ class TestStdLibrary(StdLibrary):
         assert container.append(feature) is None
         with pytest.raises(ValueError):
             container.append(container)
-    
-    def test_document_container_get_style_url(self)->None:
+
+    def test_document_container_get_style_url(self) -> None:
         document = containers.Document(
             name="Document",
             ns="ns",

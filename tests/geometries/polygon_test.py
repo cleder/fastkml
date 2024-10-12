@@ -128,7 +128,7 @@ class TestStdLibrary(StdLibrary):
         polygon = Polygon(ns="", geometry=poly)
 
         assert "extrude>0</" in polygon.to_string(verbosity=Verbosity.verbose)
-      
+
     def test_geometry_error(self) -> None:
         """Test GeometryError."""
         poly = geo.Polygon([(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)])

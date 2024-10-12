@@ -290,7 +290,7 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
         assert xml.count("tessellate>0<") == 12  # points do not have tessellate
         assert xml.count("extrude>0<") == 13
         assert xml.count("altitudeMode>clampToGround<") == 13
-    
+
     def test_geometry_error(self) -> None:
         """Test GeometryError."""
         p = geo.Point(1, 2)

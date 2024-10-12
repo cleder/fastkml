@@ -43,6 +43,7 @@ class TestBoundaries(StdLibrary):
             "1.000000,2.000000 2.000000,0.000000 0.000000,0.000000 1.000000,2.000000"
             "</kml:coordinates></kml:LinearRing></kml:outerBoundaryIs>"
         )
+
     def test_outer_boundry_geometry_error(self) -> None:
         """Test GeometryError."""
         p = geo.Point(1, 2)
@@ -84,7 +85,7 @@ class TestBoundaries(StdLibrary):
             "1.000000,2.000000 2.000000,0.000000 0.000000,0.000000 1.000000,2.000000"
             "</kml:coordinates></kml:LinearRing></kml:innerBoundaryIs>"
         )
-    
+
     def test_inner_boundry_geometry_error(self) -> None:
         """Test GeometryError."""
         p = geo.Point(1, 2)
