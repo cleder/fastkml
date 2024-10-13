@@ -44,17 +44,6 @@ class TestBoundaries(StdLibrary):
             "</kml:coordinates></kml:LinearRing></kml:outerBoundaryIs>"
         )
 
-    def test_outer_boundry_geometry_error(self) -> None:
-        """Test GeometryError."""
-        p = geo.Point(1, 2)
-        coords = ((1, 2), (2, 0), (0, 0), (1, 2))
-
-        with pytest.raises(GeometryError):
-            OuterBoundaryIs(
-                kml_geometry=LinearRing(kml_coordinates=Coordinates(coords=coords)),
-                geometry=p
-            )
-
     def test_read_outer_boundary(self) -> None:
         """Test the from_string method."""
         outer_boundary = OuterBoundaryIs.class_from_string(
@@ -86,16 +75,23 @@ class TestBoundaries(StdLibrary):
             "</kml:coordinates></kml:LinearRing></kml:innerBoundaryIs>"
         )
 
-    def test_inner_boundry_geometry_error(self) -> None:
-        """Test GeometryError."""
+    def _test_boundary_geometry_error(self, boundary_class):
         p = geo.Point(1, 2)
         coords = ((1, 2), (2, 0), (0, 0), (1, 2))
 
         with pytest.raises(GeometryError):
-            InnerBoundaryIs(
+            boundary_class(
                 kml_geometry=LinearRing(kml_coordinates=Coordinates(coords=coords)),
                 geometry=p
             )
+
+    def test_outer_boundary_geometry_error(self):
+        """Test that OuterBoundaryIs raises GeometryError with invalid geometry."""
+        self._test_boundary_geometry_error(OuterBoundaryIs)
+
+    def test_inner_boundary_geometry_error(self):
+        """Test that InnerBoundaryIs raises GeometryError with invalid geometry."""
+        self._test_boundary_geometry_error(InnerBoundaryIs)
 
     def test_read_inner_boundary_multiple_linestrings(self) -> None:
         """

@@ -84,8 +84,9 @@ class TestStdLibrary(StdLibrary):
             name="name"
         )
         feature = features._Feature(name="new_feature")
-        assert container.append(feature) is None
-        with pytest.raises(ValueError):
+        container.append(feature)
+        assert feature in container.features
+        with pytest.raises(ValueError, match="Cannot append self"):
             container.append(container)
 
     def test_document_container_get_style_url(self) -> None:

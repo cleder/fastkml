@@ -33,7 +33,7 @@ class TestGeometryFunctions(StdLibrary):
         setattr(obj,
                 'coordinates',
                 [(1.123456, 2.654321, 3.111111, 4.222222)]
-        )
+            )
 
         element = Mock()
 
