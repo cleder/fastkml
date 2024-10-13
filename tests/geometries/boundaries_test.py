@@ -35,7 +35,7 @@ class TestBoundaries(StdLibrary):
         )
 
         assert outer_boundary.geometry == geo.LinearRing(coords)
-        assert outer_boundary.to_string(prettyprint=False).strip() == (
+        assert outer_boundary.to_string(prettyprint=False, precision=6).strip() == (
             '<kml:outerBoundaryIs xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:LinearRing><kml:coordinates>"
             "1.000000,2.000000 2.000000,0.000000 0.000000,0.000000 1.000000,2.000000"
@@ -66,7 +66,7 @@ class TestBoundaries(StdLibrary):
 
         assert inner_boundary.geometry == geo.LinearRing(coords)
         assert bool(inner_boundary)
-        assert inner_boundary.to_string(prettyprint=False).strip() == (
+        assert inner_boundary.to_string(prettyprint=False, precision=6).strip() == (
             '<kml:innerBoundaryIs xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:LinearRing><kml:coordinates>"
             "1.000000,2.000000 2.000000,0.000000 0.000000,0.000000 1.000000,2.000000"

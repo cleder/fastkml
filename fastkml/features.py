@@ -185,6 +185,7 @@ registry.register(
         classes=(int,),
         get_kwarg=attribute_int_kwarg,
         set_element=int_attribute,
+        default=2,
     ),
 )
 
