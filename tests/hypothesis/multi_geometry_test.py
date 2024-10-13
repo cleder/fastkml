@@ -17,6 +17,7 @@
 """Property based tests of the Geometry classes."""
 import string
 import typing
+from functools import partial
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -53,13 +54,17 @@ eval_locals = {
 
 ID_TEXT = string.ascii_letters + string.digits + string.punctuation
 
-
-@given(
+common_geometry = partial(
+    given,
     id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
     target_id=st.one_of(st.none(), st.text(ID_TEXT)),
     extrude=st.one_of(st.none(), st.booleans()),
     tessellate=st.one_of(st.none(), st.booleans()),
     altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+)
+
+
+@common_geometry(
     geometry=st.one_of(
         st.none(),
         multi_points(srs=epsg4326),
@@ -89,12 +94,7 @@ def test_multipoint_repr_roundtrip(
         assert isinstance(new_mg.geometry, MultiPoint)
 
 
-@given(
-    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
-    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
-    extrude=st.one_of(st.none(), st.booleans()),
-    tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+@common_geometry(
     geometry=st.one_of(
         st.none(),
         multi_points(srs=epsg4326),
@@ -127,12 +127,7 @@ def test_multipoint_str_roundtrip(
         assert isinstance(new_mg.geometry, MultiPoint)
 
 
-@given(
-    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
-    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
-    extrude=st.one_of(st.none(), st.booleans()),
-    tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+@common_geometry(
     geometry=st.one_of(
         st.none(),
         multi_points(srs=epsg4326),
@@ -166,12 +161,7 @@ def test_multipoint_str_roundtrip_terse(
         assert isinstance(new_mg.geometry, MultiPoint)
 
 
-@given(
-    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
-    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
-    extrude=st.one_of(st.none(), st.booleans()),
-    tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+@common_geometry(
     geometry=st.one_of(
         st.none(),
         multi_points(srs=epsg4326),
@@ -205,12 +195,7 @@ def test_multipoint_str_roundtrip_verbose(
         assert isinstance(new_mg.geometry, MultiPoint)
 
 
-@given(
-    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
-    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
-    extrude=st.one_of(st.none(), st.booleans()),
-    tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+@common_geometry(
     geometry=st.one_of(
         st.none(),
         multi_line_strings(srs=epsg4326),
@@ -240,12 +225,7 @@ def test_multilinestring_repr_roundtrip(
         assert isinstance(new_mg.geometry, MultiLineString)
 
 
-@given(
-    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
-    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
-    extrude=st.one_of(st.none(), st.booleans()),
-    tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+@common_geometry(
     geometry=st.one_of(
         st.none(),
         multi_line_strings(srs=epsg4326),
@@ -278,12 +258,7 @@ def test_multilinestring_str_roundtrip(
         assert isinstance(new_mg.geometry, MultiLineString)
 
 
-@given(
-    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
-    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
-    extrude=st.one_of(st.none(), st.booleans()),
-    tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+@common_geometry(
     geometry=st.one_of(
         st.none(),
         multi_line_strings(srs=epsg4326),
@@ -317,12 +292,7 @@ def test_multilinestring_str_roundtrip_terse(
         assert isinstance(new_mg.geometry, MultiLineString)
 
 
-@given(
-    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
-    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
-    extrude=st.one_of(st.none(), st.booleans()),
-    tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+@common_geometry(
     geometry=st.one_of(
         st.none(),
         multi_line_strings(srs=epsg4326),
@@ -356,12 +326,7 @@ def test_multilinestring_str_roundtrip_verbose(
         assert isinstance(new_mg.geometry, MultiLineString)
 
 
-@given(
-    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
-    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
-    extrude=st.one_of(st.none(), st.booleans()),
-    tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+@common_geometry(
     geometry=st.one_of(
         st.none(),
         multi_polygons(srs=epsg4326),
@@ -391,12 +356,7 @@ def test_multipolygon_repr_roundtrip(
         assert isinstance(new_mg.geometry, MultiPolygon)
 
 
-@given(
-    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
-    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
-    extrude=st.one_of(st.none(), st.booleans()),
-    tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+@common_geometry(
     geometry=st.one_of(
         st.none(),
         multi_polygons(srs=epsg4326),
@@ -429,12 +389,7 @@ def test_multipolygon_str_roundtrip(
         assert isinstance(new_mg.geometry, MultiPolygon)
 
 
-@given(
-    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
-    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
-    extrude=st.one_of(st.none(), st.booleans()),
-    tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+@common_geometry(
     geometry=st.one_of(
         st.none(),
         multi_polygons(srs=epsg4326),
@@ -468,12 +423,7 @@ def test_multipolygon_str_roundtrip_terse(
         assert isinstance(new_mg.geometry, MultiPolygon)
 
 
-@given(
-    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
-    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
-    extrude=st.one_of(st.none(), st.booleans()),
-    tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+@common_geometry(
     geometry=st.one_of(
         st.none(),
         multi_polygons(srs=epsg4326),
@@ -507,12 +457,7 @@ def test_multipolygon_str_roundtrip_verbose(
         assert isinstance(new_mg.geometry, MultiPolygon)
 
 
-@given(
-    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
-    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
-    extrude=st.one_of(st.none(), st.booleans()),
-    tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+@common_geometry(
     geometry=st.one_of(
         st.none(),
         geometry_collections(srs=epsg4326),
@@ -547,12 +492,7 @@ def test_geometrycollection_repr_roundtrip(
         assert not new_mg
 
 
-@given(
-    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
-    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
-    extrude=st.one_of(st.none(), st.booleans()),
-    tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+@common_geometry(
     geometry=st.one_of(
         st.none(),
         geometry_collections(srs=epsg4326),
@@ -588,12 +528,7 @@ def test_geometrycollection_str_roundtrip(
         assert not new_mg
 
 
-@given(
-    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
-    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
-    extrude=st.one_of(st.none(), st.booleans()),
-    tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+@common_geometry(
     geometry=st.one_of(
         st.none(),
         geometry_collections(srs=epsg4326),
@@ -629,12 +564,7 @@ def test_geometrycollection_str_roundtrip_terse(
         assert not new_mg
 
 
-@given(
-    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
-    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
-    extrude=st.one_of(st.none(), st.booleans()),
-    tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+@common_geometry(
     geometry=st.one_of(
         st.none(),
         geometry_collections(srs=epsg4326),

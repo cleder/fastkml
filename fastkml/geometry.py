@@ -162,13 +162,13 @@ def coordinates_subelement(
     """
     if getattr(obj, attr_name, None):
         coords = getattr(obj, attr_name)
+        if not coords or len(coords[0]) not in (2, 3):
+            msg = f"Invalid dimensions in coordinates '{coords}'"
+            raise KMLWriteError(msg)
         if precision is None:
             tuples = (",".join(str(c) for c in coord) for coord in coords)
         else:
             tuples = (",".join(f"{c:.{precision}f}" for c in coord) for coord in coords)
-        if len(coords[0]) not in (2, 3):
-            msg = f"Invalid dimensions in coordinates '{coords}'"
-            raise KMLWriteError(msg)
         element.text = " ".join(tuples)
 
 
