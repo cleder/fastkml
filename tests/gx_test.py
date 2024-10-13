@@ -337,7 +337,7 @@ class TestMultiTrack(StdLibrary):
 
         mt = MultiTrack(geometry=lines, ns="")
 
-        assert mt.__bool__() is True
+        assert bool(mt)
 
         assert (
             mt.to_string()
