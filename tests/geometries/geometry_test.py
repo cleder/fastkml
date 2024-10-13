@@ -495,7 +495,7 @@ class TestCreateKmlGeometry(StdLibrary):
             "coordinates": (0.0, 1.0),
         }
         assert "Point>" in g.to_string()
-        assert "coordinates>0.000000,1.000000</" in g.to_string()
+        assert "coordinates>0.000000,1.000000</" in g.to_string(precision=6)
 
     def test_create_kml_geometry_linestring(self) -> None:
         """Test the create_kml_geometry function."""
@@ -509,7 +509,9 @@ class TestCreateKmlGeometry(StdLibrary):
             "coordinates": ((0.0, 0.0), (1.0, 1.0)),
         }
         assert "LineString>" in g.to_string()
-        assert "coordinates>0.000000,0.000000 1.000000,1.000000</" in g.to_string()
+        assert "coordinates>0.000000,0.000000 1.000000,1.000000</" in g.to_string(
+            precision=6,
+        )
 
     def test_create_kml_geometry_linearring(self) -> None:
         """Test the create_kml_geometry function."""
@@ -526,7 +528,7 @@ class TestCreateKmlGeometry(StdLibrary):
         assert (
             "coordinates>0.000000,0.000000 1.000000,1.000000 1.000000,0.000000 "
             "0.000000,0.000000</"
-        ) in g.to_string()
+        ) in g.to_string(precision=6)
 
     def test_create_kml_geometry_polygon(self) -> None:
         """Test the create_kml_geometry function."""
@@ -543,7 +545,7 @@ class TestCreateKmlGeometry(StdLibrary):
         assert (
             "coordinates>0.000000,0.000000 1.000000,1.000000 1.000000,0.000000 "
             "0.000000,0.000000</"
-        ) in g.to_string()
+        ) in g.to_string(precision=6)
 
     def test_create_kml_geometry_multipoint(self) -> None:
         """Test the create_kml_geometry function."""
@@ -552,12 +554,13 @@ class TestCreateKmlGeometry(StdLibrary):
         assert isinstance(g, MultiGeometry)
         assert g.geometry
         assert len(g.geometry) == 4
-        assert "MultiGeometry>" in g.to_string()
-        assert "Point>" in g.to_string()
-        assert "coordinates>0.000000,0.000000</" in g.to_string()
-        assert "coordinates>1.000000,1.000000</" in g.to_string()
-        assert "coordinates>1.000000,0.000000</" in g.to_string()
-        assert "coordinates>2.000000,2.000000</" in g.to_string()
+        xml = g.to_string(precision=6)
+        assert "MultiGeometry>" in xml
+        assert "Point>" in xml
+        assert "coordinates>0.000000,0.000000</" in xml
+        assert "coordinates>1.000000,1.000000</" in xml
+        assert "coordinates>1.000000,0.000000</" in xml
+        assert "coordinates>2.000000,2.000000</" in xml
 
     def test_create_kml_geometry_multilinestring(self) -> None:
         """Test the create_kml_geometry function."""
@@ -568,10 +571,11 @@ class TestCreateKmlGeometry(StdLibrary):
         assert isinstance(g, MultiGeometry)
         assert g.geometry
         assert len(g.geometry) == 2
-        assert "MultiGeometry>" in g.to_string()
-        assert "LineString>" in g.to_string()
-        assert "coordinates>0.000000,0.000000 1.000000,1.000000</" in g.to_string()
-        assert "coordinates>0.000000,0.000000 1.000000,1.000000</" in g.to_string()
+        xml = g.to_string(precision=6)
+        assert "MultiGeometry>" in xml
+        assert "LineString>" in xml
+        assert "coordinates>0.000000,0.000000 1.000000,1.000000</" in xml
+        assert "coordinates>0.000000,0.000000 1.000000,1.000000</" in xml
 
     def test_create_kml_geometry_multipolygon(self) -> None:
         """Test the create_kml_geometry function."""
@@ -590,20 +594,21 @@ class TestCreateKmlGeometry(StdLibrary):
         assert isinstance(g, MultiGeometry)
         assert g.geometry
         assert len(g.geometry) == 2
-        assert "MultiGeometry>" in g.to_string()
-        assert "Polygon>" in g.to_string()
+        xml = g.to_string(precision=6)
+        assert "MultiGeometry>" in xml
+        assert "Polygon>" in xml
         assert (
             "coordinates>0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
             "1.000000,0.000000 0.000000,0.000000</"
-        ) in g.to_string()
+        ) in xml
         assert (
             "coordinates>0.100000,0.100000 0.100000,0.200000 0.200000,0.200000 "
             "0.200000,0.100000 0.100000,0.100000</"
-        ) in g.to_string()
+        ) in xml
         assert (
             "coordinates>0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
             "1.000000,0.000000 0.000000,0.000000</"
-        ) in g.to_string()
+        ) in xml
 
     def test_create_kml_geometry_geometrycollection(self) -> None:
         multipoint = geo.MultiPoint([(0, 0), (1, 1), (1, 2), (2, 2)])
@@ -625,14 +630,15 @@ class TestCreateKmlGeometry(StdLibrary):
         assert isinstance(g, MultiGeometry)
         assert g.geometry
         assert len(g.geometry) == 7
-        assert "MultiGeometry>" in g.to_string()
-        assert "LineString>" in g.to_string()
-        assert "LinearRing>" in g.to_string()
-        assert "Polygon>" in g.to_string()
-        assert "outerBoundaryIs>" in g.to_string()
-        assert "innerBoundaryIs>" in g.to_string()
-        assert "Point>" in g.to_string()
-        assert "coordinates>0.000000,0.000000</" in g.to_string()
+        xml = g.to_string(precision=6)
+        assert "MultiGeometry>" in xml
+        assert "LineString>" in xml
+        assert "LinearRing>" in xml
+        assert "Polygon>" in xml
+        assert "outerBoundaryIs>" in xml
+        assert "innerBoundaryIs>" in xml
+        assert "Point>" in xml
+        assert "coordinates>0.000000,0.000000</" in xml
         assert g.geometry == gc
 
     def test_create_kml_geometry_geometrycollection_roundtrip(self) -> None:

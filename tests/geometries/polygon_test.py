@@ -43,7 +43,7 @@ class TestStdLibrary(StdLibrary):
         assert (
             "0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
             "1.000000,0.000000 0.000000,0.000000"
-        ) in polygon.to_string()
+        ) in polygon.to_string(precision=6)
 
     def test_exterior_interior(self) -> None:
         """Test exterior and interior."""
@@ -60,11 +60,11 @@ class TestStdLibrary(StdLibrary):
         assert (
             "0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
             "1.000000,0.000000 0.000000,0.000000"
-        ) in polygon.to_string()
+        ) in polygon.to_string(precision=6)
         assert (
             "0.100000,0.100000 0.100000,0.900000 0.900000,0.900000 "
             "0.900000,0.100000 0.100000,0.100000"
-        ) in polygon.to_string()
+        ) in polygon.to_string(precision=6)
 
     def test_exterior_interior_tessellate_extrude_altitude_mode(self) -> None:
         """

@@ -93,6 +93,8 @@ AnyGeometryType = Union[GeometryType, MultiGeometryType]
 
 MsgMutualExclusive: Final = "Geometry and kml coordinates are mutually exclusive"
 
+xml_attrs = {"ns", "name_spaces", "id", "target_id"}
+
 
 def handle_invalid_geometry_error(
     *,
@@ -159,15 +161,14 @@ def coordinates_subelement(
 
     """
     if getattr(obj, attr_name, None):
-        p = precision if precision is not None else 6
         coords = getattr(obj, attr_name)
-        if len(coords[0]) == 2:  # noqa: PLR2004
-            tuples = (f"{c[0]:.{p}f},{c[1]:.{p}f}" for c in coords)
-        elif len(coords[0]) == 3:  # noqa: PLR2004
-            tuples = (f"{c[0]:.{p}f},{c[1]:.{p}f},{c[2]:.{p}f}" for c in coords)
-        else:
+        if not coords or len(coords[0]) not in (2, 3):
             msg = f"Invalid dimensions in coordinates '{coords}'"
             raise KMLWriteError(msg)
+        if precision is None:
+            tuples = (",".join(str(c) for c in coord) for coord in coords)
+        else:
+            tuples = (",".join(f"{c:.{precision}f}" for c in coord) for coord in coords)
         element.text = " ".join(tuples)
 
 
@@ -488,6 +489,21 @@ class Point(_Geometry):
         """
         return bool(self.geometry)
 
+    def __eq__(self, other: object) -> bool:
+        """Check if the Point objects are equal."""
+        if isinstance(other, Point):
+            return all(
+                getattr(self, attr) == getattr(other, attr)
+                for attr in (
+                    "extrude",
+                    "altitude_mode",
+                    "geometry",
+                    *xml_attrs,
+                    *self._get_splat(),
+                )
+            )
+        return super().__eq__(other)
+
     @property
     def geometry(self) -> Optional[geo.Point]:
         """
@@ -628,6 +644,21 @@ class LineString(_Geometry):
         """
         return bool(self.geometry)
 
+    def __eq__(self, other: object) -> bool:
+        """Check if the LineString objects is equal."""
+        if isinstance(other, LineString):
+            return all(
+                getattr(self, attr) == getattr(other, attr)
+                for attr in (
+                    "extrude",
+                    "tessellate",
+                    "geometry",
+                    *xml_attrs,
+                    *self._get_splat(),
+                )
+            )
+        return super().__eq__(other)
+
     @property
     def geometry(self) -> Optional[geo.LineString]:
         """
@@ -752,22 +783,6 @@ class LinearRing(LineString):
             geometry=geometry,
             kml_coordinates=kml_coordinates,
             **kwargs,
-        )
-
-    def __repr__(self) -> str:
-        """Create a string (c)representation for LinearRing."""
-        return (
-            f"{self.__class__.__module__}.{self.__class__.__name__}("
-            f"ns={self.ns!r}, "
-            f"name_spaces={self.name_spaces!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
-            f"extrude={self.extrude!r}, "
-            f"tessellate={self.tessellate!r}, "
-            f"altitude_mode={self.altitude_mode}, "
-            f"geometry={self.geometry!r}, "
-            f"**{self._get_splat()!r},"
-            ")"
         )
 
     @property
@@ -1182,11 +1197,25 @@ class Polygon(_Geometry):
             f"extrude={self.extrude!r}, "
             f"tessellate={self.tessellate!r}, "
             f"altitude_mode={self.altitude_mode}, "
-            f"outer_boundary={self.outer_boundary!r}, "
-            f"inner_boundaries={self.inner_boundaries!r}, "
+            f"geometry={self.geometry!r}, "
             f"**{self._get_splat()!r},"
             ")"
         )
+
+    def __eq__(self, other: object) -> bool:
+        """Check if the Polygon objects are equal."""
+        if isinstance(other, Polygon):
+            return all(
+                getattr(self, attr) == getattr(other, attr)
+                for attr in (
+                    "extrude",
+                    "tessellate",
+                    "geometry",
+                    *xml_attrs,
+                    *self._get_splat(),
+                )
+            )
+        return super().__eq__(other)
 
 
 registry.register(

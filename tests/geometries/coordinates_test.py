@@ -29,7 +29,7 @@ class TestCoordinates(StdLibrary):
 
         coordinates = Coordinates(coords=coords)
 
-        assert coordinates.to_string().strip() == (
+        assert coordinates.to_string(precision=6).strip() == (
             '<kml:coordinates xmlns:kml="http://www.opengis.net/kml/2.2">'
             "0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
             "1.000000,0.000000 0.000000,0.000000"

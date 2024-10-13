@@ -34,7 +34,7 @@ class TestMultiPointStdLibrary(StdLibrary):
 
         mg = MultiGeometry(geometry=p)
 
-        assert "coordinates>1.000000,2.000000</" in mg.to_string()
+        assert "coordinates>1.000000,2.000000</" in mg.to_string(precision=6)
         assert "MultiGeometry>" in mg.to_string()
         assert "Point>" in mg.to_string()
 
@@ -44,8 +44,8 @@ class TestMultiPointStdLibrary(StdLibrary):
 
         mg = MultiGeometry(geometry=p)
 
-        assert "coordinates>1.000000,2.000000</" in mg.to_string()
-        assert "coordinates>3.000000,4.000000</" in mg.to_string()
+        assert "coordinates>1.000000,2.000000</" in mg.to_string(precision=6)
+        assert "coordinates>3.000000,4.000000</" in mg.to_string(precision=6)
         assert "MultiGeometry>" in mg.to_string()
         assert "Point>" in mg.to_string()
 
@@ -70,7 +70,9 @@ class TestMultiLineStringStdLibrary(StdLibrary):
 
         mg = MultiGeometry(geometry=p)
 
-        assert "coordinates>1.000000,2.000000 3.000000,4.000000</" in mg.to_string()
+        assert "coordinates>1.000000,2.000000 3.000000,4.000000</" in mg.to_string(
+            precision=6,
+        )
         assert "MultiGeometry>" in mg.to_string()
         assert "LineString>" in mg.to_string()
 
@@ -80,8 +82,12 @@ class TestMultiLineStringStdLibrary(StdLibrary):
 
         mg = MultiGeometry(geometry=p)
 
-        assert "coordinates>1.000000,2.000000 3.000000,4.000000</" in mg.to_string()
-        assert "coordinates>5.000000,6.000000 7.000000,8.000000</" in mg.to_string()
+        assert "coordinates>1.000000,2.000000 3.000000,4.000000</" in mg.to_string(
+            precision=6,
+        )
+        assert "coordinates>5.000000,6.000000 7.000000,8.000000</" in mg.to_string(
+            precision=6,
+        )
         assert "MultiGeometry>" in mg.to_string()
         assert "LineString>" in mg.to_string()
 
@@ -111,7 +117,7 @@ class TestMultiPolygonStdLibrary(StdLibrary):
 
         assert (
             "coordinates>1.000000,2.000000 3.000000,4.000000 5.000000,6.000000 "
-            "1.000000,2.000000</" in mg.to_string()
+            "1.000000,2.000000</" in mg.to_string(precision=6)
         )
         assert "MultiGeometry>" in mg.to_string()
         assert "Polygon>" in mg.to_string()
@@ -132,11 +138,11 @@ class TestMultiPolygonStdLibrary(StdLibrary):
 
         assert (
             "coordinates>0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
-            "1.000000,0.000000 0.000000,0.000000</" in mg.to_string()
+            "1.000000,0.000000 0.000000,0.000000</" in mg.to_string(precision=6)
         )
         assert (
             "coordinates>0.250000,0.250000 0.250000,0.500000 0.500000,0.500000 "
-            "0.500000,0.250000 0.250000,0.250000</" in mg.to_string()
+            "0.500000,0.250000 0.250000,0.250000</" in mg.to_string(precision=6)
         )
         assert "MultiGeometry>" in mg.to_string()
         assert "Polygon>" in mg.to_string()
@@ -159,15 +165,15 @@ class TestMultiPolygonStdLibrary(StdLibrary):
 
         assert (
             "coordinates>0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
-            "1.000000,0.000000 0.000000,0.000000</" in mg.to_string()
+            "1.000000,0.000000 0.000000,0.000000</" in mg.to_string(precision=6)
         )
         assert (
             "coordinates>0.100000,0.100000 0.100000,0.200000 0.200000,0.200000 "
-            "0.200000,0.100000 0.100000,0.100000</" in mg.to_string()
+            "0.200000,0.100000 0.100000,0.100000</" in mg.to_string(precision=6)
         )
         assert (
             "coordinates>0.000000,0.000000 0.000000,2.000000 1.000000,1.000000 "
-            "1.000000,0.000000 0.000000,0.000000</" in mg.to_string()
+            "1.000000,0.000000 0.000000,0.000000</" in mg.to_string(precision=6)
         )
         assert "MultiGeometry>" in mg.to_string()
         assert "Polygon>" in mg.to_string()
@@ -214,7 +220,7 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
 
         mg = MultiGeometry(geometry=p)
 
-        assert "coordinates>1.000000,2.000000</" in mg.to_string()
+        assert "coordinates>1.000000,2.000000</" in mg.to_string(precision=6)
         assert "MultiGeometry>" in mg.to_string()
         assert "Point>" in mg.to_string()
 

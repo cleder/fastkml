@@ -56,7 +56,7 @@ class TestPoint(StdLibrary):
         point = Point(geometry=p)
 
         assert "Point" in point.to_string()
-        assert "coordinates>1.000000,2.000000</" in point.to_string()
+        assert "coordinates>1.000000,2.000000</" in point.to_string(precision=6)
 
     def test_to_string_3d(self) -> None:
         """Test the to_string method."""
@@ -65,7 +65,9 @@ class TestPoint(StdLibrary):
         point = Point(geometry=p)
 
         assert "Point" in point.to_string()
-        assert "coordinates>1.000000,2.000000,3.000000</" in point.to_string()
+        assert "coordinates>1.000000,2.000000,3.000000</" in point.to_string(
+            precision=6,
+        )
 
     def test_to_string_terse_default(self) -> None:
         """Test the to_string method, exclude default for extrude in terse mode."""

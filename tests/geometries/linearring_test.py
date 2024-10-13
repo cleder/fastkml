@@ -45,7 +45,8 @@ class TestLinearRing(StdLibrary):
         assert "LinearRing" in linear_ring.to_string()
         assert (
             "coordinates>0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
-            "1.000000,0.000000 0.000000,0.000000</" in linear_ring.to_string()
+            "1.000000,0.000000 0.000000,0.000000</"
+            in linear_ring.to_string(precision=6)
         )
 
     def test_from_string(self) -> None:
