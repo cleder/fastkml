@@ -45,7 +45,7 @@ Example how to build a simple KML file from the Python interpreter.
     >>> f2.append(p)
 
     # Print out the KML Object as a string
-    >>> print(k.to_string(prettyprint=True))
+    >>> print(k.to_string(prettyprint=True, precision=6))
     <kml xmlns="http://www.opengis.net/kml/2.2">
       <Document id="docid">
         <name>doc name</name>
@@ -145,7 +145,7 @@ You can create a KML object by reading a KML file as a string
     >>> k.features[0].features[1].name = "ANOTHER NAME"
 
     # Verify that we can print back out the KML object as a string
-    >>> print(k.to_string(prettyprint=True))
+    >>> print(k.to_string(prettyprint=True, precision=6))
     <kml xmlns="http://www.opengis.net/kml/2.2">
       <Document>
         <name>Document.kml</name>
