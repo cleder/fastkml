@@ -15,8 +15,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Property based tests of the Geometry classes."""
+from __future__ import annotations
+
 import string
-import typing
 from functools import partial
 
 from hypothesis import given
@@ -64,6 +65,29 @@ common_geometry = partial(
 )
 
 
+def _test_repr_roundtrip(
+    geometry: fastkml.geometry.MultiGeometry,
+    cls: type[MultiPoint | MultiLineString | MultiPolygon | GeometryCollection],
+) -> None:
+    new_g = eval(repr(geometry), {}, eval_locals)  # noqa: S307
+
+    assert geometry == new_g
+    if geometry:
+        assert type(new_g.geometry) is cls
+
+
+def _test_geometry_str_roundtrip(
+    geometry: fastkml.geometry.MultiGeometry,
+    cls: type[MultiPoint | MultiLineString | MultiPolygon],
+) -> None:
+    new_g = fastkml.geometry.MultiGeometry.class_from_string(geometry.to_string())
+
+    assert geometry.to_string() == new_g.to_string()
+    assert geometry == new_g
+    if geometry:
+        assert type(new_g.geometry) is cls
+
+
 @common_geometry(
     geometry=st.one_of(
         st.none(),
@@ -71,12 +95,12 @@ common_geometry = partial(
     ),
 )
 def test_multipoint_repr_roundtrip(
-    id: typing.Optional[str],
-    target_id: typing.Optional[str],
-    extrude: typing.Optional[bool],
-    tessellate: typing.Optional[bool],
-    altitude_mode: typing.Optional[AltitudeMode],
-    geometry: typing.Optional[MultiPoint],
+    id: str | None,
+    target_id: str | None,
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+    geometry: MultiPoint | None,
 ) -> None:
     multi_geometry = fastkml.geometry.MultiGeometry(
         id=id,
@@ -87,11 +111,7 @@ def test_multipoint_repr_roundtrip(
         geometry=geometry,
     )
 
-    new_mg = eval(repr(multi_geometry), {}, eval_locals)  # noqa: S307
-
-    assert multi_geometry == new_mg
-    if geometry:
-        assert isinstance(new_mg.geometry, MultiPoint)
+    _test_repr_roundtrip(multi_geometry, MultiPoint)
 
 
 @common_geometry(
@@ -101,12 +121,12 @@ def test_multipoint_repr_roundtrip(
     ),
 )
 def test_multipoint_str_roundtrip(
-    id: typing.Optional[str],
-    target_id: typing.Optional[str],
-    extrude: typing.Optional[bool],
-    tessellate: typing.Optional[bool],
-    altitude_mode: typing.Optional[AltitudeMode],
-    geometry: typing.Optional[MultiPoint],
+    id: str | None,
+    target_id: str | None,
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+    geometry: MultiPoint | None,
 ) -> None:
     multi_geometry = fastkml.geometry.MultiGeometry(
         id=id,
@@ -117,14 +137,7 @@ def test_multipoint_str_roundtrip(
         geometry=geometry,
     )
 
-    new_mg = fastkml.geometry.MultiGeometry.class_from_string(
-        multi_geometry.to_string(),
-    )
-
-    assert multi_geometry.to_string() == new_mg.to_string()
-    assert multi_geometry == new_mg
-    if geometry:
-        assert isinstance(new_mg.geometry, MultiPoint)
+    _test_geometry_str_roundtrip(multi_geometry, MultiPoint)
 
 
 @common_geometry(
@@ -134,12 +147,12 @@ def test_multipoint_str_roundtrip(
     ),
 )
 def test_multipoint_str_roundtrip_terse(
-    id: typing.Optional[str],
-    target_id: typing.Optional[str],
-    extrude: typing.Optional[bool],
-    tessellate: typing.Optional[bool],
-    altitude_mode: typing.Optional[AltitudeMode],
-    geometry: typing.Optional[MultiPoint],
+    id: str | None,
+    target_id: str | None,
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+    geometry: MultiPoint | None,
 ) -> None:
     multi_geometry = fastkml.geometry.MultiGeometry(
         id=id,
@@ -168,12 +181,12 @@ def test_multipoint_str_roundtrip_terse(
     ),
 )
 def test_multipoint_str_roundtrip_verbose(
-    id: typing.Optional[str],
-    target_id: typing.Optional[str],
-    extrude: typing.Optional[bool],
-    tessellate: typing.Optional[bool],
-    altitude_mode: typing.Optional[AltitudeMode],
-    geometry: typing.Optional[MultiPoint],
+    id: str | None,
+    target_id: str | None,
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+    geometry: MultiPoint | None,
 ) -> None:
     multi_geometry = fastkml.geometry.MultiGeometry(
         id=id,
@@ -202,12 +215,12 @@ def test_multipoint_str_roundtrip_verbose(
     ),
 )
 def test_multilinestring_repr_roundtrip(
-    id: typing.Optional[str],
-    target_id: typing.Optional[str],
-    extrude: typing.Optional[bool],
-    tessellate: typing.Optional[bool],
-    altitude_mode: typing.Optional[AltitudeMode],
-    geometry: typing.Optional[MultiLineString],
+    id: str | None,
+    target_id: str | None,
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+    geometry: MultiLineString | None,
 ) -> None:
     multi_geometry = fastkml.geometry.MultiGeometry(
         id=id,
@@ -218,11 +231,7 @@ def test_multilinestring_repr_roundtrip(
         geometry=geometry,
     )
 
-    new_mg = eval(repr(multi_geometry), {}, eval_locals)  # noqa: S307
-
-    assert multi_geometry == new_mg
-    if geometry:
-        assert isinstance(new_mg.geometry, MultiLineString)
+    _test_repr_roundtrip(multi_geometry, MultiLineString)
 
 
 @common_geometry(
@@ -232,12 +241,12 @@ def test_multilinestring_repr_roundtrip(
     ),
 )
 def test_multilinestring_str_roundtrip(
-    id: typing.Optional[str],
-    target_id: typing.Optional[str],
-    extrude: typing.Optional[bool],
-    tessellate: typing.Optional[bool],
-    altitude_mode: typing.Optional[AltitudeMode],
-    geometry: typing.Optional[MultiLineString],
+    id: str | None,
+    target_id: str | None,
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+    geometry: MultiLineString | None,
 ) -> None:
     multi_geometry = fastkml.geometry.MultiGeometry(
         id=id,
@@ -248,14 +257,7 @@ def test_multilinestring_str_roundtrip(
         geometry=geometry,
     )
 
-    new_mg = fastkml.geometry.MultiGeometry.class_from_string(
-        multi_geometry.to_string(),
-    )
-
-    assert multi_geometry.to_string() == new_mg.to_string()
-    assert multi_geometry == new_mg
-    if geometry:
-        assert isinstance(new_mg.geometry, MultiLineString)
+    _test_geometry_str_roundtrip(multi_geometry, MultiLineString)
 
 
 @common_geometry(
@@ -265,12 +267,12 @@ def test_multilinestring_str_roundtrip(
     ),
 )
 def test_multilinestring_str_roundtrip_terse(
-    id: typing.Optional[str],
-    target_id: typing.Optional[str],
-    extrude: typing.Optional[bool],
-    tessellate: typing.Optional[bool],
-    altitude_mode: typing.Optional[AltitudeMode],
-    geometry: typing.Optional[MultiLineString],
+    id: str | None,
+    target_id: str | None,
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+    geometry: MultiLineString | None,
 ) -> None:
     multi_geometry = fastkml.geometry.MultiGeometry(
         id=id,
@@ -299,12 +301,12 @@ def test_multilinestring_str_roundtrip_terse(
     ),
 )
 def test_multilinestring_str_roundtrip_verbose(
-    id: typing.Optional[str],
-    target_id: typing.Optional[str],
-    extrude: typing.Optional[bool],
-    tessellate: typing.Optional[bool],
-    altitude_mode: typing.Optional[AltitudeMode],
-    geometry: typing.Optional[MultiLineString],
+    id: str | None,
+    target_id: str | None,
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+    geometry: MultiLineString | None,
 ) -> None:
     multi_geometry = fastkml.geometry.MultiGeometry(
         id=id,
@@ -333,12 +335,12 @@ def test_multilinestring_str_roundtrip_verbose(
     ),
 )
 def test_multipolygon_repr_roundtrip(
-    id: typing.Optional[str],
-    target_id: typing.Optional[str],
-    extrude: typing.Optional[bool],
-    tessellate: typing.Optional[bool],
-    altitude_mode: typing.Optional[AltitudeMode],
-    geometry: typing.Optional[MultiPolygon],
+    id: str | None,
+    target_id: str | None,
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+    geometry: MultiPolygon | None,
 ) -> None:
     multi_geometry = fastkml.geometry.MultiGeometry(
         id=id,
@@ -349,11 +351,7 @@ def test_multipolygon_repr_roundtrip(
         geometry=geometry,
     )
 
-    new_mg = eval(repr(multi_geometry), {}, eval_locals)  # noqa: S307
-
-    assert multi_geometry == new_mg
-    if geometry:
-        assert isinstance(new_mg.geometry, MultiPolygon)
+    _test_repr_roundtrip(multi_geometry, MultiPolygon)
 
 
 @common_geometry(
@@ -363,12 +361,12 @@ def test_multipolygon_repr_roundtrip(
     ),
 )
 def test_multipolygon_str_roundtrip(
-    id: typing.Optional[str],
-    target_id: typing.Optional[str],
-    extrude: typing.Optional[bool],
-    tessellate: typing.Optional[bool],
-    altitude_mode: typing.Optional[AltitudeMode],
-    geometry: typing.Optional[MultiPolygon],
+    id: str | None,
+    target_id: str | None,
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+    geometry: MultiPolygon | None,
 ) -> None:
     multi_geometry = fastkml.geometry.MultiGeometry(
         id=id,
@@ -379,14 +377,7 @@ def test_multipolygon_str_roundtrip(
         geometry=geometry,
     )
 
-    new_mg = fastkml.geometry.MultiGeometry.class_from_string(
-        multi_geometry.to_string(),
-    )
-
-    assert multi_geometry.to_string() == new_mg.to_string()
-    assert multi_geometry == new_mg
-    if geometry:
-        assert isinstance(new_mg.geometry, MultiPolygon)
+    _test_geometry_str_roundtrip(multi_geometry, MultiPolygon)
 
 
 @common_geometry(
@@ -396,12 +387,12 @@ def test_multipolygon_str_roundtrip(
     ),
 )
 def test_multipolygon_str_roundtrip_terse(
-    id: typing.Optional[str],
-    target_id: typing.Optional[str],
-    extrude: typing.Optional[bool],
-    tessellate: typing.Optional[bool],
-    altitude_mode: typing.Optional[AltitudeMode],
-    geometry: typing.Optional[MultiPolygon],
+    id: str | None,
+    target_id: str | None,
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+    geometry: MultiPolygon | None,
 ) -> None:
     multi_geometry = fastkml.geometry.MultiGeometry(
         id=id,
@@ -430,12 +421,12 @@ def test_multipolygon_str_roundtrip_terse(
     ),
 )
 def test_multipolygon_str_roundtrip_verbose(
-    id: typing.Optional[str],
-    target_id: typing.Optional[str],
-    extrude: typing.Optional[bool],
-    tessellate: typing.Optional[bool],
-    altitude_mode: typing.Optional[AltitudeMode],
-    geometry: typing.Optional[MultiPolygon],
+    id: str | None,
+    target_id: str | None,
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+    geometry: MultiPolygon | None,
 ) -> None:
     multi_geometry = fastkml.geometry.MultiGeometry(
         id=id,
@@ -464,12 +455,12 @@ def test_multipolygon_str_roundtrip_verbose(
     ),
 )
 def test_geometrycollection_repr_roundtrip(
-    id: typing.Optional[str],
-    target_id: typing.Optional[str],
-    extrude: typing.Optional[bool],
-    tessellate: typing.Optional[bool],
-    altitude_mode: typing.Optional[AltitudeMode],
-    geometry: typing.Optional[GeometryCollection],
+    id: str | None,
+    target_id: str | None,
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+    geometry: GeometryCollection | None,
 ) -> None:
     multi_geometry = fastkml.geometry.MultiGeometry(
         id=id,
@@ -499,12 +490,12 @@ def test_geometrycollection_repr_roundtrip(
     ),
 )
 def test_geometrycollection_str_roundtrip(
-    id: typing.Optional[str],
-    target_id: typing.Optional[str],
-    extrude: typing.Optional[bool],
-    tessellate: typing.Optional[bool],
-    altitude_mode: typing.Optional[AltitudeMode],
-    geometry: typing.Optional[GeometryCollection],
+    id: str | None,
+    target_id: str | None,
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+    geometry: GeometryCollection | None,
 ) -> None:
     multi_geometry = fastkml.geometry.MultiGeometry(
         id=id,
@@ -535,12 +526,12 @@ def test_geometrycollection_str_roundtrip(
     ),
 )
 def test_geometrycollection_str_roundtrip_terse(
-    id: typing.Optional[str],
-    target_id: typing.Optional[str],
-    extrude: typing.Optional[bool],
-    tessellate: typing.Optional[bool],
-    altitude_mode: typing.Optional[AltitudeMode],
-    geometry: typing.Optional[GeometryCollection],
+    id: str | None,
+    target_id: str | None,
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+    geometry: GeometryCollection | None,
 ) -> None:
     multi_geometry = fastkml.geometry.MultiGeometry(
         id=id,
@@ -571,12 +562,12 @@ def test_geometrycollection_str_roundtrip_terse(
     ),
 )
 def test_geometrycollection_str_roundtrip_verbose(
-    id: typing.Optional[str],
-    target_id: typing.Optional[str],
-    extrude: typing.Optional[bool],
-    tessellate: typing.Optional[bool],
-    altitude_mode: typing.Optional[AltitudeMode],
-    geometry: typing.Optional[GeometryCollection],
+    id: str | None,
+    target_id: str | None,
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+    geometry: GeometryCollection | None,
 ) -> None:
     multi_geometry = fastkml.geometry.MultiGeometry(
         id=id,
