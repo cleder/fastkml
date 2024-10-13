@@ -78,14 +78,98 @@ def _test_repr_roundtrip(
 
 def _test_geometry_str_roundtrip(
     geometry: fastkml.geometry.MultiGeometry,
+    *,
     cls: type[MultiPoint | MultiLineString | MultiPolygon],
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
 ) -> None:
     new_g = fastkml.geometry.MultiGeometry.class_from_string(geometry.to_string())
 
     assert geometry.to_string() == new_g.to_string()
     assert geometry == new_g
-    if geometry:
-        assert type(new_g.geometry) is cls
+    if not geometry:
+        return
+    assert new_g.geometry
+    assert geometry.geometry
+    assert type(new_g.geometry) is cls
+    for g1, g2 in zip(new_g.kml_geometries, geometry.kml_geometries):
+        assert g1.extrude == g2.extrude == extrude
+        assert g1.altitude_mode == g2.altitude_mode == altitude_mode
+        if not isinstance(g1, fastkml.geometry.Point):
+            assert g1.tessellate == g2.tessellate == tessellate
+
+
+def _test_geometry_str_roundtrip_terse(
+    geometry: fastkml.geometry.MultiGeometry,
+    *,
+    cls: type[MultiPoint | MultiLineString | MultiPolygon],
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+) -> None:
+    new_g = fastkml.geometry.MultiGeometry.class_from_string(
+        geometry.to_string(verbosity=Verbosity.terse),
+    )
+
+    assert geometry.to_string(verbosity=Verbosity.verbose) == new_g.to_string(
+        verbosity=Verbosity.verbose,
+    )
+    if not geometry:
+        return
+    assert new_g.geometry
+    assert geometry.geometry
+    assert type(new_g.geometry) is cls
+    for new, orig in zip(new_g.kml_geometries, geometry.kml_geometries):
+        if extrude:
+            assert new.extrude == orig.extrude == extrude
+        else:
+            assert new.extrude is None
+        if altitude_mode == AltitudeMode.clamp_to_ground:
+            assert new.altitude_mode is None
+        else:
+            assert new.altitude_mode == orig.altitude_mode == altitude_mode
+        if not isinstance(new, fastkml.geometry.Point):
+            if tessellate:
+                assert new.tessellate == orig.tessellate == tessellate
+            else:
+                assert new.tessellate is None
+
+
+def _test_geometry_str_roundtrip_verbose(
+    geometry: fastkml.geometry.MultiGeometry,
+    *,
+    cls: type[MultiPoint | MultiLineString | MultiPolygon],
+    extrude: bool | None,
+    tessellate: bool | None,
+    altitude_mode: AltitudeMode | None,
+) -> None:
+    new_g = fastkml.geometry.MultiGeometry.class_from_string(
+        geometry.to_string(verbosity=Verbosity.verbose),
+    )
+
+    assert geometry.to_string(verbosity=Verbosity.terse) == new_g.to_string(
+        verbosity=Verbosity.terse,
+    )
+    if not geometry:
+        return
+    assert new_g.geometry
+    assert geometry.geometry
+    assert type(new_g.geometry) is cls
+    for new, orig in zip(new_g.kml_geometries, geometry.kml_geometries):
+        if extrude:
+            assert new.extrude == orig.extrude == extrude
+        else:
+            assert new.extrude is False
+        if altitude_mode is None:
+            assert new.altitude_mode == AltitudeMode.clamp_to_ground
+        else:
+            assert new.altitude_mode == orig.altitude_mode == altitude_mode
+        if not isinstance(new, fastkml.geometry.Point):
+            if tessellate:
+                assert new.tessellate == orig.tessellate == tessellate
+            else:
+                assert new.tessellate is False
 
 
 @common_geometry(
@@ -137,7 +221,13 @@ def test_multipoint_str_roundtrip(
         geometry=geometry,
     )
 
-    _test_geometry_str_roundtrip(multi_geometry, MultiPoint)
+    _test_geometry_str_roundtrip(
+        multi_geometry,
+        cls=MultiPoint,
+        extrude=extrude,
+        tessellate=tessellate,
+        altitude_mode=altitude_mode,
+    )
 
 
 @common_geometry(
@@ -163,15 +253,13 @@ def test_multipoint_str_roundtrip_terse(
         geometry=geometry,
     )
 
-    new_mg = fastkml.geometry.MultiGeometry.class_from_string(
-        multi_geometry.to_string(verbosity=Verbosity.terse),
+    _test_geometry_str_roundtrip_terse(
+        multi_geometry,
+        cls=MultiPoint,
+        extrude=extrude,
+        tessellate=tessellate,
+        altitude_mode=altitude_mode,
     )
-
-    assert multi_geometry.to_string(verbosity=Verbosity.verbose) == new_mg.to_string(
-        verbosity=Verbosity.verbose,
-    )
-    if geometry:
-        assert isinstance(new_mg.geometry, MultiPoint)
 
 
 @common_geometry(
@@ -197,15 +285,13 @@ def test_multipoint_str_roundtrip_verbose(
         geometry=geometry,
     )
 
-    new_mg = fastkml.geometry.MultiGeometry.class_from_string(
-        multi_geometry.to_string(verbosity=Verbosity.verbose),
+    _test_geometry_str_roundtrip_verbose(
+        multi_geometry,
+        cls=MultiPoint,
+        extrude=extrude,
+        tessellate=tessellate,
+        altitude_mode=altitude_mode,
     )
-
-    assert multi_geometry.to_string(verbosity=Verbosity.verbose) == new_mg.to_string(
-        verbosity=Verbosity.verbose,
-    )
-    if geometry:
-        assert isinstance(new_mg.geometry, MultiPoint)
 
 
 @common_geometry(
@@ -257,7 +343,13 @@ def test_multilinestring_str_roundtrip(
         geometry=geometry,
     )
 
-    _test_geometry_str_roundtrip(multi_geometry, MultiLineString)
+    _test_geometry_str_roundtrip(
+        multi_geometry,
+        cls=MultiLineString,
+        extrude=extrude,
+        tessellate=tessellate,
+        altitude_mode=altitude_mode,
+    )
 
 
 @common_geometry(
@@ -283,15 +375,13 @@ def test_multilinestring_str_roundtrip_terse(
         geometry=geometry,
     )
 
-    new_mg = fastkml.geometry.MultiGeometry.class_from_string(
-        multi_geometry.to_string(verbosity=Verbosity.terse),
+    _test_geometry_str_roundtrip_terse(
+        multi_geometry,
+        cls=MultiLineString,
+        extrude=extrude,
+        tessellate=tessellate,
+        altitude_mode=altitude_mode,
     )
-
-    assert multi_geometry.to_string(verbosity=Verbosity.verbose) == new_mg.to_string(
-        verbosity=Verbosity.verbose,
-    )
-    if geometry:
-        assert isinstance(new_mg.geometry, MultiLineString)
 
 
 @common_geometry(
@@ -317,15 +407,13 @@ def test_multilinestring_str_roundtrip_verbose(
         geometry=geometry,
     )
 
-    new_mg = fastkml.geometry.MultiGeometry.class_from_string(
-        multi_geometry.to_string(verbosity=Verbosity.verbose),
+    _test_geometry_str_roundtrip_verbose(
+        multi_geometry,
+        cls=MultiLineString,
+        extrude=extrude,
+        tessellate=tessellate,
+        altitude_mode=altitude_mode,
     )
-
-    assert multi_geometry.to_string(verbosity=Verbosity.verbose) == new_mg.to_string(
-        verbosity=Verbosity.verbose,
-    )
-    if geometry:
-        assert isinstance(new_mg.geometry, MultiLineString)
 
 
 @common_geometry(
@@ -377,7 +465,13 @@ def test_multipolygon_str_roundtrip(
         geometry=geometry,
     )
 
-    _test_geometry_str_roundtrip(multi_geometry, MultiPolygon)
+    _test_geometry_str_roundtrip(
+        multi_geometry,
+        cls=MultiPolygon,
+        extrude=extrude,
+        tessellate=tessellate,
+        altitude_mode=altitude_mode,
+    )
 
 
 @common_geometry(
@@ -403,15 +497,13 @@ def test_multipolygon_str_roundtrip_terse(
         geometry=geometry,
     )
 
-    new_mg = fastkml.geometry.MultiGeometry.class_from_string(
-        multi_geometry.to_string(verbosity=Verbosity.terse),
+    _test_geometry_str_roundtrip_terse(
+        multi_geometry,
+        cls=MultiPolygon,
+        extrude=extrude,
+        tessellate=tessellate,
+        altitude_mode=altitude_mode,
     )
-
-    assert multi_geometry.to_string(verbosity=Verbosity.verbose) == new_mg.to_string(
-        verbosity=Verbosity.verbose,
-    )
-    if geometry:
-        assert isinstance(new_mg.geometry, MultiPolygon)
 
 
 @common_geometry(
@@ -437,15 +529,13 @@ def test_multipolygon_str_roundtrip_verbose(
         geometry=geometry,
     )
 
-    new_mg = fastkml.geometry.MultiGeometry.class_from_string(
-        multi_geometry.to_string(verbosity=Verbosity.verbose),
+    _test_geometry_str_roundtrip_verbose(
+        multi_geometry,
+        cls=MultiPolygon,
+        extrude=extrude,
+        tessellate=tessellate,
+        altitude_mode=altitude_mode,
     )
-
-    assert multi_geometry.to_string(verbosity=Verbosity.verbose) == new_mg.to_string(
-        verbosity=Verbosity.verbose,
-    )
-    if geometry:
-        assert isinstance(new_mg.geometry, MultiPolygon)
 
 
 @common_geometry(
