@@ -249,6 +249,9 @@ class TestPhotoOverlay(StdLibrary):
         assert photo_overlay.description == "This is a photo overlay"
         assert photo_overlay.shape == enums.Shape.rectangle
         assert photo_overlay.rotation == 0
+        assert photo_overlay.view_volume.__bool__() is True
+        assert bool(photo_overlay.view_volume)
+        assert bool(photo_overlay.image_pyramid)
 
     def test_read_photo_overlay(self) -> None:
         """Read a PhotoOverlay object from a KML file."""
