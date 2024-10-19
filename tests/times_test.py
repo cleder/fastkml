@@ -104,7 +104,10 @@ class TestDateTime(StdLibrary):
         assert dt.dt == datetime.datetime(2000, 1, 1, tzinfo=tzutc())
 
     def test_parse_year_0(self) -> None:
-        with pytest.raises(ValueError, match="^year 0 is out of range$"):
+        with pytest.raises(
+            ValueError,
+            match="^year 0 is out of range$|^year must be in 1..9999$",
+        ):
             KmlDateTime.parse("0000")
 
     def test_parse_year_month(self) -> None:
@@ -140,7 +143,10 @@ class TestDateTime(StdLibrary):
         assert dt.dt == datetime.datetime(2000, 4, 1, tzinfo=tzutc())
 
     def test_parse_year_month_day_0(self) -> None:
-        with pytest.raises(ValueError, match="^day is out of range for month$"):
+        with pytest.raises(
+            ValueError,
+            match="^day is out of range for month$|^day must be in 1..31'$",
+        ):
             KmlDateTime.parse("2000-05-00")
 
     def test_parse_datetime_utc(self) -> None:
