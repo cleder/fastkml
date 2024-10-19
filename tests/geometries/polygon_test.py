@@ -16,12 +16,12 @@
 
 """Test the geometry classes."""
 
-import pytest
-from fastkml.exceptions import GeometryError
 import pygeoif.geometry as geo
+import pytest
 
 from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
+from fastkml.exceptions import GeometryError
 from fastkml.geometry import OuterBoundaryIs
 from fastkml.geometry import Polygon
 from tests.base import Lxml

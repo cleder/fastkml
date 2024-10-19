@@ -20,9 +20,10 @@ import pygeoif.geometry as geo
 import pytest
 
 from fastkml.enums import Verbosity
-from fastkml.exceptions import GeometryError, KMLParseError
-from fastkml.geometry import Point
+from fastkml.exceptions import GeometryError
+from fastkml.exceptions import KMLParseError
 from fastkml.geometry import Coordinates
+from fastkml.geometry import Point
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -47,7 +48,6 @@ class TestPoint(StdLibrary):
 
         with pytest.raises(GeometryError):
             Point(geometry=p, kml_coordinates=q)
-
 
     def test_to_string_2d(self) -> None:
         """Test the to_string method."""
@@ -240,7 +240,6 @@ class TestPoint(StdLibrary):
         assert point.geometry is None
 
     def test_from_string_invalid_coordinates(self) -> None:
-
         point = Point.class_from_string(
             '<Point xmlns="http://www.opengis.net/kml/2.2">'
             "<coordinates>1</coordinates></Point>",
@@ -249,7 +248,6 @@ class TestPoint(StdLibrary):
         assert not point
 
     def test_from_string_invalid_coordinates_4d(self) -> None:
-
         point = Point.class_from_string(
             '<Point xmlns="http://www.opengis.net/kml/2.2">'
             "<coordinates>1,2,3,4</coordinates></Point>",

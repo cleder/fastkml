@@ -616,5 +616,6 @@ class TestStdLibrary(StdLibrary):
         assert sm.normal is None
         assert sm.highlight is None
 
+
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""

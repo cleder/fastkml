@@ -15,12 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the geometry classes."""
-import pytest
-from fastkml.exceptions import GeometryError
 import pygeoif.geometry as geo
+import pytest
 
 from fastkml.enums import Verbosity
-from fastkml.geometry import Coordinates, MultiGeometry
+from fastkml.exceptions import GeometryError
+from fastkml.geometry import MultiGeometry
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -299,11 +299,10 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
 
     def test_geometry_error(self) -> None:
         """Test GeometryError."""
-        p = geo.Point(1, 2)
-        q = Coordinates(ns="ns")
+        p = geo.MultiPoint(((1.0, 2.0),))
 
         with pytest.raises(GeometryError):
-            MultiGeometry(geometry=p, kml_geometries=q)
+            MultiGeometry(geometry=p, kml_geometries=(MultiGeometry(geometry=p),))
 
     def test_multi_geometries_read(self) -> None:
         xml = (

@@ -32,7 +32,7 @@ class TestDateTime(StdLibrary):
     """KmlDateTime implementation is independent of XML parser."""
 
     def test_kml_datetime_year(self) -> None:
-        dt = datetime.datetime(2000, 1, 1)
+        dt = datetime.datetime(2000, 1, 1)  # noqa: DTZ001
 
         kdt = KmlDateTime(dt, DateTimeResolution.year)
 
@@ -41,7 +41,7 @@ class TestDateTime(StdLibrary):
         assert bool(kdt)
 
     def test_kml_datetime_year_month(self) -> None:
-        dt = datetime.datetime(2000, 3, 1)
+        dt = datetime.datetime(2000, 3, 1)  # noqa: DTZ001
 
         kdt = KmlDateTime(dt, DateTimeResolution.year_month)
 
@@ -50,7 +50,7 @@ class TestDateTime(StdLibrary):
         assert bool(kdt)
 
     def test_kml_datetime_date(self) -> None:
-        dt = datetime.datetime.now()
+        dt = datetime.datetime.now()  # noqa: DTZ005
 
         kdt = KmlDateTime(dt, DateTimeResolution.date)
 
@@ -59,7 +59,7 @@ class TestDateTime(StdLibrary):
         assert bool(kdt)
 
     def test_kml_datetime_date_implicit(self) -> None:
-        dt = datetime.date.today()
+        dt = datetime.date.today()  # noqa: DTZ011
 
         kdt = KmlDateTime(dt)
 
@@ -68,7 +68,7 @@ class TestDateTime(StdLibrary):
         assert bool(kdt)
 
     def test_kml_datetime_datetime(self) -> None:
-        dt = datetime.datetime.now()
+        dt = datetime.datetime.now()  # noqa: DTZ005
 
         kdt = KmlDateTime(dt, DateTimeResolution.datetime)
 
@@ -77,7 +77,7 @@ class TestDateTime(StdLibrary):
         assert bool(kdt)
 
     def test_kml_datetime_datetime_implicit(self) -> None:
-        dt = datetime.datetime.now()
+        dt = datetime.datetime.now()  # noqa: DTZ005
 
         kdt = KmlDateTime(dt)
 
@@ -91,7 +91,10 @@ class TestDateTime(StdLibrary):
 
         assert kdt.resolution == DateTimeResolution.date
         assert not bool(kdt)
-        with pytest.raises(AttributeError):
+        with pytest.raises(
+            AttributeError,
+            match="^'NoneType' object has no attribute 'isoformat'$",
+        ):
             str(kdt)
 
     def test_parse_year(self) -> None:
@@ -101,7 +104,7 @@ class TestDateTime(StdLibrary):
         assert dt.dt == datetime.datetime(2000, 1, 1, tzinfo=tzutc())
 
     def test_parse_year_0(self) -> None:
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="^year 0 is out of range$"):
             KmlDateTime.parse("0000")
 
     def test_parse_year_month(self) -> None:
@@ -117,11 +120,11 @@ class TestDateTime(StdLibrary):
         assert dt.dt == datetime.datetime(2000, 4, 1, tzinfo=tzutc())
 
     def test_parse_year_month_0(self) -> None:
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="^month must be in 1..12$"):
             KmlDateTime.parse("2000-00")
 
     def test_parse_year_month_13(self) -> None:
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="^month must be in 1..12$"):
             KmlDateTime.parse("2000-13")
 
     def test_parse_year_month_day(self) -> None:
@@ -137,7 +140,7 @@ class TestDateTime(StdLibrary):
         assert dt.dt == datetime.datetime(2000, 4, 1, tzinfo=tzutc())
 
     def test_parse_year_month_day_0(self) -> None:
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="^day is out of range for month$"):
             KmlDateTime.parse("2000-05-00")
 
     def test_parse_datetime_utc(self) -> None:
@@ -192,7 +195,7 @@ class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
 
     def test_timestamp(self) -> None:
-        now = datetime.datetime.now()
+        now = datetime.datetime.now()  # noqa: DTZ005
         dt = KmlDateTime(now)
         ts = kml.TimeStamp(timestamp=dt)
         assert ts.timestamp.dt == now
@@ -206,8 +209,8 @@ class TestStdLibrary(StdLibrary):
         assert "2000-01-01" in str(ts.to_string())
 
     def test_timespan(self) -> None:
-        now = KmlDateTime(datetime.datetime.now())
-        y2k = KmlDateTime(datetime.datetime(2000, 1, 1))
+        now = KmlDateTime(datetime.datetime.now())  # noqa: DTZ005
+        y2k = KmlDateTime(datetime.datetime(2000, 1, 1))  # noqa: DTZ001
         ts = kml.TimeSpan(end=now, begin=y2k)
         assert ts.end == now
         assert ts.begin == y2k
@@ -224,7 +227,7 @@ class TestStdLibrary(StdLibrary):
         assert not ts
 
     def test_feature_timestamp(self) -> None:
-        now = datetime.datetime.now()
+        now = datetime.datetime.now()  # noqa: DTZ005
         f = kml.Document()
         f.times = kml.TimeStamp(timestamp=KmlDateTime(now))
         assert f.time_stamp.dt == now
@@ -238,8 +241,8 @@ class TestStdLibrary(StdLibrary):
         assert "TimeStamp>" not in str(f.to_string())
 
     def test_feature_timespan(self) -> None:
-        now = datetime.datetime.now()
-        y2k = datetime.datetime(2000, 1, 1)
+        now = datetime.datetime.now()  # noqa: DTZ005
+        y2k = datetime.datetime(2000, 1, 1)  # noqa: DTZ001
         f = kml.Document()
         f.times = kml.TimeSpan(begin=KmlDateTime(y2k), end=KmlDateTime(now))
         assert f.begin == KmlDateTime(y2k)

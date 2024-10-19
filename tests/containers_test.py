@@ -17,10 +17,14 @@
 """Test the kml classes."""
 
 
-from fastkml import kml, containers, features
+import pytest
+
+from fastkml import containers
+from fastkml import features
+from fastkml import kml
+from fastkml import styles
 from tests.base import Lxml
 from tests.base import StdLibrary
-import pytest
 
 
 class TestStdLibrary(StdLibrary):
@@ -71,7 +75,7 @@ class TestStdLibrary(StdLibrary):
             ns="ns",
             id="id",
             target_id="target_id",
-            name="name"
+            name="name",
         )
         assert container.ns == "ns"
         assert container.name == "name"
@@ -81,7 +85,7 @@ class TestStdLibrary(StdLibrary):
             ns="ns",
             id="id",
             target_id="target_id",
-            name="name"
+            name="name",
         )
         feature = features._Feature(name="new_feature")
         container.append(feature)
@@ -93,10 +97,18 @@ class TestStdLibrary(StdLibrary):
         document = containers.Document(
             name="Document",
             ns="ns",
-            style_url="www.styleurl.com"
+            style_url=styles.StyleUrl(url="www.styleurl.com"),
         )
         assert document.get_style_by_url(style_url="www.styleurl.com") is None
 
+    def test_document_container_get_style_url_id(self) -> None:
+        style = styles.Style(id="style-0")
+        document = containers.Document(
+            name="Document",
+            ns="ns",
+            styles=[style],
+        )
+        assert document.get_style_by_url(style_url="#style-0") == style
 
 
 class TestLxml(Lxml, TestStdLibrary):

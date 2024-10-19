@@ -1,14 +1,30 @@
-from unittest.mock import Mock, patch
+# Copyright (C) 2024 Rishit Chaudhary, Christian Ledermann
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+"""Test the helper functions edge cases."""
+from enum import Enum
+from typing import Callable
+from unittest.mock import Mock
+from unittest.mock import patch
+
 from fastkml.helpers import attribute_enum_kwarg
 from fastkml.helpers import attribute_float_kwarg
-from fastkml.helpers import enum_attribute
-from fastkml.helpers import float_attribute
-from fastkml.helpers import node_text
 from fastkml.helpers import subelement_enum_kwarg
 from fastkml.helpers import subelement_float_kwarg
 from fastkml.helpers import subelement_int_kwarg
 from tests.base import StdLibrary
-from enum import Enum
 
 
 class Node:
@@ -20,122 +36,93 @@ class Color(Enum):
 
 
 class TestStdLibrary(StdLibrary):
-    @patch('fastkml.helpers.get_value')
-    def test_node_text(self, mock_get_value) -> None:
-        mock_get_value.return_value = False
-        res = node_text(
-            obj=None,
-            element=None,
-            attr_name="a",
-            node_name="n",
-            precision=0,
-            verbosity=0,
-            default="default"
-        )
-        assert res is None
+    """Test with the standard library."""
 
-    @patch('fastkml.helpers.get_value')
-    def test_float_attribute(self, mock_get_value) -> None:
-        mock_get_value.return_value = None
-        res = float_attribute(
-            obj=None,
-            element="ele",
-            attr_name="a",
-            node_name="n",
-            precision=0,
-            verbosity=0,
-            default="default"
-        )
-        assert res is None
-
-    @patch('fastkml.helpers.get_value')
-    def test_enum_attribute(self, mock_get_value) -> None:
-        mock_get_value.return_value = None
-        res = enum_attribute(
-            obj=None,
-            element="ele",
-            attr_name="a",
-            node_name="n",
-            precision=0,
-            verbosity=0,
-            default="default"
-        )
-        assert res is None
-
-    def test_subelement_int_kwarg(self):
+    def test_subelement_int_kwarg(self) -> None:
         node = Node()
-        node.text = None
+        node.text = ""
         element = Mock()
         element.find.return_value = node
         res = subelement_int_kwarg(
-                element=element,
-                ns="ns",
-                name_spaces="name",
-                node_name="node",
-                kwarg="kwarg",
-                classes=None,
-                strict=False
-            )
+            element=element,
+            ns="ns",
+            name_spaces={"name": "uri"},
+            node_name="node",
+            kwarg="kwarg",
+            classes=(int,),
+            strict=False,
+        )
         assert res == {}
 
-    def test_subelement_float_kwarg(self):
+    def test_subelement_float_kwarg(self) -> None:
         node = Node()
-        node.text = None
+        node.text = ""
         element = Mock()
         element.find.return_value = node
         res = subelement_float_kwarg(
-                element=element,
-                ns="ns",
-                name_spaces="name",
-                node_name="node",
-                kwarg="kwarg",
-                classes=None,
-                strict=False
-            )
+            element=element,
+            ns="ns",
+            name_spaces={"name": "uri"},
+            node_name="node",
+            kwarg="kwarg",
+            classes=(float,),
+            strict=False,
+        )
         assert res == {}
 
-    @patch('fastkml.helpers.handle_error')
-    def test_attribute_float_kwarg(self, mock_handle_error) -> None:
+    @patch("fastkml.helpers.handle_error")
+    def test_attribute_float_kwarg(
+        self,
+        mock_handle_error: Callable[..., None],
+    ) -> None:
         element = Mock()
         element.get.return_value = "abcd"
-        mock_handle_error.return_value = None
+
         res = attribute_float_kwarg(
             element=element,
             ns="ns",
-            name_spaces="name",
+            name_spaces={"name": "uri"},
             node_name="node",
             kwarg="a",
-            classes=None,
-            strict=True
+            classes=(float,),
+            strict=True,
         )
+
         assert res == {}
+        mock_handle_error.assert_called_once()  # type: ignore[attr-defined]
 
     def test_subelement_enum_kwarg(self) -> None:
         node = Node()
-        node.text = None
+        node.text = ""
         element = Mock()
         element.find.return_value = node
+
         res = subelement_enum_kwarg(
             element=element,
             ns="ns",
-            name_spaces="name",
+            name_spaces={"name": "uri"},
             node_name="node",
             kwarg="a",
-            classes=[Color],
-            strict=True
+            classes=(Color,),
+            strict=True,
         )
+
         assert res == {}
+        element.find.assert_called_once_with("nsnode")
 
     def test_attribute_enum_kwarg(self) -> None:
         element = Mock()
         element.get.return_value = None
+
         res = attribute_enum_kwarg(
             element=element,
             ns="ns",
-            name_spaces="name",
+            name_spaces={"name": "uri"},
             node_name="node",
             kwarg="a",
-            classes=[Color],
-            strict=True
+            classes=(Color,),
+            strict=True,
         )
+
         assert res == {}
+        element.get.assert_called_once_with("nsnode")

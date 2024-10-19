@@ -16,7 +16,7 @@
 
 """Test the configuration options."""
 
-import xml.etree.ElementTree as ET
+from xml.etree import ElementTree as ET
 
 import pytest
 
