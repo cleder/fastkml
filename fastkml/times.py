@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Date and time handling in KML."""
+from __future__ import annotations
 import re
 from datetime import date
 from datetime import datetime
@@ -21,6 +22,7 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Union
+
 
 import arrow
 
@@ -163,6 +165,7 @@ class TimeStamp(_TimePrimitive):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         timestamp: Optional[KmlDateTime] = None,
+        when: Optional[When] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -196,6 +199,7 @@ class TimeStamp(_TimePrimitive):
             **kwargs,
         )
         self.timestamp = timestamp
+        self.when = when
 
     def __repr__(self) -> str:
         """Create a string (c)representation for TimeStamp."""
@@ -206,6 +210,7 @@ class TimeStamp(_TimePrimitive):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"timestamp={self.timestamp!r}, "
+            f"when={self.when!r}, "
             f"**{self._get_splat()!r},"
             ")"
         )
@@ -213,52 +218,6 @@ class TimeStamp(_TimePrimitive):
     def __bool__(self) -> bool:
         """Return True if the timestamp is valid."""
         return bool(self.timestamp)
-
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        """
-        Create an ElementTree element representing the TimeStamp object.
-
-        Args:
-        ----
-            precision (Optional[int]): The precision of the timestamp.
-            verbosity (Verbosity): The verbosity level of the element.
-
-        Returns:
-        -------
-            Element: The ElementTree element representing the TimeStamp object.
-
-        """
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        when = config.etree.SubElement(
-            element,
-            f"{self.ns}when",
-        )
-        when.text = str(self.timestamp)
-        return element
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        when = element.find(f"{ns}when")
-        if when is not None:
-            kwargs["timestamp"] = KmlDateTime.parse(when.text)
-        return kwargs
 
 
 class TimeSpan(_TimePrimitive):
@@ -321,60 +280,14 @@ class TimeSpan(_TimePrimitive):
         """Return True if the begin or end date is valid."""
         return bool(self.begin) or bool(self.end)
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        """
-        Create an Element object representing the time interval.
 
-        Args:
-        ----
-            precision (Optional[int]): The precision of the time values.
-            verbosity (Verbosity): The verbosity level for the element.
+class When(_TimePrimitive):
+    ...
 
-        Returns:
-        -------
-            Element: The created Element object.
 
-        """
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.begin is not None:  # noqa: SIM102
-            if text := str(self.begin):
-                begin = config.etree.SubElement(
-                    element,
-                    f"{self.ns}begin",
-                )
-                begin.text = text
-        if self.end is not None:  # noqa: SIM102
-            if text := str(self.end):
-                end = config.etree.SubElement(
-                    element,
-                    f"{self.ns}end",
-                )
-                end.text = text
-        return element
+class Begin(_TimePrimitive):
+    ...
 
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        begin = element.find(f"{ns}begin")
-        if begin is not None:
-            kwargs["begin"] = KmlDateTime.parse(begin.text)
-        end = element.find(f"{ns}end")
-        if end is not None:
-            kwargs["end"] = KmlDateTime.parse(end.text)
-        return kwargs
+
+class End(_TimePrimitive):
+    ...
