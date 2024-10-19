@@ -16,6 +16,8 @@
 
 """Test the geometry classes."""
 
+import pytest
+from fastkml.exceptions import GeometryError
 import pygeoif.geometry as geo
 
 from fastkml.enums import AltitudeMode
@@ -126,6 +128,14 @@ class TestStdLibrary(StdLibrary):
         polygon = Polygon(ns="", geometry=poly)
 
         assert "extrude>0</" in polygon.to_string(verbosity=Verbosity.verbose)
+
+    def test_geometry_error(self) -> None:
+        """Test GeometryError."""
+        poly = geo.Polygon([(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)])
+        ob = OuterBoundaryIs(ns="")
+
+        with pytest.raises(GeometryError):
+            Polygon(geometry=poly, outer_boundary=ob)
 
     def test_from_string_exterior_only(self) -> None:
         """Test exterior only."""
