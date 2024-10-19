@@ -17,10 +17,13 @@
 """Test the kml class."""
 import io
 import pathlib
+from unittest.mock import patch
 
 import pygeoif as geo
+import pytest
 
 from fastkml import containers
+from fastkml import config
 from fastkml import features
 from fastkml import kml
 from fastkml.containers import Document
@@ -173,6 +176,37 @@ class TestParseKML(StdLibrary):
             ],
         )
 
+    @patch('fastkml.config.etree')
+    def test_kml_etree_element(self, mock_etree) -> None:
+
+        mock_etree.__all__ = ['LXML_VERSION']
+        empty_placemark = KMLFILEDIR / "emptyPlacemarkWithoutId.xml"
+
+        doc = kml.KML.parse(empty_placemark)
+
+        res = config.etree.Element(
+            f"{doc.ns}{doc.get_tag_name()}",
+            nsmap={None: doc.ns[1:-1]}
+        )
+
+        assert doc.etree_element() == res
+
+    def test_kml_append(self) -> None:
+        empty_placemark = KMLFILEDIR / "emptyPlacemarkWithoutId.xml"
+
+        doc = kml.KML.parse(empty_placemark)
+
+        with pytest.raises(ValueError):
+            doc.append(doc)
+
+
+class TestParseKMLNone(StdLibrary):
+    def test_kml_parse(self) -> None:
+        empty_placemark = KMLFILEDIR / "emptyPlacemarkWithoutId.xml"
+
+        doc = kml.KML.parse(file=empty_placemark, ns="None")
+
+        assert doc.ns == "None"
 
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""

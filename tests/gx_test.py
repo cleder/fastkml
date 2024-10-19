@@ -51,6 +51,13 @@ class TestGetGxGeometry(StdLibrary):
             "coordinates": ((0.0, 0.0), (1.0, 1.0)),
         }
 
+    def test_track_etree_element(self) -> None:
+        g = Track()
+
+        g.etree_element()
+
+        assert g.track_items == []
+
     def test_multitrack(self) -> None:
         doc = """
         <gx:MultiTrack xmlns:kml="http://www.opengis.net/kml/2.2"
@@ -329,6 +336,8 @@ class TestMultiTrack(StdLibrary):
         )
 
         mt = MultiTrack(geometry=lines, ns="")
+
+        assert bool(mt)
 
         assert (
             mt.to_string()

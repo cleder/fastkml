@@ -209,6 +209,7 @@ class TestStdLibrary(StdLibrary):
         assert region.lod.min_fade_extent == 0
         assert region.lod.max_fade_extent == 512
         assert region
+        assert bool(region)
 
     def test_region_read(self) -> None:
         doc = (
