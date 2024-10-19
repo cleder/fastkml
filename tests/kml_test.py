@@ -174,6 +174,15 @@ class TestParseKML(StdLibrary):
         )
 
 
+class TestParseKMLNone(StdLibrary):
+    def test_kml_parse(self) -> None:
+        empty_placemark = KMLFILEDIR / "emptyPlacemarkWithoutId.xml"
+
+        doc = kml.KML.parse(file=empty_placemark, ns="None")
+
+        assert doc.ns == "None"
+
+
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
 

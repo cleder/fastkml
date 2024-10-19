@@ -153,9 +153,6 @@ class KML(_XMLObject):
         kmlobj: kml_children,
     ) -> None:
         """Append a feature."""
-        if kmlobj is self:
-            msg = "Cannot append self"
-            raise ValueError(msg)
         self.features.append(kmlobj)
 
     @classmethod

@@ -17,7 +17,12 @@
 """Test the kml classes."""
 
 
+import pytest
+
+from fastkml import containers
+from fastkml import features
 from fastkml import kml
+from fastkml import styles
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -64,6 +69,46 @@ class TestStdLibrary(StdLibrary):
 
         assert d.features[0].visibility is None
         assert d.features[0].isopen
+
+    def test_container_creation(self) -> None:
+        container = containers._Container(
+            ns="ns",
+            id="id",
+            target_id="target_id",
+            name="name",
+        )
+        assert container.ns == "ns"
+        assert container.name == "name"
+
+    def test_container_feature_append(self) -> None:
+        container = containers._Container(
+            ns="ns",
+            id="id",
+            target_id="target_id",
+            name="name",
+        )
+        feature = features._Feature(name="new_feature")
+        container.append(feature)
+        assert feature in container.features
+        with pytest.raises(ValueError, match="Cannot append self"):
+            container.append(container)
+
+    def test_document_container_get_style_url(self) -> None:
+        document = containers.Document(
+            name="Document",
+            ns="ns",
+            style_url=styles.StyleUrl(url="www.styleurl.com"),
+        )
+        assert document.get_style_by_url(style_url="www.styleurl.com") is None
+
+    def test_document_container_get_style_url_id(self) -> None:
+        style = styles.Style(id="style-0")
+        document = containers.Document(
+            name="Document",
+            ns="ns",
+            styles=[style],
+        )
+        assert document.get_style_by_url(style_url="#style-0") == style
 
 
 class TestLxml(Lxml, TestStdLibrary):

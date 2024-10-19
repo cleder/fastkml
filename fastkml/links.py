@@ -161,6 +161,7 @@ registry.register(
         classes=(RefreshMode,),
         get_kwarg=subelement_enum_kwarg,
         set_element=enum_subelement,
+        default=RefreshMode.on_change,
     ),
 )
 registry.register(
@@ -172,6 +173,7 @@ registry.register(
         classes=(ViewRefreshMode,),
         get_kwarg=subelement_enum_kwarg,
         set_element=enum_subelement,
+        default=ViewRefreshMode.never,
     ),
 )
 registry.register(
@@ -183,6 +185,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=4.0,
     ),
 )
 registry.register(
@@ -194,6 +197,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=4.0,
     ),
 )
 registry.register(
@@ -205,6 +209,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=1.0,
     ),
 )
 

@@ -16,8 +16,10 @@
 
 """Test the geometry classes."""
 import pygeoif.geometry as geo
+import pytest
 
 from fastkml.enums import Verbosity
+from fastkml.exceptions import GeometryError
 from fastkml.geometry import MultiGeometry
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -294,6 +296,13 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
         assert xml.count("tessellate>0<") == 12  # points do not have tessellate
         assert xml.count("extrude>0<") == 13
         assert xml.count("altitudeMode>clampToGround<") == 13
+
+    def test_geometry_error(self) -> None:
+        """Test GeometryError."""
+        p = geo.MultiPoint(((1.0, 2.0),))
+
+        with pytest.raises(GeometryError):
+            MultiGeometry(geometry=p, kml_geometries=(MultiGeometry(geometry=p),))
 
     def test_multi_geometries_read(self) -> None:
         xml = (

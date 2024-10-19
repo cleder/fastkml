@@ -610,6 +610,12 @@ class TestStdLibrary(StdLibrary):
         assert sm.highlight.id == "id-u0"
         assert sm.highlight.target_id == "target-u0"
 
+    def test_style_map_none_case(self) -> None:
+        sm = styles.StyleMap()
+
+        assert sm.normal is None
+        assert sm.highlight is None
+
 
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
