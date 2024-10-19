@@ -1,4 +1,4 @@
-# Copyright (C) 2022 - 2023 Christian Ledermann
+# Copyright (C) 2022 - 2024 Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -100,6 +100,7 @@ class TestDateTime(StdLibrary):
     def test_parse_year(self) -> None:
         dt = KmlDateTime.parse("2000")
 
+        assert dt
         assert dt.resolution == DateTimeResolution.year
         assert dt.dt == datetime.datetime(2000, 1, 1, tzinfo=tzutc())
 
@@ -113,12 +114,14 @@ class TestDateTime(StdLibrary):
     def test_parse_year_month(self) -> None:
         dt = KmlDateTime.parse("2000-03")
 
+        assert dt
         assert dt.resolution == DateTimeResolution.year_month
         assert dt.dt == datetime.datetime(2000, 3, 1, tzinfo=tzutc())
 
     def test_parse_year_month_no_dash(self) -> None:
         dt = KmlDateTime.parse("200004")
 
+        assert dt
         assert dt.resolution == DateTimeResolution.year_month
         assert dt.dt == datetime.datetime(2000, 4, 1, tzinfo=tzutc())
 
@@ -133,12 +136,14 @@ class TestDateTime(StdLibrary):
     def test_parse_year_month_day(self) -> None:
         dt = KmlDateTime.parse("2000-03-01")
 
+        assert dt
         assert dt.resolution == DateTimeResolution.date
         assert dt.dt == datetime.datetime(2000, 3, 1, tzinfo=tzutc())
 
     def test_parse_year_month_day_no_dash(self) -> None:
         dt = KmlDateTime.parse("20000401")
 
+        assert dt
         assert dt.resolution == DateTimeResolution.date
         assert dt.dt == datetime.datetime(2000, 4, 1, tzinfo=tzutc())
 
@@ -152,12 +157,14 @@ class TestDateTime(StdLibrary):
     def test_parse_datetime_utc(self) -> None:
         dt = KmlDateTime.parse("1997-07-16T07:30:15Z")
 
+        assert dt
         assert dt.resolution == DateTimeResolution.datetime
         assert dt.dt == datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc())
 
     def test_parse_datetime_with_tz(self) -> None:
         dt = KmlDateTime.parse("1997-07-16T07:30:15+01:00")
 
+        assert dt
         assert dt.resolution == DateTimeResolution.datetime
         assert dt.dt == datetime.datetime(
             1997,
@@ -172,6 +179,7 @@ class TestDateTime(StdLibrary):
     def test_parse_datetime_with_tz_no_colon(self) -> None:
         dt = KmlDateTime.parse("1997-07-16T07:30:15+0100")
 
+        assert dt
         assert dt.resolution == DateTimeResolution.datetime
         assert dt.dt == datetime.datetime(
             1997,
@@ -186,6 +194,7 @@ class TestDateTime(StdLibrary):
     def test_parse_datetime_no_tz(self) -> None:
         dt = KmlDateTime.parse("1997-07-16T07:30:15")
 
+        assert dt
         assert dt.resolution == DateTimeResolution.datetime
         assert dt.dt == datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc())
 
@@ -203,7 +212,10 @@ class TestStdLibrary(StdLibrary):
     def test_timestamp(self) -> None:
         now = datetime.datetime.now()  # noqa: DTZ005
         dt = KmlDateTime(now)
+
         ts = kml.TimeStamp(timestamp=dt)
+
+        assert ts.timestamp
         assert ts.timestamp.dt == now
         assert ts.timestamp.resolution == DateTimeResolution.datetime
         assert "TimeStamp>" in str(ts.to_string())
@@ -217,7 +229,9 @@ class TestStdLibrary(StdLibrary):
     def test_timespan(self) -> None:
         now = KmlDateTime(datetime.datetime.now())  # noqa: DTZ005
         y2k = KmlDateTime(datetime.datetime(2000, 1, 1))  # noqa: DTZ001
+
         ts = kml.TimeSpan(end=now, begin=y2k)
+
         assert ts.end == now
         assert ts.begin == y2k
         assert "TimeSpan>" in str(ts.to_string())
@@ -235,7 +249,10 @@ class TestStdLibrary(StdLibrary):
     def test_feature_timestamp(self) -> None:
         now = datetime.datetime.now()  # noqa: DTZ005
         f = kml.Document()
+
         f.times = kml.TimeStamp(timestamp=KmlDateTime(now))
+
+        assert f.time_stamp
         assert f.time_stamp.dt == now
         assert now.isoformat() in str(f.to_string())
         assert "TimeStamp>" in str(f.to_string())
@@ -276,6 +293,7 @@ class TestStdLibrary(StdLibrary):
 
         ts = kml.TimeStamp.class_from_string(doc, ns="")
 
+        assert ts.timestamp
         assert ts.timestamp.resolution == DateTimeResolution.year
         assert ts.timestamp.dt == datetime.datetime(1997, 1, 1, 0, 0, tzinfo=tzutc())
 
@@ -288,6 +306,7 @@ class TestStdLibrary(StdLibrary):
 
         ts = kml.TimeStamp.class_from_string(doc, ns="")
 
+        assert ts.timestamp
         assert ts.timestamp.resolution == DateTimeResolution.year_month
         assert ts.timestamp.dt == datetime.datetime(1997, 7, 1, 0, 0, tzinfo=tzutc())
 
@@ -300,6 +319,7 @@ class TestStdLibrary(StdLibrary):
 
         ts = kml.TimeStamp.class_from_string(doc, ns="")
 
+        assert ts.timestamp
         assert ts.timestamp.resolution == DateTimeResolution.year_month
         assert ts.timestamp.dt == datetime.datetime(1998, 8, 1, 0, 0, tzinfo=tzutc())
 
@@ -312,6 +332,7 @@ class TestStdLibrary(StdLibrary):
 
         ts = kml.TimeStamp.class_from_string(doc, ns="")
 
+        assert ts.timestamp
         assert ts.timestamp.resolution == DateTimeResolution.date
         assert ts.timestamp.dt == datetime.datetime(1997, 7, 16, 0, 0, tzinfo=tzutc())
 
@@ -327,6 +348,7 @@ class TestStdLibrary(StdLibrary):
 
         ts = kml.TimeStamp.class_from_string(doc, ns="")
 
+        assert ts.timestamp
         assert ts.timestamp.resolution == DateTimeResolution.datetime
         assert ts.timestamp.dt == datetime.datetime(
             1997,
@@ -347,6 +369,7 @@ class TestStdLibrary(StdLibrary):
 
         ts = kml.TimeStamp.class_from_string(doc, ns="")
 
+        assert ts.timestamp
         assert ts.timestamp.resolution == DateTimeResolution.datetime
         assert ts.timestamp.dt == datetime.datetime(
             1997,
@@ -368,8 +391,10 @@ class TestStdLibrary(StdLibrary):
 
         ts = kml.TimeSpan.class_from_string(doc, ns="")
 
+        assert ts.begin
         assert ts.begin.resolution == DateTimeResolution.date
         assert ts.begin.dt == datetime.datetime(1876, 8, 1, 0, 0, tzinfo=tzutc())
+        assert ts.end
         assert ts.end.resolution == DateTimeResolution.datetime
         assert ts.end.dt == datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc())
 
@@ -389,7 +414,9 @@ class TestStdLibrary(StdLibrary):
         d = kml.Document.class_from_string(doc, ns="")
 
         assert d.time_stamp is None
+        assert d.begin
         assert d.begin.dt == datetime.datetime(1876, 8, 1, 0, 0, tzinfo=tzutc())
+        assert d.end
         assert d.end.dt == datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc())
 
 
