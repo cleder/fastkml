@@ -13,7 +13,15 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-"""Date and time handling in KML."""
+"""
+Date and time handling in KML.
+
+Any Feature in KML can have time data associated with it.
+This time data has the effect of restricting the visibility of the data set to a given
+time period or point in time.
+
+https://developers.google.com/kml/documentation/time
+"""
 import re
 from datetime import date
 from datetime import datetime
@@ -31,7 +39,7 @@ from fastkml.kml_base import _BaseObject
 from fastkml.types import Element
 
 # regular expression to parse a gYearMonth string
-# year and month may be separated by a dash or not
+# year and month may be separated by an optional dash
 # year is always 4 digits, month is always 2 digits
 year_month_day = re.compile(
     r"^(?P<year>\d{4})(?:-)?(?P<month>\d{2})?(?:-)?(?P<day>\d{2})?$",
@@ -154,7 +162,11 @@ class _TimePrimitive(_BaseObject):
 
 
 class TimeStamp(_TimePrimitive):
-    """Represents a single moment in time."""
+    """
+    Represents a single moment in time.
+
+    https://developers.google.com/kml/documentation/kmlreference#timestamp
+    """
 
     def __init__(
         self,
@@ -262,7 +274,11 @@ class TimeStamp(_TimePrimitive):
 
 
 class TimeSpan(_TimePrimitive):
-    """Represents an extent in time bounded by begin and end dateTimes."""
+    """
+    Represents an extent in time bounded by begin and end dateTimes.
+
+    https://developers.google.com/kml/documentation/kmlreference#timespan
+    """
 
     def __init__(
         self,
