@@ -8,43 +8,64 @@ Build a KML from Scratch
 
 Example how to build a simple KML file from the Python interpreter.
 
+First we import the necessary modules:
+
 .. code-block:: pycon
 
-    # Import the library
     >>> from fastkml import kml
     >>> from pygeoif.geometry import Polygon
 
-    # Create the root KML object
+Create a KML object and set the namespace:
+
+.. code-block:: pycon
+
     >>> k = kml.KML()
     >>> ns = "{http://www.opengis.net/kml/2.2}"
 
-    # Create a KML Document and add it to the KML root object
+Create a KML Document and add it to the KML root object:
+
+.. code-block:: pycon
+
     >>> d = kml.Document(ns=ns, id="docid", name="doc name", description="doc description")
     >>> k.append(d)
 
-    # Create a KML Folder and add it to the Document
+Create a KML Folder and add it to the Document:
+
+.. code-block:: pycon
+
     >>> f = kml.Folder(ns=ns, id="fid", name="f name", description="f description")
     >>> d.append(f)
 
-    # Create a KML Folder and nest it in the first Folder
+Create a KML Folder and nest it in the first Folder:
+
+.. code-block:: pycon
+
     >>> nf = kml.Folder(
     ...     ns=ns, id="nested-fid", name="nested f name", description="nested f description"
     ... )
     >>> f.append(nf)
 
-    # Create a second KML Folder within the Document
+Create a second KML Folder within the Document:
+
+.. code-block:: pycon
+
     >>> f2 = kml.Folder(ns=ns, id="id2", name="name2", description="description2")
     >>> d.append(f2)
 
-    # Create a Placemark with a simple polygon geometry and add it to the
-    # second folder of the Document
+Create a KML Placemark with a simple polygon geometry and add it to the second Folder:
+
+.. code-block:: pycon
+
     >>> polygon = Polygon([(0, 0, 0), (1, 1, 0), (1, 0, 1)])
     >>> p = kml.Placemark(
     ...     ns=ns, id="id", name="name", description="description", geometry=polygon
     ... )
     >>> f2.append(p)
 
-    # Print out the KML Object as a string
+Finally, print out the KML object as a string:
+
+.. code-block:: pycon
+
     >>> print(k.to_string(prettyprint=True, precision=6))
     <kml xmlns="http://www.opengis.net/kml/2.2">
       <Document id="docid">
@@ -82,14 +103,10 @@ Example how to build a simple KML file from the Python interpreter.
 Read a KML File/String
 ----------------------
 
-You can create a KML object by reading a KML file as a string
+You can create a KML object by reading a KML file from a string
 
 .. code-block:: pycon
 
-    # Start by importing the kml module
-    >>> from fastkml import kml
-
-    # Setup the string which contains the KML file we want to read
     >>> doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
     ... <Document>
     ...   <name>Document.kml</name>
@@ -116,21 +133,33 @@ You can create a KML object by reading a KML file as a string
     ... </Document>
     ... </kml>"""
 
-    # Read in the KML string
+Read in the KML string
+
+.. code-block:: pycon
+
     >>> k = kml.KML.from_string(doc)
 
-    # Next we perform some simple sanity checks
+Next we perform some simple sanity checks, such as checking the number of features.
 
-    # Check that the number of features is correct
+.. code-block:: pycon
+
     # This corresponds to the single ``Document``
     >>> len(k.features)
     1
+
+Check the number of Placemarks in the Document:
+
+.. code-block:: pycon
 
     # (The two Placemarks of the Document)
     >>> k.features[0].features  # doctest: +ELLIPSIS
     [fastkml.features.Placemark...
     >>> len(k.features[0].features)
     2
+
+Check the Placemarks in the Document:
+
+.. code-block:: pycon
 
     # Check specifics of the first Placemark in the Document
     >>> k.features[0].features[0]  # doctest: +ELLIPSIS
@@ -144,7 +173,10 @@ You can create a KML object by reading a KML file as a string
     'Document Feature 2'
     >>> k.features[0].features[1].name = "ANOTHER NAME"
 
-    # Verify that we can print back out the KML object as a string
+Finally, print out the KML object as a string:
+
+.. code-block:: pycon
+
     >>> print(k.to_string(prettyprint=True, precision=6))
     <kml xmlns="http://www.opengis.net/kml/2.2">
       <Document>
