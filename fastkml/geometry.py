@@ -1052,12 +1052,12 @@ class Polygon(_Geometry):
     The `geometry` property returns a `geo.Polygon` object representing the
     geometry of the Polygon.
 
-    Example usage:
-    ```
-    polygon = Polygon(outer_boundary_is=outer_boundary,
-        inner_boundary_is=inner_boundary)
-    print(polygon.geometry)
-    ```
+    Example usage::
+
+        polygon = Polygon(outer_boundary_is=outer_boundary,
+            inner_boundary_is=inner_boundary)
+        print(polygon.geometry)
+
 
     https://developers.google.com/kml/documentation/kmlreference#polygon
     """
@@ -1112,7 +1112,7 @@ class Polygon(_Geometry):
 
         Raises
         ------
-        GeometryError
+        GeometryError:
             If both outer_boundary_is and geometry are provided.
 
         Returns

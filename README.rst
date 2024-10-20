@@ -1,6 +1,8 @@
 Introduction
 ============
 
+.. inclusion-marker-do-not-remove
+
 KML is an XML geospatial data format and an OGC_ standard that deserves a canonical python implementation.
 
 Fastkml is a library to read, write and manipulate KML files. It aims to keep
@@ -11,6 +13,9 @@ the functionality that KML clients such as `OpenLayers
 <http://openlayers.org/>`_, `Google Maps <http://maps.google.com/>`_, and
 `Google Earth <http://earth.google.com/>`_ provides.
 
+For more details about the KML Specification, check out the `KML Reference
+<https://developers.google.com/kml/documentation/kmlreference>`_ on the Google
+developers site.
 
 Geometries are handled as pygeoif_ objects.
 

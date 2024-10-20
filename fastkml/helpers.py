@@ -501,8 +501,8 @@ def node_text_kwarg(
     ----
         element (Element): The XML element to extract the text content from.
         ns (str): The namespace of the XML element.
-        name_spaces (Dict[str, str]):
-            A dictionary mapping namespace prefixes to their URIs.
+        name_spaces (Dict[str, str]): A dictionary mapping namespace prefixes to their
+        URIs.
         node_name (str): The name of the XML node.
         kwarg (str): The name of the keyword argument to store the text content in.
         classes (Tuple[known_types, ...]): A tuple of known types.
