@@ -51,7 +51,7 @@ class TestLinearRing(StdLibrary):
 
     def test_from_string(self) -> None:
         """Test the from_string method."""
-        linear_ring = LinearRing.class_from_string(
+        linear_ring = LinearRing.from_string(
             '<kml:LinearRing xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.0,1.0 "
             "0.000000,0.000000</kml:coordinates>"
@@ -62,7 +62,7 @@ class TestLinearRing(StdLibrary):
 
     def test_empty_from_string(self) -> None:
         """Test the from_string method with an empty LinearRing."""
-        linear_ring = LinearRing.class_from_string(
+        linear_ring = LinearRing.from_string(
             '<kml:LinearRing xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:coordinates></kml:coordinates>"
             "</kml:LinearRing>",
@@ -72,7 +72,7 @@ class TestLinearRing(StdLibrary):
 
     def test_no_coordinates_from_string(self) -> None:
         """Test the from_string method with an empty LinearRing."""
-        linear_ring = LinearRing.class_from_string(
+        linear_ring = LinearRing.from_string(
             '<kml:LinearRing xmlns:kml="http://www.opengis.net/kml/2.2">'
             "</kml:LinearRing>",
         )
@@ -85,7 +85,7 @@ class TestLinearRing(StdLibrary):
             KMLParseError,
             match=r"^Invalid coordinates in",
         ):
-            LinearRing.class_from_string(
+            LinearRing.from_string(
                 '<kml:LinearRing xmlns:kml="http://www.opengis.net/kml/2.2">'
                 "<kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.0,1.0 "
                 "0.000000,0.000000 1.000000,a</kml:coordinates>"
@@ -94,7 +94,7 @@ class TestLinearRing(StdLibrary):
 
     def test_mixed_2d_3d_coordinates_from_string_relaxed(self) -> None:
         """Test the from_string method with mixed 2D and 3D coordinates."""
-        linear_ring = LinearRing.class_from_string(
+        linear_ring = LinearRing.from_string(
             '<kml:LinearRing xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:coordinates>0.000000,0.000000 1.000000,0.000000 1.0,1.0 "
             "0.000000,0.000000 1.000000,2.000000,3.000000</kml:coordinates>"

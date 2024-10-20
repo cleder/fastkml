@@ -84,7 +84,7 @@ def _test_geometry_str_roundtrip(
     tessellate: bool | None,
     altitude_mode: AltitudeMode | None,
 ) -> None:
-    new_g = fastkml.geometry.MultiGeometry.class_from_string(geometry.to_string())
+    new_g = fastkml.geometry.MultiGeometry.from_string(geometry.to_string())
 
     assert geometry.to_string() == new_g.to_string()
     assert geometry == new_g
@@ -108,7 +108,7 @@ def _test_geometry_str_roundtrip_terse(
     tessellate: bool | None,
     altitude_mode: AltitudeMode | None,
 ) -> None:
-    new_g = fastkml.geometry.MultiGeometry.class_from_string(
+    new_g = fastkml.geometry.MultiGeometry.from_string(
         geometry.to_string(verbosity=Verbosity.terse),
     )
 
@@ -144,7 +144,7 @@ def _test_geometry_str_roundtrip_verbose(
     tessellate: bool | None,
     altitude_mode: AltitudeMode | None,
 ) -> None:
-    new_g = fastkml.geometry.MultiGeometry.class_from_string(
+    new_g = fastkml.geometry.MultiGeometry.from_string(
         geometry.to_string(verbosity=Verbosity.verbose),
     )
 
@@ -599,7 +599,7 @@ def test_geometrycollection_str_roundtrip(
         geometry=geometry,
     )
 
-    new_mg = fastkml.geometry.MultiGeometry.class_from_string(
+    new_mg = fastkml.geometry.MultiGeometry.from_string(
         multi_geometry.to_string(),
     )
 
@@ -635,7 +635,7 @@ def test_geometrycollection_str_roundtrip_terse(
         geometry=geometry,
     )
 
-    new_mg = fastkml.geometry.MultiGeometry.class_from_string(
+    new_mg = fastkml.geometry.MultiGeometry.from_string(
         multi_geometry.to_string(verbosity=Verbosity.terse),
     )
 
@@ -671,7 +671,7 @@ def test_geometrycollection_str_roundtrip_verbose(
         geometry=geometry,
     )
 
-    new_mg = fastkml.geometry.MultiGeometry.class_from_string(
+    new_mg = fastkml.geometry.MultiGeometry.from_string(
         multi_geometry.to_string(verbosity=Verbosity.verbose),
     )
 

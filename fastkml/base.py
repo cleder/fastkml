@@ -346,7 +346,7 @@ class _XMLObject:
         )
 
     @classmethod
-    def class_from_string(
+    def from_string(
         cls,
         string: str,
         *,

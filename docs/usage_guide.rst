@@ -117,7 +117,7 @@ You can create a KML object by reading a KML file as a string
     ... </kml>"""
 
     # Read in the KML string
-    >>> k = kml.KML.class_from_string(doc)
+    >>> k = kml.KML.from_string(doc)
 
     # Next we perform some simple sanity checks
 

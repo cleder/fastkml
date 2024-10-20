@@ -36,7 +36,7 @@ class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
 
     def test_linarring_placemark(self) -> None:
-        doc = kml.KML.class_from_string(
+        doc = kml.KML.from_string(
             """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Placemark>
           <LinearRing>
@@ -44,7 +44,7 @@ class TestStdLibrary(StdLibrary):
           </LinearRing>
         </Placemark> </kml>""",
         )
-        doc2 = kml.KML.class_from_string(doc.to_string())
+        doc2 = kml.KML.from_string(doc.to_string())
         assert isinstance(doc.features[0].geometry, geo.LinearRing)
         assert doc.to_string() == doc2.to_string()
 
@@ -56,7 +56,7 @@ class TestStdLibrary(StdLibrary):
             k.to_string().strip().replace(" ", "")
             == '<kmlxmlns="http://www.opengis.net/kml/2.2"/>'
         )
-        k2 = kml.KML.class_from_string(k.to_string(), ns="")
+        k2 = kml.KML.from_string(k.to_string(), ns="")
         assert k.to_string() == k2.to_string()
 
     def test_kml_with_document(self) -> None:
@@ -92,7 +92,7 @@ class TestStdLibrary(StdLibrary):
             "</Folder>"
             "</Document></kml>"
         )
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         assert len(k.features) == 1
         assert isinstance(k.features[0], Document)
         assert len(k.features[0].features) == 1

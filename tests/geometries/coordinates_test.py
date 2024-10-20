@@ -38,7 +38,7 @@ class TestCoordinates(StdLibrary):
 
     def test_coordinates_from_string(self) -> None:
         """Test the from_string method."""
-        coordinates = Coordinates.class_from_string(
+        coordinates = Coordinates.from_string(
             '<kml:coordinates xmlns:kml="http://www.opengis.net/kml/2.2">'
             "0.000000,0.000000 1.000000,0.000000 1.0,1.0 0.000000,0.000000"
             "</kml:coordinates>",
@@ -48,7 +48,7 @@ class TestCoordinates(StdLibrary):
 
     def test_coordinates_from_string_with_whitespace(self) -> None:
         """Test the from_string method with whitespace."""
-        coordinates = Coordinates.class_from_string(
+        coordinates = Coordinates.from_string(
             '<kml:coordinates xmlns:kml="http://www.opengis.net/kml/2.2">\n'
             "-123.9404499372,49.169275246690,17 -123.940493701601,49.1694596207446,17 "
             "-123.940356261489,49.16947180231761,17 -123.940306243,49.169291706171,17 "

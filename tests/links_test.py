@@ -39,7 +39,7 @@ class TestStdLibrary(StdLibrary):
             http_query="clientName=fastkml",
         )
 
-        icon = links.Icon.class_from_string(icon_0.to_string())
+        icon = links.Icon.from_string(icon_0.to_string())
 
         assert icon.id == "icon-01"
         assert icon.href == "http://maps.google.com/mapfiles/kml/paddle/red-circle.png"
@@ -53,7 +53,7 @@ class TestStdLibrary(StdLibrary):
 
     def test_icon_read(self) -> None:
         """Test the Icon class."""
-        icon = links.Icon.class_from_string(
+        icon = links.Icon.from_string(
             """
             <kml:Icon xmlns:kml="http://www.opengis.net/kml/2.2" id="icon-01">
             <kml:href>http://maps.google.com/mapfiles/kml/paddle/red-circle.png</kml:href>
@@ -78,7 +78,7 @@ class TestStdLibrary(StdLibrary):
         assert icon.view_format == "BBOX=[bboxWest],[bboxSouth],[bboxEast],[bboxNorth]"
         assert icon.http_query == "clientName=fastkml"
 
-        icon2 = links.Icon.class_from_string(icon.to_string())
+        icon2 = links.Icon.from_string(icon.to_string())
 
         assert icon2.to_string() == icon.to_string()
 

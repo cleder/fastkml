@@ -62,7 +62,7 @@ class TestLineString(StdLibrary):
 
     def test_from_string(self) -> None:
         """Test the from_string method."""
-        linestring = LineString.class_from_string(
+        linestring = LineString.from_string(
             '<LineString xmlns="http://www.opengis.net/kml/2.2">'
             "<extrude>1</extrude>"
             "<tessellate>1</tessellate>"
@@ -77,7 +77,7 @@ class TestLineString(StdLibrary):
         )
 
     def test_mixed_2d_3d_coordinates_from_string(self) -> None:
-        linestring = LineString.class_from_string(
+        linestring = LineString.from_string(
             '<LineString xmlns="http://www.opengis.net/kml/2.2">'
             "<extrude>1</extrude>"
             "<tessellate>1</tessellate>"
@@ -90,7 +90,7 @@ class TestLineString(StdLibrary):
         assert not linestring
 
     def test_mixed_2d_3d_coordinates_from_string_relaxed(self) -> None:
-        line_string = LineString.class_from_string(
+        line_string = LineString.from_string(
             '<LineString xmlns="http://www.opengis.net/kml/2.2">'
             "<extrude>1</extrude>"
             "<tessellate>1</tessellate>"
@@ -105,7 +105,7 @@ class TestLineString(StdLibrary):
 
     def test_empty_from_string(self) -> None:
         """Test the from_string method with an empty LineString."""
-        linestring = LineString.class_from_string(
+        linestring = LineString.from_string(
             '<LineString xmlns="http://www.opengis.net/kml/2.2">'
             "<extrude>1</extrude>"
             "<tessellate>1</tessellate>"
@@ -118,7 +118,7 @@ class TestLineString(StdLibrary):
 
     def test_no_coordinates_from_string(self) -> None:
         """Test the from_string method with no coordinates."""
-        linestring = LineString.class_from_string(
+        linestring = LineString.from_string(
             '<LineString xmlns="http://www.opengis.net/kml/2.2">'
             "<extrude>1</extrude>"
             "<tessellate>1</tessellate>"
@@ -133,7 +133,7 @@ class TestLineString(StdLibrary):
             KMLParseError,
             match=r"^Invalid coordinates in",
         ):
-            LineString.class_from_string(
+            LineString.from_string(
                 '<LineString xmlns="http://www.opengis.net/kml/2.2">'
                 "<extrude>1</extrude>"
                 "<tessellate>1</tessellate>"
@@ -144,7 +144,7 @@ class TestLineString(StdLibrary):
             )
 
     def test_from_string_invalid_coordinates_nan(self) -> None:
-        line_string = LineString.class_from_string(
+        line_string = LineString.from_string(
             '<LineString xmlns="http://www.opengis.net/kml/2.2">'
             "<extrude>false</extrude>"
             "<tessellate>true</tessellate>"
@@ -165,7 +165,7 @@ class TestLineString(StdLibrary):
         with pytest.raises(
             exceptions.KMLParseError,
         ):
-            LineString.class_from_string(
+            LineString.from_string(
                 '<LineString id="my-id" targetId="target_id" '
                 'xmlns="http://www.opengis.net/kml/2.2">'
                 "<extrude>invalid</extrude>"
@@ -177,7 +177,7 @@ class TestLineString(StdLibrary):
         with pytest.raises(
             exceptions.KMLParseError,
         ):
-            LineString.class_from_string(
+            LineString.from_string(
                 '<LineString id="my-id" targetId="target_id" '
                 'xmlns="http://www.opengis.net/kml/2.2">'
                 "<tessellate>invalid</tessellate>"

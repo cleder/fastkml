@@ -148,7 +148,7 @@ class TestStdLibrary(StdLibrary):
           </kml:outerBoundaryIs>
         </kml:Polygon>"""
 
-        polygon2 = Polygon.class_from_string(doc)
+        polygon2 = Polygon.from_string(doc)
 
         assert polygon2.geometry == geo.Polygon([(0, 0), (1, 0), (1, 1), (0, 0)])
 
@@ -163,7 +163,7 @@ class TestStdLibrary(StdLibrary):
           </kml:innerBoundaryIs>
         </kml:Polygon>"""
 
-        assert not Polygon.class_from_string(doc)
+        assert not Polygon.from_string(doc)
 
     def test_from_string_exterior_wo_linearring(self) -> None:
         """Test exterior when no LinearRing in outer boundary."""
@@ -174,7 +174,7 @@ class TestStdLibrary(StdLibrary):
           </kml:outerBoundaryIs>
           </kml:Polygon>"""
 
-        assert not Polygon.class_from_string(doc)
+        assert not Polygon.from_string(doc)
 
     def test_from_string_interior_wo_linearring(self) -> None:
         """Test interior when no LinearRing in inner boundary."""
@@ -191,7 +191,7 @@ class TestStdLibrary(StdLibrary):
         </kml:innerBoundaryIs>
         </kml:Polygon>"""
 
-        poly = Polygon.class_from_string(doc)
+        poly = Polygon.from_string(doc)
 
         assert poly.geometry == geo.Polygon(
             ((0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0)),
@@ -214,7 +214,7 @@ class TestStdLibrary(StdLibrary):
         </kml:Polygon>
         """
 
-        polygon = Polygon.class_from_string(doc)
+        polygon = Polygon.from_string(doc)
 
         assert polygon.geometry == geo.Polygon(
             [(-1, -1), (2, -1), (2, 2), (-1, -1)],
@@ -238,7 +238,7 @@ class TestStdLibrary(StdLibrary):
         </kml:Polygon>
         """
 
-        polygon = Polygon.class_from_string(doc, strict=False)
+        polygon = Polygon.from_string(doc, strict=False)
 
         assert polygon.geometry == geo.Polygon(
             ((-1.0, -1.0), (2.0, -1.0), (2.0, 2.0), (-1.0, -1.0)),
@@ -252,7 +252,7 @@ class TestStdLibrary(StdLibrary):
             "</Polygon>"
         )
 
-        polygon = Polygon.class_from_string(doc)
+        polygon = Polygon.from_string(doc)
 
         assert not polygon.geometry
         assert polygon.outer_boundary is not None

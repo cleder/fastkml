@@ -30,7 +30,7 @@ doc = """<?xml version="1.0" encoding="UTF-8"?>
 
 # Create the KML object to store the parsed result
 # Read in the KML string
-k = kml.KML.class_from_string(doc.encode("utf-8"))
+k = kml.KML.from_string(doc.encode("utf-8"))
 
 # Next we perform some simple sanity checks
 

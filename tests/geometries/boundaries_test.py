@@ -49,7 +49,7 @@ class TestBoundaries(StdLibrary):
 
     def test_read_outer_boundary(self) -> None:
         """Test the from_string method."""
-        outer_boundary = OuterBoundaryIs.class_from_string(
+        outer_boundary = OuterBoundaryIs.from_string(
             '<kml:outerBoundaryIs xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:LinearRing>"
             "<kml:coordinates>1.0,4.0 2.0,0.0 0.0,0.0 1.0,4.0</kml:coordinates>"
@@ -106,7 +106,7 @@ class TestBoundaries(StdLibrary):
         When there are multiple LinearRings in the innerBoundaryIs element
         only the first one is used.
         """
-        inner_boundary = InnerBoundaryIs.class_from_string(
+        inner_boundary = InnerBoundaryIs.from_string(
             '<kml:innerBoundaryIs xmlns:kml="http://www.opengis.net/kml/2.2">'
             "<kml:LinearRing>"
             "<kml:coordinates>1.0,4.0 2.0,0.0 0.0,0.0 1.0,4.0</kml:coordinates>"

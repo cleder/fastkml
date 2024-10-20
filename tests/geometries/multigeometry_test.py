@@ -58,7 +58,7 @@ class TestMultiPointStdLibrary(StdLibrary):
             "</kml:coordinates></kml:Point></kml:MultiGeometry>"
         )
 
-        mg = MultiGeometry.class_from_string(xml)
+        mg = MultiGeometry.from_string(xml)
 
         assert mg.geometry == geo.MultiPoint([(1, 2), (3, 4)])
 
@@ -101,7 +101,7 @@ class TestMultiLineStringStdLibrary(StdLibrary):
             "</kml:LineString></kml:MultiGeometry>"
         )
 
-        mg = MultiGeometry.class_from_string(xml, ns="")
+        mg = MultiGeometry.from_string(xml, ns="")
 
         assert mg.geometry == geo.MultiLineString([[(1, 2), (3, 4)], [(5, 6), (7, 8)]])
 
@@ -198,7 +198,7 @@ class TestMultiPolygonStdLibrary(StdLibrary):
             "</LinearRing></outerBoundaryIs></Polygon></MultiGeometry>"
         )
 
-        mg = MultiGeometry.class_from_string(xml)
+        mg = MultiGeometry.from_string(xml)
 
         assert mg.geometry == geo.MultiPolygon(
             [
@@ -335,7 +335,7 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
             "</coordinates></LineString></MultiGeometry></MultiGeometry>"
         )
 
-        mg = MultiGeometry.class_from_string(xml)
+        mg = MultiGeometry.from_string(xml)
 
         assert mg.geometry == geo.GeometryCollection(
             (
@@ -408,7 +408,7 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
             "<MultiGeometry></MultiGeometry></MultiGeometry>"
         )
 
-        mg = MultiGeometry.class_from_string(xml)
+        mg = MultiGeometry.from_string(xml)
 
         assert mg.geometry is None
         assert "MultiGeometry" in mg.to_string()

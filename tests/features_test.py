@@ -158,7 +158,7 @@ class TestStdLibrary(StdLibrary):
             "</kml:NetworkLink>"
         )
 
-        network_link = features.NetworkLink.class_from_string(doc)
+        network_link = features.NetworkLink.from_string(doc)
 
         assert network_link.name == "My NetworkLink"
         assert network_link.visibility

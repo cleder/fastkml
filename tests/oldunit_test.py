@@ -77,7 +77,7 @@ class TestBuildKml:
         assert len(k.features) == 2
         assert len(k.features[0].features) == 1
         s = k.to_string()
-        k2 = kml.KML.class_from_string(s, ns=ns)
+        k2 = kml.KML.from_string(s, ns=ns)
         assert s == k2.to_string()
 
     def test_placemark(self) -> None:
@@ -90,7 +90,7 @@ class TestBuildKml:
         k.append(p)
         k.append(p2)
         assert len(k.features) == 2
-        k2 = kml.KML.class_from_string(k.to_string(prettyprint=True), ns=ns)
+        k2 = kml.KML.from_string(k.to_string(prettyprint=True), ns=ns)
         assert k.to_string() == k2.to_string()
 
     def test_document(self) -> None:
@@ -117,7 +117,7 @@ class TestBuildKml:
         nf.append(p2)
         assert len(k.features) == 1
         assert len(k.features[0].features) == 2
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_author(self) -> None:
@@ -138,7 +138,7 @@ class TestBuildKml:
         assert "Nobody" in str(d.to_string())
         assert "http://localhost" in str(d.to_string())
         assert "cl@donotreply.com" in str(d.to_string())
-        d2 = kml.Document.class_from_string(d.to_string())
+        d2 = kml.Document.from_string(d.to_string())
         assert d.to_string() == d2.to_string()
 
     def test_link(self) -> None:
@@ -147,7 +147,7 @@ class TestBuildKml:
         assert "http://localhost" in str(d.to_string())
         d.atom_link = atom.Link(ns=config.ATOMNS, href="#here")
         assert "#here" in str(d.to_string())
-        d2 = kml.Document.class_from_string(d.to_string())
+        d2 = kml.Document.from_string(d.to_string())
         assert d.to_string() == d2.to_string()
 
     def test_address(self) -> None:
@@ -193,10 +193,10 @@ class TestKmlFromString:
         </Document>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         assert len(k.features) == 1
         assert len(k.features[0].features) == 2
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_folders(self) -> None:
@@ -240,10 +240,10 @@ class TestKmlFromString:
         </Folder>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         assert len(k.features) == 1
         assert len(k.features[0].features) == 3
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_placemark(self) -> None:
@@ -258,10 +258,10 @@ class TestKmlFromString:
           </Placemark>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         assert len(k.features) == 1
         assert k.features[0].name == "Simple placemark"
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_polygon(self) -> None:
@@ -380,10 +380,10 @@ class TestKmlFromString:
           </Placemark>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         assert len(k.features) == 1
         assert isinstance(k.features[0].geometry, Polygon)
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_multipoints(self) -> None:
@@ -431,11 +431,11 @@ class TestKmlFromString:
             </MultiGeometry>
         </Placemark></kml>"""
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         assert len(k.features) == 1
         assert isinstance(k.features[0].geometry, MultiPoint)
         assert len(list(k.features[0].geometry.geoms)) == 12
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_atom(self) -> None:
@@ -447,7 +447,7 @@ class TestKmlFromString:
         <Snippet maxLines="2" >Short Desc</Snippet>
         </Placemark> </kml>"""
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         assert k.features[0].snippet.text == "Short Desc"
         assert k.features[0].snippet.max_lines == 2
         k.features[0].snippet = features.Snippet(
@@ -465,7 +465,7 @@ class TestKmlFromString:
         assert "Snippet" not in k.to_string()
 
     def test_address(self) -> None:
-        doc = kml.Document.class_from_string(
+        doc = kml.Document.from_string(
             """
         <kml:Document xmlns:kml="http://www.opengis.net/kml/2.2" id="pm-id">
             <kml:name>pm-name</kml:name>
@@ -476,11 +476,11 @@ class TestKmlFromString:
         """,
         )
 
-        doc2 = kml.Document.class_from_string(doc.to_string())
+        doc2 = kml.Document.from_string(doc.to_string())
         assert doc.to_string() == doc2.to_string()
 
     def test_phone_number(self) -> None:
-        doc = kml.Document.class_from_string(
+        doc = kml.Document.from_string(
             """
         <kml:Document xmlns:kml="http://www.opengis.net/kml/2.2" id="pm-id">
             <kml:name>pm-name</kml:name>
@@ -491,11 +491,11 @@ class TestKmlFromString:
         """,
         )
 
-        doc2 = kml.Document.class_from_string(doc.to_string())
+        doc2 = kml.Document.from_string(doc.to_string())
         assert doc.to_string() == doc2.to_string()
 
     def test_groundoverlay(self) -> None:
-        doc = kml.KML.class_from_string(
+        doc = kml.KML.from_string(
             """
             <kml xmlns="http://www.opengis.net/kml/2.2">
               <Folder>
@@ -521,7 +521,7 @@ class TestKmlFromString:
             """,
         )
 
-        doc2 = kml.KML.class_from_string(doc.to_string())
+        doc2 = kml.KML.from_string(doc.to_string())
         assert doc.to_string() == doc2.to_string()
 
 
@@ -530,7 +530,7 @@ class TestStyle:
         f = kml.Document()
         s = styles.StyleUrl(config.KMLNS, url="#otherstyle")
         f.style_url = s
-        f2 = kml.Document.class_from_string(f.to_string())
+        f2 = kml.Document.from_string(f.to_string())
         assert f.to_string() == f2.to_string()
         assert isinstance(f2.style_url, styles.StyleUrl)
         assert f2.style_url.url == "#otherstyle"
@@ -539,7 +539,7 @@ class TestStyle:
         lstyle = styles.LineStyle(color="red", width=2.0)
         style = styles.Style(styles=[lstyle])
         f = kml.Document(styles=[style])
-        f2 = kml.Document.class_from_string(f.to_string(prettyprint=True))
+        f2 = kml.Document.from_string(f.to_string(prettyprint=True))
         assert f.to_string() == f2.to_string()
 
     def test_polystyle_fill(self) -> None:
@@ -579,7 +579,7 @@ class TestStyleUsage:
             </kml:Document>
         """
 
-        doc3 = kml.Document.class_from_string(expected)
+        doc3 = kml.Document.from_string(expected)
 
         assert doc.to_string() == doc2.to_string()
         assert doc2.to_string() == doc3.to_string()
@@ -613,7 +613,7 @@ class TestStyleUsage:
             </kml:Placemark>
         """
 
-        place3 = kml.Placemark.class_from_string(expected)
+        place3 = kml.Placemark.from_string(expected)
         assert place.to_string() == place2.to_string()
         assert place2.to_string() == place3.to_string()
         assert place.to_string() == place3.to_string()
@@ -629,10 +629,10 @@ class TestStyleFromString:
         </Document>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         assert len(k.features) == 1
         assert k.features[0].style_url.url == "#default"
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_balloonstyle(self) -> None:
@@ -662,7 +662,7 @@ class TestStyleFromString:
         </Document>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         features = k.features
         assert len(features) == 1
         style = features[0].styles[0]
@@ -675,7 +675,7 @@ class TestStyleFromString:
         assert style_1.text
         assert "$[geDirections]" in style_1.text
         assert "$[description]" in style_1.text
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k2.to_string() == k.to_string()
 
     def test_balloonstyle_old_color(self) -> None:
@@ -691,14 +691,14 @@ class TestStyleFromString:
         </Document>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         assert len(k.features) == 1
         assert isinstance(k.features[0].styles[0], styles.Style)
         style = k.features[0].styles[0].styles[0]
         assert isinstance(style, styles.BalloonStyle)
         assert style.bg_color is None
         assert not style
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k2.to_string() == k.to_string()
 
     def test_labelstyle(self) -> None:
@@ -714,14 +714,14 @@ class TestStyleFromString:
         </Document>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         assert len(k.features) == 1
         assert isinstance(k.features[0].styles[0], styles.Style)
         style = k.features[0].styles[0].styles[0]
         assert isinstance(style, styles.LabelStyle)
         assert style.color == "ff0000cc"
         assert style.color_mode is None
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_iconstyle(self) -> None:
@@ -741,7 +741,7 @@ class TestStyleFromString:
         </Document>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         assert len(k.features) == 1
         assert isinstance(k.features[0].styles[0], styles.Style)
         style = k.features[0].styles[0].styles[0]
@@ -751,7 +751,7 @@ class TestStyleFromString:
         assert style.color_mode == ColorMode.random
         assert style.heading == 0.0
         assert style.icon.href == "http://maps.google.com/icon21.png"
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_linestyle(self) -> None:
@@ -768,14 +768,14 @@ class TestStyleFromString:
         </Document>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         assert len(k.features) == 1
         assert isinstance(k.features[0].styles[0], styles.Style)
         style = k.features[0].styles[0].styles[0]
         assert isinstance(style, styles.LineStyle)
         assert style.color == "7f0000ff"
         assert style.width == 4
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_polystyle(self) -> None:
@@ -793,14 +793,14 @@ class TestStyleFromString:
         </kml>"""
 
         # XXX fill and outline
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         assert len(k.features) == 1
         assert isinstance(k.features[0].styles[0], styles.Style)
         style = k.features[0].styles[0].styles[0]
         assert isinstance(style, styles.PolyStyle)
         assert style.color == "ff0000cc"
         assert style.color_mode == ColorMode.random
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_polystyle_boolean_fill(self) -> None:
@@ -816,11 +816,11 @@ class TestStyleFromString:
         </Document>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc, strict=False)
+        k = kml.KML.from_string(doc, strict=False)
         style = k.features[0].styles[0].styles[0]
         assert isinstance(style, styles.PolyStyle)
         assert style.fill == 0
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_polystyle_boolean_outline(self) -> None:
@@ -836,11 +836,11 @@ class TestStyleFromString:
         </Document>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc, strict=False)
+        k = kml.KML.from_string(doc, strict=False)
         style = k.features[0].styles[0].styles[0]
         assert isinstance(style, styles.PolyStyle)
         assert style.outline == 0
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_polystyle_float_fill(self) -> None:
@@ -856,11 +856,11 @@ class TestStyleFromString:
         </Document>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc, strict=False)
+        k = kml.KML.from_string(doc, strict=False)
         style = k.features[0].styles[0].styles[0]
         assert isinstance(style, styles.PolyStyle)
         assert style.fill == 0
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_polystyle_float_outline(self) -> None:
@@ -876,11 +876,11 @@ class TestStyleFromString:
         </Document>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc, strict=False)
+        k = kml.KML.from_string(doc, strict=False)
         style = k.features[0].styles[0].styles[0]
         assert isinstance(style, styles.PolyStyle)
         assert style.outline == 0
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_styles(self) -> None:
@@ -912,12 +912,12 @@ class TestStyleFromString:
         </Document>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         assert len(k.features) == 1
         assert isinstance(k.features[0].styles[0], styles.Style)
         style = k.features[0].styles[0].styles
         assert len(style) == 4
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_stylemapurl(self) -> None:
@@ -936,7 +936,7 @@ class TestStyleFromString:
           </Document>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         features = k.features
         assert len(features) == 1
         feature_styles = features[0].styles
@@ -950,7 +950,7 @@ class TestStyleFromString:
         assert sm.normal.url == "#normalState"
         assert isinstance(sm.highlight, styles.StyleUrl)
         assert sm.highlight.url == "#highlightState"
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_stylemapstyles(self) -> None:
@@ -982,7 +982,7 @@ class TestStyleFromString:
           </Document>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         assert len(k.features) == 1
         assert isinstance(
             k.features[0].styles[0],
@@ -997,7 +997,7 @@ class TestStyleFromString:
         assert len(sm.highlight.styles) == 2
         assert isinstance(sm.highlight.styles[0], styles.LineStyle)
         assert isinstance(sm.highlight.styles[1], styles.PolyStyle)
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
     def test_get_style_by_url(self) -> None:
@@ -1029,7 +1029,7 @@ class TestStyleFromString:
         </Document>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         assert len(k.features) == 1
         document = k.features[0]
         style = document.get_style_by_url(
@@ -1079,7 +1079,7 @@ def test_nested_multigeometry() -> None:
         </Placemark></Document></kml>
         """
 
-    k = kml.KML.class_from_string(doc)
+    k = kml.KML.from_string(doc)
     placemark = k.features[0].features[0]
 
     first_multigeometry = placemark.geometry
@@ -1129,7 +1129,7 @@ class TestGetGeometry:
         </Placemark></Document></kml>
         """
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
         placemark = k.features[0].features[0]
 
         first_multigeometry = placemark.geometry

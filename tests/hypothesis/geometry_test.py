@@ -73,14 +73,14 @@ def _test_repr_roundtrip(geometry: kml_geometry) -> None:
 
 
 def _test_geometry_str_roundtrip(geometry: kml_geometry) -> None:
-    new_g = type(geometry).class_from_string(geometry.to_string())
+    new_g = type(geometry).from_string(geometry.to_string())
 
     assert geometry.to_string() == new_g.to_string()
     assert geometry == new_g
 
 
 def _test_geometry_str_roundtrip_terse(geometry: kml_geometry) -> None:
-    new_g = type(geometry).class_from_string(
+    new_g = type(geometry).from_string(
         geometry.to_string(verbosity=Verbosity.terse),
     )
 
@@ -106,7 +106,7 @@ def _test_geometry_str_roundtrip_terse(geometry: kml_geometry) -> None:
 
 
 def _test_geometry_str_roundtrip_verbose(geometry: kml_geometry) -> None:
-    new_g = type(geometry).class_from_string(
+    new_g = type(geometry).from_string(
         geometry.to_string(verbosity=Verbosity.verbose),
     )
 
@@ -139,7 +139,7 @@ def test_coordinates_str_roundtrip(
 ) -> None:
     coordinate = fastkml.geometry.Coordinates(coords=coords)
 
-    new_c = fastkml.geometry.Coordinates.class_from_string(
+    new_c = fastkml.geometry.Coordinates.from_string(
         coordinate.to_string(precision=20),
     )
 

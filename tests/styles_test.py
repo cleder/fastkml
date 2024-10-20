@@ -42,7 +42,7 @@ class TestStdLibrary(StdLibrary):
         assert ">#style-0</kml:styleUrl>" in serialized
 
     def test_style_url_read(self) -> None:
-        url = styles.StyleUrl.class_from_string(
+        url = styles.StyleUrl.from_string(
             '<kml:styleUrl xmlns:kml="http://www.opengis.net/kml/2.2"'
             ' id="id-0" targetId="target-0">#style-0</kml:styleUrl>',
         )
@@ -111,7 +111,7 @@ class TestStdLibrary(StdLibrary):
         assert "href" not in serialized
 
     def test_icon_style_read(self) -> None:
-        icons = styles.IconStyle.class_from_string(
+        icons = styles.IconStyle.from_string(
             '<kml:IconStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
             'id="id-1" targetId="target-1">'
             "<kml:color>ff2200ff</kml:color><kml:colorMode>random</kml:colorMode>"
@@ -134,7 +134,7 @@ class TestStdLibrary(StdLibrary):
         assert icons.hot_spot.yunits.value == "insetPixels"
 
     def test_icon_style_with_hot_spot_enum_relaxed(self) -> None:
-        icons = styles.IconStyle.class_from_string(
+        icons = styles.IconStyle.from_string(
             '<kml:IconStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
             'id="id-1" targetId="target-1">'
             "<kml:color>ff2200ff</kml:color><kml:colorMode>random</kml:colorMode>"
@@ -149,7 +149,7 @@ class TestStdLibrary(StdLibrary):
 
     def test_icon_style_with_hot_spot_enum_strict(self) -> None:
         with pytest.raises(KMLParseError):
-            styles.IconStyle.class_from_string(
+            styles.IconStyle.from_string(
                 '<kml:IconStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
                 'id="id-1" targetId="target-1">'
                 "<kml:color>ff2200ff</kml:color><kml:colorMode>random</kml:colorMode>"
@@ -179,7 +179,7 @@ class TestStdLibrary(StdLibrary):
         assert "</kml:LineStyle>" in serialized
 
     def test_line_style_read(self) -> None:
-        lines = styles.LineStyle.class_from_string(
+        lines = styles.LineStyle.from_string(
             '<kml:LineStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
             'id="id-l0" targetId="target-line">\n'
             "  <kml:color>ffaa00ff</kml:color>\n"
@@ -216,7 +216,7 @@ class TestStdLibrary(StdLibrary):
         assert "</kml:PolyStyle>" in serialized
 
     def test_poly_style_read(self) -> None:
-        ps = styles.PolyStyle.class_from_string(
+        ps = styles.PolyStyle.from_string(
             '<kml:PolyStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
             'id="id-1" targetId="target-1">'
             "<kml:color>ffaabbff</kml:color>"
@@ -255,7 +255,7 @@ class TestStdLibrary(StdLibrary):
         assert "</kml:LabelStyle>" in serialized
 
     def test_label_style_read(self) -> None:
-        ls = styles.LabelStyle.class_from_string(
+        ls = styles.LabelStyle.from_string(
             '<kml:LabelStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
             'id="id-1" targetId="target-1">'
             "<kml:color>ff001122</kml:color>"
@@ -294,7 +294,7 @@ class TestStdLibrary(StdLibrary):
         assert "</kml:BalloonStyle>" in serialized
 
     def test_balloon_style_read(self) -> None:
-        bs = styles.BalloonStyle.class_from_string(
+        bs = styles.BalloonStyle.from_string(
             '<kml:BalloonStyle xmlns:kml="http://www.opengis.net/kml/2.2" '
             'id="id-7" targetId="target-6">'
             "<kml:bgColor>7fff1144</kml:bgColor>"
@@ -374,7 +374,7 @@ class TestStdLibrary(StdLibrary):
         assert "</kml:Style>" in serialized
 
     def test_style_read(self) -> None:
-        style = styles.Style.class_from_string(
+        style = styles.Style.from_string(
             '<kml:Style xmlns:kml="http://www.opengis.net/kml/2.2" '
             'id="id-0" targetId="target-0">'
             '<kml:IconStyle id="id-i0" targetId="target-i0">'
@@ -555,7 +555,7 @@ class TestStdLibrary(StdLibrary):
         assert "</kml:StyleMap>" in serialized
 
     def test_stylemap_read(self) -> None:
-        sm = styles.StyleMap.class_from_string(
+        sm = styles.StyleMap.from_string(
             """
             <kml:StyleMap xmlns:kml="http://www.opengis.net/kml/2.2"
             id="id-sm-0" targetId="target-sm-0">

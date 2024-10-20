@@ -39,7 +39,7 @@ class TestStdLibrary(StdLibrary):
         </Document>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc, strict=False)
+        k = kml.KML.from_string(doc, strict=False)
         assert k.features[0].visibility
         assert k.features[0].isopen
 
@@ -52,7 +52,7 @@ class TestStdLibrary(StdLibrary):
         </Document>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc, strict=False)
+        k = kml.KML.from_string(doc, strict=False)
         assert k.features[0].visibility == 0
         assert k.features[0].isopen is False
 
@@ -65,7 +65,7 @@ class TestStdLibrary(StdLibrary):
         </Document>
         </kml>"""
 
-        d = kml.KML.class_from_string(doc, strict=False)
+        d = kml.KML.from_string(doc, strict=False)
 
         assert d.features[0].visibility is None
         assert d.features[0].isopen

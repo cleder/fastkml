@@ -87,7 +87,7 @@ class TestStdLibrary(StdLibrary):
             "</kml:Camera>"
         )
 
-        camera = views.Camera.class_from_string(camera_xml)
+        camera = views.Camera.from_string(camera_xml)
 
         assert camera.heading == 10
         assert camera.tilt == 20
@@ -156,7 +156,7 @@ class TestStdLibrary(StdLibrary):
             "<kml:range>30</kml:range>"
             "</kml:LookAt>"
         )
-        look_at = views.LookAt.class_from_string(look_at_xml)
+        look_at = views.LookAt.from_string(look_at_xml)
 
         assert look_at.heading == 10
         assert look_at.tilt == 20
@@ -225,7 +225,7 @@ class TestStdLibrary(StdLibrary):
             "<kml:maxFadeExtent>512</kml:maxFadeExtent></kml:Lod></kml:Region>"
         )
 
-        region = views.Region.class_from_string(doc)
+        region = views.Region.from_string(doc)
 
         assert region.id == "region1"
         assert region.lat_lon_alt_box.north == 37.85

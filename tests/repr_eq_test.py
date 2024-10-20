@@ -1946,7 +1946,7 @@ class TestRepr(StdLibrary):
 
     def test_eq_str_round_trip(self) -> None:
         """Test the equality of the original and the round-tripped document."""
-        new_doc = fastkml.KML.class_from_string(self.clean_doc.to_string(precision=15))
+        new_doc = fastkml.KML.from_string(self.clean_doc.to_string(precision=15))
 
         assert str(self.clean_doc) == str(new_doc)
         assert repr(new_doc) == repr(self.clean_doc)

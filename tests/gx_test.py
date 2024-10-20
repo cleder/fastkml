@@ -43,7 +43,7 @@ class TestGetGxGeometry(StdLibrary):
             <gx:coord>0.000000 0.000000</gx:coord>
             <gx:coord>1.000000 1.000000</gx:coord>
         </gx:Track>"""
-        g = Track.class_from_string(doc, ns="")
+        g = Track.from_string(doc, ns="")
 
         assert g.geometry.__geo_interface__ == {
             "type": "LineString",
@@ -77,7 +77,7 @@ class TestGetGxGeometry(StdLibrary):
         </gx:MultiTrack>
         """
 
-        mt = MultiTrack.class_from_string(doc, ns="")
+        mt = MultiTrack.from_string(doc, ns="")
 
         assert mt.geometry == geo.MultiLineString(
             (((0.0, 0.0), (1.0, 0.0)), ((0.0, 1.0), (1.0, 1.0))),
@@ -313,7 +313,7 @@ class TestTrack(StdLibrary):
             ],
         )
 
-        track = Track.class_from_string(doc, ns="")
+        track = Track.from_string(doc, ns="")
 
         assert track.geometry == geo.LineString(
             (

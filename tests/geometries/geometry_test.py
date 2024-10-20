@@ -39,7 +39,7 @@ class TestGetGeometry(StdLibrary):
           <kml:altitudeMode>clampToGround</kml:altitudeMode>
         </kml:Point>"""
 
-        g = Point.class_from_string(doc)
+        g = Point.from_string(doc)
 
         assert g.altitude_mode == AltitudeMode("clampToGround")
 
@@ -51,7 +51,7 @@ class TestGetGeometry(StdLibrary):
             "<gx:altitudeMode>clampToSeaFloor</gx:altitudeMode>"
             "</kml:Point>"
         )
-        g = Point.class_from_string(doc)
+        g = Point.from_string(doc)
 
         assert g.altitude_mode == AltitudeMode("clampToSeaFloor")
 
@@ -61,7 +61,7 @@ class TestGetGeometry(StdLibrary):
           <kml:extrude>1</kml:extrude>
         </kml:Point>"""
 
-        g = Point.class_from_string(doc)
+        g = Point.from_string(doc)
 
         assert g.extrude is True
 
@@ -71,7 +71,7 @@ class TestGetGeometry(StdLibrary):
           <kml:tessellate>1</kml:tessellate>
         </kml:Point>"""
 
-        g = Point.class_from_string(doc)
+        g = Point.from_string(doc)
 
         assert not hasattr(g, "tessellate")
 
@@ -80,7 +80,7 @@ class TestGetGeometry(StdLibrary):
           <kml:coordinates>0.000000,1.000000</kml:coordinates>
         </kml:Point>"""
 
-        g = Point.class_from_string(doc)
+        g = Point.from_string(doc)
 
         assert g.geometry
         assert g.geometry.__geo_interface__ == {
@@ -94,7 +94,7 @@ class TestGetGeometry(StdLibrary):
             <kml:coordinates>0.000000,0.000000 1.000000,1.000000</kml:coordinates>
         </kml:LineString>"""
 
-        g = LineString.class_from_string(doc)
+        g = LineString.from_string(doc)
 
         assert g.geometry
         assert g.geometry.__geo_interface__ == {
@@ -110,7 +110,7 @@ class TestGetGeometry(StdLibrary):
         </kml:LinearRing>
         """
 
-        g = LinearRing.class_from_string(doc)
+        g = LinearRing.from_string(doc)
 
         assert g.geometry
         assert g.geometry.__geo_interface__ == {
@@ -130,7 +130,7 @@ class TestGetGeometry(StdLibrary):
         </kml:Polygon>
         """
 
-        g = Polygon.class_from_string(doc)
+        g = Polygon.from_string(doc)
 
         assert g.geometry
         assert g.geometry.__geo_interface__ == {
@@ -156,7 +156,7 @@ class TestGetGeometry(StdLibrary):
         </kml:Polygon>
         """
 
-        g = Polygon.class_from_string(doc)
+        g = Polygon.from_string(doc)
 
         assert g.geometry
         assert g.geometry.__geo_interface__ == {
@@ -180,7 +180,7 @@ class TestGetGeometry(StdLibrary):
         </kml:MultiGeometry>
         """
 
-        g = MultiGeometry.class_from_string(doc)
+        g = MultiGeometry.from_string(doc)
 
         assert len(g.geometry) == 2  # type: ignore[arg-type]
 
@@ -196,7 +196,7 @@ class TestGetGeometry(StdLibrary):
         </kml:MultiGeometry>
         """
 
-        g = MultiGeometry.class_from_string(doc)
+        g = MultiGeometry.from_string(doc)
 
         assert len(g.geometry) == 2  # type: ignore[arg-type]
 
@@ -228,7 +228,7 @@ class TestGetGeometry(StdLibrary):
         </kml:MultiGeometry>
         """
 
-        g = MultiGeometry.class_from_string(doc)
+        g = MultiGeometry.from_string(doc)
 
         assert g.geometry is not None
         assert len(g.geometry) == 2
@@ -255,7 +255,7 @@ class TestGetGeometry(StdLibrary):
         </kml:MultiGeometry>
         """
 
-        g = MultiGeometry.class_from_string(doc)
+        g = MultiGeometry.from_string(doc)
 
         assert len(g.geometry) == 4  # type: ignore[arg-type]
 
@@ -271,7 +271,7 @@ class TestGetGeometry(StdLibrary):
         </kml:MultiGeometry>
         """
 
-        g = MultiGeometry.class_from_string(doc)
+        g = MultiGeometry.from_string(doc)
 
         assert g.geometry
         assert len(g.geometry) == 2
@@ -413,7 +413,7 @@ class TestGeometry(StdLibrary):
 
     def test_from_string(self) -> None:
         """Test the from_string method."""
-        g = _Geometry.class_from_string(
+        g = _Geometry.from_string(
             '<_Geometry id="my-id" targetId="target_id" '
             'xmlns="http://www.opengis.net/kml/2.2">'
             "<extrude>1</extrude>"
@@ -434,7 +434,7 @@ class TestGeometry(StdLibrary):
         with pytest.raises(
             exceptions.KMLParseError,
         ):
-            _Geometry.class_from_string(
+            _Geometry.from_string(
                 '<_Geometry id="my-id" targetId="target_id" '
                 'xmlns="http://www.opengis.net/kml/2.2">'
                 "<altitudeMode>invalid</altitudeMode>"
@@ -443,7 +443,7 @@ class TestGeometry(StdLibrary):
 
     def test_from_string_invalid_altitude_mode_relaxed(self) -> None:
         """Test the from_string method."""
-        geom = _Geometry.class_from_string(
+        geom = _Geometry.from_string(
             '<_Geometry id="my-id" targetId="target_id" '
             'xmlns="http://www.opengis.net/kml/2.2">'
             "<altitudeMode>invalid</altitudeMode>"
@@ -454,7 +454,7 @@ class TestGeometry(StdLibrary):
         assert geom.altitude_mode is None
 
     def test_from_minimal_string(self) -> None:
-        g = _Geometry.class_from_string(
+        g = _Geometry.from_string(
             '<_Geometry xmlns="http://www.opengis.net/kml/2.2/" />',
         )
 
@@ -465,7 +465,7 @@ class TestGeometry(StdLibrary):
 
     def test_from_string_omitting_ns(self) -> None:
         """Test the from_string method."""
-        g = _Geometry.class_from_string(
+        g = _Geometry.from_string(
             '<kml:_Geometry xmlns:kml="http://www.opengis.net/kml/2.2" '
             'id="my-id" targetId="target_id">'
             "<kml:extrude>1</kml:extrude>"
@@ -667,7 +667,7 @@ class TestCreateKmlGeometry(StdLibrary):
         )
         g = create_kml_geometry(gc)
 
-        mg = MultiGeometry.class_from_string(g.to_string())
+        mg = MultiGeometry.from_string(g.to_string())
 
         assert mg.geometry == gc
 

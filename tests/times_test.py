@@ -291,7 +291,7 @@ class TestStdLibrary(StdLibrary):
         </TimeStamp>
         """
 
-        ts = kml.TimeStamp.class_from_string(doc, ns="")
+        ts = kml.TimeStamp.from_string(doc, ns="")
 
         assert ts.timestamp
         assert ts.timestamp.resolution == DateTimeResolution.year
@@ -304,7 +304,7 @@ class TestStdLibrary(StdLibrary):
         </TimeStamp>
         """
 
-        ts = kml.TimeStamp.class_from_string(doc, ns="")
+        ts = kml.TimeStamp.from_string(doc, ns="")
 
         assert ts.timestamp
         assert ts.timestamp.resolution == DateTimeResolution.year_month
@@ -317,7 +317,7 @@ class TestStdLibrary(StdLibrary):
         </TimeStamp>
         """
 
-        ts = kml.TimeStamp.class_from_string(doc, ns="")
+        ts = kml.TimeStamp.from_string(doc, ns="")
 
         assert ts.timestamp
         assert ts.timestamp.resolution == DateTimeResolution.year_month
@@ -330,7 +330,7 @@ class TestStdLibrary(StdLibrary):
         </TimeStamp>
         """
 
-        ts = kml.TimeStamp.class_from_string(doc, ns="")
+        ts = kml.TimeStamp.from_string(doc, ns="")
 
         assert ts.timestamp
         assert ts.timestamp.resolution == DateTimeResolution.date
@@ -346,7 +346,7 @@ class TestStdLibrary(StdLibrary):
         </TimeStamp>
         """
 
-        ts = kml.TimeStamp.class_from_string(doc, ns="")
+        ts = kml.TimeStamp.from_string(doc, ns="")
 
         assert ts.timestamp
         assert ts.timestamp.resolution == DateTimeResolution.datetime
@@ -367,7 +367,7 @@ class TestStdLibrary(StdLibrary):
         </TimeStamp>
         """
 
-        ts = kml.TimeStamp.class_from_string(doc, ns="")
+        ts = kml.TimeStamp.from_string(doc, ns="")
 
         assert ts.timestamp
         assert ts.timestamp.resolution == DateTimeResolution.datetime
@@ -389,7 +389,7 @@ class TestStdLibrary(StdLibrary):
         </TimeSpan>
         """
 
-        ts = kml.TimeSpan.class_from_string(doc, ns="")
+        ts = kml.TimeSpan.from_string(doc, ns="")
 
         assert ts.begin
         assert ts.begin.resolution == DateTimeResolution.date
@@ -411,7 +411,7 @@ class TestStdLibrary(StdLibrary):
           </TimeSpan>
         </Document>"""
 
-        d = kml.Document.class_from_string(doc, ns="")
+        d = kml.Document.from_string(doc, ns="")
 
         assert d.time_stamp is None
         assert d.begin
