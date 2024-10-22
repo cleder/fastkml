@@ -173,6 +173,7 @@ class TestStdLibrary(StdLibrary):
         assert network_link.address == "123 Main St"
         assert network_link.phone_number == "555-1234"
         assert network_link.snippet.text == "This is a snippet"
+        assert bool(network_link.snippet)
         assert network_link.description == "This is a description"
         assert network_link.view.latitude == 37.0
         assert network_link.view.longitude == -122.0
