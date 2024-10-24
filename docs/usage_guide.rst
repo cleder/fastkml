@@ -1,206 +1,118 @@
-Usage Guide
+Usage guide
 ===========
 
-You can find more examples in the included ``tests/`` directory.
+Read a shapefile and build a 3D KML visualization.
+--------------------------------------------------
 
-Build a KML from Scratch
-------------------------
+This example shows how to read a shapefile and build a 3D KML visualization from it.
 
-Example how to build a simple KML file from the Python interpreter.
+You will need to install the following packages:
+
+- `pyshp <https://pypi.org/project/pyshp/>`_
+
+For this example we will use the
+`Data on CO2 and Greenhouse Gas Emissions <https://github.com/owid/co2-data>`_ by
+Our World in Data, and the Small scale data (1:110m) shapefile from
+`Natural Earth <https://www.naturalearthdata.com/downloads/>`_.
 
 First we import the necessary modules:
 
-.. code-block:: pycon
+.. code-block:: python
 
-    >>> from fastkml import kml
-    >>> from pygeoif.geometry import Polygon
+    import csv
+    import pathlib
+    import random
 
-Create a KML object and set the namespace:
+    import shapefile
+    from pygeoif.factories import force_3d
+    from pygeoif.factories import shape
 
-.. code-block:: pycon
-
-    >>> k = kml.KML()
-    >>> ns = "{http://www.opengis.net/kml/2.2}"
-
-Create a KML Document and add it to the KML root object:
-
-.. code-block:: pycon
-
-    >>> d = kml.Document(ns=ns, id="docid", name="doc name", description="doc description")
-    >>> k.append(d)
-
-Create a KML Folder and add it to the Document:
-
-.. code-block:: pycon
-
-    >>> f = kml.Folder(ns=ns, id="fid", name="f name", description="f description")
-    >>> d.append(f)
-
-Create a KML Folder and nest it in the first Folder:
-
-.. code-block:: pycon
-
-    >>> nf = kml.Folder(
-    ...     ns=ns, id="nested-fid", name="nested f name", description="nested f description"
-    ... )
-    >>> f.append(nf)
-
-Create a second KML Folder within the Document:
-
-.. code-block:: pycon
-
-    >>> f2 = kml.Folder(ns=ns, id="id2", name="name2", description="description2")
-    >>> d.append(f2)
-
-Create a KML Placemark with a simple polygon geometry and add it to the second Folder:
-
-.. code-block:: pycon
-
-    >>> polygon = Polygon([(0, 0, 0), (1, 1, 0), (1, 0, 1)])
-    >>> p = kml.Placemark(
-    ...     ns=ns, id="id", name="name", description="description", geometry=polygon
-    ... )
-    >>> f2.append(p)
-
-Finally, print out the KML object as a string:
-
-.. code-block:: pycon
-
-    >>> print(k.to_string(prettyprint=True, precision=6))
-    <kml xmlns="http://www.opengis.net/kml/2.2">
-      <Document id="docid">
-        <name>doc name</name>
-        <description>doc description</description>
-        <Folder id="fid">
-          <name>f name</name>
-          <description>f description</description>
-          <Folder id="nested-fid">
-            <name>nested f name</name>
-            <description>nested f description</description>
-          </Folder>
-        </Folder>
-        <Folder id="id2">
-          <name>name2</name>
-          <description>description2</description>
-          <Placemark id="id">
-            <name>name</name>
-            <description>description</description>
-            <Polygon>
-              <outerBoundaryIs>
-                <LinearRing>
-                  <coordinates>0.000000,0.000000,0.000000 1.000000,1.000000,0.000000 1.000000,0.000000,1.000000 0.000000,0.000000,0.000000</coordinates>
-                </LinearRing>
-              </outerBoundaryIs>
-            </Polygon>
-          </Placemark>
-        </Folder>
-      </Document>
-    </kml>
-    <BLANKLINE>
+    import fastkml
+    import fastkml.containers
+    import fastkml.features
+    import fastkml.styles
+    from fastkml.enums import AltitudeMode
+    from fastkml.geometry import create_kml_geometry
 
 
+Read the shapefile:
 
-Read a KML File/String
-----------------------
+.. code-block:: python
 
-You can create a KML object by reading a KML file from a string
+    shp = shapefile.Reader("ne_110m_admin_0_countries.zip")
 
-.. code-block:: pycon
+Read the CSV file and store the CO2 data for 2020:
 
-    >>> doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
-    ... <Document>
-    ...   <name>Document.kml</name>
-    ...   <open>1</open>
-    ...   <Style id="exampleStyleDocument">
-    ...     <LabelStyle>
-    ...       <color>ff0000cc</color>
-    ...     </LabelStyle>
-    ...   </Style>
-    ...   <Placemark>
-    ...     <name>Document Feature 1</name>
-    ...     <styleUrl>#exampleStyleDocument</styleUrl>
-    ...     <Point>
-    ...       <coordinates>-122.371,37.816,0</coordinates>
-    ...     </Point>
-    ...   </Placemark>
-    ...   <Placemark>
-    ...     <name>Document Feature 2</name>
-    ...     <styleUrl>#exampleStyleDocument</styleUrl>
-    ...     <Point>
-    ...       <coordinates>-122.370,37.817,0</coordinates>
-    ...     </Point>
-    ...   </Placemark>
-    ... </Document>
-    ... </kml>"""
+.. code-block:: python
 
-Read in the KML string
+    co2_csv = pathlib.Path("owid-co2-data.csv")
+    co2_data = {}
+    with co2_csv.open() as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row["year"] == "2020":
+                co2_data[row["iso_code"]] = (
+                    float(row["co2_per_capita"]) if row["co2_per_capita"] else 0
+                )
 
-.. code-block:: pycon
 
-    >>> k = kml.KML.from_string(doc)
+We prepare the styles and placemarks for the KML file, using random colors for each
+country and the CO2 emissions as the height of the geometry. The shapefile offers
+a handy ``__geo_interface__`` attribute that we can use to iterate over the features,
+just like we would with a ``GeoJSON`` object, and extract the necessary information:
 
-Next we perform some simple sanity checks, such as checking the number of features.
+.. code-block:: python
 
-.. code-block:: pycon
+    styles = []
+    placemarks = []
+    for feature in shp.__geo_interface__["features"]:
+        iso3_code = feature["properties"]["ADM0_A3"]
+        geometry = shape(feature["geometry"])
+        co2_emission = co2_data.get(iso3_code, 0)
+        geometry = force_3d(geometry, co2_emission * 100_000)
+        kml_geometry = create_kml_geometry(
+            geometry,
+            extrude=True,
+            altitude_mode=AltitudeMode.relative_to_ground,
+        )
+        color = random.randint(0, 0xFFFFFF)
+        styles.append(
+            fastkml.styles.Style(
+                id=iso3_code,
+                styles=[
+                    fastkml.styles.LineStyle(color=f"33{color:06X}", width=2),
+                    fastkml.styles.PolyStyle(
+                        color=f"88{color:06X}",
+                        fill=True,
+                        outline=True,
+                    ),
+                ],
+            ),
+        )
+        style_url = fastkml.styles.StyleUrl(url=f"#{iso3_code}")
+        placemark = fastkml.features.Placemark(
+            name=feature["properties"]["NAME"],
+            description=feature["properties"]["FORMAL_EN"],
+            kml_geometry=kml_geometry,
+            style_url=style_url,
+        )
+        placemarks.append(placemark)
 
-    # This corresponds to the single ``Document``
-    >>> len(k.features)
-    1
 
-Check the number of Placemarks in the Document:
+Finally, we create the KML object and write it to a file:
 
-.. code-block:: pycon
+.. code-block:: python
 
-    # (The two Placemarks of the Document)
-    >>> k.features[0].features  # doctest: +ELLIPSIS
-    [fastkml.features.Placemark...
-    >>> len(k.features[0].features)
-    2
+    document = fastkml.containers.Document(features=placemarks, styles=styles)
+    kml = fastkml.KML(features=[document])
 
-Check the Placemarks in the Document:
+    outfile = pathlib.Path("co2_per_capita_2020.kml")
+    with outfile.open("w") as f:
+        f.write(kml.to_string(prettyprint=True, precision=6))
 
-.. code-block:: pycon
+The resulting KML file can be opened in Google Earth or any other KML viewer.
 
-    # Check specifics of the first Placemark in the Document
-    >>> k.features[0].features[0]  # doctest: +ELLIPSIS
-    fastkml.features.Placemark(...
-    >>> k.features[0].features[0].description
-    >>> k.features[0].features[0].name
-    'Document Feature 1'
-
-    # Check specifics of the second Placemark in the Document
-    >>> k.features[0].features[1].name
-    'Document Feature 2'
-    >>> k.features[0].features[1].name = "ANOTHER NAME"
-
-Finally, print out the KML object as a string:
-
-.. code-block:: pycon
-
-    >>> print(k.to_string(prettyprint=True, precision=6))
-    <kml xmlns="http://www.opengis.net/kml/2.2">
-      <Document>
-        <name>Document.kml</name>
-        <open>1</open>
-        <Style id="exampleStyleDocument">
-          <LabelStyle>
-            <color>ff0000cc</color>
-          </LabelStyle>
-        </Style>
-        <Placemark>
-          <name>Document Feature 1</name>
-          <styleUrl>#exampleStyleDocument</styleUrl>
-          <Point>
-            <coordinates>-122.371000,37.816000,0.000000</coordinates>
-          </Point>
-        </Placemark>
-        <Placemark>
-          <name>ANOTHER NAME</name>
-          <styleUrl>#exampleStyleDocument</styleUrl>
-          <Point>
-            <coordinates>-122.370000,37.817000,0.000000</coordinates>
-          </Point>
-        </Placemark>
-      </Document>
-    </kml>
-    <BLANKLINE>
+.. image:: co2-per-capita-2020.jpg
+    :alt: CO2 emissions per capita in 2020
+    :align: center
+    :width: 800px
