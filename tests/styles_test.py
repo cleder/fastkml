@@ -17,7 +17,8 @@
 """Test the styles classes."""
 import pytest
 
-from fastkml import kml
+from fastkml.containers import Document
+from fastkml.features import Placemark
 from fastkml import links
 from fastkml import styles
 from fastkml.enums import ColorMode
@@ -630,9 +631,9 @@ class TestStyleUsage:
             ],
         )
 
-        doc = kml.Document(styles=[style])
+        doc = Document(styles=[style])
 
-        doc2 = kml.Document()
+        doc2 = Document()
         doc2.styles.append(style)
 
         expected = """
@@ -648,7 +649,7 @@ class TestStyleUsage:
             </kml:Document>
         """
 
-        doc3 = kml.Document.from_string(expected)
+        doc3 = Document.from_string(expected)
 
         assert doc.to_string() == doc2.to_string()
         assert doc2.to_string() == doc3.to_string()
@@ -665,9 +666,9 @@ class TestStyleUsage:
             ],
         )
 
-        place = kml.Placemark(styles=[style])
+        place = Placemark(styles=[style])
 
-        place2 = kml.Placemark()
+        place2 = Placemark()
         place2.styles.append(style)
 
         expected = """
@@ -682,7 +683,7 @@ class TestStyleUsage:
             </kml:Placemark>
         """
 
-        place3 = kml.Placemark.from_string(expected)
+        place3 = Placemark.from_string(expected)
         assert place.to_string() == place2.to_string()
         assert place2.to_string() == place3.to_string()
         assert place.to_string() == place3.to_string()

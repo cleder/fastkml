@@ -501,7 +501,7 @@ class TestKmlFromString:
         assert "Snippet" not in k.to_string()
 
     def test_address(self) -> None:
-        doc = kml.Document.from_string(
+        doc = Document.from_string(
             """
         <kml:Document xmlns:kml="http://www.opengis.net/kml/2.2" id="pm-id">
             <kml:name>pm-name</kml:name>
@@ -512,11 +512,11 @@ class TestKmlFromString:
         """,
         )
 
-        doc2 = kml.Document.from_string(doc.to_string())
+        doc2 = Document.from_string(doc.to_string())
         assert doc.to_string() == doc2.to_string()
 
     def test_phone_number(self) -> None:
-        doc = kml.Document.from_string(
+        doc = Document.from_string(
             """
         <kml:Document xmlns:kml="http://www.opengis.net/kml/2.2" id="pm-id">
             <kml:name>pm-name</kml:name>
@@ -527,7 +527,7 @@ class TestKmlFromString:
         """,
         )
 
-        doc2 = kml.Document.from_string(doc.to_string())
+        doc2 = Document.from_string(doc.to_string())
         assert doc.to_string() == doc2.to_string()
 
     def test_groundoverlay(self) -> None:
