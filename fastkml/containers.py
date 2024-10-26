@@ -44,6 +44,7 @@ from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
 from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
+from fastkml.utils import find_all
 from fastkml.views import Camera
 from fastkml.views import LookAt
 from fastkml.views import Region
@@ -306,7 +307,14 @@ class Document(_Container):
 
         """
         id_ = urlparse.urlparse(style_url).fragment
-        return next((style for style in self.styles if style.id == id_), None)
+        return next(
+            find_all(  # type: ignore[arg-type]
+                self,
+                of_type=(Style, StyleMap),
+                id=id_,
+            ),
+            None,
+        )
 
 
 registry.register(

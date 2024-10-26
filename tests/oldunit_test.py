@@ -1000,47 +1000,6 @@ class TestStyleFromString:
         k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
 
-    def test_get_style_by_url(self) -> None:
-        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
-        <Document>
-          <name>Document.kml</name>
-          <open>1</open>
-          <Style id="exampleStyleDocument">
-            <LabelStyle>
-              <color>ff0000cc</color>
-            </LabelStyle>
-          </Style>
-          <StyleMap id="styleMapExample">
-            <Pair>
-              <key>normal</key>
-              <styleUrl>#normalState</styleUrl>
-            </Pair>
-            <Pair>
-              <key>highlight</key>
-              <styleUrl>#highlightState</styleUrl>
-            </Pair>
-          </StyleMap>
-          <Style id="linestyleExample">
-            <LineStyle>
-              <color>7f0000ff</color>
-              <width>4</width>
-            </LineStyle>
-          </Style>
-        </Document>
-        </kml>"""
-
-        k = kml.KML.from_string(doc)
-        assert len(k.features) == 1
-        document = k.features[0]
-        style = document.get_style_by_url(
-            "http://localhost:8080/somepath#exampleStyleDocument",
-        )
-        assert isinstance(style.styles[0], styles.LabelStyle)
-        style = document.get_style_by_url("somepath#linestyleExample")
-        assert isinstance(style.styles[0], styles.LineStyle)
-        style = document.get_style_by_url("#styleMapExample")
-        assert isinstance(style, styles.StyleMap)
-
 
 def test_nested_multigeometry() -> None:
     doc = """<kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark>

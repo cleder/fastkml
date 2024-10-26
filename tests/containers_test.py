@@ -110,6 +110,51 @@ class TestStdLibrary(StdLibrary):
         )
         assert document.get_style_by_url(style_url="#style-0") == style
 
+    def test_get_style_by_url(self) -> None:
+        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
+        <Document>
+          <name>Document.kml</name>
+          <open>1</open>
+          <Style id="exampleStyleDocument">
+            <LabelStyle>
+              <color>ff0000cc</color>
+            </LabelStyle>
+          </Style>
+          <StyleMap id="styleMapExample">
+            <Pair>
+              <key>normal</key>
+              <styleUrl>#normalState</styleUrl>
+            </Pair>
+            <Pair>
+              <key>highlight</key>
+              <styleUrl>#highlightState</styleUrl>
+            </Pair>
+          </StyleMap>
+          <Style id="linestyleExample">
+            <LineStyle>
+              <color>7f0000ff</color>
+              <width>4</width>
+            </LineStyle>
+          </Style>
+        </Document>
+        </kml>"""
+        k = kml.KML.from_string(doc)
+        assert len(k.features) == 1
+        document = k.features[0]
+
+        style0 = document.get_style_by_url(
+            "http://localhost:8080/somepath#exampleStyleDocument",
+        )
+        style1 = document.get_style_by_url("somepath#linestyleExample")
+        style2 = document.get_style_by_url("#styleMapExample")
+
+        assert isinstance(style0.styles[0], styles.LabelStyle)
+        assert style0.id == "exampleStyleDocument"
+        assert isinstance(style1.styles[0], styles.LineStyle)
+        assert style1.id == "linestyleExample"
+        assert isinstance(style2, styles.StyleMap)
+        assert style2.id == "styleMapExample"
+
 
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
