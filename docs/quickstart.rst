@@ -1,7 +1,9 @@
 Quickstart
 ==========
 This quickstart guide will show you how to create a simple KML file from scratch and how
-to read a KML file from a string.
+to read a KML file from a string. The example demonstrates organizing geographic data using
+nested folders and placemarks - common structures used to group and display locations in
+Google Earth and other KML viewers.
 
 Build a KML from Scratch
 ------------------------
