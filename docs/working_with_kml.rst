@@ -41,7 +41,7 @@ type and returns an iterator of all matching elements found in the document tree
 
 
 
-``find_all`` can also search for arbitrary elements by their attributes, by passing the
+``find_all`` can also search for arbitrary   elements by their attributes, by passing the
 attribute name and value as keyword arguments:
 
 
