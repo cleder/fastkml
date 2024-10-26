@@ -25,9 +25,9 @@ multiple clients such as openlayers and google maps rather than to give you all
 functionality that KML on google earth provides.
 """
 from fastkml.about import __version__  # noqa: F401
-from fastkml.atom import Author
-from fastkml.atom import Contributor
-from fastkml.atom import Link
+from fastkml.atom import Author as AtomAuthor
+from fastkml.atom import Contributor as AtomContributor
+from fastkml.atom import Link as AtomLink
 from fastkml.containers import Document
 from fastkml.containers import Folder
 from fastkml.data import Data
@@ -35,7 +35,14 @@ from fastkml.data import ExtendedData
 from fastkml.data import Schema
 from fastkml.data import SchemaData
 from fastkml.features import Placemark
+from fastkml.geometry import LinearRing
+from fastkml.geometry import LineString
+from fastkml.geometry import MultiGeometry
+from fastkml.geometry import Point
+from fastkml.geometry import Polygon
 from fastkml.kml import KML
+from fastkml.links import Icon
+from fastkml.links import Link
 from fastkml.overlays import GroundOverlay
 from fastkml.overlays import PhotoOverlay
 from fastkml.styles import BalloonStyle
@@ -72,9 +79,16 @@ __all__ = [
     "PolyStyle",
     "LabelStyle",
     "BalloonStyle",
+    "AtomLink",
+    "Icon",
     "Link",
-    "Author",
-    "Contributor",
+    "Point",
+    "LineString",
+    "LinearRing",
+    "Polygon",
+    "MultiGeometry",
+    "AtomAuthor",
+    "AtomContributor",
     "Camera",
     "LookAt",
 ]

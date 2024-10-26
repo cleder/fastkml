@@ -9,7 +9,7 @@ def print_child_features(element, depth=0):
     if not getattr(element, "features", None):
         return
     for feature in element.features:
-        print("  " * depth + feature.name)
+        print("  " * depth, feature.name)
         print_child_features(feature, depth + 1)
 
 

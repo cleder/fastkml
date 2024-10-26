@@ -52,6 +52,7 @@ dev = [
 ]
 docs = [
     "Sphinx",
+    "pyshp",
     "sphinx-autodoc-typehints",
     "sphinx-rtd-theme",
 ]
@@ -203,6 +204,7 @@ select = [
     "D401",
     "ICN001",
     "INP001",
+    "S311",
     "T201",
 ]
 "fastkml/helpers.py" = [
