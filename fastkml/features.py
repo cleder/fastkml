@@ -631,7 +631,7 @@ class Placemark(_Feature):
             msg = "You can only specify one of kml_geometry or geometry"
             raise ValueError(msg)
         if geometry:
-            kml_geometry = create_kml_geometry(  # type: ignore[assignment]
+            kml_geometry = create_kml_geometry(
                 geometry=geometry,
                 ns=ns,
                 name_spaces=name_spaces,
