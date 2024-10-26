@@ -16,7 +16,9 @@ Open a KML file:
 
     >>> k = KML.parse("docs/Document-clean.kml")
 
-Extract all placemarks and print their geometries:
+Extract all placemarks and print their geometries.
+The function ``find_all`` recursively searches a KML document for elements of a specific
+type and returns an iterator of all matching elements found in the document tree.
 
 .. code-block:: pycon
 
@@ -39,7 +41,8 @@ Extract all placemarks and print their geometries:
 
 
 
-You can also define what you are looking for by specifying additional parameters:
+``find_all`` can also search for arbitrary elements by their attributes, by passing the
+attribute name and value as keyword arguments:
 
 
 .. code-block:: pycon

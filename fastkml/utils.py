@@ -50,7 +50,7 @@ def find_all(
     ):
         yield obj
     try:
-        attrs = [attr for attr in obj.__dict__ if not attr.startswith("_")]
+        attrs = (attr for attr in obj.__dict__ if not attr.startswith("_"))
     except AttributeError:
         return
     for attr_name in attrs:

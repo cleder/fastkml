@@ -72,27 +72,6 @@ class TestFindAll(StdLibrary):
         result = list(find_all(d1, of_type=A, x=2))
         assert not result
 
-        result = list(find_all(d1, of_type=A, x=1))
-        assert result == [a1]
-
-        result = list(find_all(d1, of_type=A, x=2))
-        assert not result
-
-        result = list(find_all(d1, of_type=A, x=1))
-        assert result == [a1]
-
-        result = list(find_all(d1, of_type=A, x=2))
-        assert not result
-
-        result = list(find_all(d1, of_type=A, x=1))
-        assert result == [a1]
-
-        result = list(find_all(d1, of_type=A, x=2))
-        assert not result
-
-        result = list(find_all(d1, of_type=A, x=1))
-        assert result == [a1]
-
         result = list(find_all(d2, of_type=A, x=2))
         assert result == [a2]
 
