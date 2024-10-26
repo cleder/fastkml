@@ -55,10 +55,6 @@ def find_all(
         return
     for attr_name in attrs:
         attr = getattr(obj, attr_name)
-        if callable(attr):
-            continue
-        if attr is obj:
-            continue
         try:
             for item in attr:
                 yield from find_all(item, of_type=of_type, **kwargs)
