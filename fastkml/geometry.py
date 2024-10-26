@@ -32,9 +32,11 @@ from typing import Dict
 from typing import Final
 from typing import Iterable
 from typing import List
+from typing import NoReturn
 from typing import Optional
 from typing import Sequence
 from typing import Tuple
+from typing import Type
 from typing import Union
 from typing import cast
 
@@ -1432,6 +1434,23 @@ registry.register(
 KMLGeometryType = Union[Point, LineString, Polygon, LinearRing, MultiGeometry]
 
 
+def _unknown_geometry_type(geometry: Union[GeoType, GeoCollectionType]) -> NoReturn:
+    """
+    Raise an error for an unknown geometry type.
+
+    Args:
+    ----
+        geometry: The geometry object.
+
+    Raises:
+    ------
+        KMLWriteError: If the geometry type is unknown.
+
+    """
+    msg = f"Unsupported geometry type {type(geometry)}"  # pragma: no cover
+    raise KMLWriteError(msg)  # pragma: no cover
+
+
 def create_kml_geometry(
     geometry: Union[GeoType, GeoCollectionType],
     *,
@@ -1463,7 +1482,10 @@ def create_kml_geometry(
         KML geometry object.
 
     """
-    _map_to_kml = {
+    _map_to_kml: Dict[
+        Union[Type[GeoType], Type[GeoCollectionType]],
+        Type[KMLGeometryType],
+    ] = {
         geo.Point: Point,
         geo.Polygon: Polygon,
         geo.LinearRing: LinearRing,
@@ -1476,7 +1498,7 @@ def create_kml_geometry(
     geom = shape(geometry)
     for geometry_class, kml_class in _map_to_kml.items():
         if isinstance(geom, geometry_class):
-            return kml_class(  # type: ignore[no-any-return]
+            return kml_class(
                 ns=ns,
                 name_spaces=name_spaces,
                 id=id,
@@ -1484,9 +1506,7 @@ def create_kml_geometry(
                 extrude=extrude,
                 tessellate=tessellate,
                 altitude_mode=altitude_mode,
-                geometry=geom,
+                geometry=geom,  # type: ignore[arg-type]
             )
 
-    # this should be unreachable, but mypy doesn't know that
-    msg = f"Unsupported geometry type {type(geometry)}"  # pragma: no cover
-    raise KMLWriteError(msg)  # pragma: no cover
+    _unknown_geometry_type(geometry)
