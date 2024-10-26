@@ -1,14 +1,12 @@
-Usage guide
-===========
+Creating KML files
+==================
 
 Read a shapefile and build a 3D KML visualization.
 --------------------------------------------------
 
 This example shows how to read a shapefile and build a 3D KML visualization from it.
 
-You will need to install the following packages:
-
-- `pyshp <https://pypi.org/project/pyshp/>`_
+You will need to install `pyshp <https://pypi.org/project/pyshp/>`_ (``pip install pyshp``).
 
 For this example we will use the
 `Data on CO2 and Greenhouse Gas Emissions <https://github.com/owid/co2-data>`_ by

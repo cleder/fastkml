@@ -108,6 +108,16 @@ class TestFindAll(StdLibrary):
         a1 = A(1)
 
         result = list(find_all(a1, of_type=None))
+        assert result == [a1, 1]
+
+    def test_find_all_no_type_attr_x(self) -> None:
+        class A:
+            def __init__(self, x: int) -> None:
+                self.x = x
+
+        a1 = A(1)
+
+        result = list(find_all(a1, x=1))
         assert result == [a1]
 
     def test_find_schema_by_url(self) -> None:

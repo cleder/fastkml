@@ -10,7 +10,7 @@ from typing import Union
 
 def has_attribute_values(obj: object, **kwargs: Any) -> bool:
     """
-    Check if an object has the given attribute values.
+    Check if an object has all of the given attribute values.
 
     Args:
         obj: The object to check.
@@ -21,12 +21,9 @@ def has_attribute_values(obj: object, **kwargs: Any) -> bool:
 
     """
     try:
-        for key, value in kwargs.items():
-            if getattr(obj, key) != value:
-                return False
+        return all(getattr(obj, key) == value for key, value in kwargs.items())
     except AttributeError:
         return False
-    return True
 
 
 def find_all(
@@ -47,22 +44,23 @@ def find_all(
         An iterable of all instances of the given type in the given object.
 
     """
-    if of_type is None or isinstance(obj, of_type):
-        if has_attribute_values(obj, **kwargs):
-            yield obj
-    else:
+    if (of_type is None or isinstance(obj, of_type)) and has_attribute_values(
+        obj,
+        **kwargs,
+    ):
+        yield obj
+    try:
+        attrs = [attr for attr in obj.__dict__ if not attr.startswith("_")]
+    except AttributeError:
+        return
+    for attr_name in attrs:
+        attr = getattr(obj, attr_name)
+        if callable(attr):
+            continue
+        if attr is obj:
+            continue
         try:
-            attrs = [attr for attr in obj.__dict__ if not attr.startswith("_")]
-        except AttributeError:
-            return
-        for attr_name in attrs:
-            attr = getattr(obj, attr_name)
-            if callable(attr):
-                continue
-            if attr is obj:
-                continue
-            try:
-                for item in attr:
-                    yield from find_all(item, of_type=of_type, **kwargs)
-            except TypeError:
-                yield from find_all(attr, of_type=of_type, **kwargs)
+            for item in attr:
+                yield from find_all(item, of_type=of_type, **kwargs)
+        except TypeError:
+            yield from find_all(attr, of_type=of_type, **kwargs)

@@ -23,7 +23,8 @@ requirements, namely:
    :maxdepth: 2
 
    quickstart
-   usage_guide
+   create_kml_files
+   working_with_kml
    configuration
    modules
    contributing
