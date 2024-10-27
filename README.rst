@@ -10,7 +10,8 @@ it simple and fast (using lxml_ if available). Fast refers to the time you
 spend to write and read KML files as well as the time you spend to get
 acquainted to the library or to create KML objects. It aims to provide all of
 the functionality that KML clients such as `Marble <https://marble.kde.org/>`_,
-`Cesium JS <https://cesium.com/>`_, `Google Maps <http://maps.google.com/>`_, and
+`Cesium JS <https://cesium.com/>`_, `OpenLayers <https://openlayers.org/>`_,
+`Google Maps <http://maps.google.com/>`_, and
 `Google Earth <http://earth.google.com/>`_ support.
 
 For more details about the KML Specification, check out the `KML Reference

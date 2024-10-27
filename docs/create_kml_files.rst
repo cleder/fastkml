@@ -110,6 +110,7 @@ The resulting KML file can be opened in Google Earth or any other KML viewer.
     :alt: CO2 emissions per capita in 2020
     :align: center
     :width: 800px
+    :target: https://ion.cesium.com/stories/viewer/?id=a3cf93bb-bbb8-488b-8643-09c037ec12b8
 
 
 Build an animated over time KML visualization
@@ -228,4 +229,5 @@ Finally, we create the KML object and write it to a file:
 You can open the resulting KML file in Google Earth Desktop and use the time slider to
 see the CO2 emissions per capita grow over time, Google Earth Web does not support
 time animations, but
-`Cesium Ion can display it <https://ion.cesium.com/stories/viewer/?id=602c8c64-72aa-4c57-8a01-752b6fbc62d0>`_
+`Cesium Ion <https://ion.cesium.com/stories/viewer/?id=602c8c64-72aa-4c57-8a01-752b6fbc62d0>`_
+can display the time animation.
