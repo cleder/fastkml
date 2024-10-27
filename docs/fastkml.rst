@@ -1,11 +1,14 @@
-fastkml package
 ===============
+Reference Guide
+===============
+
+.. toctree::
+   :maxdepth: 4
+
+
 
 .. automodule:: fastkml
 
-
-Submodules
-----------
 
 fastkml.about module
 --------------------

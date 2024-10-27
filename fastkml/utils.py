@@ -62,3 +62,27 @@ def find_all(
                 yield from find_all(item, of_type=of_type, **kwargs)
         except TypeError:
             yield from find_all(attr, of_type=of_type, **kwargs)
+
+
+def find(
+    obj: object,
+    *,
+    of_type: Optional[Union[Type[object], Tuple[Type[object], ...]]] = None,
+    **kwargs: Any,
+) -> Optional[object]:
+    """
+    Find the first instance of a given type in a given object.
+
+    Args:
+        obj: The object to search.
+        of_type: The type(s) to search for or None for any type.
+        **kwargs: Attributes of the object to match.
+
+    Returns:
+        The first instance of the given type in the given object or None if not found.
+
+    """
+    try:
+        return next(find_all(obj, of_type=of_type, **kwargs))
+    except StopIteration:
+        return None

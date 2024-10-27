@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"
+xmlns:gx="http://www.google.com/kml/ext/2.2"
+xmlns:kml="http://www.opengis.net/kml/2.2"
+xmlns:atom="http://www.w3.org/2005/Atom">
+  <Document>
+    <name>Test2</name>
+    <gx:CascadingStyle kml:id="__managed_style_25EBAAC82614827EFCCB">
+      <Style>
+        <IconStyle>
+          <scale>1.2</scale>
+          <Icon>
+            <href>
+            https://earth.google.com/earth/rpc/cc/icon?color=1976d2&amp;id=2000&amp;scale=4
+            </href>
+          </Icon>
+          <hotSpot x="64" y="128" xunits="pixels"
+          yunits="insetPixels" />
+        </IconStyle>
+        <LabelStyle></LabelStyle>
+        <LineStyle>
+          <width>24</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>80000000</color>
+        </PolyStyle>
+        <BalloonStyle>
+          <displayMode>hide</displayMode>
+        </BalloonStyle>
+      </Style>
+    </gx:CascadingStyle>
+    <gx:CascadingStyle kml:id="__managed_style_14CDD4276C14827EFCCB">
+      <Style>
+        <IconStyle>
+          <Icon>
+            <href>
+            https://earth.google.com/earth/rpc/cc/icon?color=1976d2&amp;id=2000&amp;scale=4
+            </href>
+          </Icon>
+          <hotSpot x="64" y="128" xunits="pixels"
+          yunits="insetPixels" />
+        </IconStyle>
+        <LabelStyle></LabelStyle>
+        <LineStyle>
+          <width>16</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>80000000</color>
+        </PolyStyle>
+        <BalloonStyle>
+          <displayMode>hide</displayMode>
+        </BalloonStyle>
+      </Style>
+    </gx:CascadingStyle>
+    <StyleMap id="__managed_style_0D301BCC0014827EFCCB">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#__managed_style_14CDD4276C14827EFCCB</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#__managed_style_25EBAAC82614827EFCCB</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark id="04AFE6060F147CE66FBD">
+      <name>Ort1</name>
+      <LookAt>
+        <longitude>10.06256752902339</longitude>
+        <latitude>53.57036326842834</latitude>
+        <altitude>13.96486261382906</altitude>
+        <heading>0</heading>
+        <tilt>0</tilt>
+        <gx:fovy>35</gx:fovy>
+        <range>632.584179697442</range>
+        <altitudeMode>absolute</altitudeMode>
+      </LookAt>
+      <styleUrl>#__managed_style_0D301BCC0014827EFCCB</styleUrl>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+            10.05998904317019,53.57172202479447,10.32521244530025
+            10.06072970043745,53.57050957507556,13.60797686155092
+            10.06170365480513,53.57072597737833,13.60026817081542
+            10.06094034058923,53.57192922042453,10.47620396741323
+            10.05998904317019,53.57172202479447,10.32521244530025
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>

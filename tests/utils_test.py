@@ -14,9 +14,12 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test the utils module."""
+from typing import List
+
 from fastkml import Schema
 from fastkml import SchemaData
 from fastkml import kml
+from fastkml.utils import find
 from fastkml.utils import find_all
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -89,15 +92,45 @@ class TestFindAll(StdLibrary):
         result = list(find_all(a1, of_type=None))
         assert result == [a1, 1]
 
-    def test_find_all_no_type_attr_x(self) -> None:
+    def test_find_all_no_type_attr(self) -> None:
         class A:
-            def __init__(self, x: int) -> None:
+            def __init__(self, x: int, y: int) -> None:
                 self.x = x
+                self.y = y
 
-        a1 = A(1)
+        class B:
+            def __init__(self, a: List[A]) -> None:
+                self.a = a
 
-        result = list(find_all(a1, x=1))
-        assert result == [a1]
+        a1 = A(1, 0)
+        a2 = A(0, 1)
+        a3 = A(1, 1)
+        b = B([a1, a2, a3])
+
+        assert list(find_all(b, x=1)) == [a1, a3]
+        assert list(find_all(b, y=1)) == [a2, a3]
+        assert list(find_all(b, x=0)) == [a2]
+        assert list(find_all(b, x=1, y=1)) == [a3]
+
+    def test_find_no_type_attr(self) -> None:
+        class A:
+            def __init__(self, x: int, y: int) -> None:
+                self.x = x
+                self.y = y
+
+        class B:
+            def __init__(self, a: List[A]) -> None:
+                self.a = a
+
+        a1 = A(1, 0)
+        a2 = A(0, 1)
+        a3 = A(1, 1)
+        b = B([a1, a2, a3])
+
+        assert find(b, x=1) == a1
+        assert find(b, y=1) == a2
+        assert find(b, x=0) == a2
+        assert find(b, x=1, y=1) == a3
 
     def test_find_schema_by_url(self) -> None:
         doc = (
@@ -166,10 +199,12 @@ class TestFindAll(StdLibrary):
         )
         k = kml.KML.from_string(doc, strict=False)
 
-        schema = list(find_all(k, of_type=Schema, id="TrailHeadTypeId"))
+        schema = find(k, of_type=Schema, id="TrailHeadTypeId")
         schema_data = list(find_all(k, of_type=SchemaData))
-        assert len(schema) == 1
-        assert schema[0].id == "TrailHeadTypeId"  # type: ignore[attr-defined]
+
+        assert isinstance(schema, Schema)
+        assert schema.name == "TrailHeadType"
+        assert schema.id == "TrailHeadTypeId"
         assert len(schema_data) == 2
         for data in schema_data:
             assert isinstance(data, SchemaData)

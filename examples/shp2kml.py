@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import csv
 import pathlib
 import random
@@ -14,9 +15,9 @@ from fastkml.enums import AltitudeMode
 from fastkml.enums import ColorMode
 from fastkml.geometry import create_kml_geometry
 
-shp = shapefile.Reader("world-administrative-boundaries.shp")
+shp = shapefile.Reader("examples/ne_110m_admin_0_countries.shp")
 
-co2_csv = pathlib.Path("owid-co2-data.csv")
+co2_csv = pathlib.Path("examples/owid-co2-data.csv")
 
 co2_data = {}
 
@@ -28,18 +29,11 @@ with co2_csv.open() as csvfile:
                 float(row["co2_per_capita"]) if row["co2_per_capita"] else 0
             )
 
-continents = {
-    "Antarctica": fastkml.containers.Folder(name="Antarctica"),
-    "Europe": fastkml.containers.Folder(name="Europe"),
-    "Oceania": fastkml.containers.Folder(name="Oceania"),
-    "Africa": fastkml.containers.Folder(name="Africa"),
-    "Americas": fastkml.containers.Folder(name="Americas"),
-    "Asia": fastkml.containers.Folder(name="Asia"),
-}
+document = fastkml.containers.Document()
 
 for feature in shp.__geo_interface__["features"]:
     geometry = shape(feature["geometry"])
-    co2_emission = co2_data.get(feature["properties"]["iso3"], 0)
+    co2_emission = co2_data.get(feature["properties"]["ADM0_A3"], 0)
     geometry = force_3d(geometry, co2_emission * 100_000)
     kml_geometry = create_kml_geometry(
         geometry,
@@ -48,7 +42,7 @@ for feature in shp.__geo_interface__["features"]:
     )
     color = random.randint(0, 0xFFFFFF)
     style = fastkml.styles.Style(
-        id=feature["properties"]["iso3"],
+        id=feature["properties"]["ADM0_A3"],
         styles=[
             fastkml.styles.LineStyle(color=f"55{color:06X}", width=2),
             fastkml.styles.PolyStyle(
@@ -60,16 +54,15 @@ for feature in shp.__geo_interface__["features"]:
         ],
     )
 
-    style_url = fastkml.styles.StyleUrl(url=f"#{feature['properties']['iso3']}")
+    style_url = fastkml.styles.StyleUrl(url=f"#{feature['properties']['ADM0_A3']}")
     placemark = fastkml.features.Placemark(
-        name=feature["properties"]["name"],
-        description=feature["properties"]["status"],
+        name=feature["properties"]["NAME"],
+        description=feature["properties"]["FORMAL_EN"],
         kml_geometry=kml_geometry,
         styles=[style],
     )
-    continents[feature["properties"]["continent"]].features.append(placemark)
+    document.append(placemark)
 
-document = fastkml.containers.Document(features=continents.values())
 kml = fastkml.KML(features=[document])
 
 outfile = pathlib.Path("co2_per_capita_2020.kml")

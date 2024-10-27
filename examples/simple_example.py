@@ -14,7 +14,7 @@ def print_child_features(element, depth=0):
 
 
 if __name__ == "__main__":
-    fname = pathlib.Path("KML_Samples.kml")
+    fname = pathlib.Path("examples/KML_Samples.kml")
 
     with fname.open(encoding="utf-8") as kml_file:
         k = kml.KML.from_string(kml_file.read().encode("utf-8"))
