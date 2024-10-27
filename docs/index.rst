@@ -28,4 +28,5 @@ requirements, namely:
    configuration
    fastkml
    contributing
+   alternatives
    HISTORY
