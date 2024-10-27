@@ -17,6 +17,8 @@
 """Test the styles classes."""
 import pytest
 
+from fastkml.containers import Document
+from fastkml.features import Placemark
 from fastkml import links
 from fastkml import styles
 from fastkml.enums import ColorMode
@@ -615,6 +617,76 @@ class TestStdLibrary(StdLibrary):
 
         assert sm.normal is None
         assert sm.highlight is None
+
+
+class TestStyleUsage:
+    def test_create_document_style(self) -> None:
+        style = styles.Style(
+            styles=[
+                styles.PolyStyle(
+                    color="7f000000",
+                    fill=True,
+                    outline=True,
+                ),
+            ],
+        )
+
+        doc = Document(styles=[style])
+
+        doc2 = Document()
+        doc2.styles.append(style)
+
+        expected = """
+            <kml:Document xmlns:kml="http://www.opengis.net/kml/2.2">
+              <kml:visibility/>
+                <kml:Style>
+                  <kml:PolyStyle>
+                    <kml:color>7f000000</kml:color>
+                    <kml:fill>1</kml:fill>
+                    <kml:outline>1</kml:outline>
+                  </kml:PolyStyle>
+                </kml:Style>
+            </kml:Document>
+        """
+
+        doc3 = Document.from_string(expected)
+
+        assert doc.to_string() == doc2.to_string()
+        assert doc2.to_string() == doc3.to_string()
+        assert doc.to_string() == doc3.to_string()
+
+    def test_create_placemark_style(self) -> None:
+        style = styles.Style(
+            styles=[
+                styles.PolyStyle(
+                    color="7f000000",
+                    fill=True,
+                    outline=True,
+                ),
+            ],
+        )
+
+        place = Placemark(styles=[style])
+
+        place2 = Placemark()
+        place2.styles.append(style)
+
+        expected = """
+            <kml:Placemark xmlns:kml="http://www.opengis.net/kml/2.2">
+                <kml:Style>
+                  <kml:PolyStyle>
+                    <kml:color>7f000000</kml:color>
+                    <kml:fill>1</kml:fill>
+                    <kml:outline>1</kml:outline>
+                  </kml:PolyStyle>
+                </kml:Style>
+            </kml:Placemark>
+        """
+
+        place3 = Placemark.from_string(expected)
+        assert place.to_string() == place2.to_string()
+        assert place2.to_string() == place3.to_string()
+        assert place.to_string() == place3.to_string()
 
 
 class TestLxml(Lxml, TestStdLibrary):

@@ -24,6 +24,7 @@ from fastkml.helpers import attribute_float_kwarg
 from fastkml.helpers import subelement_enum_kwarg
 from fastkml.helpers import subelement_float_kwarg
 from fastkml.helpers import subelement_int_kwarg
+from fastkml.helpers import subelement_bool_kwarg
 from tests.base import StdLibrary
 
 
@@ -126,3 +127,21 @@ class TestStdLibrary(StdLibrary):
 
         assert res == {}
         element.get.assert_called_once_with("nsnode")
+
+    def test_subelement_bool_kwarg(self) -> None:
+        node = Node()
+        node.text = ""
+        element = Mock()
+        element.find.return_value = node
+        res = subelement_bool_kwarg(
+            element=element,
+            ns="ns",
+            name_spaces={"name": "uri"},
+            node_name="node",
+            kwarg="a",
+            classes=(bool,),
+            strict=True,
+        )
+
+        assert res == {}
+        element.find.assert_called_once_with("nsnode")
