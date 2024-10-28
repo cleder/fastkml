@@ -87,7 +87,8 @@ class TestStdLibrary(StdLibrary):
         xml = polygon.to_string()
         assert xml.count("extrude>1</") == 1
         assert xml.count("tessellate>1</") == 1
-        assert xml.count("altitudeMode>relativeToGround</") == 1
+        assert xml.count("altitudeMode") == 2
+        assert xml.count(">relativeToGround</") == 1
 
     def test_to_string_terse_default(self) -> None:
         """Test the to_string method, exclude default for extrude in terse mode."""

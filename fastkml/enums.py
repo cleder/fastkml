@@ -140,6 +140,15 @@ class AltitudeMode(RelaxedEnum):
     clamp_to_sea_floor = "clampToSeaFloor"
     relative_to_sea_floor = "relativeToSeaFloor"
 
+    def get_ns_id(self) -> str:
+        """Get the namespace for the altitude mode."""
+        if self in (
+            AltitudeMode.clamp_to_sea_floor,
+            AltitudeMode.relative_to_sea_floor,
+        ):
+            return "gx"
+        return "kml"
+
 
 @unique
 class DataType(RelaxedEnum):

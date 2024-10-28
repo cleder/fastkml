@@ -332,7 +332,7 @@ class TestPhotoOverlay(StdLibrary):
 
     def test_camera_altitude_mode_default(self) -> None:
         po = overlays.PhotoOverlay(view=views.Camera())
-        assert po.view.altitude_mode == AltitudeMode("relativeToGround")
+        assert po.view.altitude_mode is None
 
     def test_camera_altitude_mode_clamp(self) -> None:
         po = overlays.PhotoOverlay(view=views.Camera())
@@ -360,7 +360,6 @@ class TestPhotoOverlay(StdLibrary):
         assert po.view.heading == 40
         assert po.view.tilt == 50
         assert po.view.roll == 60
-        assert po.view.altitude_mode == AltitudeMode("relativeToGround")
 
 
 class TestGroundOverlayLxml(Lxml, TestGroundOverlay):

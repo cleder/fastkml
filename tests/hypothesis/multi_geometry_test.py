@@ -21,6 +21,7 @@ import string
 from functools import partial
 
 from hypothesis import given
+from hypothesis import settings
 from hypothesis import strategies as st
 from pygeoif.geometry import GeometryCollection
 from pygeoif.geometry import LinearRing
@@ -39,6 +40,9 @@ from pygeoif.hypothesis.strategies import multi_polygons
 import fastkml.geometry
 from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
+from fastkml.validate import get_schema_parser
+from fastkml.validate import validate
+from tests.base import Lxml
 
 eval_locals = {
     "Point": Point,
@@ -57,11 +61,23 @@ ID_TEXT = string.ascii_letters + string.digits + string.punctuation
 
 common_geometry = partial(
     given,
-    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
-    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
+    id=st.one_of(st.none(), st.from_regex(r"^[A-Za-z_][\w.-]*$", alphabet=ID_TEXT)),
+    target_id=st.one_of(
+        st.none(),
+        st.from_regex(r"^[A-Za-z_][\w.-]*$", alphabet=ID_TEXT),
+    ),
     extrude=st.one_of(st.none(), st.booleans()),
     tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+    altitude_mode=st.one_of(
+        st.none(),
+        st.sampled_from(
+            (
+                AltitudeMode.absolute,
+                AltitudeMode.clamp_to_ground,
+                AltitudeMode.relative_to_ground,
+            ),
+        ),
+    ),
 )
 
 
@@ -74,6 +90,7 @@ def _test_repr_roundtrip(
     assert geometry == new_g
     if geometry:
         assert type(new_g.geometry) is cls
+    validate(element=new_g.etree_element())
 
 
 def _test_geometry_str_roundtrip(
@@ -98,6 +115,7 @@ def _test_geometry_str_roundtrip(
         assert g1.altitude_mode == g2.altitude_mode == altitude_mode
         if not isinstance(g1, fastkml.geometry.Point):
             assert g1.tessellate == g2.tessellate == tessellate
+    validate(element=new_g.etree_element())
 
 
 def _test_geometry_str_roundtrip_terse(
@@ -134,6 +152,7 @@ def _test_geometry_str_roundtrip_terse(
                 assert new.tessellate == orig.tessellate == tessellate
             else:
                 assert new.tessellate is None
+    validate(element=new_g.etree_element())
 
 
 def _test_geometry_str_roundtrip_verbose(
@@ -173,512 +192,523 @@ def _test_geometry_str_roundtrip_verbose(
                 assert new.tessellate == orig.tessellate == tessellate
             else:
                 assert new.tessellate is False
+    validate(element=new_g.etree_element())
 
 
-@common_geometry(
-    geometry=st.one_of(
-        st.none(),
-        multi_points(srs=epsg4326),
-    ),
-)
-def test_multipoint_repr_roundtrip(
-    id: str | None,
-    target_id: str | None,
-    extrude: bool | None,
-    tessellate: bool | None,
-    altitude_mode: AltitudeMode | None,
-    geometry: MultiPoint | None,
-) -> None:
-    multi_geometry = fastkml.geometry.MultiGeometry(
-        id=id,
-        target_id=target_id,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-        geometry=geometry,
+class TestLxml(Lxml):
+    """Validation requires lxml."""
+
+    @classmethod
+    def setup_class(cls) -> None:
+        """Set up the class."""
+        get_schema_parser()
+
+    @common_geometry(
+        geometry=st.one_of(
+            st.none(),
+            multi_points(srs=epsg4326),
+        ),
     )
-
-    _test_repr_roundtrip(multi_geometry, MultiPoint)
-
-
-@common_geometry(
-    geometry=st.one_of(
-        st.none(),
-        multi_points(srs=epsg4326),
-    ),
-)
-def test_multipoint_str_roundtrip(
-    id: str | None,
-    target_id: str | None,
-    extrude: bool | None,
-    tessellate: bool | None,
-    altitude_mode: AltitudeMode | None,
-    geometry: MultiPoint | None,
-) -> None:
-    multi_geometry = fastkml.geometry.MultiGeometry(
-        id=id,
-        target_id=target_id,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-        geometry=geometry,
-    )
-
-    _test_geometry_str_roundtrip(
-        multi_geometry,
-        cls=MultiPoint,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-    )
-
-
-@common_geometry(
-    geometry=st.one_of(
-        st.none(),
-        multi_points(srs=epsg4326),
-    ),
-)
-def test_multipoint_str_roundtrip_terse(
-    id: str | None,
-    target_id: str | None,
-    extrude: bool | None,
-    tessellate: bool | None,
-    altitude_mode: AltitudeMode | None,
-    geometry: MultiPoint | None,
-) -> None:
-    multi_geometry = fastkml.geometry.MultiGeometry(
-        id=id,
-        target_id=target_id,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-        geometry=geometry,
-    )
-
-    _test_geometry_str_roundtrip_terse(
-        multi_geometry,
-        cls=MultiPoint,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-    )
-
-
-@common_geometry(
-    geometry=st.one_of(
-        st.none(),
-        multi_points(srs=epsg4326),
-    ),
-)
-def test_multipoint_str_roundtrip_verbose(
-    id: str | None,
-    target_id: str | None,
-    extrude: bool | None,
-    tessellate: bool | None,
-    altitude_mode: AltitudeMode | None,
-    geometry: MultiPoint | None,
-) -> None:
-    multi_geometry = fastkml.geometry.MultiGeometry(
-        id=id,
-        target_id=target_id,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-        geometry=geometry,
-    )
-
-    _test_geometry_str_roundtrip_verbose(
-        multi_geometry,
-        cls=MultiPoint,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-    )
-
-
-@common_geometry(
-    geometry=st.one_of(
-        st.none(),
-        multi_line_strings(srs=epsg4326),
-    ),
-)
-def test_multilinestring_repr_roundtrip(
-    id: str | None,
-    target_id: str | None,
-    extrude: bool | None,
-    tessellate: bool | None,
-    altitude_mode: AltitudeMode | None,
-    geometry: MultiLineString | None,
-) -> None:
-    multi_geometry = fastkml.geometry.MultiGeometry(
-        id=id,
-        target_id=target_id,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-        geometry=geometry,
-    )
-
-    _test_repr_roundtrip(multi_geometry, MultiLineString)
-
-
-@common_geometry(
-    geometry=st.one_of(
-        st.none(),
-        multi_line_strings(srs=epsg4326),
-    ),
-)
-def test_multilinestring_str_roundtrip(
-    id: str | None,
-    target_id: str | None,
-    extrude: bool | None,
-    tessellate: bool | None,
-    altitude_mode: AltitudeMode | None,
-    geometry: MultiLineString | None,
-) -> None:
-    multi_geometry = fastkml.geometry.MultiGeometry(
-        id=id,
-        target_id=target_id,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-        geometry=geometry,
-    )
-
-    _test_geometry_str_roundtrip(
-        multi_geometry,
-        cls=MultiLineString,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-    )
-
-
-@common_geometry(
-    geometry=st.one_of(
-        st.none(),
-        multi_line_strings(srs=epsg4326),
-    ),
-)
-def test_multilinestring_str_roundtrip_terse(
-    id: str | None,
-    target_id: str | None,
-    extrude: bool | None,
-    tessellate: bool | None,
-    altitude_mode: AltitudeMode | None,
-    geometry: MultiLineString | None,
-) -> None:
-    multi_geometry = fastkml.geometry.MultiGeometry(
-        id=id,
-        target_id=target_id,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-        geometry=geometry,
-    )
-
-    _test_geometry_str_roundtrip_terse(
-        multi_geometry,
-        cls=MultiLineString,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-    )
-
-
-@common_geometry(
-    geometry=st.one_of(
-        st.none(),
-        multi_line_strings(srs=epsg4326),
-    ),
-)
-def test_multilinestring_str_roundtrip_verbose(
-    id: str | None,
-    target_id: str | None,
-    extrude: bool | None,
-    tessellate: bool | None,
-    altitude_mode: AltitudeMode | None,
-    geometry: MultiLineString | None,
-) -> None:
-    multi_geometry = fastkml.geometry.MultiGeometry(
-        id=id,
-        target_id=target_id,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-        geometry=geometry,
-    )
-
-    _test_geometry_str_roundtrip_verbose(
-        multi_geometry,
-        cls=MultiLineString,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-    )
-
-
-@common_geometry(
-    geometry=st.one_of(
-        st.none(),
-        multi_polygons(srs=epsg4326),
-    ),
-)
-def test_multipolygon_repr_roundtrip(
-    id: str | None,
-    target_id: str | None,
-    extrude: bool | None,
-    tessellate: bool | None,
-    altitude_mode: AltitudeMode | None,
-    geometry: MultiPolygon | None,
-) -> None:
-    multi_geometry = fastkml.geometry.MultiGeometry(
-        id=id,
-        target_id=target_id,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-        geometry=geometry,
-    )
-
-    _test_repr_roundtrip(multi_geometry, MultiPolygon)
-
-
-@common_geometry(
-    geometry=st.one_of(
-        st.none(),
-        multi_polygons(srs=epsg4326),
-    ),
-)
-def test_multipolygon_str_roundtrip(
-    id: str | None,
-    target_id: str | None,
-    extrude: bool | None,
-    tessellate: bool | None,
-    altitude_mode: AltitudeMode | None,
-    geometry: MultiPolygon | None,
-) -> None:
-    multi_geometry = fastkml.geometry.MultiGeometry(
-        id=id,
-        target_id=target_id,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-        geometry=geometry,
-    )
-
-    _test_geometry_str_roundtrip(
-        multi_geometry,
-        cls=MultiPolygon,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-    )
-
-
-@common_geometry(
-    geometry=st.one_of(
-        st.none(),
-        multi_polygons(srs=epsg4326),
-    ),
-)
-def test_multipolygon_str_roundtrip_terse(
-    id: str | None,
-    target_id: str | None,
-    extrude: bool | None,
-    tessellate: bool | None,
-    altitude_mode: AltitudeMode | None,
-    geometry: MultiPolygon | None,
-) -> None:
-    multi_geometry = fastkml.geometry.MultiGeometry(
-        id=id,
-        target_id=target_id,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-        geometry=geometry,
-    )
-
-    _test_geometry_str_roundtrip_terse(
-        multi_geometry,
-        cls=MultiPolygon,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-    )
-
-
-@common_geometry(
-    geometry=st.one_of(
-        st.none(),
-        multi_polygons(srs=epsg4326),
-    ),
-)
-def test_multipolygon_str_roundtrip_verbose(
-    id: str | None,
-    target_id: str | None,
-    extrude: bool | None,
-    tessellate: bool | None,
-    altitude_mode: AltitudeMode | None,
-    geometry: MultiPolygon | None,
-) -> None:
-    multi_geometry = fastkml.geometry.MultiGeometry(
-        id=id,
-        target_id=target_id,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-        geometry=geometry,
-    )
-
-    _test_geometry_str_roundtrip_verbose(
-        multi_geometry,
-        cls=MultiPolygon,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-    )
-
-
-@common_geometry(
-    geometry=st.one_of(
-        st.none(),
-        geometry_collections(srs=epsg4326),
-    ),
-)
-def test_geometrycollection_repr_roundtrip(
-    id: str | None,
-    target_id: str | None,
-    extrude: bool | None,
-    tessellate: bool | None,
-    altitude_mode: AltitudeMode | None,
-    geometry: GeometryCollection | None,
-) -> None:
-    multi_geometry = fastkml.geometry.MultiGeometry(
-        id=id,
-        target_id=target_id,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-        geometry=geometry,
-    )
-
-    new_mg = eval(repr(multi_geometry), {}, eval_locals)  # noqa: S307
-
-    assert multi_geometry == new_mg
-    if geometry:
-        assert isinstance(
-            new_mg.geometry,
-            (GeometryCollection, MultiPolygon, MultiLineString, MultiPoint),
+    @settings(deadline=1_000)
+    def test_multipoint_repr_roundtrip(
+        self,
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: MultiPoint | None,
+    ) -> None:
+        multi_geometry = fastkml.geometry.MultiGeometry(
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
         )
-    else:
-        assert not new_mg
 
+        _test_repr_roundtrip(multi_geometry, MultiPoint)
 
-@common_geometry(
-    geometry=st.one_of(
-        st.none(),
-        geometry_collections(srs=epsg4326),
-    ),
-)
-def test_geometrycollection_str_roundtrip(
-    id: str | None,
-    target_id: str | None,
-    extrude: bool | None,
-    tessellate: bool | None,
-    altitude_mode: AltitudeMode | None,
-    geometry: GeometryCollection | None,
-) -> None:
-    multi_geometry = fastkml.geometry.MultiGeometry(
-        id=id,
-        target_id=target_id,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-        geometry=geometry,
+    @common_geometry(
+        geometry=st.one_of(
+            st.none(),
+            multi_points(srs=epsg4326),
+        ),
     )
-
-    new_mg = fastkml.geometry.MultiGeometry.from_string(
-        multi_geometry.to_string(),
-    )
-
-    if geometry:
-        assert isinstance(
-            new_mg.geometry,
-            (GeometryCollection, MultiPolygon, MultiLineString, MultiPoint),
+    def test_multipoint_str_roundtrip(
+        self,
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: MultiPoint | None,
+    ) -> None:
+        multi_geometry = fastkml.geometry.MultiGeometry(
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
         )
-    else:
-        assert not new_mg
 
-
-@common_geometry(
-    geometry=st.one_of(
-        st.none(),
-        geometry_collections(srs=epsg4326),
-    ),
-)
-def test_geometrycollection_str_roundtrip_terse(
-    id: str | None,
-    target_id: str | None,
-    extrude: bool | None,
-    tessellate: bool | None,
-    altitude_mode: AltitudeMode | None,
-    geometry: GeometryCollection | None,
-) -> None:
-    multi_geometry = fastkml.geometry.MultiGeometry(
-        id=id,
-        target_id=target_id,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-        geometry=geometry,
-    )
-
-    new_mg = fastkml.geometry.MultiGeometry.from_string(
-        multi_geometry.to_string(verbosity=Verbosity.terse),
-    )
-
-    if geometry:
-        assert isinstance(
-            new_mg.geometry,
-            (GeometryCollection, MultiPolygon, MultiLineString, MultiPoint),
+        _test_geometry_str_roundtrip(
+            multi_geometry,
+            cls=MultiPoint,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
         )
-    else:
-        assert not new_mg
 
-
-@common_geometry(
-    geometry=st.one_of(
-        st.none(),
-        geometry_collections(srs=epsg4326),
-    ),
-)
-def test_geometrycollection_str_roundtrip_verbose(
-    id: str | None,
-    target_id: str | None,
-    extrude: bool | None,
-    tessellate: bool | None,
-    altitude_mode: AltitudeMode | None,
-    geometry: GeometryCollection | None,
-) -> None:
-    multi_geometry = fastkml.geometry.MultiGeometry(
-        id=id,
-        target_id=target_id,
-        extrude=extrude,
-        tessellate=tessellate,
-        altitude_mode=altitude_mode,
-        geometry=geometry,
+    @common_geometry(
+        geometry=st.one_of(
+            st.none(),
+            multi_points(srs=epsg4326),
+        ),
     )
-
-    new_mg = fastkml.geometry.MultiGeometry.from_string(
-        multi_geometry.to_string(verbosity=Verbosity.verbose),
-    )
-
-    if geometry:
-        assert isinstance(
-            new_mg.geometry,
-            (GeometryCollection, MultiPolygon, MultiLineString, MultiPoint),
+    def test_multipoint_str_roundtrip_terse(
+        self,
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: MultiPoint | None,
+    ) -> None:
+        multi_geometry = fastkml.geometry.MultiGeometry(
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
         )
-    else:
-        assert not new_mg
+
+        _test_geometry_str_roundtrip_terse(
+            multi_geometry,
+            cls=MultiPoint,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+        )
+
+    @common_geometry(
+        geometry=st.one_of(
+            st.none(),
+            multi_points(srs=epsg4326),
+        ),
+    )
+    def test_multipoint_str_roundtrip_verbose(
+        self,
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: MultiPoint | None,
+    ) -> None:
+        multi_geometry = fastkml.geometry.MultiGeometry(
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+
+        _test_geometry_str_roundtrip_verbose(
+            multi_geometry,
+            cls=MultiPoint,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+        )
+
+    @common_geometry(
+        geometry=st.one_of(
+            st.none(),
+            multi_line_strings(srs=epsg4326),
+        ),
+    )
+    def test_multilinestring_repr_roundtrip(
+        self,
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: MultiLineString | None,
+    ) -> None:
+        multi_geometry = fastkml.geometry.MultiGeometry(
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+
+        _test_repr_roundtrip(multi_geometry, MultiLineString)
+
+    @common_geometry(
+        geometry=st.one_of(
+            st.none(),
+            multi_line_strings(srs=epsg4326),
+        ),
+    )
+    def test_multilinestring_str_roundtrip(
+        self,
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: MultiLineString | None,
+    ) -> None:
+        multi_geometry = fastkml.geometry.MultiGeometry(
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+
+        _test_geometry_str_roundtrip(
+            multi_geometry,
+            cls=MultiLineString,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+        )
+
+    @common_geometry(
+        geometry=st.one_of(
+            st.none(),
+            multi_line_strings(srs=epsg4326),
+        ),
+    )
+    def test_multilinestring_str_roundtrip_terse(
+        self,
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: MultiLineString | None,
+    ) -> None:
+        multi_geometry = fastkml.geometry.MultiGeometry(
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+
+        _test_geometry_str_roundtrip_terse(
+            multi_geometry,
+            cls=MultiLineString,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+        )
+
+    @common_geometry(
+        geometry=st.one_of(
+            st.none(),
+            multi_line_strings(srs=epsg4326),
+        ),
+    )
+    def test_multilinestring_str_roundtrip_verbose(
+        self,
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: MultiLineString | None,
+    ) -> None:
+        multi_geometry = fastkml.geometry.MultiGeometry(
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+
+        _test_geometry_str_roundtrip_verbose(
+            multi_geometry,
+            cls=MultiLineString,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+        )
+
+    @common_geometry(
+        geometry=st.one_of(
+            st.none(),
+            multi_polygons(srs=epsg4326),
+        ),
+    )
+    def test_multipolygon_repr_roundtrip(
+        self,
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: MultiPolygon | None,
+    ) -> None:
+        multi_geometry = fastkml.geometry.MultiGeometry(
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+
+        _test_repr_roundtrip(multi_geometry, MultiPolygon)
+
+    @common_geometry(
+        geometry=st.one_of(
+            st.none(),
+            multi_polygons(srs=epsg4326),
+        ),
+    )
+    def test_multipolygon_str_roundtrip(
+        self,
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: MultiPolygon | None,
+    ) -> None:
+        multi_geometry = fastkml.geometry.MultiGeometry(
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+
+        _test_geometry_str_roundtrip(
+            multi_geometry,
+            cls=MultiPolygon,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+        )
+
+    @common_geometry(
+        geometry=st.one_of(
+            st.none(),
+            multi_polygons(srs=epsg4326),
+        ),
+    )
+    def test_multipolygon_str_roundtrip_terse(
+        self,
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: MultiPolygon | None,
+    ) -> None:
+        multi_geometry = fastkml.geometry.MultiGeometry(
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+
+        _test_geometry_str_roundtrip_terse(
+            multi_geometry,
+            cls=MultiPolygon,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+        )
+
+    @common_geometry(
+        geometry=st.one_of(
+            st.none(),
+            multi_polygons(srs=epsg4326),
+        ),
+    )
+    def test_multipolygon_str_roundtrip_verbose(
+        self,
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: MultiPolygon | None,
+    ) -> None:
+        multi_geometry = fastkml.geometry.MultiGeometry(
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+
+        _test_geometry_str_roundtrip_verbose(
+            multi_geometry,
+            cls=MultiPolygon,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+        )
+
+    @common_geometry(
+        geometry=st.one_of(
+            st.none(),
+            geometry_collections(srs=epsg4326),
+        ),
+    )
+    def test_geometrycollection_repr_roundtrip(
+        self,
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: GeometryCollection | None,
+    ) -> None:
+        multi_geometry = fastkml.geometry.MultiGeometry(
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+
+        new_mg = eval(repr(multi_geometry), {}, eval_locals)  # noqa: S307
+
+        assert multi_geometry == new_mg
+        if geometry:
+            assert isinstance(
+                new_mg.geometry,
+                (GeometryCollection, MultiPolygon, MultiLineString, MultiPoint),
+            )
+        else:
+            assert not new_mg
+
+    @common_geometry(
+        geometry=st.one_of(
+            st.none(),
+            geometry_collections(srs=epsg4326),
+        ),
+    )
+    def test_geometrycollection_str_roundtrip(
+        self,
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: GeometryCollection | None,
+    ) -> None:
+        multi_geometry = fastkml.geometry.MultiGeometry(
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+
+        new_mg = fastkml.geometry.MultiGeometry.from_string(
+            multi_geometry.to_string(),
+        )
+
+        if geometry:
+            assert isinstance(
+                new_mg.geometry,
+                (GeometryCollection, MultiPolygon, MultiLineString, MultiPoint),
+            )
+        else:
+            assert not new_mg
+
+    @common_geometry(
+        geometry=st.one_of(
+            st.none(),
+            geometry_collections(srs=epsg4326),
+        ),
+    )
+    def test_geometrycollection_str_roundtrip_terse(
+        self,
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: GeometryCollection | None,
+    ) -> None:
+        multi_geometry = fastkml.geometry.MultiGeometry(
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+
+        new_mg = fastkml.geometry.MultiGeometry.from_string(
+            multi_geometry.to_string(verbosity=Verbosity.terse),
+        )
+
+        if geometry:
+            assert isinstance(
+                new_mg.geometry,
+                (GeometryCollection, MultiPolygon, MultiLineString, MultiPoint),
+            )
+        else:
+            assert not new_mg
+
+    @common_geometry(
+        geometry=st.one_of(
+            st.none(),
+            geometry_collections(srs=epsg4326),
+        ),
+    )
+    def test_geometrycollection_str_roundtrip_verbose(
+        self,
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: GeometryCollection | None,
+    ) -> None:
+        multi_geometry = fastkml.geometry.MultiGeometry(
+            id=id,
+            target_id=target_id,
+            extrude=extrude,
+            tessellate=tessellate,
+            altitude_mode=altitude_mode,
+            geometry=geometry,
+        )
+
+        new_mg = fastkml.geometry.MultiGeometry.from_string(
+            multi_geometry.to_string(verbosity=Verbosity.verbose),
+        )
+
+        if geometry:
+            assert isinstance(
+                new_mg.geometry,
+                (GeometryCollection, MultiPolygon, MultiLineString, MultiPoint),
+            )
+        else:
+            assert not new_mg

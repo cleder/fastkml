@@ -374,20 +374,6 @@ class _Geometry(_BaseObject):
         )
 
 
-registry.register(
-    _Geometry,
-    item=RegistryItem(
-        ns_ids=("kml", "gx"),
-        classes=(AltitudeMode,),
-        attr_name="altitude_mode",
-        node_name="altitudeMode",
-        get_kwarg=subelement_enum_kwarg,
-        set_element=enum_subelement,
-        default=AltitudeMode.clamp_to_ground,
-    ),
-)
-
-
 class Point(_Geometry):
     """
     A geographic location defined by longitude, latitude, and (optional) altitude.
@@ -529,23 +515,35 @@ registry.register(
     Point,
     item=RegistryItem(
         ns_ids=("kml",),
-        classes=(Coordinates,),
-        attr_name="kml_coordinates",
-        node_name="coordinates",
-        get_kwarg=xml_subelement_kwarg,
-        set_element=xml_subelement,
-    ),
-)
-registry.register(
-    Point,
-    item=RegistryItem(
-        ns_ids=("kml",),
         classes=(bool,),
         attr_name="extrude",
         node_name="extrude",
         get_kwarg=subelement_bool_kwarg,
         set_element=bool_subelement,
         default=False,
+    ),
+)
+registry.register(
+    Point,
+    item=RegistryItem(
+        ns_ids=("kml", "gx"),
+        classes=(AltitudeMode,),
+        attr_name="altitude_mode",
+        node_name="altitudeMode",
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+        default=AltitudeMode.clamp_to_ground,
+    ),
+)
+registry.register(
+    Point,
+    item=RegistryItem(
+        ns_ids=("kml",),
+        classes=(Coordinates,),
+        attr_name="kml_coordinates",
+        node_name="coordinates",
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
     ),
 )
 
@@ -684,18 +682,6 @@ registry.register(
     LineString,
     item=RegistryItem(
         ns_ids=("kml",),
-        classes=(Coordinates,),
-        attr_name="kml_coordinates",
-        node_name="coordinates",
-        get_kwarg=xml_subelement_kwarg,
-        set_element=xml_subelement,
-    ),
-)
-
-registry.register(
-    LineString,
-    item=RegistryItem(
-        ns_ids=("kml",),
         classes=(bool,),
         attr_name="extrude",
         node_name="extrude",
@@ -714,6 +700,29 @@ registry.register(
         get_kwarg=subelement_bool_kwarg,
         set_element=bool_subelement,
         default=False,
+    ),
+)
+registry.register(
+    LineString,
+    item=RegistryItem(
+        ns_ids=("kml", "gx"),
+        classes=(AltitudeMode,),
+        attr_name="altitude_mode",
+        node_name="altitudeMode",
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+        default=AltitudeMode.clamp_to_ground,
+    ),
+)
+registry.register(
+    LineString,
+    item=RegistryItem(
+        ns_ids=("kml",),
+        classes=(Coordinates,),
+        attr_name="kml_coordinates",
+        node_name="coordinates",
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
     ),
 )
 
@@ -1224,28 +1233,6 @@ registry.register(
     Polygon,
     item=RegistryItem(
         ns_ids=("kml",),
-        classes=(OuterBoundaryIs,),
-        attr_name="outer_boundary",
-        node_name="outerBoundaryIs",
-        get_kwarg=xml_subelement_kwarg,
-        set_element=xml_subelement,
-    ),
-)
-registry.register(
-    Polygon,
-    item=RegistryItem(
-        ns_ids=("kml",),
-        classes=(InnerBoundaryIs,),
-        attr_name="inner_boundaries",
-        node_name="innerBoundaryIs",
-        get_kwarg=xml_subelement_list_kwarg,
-        set_element=xml_subelement_list,
-    ),
-)
-registry.register(
-    Polygon,
-    item=RegistryItem(
-        ns_ids=("kml",),
         classes=(bool,),
         attr_name="extrude",
         node_name="extrude",
@@ -1264,6 +1251,40 @@ registry.register(
         get_kwarg=subelement_bool_kwarg,
         set_element=bool_subelement,
         default=False,
+    ),
+)
+registry.register(
+    Polygon,
+    item=RegistryItem(
+        ns_ids=("kml", "gx"),
+        classes=(AltitudeMode,),
+        attr_name="altitude_mode",
+        node_name="altitudeMode",
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+        default=AltitudeMode.clamp_to_ground,
+    ),
+)
+registry.register(
+    Polygon,
+    item=RegistryItem(
+        ns_ids=("kml",),
+        classes=(OuterBoundaryIs,),
+        attr_name="outer_boundary",
+        node_name="outerBoundaryIs",
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    Polygon,
+    item=RegistryItem(
+        ns_ids=("kml",),
+        classes=(InnerBoundaryIs,),
+        attr_name="inner_boundaries",
+        node_name="innerBoundaryIs",
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
     ),
 )
 

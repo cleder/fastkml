@@ -159,6 +159,17 @@ class SimpleField(_BaseObject):
 registry.register(
     SimpleField,
     RegistryItem(
+        ns_ids=("kml",),
+        attr_name="display_name",
+        node_name="displayName",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    SimpleField,
+    RegistryItem(
         ns_ids=("", "kml"),
         attr_name="name",
         node_name="name",
@@ -176,17 +187,6 @@ registry.register(
         classes=(DataType,),
         get_kwarg=attribute_enum_kwarg,
         set_element=enum_attribute,
-    ),
-)
-registry.register(
-    SimpleField,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="display_name",
-        node_name="displayName",
-        classes=(str,),
-        get_kwarg=subelement_text_kwarg,
-        set_element=text_subelement,
     ),
 )
 
@@ -409,13 +409,12 @@ registry.register(
         set_element=text_attribute,
     ),
 )
-
 registry.register(
     Data,
     RegistryItem(
-        ns_ids=("", "kml"),
-        attr_name="value",
-        node_name="value",
+        ns_ids=("kml",),
+        attr_name="display_name",
+        node_name="displayName",
         classes=(str,),
         get_kwarg=subelement_text_kwarg,
         set_element=text_subelement,
@@ -424,9 +423,9 @@ registry.register(
 registry.register(
     Data,
     RegistryItem(
-        ns_ids=("kml",),
-        attr_name="display_name",
-        node_name="displayName",
+        ns_ids=("", "kml"),
+        attr_name="value",
+        node_name="value",
         classes=(str,),
         get_kwarg=subelement_text_kwarg,
         set_element=text_subelement,
