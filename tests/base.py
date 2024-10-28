@@ -27,6 +27,7 @@ except ImportError:  # pragma: no cover
     LXML = False
 
 from fastkml import config
+from fastkml.validate import get_schema_parser
 
 
 class StdLibrary:
@@ -50,3 +51,4 @@ class Lxml:
         """Ensure to always test with the lxml parse."""
         config.set_etree_implementation(lxml.etree)
         config.set_default_namespaces()
+        get_schema_parser()

@@ -74,27 +74,26 @@ def validate(
 
     if file_to_validate is not None:
         element = config.etree.parse(file_to_validate)
-    if element is not None:
-        try:
-            schema_parser.assert_(element)
-            return True
-        except AssertionError:
-            log = schema_parser.error_log
-            for e in log:
-                try:
-                    parent = element.xpath(e.path)[  # type: ignore[attr-defined]
-                        0
-                    ].getparent()
-                except config.etree.XPathEvalError:
-                    parent = element
-                error_in_xml = config.etree.tostring(
-                    parent,
-                    encoding="UTF-8",
-                    pretty_print=True,
-                ).decode(
-                    "UTF-8",
-                )
-                print(f"Error <{e.message}> in XML:\n {error_in_xml}")
-            print(len(log))
-            raise
-    return None
+
+    try:
+        schema_parser.assert_(element)
+        return True
+    except AssertionError:
+        log = schema_parser.error_log
+        for e in log:
+            try:
+                parent = element.xpath(e.path)[  # type: ignore[union-attr]
+                    0
+                ].getparent()
+            except config.etree.XPathEvalError:
+                parent = element
+            error_in_xml = config.etree.tostring(
+                parent,
+                encoding="UTF-8",
+                pretty_print=True,
+            ).decode(
+                "UTF-8",
+            )
+            print(f"Error <{e.message}> in XML:\n {error_in_xml}")
+        print(len(log))
+        raise

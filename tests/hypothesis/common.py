@@ -22,9 +22,6 @@ from functools import partial
 
 from hypothesis import strategies as st
 
-from fastkml.validate import get_schema_parser
-
-get_schema_parser()
 ID_TEXT = string.ascii_letters + string.digits + string.punctuation
 nc_name = partial(
     st.from_regex,

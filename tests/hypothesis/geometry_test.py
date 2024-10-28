@@ -81,7 +81,7 @@ def _test_repr_roundtrip(geometry: kml_geometry) -> None:
     new_g = eval(repr(geometry), {}, eval_locals)  # noqa: S307
 
     assert geometry == new_g
-    validate(element=new_g.etree_element())
+    assert validate(element=new_g.etree_element())
 
 
 def _test_geometry_str_roundtrip(geometry: kml_geometry) -> None:
@@ -89,7 +89,7 @@ def _test_geometry_str_roundtrip(geometry: kml_geometry) -> None:
 
     assert geometry.to_string() == new_g.to_string()
     assert geometry == new_g
-    validate(element=new_g.etree_element())
+    assert validate(element=new_g.etree_element())
 
 
 def _test_geometry_str_roundtrip_terse(geometry: kml_geometry) -> None:
@@ -97,7 +97,7 @@ def _test_geometry_str_roundtrip_terse(geometry: kml_geometry) -> None:
         geometry.to_string(verbosity=Verbosity.terse),
     )
 
-    validate(element=new_g.etree_element())
+    assert validate(element=new_g.etree_element())
     assert geometry.to_string(verbosity=Verbosity.verbose) == new_g.to_string(
         verbosity=Verbosity.verbose,
     )

@@ -85,7 +85,7 @@ def _test_repr_roundtrip(
     assert geometry == new_g
     if geometry:
         assert type(new_g.geometry) is cls
-    validate(element=new_g.etree_element())
+    assert validate(element=new_g.etree_element())
 
 
 def _test_geometry_str_roundtrip(
@@ -110,7 +110,7 @@ def _test_geometry_str_roundtrip(
         assert g1.altitude_mode == g2.altitude_mode == altitude_mode
         if not isinstance(g1, fastkml.geometry.Point):
             assert g1.tessellate == g2.tessellate == tessellate
-    validate(element=new_g.etree_element())
+    assert validate(element=new_g.etree_element())
 
 
 def _test_geometry_str_roundtrip_terse(
