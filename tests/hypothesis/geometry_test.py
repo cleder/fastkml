@@ -123,7 +123,7 @@ def _test_geometry_str_roundtrip_verbose(geometry: kml_geometry) -> None:
         geometry.to_string(verbosity=Verbosity.verbose),
     )
 
-    validate(element=new_g.etree_element())
+    assert validate(element=new_g.etree_element())
     assert geometry.to_string(verbosity=Verbosity.terse) == new_g.to_string(
         verbosity=Verbosity.terse,
     )
@@ -146,6 +146,7 @@ def _test_geometry_str_roundtrip_verbose(geometry: kml_geometry) -> None:
 class TestLxml(Lxml):
 
     @coordinates()
+    @settings(deadline=None)
     def test_coordinates_str_roundtrip(
         self,
         coords: typing.Union[
@@ -161,6 +162,7 @@ class TestLxml(Lxml):
         )
 
         assert coordinate.to_string(precision=10) == new_c.to_string(precision=10)
+        assert validate(element=new_c.etree_element())
 
     @coordinates()
     def test_coordinates_repr_roundtrip(
@@ -176,6 +178,7 @@ class TestLxml(Lxml):
         new_c = eval(repr(coordinate), {}, eval_locals)  # noqa: S307
 
         assert coordinate == new_c
+        assert validate(element=new_c.etree_element())
 
     @common_geometry(
         geometry=st.one_of(
@@ -183,7 +186,6 @@ class TestLxml(Lxml):
             points(srs=epsg4326),
         ),
     )
-    @settings(deadline=None)
     def test_point_repr_roundtrip(
         self,
         id: typing.Optional[str],
