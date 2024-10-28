@@ -15,11 +15,11 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Property based tests of the Geometry classes."""
-import string
 import typing
 from functools import partial
 
 from hypothesis import given
+from hypothesis import settings
 from hypothesis import strategies as st
 from pygeoif.geometry import LinearRing
 from pygeoif.geometry import LineString
@@ -34,9 +34,9 @@ from pygeoif.hypothesis.strategies import polygons
 import fastkml.geometry
 from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
-from fastkml.validate import get_schema_parser
 from fastkml.validate import validate
 from tests.base import Lxml
+from tests.hypothesis.common import nc_name
 
 eval_locals = {
     "Point": Point,
@@ -47,7 +47,6 @@ eval_locals = {
     "fastkml": fastkml,
 }
 
-ID_TEXT = string.ascii_letters + string.digits + string.punctuation
 kml_geometry = typing.Union[
     fastkml.geometry.Point,
     fastkml.geometry.LineString,
@@ -61,11 +60,20 @@ coordinates = partial(
 
 common_geometry = partial(
     given,
-    id=st.one_of(st.none(), st.text(alphabet=ID_TEXT)),
-    target_id=st.one_of(st.none(), st.text(ID_TEXT)),
+    id=st.one_of(st.none(), nc_name()),
+    target_id=st.one_of(st.none(), nc_name()),
     extrude=st.one_of(st.none(), st.booleans()),
     tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(AltitudeMode)),
+    altitude_mode=st.one_of(
+        st.none(),
+        st.sampled_from(
+            (
+                AltitudeMode.absolute,
+                AltitudeMode.clamp_to_ground,
+                AltitudeMode.relative_to_ground,
+            ),
+        ),
+    ),
 )
 
 
@@ -135,12 +143,7 @@ def _test_geometry_str_roundtrip_verbose(geometry: kml_geometry) -> None:
             assert new_g.tessellate == geometry.tessellate
 
 
-class LxmlTest(Lxml):
-
-    @classmethod
-    def setup_class(cls) -> None:
-        """Set up the class."""
-        get_schema_parser()
+class TestLxml(Lxml):
 
     @coordinates()
     def test_coordinates_str_roundtrip(
@@ -180,13 +183,14 @@ class LxmlTest(Lxml):
             points(srs=epsg4326),
         ),
     )
+    @settings(deadline=None)
     def test_point_repr_roundtrip(
         self,
         id: typing.Optional[str],
         target_id: typing.Optional[str],
         extrude: typing.Optional[bool],
         altitude_mode: typing.Optional[AltitudeMode],
-        tessellate: typing.Optional[bool],
+        tessellate: typing.Optional[bool],  # noqa: ARG002
         geometry: typing.Optional[Point],
     ) -> None:
         point = fastkml.geometry.Point(
@@ -210,7 +214,7 @@ class LxmlTest(Lxml):
         id: typing.Optional[str],
         target_id: typing.Optional[str],
         extrude: typing.Optional[bool],
-        tessellate: typing.Optional[bool],
+        tessellate: typing.Optional[bool],  # noqa: ARG002
         altitude_mode: typing.Optional[AltitudeMode],
         geometry: typing.Optional[Point],
     ) -> None:
@@ -235,7 +239,7 @@ class LxmlTest(Lxml):
         id: typing.Optional[str],
         target_id: typing.Optional[str],
         extrude: typing.Optional[bool],
-        tessellate: typing.Optional[bool],
+        tessellate: typing.Optional[bool],  # noqa: ARG002
         altitude_mode: typing.Optional[AltitudeMode],
         geometry: typing.Optional[Point],
     ) -> None:
@@ -260,7 +264,7 @@ class LxmlTest(Lxml):
         id: typing.Optional[str],
         target_id: typing.Optional[str],
         extrude: typing.Optional[bool],
-        tessellate: typing.Optional[bool],
+        tessellate: typing.Optional[bool],  # noqa: ARG002
         altitude_mode: typing.Optional[AltitudeMode],
         geometry: typing.Optional[Point],
     ) -> None:
