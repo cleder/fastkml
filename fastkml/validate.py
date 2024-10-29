@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 @lru_cache(maxsize=16)
 def get_schema_parser(
     schema: Optional[pathlib.Path] = None,
-) -> Optional[config.etree.XMLSchema]:
+) -> Optional["config.etree.XMLSchema"]:
     """
     Parse the XML schema.
 
