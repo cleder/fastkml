@@ -52,7 +52,7 @@ repos:
     hooks:
       - id: flake8
   - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.10.0  # Use the ref you want to point at
+    rev: v1.10.0
     hooks:
       - id: python-use-type-annotations
       - id: python-check-blanket-type-ignore

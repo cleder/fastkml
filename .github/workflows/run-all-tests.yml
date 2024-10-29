@@ -67,11 +67,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip wheel
-          pip install -e ".[tests, lxml]"
+          pip install -e ".[tests, lxml, docs]"
       - name: test the pythoncode in the documentation
         run: |
           python -m doctest docs/*.rst -v
-      - name: test the pythoncode in the examples
+      - name: Run the pythoncode in the examples
         run: |
           python examples/read_kml.py
           python examples/shp2kml.py
