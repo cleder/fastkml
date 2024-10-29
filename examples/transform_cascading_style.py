@@ -24,6 +24,7 @@ class CascadingStyle(_BaseObject):
     The ``<gx:CascadingStyle>`` is an undocumented element that is created in
     Google Earth Web that is unsupported by Google Earth Pro
     """
+
     _default_nsid = config.GX
 
     def __init__(
