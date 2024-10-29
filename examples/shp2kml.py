@@ -15,9 +15,11 @@ from fastkml.enums import AltitudeMode
 from fastkml.enums import ColorMode
 from fastkml.geometry import create_kml_geometry
 
-shp = shapefile.Reader("examples/ne_110m_admin_0_countries.shp")
+examples_dir = pathlib.Path(__file__).parent
 
-co2_csv = pathlib.Path("examples/owid-co2-data.csv")
+shp = shapefile.Reader(examples_dir / "ne_110m_admin_0_countries.shp")
+
+co2_csv = pathlib.Path(examples_dir / "owid-co2-data.csv")
 
 co2_data = {}
 

@@ -31,19 +31,10 @@ repos:
     rev: v0.22
     hooks:
       - id: validate-pyproject
-  - repo: https://github.com/ikamensh/flynt/
-    rev: "1.0.1"
-    hooks:
-      - id: flynt
   - repo: https://github.com/MarcoGorelli/absolufy-imports
     rev: v0.3.1
     hooks:
       - id: absolufy-imports
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.19.0
-    hooks:
-      - id: pyupgrade
-        args: ["--py3-plus", "--py38-plus"]
   - repo: https://github.com/psf/black
     rev: 24.10.0
     hooks:
@@ -93,8 +84,4 @@ repos:
     rev: v1.26.8
     hooks:
       - id: typos
-  # - repo: https://github.com/Lucas-C/pre-commit-hooks-markup
-  #   rev: v1.0.1
-  #   hooks:
-  #     - id: rst-linter
 ...

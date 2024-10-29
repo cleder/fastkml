@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import pathlib
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -15,6 +16,8 @@ from fastkml.kml_base import _BaseObject
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 from fastkml.utils import find
+
+examples_dir = pathlib.Path(__file__).parent
 
 
 class CascadingStyle(_BaseObject):
@@ -66,7 +69,7 @@ registry.register(
     ),
 )
 
-cs_kml = KML.parse("examples/gx_cascading_style.kml")
+cs_kml = KML.parse(examples_dir / "gx_cascading_style.kml")
 document = find(cs_kml, of_type=Document)
 for cascading_style in document.gx_cascading_style:
     kml_style = cascading_style.style
