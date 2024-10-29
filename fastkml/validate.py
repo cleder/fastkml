@@ -14,12 +14,15 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Validate KML files against the XML schema."""
+import logging
 import pathlib
 from functools import lru_cache
 from typing import Optional
 
 from fastkml import config
 from fastkml.types import Element
+
+logger = logging.getLogger(__name__)
 
 
 @lru_cache(maxsize=16)
@@ -77,7 +80,6 @@ def validate(
 
     try:
         schema_parser.assert_(element)
-        return True
     except AssertionError:
         log = schema_parser.error_log
         for e in log:
@@ -94,6 +96,6 @@ def validate(
             ).decode(
                 "UTF-8",
             )
-            print(f"Error <{e.message}> in XML:\n {error_in_xml}")
-        print(len(log))
+            logger.error("Error <%s> in XML:\n %s", e.message, error_in_xml)
         raise
+    return True

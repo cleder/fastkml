@@ -214,7 +214,7 @@ CascadingStyle element into a supported Style element.
           <kml:color>80000000</kml:color>
         </kml:PolyStyle>
       </kml:Style>
-      <kml:Placemark id="04SAFE6060F147CE66FBD">
+      <kml:Placemark id="04AFE6060F147CE66FBD">
         <kml:name>Ort1</kml:name>
         <kml:LookAt>
           <kml:longitude>10.06256752902339</kml:longitude>
