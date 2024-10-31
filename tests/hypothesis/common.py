@@ -19,6 +19,7 @@
 import re
 import string
 from functools import partial
+from urllib.parse import urlencode
 
 from hypothesis import strategies as st
 
@@ -28,3 +29,14 @@ nc_name = partial(
     regex=re.compile(r"^[A-Za-z_][\w.-]*$"),
     alphabet=ID_TEXT,
 )
+
+
+@st.composite
+def query_strings(draw: st.DrawFn) -> str:
+    params = draw(
+        st.dictionaries(
+            keys=st.text(alphabet=string.ascii_letters, min_size=1),
+            values=st.text(alphabet=string.printable),
+        ),
+    )
+    return urlencode(params)
