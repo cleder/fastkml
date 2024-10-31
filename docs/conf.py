@@ -59,7 +59,7 @@ copyright = "2014 -2024, Christian Ledermann & Ian Lee"
 # built documents.
 #
 # The short X.Y version.
-version = about.__version__
+version = ".".join(about.__version__.split(".")[:2])
 # The full version, including alpha/beta/rc tags.
 release = about.__version__
 
