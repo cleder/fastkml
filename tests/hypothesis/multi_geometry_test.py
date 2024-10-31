@@ -147,7 +147,7 @@ def _test_geometry_str_roundtrip_terse(
                 assert new.tessellate == orig.tessellate == tessellate
             else:
                 assert new.tessellate is None
-    validate(element=new_g.etree_element())
+    assert validate(element=new_g.etree_element())
 
 
 def _test_geometry_str_roundtrip_verbose(
