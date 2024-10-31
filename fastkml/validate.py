@@ -62,7 +62,10 @@ def validate(
         file_to_validate: The file to validate.
 
     Returns:
-        True if the file or element is valid, False otherwise.
+        Returns:
+            True if the file or element is valid.
+            Raises an AssertionError if validation fails.
+            Returns None if the schema parser is unavailable.
 
     """
     if element is None and file_to_validate is None:
