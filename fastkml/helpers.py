@@ -388,9 +388,13 @@ def enum_subelement(
     """Set the value of an attribute from a subelement with a text node."""
     value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
     if value is not None:
+        try:
+            ns = obj.name_spaces.get(value.get_ns_id())
+        except AttributeError:
+            ns = obj.ns
         subelement = config.etree.SubElement(
             element,
-            f"{obj.ns}{node_name}",
+            f"{ns or ''}{node_name}",
         )
         subelement.text = value.value
 

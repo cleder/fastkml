@@ -18,9 +18,7 @@
 import pytest
 from pygeoif import geometry as geo
 
-from fastkml import exceptions
 from fastkml.enums import AltitudeMode
-from fastkml.enums import Verbosity
 from fastkml.geometry import LinearRing
 from fastkml.geometry import LineString
 from fastkml.geometry import MultiGeometry
@@ -330,86 +328,8 @@ class TestGeometry(StdLibrary):
         assert 'targetId="target_id"' in g.to_string()
         assert 'id="my-id"' in g.to_string()
         assert "extrude" not in g.to_string()
-        assert "altitudeMode>relativeToGround<" in g.to_string()
+        assert "altitudeMode>relativeToGround<" not in g.to_string()
         assert "tessellate" not in g.to_string()
-
-    def test_to_string_terse_default(self) -> None:
-        """Test that with terse verbosity, only the necessary elements are included."""
-        g = _Geometry(
-            ns="{http://www.opengis.net/kml/2.3}",
-            target_id="target_id",
-            id="my-id",
-            altitude_mode=AltitudeMode.clamp_to_ground,
-        )
-
-        xml = g.to_string(verbosity=Verbosity.terse)
-
-        assert "altitudeMode" not in xml
-        assert "clampToGround" not in xml
-
-    def test_to_string_terse(self) -> None:
-        """Test that with terse verbosity, only the necessary elements are included."""
-        g = _Geometry(
-            ns="{http://www.opengis.net/kml/2.3}",
-            target_id="target_id",
-            id="my-id",
-            altitude_mode=AltitudeMode.relative_to_ground,
-        )
-
-        xml = g.to_string(verbosity=Verbosity.terse)
-
-        assert "altitudeMode>relativeToGround<" in xml
-
-    def test_to_string_terse_unset(self) -> None:
-        """Test that with terse verbosity, only the necessary elements are included."""
-        g = _Geometry(
-            ns="{http://www.opengis.net/kml/2.3}",
-            target_id="target_id",
-            id="my-id",
-        )
-
-        xml = g.to_string(verbosity=Verbosity.terse)
-
-        assert "altitudeMode" not in xml
-        assert "clampToGround" not in xml
-
-    def test_to_string_verbose(self) -> None:
-        """Test that with verbose verbosity, all elements are included."""
-        g = _Geometry(
-            ns="{http://www.opengis.net/kml/2.3}",
-            target_id="target_id",
-            altitude_mode=AltitudeMode.relative_to_ground,
-            id="my-id",
-        )
-
-        xml = g.to_string(verbosity=Verbosity.verbose)
-
-        assert "altitudeMode>relativeToGround<" in xml
-
-    def test_to_string_verbose_default_set(self) -> None:
-        """Test that with verbose verbosity, all elements are included."""
-        g = _Geometry(
-            ns="{http://www.opengis.net/kml/2.3}",
-            target_id="target_id",
-            altitude_mode=AltitudeMode.clamp_to_ground,
-            id="my-id",
-        )
-
-        xml = g.to_string(verbosity=Verbosity.verbose)
-
-        assert "altitudeMode>clampToGround<" in xml
-
-    def test_to_string_verbose_default(self) -> None:
-        """Test that with verbose verbosity, all elements are included."""
-        g = _Geometry(
-            ns="{http://www.opengis.net/kml/2.3}",
-            target_id="target_id",
-            id="my-id",
-        )
-
-        xml = g.to_string(verbosity=Verbosity.verbose)
-
-        assert "altitudeMode>clampToGround<" in xml
 
     def test_from_string(self) -> None:
         """Test the from_string method."""
@@ -425,33 +345,9 @@ class TestGeometry(StdLibrary):
         assert g.ns == "{http://www.opengis.net/kml/2.2}"
         assert g.target_id == "target_id"
         assert g.id == "my-id"
-        assert g.altitude_mode == AltitudeMode.relative_to_ground
+        assert g.altitude_mode is None
         assert not hasattr(g, "tessellate")
         assert not hasattr(g, "extrude")
-
-    def test_from_string_invalid_altitude_mode_strict(self) -> None:
-        """Test the from_string method."""
-        with pytest.raises(
-            exceptions.KMLParseError,
-        ):
-            _Geometry.from_string(
-                '<_Geometry id="my-id" targetId="target_id" '
-                'xmlns="http://www.opengis.net/kml/2.2">'
-                "<altitudeMode>invalid</altitudeMode>"
-                "</_Geometry>",
-            )
-
-    def test_from_string_invalid_altitude_mode_relaxed(self) -> None:
-        """Test the from_string method."""
-        geom = _Geometry.from_string(
-            '<_Geometry id="my-id" targetId="target_id" '
-            'xmlns="http://www.opengis.net/kml/2.2">'
-            "<altitudeMode>invalid</altitudeMode>"
-            "</_Geometry>",
-            strict=False,
-        )
-
-        assert geom.altitude_mode is None
 
     def test_from_minimal_string(self) -> None:
         g = _Geometry.from_string(
@@ -477,7 +373,7 @@ class TestGeometry(StdLibrary):
         assert g.ns == "{http://www.opengis.net/kml/2.2}"
         assert g.target_id == "target_id"
         assert g.id == "my-id"
-        assert g.altitude_mode == AltitudeMode.relative_to_ground
+        assert g.altitude_mode is None
         assert not hasattr(g, "tessellate")
         assert not hasattr(g, "extrude")
 

@@ -96,7 +96,9 @@ from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
 from fastkml.geometry import _Geometry
 from fastkml.helpers import bool_subelement
+from fastkml.helpers import enum_subelement
 from fastkml.helpers import subelement_bool_kwarg
+from fastkml.helpers import subelement_enum_kwarg
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.registry import RegistryItem
@@ -532,6 +534,20 @@ class Track(_Geometry):
         return kwargs
 
 
+registry.register(
+    Track,
+    item=RegistryItem(
+        ns_ids=("gx", "kml"),
+        classes=(AltitudeMode,),
+        attr_name="altitude_mode",
+        node_name="altitudeMode",
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+        default=AltitudeMode.clamp_to_ground,
+    ),
+)
+
+
 def multilinestring_to_tracks(
     multilinestring: geo.MultiLineString,
     ns: Optional[str],
@@ -687,6 +703,18 @@ class MultiTrack(_Geometry):
         return bool(self.tracks)
 
 
+registry.register(
+    MultiTrack,
+    item=RegistryItem(
+        ns_ids=("gx", "kml"),
+        classes=(AltitudeMode,),
+        attr_name="altitude_mode",
+        node_name="altitudeMode",
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+        default=AltitudeMode.clamp_to_ground,
+    ),
+)
 registry.register(
     MultiTrack,
     item=RegistryItem(

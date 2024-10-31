@@ -134,28 +134,6 @@ registry.register(
     Link,
     RegistryItem(
         ns_ids=("kml",),
-        attr_name="view_format",
-        node_name="viewFormat",
-        classes=(str,),
-        get_kwarg=subelement_text_kwarg,
-        set_element=text_subelement,
-    ),
-)
-registry.register(
-    Link,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="http_query",
-        node_name="httpQuery",
-        classes=(str,),
-        get_kwarg=subelement_text_kwarg,
-        set_element=text_subelement,
-    ),
-)
-registry.register(
-    Link,
-    RegistryItem(
-        ns_ids=("kml",),
         attr_name="refresh_mode",
         node_name="refreshMode",
         classes=(RefreshMode,),
@@ -168,24 +146,24 @@ registry.register(
     Link,
     RegistryItem(
         ns_ids=("kml",),
-        attr_name="view_refresh_mode",
-        node_name="viewRefreshMode",
-        classes=(ViewRefreshMode,),
-        get_kwarg=subelement_enum_kwarg,
-        set_element=enum_subelement,
-        default=ViewRefreshMode.never,
-    ),
-)
-registry.register(
-    Link,
-    RegistryItem(
-        ns_ids=("kml",),
         attr_name="refresh_interval",
         node_name="refreshInterval",
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
         default=4.0,
+    ),
+)
+registry.register(
+    Link,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="view_refresh_mode",
+        node_name="viewRefreshMode",
+        classes=(ViewRefreshMode,),
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+        default=ViewRefreshMode.never,
     ),
 )
 registry.register(
@@ -210,6 +188,29 @@ registry.register(
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
         default=1.0,
+    ),
+)
+registry.register(
+    Link,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="view_format",
+        node_name="viewFormat",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+        default="BBOX=[bboxWest],[bboxSouth],[bboxEast],[bboxNorth]",
+    ),
+)
+registry.register(
+    Link,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="http_query",
+        node_name="httpQuery",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
     ),
 )
 

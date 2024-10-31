@@ -299,7 +299,7 @@ class Camera(_AbstractView):
         heading: Optional[float] = None,
         tilt: Optional[float] = None,
         roll: Optional[float] = None,
-        altitude_mode: AltitudeMode = AltitudeMode.relative_to_ground,
+        altitude_mode: Optional[AltitudeMode] = None,
         time_primitive: Union[TimeSpan, TimeStamp, None] = None,
         **kwargs: Any,
     ) -> None:
@@ -406,7 +406,7 @@ class LookAt(_AbstractView):
         heading: Optional[float] = None,
         tilt: Optional[float] = None,
         range: Optional[float] = None,
-        altitude_mode: AltitudeMode = AltitudeMode.relative_to_ground,
+        altitude_mode: Optional[AltitudeMode] = None,
         time_primitive: Union[TimeSpan, TimeStamp, None] = None,
         **kwargs: Any,
     ) -> None:
