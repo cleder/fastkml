@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
   xmlns:kml="http://www.opengis.net/kml/2.2"
+  xmlns:gx="http://www.google.com/kml/ext/2.2"
   xmlns:atom="http://www.w3.org/2005/Atom"
   xmlns:xal="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0"
   targetNamespace="http://www.opengis.net/kml/2.2"
@@ -20,7 +21,11 @@
 
   <!-- import xAL:Address -->
   <import namespace="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0"
-    schemaLocation="http://docs.oasis-open.org/election/external/xAL.xsd"/>
+    schemaLocation="xAL.xsd"/>
+
+  <!--import gx -->
+  <import namespace="http://www.google.com/kml/ext/2.2"
+    schemaLocation="kml22gx.xsd"/>
 
   <!-- KML field types (simple content) -->
 
