@@ -23,7 +23,7 @@ from urllib.parse import urlencode
 
 from hypothesis import strategies as st
 
-ID_TEXT = string.ascii_letters + string.digits + string.punctuation
+ID_TEXT = string.ascii_letters + string.digits + ".-_"
 nc_name = partial(
     st.from_regex,
     regex=re.compile(r"^[A-Za-z_][\w.-]*$"),
