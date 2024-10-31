@@ -38,6 +38,8 @@ def get_schema_parser(
     Returns:
         The parsed XML schema.
 
+    To clear the cache call get_schema_parser.cache_clear().
+
     """
     if schema is None:
         schema = pathlib.Path(__file__).parent / "schema" / "ogckml22.xsd"
