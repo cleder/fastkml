@@ -27,7 +27,7 @@ except ImportError:  # pragma: no cover
     LXML = False
 
 from fastkml import config
-from fastkml.validate import get_schema_parser
+from fastkml.validator import get_schema_parser
 
 
 class StdLibrary:

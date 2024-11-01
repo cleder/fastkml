@@ -44,14 +44,14 @@ class Link(_BaseObject):
     https://developers.google.com/kml/documentation/kmlreference#link
     """
 
-    href: Optional[str]
+    href: str
     refresh_mode: Optional[RefreshMode]
     refresh_interval: Optional[float]
     view_refresh_mode: Optional[ViewRefreshMode]
     view_refresh_time: Optional[float]
     view_bound_scale: Optional[float]
-    view_format: Optional[str]
-    http_query: Optional[str]
+    view_format: str
+    http_query: str
 
     def __init__(
         self,
@@ -77,14 +77,14 @@ class Link(_BaseObject):
             target_id=target_id,
             **kwargs,
         )
-        self.href = href
+        self.href = href or ""
         self.refresh_mode = refresh_mode
         self.refresh_interval = refresh_interval
         self.view_refresh_mode = view_refresh_mode
         self.view_refresh_time = view_refresh_time
         self.view_bound_scale = view_bound_scale
-        self.view_format = view_format
-        self.http_query = http_query
+        self.view_format = view_format or ""
+        self.http_query = http_query or ""
 
     def __repr__(self) -> str:
         """Create a string (c)representation for Link."""

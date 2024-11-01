@@ -34,9 +34,11 @@ from pygeoif.hypothesis.strategies import polygons
 import fastkml.geometry
 from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
-from fastkml.validate import validate
+from fastkml.validator import validate
 from tests.base import Lxml
-from tests.hypothesis.common import nc_name
+from tests.hypothesis.common import assert_repr_roundtrip
+from tests.hypothesis.common import assert_str_roundtrip
+from tests.hypothesis.strategies import nc_name
 
 eval_locals = {
     "Point": Point,
@@ -78,18 +80,11 @@ common_geometry = partial(
 
 
 def _test_repr_roundtrip(geometry: kml_geometry) -> None:
-    new_g = eval(repr(geometry), {}, eval_locals)  # noqa: S307
-
-    assert geometry == new_g
-    assert validate(element=new_g.etree_element())
+    assert_repr_roundtrip(geometry)
 
 
 def _test_geometry_str_roundtrip(geometry: kml_geometry) -> None:
-    new_g = type(geometry).from_string(geometry.to_string())
-
-    assert geometry.to_string() == new_g.to_string()
-    assert geometry == new_g
-    assert validate(element=new_g.etree_element())
+    assert_str_roundtrip(geometry)
 
 
 def _test_geometry_str_roundtrip_terse(geometry: kml_geometry) -> None:
