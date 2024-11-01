@@ -1530,4 +1530,4 @@ def create_kml_geometry(
                 geometry=geom,  # type: ignore[arg-type]
             )
 
-    _unknown_geometry_type(geometry)
+    _unknown_geometry_type(geometry)  # pragma: no cover

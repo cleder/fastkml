@@ -73,7 +73,7 @@ lxml = [
     "lxml",
 ]
 tests = [
-    "hypothesis",
+    "hypothesis[zoneinfo]",
     "pytest",
     "pytest-cov",
 ]
