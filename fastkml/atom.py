@@ -285,9 +285,9 @@ class _Person(_AtomObject):
 
         """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
-        self.name = name or ""
-        self.uri = uri or ""
-        self.email = email or ""
+        self.name = name.strip() if name else ""
+        self.uri = uri.strip() if uri else ""
+        self.email = email.strip() if email else ""
 
     def __repr__(self) -> str:
         """

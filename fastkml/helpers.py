@@ -17,19 +17,26 @@
 
 import logging
 from enum import Enum
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Type
+from typing import cast
+
+from pygeoif.types import PointType
 
 from fastkml import config
-from fastkml.base import _XMLObject
 from fastkml.enums import Verbosity
 from fastkml.exceptions import KMLParseError
-from fastkml.registry import known_types
 from fastkml.types import Element
+
+if TYPE_CHECKING:
+    from fastkml.base import _XMLObject
+    from fastkml.times import KmlDateTime
+
 
 logger = logging.getLogger(__name__)
 
@@ -80,8 +87,16 @@ def handle_error(
     logger.warning("%s, %s", error, msg)
 
 
+def get_ns(obj: "_XMLObject", value: object) -> str:
+    """Get the namespace of an attribute, fall back on the objects namespace."""
+    try:
+        return obj.name_spaces.get(value.get_ns_id(), "")  # type: ignore[attr-defined]
+    except AttributeError:
+        return obj.ns
+
+
 def get_value(
-    obj: _XMLObject,
+    obj: "_XMLObject",
     *,
     attr_name: str,
     verbosity: Verbosity,
@@ -97,7 +112,7 @@ def get_value(
 
     Args:
     ----
-        obj (_XMLObject): The object to get the attribute value from.
+        obj ("_XMLObject"): The object to get the attribute value from.
         attr_name (str): The name of the attribute to retrieve.
         verbosity (Optional[Verbosity]): The verbosity.
         default (Optional[Any]): The default value.
@@ -110,7 +125,7 @@ def get_value(
 
 
 def node_text(
-    obj: _XMLObject,
+    obj: "_XMLObject",
     *,
     element: Element,
     attr_name: str,
@@ -124,7 +139,7 @@ def node_text(
 
     Parameters
     ----------
-    obj : _XMLObject
+    obj : "_XMLObject"
         The object containing the attribute value.
     element : Element
         The XML element to set the text content for.
@@ -155,7 +170,7 @@ def node_text(
 
 
 def text_subelement(
-    obj: _XMLObject,
+    obj: "_XMLObject",
     *,
     element: Element,
     attr_name: str,
@@ -169,7 +184,7 @@ def text_subelement(
 
     Args:
     ----
-        obj (_XMLObject): The object from which to retrieve the attribute value.
+        obj ("_XMLObject"): The object from which to retrieve the attribute value.
         element (Element): The parent element to add the subelement to.
         attr_name (str): The name of the attribute to retrieve the value from.
         node_name (str): The name of the subelement to create.
@@ -196,7 +211,7 @@ def text_subelement(
 
 
 def text_attribute(
-    obj: _XMLObject,
+    obj: "_XMLObject",
     *,
     element: Element,
     attr_name: str,
@@ -210,7 +225,7 @@ def text_attribute(
 
     Args:
     ----
-        obj (_XMLObject): The object from which to retrieve the attribute value.
+        obj ("_XMLObject"): The object from which to retrieve the attribute value.
         element (Element): The parent element to add the subelement to.
         attr_name (str): The name of the attribute to retrieve the value from.
         node_name (str): The name of the attribute to be set.
@@ -233,7 +248,7 @@ def text_attribute(
 
 
 def bool_subelement(
-    obj: _XMLObject,
+    obj: "_XMLObject",
     *,
     element: Element,
     attr_name: str,
@@ -247,7 +262,7 @@ def bool_subelement(
 
     Args:
     ----
-        obj (_XMLObject): The object from which to retrieve the attribute value.
+        obj ("_XMLObject"): The object from which to retrieve the attribute value.
         element (Element): The parent element to add the subelement to.
         attr_name (str): The name of the attribute to retrieve the value from.
         node_name (str): The name of the subelement to create.
@@ -270,7 +285,7 @@ def bool_subelement(
 
 
 def int_subelement(
-    obj: _XMLObject,
+    obj: "_XMLObject",
     *,
     element: Element,
     attr_name: str,
@@ -284,7 +299,7 @@ def int_subelement(
 
     Args:
     ----
-        obj (_XMLObject): The object from which to retrieve the attribute value.
+        obj ("_XMLObject"): The object from which to retrieve the attribute value.
         element (Element): The parent element to add the subelement to.
         attr_name (str): The name of the attribute to retrieve the value from.
         node_name (str): The name of the subelement to create.
@@ -307,7 +322,7 @@ def int_subelement(
 
 
 def int_attribute(
-    obj: _XMLObject,
+    obj: "_XMLObject",
     *,
     element: Element,
     attr_name: str,
@@ -321,7 +336,7 @@ def int_attribute(
 
     Args:
     ----
-        obj (_XMLObject): The object from which to retrieve the attribute value.
+        obj ("_XMLObject"): The object from which to retrieve the attribute value.
         element (Element): The parent element to add the subelement to.
         attr_name (str): The name of the attribute to retrieve the value from.
         node_name (str): The name of the attribute to be set.
@@ -340,7 +355,7 @@ def int_attribute(
 
 
 def float_subelement(
-    obj: _XMLObject,
+    obj: "_XMLObject",
     *,
     element: Element,
     attr_name: str,
@@ -360,7 +375,7 @@ def float_subelement(
 
 
 def float_attribute(
-    obj: _XMLObject,
+    obj: "_XMLObject",
     *,
     element: Element,
     attr_name: str,
@@ -376,7 +391,7 @@ def float_attribute(
 
 
 def enum_subelement(
-    obj: _XMLObject,
+    obj: "_XMLObject",
     *,
     element: Element,
     attr_name: str,
@@ -388,10 +403,7 @@ def enum_subelement(
     """Set the value of an attribute from a subelement with a text node."""
     value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
     if value is not None:
-        try:
-            ns = obj.name_spaces.get(value.get_ns_id())
-        except AttributeError:
-            ns = obj.ns
+        ns = get_ns(obj, value)
         subelement = config.etree.SubElement(
             element,
             f"{ns or ''}{node_name}",
@@ -400,7 +412,7 @@ def enum_subelement(
 
 
 def enum_attribute(
-    obj: _XMLObject,
+    obj: "_XMLObject",
     *,
     element: Element,
     attr_name: str,
@@ -415,28 +427,87 @@ def enum_attribute(
         element.set(node_name, value.value)
 
 
-def xml_subelement(
-    obj: _XMLObject,
+def datetime_subelement_list(
+    obj: "_XMLObject",
     *,
     element: Element,
     attr_name: str,
     node_name: str,
     precision: Optional[int],
     verbosity: Verbosity,
-    default: Optional[_XMLObject],
+    default: Optional[str],
+) -> None:
+    """
+    Create the subelements for a list of KML datetime values.
+    """
+    if value := get_value(
+        obj,
+        attr_name=attr_name,
+        verbosity=verbosity,
+        default=default,
+    ):
+        for item in value:
+            ns = get_ns(obj, item)
+            subelement = config.etree.SubElement(
+                element,
+                f"{ns}{node_name}",
+            )
+            subelement.text = str(item)
+
+
+def coords_subelement_list(
+    obj: "_XMLObject",
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Verbosity,
+    default: Optional[str],
+) -> None:
+    """
+    Create the subelements for a list of KML coordinate values.
+    """
+    if value := get_value(
+        obj,
+        attr_name=attr_name,
+        verbosity=verbosity,
+        default=default,
+    ):
+        for coord in value:
+            ns = get_ns(obj, coord)
+            subelement = config.etree.SubElement(
+                element,
+                f"{ns}{node_name}",
+            )
+            if precision is None:
+                subelement.text = " ".join(str(c) for c in coord)
+            else:
+                subelement.text = " ".join(f"{c:.{precision}f}" for c in coord)
+
+
+def xml_subelement(
+    obj: "_XMLObject",
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Verbosity,
+    default: Optional["_XMLObject"],
 ) -> None:
     """
     Add a subelement to an XML element based on the value of an attribute of an object.
 
     Args:
     ----
-        obj (_XMLObject): The object containing the attribute.
+        obj ("_XMLObject"): The object containing the attribute.
         element (Element): The XML element to which the subelement will be added.
         attr_name (str): The name of the attribute in the object.
         node_name (str): The name of the XML node for the subelement (unused).
         precision (Optional[int]): The precision for formatting numerical values.
         verbosity (Optional[Verbosity]): The verbosity level for the subelement.
-        default (Optional[_XMLObject]): The default value for the attribute (unused).
+        default (Optional["_XMLObject"]): The default value for the attribute (unused).
 
     Returns:
     -------
@@ -453,27 +524,27 @@ def xml_subelement(
 
 
 def xml_subelement_list(
-    obj: _XMLObject,
+    obj: "_XMLObject",
     *,
     element: Element,
     attr_name: str,
     node_name: str,
     precision: Optional[int],
     verbosity: Verbosity,
-    default: Optional[List[_XMLObject]],
+    default: Optional[List["_XMLObject"]],
 ) -> None:
     """
     Add subelements to an XML element based on a list attribute of an object.
 
     Args:
     ----
-        obj (_XMLObject): The object containing the list attribute.
+        obj ("_XMLObject"): The object containing the list attribute.
         element (Element): The XML element to which the subelements will be added.
         attr_name (str): The name of the list attribute in the object.
         node_name (str): The name of the XML node for each subelement (unused).
         precision (Optional[int]): The precision for floating-point values.
         verbosity (Optional[Verbosity]): The verbosity level for the XML output.
-        default (Optional[List[_XMLObject]]): The default value for the attribute.
+        default (Optional[List["_XMLObject"]]): The default value for the attribute.
 
     Returns:
     -------
@@ -495,7 +566,7 @@ def node_text_kwarg(
     name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[known_types, ...],
+    classes: Tuple[Type[object], ...],
     strict: bool,
 ) -> Dict[str, str]:
     """
@@ -509,7 +580,7 @@ def node_text_kwarg(
         URIs.
         node_name (str): The name of the XML node.
         kwarg (str): The name of the keyword argument to store the text content in.
-        classes (Tuple[known_types, ...]): A tuple of known types.
+        classes (Tuple[Type[object], ...]): A tuple of known types.
         strict (bool): A flag indicating whether to enforce strict parsing rules.
 
     Returns:
@@ -530,7 +601,7 @@ def subelement_text_kwarg(
     name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[known_types, ...],
+    classes: Tuple[Type[object], ...],
     strict: bool,
 ) -> Dict[str, str]:
     """
@@ -543,7 +614,7 @@ def subelement_text_kwarg(
         name_spaces (Dict[str, str]): A dictionary of namespace prefixes and URIs.
         node_name (str): The name of the subelement.
         kwarg (str): The key to use in the returned dictionary.
-        classes (Tuple[known_types, ...]): A tuple of known types.
+        classes (Tuple[Type[object], ...]): A tuple of known types.
         strict (bool): A flag indicating whether to enforce strict parsing.
 
     Returns:
@@ -565,7 +636,7 @@ def attribute_text_kwarg(
     name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[known_types, ...],
+    classes: Tuple[Type[object], ...],
     strict: bool,
 ) -> Dict[str, str]:
     """
@@ -578,7 +649,7 @@ def attribute_text_kwarg(
         name_spaces (Dict[str, str]): A dictionary mapping namespace prefixes to URIs.
         node_name (str): The name of the XML node.
         kwarg (str): The name of the keyword argument.
-        classes (Tuple[known_types, ...]): A tuple of known types.
+        classes (Tuple[Type[object], ...]): A tuple of known types.
         strict (bool): A flag indicating whether to enforce strict parsing.
 
     Returns:
@@ -610,7 +681,7 @@ def subelement_bool_kwarg(
     name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[known_types, ...],
+    classes: Tuple[Type[object], ...],
     strict: bool,
 ) -> Dict[str, bool]:
     """
@@ -623,7 +694,7 @@ def subelement_bool_kwarg(
         name_spaces (Dict[str, str]): A dictionary mapping namespace prefixes to URIs.
         node_name (str): The name of the subelement.
         kwarg (str): The name of the keyword argument to store the boolean value.
-        classes (Tuple[known_types, ...]): A tuple of known types.
+        classes (Tuple[Type[object], ...]): A tuple of known types.
         strict (bool): A flag indicating whether to enforce strict parsing.
 
     Returns:
@@ -661,7 +732,7 @@ def subelement_int_kwarg(
     name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[known_types, ...],
+    classes: Tuple[Type[object], ...],
     strict: bool,
 ) -> Dict[str, int]:
     """
@@ -674,7 +745,7 @@ def subelement_int_kwarg(
         name_spaces (Dict[str, str]): A dictionary mapping namespace prefixes to URIs.
         node_name (str): The name of the subelement.
         kwarg (str): The key to use in the returned dictionary.
-        classes (Tuple[known_types, ...]): A tuple of known types for error handling.
+        classes (Tuple[Type[object], ...]): A tuple of known types for error handling.
         strict (bool): A flag indicating whether to enforce strict parsing.
 
     Returns:
@@ -710,7 +781,7 @@ def attribute_int_kwarg(
     name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[known_types, ...],
+    classes: Tuple[Type[object], ...],
     strict: bool,
 ) -> Dict[str, int]:
     """
@@ -723,7 +794,7 @@ def attribute_int_kwarg(
         name_spaces (Dict[str, str]): A dictionary mapping namespace prefixes to URIs.
         node_name (str): The name of the XML node containing the attribute.
         kwarg (str): The name of the keyword argument to store the extracted attribute.
-        classes (Tuple[known_types, ...]): A tuple of known types (unused).
+        classes (Tuple[Type[object], ...]): A tuple of known types (unused).
         strict (bool): A flag indicating whether to raise an exception (unused).
 
     Returns:
@@ -742,7 +813,7 @@ def subelement_float_kwarg(
     name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[known_types, ...],
+    classes: Tuple[Type[object], ...],
     strict: bool,
 ) -> Dict[str, float]:
     """
@@ -755,7 +826,7 @@ def subelement_float_kwarg(
         name_spaces (Dict[str, str]): A dictionary of namespace prefixes and URIs.
         node_name (str): The name of the subelement.
         kwarg (str): The name of the keyword argument to store the float value.
-        classes (Tuple[known_types, ...]): A tuple of known types for error handling.
+        classes (Tuple[Type[object], ...]): A tuple of known types for error handling.
         strict (bool): A flag indicating whether to raise an error.
 
     Returns:
@@ -791,7 +862,7 @@ def attribute_float_kwarg(
     name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[known_types, ...],
+    classes: Tuple[Type[object], ...],
     strict: bool,
 ) -> Dict[str, float]:
     """
@@ -804,7 +875,7 @@ def attribute_float_kwarg(
         name_spaces (Dict[str, str]): A dictionary of namespace prefixes and URIs.
         node_name (str): The name of the attribute.
         kwarg (str): The name of the keyword argument to store the converted float.
-        classes (Tuple[known_types, ...]): A tuple of known types for error handling.
+        classes (Tuple[Type[object], ...]): A tuple of known types for error handling.
         strict (bool): A flag indicating whether to raise an error for invalid values.
 
     Returns:
@@ -845,7 +916,7 @@ def subelement_enum_kwarg(
     name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[known_types, ...],
+    classes: Tuple[Type[object], ...],
     strict: bool,
 ) -> Dict[str, Enum]:
     """
@@ -858,7 +929,7 @@ def subelement_enum_kwarg(
         name_spaces (Dict[str, str]): A dictionary of namespace prefixes and URIs.
         node_name (str): The name of the subelement.
         kwarg (str): The name of the keyword argument to store the extracted value.
-        classes (Tuple[known_types, ...]): A tuple of enumerated value classes.
+        classes (Tuple[Type[object], ...]): A tuple of enumerated value classes.
         strict (bool): A flag indicating whether to raise an exception.
 
     Returns:
@@ -903,7 +974,7 @@ def attribute_enum_kwarg(
     name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[known_types, ...],
+    classes: Tuple[Type[object], ...],
     strict: bool,
 ) -> Dict[str, Enum]:
     """
@@ -916,7 +987,7 @@ def attribute_enum_kwarg(
         name_spaces (Dict[str, str]): A dictionary of namespace prefixes and their URIs.
         node_name (str): The name of the XML node.
         kwarg (str): The name of the keyword argument.
-        classes (Tuple[known_types, ...]): A tuple of enum classes.
+        classes (Tuple[Type[object], ...]): A tuple of enum classes.
         strict (bool): A flag indicating whether to raise an error for invalid values.
 
     Returns:
@@ -946,6 +1017,63 @@ def attribute_enum_kwarg(
     return {}
 
 
+def datetime_subelement_list_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    name_spaces: Dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: Tuple[Type[object], ...],
+    strict: bool,
+) -> Dict[str, List["KmlDateTime"]]:
+    """
+    Extract a list of KML datetime values from subelements of an XML element.
+    """
+    args_list: List[KmlDateTime] = []
+    cls = classes[0]
+    if subelements := element.findall(f"{ns}{node_name}"):
+        for subelement in subelements:
+            try:
+                args_list.append(
+                    cls.parse(subelement.text),  # type: ignore[attr-defined]
+                )
+            except ValueError as exc:
+                handle_error(
+                    error=exc,
+                    strict=strict,
+                    element=element,
+                    node=subelement,
+                    expected="DateTime",
+                )
+    return {kwarg: args_list} if args_list else {}
+
+
+def coords_subelement_list_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    name_spaces: Dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: Tuple[Type[object], ...],
+    strict: bool,
+) -> Dict[str, List[PointType]]:
+    """
+    Extract a list of KML coordinate values from subelements of an XML element.
+    """
+    args_list: List[PointType] = []
+    if subelements := element.findall(f"{ns}{node_name}"):
+        for subelement in subelements:
+            if subelement.text:
+                coords = cast(
+                    PointType,
+                    tuple(float(coord) for coord in subelement.text.split()),
+                )
+                args_list.append(coords)
+    return {kwarg: args_list} if args_list else {}
+
+
 def xml_subelement_kwarg(
     *,
     element: Element,
@@ -953,9 +1081,9 @@ def xml_subelement_kwarg(
     name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[known_types, ...],
+    classes: Tuple[Type[object], ...],
     strict: bool,
-) -> Dict[str, _XMLObject]:
+) -> Dict[str, "_XMLObject"]:
     """
     Return the subelement of the given XML element based on the provided parameters.
 
@@ -966,21 +1094,22 @@ def xml_subelement_kwarg(
     name_spaces (Dict[str, str]): A dictionary mapping namespace prefixes to their URIs.
     node_name (str): The name of the XML node to search for.
     kwarg (str): The name of the keyword argument to store the found subelement.
-    classes (Tuple[known_types, ...]): A tuple of classes that represent the types.
+    classes (Tuple[Type[object], ...]): A tuple of classes that represent the types.
     strict (bool): A flag indicating whether to enforce strict parsing rules.
 
     Returns:
     -------
-    Dict[str, _XMLObject]: A dictionary containing the found subelement as the value
+    Dict[str, "_XMLObject"]: A dictionary containing the found subelement as the value
         of the specified keyword argument.
 
     """
     for cls in classes:
-        assert issubclass(cls, _XMLObject)  # noqa: S101
-        subelement = element.find(f"{ns}{cls.get_tag_name()}")
+        subelement = element.find(
+            f"{ns}{cls.get_tag_name()}",  # type: ignore[attr-defined]
+        )
         if subelement is not None:
             return {
-                kwarg: cls.class_from_element(
+                kwarg: cls.class_from_element(  # type: ignore[attr-defined]
                     ns=ns,
                     name_spaces=name_spaces,
                     element=subelement,
@@ -997,9 +1126,9 @@ def xml_subelement_list_kwarg(
     name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[known_types, ...],
+    classes: Tuple[Type[object], ...],
     strict: bool,
-) -> Dict[str, List[_XMLObject]]:
+) -> Dict[str, List["_XMLObject"]]:
     """
     Return a dictionary with the specified keyword argument and its list of subelements.
 
@@ -1010,12 +1139,12 @@ def xml_subelement_list_kwarg(
         name_spaces (Dict[str, str]): A dictionary mapping namespace prefixes to URIs.
         node_name (str): The name of the XML node to search for.
         kwarg (str): The name of the keyword argument to store the found subelements.
-        classes (Tuple[known_types, ...]): A tuple of classes that represent the types.
+        classes (Tuple[Type[object], ...]): A tuple of classes that represent the types.
         strict (bool): A flag indicating whether to enforce strict parsing rules.
 
     Returns:
     -------
-        Dict[str, List[_XMLObject]]: A dictionary containing the specified keyword
+        Dict[str, List["_XMLObject"]]: A dictionary containing the specified keyword
             argument and its list of subelements.
 
     """
@@ -1023,11 +1152,12 @@ def xml_subelement_list_kwarg(
     assert node_name is not None  # noqa: S101
     assert name_spaces is not None  # noqa: S101
     for obj_class in classes:
-        assert issubclass(obj_class, _XMLObject)  # noqa: S101
-        if subelements := element.findall(f"{ns}{obj_class.get_tag_name()}"):
+        if subelements := element.findall(
+            f"{ns}{obj_class.get_tag_name()}",  # type: ignore[attr-defined]
+        ):
             args_list.extend(
                 [
-                    obj_class.class_from_element(
+                    obj_class.class_from_element(  # type: ignore[attr-defined]
                         ns=ns,
                         name_spaces=name_spaces,
                         element=subelement,

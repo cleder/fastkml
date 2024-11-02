@@ -14,6 +14,9 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Common functionality for property based tests."""
+import datetime
+import zoneinfo
+
 from pygeoif import GeometryCollection
 from pygeoif import MultiLineString
 from pygeoif import MultiPoint
@@ -26,9 +29,12 @@ from pygeoif.geometry import Polygon
 import fastkml
 from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
+from fastkml.enums import DateTimeResolution
 from fastkml.enums import RefreshMode
 from fastkml.enums import Verbosity
 from fastkml.enums import ViewRefreshMode
+from fastkml.gx import Angle
+from fastkml.gx import TrackItem
 from fastkml.validator import validate
 
 eval_locals = {
@@ -44,6 +50,11 @@ eval_locals = {
     "fastkml": fastkml,
     "ViewRefreshMode": ViewRefreshMode,
     "RefreshMode": RefreshMode,
+    "TrackItem": TrackItem,
+    "Angle": Angle,
+    "datetime": datetime,
+    "zoneinfo": zoneinfo,
+    "DateTimeResolution": DateTimeResolution,
 }
 
 

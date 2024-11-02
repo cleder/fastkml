@@ -15,7 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Registry for XML objects."""
 from dataclasses import dataclass
-from enum import Enum
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Dict
@@ -23,7 +22,6 @@ from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Type
-from typing import Union
 
 from typing_extensions import Protocol
 
@@ -32,16 +30,6 @@ from fastkml.types import Element
 
 if TYPE_CHECKING:
     from fastkml.base import _XMLObject
-
-
-known_types = Union[
-    Type["_XMLObject"],
-    Type[Enum],
-    Type[bool],
-    Type[int],
-    Type[str],
-    Type[float],
-]
 
 
 class GetKWArgs(Protocol):
@@ -53,7 +41,7 @@ class GetKWArgs(Protocol):
         name_spaces: Dict[str, str],
         node_name: str,
         kwarg: str,
-        classes: Tuple[known_types, ...],
+        classes: Tuple[Type[object], ...],
         strict: bool,
     ) -> Dict[str, Any]: ...
 
@@ -77,7 +65,7 @@ class RegistryItem:
     """A registry item."""
 
     ns_ids: Tuple[str, ...]
-    classes: Tuple[known_types, ...]
+    classes: Tuple[Type[object], ...]
     attr_name: str
     get_kwarg: GetKWArgs
     set_element: SetElement

@@ -21,10 +21,10 @@ from unittest.mock import patch
 
 from fastkml.helpers import attribute_enum_kwarg
 from fastkml.helpers import attribute_float_kwarg
+from fastkml.helpers import subelement_bool_kwarg
 from fastkml.helpers import subelement_enum_kwarg
 from fastkml.helpers import subelement_float_kwarg
 from fastkml.helpers import subelement_int_kwarg
-from fastkml.helpers import subelement_bool_kwarg
 from tests.base import StdLibrary
 
 

@@ -196,7 +196,7 @@ class TestDateTime(StdLibrary):
 
         assert dt
         assert dt.resolution == DateTimeResolution.datetime
-        assert dt.dt == datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc())
+        assert dt.dt == datetime.datetime(1997, 7, 16, 7, 30, 15)
 
     def test_parse_datetime_empty(self) -> None:
         assert KmlDateTime.parse("") is None

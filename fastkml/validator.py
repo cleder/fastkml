@@ -37,9 +37,11 @@ def get_schema_parser(
     Parse the XML schema.
 
     Args:
+    ----
         schema: The path to the XML schema file.
 
     Returns:
+    -------
         The parsed XML schema.
 
     To clear the cache call get_schema_parser.cache_clear().
@@ -60,12 +62,16 @@ def validate(
     Validate a KML file against the XML schema.
 
     Args:
+    ----
         schema: The path to the XML schema file.
         element: The element to validate.
         file_to_validate: The file to validate.
 
     Returns:
-        Returns:
+    -------
+
+    Returns:
+    -------
             True if the file or element is valid.
             Raises an AssertionError if validation fails.
             Returns None if the schema parser is unavailable.

@@ -17,15 +17,15 @@
 """Test the styles classes."""
 import pytest
 
-from fastkml.containers import Document
-from fastkml.features import Placemark
 from fastkml import links
 from fastkml import styles
+from fastkml.containers import Document
 from fastkml.enums import ColorMode
 from fastkml.enums import DisplayMode
 from fastkml.enums import PairKey
 from fastkml.enums import Units
 from fastkml.exceptions import KMLParseError
+from fastkml.features import Placemark
 from tests.base import Lxml
 from tests.base import StdLibrary
 

@@ -147,9 +147,14 @@ class KmlDateTime:
             if year_month_day_match.group("month") is None:
                 resolution = DateTimeResolution.year
         elif len(datestr) > 10:  # noqa: PLR2004
-            dt = arrow.get(datestr).datetime
+            dt = datetime.fromisoformat(datestr)
             resolution = DateTimeResolution.datetime
         return cls(dt, resolution) if dt else None
+
+    @classmethod
+    def get_ns_id(cls) -> str:
+        """Return the namespace ID."""
+        return config.KML
 
 
 class _TimePrimitive(_BaseObject):
