@@ -1070,7 +1070,7 @@ def coords_subelement_list_kwarg(
                         strict=strict,
                         element=element,
                         node=subelement,
-                        expected="DateTime",
+                        expected="Coordinates",
                     )
     return {kwarg: args_list} if args_list else {}
 
