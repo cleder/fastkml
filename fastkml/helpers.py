@@ -437,9 +437,7 @@ def datetime_subelement_list(
     verbosity: Verbosity,
     default: Optional[str],
 ) -> None:
-    """
-    Create the subelements for a list of KML datetime values.
-    """
+    """Create the subelements for a list of KML datetime values."""
     if value := get_value(
         obj,
         attr_name=attr_name,
@@ -465,9 +463,7 @@ def coords_subelement_list(
     verbosity: Verbosity,
     default: Optional[str],
 ) -> None:
-    """
-    Create the subelements for a list of KML coordinate values.
-    """
+    """Create the subelements for a list of KML coordinate values."""
     if value := get_value(
         obj,
         attr_name=attr_name,
@@ -1027,9 +1023,7 @@ def datetime_subelement_list_kwarg(
     classes: Tuple[Type[object], ...],
     strict: bool,
 ) -> Dict[str, List["KmlDateTime"]]:
-    """
-    Extract a list of KML datetime values from subelements of an XML element.
-    """
+    """Extract a list of KML datetime values from subelements of an XML element."""
     args_list: List[KmlDateTime] = []
     cls = classes[0]
     if subelements := element.findall(f"{ns}{node_name}"):
@@ -1038,7 +1032,7 @@ def datetime_subelement_list_kwarg(
                 args_list.append(
                     cls.parse(subelement.text),  # type: ignore[attr-defined]
                 )
-            except ValueError as exc:
+            except ValueError as exc:  # noqa: PERF203
                 handle_error(
                     error=exc,
                     strict=strict,
@@ -1059,18 +1053,25 @@ def coords_subelement_list_kwarg(
     classes: Tuple[Type[object], ...],
     strict: bool,
 ) -> Dict[str, List[PointType]]:
-    """
-    Extract a list of KML coordinate values from subelements of an XML element.
-    """
+    """Extract a list of KML coordinate values from subelements of an XML element."""
     args_list: List[PointType] = []
     if subelements := element.findall(f"{ns}{node_name}"):
         for subelement in subelements:
             if subelement.text:
-                coords = cast(
-                    PointType,
-                    tuple(float(coord) for coord in subelement.text.split()),
-                )
-                args_list.append(coords)
+                try:
+                    coords = cast(
+                        PointType,
+                        tuple(float(coord) for coord in subelement.text.split()),
+                    )
+                    args_list.append(coords)
+                except ValueError as exc:
+                    handle_error(
+                        error=exc,
+                        strict=strict,
+                        element=element,
+                        node=subelement,
+                        expected="DateTime",
+                    )
     return {kwarg: args_list} if args_list else {}
 
 

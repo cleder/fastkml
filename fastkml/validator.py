@@ -69,9 +69,6 @@ def validate(
 
     Returns:
     -------
-
-    Returns:
-    -------
             True if the file or element is valid.
             Raises an AssertionError if validation fails.
             Returns None if the schema parser is unavailable.

@@ -66,6 +66,11 @@ def assert_repr_roundtrip(obj: _XMLObject) -> None:
 
 
 def assert_str_roundtrip(obj: _XMLObject) -> None:
+    """
+    Test that an XML object can be serialized and deserialized without changes.
+
+    Uses default verbosity settings and validates the resulting XML structure.
+    """
     new_object = type(obj).from_string(obj.to_string())
 
     assert obj.to_string() == new_object.to_string()

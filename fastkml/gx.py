@@ -226,7 +226,7 @@ class Track(_Geometry):
         altitude_mode : Optional[AltitudeMode], optional
             The altitude mode of the GX object, by default None
         track_items : Optional[Iterable[TrackItem]], optional
-            The track items of the GX object, by default
+            The track items of the GX object, by default None
         whens : Optional[Iterable[KmlDateTime]], optional
             The timestamps of the track items, by default None
         coords : Optional[Iterable[PointType]], optional
@@ -312,7 +312,7 @@ class Track(_Geometry):
 
         Returns
         -------
-        Iterator[KmlDateTime]
+        Tuple[KmlDateTime]
             The timestamps of the track items.
 
         """
@@ -325,7 +325,7 @@ class Track(_Geometry):
 
         Returns
         -------
-        Iterator[PointType]
+        Tuple[PointType]
             The coordinates of the track items.
 
         """
@@ -342,7 +342,7 @@ class Track(_Geometry):
 
         Returns
         -------
-        Iterator[Angle]
+        Tuple[Angle]
             The angles of the track items.
 
         """

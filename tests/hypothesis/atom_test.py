@@ -13,7 +13,14 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-"""Test Link and Icon."""
+"""
+Property-based tests for Link and Author classes using Hypothesis.
+
+This module implements fuzz testing to verify the serialization/deserialization
+roundtrip and string representation of Link and Author classes under various
+input conditions.
+"""
+
 import typing
 
 from hypothesis import given
