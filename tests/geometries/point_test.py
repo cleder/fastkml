@@ -196,6 +196,30 @@ class TestPoint(StdLibrary):
                 "</Point>",
             )
 
+    def test_from_string_invalid_altitude_mode_strict(self) -> None:
+        with pytest.raises(
+            KMLParseError,
+            match=r"^Error parsing '<",
+        ):
+            assert Point.from_string(
+                '<Point xmlns="http://www.opengis.net/kml/2.2">'
+                "<altitudeMode>INVALID</altitudeMode>"
+                "<coordinates>1.000000,2.000000</coordinates>"
+                "</Point>",
+            )
+
+    def test_from_string_invalid_altitude_mode_relaxed(self) -> None:
+        point = Point.from_string(
+            '<Point xmlns="http://www.opengis.net/kml/2.2">'
+            "<altitudeMode>invalid</altitudeMode>"
+            "<coordinates>1.000000,2.000000</coordinates>"
+            "</Point>",
+            strict=False,
+        )
+
+        assert point.geometry == geo.Point(1, 2)
+        assert not point.altitude_mode
+
     def test_from_string_3d(self) -> None:
         """Test the from_string method for a 3 dimensional point."""
         point = Point.from_string(

@@ -18,6 +18,7 @@
 import datetime
 
 import pygeoif.geometry as geo
+import pytest
 from dateutil.tz import tzoffset
 from dateutil.tz import tzutc
 
@@ -175,6 +176,48 @@ class TestTrack(StdLibrary):
         assert "angles>" in track.to_string()
         assert ">0.0 0.0 0.0</" in track.to_string()
 
+    def test_track_from_whens_and_coords(self) -> None:
+        whens = [
+            KmlDateTime(
+                datetime.datetime(2023, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+            ),
+        ]
+        coords = [(1, 2)]
+
+        track = Track(
+            whens=whens,
+            coords=coords,
+        )
+
+        assert "when>" in track.to_string()
+        assert ">2023-01-01T00:00:00+00:00</" in track.to_string()
+        assert "coord>" in track.to_string()
+        assert ">1 2</" in track.to_string()
+        assert track.coords == ((1, 2),)
+
+    def test_track_from_whens_and_coords_and_track_items(self) -> None:
+        whens = [
+            KmlDateTime(
+                datetime.datetime(2023, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+            ),
+        ]
+        coords = [(1, 2)]
+        time1 = KmlDateTime(
+            datetime.datetime(2023, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+        )
+        angle = Angle()
+        track_items = [TrackItem(when=time1, coord=geo.Point(1, 2), angle=angle)]
+
+        with pytest.raises(
+            ValueError,
+            match="^Cannot specify both geometry and track_items$",
+        ):
+            Track(
+                whens=whens,
+                coords=coords,
+                track_items=track_items,
+            )
+
     def test_track_precision(self) -> None:
         track = Track(
             id="x",
@@ -328,6 +371,20 @@ class TestTrack(StdLibrary):
             <kml:when>2010-02-32T02:02:09Z</kml:when>
             <gx:angles>45.54676 66.2342 77.0</gx:angles>
             <gx:coord>-122.207881 37.371915 156.000000</gx:coord>
+            </gx:Track>
+        """
+
+        track = Track.from_string(doc, strict=False)
+
+        assert track.track_items == []
+
+    def test_track_from_str_invalid_coord(self) -> None:
+        doc = """
+            <gx:Track xmlns:gx="http://www.google.com/kml/ext/2.2"
+              xmlns:kml="http://www.opengis.net/kml/2.2">
+            <kml:when>2010-02-14T02:02:09Z</kml:when>
+            <gx:angles>45.54676 66.2342 77.0</gx:angles>
+            <gx:coord>XYZ 37.371915 156.000000</gx:coord>
             </gx:Track>
         """
 

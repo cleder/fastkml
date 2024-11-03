@@ -22,6 +22,7 @@ from typing import Union
 import pygeoif.geometry as geo
 import pytest
 
+import fastkml
 from fastkml.exceptions import GeometryError
 from fastkml.geometry import Coordinates
 from fastkml.geometry import InnerBoundaryIs
@@ -120,6 +121,22 @@ class TestBoundaries(StdLibrary):
 
         assert inner_boundary.geometry == geo.LinearRing(
             ((1, 4), (2, 0), (0, 0), (1, 4)),
+        )
+
+    def test_inner_boundary_repr_roundtrip(self) -> None:
+        """Test that repr(obj) can be eval'd back to obj."""
+        coords = ((1, 2), (2, 0), (0, 0), (1, 2))
+        inner_boundary = InnerBoundaryIs(
+            kml_geometry=LinearRing(kml_coordinates=Coordinates(coords=coords)),
+        )
+
+        assert inner_boundary == eval(  # noqa: S307
+            repr(inner_boundary),
+            {},
+            {
+                "fastkml": fastkml,
+                "LinearRing": geo.LinearRing,
+            },
         )
 
 

@@ -88,7 +88,4 @@ def find(
         The first instance of the given type in the given object or None if not found.
 
     """
-    try:
-        return next(find_all(obj, of_type=of_type, **kwargs))
-    except StopIteration:
-        return None
+    return next(find_all(obj, of_type=of_type, **kwargs), None)

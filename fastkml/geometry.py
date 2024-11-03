@@ -817,9 +817,9 @@ class LinearRing(LineString):
             return None
 
 
-class OuterBoundaryIs(_XMLObject):
+class BoundaryIs(_XMLObject):
     """
-    Represents the outer boundary of a polygon in KML.
+    Represents the inner or outer boundary of a polygon in KML.
 
     Attributes
     ----------
@@ -905,19 +905,6 @@ class OuterBoundaryIs(_XMLObject):
             ")"
         )
 
-    @classmethod
-    def get_tag_name(cls) -> str:
-        """
-        Get the tag name for the OuterBoundaryIs object.
-
-        Returns
-        -------
-        str
-            The tag name.
-
-        """
-        return "outerBoundaryIs"
-
     @property
     def geometry(self) -> Optional[geo.LinearRing]:
         """
@@ -932,106 +919,34 @@ class OuterBoundaryIs(_XMLObject):
         return self.kml_geometry.geometry if self.kml_geometry else None
 
 
-registry.register(
-    OuterBoundaryIs,
-    item=RegistryItem(
-        ns_ids=("kml", ""),
-        classes=(LinearRing,),
-        attr_name="kml_geometry",
-        node_name="LinearRing",
-        get_kwarg=xml_subelement_kwarg,
-        set_element=xml_subelement,
-    ),
-)
+class OuterBoundaryIs(BoundaryIs):
+    """Represents the outer boundary of a polygon in KML."""
+
+    @classmethod
+    def get_tag_name(cls) -> str:
+        """
+        Get the tag name for the OuterBoundaryIs object.
+
+        Returns
+        -------
+        str
+            The tag name.
+
+        """
+        return "outerBoundaryIs"
 
 
-class InnerBoundaryIs(_XMLObject):
+class InnerBoundaryIs(BoundaryIs):
     """Represents the inner boundary of a polygon in KML."""
-
-    _default_nsid = config.KML
-    kml_geometry: Optional[LinearRing]
-
-    def __init__(
-        self,
-        *,
-        ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
-        geometry: Optional[geo.LinearRing] = None,
-        kml_geometry: Optional[LinearRing] = None,
-        **kwargs: Any,
-    ) -> None:
-        """
-        Initialize a Geometry object.
-
-        Parameters
-        ----------
-        ns : Optional[str], optional
-            The namespace for the KML element, by default None.
-        name_spaces : Optional[Dict[str, str]], optional
-            The namespace dictionary for the KML element, by default None.
-        geometry : Optional[geo.LinearRing], optional
-            The geometry to be converted to a KML geometry, by default None.
-        kml_geometry : Optional[LinearRing], optional
-            The KML geometry, by default None.
-        **kwargs : Any
-            Additional keyword arguments.
-
-        Raises
-        ------
-        GeometryError
-            If both `geometry` and `kml_geometry` are provided.
-
-        Notes
-        -----
-        - If `geometry` is provided, it will be converted to KML geometries and
-            stored in `kml_geometry`.
-        - If `geometry` and `kml_geometry` are both provided, a GeometryError will be
-            raised.
-
-        """
-        if geometry is not None and kml_geometry is not None:
-            raise GeometryError(MsgMutualExclusive)
-        if kml_geometry is None:
-            kml_geometry = LinearRing(ns=ns, name_spaces=name_spaces, geometry=geometry)
-        self.kml_geometry = kml_geometry
-        super().__init__(
-            ns=ns,
-            name_spaces=name_spaces,
-            **kwargs,
-        )
-
-    def __bool__(self) -> bool:
-        """Return True if any of the inner boundary geometries exist."""
-        return bool(self.kml_geometry)
-
-    def __repr__(self) -> str:
-        """Create a string (c)representation for InnerBoundaryIs."""
-        return (
-            f"{self.__class__.__module__}.{self.__class__.__name__}("
-            f"ns={self.ns!r}, "
-            f"name_spaces={self.name_spaces!r}, "
-            f"kml_geometry={self.kml_geometry!r}, "
-            f"**{self._get_splat()},"
-            ")"
-        )
 
     @classmethod
     def get_tag_name(cls) -> str:
         """Return the tag name of the element."""
         return "innerBoundaryIs"
 
-    @property
-    def geometry(self) -> Optional[geo.LinearRing]:
-        """
-        Return the list of LinearRing objects representing the inner boundary.
-
-        If no inner boundary geometries exist, returns None.
-        """
-        return self.kml_geometry.geometry if self.kml_geometry else None
-
 
 registry.register(
-    InnerBoundaryIs,
+    BoundaryIs,
     item=RegistryItem(
         ns_ids=("kml",),
         classes=(LinearRing,),
