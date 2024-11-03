@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Common functionality for property based tests."""
 import datetime
+import logging
 
 from dateutil.tz import tzfile
 from dateutil.tz import tzutc
@@ -37,6 +38,8 @@ from fastkml.enums import ViewRefreshMode
 from fastkml.gx import Angle
 from fastkml.gx import TrackItem
 from fastkml.validator import validate
+
+logger = logging.getLogger(__name__)
 
 eval_locals = {
     "Point": Point,
@@ -62,7 +65,11 @@ eval_locals = {
 
 def assert_repr_roundtrip(obj: _XMLObject) -> None:
     """Test that repr(obj) can be eval'd back to obj."""
-    assert obj == eval(repr(obj), {}, eval_locals)  # noqa: S307
+    try:
+        assert obj == eval(repr(obj), {}, eval_locals)  # noqa: S307
+    except FileNotFoundError:
+        # The timezone file may not be available on all systems.
+        logger.exception("Failed to eval repr(obj).")
 
 
 def assert_str_roundtrip(obj: _XMLObject) -> None:
