@@ -105,8 +105,6 @@ class TestGx(Lxml):
             st.lists(
                 st.builds(
                     fastkml.gx.Track,
-                    id=st.one_of(st.none(), nc_name()),
-                    target_id=st.one_of(st.none(), nc_name()),
                     altitude_mode=st.one_of(
                         st.none(),
                         st.sampled_from(fastkml.enums.AltitudeMode),
@@ -132,10 +130,15 @@ class TestGx(Lxml):
         tracks: typing.Optional[typing.Iterable[fastkml.gx.Track]],
         interpolate: typing.Optional[bool],
     ) -> None:
-        fastkml.gx.MultiTrack(
+        multi_track = fastkml.gx.MultiTrack(
             id=id,
             target_id=target_id,
             altitude_mode=altitude_mode,
             tracks=tracks,
             interpolate=interpolate,
         )
+
+        assert_repr_roundtrip(multi_track)
+        assert_str_roundtrip(multi_track)
+        assert_str_roundtrip_terse(multi_track)
+        assert_str_roundtrip_verbose(multi_track)

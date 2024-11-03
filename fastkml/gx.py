@@ -483,7 +483,7 @@ class MultiTrack(_Geometry):
             ValueError: If both geometry and tracks are specified.
 
         """
-        self.tracks = list(tracks) if tracks else []
+        self.tracks = [t for t in tracks if t] if tracks else []
         self.interpolate = interpolate
         super().__init__(
             ns=ns,
