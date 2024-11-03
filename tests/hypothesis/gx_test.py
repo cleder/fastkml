@@ -19,6 +19,7 @@ import typing
 
 from hypothesis import given
 from hypothesis import strategies as st
+from hypothesis.extra.dateutil import timezones
 from pygeoif.hypothesis.strategies import epsg4326
 from pygeoif.hypothesis.strategies import points
 
@@ -54,9 +55,9 @@ trackitems = st.builds(
         KmlDateTime,
         dt=st.datetimes(
             allow_imaginary=False,
-            timezones=st.timezones(),
-            min_value=datetime.datetime(2000, 1, 1),
-            max_value=datetime.datetime(2050, 1, 1),
+            timezones=timezones(),
+            min_value=datetime.datetime(2000, 1, 1),  # noqa: DTZ001
+            max_value=datetime.datetime(2050, 1, 1),  # noqa: DTZ001
         ),
     ),
 )

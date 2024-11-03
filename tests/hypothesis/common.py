@@ -15,8 +15,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Common functionality for property based tests."""
 import datetime
-import zoneinfo
 
+from dateutil.tz import tzfile
+from dateutil.tz import tzutc
 from pygeoif import GeometryCollection
 from pygeoif import MultiLineString
 from pygeoif import MultiPoint
@@ -53,8 +54,9 @@ eval_locals = {
     "TrackItem": TrackItem,
     "Angle": Angle,
     "datetime": datetime,
-    "zoneinfo": zoneinfo,
     "DateTimeResolution": DateTimeResolution,
+    "tzutc": tzutc,
+    "tzfile": tzfile,
 }
 
 

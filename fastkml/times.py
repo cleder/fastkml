@@ -147,7 +147,7 @@ class KmlDateTime:
             if year_month_day_match.group("month") is None:
                 resolution = DateTimeResolution.year
         elif len(datestr) > 10:  # noqa: PLR2004
-            dt = datetime.fromisoformat(datestr)
+            dt = arrow.get(datestr).datetime
             resolution = DateTimeResolution.datetime
         return cls(dt, resolution) if dt else None
 
