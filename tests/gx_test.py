@@ -175,6 +175,35 @@ class TestTrack(StdLibrary):
         assert "angles>" in track.to_string()
         assert ">0.0 0.0 0.0</" in track.to_string()
 
+    def test_track_precision(self) -> None:
+        track = Track(
+            id="x",
+            target_id="y",
+            altitude_mode=None,
+            track_items=[
+                TrackItem(
+                    when=KmlDateTime(
+                        dt=datetime.datetime(2010, 5, 28, 2, 2, 9, tzinfo=tzutc()),
+                    ),
+                    coord=geo.Point(-122.207881, 37.371915, 156.0),
+                    angle=Angle(heading=45.54676, tilt=66.2342, roll=77.0),
+                ),
+                TrackItem(
+                    when=KmlDateTime(
+                        dt=datetime.datetime(2010, 5, 28, 2, 2, 35, tzinfo=tzutc()),
+                    ),
+                    coord=geo.Point(-122.205712, 37.373288, 152.0),
+                    angle=Angle(heading=1.0, tilt=2.0, roll=3.0),
+                ),
+            ],
+        )
+
+        xml = track.to_string(precision=2)
+        assert "angles>45.55 66.23 77.00</" in xml
+        assert "angles>1.00 2.00 3.00</" in xml
+        assert "coord>-122.21 37.37 156.00</" in xml
+        assert "coord>-122.21 37.37 152.00</" in xml
+
     def test_track_from_str(self) -> None:
         doc = """
             <gx:Track xmlns:gx="http://www.google.com/kml/ext/2.2"
@@ -291,6 +320,20 @@ class TestTrack(StdLibrary):
         )
 
         assert track.to_string() == expected_track.to_string()
+
+    def test_track_from_str_invalid_when(self) -> None:
+        doc = """
+            <gx:Track xmlns:gx="http://www.google.com/kml/ext/2.2"
+              xmlns:kml="http://www.opengis.net/kml/2.2">
+            <kml:when>2010-02-32T02:02:09Z</kml:when>
+            <gx:angles>45.54676 66.2342 77.0</gx:angles>
+            <gx:coord>-122.207881 37.371915 156.000000</gx:coord>
+            </gx:Track>
+        """
+
+        track = Track.from_string(doc, strict=False)
+
+        assert track.track_items == []
 
 
 class TestMultiTrack(StdLibrary):
