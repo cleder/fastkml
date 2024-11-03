@@ -76,6 +76,7 @@ tests = [
     "hypothesis[dateutil]",
     "pytest",
     "pytest-cov",
+    "pytz",
 ]
 typing = [
     "mypy",
