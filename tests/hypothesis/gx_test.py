@@ -73,7 +73,6 @@ class TestGx(Lxml):
             st.none(),
             st.lists(
                 track_items,
-                max_size=1,
             ),
         ),
     )
@@ -113,11 +112,9 @@ class TestGx(Lxml):
                         st.none(),
                         st.lists(
                             track_items,
-                            max_size=1,
                         ),
                     ),
                 ),
-                max_size=1,
             ),
         ),
         interpolate=st.one_of(st.none(), st.booleans()),
