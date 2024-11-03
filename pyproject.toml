@@ -73,9 +73,11 @@ lxml = [
     "lxml",
 ]
 tests = [
-    "hypothesis",
+    "hypothesis[dateutil]",
     "pytest",
     "pytest-cov",
+    "pytz",
+    "tzdata",
 ]
 typing = [
     "mypy",

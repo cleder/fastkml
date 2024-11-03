@@ -13,30 +13,88 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-
 """Common functionality for property based tests."""
+import datetime
 
-import re
-import string
-from functools import partial
-from urllib.parse import urlencode
+from dateutil.tz import tzfile
+from dateutil.tz import tzutc
+from pygeoif import GeometryCollection
+from pygeoif import MultiLineString
+from pygeoif import MultiPoint
+from pygeoif import MultiPolygon
+from pygeoif.geometry import LinearRing
+from pygeoif.geometry import LineString
+from pygeoif.geometry import Point
+from pygeoif.geometry import Polygon
 
-from hypothesis import strategies as st
+import fastkml
+from fastkml.base import _XMLObject
+from fastkml.enums import AltitudeMode
+from fastkml.enums import DateTimeResolution
+from fastkml.enums import RefreshMode
+from fastkml.enums import Verbosity
+from fastkml.enums import ViewRefreshMode
+from fastkml.gx import Angle
+from fastkml.gx import TrackItem
+from fastkml.validator import validate
 
-ID_TEXT = string.ascii_letters + string.digits + ".-_"
-nc_name = partial(
-    st.from_regex,
-    regex=re.compile(r"^[A-Za-z_][\w.-]*$"),
-    alphabet=ID_TEXT,
-)
+eval_locals = {
+    "Point": Point,
+    "Polygon": Polygon,
+    "LineString": LineString,
+    "LinearRing": LinearRing,
+    "MultiPoint": MultiPoint,
+    "MultiLineString": MultiLineString,
+    "MultiPolygon": MultiPolygon,
+    "GeometryCollection": GeometryCollection,
+    "AltitudeMode": AltitudeMode,
+    "fastkml": fastkml,
+    "ViewRefreshMode": ViewRefreshMode,
+    "RefreshMode": RefreshMode,
+    "TrackItem": TrackItem,
+    "Angle": Angle,
+    "datetime": datetime,
+    "DateTimeResolution": DateTimeResolution,
+    "tzutc": tzutc,
+    "tzfile": tzfile,
+}
 
 
-@st.composite
-def query_strings(draw: st.DrawFn) -> str:
-    params = draw(
-        st.dictionaries(
-            keys=st.text(alphabet=string.ascii_letters, min_size=1),
-            values=st.text(alphabet=string.printable),
-        ),
+def assert_repr_roundtrip(obj: _XMLObject) -> None:
+    """Test that repr(obj) can be eval'd back to obj."""
+    assert obj == eval(repr(obj), {}, eval_locals)  # noqa: S307
+
+
+def assert_str_roundtrip(obj: _XMLObject) -> None:
+    """
+    Test that an XML object can be serialized and deserialized without changes.
+
+    Uses default verbosity settings and validates the resulting XML structure.
+    """
+    new_object = type(obj).from_string(obj.to_string())
+
+    assert obj.to_string() == new_object.to_string()
+    assert obj == new_object
+    assert validate(element=new_object.etree_element())
+
+
+def assert_str_roundtrip_terse(obj: _XMLObject) -> None:
+    new_object = type(obj).from_string(
+        obj.to_string(verbosity=Verbosity.terse),
     )
-    return urlencode(params)
+
+    assert obj.to_string(verbosity=Verbosity.verbose) == new_object.to_string(
+        verbosity=Verbosity.verbose,
+    )
+    assert validate(element=new_object.etree_element())
+
+
+def assert_str_roundtrip_verbose(obj: _XMLObject) -> None:
+    new_object = type(obj).from_string(
+        obj.to_string(verbosity=Verbosity.verbose),
+    )
+
+    assert obj.to_string(verbosity=Verbosity.terse) == new_object.to_string(
+        verbosity=Verbosity.terse,
+    )
+    assert validate(element=new_object.etree_element())

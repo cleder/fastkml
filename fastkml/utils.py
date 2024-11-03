@@ -15,10 +15,12 @@ def has_attribute_values(obj: object, **kwargs: Any) -> bool:
     Check if an object has all of the given attribute values.
 
     Args:
+    ----
         obj: The object to check.
         **kwargs: Attributes of the object to match.
 
     Returns:
+    -------
         True if the object has the given attribute values, False otherwise.
 
     """
@@ -38,11 +40,13 @@ def find_all(
     Find all instances of a given type in a given object.
 
     Args:
+    ----
         obj: The object to search.
         of_type: The type(s) to search for or None for any type.
         **kwargs: Attributes of the object to match.
 
     Returns:
+    -------
         An iterable of all instances of the given type in the given object.
 
     """
@@ -74,11 +78,13 @@ def find(
     Find the first instance of a given type in a given object.
 
     Args:
+    ----
         obj: The object to search.
         of_type: The type(s) to search for or None for any type.
         **kwargs: Attributes of the object to match.
 
     Returns:
+    -------
         The first instance of the given type in the given object or None if not found.
 
     """

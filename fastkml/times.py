@@ -151,6 +151,11 @@ class KmlDateTime:
             resolution = DateTimeResolution.datetime
         return cls(dt, resolution) if dt else None
 
+    @classmethod
+    def get_ns_id(cls) -> str:
+        """Return the namespace ID."""
+        return config.KML
+
 
 class _TimePrimitive(_BaseObject):
     """

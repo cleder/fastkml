@@ -40,7 +40,6 @@ from typing import Optional
 
 from fastkml import config
 from fastkml.base import _XMLObject
-from fastkml.config import ATOMNS as NS
 from fastkml.helpers import attribute_int_kwarg
 from fastkml.helpers import attribute_text_kwarg
 from fastkml.helpers import int_attribute
@@ -83,11 +82,11 @@ class Link(_AtomObject):
     title, and length.
     """
 
-    href: Optional[str]
-    rel: Optional[str]
-    type: Optional[str]
-    hreflang: Optional[str]
-    title: Optional[str]
+    href: str
+    rel: str
+    type: str
+    hreflang: str
+    title: str
     length: Optional[int]
 
     def __init__(
@@ -134,11 +133,11 @@ class Link(_AtomObject):
 
         """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
-        self.href = href
-        self.rel = rel
-        self.type = type
-        self.hreflang = hreflang
-        self.title = title
+        self.href = href or ""
+        self.rel = rel or ""
+        self.type = type or ""
+        self.hreflang = hreflang or ""
+        self.title = title or ""
         self.length = length
 
     def __repr__(self) -> str:
@@ -259,9 +258,9 @@ class _Person(_AtomObject):
 
     """
 
-    name: Optional[str]
-    uri: Optional[str]
-    email: Optional[str]
+    name: str
+    uri: str
+    email: str
 
     def __init__(
         self,
@@ -286,9 +285,9 @@ class _Person(_AtomObject):
 
         """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
-        self.name = name
-        self.uri = uri
-        self.email = email
+        self.name = name.strip() if name else ""
+        self.uri = uri.strip() if uri else ""
+        self.email = email.strip() if email else ""
 
     def __repr__(self) -> str:
         """
@@ -373,4 +372,4 @@ class Contributor(_Person):
     """
 
 
-__all__ = ["Author", "Contributor", "Link", "NS"]
+__all__ = ["Author", "Contributor", "Link"]

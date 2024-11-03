@@ -17,7 +17,8 @@ repos:
       - id: name-tests-test
         exclude: (?x)^(
                 tests/base.py|
-                tests/hypothesis/common.py
+                tests/hypothesis/common.py|
+                tests/hypothesis/strategies.py
             )$
       - id: no-commit-to-branch
       - id: pretty-format-json

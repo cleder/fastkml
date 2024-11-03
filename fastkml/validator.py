@@ -17,6 +17,7 @@
 import logging
 import pathlib
 from functools import lru_cache
+from typing import Final
 from typing import Optional
 
 from fastkml import config
@@ -24,18 +25,23 @@ from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
 
+MUTUAL_EXCLUSIVE: Final = "Only one of element and file_to_validate can be provided."
+REQUIRE_ONE_OF: Final = "Either element or file_to_validate must be provided."
+
 
 @lru_cache(maxsize=16)
 def get_schema_parser(
     schema: Optional[pathlib.Path] = None,
-) -> Optional["config.etree.XMLSchema"]:
+) -> "config.etree.XMLSchema":
     """
     Parse the XML schema.
 
     Args:
+    ----
         schema: The path to the XML schema file.
 
     Returns:
+    -------
         The parsed XML schema.
 
     To clear the cache call get_schema_parser.cache_clear().
@@ -43,10 +49,7 @@ def get_schema_parser(
     """
     if schema is None:
         schema = pathlib.Path(__file__).parent / "schema" / "ogckml22.xsd"
-    try:
-        return config.etree.XMLSchema(config.etree.parse(schema))
-    except AttributeError:
-        return None
+    return config.etree.XMLSchema(config.etree.parse(schema))
 
 
 def validate(
@@ -59,32 +62,33 @@ def validate(
     Validate a KML file against the XML schema.
 
     Args:
+    ----
         schema: The path to the XML schema file.
         element: The element to validate.
         file_to_validate: The file to validate.
 
     Returns:
-        Returns:
+    -------
             True if the file or element is valid.
             Raises an AssertionError if validation fails.
             Returns None if the schema parser is unavailable.
 
     """
     if element is None and file_to_validate is None:
-        raise ValueError("Either element or file_to_validate must be provided.")
+        raise ValueError(REQUIRE_ONE_OF)
     if element is not None and file_to_validate is not None:
-        raise ValueError("Only one of element and file_to_validate can be provided.")
+        raise ValueError(MUTUAL_EXCLUSIVE)
 
-    schema_parser = get_schema_parser(schema)
-
-    if schema_parser is None:
+    try:
+        schema_parser = get_schema_parser(schema)
+    except AttributeError:
         return None
 
     if file_to_validate is not None:
         element = config.etree.parse(file_to_validate)
 
     try:
-        schema_parser.assert_(element)
+        schema_parser.assert_(element)  # noqa: PT009
     except AssertionError:
         log = schema_parser.error_log
         for e in log:
@@ -101,6 +105,10 @@ def validate(
             ).decode(
                 "UTF-8",
             )
-            logger.error("Error <%s> in XML:\n %s", e.message, error_in_xml)
+            logger.error(  # noqa: TRY400
+                "Error <%s> in XML:\n %s",
+                e.message,
+                error_in_xml,
+            )
         raise
     return True

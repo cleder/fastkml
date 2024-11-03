@@ -39,9 +39,9 @@ from pygeoif.hypothesis.strategies import multi_polygons
 import fastkml.geometry
 from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
-from fastkml.validate import validate
+from fastkml.validator import validate
 from tests.base import Lxml
-from tests.hypothesis.common import nc_name
+from tests.hypothesis.strategies import nc_name
 
 eval_locals = {
     "Point": Point,

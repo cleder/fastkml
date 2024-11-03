@@ -65,7 +65,6 @@ from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.kml_base import _BaseObject
 from fastkml.registry import RegistryItem
-from fastkml.registry import known_types
 from fastkml.registry import registry
 from fastkml.types import Element
 
@@ -181,7 +180,7 @@ def subelement_coordinates_kwarg(
     name_spaces: Dict[str, str],  # noqa: ARG001
     node_name: str,  # noqa: ARG001
     kwarg: str,
-    classes: Tuple[known_types, ...],  # noqa: ARG001
+    classes: Tuple[Type[object], ...],  # noqa: ARG001
     strict: bool,
 ) -> Dict[str, LineType]:
     """
@@ -194,7 +193,7 @@ def subelement_coordinates_kwarg(
         name_spaces (Dict[str, str]): A dictionary mapping namespace prefixes to URIs.
         node_name (str): The name of the XML node containing the coordinates.
         kwarg (str): The name of the keyword argument to store the coordinates.
-        classes (Tuple[known_types, ...]): A tuple of known types for validation.
+        classes (Tuple[Type[object], ...]): A tuple of known types for validation.
         strict (bool): A flag indicating whether to raise an error for invalid geometry.
 
     Returns:
@@ -1530,4 +1529,4 @@ def create_kml_geometry(
                 geometry=geom,  # type: ignore[arg-type]
             )
 
-    _unknown_geometry_type(geometry)
+    _unknown_geometry_type(geometry)  # pragma: no cover

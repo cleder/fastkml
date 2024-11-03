@@ -89,7 +89,7 @@ class TestStdLibrary(StdLibrary):
             'rel="alternate" type="text/html" hreflang="en" '
             'title="Title" length="3456" />',
         )
-        assert link.href is None
+        assert link.href == ""
 
     def test_atom_person_ns(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"
@@ -145,14 +145,14 @@ class TestStdLibrary(StdLibrary):
             ns="{http://www.w3.org/2005/Atom}",
         )
 
-        assert a.name is None
+        assert a.name == ""
         assert a.uri == "http://localhost"
         assert a.email == "cl@donotreply.com"
 
     def test_atom_contributor_no_name(self) -> None:
         a = atom.Contributor(uri="http://localhost", email="cl@donotreply.com")
 
-        assert a.name is None
+        assert a.name == ""
         assert "atom:name" not in a.to_string()
 
     def test_atom_contributor_roundtrip(self) -> None:
