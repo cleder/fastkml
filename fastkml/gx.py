@@ -113,7 +113,6 @@ __all__ = [
     "MultiTrack",
     "Track",
     "TrackItem",
-    "multilinestring_to_tracks",
     "track_items_to_geometry",
     "tracks_to_geometry",
 ]
@@ -410,29 +409,6 @@ registry.register(
 )
 
 
-def multilinestring_to_tracks(
-    multilinestring: geo.MultiLineString,
-    ns: Optional[str],
-) -> List[Track]:
-    """
-    Convert a MultiLineString to a list of Track objects.
-
-    Args:
-    ----
-        multilinestring : geo.MultiLineString:
-            The MultiLineString to convert.
-        ns : str, optional:
-            The namespace for the Track objects.
-
-    Returns:
-    -------
-        List[Track]:
-            A list of Track objects.
-
-    """
-    return [Track(ns=ns, geometry=linestring) for linestring in multilinestring.geoms]
-
-
 def tracks_to_geometry(tracks: Iterable[Track]) -> geo.MultiLineString:
     """
     Convert a collection of tracks to a MultiLineString geometry.
@@ -482,7 +458,6 @@ class MultiTrack(_Geometry):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         altitude_mode: Optional[AltitudeMode] = None,
-        geometry: Optional[geo.MultiLineString] = None,
         tracks: Optional[Iterable[Track]] = None,
         interpolate: Optional[bool] = None,
         **kwargs: Any,
@@ -508,11 +483,6 @@ class MultiTrack(_Geometry):
             ValueError: If both geometry and tracks are specified.
 
         """
-        if geometry and tracks:
-            msg = "Cannot specify both geometry and tracks"
-            raise ValueError(msg)
-        if geometry:
-            tracks = multilinestring_to_tracks(geometry, ns=ns)
         self.tracks = list(tracks) if tracks else []
         self.interpolate = interpolate
         super().__init__(
@@ -533,7 +503,6 @@ class MultiTrack(_Geometry):
             f"id={self.id!r}, "
             f"target_id={self.target_id!r}, "
             f"altitude_mode={self.altitude_mode}, "
-            f"geometry={self.geometry!r}, "
             f"tracks={self.tracks!r}, "
             f"interpolate={self.interpolate!r}, "
             f"**{self._get_splat()!r},"

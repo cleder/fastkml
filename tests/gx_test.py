@@ -18,7 +18,6 @@
 import datetime
 
 import pygeoif.geometry as geo
-import pytest
 from dateutil.tz import tzoffset
 from dateutil.tz import tzutc
 
@@ -420,34 +419,6 @@ class TestMultiTrack(StdLibrary):
         assert "coord>" in track.to_string()
         assert "angles>" in track.to_string()
         assert "when>" in track.to_string()
-
-    def test_from_multilinestring_and_tracks(self) -> None:
-        lines = geo.MultiLineString(
-            (((0, 0), (1, 1), (1, 2), (2, 2)), ((0.0, 0.0), (1.0, 2.0))),
-        )
-        track_items = [
-            TrackItem(
-                when=KmlDateTime(
-                    datetime.datetime(
-                        2010,
-                        5,
-                        28,
-                        2,
-                        2,
-                        55,
-                        tzinfo=tzutc(),
-                    ),
-                ),
-                coord=geo.Point(-122.203451, 37.374706, 141.800003),
-                angle=Angle(heading=1.0, tilt=2.0, roll=3.0),
-            ),
-        ]
-
-        with pytest.raises(
-            ValueError,
-            match="^Cannot specify both geometry and tracks$",
-        ):
-            MultiTrack(geometry=lines, tracks=[Track(track_items=track_items)])
 
 
 class TestLxml(Lxml, TestStdLibrary):

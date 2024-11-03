@@ -37,7 +37,7 @@ from tests.hypothesis.common import assert_str_roundtrip_terse
 from tests.hypothesis.common import assert_str_roundtrip_verbose
 from tests.hypothesis.strategies import nc_name
 
-trackitems = st.builds(
+track_items = st.builds(
     TrackItem,
     angle=st.one_of(
         st.one_of(
@@ -72,7 +72,7 @@ class TestGx(Lxml):
         track_items=st.one_of(
             st.none(),
             st.lists(
-                trackitems,
+                track_items,
                 max_size=1,
             ),
         ),
@@ -95,3 +95,47 @@ class TestGx(Lxml):
         assert_str_roundtrip(track)
         assert_str_roundtrip_terse(track)
         assert_str_roundtrip_verbose(track)
+
+    @given(
+        id=st.one_of(st.none(), nc_name()),
+        target_id=st.one_of(st.none(), nc_name()),
+        altitude_mode=st.one_of(st.none(), st.sampled_from(fastkml.enums.AltitudeMode)),
+        tracks=st.one_of(
+            st.none(),
+            st.lists(
+                st.builds(
+                    fastkml.gx.Track,
+                    id=st.one_of(st.none(), nc_name()),
+                    target_id=st.one_of(st.none(), nc_name()),
+                    altitude_mode=st.one_of(
+                        st.none(),
+                        st.sampled_from(fastkml.enums.AltitudeMode),
+                    ),
+                    track_items=st.one_of(
+                        st.none(),
+                        st.lists(
+                            track_items,
+                            max_size=1,
+                        ),
+                    ),
+                ),
+                max_size=1,
+            ),
+        ),
+        interpolate=st.one_of(st.none(), st.booleans()),
+    )
+    def test_fuzz_multi_track(
+        self,
+        id: typing.Optional[str],
+        target_id: typing.Optional[str],
+        altitude_mode: typing.Optional[fastkml.enums.AltitudeMode],
+        tracks: typing.Optional[typing.Iterable[fastkml.gx.Track]],
+        interpolate: typing.Optional[bool],
+    ) -> None:
+        fastkml.gx.MultiTrack(
+            id=id,
+            target_id=target_id,
+            altitude_mode=altitude_mode,
+            tracks=tracks,
+            interpolate=interpolate,
+        )
