@@ -427,6 +427,31 @@ def enum_attribute(
         element.set(node_name, value.value)
 
 
+def datetime_subelement(
+    obj: "_XMLObject",
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Verbosity,
+    default: Optional[str],
+) -> None:
+    """Create the subelement for a KML datetime values."""
+    if value := get_value(
+        obj,
+        attr_name=attr_name,
+        verbosity=verbosity,
+        default=default,
+    ):
+        ns = get_ns(obj, value)
+        subelement = config.etree.SubElement(
+            element,
+            f"{ns}{node_name}",
+        )
+        subelement.text = str(value)
+
+
 def datetime_subelement_list(
     obj: "_XMLObject",
     *,
@@ -1009,6 +1034,36 @@ def attribute_enum_kwarg(
                 element=element,
                 node=element,
                 expected="Enum",
+            )
+    return {}
+
+
+def datetime_subelement_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    name_spaces: Dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: Tuple[Type[object], ...],
+    strict: bool,
+) -> Dict[str, List["KmlDateTime"]]:
+    """Extract a KML datetime from a subelement of an XML element."""
+    cls = classes[0]
+    node = element.find(f"{ns}{node_name}")
+    if node is None:
+        return {}
+    node_text = node.text.strip() if node.text else ""
+    if node_text:
+        try:
+            return {kwarg: cls.parse(node_text)}  # type: ignore[attr-defined]
+        except ValueError as exc:
+            handle_error(
+                error=exc,
+                strict=strict,
+                element=element,
+                node=node,
+                expected="DateTime",
             )
     return {}
 
