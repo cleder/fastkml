@@ -183,8 +183,7 @@ class _ColorStyle(_BaseObject):
     https://developers.google.com/kml/documentation/kmlreference#colorstyle
     """
 
-    id = None
-    color = None
+    color: Optional[str] = None
     # Color and opacity (alpha) values are expressed in hexadecimal notation.
     # The range of values for any one color is 0 to 255 (00 to ff).
     # For alpha, 00 is fully transparent and ff is fully opaque.
@@ -257,6 +256,7 @@ registry.register(
         classes=(str,),
         get_kwarg=subelement_text_kwarg,
         set_element=text_subelement,
+        default="ffffffff",
     ),
 )
 registry.register(
@@ -268,6 +268,7 @@ registry.register(
         classes=(ColorMode,),
         get_kwarg=subelement_enum_kwarg,
         set_element=enum_subelement,
+        default=ColorMode.normal,
     ),
 )
 
@@ -371,6 +372,7 @@ registry.register(
         classes=(float,),
         get_kwarg=attribute_float_kwarg,
         set_element=float_attribute,
+        default=0.5,
     ),
 )
 registry.register(
@@ -382,6 +384,7 @@ registry.register(
         classes=(float,),
         get_kwarg=attribute_float_kwarg,
         set_element=float_attribute,
+        default=0.5,
     ),
 )
 registry.register(
@@ -393,6 +396,7 @@ registry.register(
         classes=(Units,),
         get_kwarg=attribute_enum_kwarg,
         set_element=enum_attribute,
+        default=Units.fraction,
     ),
 )
 registry.register(
@@ -404,6 +408,7 @@ registry.register(
         classes=(Units,),
         get_kwarg=attribute_enum_kwarg,
         set_element=enum_attribute,
+        default=Units.fraction,
     ),
 )
 
@@ -521,6 +526,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=1.0,
     ),
 )
 registry.register(
@@ -532,6 +538,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 registry.register(
@@ -652,6 +659,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=1.0,
     ),
 )
 
@@ -760,6 +768,7 @@ registry.register(
         classes=(bool,),
         get_kwarg=subelement_bool_kwarg,
         set_element=bool_subelement,
+        default=True,
     ),
 )
 registry.register(
@@ -771,6 +780,7 @@ registry.register(
         classes=(bool,),
         get_kwarg=subelement_bool_kwarg,
         set_element=bool_subelement,
+        default=True,
     ),
 )
 
@@ -872,6 +882,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=1.0,
     ),
 )
 
@@ -1023,6 +1034,7 @@ registry.register(
         classes=(str,),
         get_kwarg=subelement_text_kwarg,
         set_element=text_subelement,
+        default="ffffffff",
     ),
 )
 registry.register(
@@ -1034,6 +1046,7 @@ registry.register(
         classes=(str,),
         get_kwarg=subelement_text_kwarg,
         set_element=text_subelement,
+        default="ff000000",
     ),
 )
 registry.register(
@@ -1056,6 +1069,7 @@ registry.register(
         classes=(DisplayMode,),
         get_kwarg=subelement_enum_kwarg,
         set_element=enum_subelement,
+        default=DisplayMode.default,
     ),
 )
 

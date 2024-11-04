@@ -115,10 +115,7 @@ class _XMLObject:
             True if the objects are equal, False otherwise.
 
         """
-        if type(self) is not type(other):
-            return False
-        assert isinstance(other, type(self))  # noqa: S101
-        return self.__dict__ == other.__dict__
+        return self.__dict__ == other.__dict__ if type(self) is type(other) else False
 
     def etree_element(
         self,
@@ -152,6 +149,7 @@ class _XMLObject:
                 node_name=item.node_name,
                 precision=precision,
                 verbosity=verbosity,
+                default=item.default,
             )
         return element
 
@@ -345,7 +343,7 @@ class _XMLObject:
         )
 
     @classmethod
-    def class_from_string(
+    def from_string(
         cls,
         string: str,
         *,

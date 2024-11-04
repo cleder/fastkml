@@ -16,7 +16,10 @@
 
 """Test the geometry classes."""
 import pygeoif.geometry as geo
+import pytest
 
+from fastkml.enums import Verbosity
+from fastkml.exceptions import GeometryError
 from fastkml.geometry import MultiGeometry
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -31,7 +34,7 @@ class TestMultiPointStdLibrary(StdLibrary):
 
         mg = MultiGeometry(geometry=p)
 
-        assert "coordinates>1.000000,2.000000</" in mg.to_string()
+        assert "coordinates>1.000000,2.000000</" in mg.to_string(precision=6)
         assert "MultiGeometry>" in mg.to_string()
         assert "Point>" in mg.to_string()
 
@@ -41,8 +44,8 @@ class TestMultiPointStdLibrary(StdLibrary):
 
         mg = MultiGeometry(geometry=p)
 
-        assert "coordinates>1.000000,2.000000</" in mg.to_string()
-        assert "coordinates>3.000000,4.000000</" in mg.to_string()
+        assert "coordinates>1.000000,2.000000</" in mg.to_string(precision=6)
+        assert "coordinates>3.000000,4.000000</" in mg.to_string(precision=6)
         assert "MultiGeometry>" in mg.to_string()
         assert "Point>" in mg.to_string()
 
@@ -55,7 +58,7 @@ class TestMultiPointStdLibrary(StdLibrary):
             "</kml:coordinates></kml:Point></kml:MultiGeometry>"
         )
 
-        mg = MultiGeometry.class_from_string(xml)
+        mg = MultiGeometry.from_string(xml)
 
         assert mg.geometry == geo.MultiPoint([(1, 2), (3, 4)])
 
@@ -67,7 +70,9 @@ class TestMultiLineStringStdLibrary(StdLibrary):
 
         mg = MultiGeometry(geometry=p)
 
-        assert "coordinates>1.000000,2.000000 3.000000,4.000000</" in mg.to_string()
+        assert "coordinates>1.000000,2.000000 3.000000,4.000000</" in mg.to_string(
+            precision=6,
+        )
         assert "MultiGeometry>" in mg.to_string()
         assert "LineString>" in mg.to_string()
 
@@ -77,8 +82,12 @@ class TestMultiLineStringStdLibrary(StdLibrary):
 
         mg = MultiGeometry(geometry=p)
 
-        assert "coordinates>1.000000,2.000000 3.000000,4.000000</" in mg.to_string()
-        assert "coordinates>5.000000,6.000000 7.000000,8.000000</" in mg.to_string()
+        assert "coordinates>1.000000,2.000000 3.000000,4.000000</" in mg.to_string(
+            precision=6,
+        )
+        assert "coordinates>5.000000,6.000000 7.000000,8.000000</" in mg.to_string(
+            precision=6,
+        )
         assert "MultiGeometry>" in mg.to_string()
         assert "LineString>" in mg.to_string()
 
@@ -92,7 +101,7 @@ class TestMultiLineStringStdLibrary(StdLibrary):
             "</kml:LineString></kml:MultiGeometry>"
         )
 
-        mg = MultiGeometry.class_from_string(xml, ns="")
+        mg = MultiGeometry.from_string(xml, ns="")
 
         assert mg.geometry == geo.MultiLineString([[(1, 2), (3, 4)], [(5, 6), (7, 8)]])
 
@@ -108,7 +117,7 @@ class TestMultiPolygonStdLibrary(StdLibrary):
 
         assert (
             "coordinates>1.000000,2.000000 3.000000,4.000000 5.000000,6.000000 "
-            "1.000000,2.000000</" in mg.to_string()
+            "1.000000,2.000000</" in mg.to_string(precision=6)
         )
         assert "MultiGeometry>" in mg.to_string()
         assert "Polygon>" in mg.to_string()
@@ -129,11 +138,11 @@ class TestMultiPolygonStdLibrary(StdLibrary):
 
         assert (
             "coordinates>0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
-            "1.000000,0.000000 0.000000,0.000000</" in mg.to_string()
+            "1.000000,0.000000 0.000000,0.000000</" in mg.to_string(precision=6)
         )
         assert (
             "coordinates>0.250000,0.250000 0.250000,0.500000 0.500000,0.500000 "
-            "0.500000,0.250000 0.250000,0.250000</" in mg.to_string()
+            "0.500000,0.250000 0.250000,0.250000</" in mg.to_string(precision=6)
         )
         assert "MultiGeometry>" in mg.to_string()
         assert "Polygon>" in mg.to_string()
@@ -156,15 +165,15 @@ class TestMultiPolygonStdLibrary(StdLibrary):
 
         assert (
             "coordinates>0.000000,0.000000 0.000000,1.000000 1.000000,1.000000 "
-            "1.000000,0.000000 0.000000,0.000000</" in mg.to_string()
+            "1.000000,0.000000 0.000000,0.000000</" in mg.to_string(precision=6)
         )
         assert (
             "coordinates>0.100000,0.100000 0.100000,0.200000 0.200000,0.200000 "
-            "0.200000,0.100000 0.100000,0.100000</" in mg.to_string()
+            "0.200000,0.100000 0.100000,0.100000</" in mg.to_string(precision=6)
         )
         assert (
             "coordinates>0.000000,0.000000 0.000000,2.000000 1.000000,1.000000 "
-            "1.000000,0.000000 0.000000,0.000000</" in mg.to_string()
+            "1.000000,0.000000 0.000000,0.000000</" in mg.to_string(precision=6)
         )
         assert "MultiGeometry>" in mg.to_string()
         assert "Polygon>" in mg.to_string()
@@ -189,7 +198,7 @@ class TestMultiPolygonStdLibrary(StdLibrary):
             "</LinearRing></outerBoundaryIs></Polygon></MultiGeometry>"
         )
 
-        mg = MultiGeometry.class_from_string(xml)
+        mg = MultiGeometry.from_string(xml)
 
         assert mg.geometry == geo.MultiPolygon(
             [
@@ -211,7 +220,7 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
 
         mg = MultiGeometry(geometry=p)
 
-        assert "coordinates>1.000000,2.000000</" in mg.to_string()
+        assert "coordinates>1.000000,2.000000</" in mg.to_string(precision=6)
         assert "MultiGeometry>" in mg.to_string()
         assert "Point>" in mg.to_string()
 
@@ -261,6 +270,41 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
         assert "Polygon>" in mg.to_string()
         assert "MultiGeometry>" in mg.to_string()
 
+    def test_multi_geometries_verbose(self) -> None:
+        p = geo.Point(1, 2)
+        ls = geo.LineString(((1, 2), (2, 0)))
+        lr = geo.LinearRing(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)))
+        poly = geo.Polygon(
+            [(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)],
+            [[(0.1, 0.1), (0.1, 0.9), (0.9, 0.9), (0.9, 0.1), (0.1, 0.1)]],
+        )
+        gc = geo.GeometryCollection([p, ls, lr, poly])
+        mp = geo.MultiPolygon(
+            [
+                (
+                    ((0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0.0)),
+                    [((0.1, 0.1), (0.1, 0.2), (0.2, 0.2), (0.2, 0.1))],
+                ),
+                (((0.0, 0.0), (0.0, 2.0), (1.0, 1.0), (1.0, 0.0)),),
+            ],
+        )
+        ml = geo.MultiLineString([[(1, 2), (3, 4)], [(5, 6), (7, 8)]])
+        mgc = geo.GeometryCollection([gc, mp, ml])
+        mg = MultiGeometry(ns="", geometry=mgc)
+
+        xml = mg.to_string(verbosity=Verbosity.verbose)
+        assert xml.count("tessellate>0<") == 12  # points do not have tessellate
+        assert xml.count("extrude>0<") == 13
+        assert xml.count("altitudeMode") == 26
+        assert xml.count(">clampToGround<") == 13
+
+    def test_geometry_error(self) -> None:
+        """Test GeometryError."""
+        p = geo.MultiPoint(((1.0, 2.0),))
+
+        with pytest.raises(GeometryError):
+            MultiGeometry(geometry=p, kml_geometries=(MultiGeometry(geometry=p),))
+
     def test_multi_geometries_read(self) -> None:
         xml = (
             '<MultiGeometry xmlns="http://www.opengis.net/kml/2.2">'
@@ -292,7 +336,7 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
             "</coordinates></LineString></MultiGeometry></MultiGeometry>"
         )
 
-        mg = MultiGeometry.class_from_string(xml)
+        mg = MultiGeometry.from_string(xml)
 
         assert mg.geometry == geo.GeometryCollection(
             (
@@ -365,13 +409,13 @@ class TestGeometryCollectionStdLibrary(StdLibrary):
             "<MultiGeometry></MultiGeometry></MultiGeometry>"
         )
 
-        mg = MultiGeometry.class_from_string(xml)
+        mg = MultiGeometry.from_string(xml)
 
         assert mg.geometry is None
-        assert "MultiGeometry>" in mg.to_string()
-        assert "coordinates>" not in mg.to_string()
-        assert mg.extrude is False
-        assert mg.tessellate is False
+        assert "MultiGeometry" in mg.to_string()
+        assert "coordinates" not in mg.to_string()
+        assert not hasattr(mg, "extrude")
+        assert not hasattr(mg, "tessellate")
 
 
 class TestMultiPointLxml(Lxml, TestMultiPointStdLibrary):

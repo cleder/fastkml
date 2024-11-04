@@ -88,7 +88,7 @@ class TestStdLibrary(StdLibrary):
         ) == '<_BaseObject id="id-0" targetId="target-id-0" />'.replace(" ", "")
 
     def test_from_string(self) -> None:
-        be = kml_base._BaseObject.class_from_string(
+        be = kml_base._BaseObject.from_string(
             string=(
                 '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" '
                 'id="id-0" targetId="target-id-0" />'
@@ -98,7 +98,7 @@ class TestStdLibrary(StdLibrary):
         assert be.target_id == "target-id-0"
 
     def test_from_string_attr_ns_prefix(self) -> None:
-        be = kml_base._BaseObject.class_from_string(
+        be = kml_base._BaseObject.from_string(
             string=(
                 '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" '
                 'kml:id="id-0" kml:targetId="target-id-0" />'
@@ -108,7 +108,7 @@ class TestStdLibrary(StdLibrary):
         assert be.target_id == "target-id-0"
 
     def test_base_class_from_string(self) -> None:
-        be = kml_base._BaseObject.class_from_string(
+        be = kml_base._BaseObject.from_string(
             '<test id="id-0" targetId="td-00" />',
         )
 
@@ -117,7 +117,7 @@ class TestStdLibrary(StdLibrary):
         assert be.ns == "{http://www.opengis.net/kml/2.2}"
 
     def test_base_class_from_empty_string(self) -> None:
-        be = kml_base._BaseObject.class_from_string("<test/>")
+        be = kml_base._BaseObject.from_string("<test/>")
 
         assert be.id == ""
         assert be.target_id == ""
@@ -125,7 +125,7 @@ class TestStdLibrary(StdLibrary):
 
     def test_xml_object_roundtrip(self) -> None:
         obj = base._XMLObject()
-        obj2 = base._XMLObject.class_from_string(obj.to_string(), ns="")
+        obj2 = base._XMLObject.from_string(obj.to_string(), ns="")
 
         assert obj == obj2
         assert str(obj) == obj2.to_string()
@@ -134,7 +134,7 @@ class TestStdLibrary(StdLibrary):
     def test_base_object_roundtrip(self) -> None:
         obj = kml_base._BaseObject(id="id-0", target_id="target-id-0")
 
-        obj2 = kml_base._BaseObject.class_from_string(obj.to_string())
+        obj2 = kml_base._BaseObject.from_string(obj.to_string())
 
         assert obj == obj2
         assert str(obj) == obj2.to_string()
@@ -153,7 +153,7 @@ class TestLxml(Lxml, TestStdLibrary):
         )
 
     def test_from_string(self) -> None:
-        be = kml_base._BaseObject.class_from_string(
+        be = kml_base._BaseObject.from_string(
             string=(
                 '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" '
                 'id="id-0" targetId="target-id-0"/>\n'

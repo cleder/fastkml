@@ -185,6 +185,7 @@ registry.register(
         classes=(int,),
         get_kwarg=attribute_int_kwarg,
         set_element=int_attribute,
+        default=2,
     ),
 )
 
@@ -353,6 +354,7 @@ registry.register(
         classes=(bool,),
         get_kwarg=subelement_bool_kwarg,
         set_element=bool_subelement,
+        default=True,
     ),
 )
 registry.register(
@@ -364,17 +366,7 @@ registry.register(
         classes=(bool,),
         get_kwarg=subelement_bool_kwarg,
         set_element=bool_subelement,
-    ),
-)
-registry.register(
-    _Feature,
-    RegistryItem(
-        ns_ids=("atom",),
-        attr_name="atom_link",
-        node_name="atom:link",
-        classes=(atom.Link,),
-        get_kwarg=xml_subelement_kwarg,
-        set_element=xml_subelement,
+        default=False,
     ),
 )
 registry.register(
@@ -384,6 +376,17 @@ registry.register(
         attr_name="atom_author",
         node_name="atom:author",
         classes=(atom.Author,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        ns_ids=("atom",),
+        attr_name="atom_link",
+        node_name="atom:link",
+        classes=(atom.Link,),
         get_kwarg=xml_subelement_kwarg,
         set_element=xml_subelement,
     ),
@@ -628,7 +631,7 @@ class Placemark(_Feature):
             msg = "You can only specify one of kml_geometry or geometry"
             raise ValueError(msg)
         if geometry:
-            kml_geometry = create_kml_geometry(  # type: ignore[assignment]
+            kml_geometry = create_kml_geometry(
                 geometry=geometry,
                 ns=ns,
                 name_spaces=name_spaces,
@@ -745,7 +748,8 @@ class NetworkLink(_Feature):
     For example, Google Earth would fly to the <LookAt> view of the parent Document,
     not the <LookAt> of the Placemarks contained within the Document.
     <Link>(required)
-       https://developers.google.com/kml/documentation/kmlreference#link
+
+    https://developers.google.com/kml/documentation/kmlreference#networklink
     """
 
     refresh_visibility: Optional[bool]
@@ -921,6 +925,7 @@ registry.register(
         classes=(bool,),
         get_kwarg=subelement_bool_kwarg,
         set_element=bool_subelement,
+        default=False,
     ),
 )
 registry.register(
@@ -932,6 +937,7 @@ registry.register(
         classes=(bool,),
         get_kwarg=subelement_bool_kwarg,
         set_element=bool_subelement,
+        default=False,
     ),
 )
 registry.register(

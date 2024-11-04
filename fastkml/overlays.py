@@ -245,6 +245,7 @@ registry.register(
         classes=(str,),
         get_kwarg=subelement_text_kwarg,
         set_element=text_subelement,
+        default="ffffffff",
     ),
 )
 registry.register(
@@ -256,6 +257,7 @@ registry.register(
         classes=(int,),
         get_kwarg=subelement_int_kwarg,
         set_element=int_subelement,
+        default=0,
     ),
 )
 registry.register(
@@ -394,6 +396,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 registry.register(
@@ -405,6 +408,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 registry.register(
@@ -416,6 +420,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 registry.register(
@@ -427,6 +432,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 registry.register(
@@ -438,6 +444,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 
@@ -562,6 +569,7 @@ registry.register(
         classes=(int,),
         get_kwarg=subelement_int_kwarg,
         set_element=int_subelement,
+        default=256,
     ),
 )
 registry.register(
@@ -595,6 +603,7 @@ registry.register(
         classes=(GridOrigin,),
         get_kwarg=subelement_enum_kwarg,
         set_element=enum_subelement,
+        default=GridOrigin.lower_left,
     ),
 )
 
@@ -831,6 +840,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 registry.register(
@@ -875,6 +885,7 @@ registry.register(
         classes=(Shape,),
         get_kwarg=subelement_enum_kwarg,
         set_element=enum_subelement,
+        default=Shape.rectangle,
     ),
 )
 
@@ -900,6 +911,8 @@ class LatLonBox(_XMLObject):
     <rotation> Specifies a rotation of the overlay about its center, in degrees.
     Values can be ±180. The default is 0 (north).
     Rotations are specified in a counterclockwise direction.
+
+    https://developers.google.com/kml/documentation/kmlreference#latlonbox
     """
 
     _default_nsid = config.KML
@@ -1042,6 +1055,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 
@@ -1246,6 +1260,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 registry.register(
@@ -1257,6 +1272,7 @@ registry.register(
         classes=(AltitudeMode,),
         get_kwarg=subelement_enum_kwarg,
         set_element=enum_subelement,
+        default=AltitudeMode.clamp_to_ground,
     ),
 )
 registry.register(

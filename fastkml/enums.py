@@ -77,7 +77,7 @@ class RelaxedEnum(Enum):
 class Verbosity(Enum):
     """Enum to represent the different verbosity levels."""
 
-    quiet = 0
+    terse = 0
     normal = 1
     verbose = 2
 
@@ -99,34 +99,35 @@ class AltitudeMode(RelaxedEnum):
 
     Specifies how altitude components in the <coordinates> element are interpreted.
     Possible values are
-        - clampToGround - (default) Indicates to ignore an altitude specification
-          (for example, in the <coordinates> tag).
-        - relativeToGround - Sets the altitude of the element relative to the actual
-          ground elevation of a particular location.
-          For example, if the ground elevation of a location is exactly at sea level
-          and the altitude for a point is set to 9 meters,
-          then the elevation for the icon of a point placemark elevation is 9 meters
-          with this mode.
-          However, if the same coordinate is set over a location where the ground
-          elevation is 10 meters above sea level, then the elevation of the coordinate
-          is 19 meters.
-          A typical use of this mode is for placing telephone poles or a ski lift.
-        - absolute - Sets the altitude of the coordinate relative to sea level,
-          regardless of the actual elevation of the terrain beneath the element.
-          For example, if you set the altitude of a coordinate to 10 meters with an
-          absolute altitude mode, the icon of a point placemark will appear to be at
-          ground level if the terrain beneath is also 10 meters above sea level.
-          If the terrain is 3 meters above sea level, the placemark will appear elevated
-          above the terrain by 7 meters.
-          A typical use of this mode is for aircraft placement.
-        - relativeToSeaFloor - Interprets the altitude as a value in meters above the
-          sea floor.
-          If the point is above land rather than sea, the altitude will be interpreted
-          as being above the ground.
-        - clampToSeaFloor - The altitude specification is ignored, and the point will be
-          positioned on the sea floor.
-          If the point is on land rather than at sea, the point will be positioned on
-          the ground.
+
+    - clampToGround - (default) Indicates to ignore an altitude specification
+        (for example, in the <coordinates> tag).
+    - relativeToGround - Sets the altitude of the element relative to the actual
+        ground elevation of a particular location.
+        For example, if the ground elevation of a location is exactly at sea level
+        and the altitude for a point is set to 9 meters,
+        then the elevation for the icon of a point placemark elevation is 9 meters
+        with this mode.
+        However, if the same coordinate is set over a location where the ground
+        elevation is 10 meters above sea level, then the elevation of the coordinate
+        is 19 meters.
+        A typical use of this mode is for placing telephone poles or a ski lift.
+    - absolute - Sets the altitude of the coordinate relative to sea level,
+        regardless of the actual elevation of the terrain beneath the element.
+        For example, if you set the altitude of a coordinate to 10 meters with an
+        absolute altitude mode, the icon of a point placemark will appear to be at
+        ground level if the terrain beneath is also 10 meters above sea level.
+        If the terrain is 3 meters above sea level, the placemark will appear elevated
+        above the terrain by 7 meters.
+        A typical use of this mode is for aircraft placement.
+    - relativeToSeaFloor - Interprets the altitude as a value in meters above the
+        sea floor.
+        If the point is above land rather than sea, the altitude will be interpreted
+        as being above the ground.
+    - clampToSeaFloor - The altitude specification is ignored, and the point will be
+        positioned on the sea floor.
+        If the point is on land rather than at sea, the point will be positioned on
+        the ground.
 
     The Values relativeToSeaFloor and clampToSeaFloor are not part of the KML definition
     but of the  <gx:altitudeMode> a KML extension in the Google extension namespace,
@@ -138,6 +139,15 @@ class AltitudeMode(RelaxedEnum):
     absolute = "absolute"
     clamp_to_sea_floor = "clampToSeaFloor"
     relative_to_sea_floor = "relativeToSeaFloor"
+
+    def get_ns_id(self) -> str:
+        """Get the namespace for the altitude mode."""
+        if self in (
+            AltitudeMode.clamp_to_sea_floor,
+            AltitudeMode.relative_to_sea_floor,
+        ):
+            return "gx"
+        return "kml"
 
 
 @unique
@@ -216,9 +226,9 @@ class Shape(RelaxedEnum):
 
     The PhotoOverlay is projected onto the <shape>.
     The <shape> can be one of the following:
-      - rectangle (default) - for an ordinary photo
-      - cylinder - for panoramas, which can be either partial or full cylinders
-      - sphere - for spherical panoramas
+    - rectangle (default) - for an ordinary photo
+    - cylinder - for panoramas, which can be either partial or full cylinders
+    - sphere - for spherical panoramas
     """
 
     rectangle = "rectangle"

@@ -9,7 +9,7 @@ authors = [
     { email = "christian.ledermann@gmail.com", name = "Christian Ledermann" },
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
     "Operating System :: OS Independent",
@@ -21,6 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: GIS",
     "Topic :: Text Processing :: Markup :: XML",
     "Typing :: Typed",
@@ -46,17 +47,13 @@ complexity = [
     "radon",
 ]
 dev = [
-    "fastkml[complexity]",
-    "fastkml[docs]",
-    "fastkml[linting]",
-    "fastkml[lxml]",
-    "fastkml[tests]",
-    "fastkml[typing]",
+    "fastkml[complexity,docs,linting,lxml,tests,typing]",
     "pre-commit",
     "shapely",
 ]
 docs = [
     "Sphinx",
+    "pyshp",
     "sphinx-autodoc-typehints",
     "sphinx-rtd-theme",
 ]
@@ -77,8 +74,11 @@ lxml = [
     "lxml",
 ]
 tests = [
+    "hypothesis[dateutil]",
     "pytest",
     "pytest-cov",
+    "pytz",
+    "tzdata",
 ]
 typing = [
     "mypy",
@@ -105,7 +105,6 @@ ignore = [
     ".*",
     "examples/*",
     "mutmut_config.py",
-    "test-requirements.txt",
     "tox.ini",
 ]
 
@@ -118,6 +117,7 @@ source = [
 [tool.coverage.report]
 exclude_also = [
     "^\\s*\\.\\.\\.$",
+    "class \\w+\\(Protocol\\)\\:",
     "except AssertionError:",
     "except ImportError:",
     "if TYPE_CHECKING:",
@@ -146,10 +146,6 @@ ignore_errors = false
 ignore_missing_imports = true
 implicit_reexport = false
 no_implicit_optional = true
-overrides = [
-    { disable_error_code = "attr-defined, union-attr", module = "tests.oldunit_test" },
-    { disable_error_code = "union-attr", module = "tests.*" },
-]
 show_error_codes = true
 strict_equality = true
 strict_optional = true
@@ -159,6 +155,18 @@ warn_return_any = true
 warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+disable_error_code = "attr-defined, union-attr"
+module = "tests.oldunit_test"
+
+[[tool.mypy.overrides]]
+disable_error_code = "attr-defined, union-attr, no-untyped-def, no-untyped-call, arg-type"
+module = "examples.*"
+
+[[tool.mypy.overrides]]
+disable_error_code = "union-attr"
+module = "tests.*"
 
 [tool.pyright]
 exclude = [
@@ -187,67 +195,21 @@ ignore = [
     "PLR0913",
 ]
 select = [
-    "A",
-    "AIR",
-    "ANN",
-    "ARG",
-    "ASYNC",
-    "B",
-    "BLE",
-    "C4",
-    "C90",
-    "COM",
-    "CPY",
-    "D",
-    "DJ",
-    "DTZ",
-    "E",
-    "EM",
-    "ERA",
-    "EXE",
-    "F",
-    "FA",
-    "FBT",
-    "FIX",
-    "FLY",
-    "FURB",
-    "G",
-    "I",
-    "ICN",
-    "INP",
-    "INT",
-    "ISC",
-    "LOG",
-    "N",
-    "NPY",
-    "PD",
-    "PERF",
-    "PGH",
-    "PIE",
-    "PL",
-    "PT",
-    "PTH",
-    "PYI",
-    "Q",
-    "RET",
-    "RSE",
-    "RUF",
-    "S",
-    "SIM",
-    "SLF",
-    "SLOT",
-    "T10",
-    "T20",
-    "TCH",
-    "TD",
-    "TID",
-    "TRY",
-    "UP",
-    "W",
-    "YTT",
+    "ALL",
 ]
 
 [tool.ruff.lint.extend-per-file-ignores]
+"examples/*.py" = [
+    "ANN001",
+    "ANN201",
+    "D100",
+    "D104",
+    "D401",
+    "ICN001",
+    "INP001",
+    "S311",
+    "T201",
+]
 "fastkml/helpers.py" = [
     "ARG001",
     "PLR0913",
@@ -262,7 +224,13 @@ select = [
     "SLF001",
 ]
 "tests/oldunit_test.py" = [
+    "D100",
+    "D200",
+    "D401",
     "E501",
+    "FIX",
+    "ICN001",
+    "TD",
 ]
 "tests/repr_eq_test.py" = [
     "E501",

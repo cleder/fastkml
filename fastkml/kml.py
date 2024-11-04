@@ -144,6 +144,7 @@ class KML(_XMLObject):
             node_name="",
             precision=precision,
             verbosity=verbosity,
+            default=None,
         )
         return cast(Element, root)
 
@@ -152,9 +153,6 @@ class KML(_XMLObject):
         kmlobj: kml_children,
     ) -> None:
         """Append a feature."""
-        if kmlobj is self:
-            msg = "Cannot append self"
-            raise ValueError(msg)
         self.features.append(kmlobj)
 
     @classmethod

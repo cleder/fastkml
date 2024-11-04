@@ -32,7 +32,11 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
     "sphinx.ext.napoleon",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.coverage",
+    "sphinx.ext.viewcode",
 ]
+autosummary_generate = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -48,14 +52,14 @@ master_doc = "index"
 
 # General information about the project.
 project = "FastKML"
-copyright = "2014, Christian Ledermann & Ian Lee"
+copyright = "2014 -2024, Christian Ledermann & Ian Lee"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = about.__version__
+version = ".".join(about.__version__.split(".")[:2])
 # The full version, including alpha/beta/rc tags.
 release = about.__version__
 

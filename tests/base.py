@@ -15,7 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Base classes to run the tests both with the std library and lxml."""
-import xml.etree.ElementTree
+import xml.etree.ElementTree as ET
 
 import pytest
 
@@ -27,14 +27,15 @@ except ImportError:  # pragma: no cover
     LXML = False
 
 from fastkml import config
+from fastkml.validator import get_schema_parser
 
 
 class StdLibrary:
     """Configure test to run with the standard library."""
 
     def setup_method(self) -> None:
-        """Always test with the same parser."""
-        config.set_etree_implementation(xml.etree.ElementTree)
+        """Ensure to always test with the standard library xml ElementTree parser."""
+        config.set_etree_implementation(ET)
         config.set_default_namespaces()
 
 
@@ -47,6 +48,7 @@ class Lxml:
     """
 
     def setup_method(self) -> None:
-        """Always test with the same parser."""
+        """Ensure to always test with the lxml parse."""
         config.set_etree_implementation(lxml.etree)
         config.set_default_namespaces()
+        get_schema_parser()

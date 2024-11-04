@@ -65,7 +65,7 @@ class TestStdLibrary(StdLibrary):
             </SimpleField>
           </Schema> """
 
-        s = kml.Schema.class_from_string(doc, ns=None)
+        s = kml.Schema.from_string(doc, ns=None)
 
         assert len(s.fields) == 3
         assert s.fields[0].type == DataType("string")
@@ -77,7 +77,7 @@ class TestStdLibrary(StdLibrary):
         assert s.fields[0].display_name == "<b>Trail Head Name</b>"
         assert s.fields[1].display_name == "<i>The length in miles</i>"
         assert s.fields[2].display_name == "<i>change in altitude</i>"
-        s1 = kml.Schema.class_from_string(s.to_string(), ns=None)
+        s1 = kml.Schema.from_string(s.to_string(), ns=None)
         assert len(s1.fields) == 3
         assert s1.fields[0].type == DataType("string")
         assert s1.fields[1].name == "TrailLength"
@@ -87,11 +87,11 @@ class TestStdLibrary(StdLibrary):
             '<kml xmlns="http://www.opengis.net/kml/2.2">'
             f"<Document>{doc}</Document></kml>"
         )
-        k = kml.KML.class_from_string(doc1, ns=None)
+        k = kml.KML.from_string(doc1, ns=None)
         d = k.features[0]
         s2 = d.schemata[0]
         assert s.to_string() == s2.to_string()
-        k1 = kml.KML.class_from_string(k.to_string())
+        k1 = kml.KML.from_string(k.to_string())
         assert "Schema" in k1.to_string()
         assert "SimpleField" in k1.to_string()
         assert k1.to_string().replace("kml:", "").replace(
@@ -145,7 +145,7 @@ class TestStdLibrary(StdLibrary):
         assert len(p.extended_data.elements) == 2
         k.append(p)
 
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
 
         extended_data = k2.features[0].extended_data
         assert extended_data is not None
@@ -176,7 +176,7 @@ class TestStdLibrary(StdLibrary):
         k.append(d)
         d.append(f)
 
-        k2 = kml.KML.class_from_string(k.to_string())
+        k2 = kml.KML.from_string(k.to_string())
 
         document_data = k2.features[0].extended_data
         folder_data = k2.features[0].features[0].extended_data
@@ -217,7 +217,7 @@ class TestStdLibrary(StdLibrary):
           </Placemark>
         </kml>"""
 
-        k = kml.KML.class_from_string(doc)
+        k = kml.KML.from_string(doc)
 
         extended_data = k.features[0].extended_data
 
@@ -248,7 +248,7 @@ class TestStdLibrary(StdLibrary):
           <SimpleData name="ElevationGain">10</SimpleData>
         </SchemaData>"""
 
-        sd = data.SchemaData.class_from_string(doc)
+        sd = data.SchemaData.from_string(doc)
         assert sd.schema_url == "#TrailHeadTypeId"
         assert sd.data[0].name == "TrailHeadName"
         assert sd.data[0].value == "Pi in the sky"
@@ -256,7 +256,7 @@ class TestStdLibrary(StdLibrary):
         assert sd.data[1].value == "3.14159"
         assert sd.data[2].name == "ElevationGain"
         assert sd.data[2].value == "10"
-        sd1 = data.SchemaData.class_from_string(sd.to_string())
+        sd1 = data.SchemaData.from_string(sd.to_string())
         assert sd1.schema_url == "#TrailHeadTypeId"
         assert sd.to_string() == sd1.to_string()
 
@@ -268,12 +268,12 @@ class TestStdLibrary(StdLibrary):
           <value>1</value>
         </Data>"""
 
-        d = data.Data.class_from_string(doc)
+        d = data.Data.from_string(doc)
         assert d.name == "holeNumber"
         assert d.value == "1"
         assert isinstance(d.display_name, str)
         assert "<b>This is hole </b>" in d.display_name
-        d1 = data.Data.class_from_string(d.to_string())
+        d1 = data.Data.from_string(d.to_string())
         assert d1.name == "holeNumber"
         assert d.to_string() == d1.to_string()
 

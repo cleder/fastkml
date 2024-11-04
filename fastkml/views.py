@@ -25,8 +25,10 @@ from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
 from fastkml.helpers import enum_subelement
 from fastkml.helpers import float_subelement
+from fastkml.helpers import int_subelement
 from fastkml.helpers import subelement_enum_kwarg
 from fastkml.helpers import subelement_float_kwarg
+from fastkml.helpers import subelement_int_kwarg
 from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.kml_base import _BaseObject
@@ -180,6 +182,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 registry.register(
@@ -191,6 +194,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 registry.register(
@@ -202,6 +206,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 registry.register(
@@ -213,6 +218,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 registry.register(
@@ -224,6 +230,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 registry.register(
@@ -235,6 +242,7 @@ registry.register(
         classes=(AltitudeMode,),
         get_kwarg=subelement_enum_kwarg,
         set_element=enum_subelement,
+        default=AltitudeMode.clamp_to_ground,
     ),
 )
 registry.register(
@@ -271,6 +279,8 @@ class Camera(_AbstractView):
     Time values in Camera affect historical imagery, sunlight, and the display of
     time-stamped features. For more information, read Time with AbstractViews in
     the Time and Animation chapter of the Developer's Guide.
+
+    https://developers.google.com/kml/documentation/kmlreference#camera
     """
 
     roll: Optional[float]
@@ -289,7 +299,7 @@ class Camera(_AbstractView):
         heading: Optional[float] = None,
         tilt: Optional[float] = None,
         roll: Optional[float] = None,
-        altitude_mode: AltitudeMode = AltitudeMode.relative_to_ground,
+        altitude_mode: Optional[AltitudeMode] = None,
         time_primitive: Union[TimeSpan, TimeStamp, None] = None,
         **kwargs: Any,
     ) -> None:
@@ -364,6 +374,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 
@@ -395,7 +406,7 @@ class LookAt(_AbstractView):
         heading: Optional[float] = None,
         tilt: Optional[float] = None,
         range: Optional[float] = None,
-        altitude_mode: AltitudeMode = AltitudeMode.relative_to_ground,
+        altitude_mode: Optional[AltitudeMode] = None,
         time_primitive: Union[TimeSpan, TimeStamp, None] = None,
         **kwargs: Any,
     ) -> None:
@@ -624,6 +635,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 registry.register(
@@ -635,6 +647,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 registry.register(
@@ -646,6 +659,7 @@ registry.register(
         classes=(AltitudeMode,),
         get_kwarg=subelement_enum_kwarg,
         set_element=enum_subelement,
+        default=AltitudeMode.clamp_to_ground,
     ),
 )
 
@@ -664,19 +678,19 @@ class Lod(_XMLObject):
 
     _default_nsid = config.KML
 
-    min_lod_pixels: Optional[float]
-    max_lod_pixels: Optional[float]
-    min_fade_extent: Optional[float]
-    max_fade_extent: Optional[float]
+    min_lod_pixels: Optional[int]
+    max_lod_pixels: Optional[int]
+    min_fade_extent: Optional[int]
+    max_fade_extent: Optional[int]
 
     def __init__(
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
-        min_lod_pixels: Optional[float] = None,
-        max_lod_pixels: Optional[float] = None,
-        min_fade_extent: Optional[float] = None,
-        max_fade_extent: Optional[float] = None,
+        min_lod_pixels: Optional[int] = None,
+        max_lod_pixels: Optional[int] = None,
+        min_fade_extent: Optional[int] = None,
+        max_fade_extent: Optional[int] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -737,8 +751,9 @@ registry.register(
         attr_name="min_lod_pixels",
         node_name="minLodPixels",
         classes=(float,),
-        get_kwarg=subelement_float_kwarg,
-        set_element=float_subelement,
+        get_kwarg=subelement_int_kwarg,
+        set_element=int_subelement,
+        default=256,
     ),
 )
 registry.register(
@@ -748,8 +763,9 @@ registry.register(
         attr_name="max_lod_pixels",
         node_name="maxLodPixels",
         classes=(float,),
-        get_kwarg=subelement_float_kwarg,
-        set_element=float_subelement,
+        get_kwarg=subelement_int_kwarg,
+        set_element=int_subelement,
+        default=-1,
     ),
 )
 registry.register(
@@ -761,6 +777,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0,
     ),
 )
 registry.register(
@@ -772,6 +789,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0,
     ),
 )
 

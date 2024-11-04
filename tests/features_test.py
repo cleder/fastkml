@@ -71,11 +71,14 @@ class TestStdLibrary(StdLibrary):
         pt = geo.Point(10, 20)
         point = geometry.Point(geometry=pt)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match="^You can only specify one of kml_geometry or geometry$",
+        ):
             features.Placemark(geometry=pt, kml_geometry=point)
 
     def test_network_link_with_link_parameter_only(self) -> None:
-        """NetworkLink object with Link parameter only"""
+        """Test NetworkLink object with Link parameter only."""
         network_link = features.NetworkLink(
             link=links.Link(href="http://example.com/kml_file.kml"),
         )
@@ -155,7 +158,7 @@ class TestStdLibrary(StdLibrary):
             "</kml:NetworkLink>"
         )
 
-        network_link = features.NetworkLink.class_from_string(doc)
+        network_link = features.NetworkLink.from_string(doc)
 
         assert network_link.name == "My NetworkLink"
         assert network_link.visibility
@@ -170,6 +173,7 @@ class TestStdLibrary(StdLibrary):
         assert network_link.address == "123 Main St"
         assert network_link.phone_number == "555-1234"
         assert network_link.snippet.text == "This is a snippet"
+        assert bool(network_link.snippet)
         assert network_link.description == "This is a description"
         assert network_link.view.latitude == 37.0
         assert network_link.view.longitude == -122.0

@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13-dev', '3.14-dev']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14-dev']
 
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13-dev']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
 
     steps:
       - uses: actions/checkout@v4
@@ -43,7 +43,7 @@ jobs:
           pip install -e ".[tests, lxml]"
       - name: Test with pytest
         run: |
-          pytest tests --cov=fastkml --cov=tests --cov-fail-under=88 --cov-report=xml
+          pytest tests --cov=fastkml --cov=tests --cov-fail-under=95 --cov-report=xml
       - name: "Upload coverage to Codecov"
         if: ${{ matrix.python-version==3.11 }}
         uses: codecov/codecov-action@v4
@@ -67,10 +67,18 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip wheel
-          pip install -e ".[tests, lxml]"
+          pip install -e ".[tests, lxml, docs]"
       - name: test the pythoncode in the documentation
         run: |
           python -m doctest docs/*.rst -v
+      - name: Run the pythoncode in the examples
+        run: |
+          python examples/read_kml.py
+          python examples/shp2kml.py
+          python examples/shp2kml_timed.py
+          python examples/simple_example.py
+          python examples/transform_cascading_style.py
+
 
   static-tests:
     runs-on: ubuntu-latest
@@ -122,39 +130,69 @@ jobs:
         run: |
           pytest tests
 
-  publish:
-    if: "github.event_name == 'push' && github.repository == 'cleder/fastkml'"
-    needs: [cpython, static-tests, pypy, cpython-lxml, doctest-lxml]
-    name: Build and publish to PyPI and TestPyPI
+  build-package:
+    name: Build & inspect our package.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: hynek/build-and-inspect-python-package@v2
+      - uses: actions/setup-python@v5
         with:
-          python-version: 3.12
-      - name: Install pypa/build
-        run: >-
-          python -m
-          pip install
-          build
-          --user
-      - name: Build a binary wheel and a source tarball
-        run: >-
-          python -m
-          build
-          --sdist
-          --wheel
-          --outdir dist/
-      - name: Publish distribution 📦 to Test PyPI for tags
-        if: startsWith(github.ref, 'refs/tags')
+          python-version: '3.12'
+      - name: Check with pyroma
+        run: |
+          python -m pip install pyroma
+          pyroma .
+      - name: Check tag name
+        if: >-
+          github.event_name == 'push' &&
+          startsWith(github.ref, 'refs/tags')
+        run: |
+          python -m pip install vercheck
+          vercheck $GITHUB_REF_NAME fastkml/about.py
+
+  test-publish:
+    if: >-
+      github.event_name == 'push' &&
+      github.repository == 'cleder/fastkml' &&
+      startsWith(github.ref, 'refs/tags')
+    needs: [cpython, static-tests, pypy, cpython-lxml, doctest-lxml, build-package]
+    name: Test install on TestPyPI
+    runs-on: ubuntu-latest
+    environment: test-release
+    permissions:
+      id-token: write
+    steps:
+      - name: Download packages built by build-package
+        uses: actions/download-artifact@v4
+        with:
+          name: Packages
+          path: dist
+
+      - name: Upload package to Test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-          repository_url: https://test.pypi.org/legacy/
+          repository-url: https://test.pypi.org/legacy/
+
+
+  publish:
+    if: >-
+        github.event_name == 'push' &&
+        github.repository == 'cleder/fastkml' &&
+        github.ref == 'refs/heads/main'
+    needs: [cpython, static-tests, pypy, cpython-lxml, doctest-lxml, build-package]
+    name: Publish to PyPI on push to main
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
+    steps:
+      - name: Download packages built by build-package
+        uses: actions/download-artifact@v4
+        with:
+          name: Packages
+          path: dist
+
       - name: Publish distribution 📦 to PyPI for push to main
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
 ...

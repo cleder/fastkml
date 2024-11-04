@@ -13,7 +13,15 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-"""Date and time handling in KML."""
+"""
+Date and time handling in KML.
+
+Any Feature in KML can have time data associated with it.
+This time data has the effect of restricting the visibility of the data set to a given
+time period or point in time.
+
+https://developers.google.com/kml/documentation/time
+"""
 import re
 from datetime import date
 from datetime import datetime
@@ -26,12 +34,14 @@ import arrow
 
 from fastkml import config
 from fastkml.enums import DateTimeResolution
-from fastkml.enums import Verbosity
+from fastkml.helpers import datetime_subelement
+from fastkml.helpers import datetime_subelement_kwarg
 from fastkml.kml_base import _BaseObject
-from fastkml.types import Element
+from fastkml.registry import RegistryItem
+from fastkml.registry import registry
 
 # regular expression to parse a gYearMonth string
-# year and month may be separated by a dash or not
+# year and month may be separated by an optional dash
 # year is always 4 digits, month is always 2 digits
 year_month_day = re.compile(
     r"^(?P<year>\d{4})(?:-)?(?P<month>\d{2})?(?:-)?(?P<day>\d{2})?$",
@@ -143,6 +153,11 @@ class KmlDateTime:
             resolution = DateTimeResolution.datetime
         return cls(dt, resolution) if dt else None
 
+    @classmethod
+    def get_ns_id(cls) -> str:
+        """Return the namespace ID."""
+        return config.KML
+
 
 class _TimePrimitive(_BaseObject):
     """
@@ -154,7 +169,11 @@ class _TimePrimitive(_BaseObject):
 
 
 class TimeStamp(_TimePrimitive):
-    """Represents a single moment in time."""
+    """
+    Represents a single moment in time.
+
+    https://developers.google.com/kml/documentation/kmlreference#timestamp
+    """
 
     def __init__(
         self,
@@ -214,55 +233,26 @@ class TimeStamp(_TimePrimitive):
         """Return True if the timestamp is valid."""
         return bool(self.timestamp)
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        """
-        Create an ElementTree element representing the TimeStamp object.
 
-        Args:
-        ----
-            precision (Optional[int]): The precision of the timestamp.
-            verbosity (Verbosity): The verbosity level of the element.
-
-        Returns:
-        -------
-            Element: The ElementTree element representing the TimeStamp object.
-
-        """
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        when = config.etree.SubElement(
-            element,
-            f"{self.ns}when",
-        )
-        when.text = str(self.timestamp)
-        return element
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        when = element.find(f"{ns}when")
-        if when is not None:
-            kwargs["timestamp"] = KmlDateTime.parse(when.text)
-        return kwargs
+registry.register(
+    TimeStamp,
+    item=RegistryItem(
+        ns_ids=("kml", "gx", ""),
+        classes=(KmlDateTime,),
+        attr_name="timestamp",
+        node_name="when",
+        get_kwarg=datetime_subelement_kwarg,
+        set_element=datetime_subelement,
+    ),
+)
 
 
 class TimeSpan(_TimePrimitive):
-    """Represents an extent in time bounded by begin and end dateTimes."""
+    """
+    Represents an extent in time bounded by begin and end dateTimes.
+
+    https://developers.google.com/kml/documentation/kmlreference#timespan
+    """
 
     def __init__(
         self,
@@ -321,60 +311,26 @@ class TimeSpan(_TimePrimitive):
         """Return True if the begin or end date is valid."""
         return bool(self.begin) or bool(self.end)
 
-    def etree_element(
-        self,
-        precision: Optional[int] = None,
-        verbosity: Verbosity = Verbosity.normal,
-    ) -> Element:
-        """
-        Create an Element object representing the time interval.
 
-        Args:
-        ----
-            precision (Optional[int]): The precision of the time values.
-            verbosity (Verbosity): The verbosity level for the element.
-
-        Returns:
-        -------
-            Element: The created Element object.
-
-        """
-        element = super().etree_element(precision=precision, verbosity=verbosity)
-        if self.begin is not None:  # noqa: SIM102
-            if text := str(self.begin):
-                begin = config.etree.SubElement(
-                    element,
-                    f"{self.ns}begin",
-                )
-                begin.text = text
-        if self.end is not None:  # noqa: SIM102
-            if text := str(self.end):
-                end = config.etree.SubElement(
-                    element,
-                    f"{self.ns}end",
-                )
-                end.text = text
-        return element
-
-    @classmethod
-    def _get_kwargs(
-        cls,
-        *,
-        ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
-        element: Element,
-        strict: bool,
-    ) -> Dict[str, Any]:
-        kwargs = super()._get_kwargs(
-            ns=ns,
-            name_spaces=name_spaces,
-            element=element,
-            strict=strict,
-        )
-        begin = element.find(f"{ns}begin")
-        if begin is not None:
-            kwargs["begin"] = KmlDateTime.parse(begin.text)
-        end = element.find(f"{ns}end")
-        if end is not None:
-            kwargs["end"] = KmlDateTime.parse(end.text)
-        return kwargs
+registry.register(
+    TimeSpan,
+    item=RegistryItem(
+        ns_ids=("kml", "gx", ""),
+        classes=(KmlDateTime,),
+        attr_name="begin",
+        node_name="begin",
+        get_kwarg=datetime_subelement_kwarg,
+        set_element=datetime_subelement,
+    ),
+)
+registry.register(
+    TimeSpan,
+    item=RegistryItem(
+        ns_ids=("kml", "gx", ""),
+        classes=(KmlDateTime,),
+        attr_name="end",
+        node_name="end",
+        get_kwarg=datetime_subelement_kwarg,
+        set_element=datetime_subelement,
+    ),
+)

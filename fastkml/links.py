@@ -44,14 +44,14 @@ class Link(_BaseObject):
     https://developers.google.com/kml/documentation/kmlreference#link
     """
 
-    href: Optional[str]
+    href: str
     refresh_mode: Optional[RefreshMode]
     refresh_interval: Optional[float]
     view_refresh_mode: Optional[ViewRefreshMode]
     view_refresh_time: Optional[float]
     view_bound_scale: Optional[float]
-    view_format: Optional[str]
-    http_query: Optional[str]
+    view_format: str
+    http_query: str
 
     def __init__(
         self,
@@ -77,14 +77,14 @@ class Link(_BaseObject):
             target_id=target_id,
             **kwargs,
         )
-        self.href = href
+        self.href = href or ""
         self.refresh_mode = refresh_mode
         self.refresh_interval = refresh_interval
         self.view_refresh_mode = view_refresh_mode
         self.view_refresh_time = view_refresh_time
         self.view_bound_scale = view_bound_scale
-        self.view_format = view_format
-        self.http_query = http_query
+        self.view_format = view_format or ""
+        self.http_query = http_query or ""
 
     def __repr__(self) -> str:
         """Create a string (c)representation for Link."""
@@ -134,44 +134,12 @@ registry.register(
     Link,
     RegistryItem(
         ns_ids=("kml",),
-        attr_name="view_format",
-        node_name="viewFormat",
-        classes=(str,),
-        get_kwarg=subelement_text_kwarg,
-        set_element=text_subelement,
-    ),
-)
-registry.register(
-    Link,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="http_query",
-        node_name="httpQuery",
-        classes=(str,),
-        get_kwarg=subelement_text_kwarg,
-        set_element=text_subelement,
-    ),
-)
-registry.register(
-    Link,
-    RegistryItem(
-        ns_ids=("kml",),
         attr_name="refresh_mode",
         node_name="refreshMode",
         classes=(RefreshMode,),
         get_kwarg=subelement_enum_kwarg,
         set_element=enum_subelement,
-    ),
-)
-registry.register(
-    Link,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="view_refresh_mode",
-        node_name="viewRefreshMode",
-        classes=(ViewRefreshMode,),
-        get_kwarg=subelement_enum_kwarg,
-        set_element=enum_subelement,
+        default=RefreshMode.on_change,
     ),
 )
 registry.register(
@@ -183,6 +151,19 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=4.0,
+    ),
+)
+registry.register(
+    Link,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="view_refresh_mode",
+        node_name="viewRefreshMode",
+        classes=(ViewRefreshMode,),
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+        default=ViewRefreshMode.never,
     ),
 )
 registry.register(
@@ -194,6 +175,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=4.0,
     ),
 )
 registry.register(
@@ -205,6 +187,30 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=1.0,
+    ),
+)
+registry.register(
+    Link,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="view_format",
+        node_name="viewFormat",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+        default="BBOX=[bboxWest],[bboxSouth],[bboxEast],[bboxNorth]",
+    ),
+)
+registry.register(
+    Link,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="http_query",
+        node_name="httpQuery",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
     ),
 )
 

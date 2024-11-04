@@ -1,17 +1,14 @@
-fastkml package
+===============
+Reference Guide
 ===============
 
-Module contents
----------------
+.. toctree::
+   :maxdepth: 4
+
+
 
 .. automodule:: fastkml
-   :members:
-   :undoc-members:
-   :no-index:
 
-
-Submodules
-----------
 
 fastkml.about module
 --------------------
@@ -45,6 +42,14 @@ fastkml.config module
    :undoc-members:
    :show-inheritance:
 
+fastkml.containers module
+-------------------------
+
+.. automodule:: fastkml.containers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 fastkml.data module
 -------------------
 
@@ -65,6 +70,14 @@ fastkml.exceptions module
 -------------------------
 
 .. automodule:: fastkml.exceptions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fastkml.features module
+-----------------------
+
+.. automodule:: fastkml.features
    :members:
    :undoc-members:
    :show-inheritance:
@@ -100,12 +113,43 @@ fastkml.kml module
    :members:
    :undoc-members:
    :show-inheritance:
-   :no-index: StyleUrl
+
+fastkml.kml\_base module
+------------------------
+
+.. automodule:: fastkml.kml_base
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fastkml.links module
+--------------------
+
+.. automodule:: fastkml.links
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 fastkml.mixins module
 ---------------------
 
 .. automodule:: fastkml.mixins
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fastkml.overlays module
+-----------------------
+
+.. automodule:: fastkml.overlays
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fastkml.registry module
+-----------------------
+
+.. automodule:: fastkml.registry
    :members:
    :undoc-members:
    :show-inheritance:
@@ -130,6 +174,14 @@ fastkml.types module
 --------------------
 
 .. automodule:: fastkml.types
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fastkml.utils module
+--------------------
+
+.. automodule:: fastkml.utils
    :members:
    :undoc-members:
    :show-inheritance:

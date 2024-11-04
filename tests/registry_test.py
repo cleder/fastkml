@@ -20,22 +20,12 @@ from typing import Dict
 from typing import Optional
 from typing import Tuple
 from typing import Type
-from typing import Union
 
 from fastkml.base import _XMLObject
 from fastkml.enums import Verbosity
 from fastkml.registry import Registry
 from fastkml.registry import RegistryItem
 from fastkml.types import Element
-
-known_types = Union[
-    Type[_XMLObject],
-    Type[Enum],
-    Type[bool],
-    Type[int],
-    Type[str],
-    Type[float],
-]
 
 
 class A(_XMLObject):
@@ -66,6 +56,7 @@ def set_element(
     node_name: str,
     precision: Optional[int],
     verbosity: Optional[Verbosity],
+    default: Any,
 ) -> None:
     """Get an attribute from an XML object."""
 
@@ -77,7 +68,7 @@ def get_kwarg(  # type: ignore[empty-body]
     name_spaces: Dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[known_types, ...],
+    classes: Tuple[Type[object], ...],
     strict: bool,
 ) -> Dict[str, Any]:
     """Get the kwarg for the constructor from the element."""
