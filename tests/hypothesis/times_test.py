@@ -40,7 +40,7 @@ class TestTimes(Lxml):
     @given(
         id=st.one_of(st.none(), nc_name()),
         target_id=st.one_of(st.none(), nc_name()),
-        timestamp=kml_datetimes(),
+        timestamp=st.one_of(st.none(), kml_datetimes()),
     )
     def test_fuzz_time_stamp(
         self,
@@ -58,8 +58,8 @@ class TestTimes(Lxml):
     @given(
         id=st.one_of(st.none(), nc_name()),
         target_id=st.one_of(st.none(), nc_name()),
-        begin=kml_datetimes(),
-        end=kml_datetimes(),
+        begin=st.one_of(st.none(), kml_datetimes()),
+        end=st.one_of(st.none(), kml_datetimes()),
     )
     def test_fuzz_time_span(
         self,
