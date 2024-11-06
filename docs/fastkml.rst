@@ -2,15 +2,10 @@
 Reference Guide
 ===============
 
-.. toctree::
-   :maxdepth: 4
-
-
-
 .. automodule:: fastkml
 
 
-fastkml.about module
+fastkml.about
 --------------------
 
 .. automodule:: fastkml.about
@@ -18,7 +13,7 @@ fastkml.about module
    :undoc-members:
    :show-inheritance:
 
-fastkml.atom module
+fastkml.atom
 -------------------
 
 .. automodule:: fastkml.atom
@@ -26,7 +21,7 @@ fastkml.atom module
    :undoc-members:
    :show-inheritance:
 
-fastkml.base module
+fastkml.base
 -------------------
 
 .. automodule:: fastkml.base
@@ -34,7 +29,7 @@ fastkml.base module
    :undoc-members:
    :show-inheritance:
 
-fastkml.config module
+fastkml.config
 ---------------------
 
 .. automodule:: fastkml.config
@@ -42,7 +37,7 @@ fastkml.config module
    :undoc-members:
    :show-inheritance:
 
-fastkml.containers module
+fastkml.containers
 -------------------------
 
 .. automodule:: fastkml.containers
@@ -50,7 +45,7 @@ fastkml.containers module
    :undoc-members:
    :show-inheritance:
 
-fastkml.data module
+fastkml.data
 -------------------
 
 .. automodule:: fastkml.data
@@ -58,7 +53,7 @@ fastkml.data module
    :undoc-members:
    :show-inheritance:
 
-fastkml.enums module
+fastkml.enums
 --------------------
 
 .. automodule:: fastkml.enums
@@ -66,7 +61,7 @@ fastkml.enums module
    :undoc-members:
    :show-inheritance:
 
-fastkml.exceptions module
+fastkml.exceptions
 -------------------------
 
 .. automodule:: fastkml.exceptions
@@ -74,7 +69,7 @@ fastkml.exceptions module
    :undoc-members:
    :show-inheritance:
 
-fastkml.features module
+fastkml.features
 -----------------------
 
 .. automodule:: fastkml.features
@@ -82,7 +77,7 @@ fastkml.features module
    :undoc-members:
    :show-inheritance:
 
-fastkml.geometry module
+fastkml.geometry
 -----------------------
 
 .. automodule:: fastkml.geometry
@@ -90,7 +85,7 @@ fastkml.geometry module
    :undoc-members:
    :show-inheritance:
 
-fastkml.gx module
+fastkml.gx
 -----------------
 
 .. automodule:: fastkml.gx
@@ -98,7 +93,7 @@ fastkml.gx module
    :undoc-members:
    :show-inheritance:
 
-fastkml.helpers module
+fastkml.helpers
 ----------------------
 
 .. automodule:: fastkml.helpers
@@ -106,7 +101,7 @@ fastkml.helpers module
    :undoc-members:
    :show-inheritance:
 
-fastkml.kml module
+fastkml.kml
 ------------------
 
 .. automodule:: fastkml.kml
@@ -114,7 +109,7 @@ fastkml.kml module
    :undoc-members:
    :show-inheritance:
 
-fastkml.kml\_base module
+fastkml.kml\_base
 ------------------------
 
 .. automodule:: fastkml.kml_base
@@ -122,7 +117,7 @@ fastkml.kml\_base module
    :undoc-members:
    :show-inheritance:
 
-fastkml.links module
+fastkml.links
 --------------------
 
 .. automodule:: fastkml.links
@@ -130,7 +125,7 @@ fastkml.links module
    :undoc-members:
    :show-inheritance:
 
-fastkml.mixins module
+fastkml.mixins
 ---------------------
 
 .. automodule:: fastkml.mixins
@@ -138,7 +133,7 @@ fastkml.mixins module
    :undoc-members:
    :show-inheritance:
 
-fastkml.overlays module
+fastkml.overlays
 -----------------------
 
 .. automodule:: fastkml.overlays
@@ -146,7 +141,7 @@ fastkml.overlays module
    :undoc-members:
    :show-inheritance:
 
-fastkml.registry module
+fastkml.registry
 -----------------------
 
 .. automodule:: fastkml.registry
@@ -154,7 +149,7 @@ fastkml.registry module
    :undoc-members:
    :show-inheritance:
 
-fastkml.styles module
+fastkml.styles
 ---------------------
 
 .. automodule:: fastkml.styles
@@ -162,7 +157,7 @@ fastkml.styles module
    :undoc-members:
    :show-inheritance:
 
-fastkml.times module
+fastkml.times
 --------------------
 
 .. automodule:: fastkml.times
@@ -170,7 +165,7 @@ fastkml.times module
    :undoc-members:
    :show-inheritance:
 
-fastkml.types module
+fastkml.types
 --------------------
 
 .. automodule:: fastkml.types
@@ -178,7 +173,7 @@ fastkml.types module
    :undoc-members:
    :show-inheritance:
 
-fastkml.utils module
+fastkml.utils
 --------------------
 
 .. automodule:: fastkml.utils
@@ -186,7 +181,16 @@ fastkml.utils module
    :undoc-members:
    :show-inheritance:
 
-fastkml.views module
+fastkml.validator
+--------------------
+
+.. automodule:: fastkml.validator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+fastkml.views
 --------------------
 
 .. automodule:: fastkml.views

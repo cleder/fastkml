@@ -1,5 +1,11 @@
 ---
+default_language_version:
+    python: python3.12
 repos:
+  - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
+    rev: v1.6.1
+    hooks:
+      - id: check-pre-commit-ci-config
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
@@ -36,18 +42,11 @@ repos:
     rev: v0.3.1
     hooks:
       - id: absolufy-imports
-  - repo: https://github.com/psf/black
-    rev: 24.10.0
-    hooks:
-      - id: black
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: 'v0.7.2'
     hooks:
       - id: ruff
+      - id: ruff-format
   - repo: https://github.com/PyCQA/flake8
     rev: 7.1.1
     hooks:

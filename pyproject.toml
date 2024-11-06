@@ -179,6 +179,12 @@ include = [
     "fastkml",
 ]
 
+[tool.rstcheck]
+ignore_directives = [
+    "automodule",
+]
+report_level = "WARNING"
+
 [tool.ruff]
 fix = true
 target-version = "py38"

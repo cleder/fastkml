@@ -108,7 +108,9 @@ Requirements
 Optional
 ---------
 
-* lxml_::
+* lxml_:
+
+.. code-block:: bash
 
     pip install --pre "fastkml[lxml]"
 
