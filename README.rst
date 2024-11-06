@@ -28,7 +28,7 @@ Fastkml is continually tested
     :target: https://github.com/cleder/fastkml/actions/workflows/run-all-tests.yml
     :alt: Test
 
-.. |cov| image:: http://codecov.io/github/cleder/fastkml/coverage.svg?branch=main
+.. |cov| image:: https://codecov.io/gh/cleder/fastkml/branch/main/graph/badge.svg?token=VIuhPHq0ow
     :target: http://codecov.io/github/cleder/fastkml?branch=main
     :alt: codecov.io
 
