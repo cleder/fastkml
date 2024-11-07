@@ -27,6 +27,7 @@ http://schemas.opengis.net/kml/.
 """
 import logging
 from pathlib import Path
+import pathlib
 from typing import IO
 from typing import Any
 from typing import AnyStr
@@ -122,7 +123,7 @@ class KML(_XMLObject):
         """
         # self.ns may be empty, which leads to unprefixed kml elements.
         # However, in this case the xlmns should still be mentioned on the kml
-        # element, just without prefix.
+        # element, just without prefix."""
         if not self.ns:
             root = config.etree.Element(
                 f"{self.ns}{self.get_tag_name()}",
@@ -164,26 +165,6 @@ class KML(_XMLObject):
         name_spaces: Optional[Dict[str, str]] = None,
         strict: bool = True,
     ) -> Self:
-        """
-        Parse a KML file and return a KML object.
-
-        Args:
-        ----
-            file: The file to parse.
-                Can be a file path (str or Path), or a file-like object.
-
-        Keyword Args:
-        ------------
-            ns (Optional[str]): The namespace of the KML file.
-                If not provided, it will be inferred from the root element.
-            name_spaces (Optional[Dict[str, str]]): Additional namespaces.
-            strict (bool): Whether to enforce strict parsing rules. Defaults to True.
-
-        Returns:
-        -------
-            KML object: The parsed KML object.
-
-        """
         try:
             tree = config.etree.parse(
                 file,
@@ -207,6 +188,27 @@ class KML(_XMLObject):
             strict=strict,
             element=root,
         )
+
+    def write(
+            self,
+            file_name:pathlib.Path,
+            *,
+            prettyprint:bool=False,
+            xml_declaration:bool=False
+        ) -> None:
+        
+        element = self.etree_element()
+        
+        tree = config.etree.tostring(
+            element,
+            encoding="UTF-8",
+            pretty_print=prettyprint,
+        ).decode(
+            "UTF-8",
+        )
+
+        with open(file_name, "wb") as file:
+            tree.write(file, encoding="UTF-8", xml_declaration=xml_declaration)
 
 
 registry.register(
