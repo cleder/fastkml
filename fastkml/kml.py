@@ -167,19 +167,23 @@ class KML(_XMLObject):
     ) -> Self:
         """
         Parse a KML file and return a KML object.
+
         Args:
         ----
             file: The file to parse.
                 Can be a file path (str or Path), or a file-like object.
+
         Keyword Args:
         ------------
             ns (Optional[str]): The namespace of the KML file.
                 If not provided, it will be inferred from the root element.
             name_spaces (Optional[Dict[str, str]]): Additional namespaces.
             strict (bool): Whether to enforce strict parsing rules. Defaults to True.
+
         Returns:
         -------
             KML object: The parsed KML object.
+
         """
         try:
             tree = config.etree.parse(
