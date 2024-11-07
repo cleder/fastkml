@@ -7,7 +7,7 @@ from typing import Tuple
 from typing import Type
 from typing import Union
 
-__all__ = ["find_all", "has_attribute_values"]
+__all__ = ["find", "find_all", "has_attribute_values"]
 
 
 def has_attribute_values(obj: object, **kwargs: Any) -> bool:

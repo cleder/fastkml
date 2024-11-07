@@ -29,6 +29,12 @@ type and returns an iterator of all matching elements found in the document tree
     ...
     POINT Z (-123.93563168 49.16716103 5.0)
     POLYGON Z ((-123.940449937288 49.16927524669021 17.0, ...
+
+We could also search for all Points, which will also return the Points inside the
+``MultiGeometries``.
+
+.. code-block:: pycon
+
     >>> pts = list(find_all(k, of_type=Point))
     >>> for point in pts:
     ...     print(point.geometry)
@@ -75,6 +81,8 @@ For more targeted searches, we can combine multiple search criteria:
     Point(-123.93563168, 49.16716103, 5.0)
     >>> pm.style_url.url
     '#khStyle712'
+    >>> pm.name
+    'HBC Bastion'
 
 
 Extending FastKML
