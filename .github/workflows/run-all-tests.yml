@@ -70,7 +70,7 @@ jobs:
           pip install -e ".[tests, lxml, docs]"
       - name: test the pythoncode in the documentation
         run: |
-          python -m doctest docs/*.rst -v
+          python -m doctest docs/*.rst
       - name: Run the pythoncode in the examples
         run: |
           python examples/read_kml.py
