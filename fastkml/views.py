@@ -18,7 +18,6 @@ import logging
 from typing import Any
 from typing import Dict
 from typing import Optional
-from typing import Union
 
 from fastkml import config
 from fastkml.base import _XMLObject
@@ -35,8 +34,8 @@ from fastkml.kml_base import _BaseObject
 from fastkml.mixins import TimeMixin
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
-from fastkml.times import TimeSpan
-from fastkml.times import TimeStamp
+
+__all__ = ["Camera", "LatLonAltBox", "Lod", "LookAt", "Region"]
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +99,6 @@ class _AbstractView(TimeMixin, _BaseObject):
         heading: Optional[float] = None,
         tilt: Optional[float] = None,
         altitude_mode: Optional[AltitudeMode] = None,
-        time_primitive: Union[TimeSpan, TimeStamp, None] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -128,8 +126,6 @@ class _AbstractView(TimeMixin, _BaseObject):
             The tilt angle of the view.
         altitude_mode : Optional[AltitudeMode]
             The altitude mode of the view.
-        time_primitive : Union[TimeSpan, TimeStamp, None]
-            The time primitive associated with the view.
         kwargs : Any
             Additional keyword arguments.
 
@@ -151,7 +147,6 @@ class _AbstractView(TimeMixin, _BaseObject):
         self.heading = heading
         self.tilt = tilt
         self.altitude_mode = altitude_mode
-        self.times = time_primitive
 
     def __repr__(self) -> str:
         """Create a string (c)representation for _AbstractView."""
@@ -167,7 +162,6 @@ class _AbstractView(TimeMixin, _BaseObject):
             f"heading={self.heading!r}, "
             f"tilt={self.tilt!r}, "
             f"altitude_mode={self.altitude_mode}, "
-            f"time_primitive={self.times!r}, "
             f"**{self._get_splat()!r},"
             ")"
         )
@@ -233,29 +227,6 @@ registry.register(
         default=0.0,
     ),
 )
-registry.register(
-    _AbstractView,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="altitude_mode",
-        node_name="altitudeMode",
-        classes=(AltitudeMode,),
-        get_kwarg=subelement_enum_kwarg,
-        set_element=enum_subelement,
-        default=AltitudeMode.clamp_to_ground,
-    ),
-)
-registry.register(
-    _AbstractView,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="time_primitive",
-        node_name="TimeStamp",
-        classes=(TimeSpan, TimeStamp),
-        get_kwarg=xml_subelement_kwarg,
-        set_element=xml_subelement,
-    ),
-)
 
 
 class Camera(_AbstractView):
@@ -300,7 +271,6 @@ class Camera(_AbstractView):
         tilt: Optional[float] = None,
         roll: Optional[float] = None,
         altitude_mode: Optional[AltitudeMode] = None,
-        time_primitive: Union[TimeSpan, TimeStamp, None] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -319,8 +289,6 @@ class Camera(_AbstractView):
             tilt (Optional[float]): The tilt of the view.
             roll (Optional[float]): The roll of the view.
             altitude_mode (AltitudeMode): The altitude mode of the view.
-            time_primitive (Union[TimeSpan, TimeStamp, None]): The time primitive of the
-                view.
             **kwargs (Any): Additional keyword arguments.
 
         Returns:
@@ -339,7 +307,6 @@ class Camera(_AbstractView):
             heading=heading,
             tilt=tilt,
             altitude_mode=altitude_mode,
-            time_primitive=time_primitive,
             **kwargs,
         )
         self.roll = roll
@@ -359,7 +326,6 @@ class Camera(_AbstractView):
             f"tilt={self.tilt!r}, "
             f"roll={self.roll!r}, "
             f"altitude_mode={self.altitude_mode}, "
-            f"time_primitive={self.times!r}, "
             f"**{self._get_splat()!r},"
             ")"
         )
@@ -375,6 +341,18 @@ registry.register(
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
         default=0.0,
+    ),
+)
+registry.register(
+    Camera,
+    RegistryItem(
+        ns_ids=("kml", "gx", ""),
+        attr_name="altitude_mode",
+        node_name="altitudeMode",
+        classes=(AltitudeMode,),
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+        default=AltitudeMode.clamp_to_ground,
     ),
 )
 
@@ -407,7 +385,6 @@ class LookAt(_AbstractView):
         tilt: Optional[float] = None,
         range: Optional[float] = None,
         altitude_mode: Optional[AltitudeMode] = None,
-        time_primitive: Union[TimeSpan, TimeStamp, None] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -427,7 +404,6 @@ class LookAt(_AbstractView):
             range (Optional[float]): The range value.
             altitude_mode (AltitudeMode): The altitude mode. Defaults to
                 AltitudeMode.relative_to_ground.
-            time_primitive (Union[TimeSpan, TimeStamp, None]): The time primitive.
             **kwargs (Any): Additional keyword arguments.
 
         Returns:
@@ -446,7 +422,6 @@ class LookAt(_AbstractView):
             heading=heading,
             tilt=tilt,
             altitude_mode=altitude_mode,
-            time_primitive=time_primitive,
             **kwargs,
         )
         self.range = range
@@ -466,7 +441,6 @@ class LookAt(_AbstractView):
             f"tilt={self.tilt!r}, "
             f"range={self.range!r}, "
             f"altitude_mode={self.altitude_mode}, "
-            f"time_primitive={self.times!r}, "
             f"**{self._get_splat()!r},"
             ")"
         )
@@ -481,6 +455,18 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+    ),
+)
+registry.register(
+    LookAt,
+    RegistryItem(
+        ns_ids=("kml", "gx", ""),
+        attr_name="altitude_mode",
+        node_name="altitudeMode",
+        classes=(AltitudeMode,),
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+        default=AltitudeMode.clamp_to_ground,
     ),
 )
 
@@ -653,7 +639,7 @@ registry.register(
 registry.register(
     LatLonAltBox,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", "gx", ""),
         attr_name="altitude_mode",
         node_name="altitudeMode",
         classes=(AltitudeMode,),
@@ -701,10 +687,10 @@ class Lod(_XMLObject):
             ns (Optional[str]): The namespace for the view.
             name_spaces (Optional[Dict[str, str]]): The dictionary of namespace prefixes
                 and URIs.
-            min_lod_pixels (Optional[float]): The minimum level of detail in pixels.
-            max_lod_pixels (Optional[float]): The maximum level of detail in pixels.
-            min_fade_extent (Optional[float]): The minimum fade extent in pixels.
-            max_fade_extent (Optional[float]): The maximum fade extent in pixels.
+            min_lod_pixels (Optional[int]): The minimum level of detail in pixels.
+            max_lod_pixels (Optional[int]): The maximum level of detail in pixels.
+            min_fade_extent (Optional[int]): The minimum fade extent in pixels.
+            max_fade_extent (Optional[int]): The maximum fade extent in pixels.
             **kwargs (Any): Additional keyword arguments.
 
         Returns:
@@ -775,8 +761,8 @@ registry.register(
         attr_name="min_fade_extent",
         node_name="minFadeExtent",
         classes=(float,),
-        get_kwarg=subelement_float_kwarg,
-        set_element=float_subelement,
+        get_kwarg=subelement_int_kwarg,
+        set_element=int_subelement,
         default=0,
     ),
 )
@@ -787,8 +773,8 @@ registry.register(
         attr_name="max_fade_extent",
         node_name="maxFadeExtent",
         classes=(float,),
-        get_kwarg=subelement_float_kwarg,
-        set_element=float_subelement,
+        get_kwarg=subelement_int_kwarg,
+        set_element=int_subelement,
         default=0,
     ),
 )
@@ -902,10 +888,3 @@ registry.register(
         set_element=xml_subelement,
     ),
 )
-
-
-__all__ = [
-    "Camera",
-    "LookAt",
-    "Region",
-]
