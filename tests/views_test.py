@@ -16,11 +16,7 @@
 
 """Test the (Abstract)Views classes."""
 
-import datetime
 
-from dateutil.tz import tzutc
-
-from fastkml import times
 from fastkml import views
 from fastkml.enums import AltitudeMode
 from tests.base import Lxml
@@ -32,12 +28,6 @@ class TestStdLibrary(StdLibrary):
 
     def test_create_camera(self) -> None:
         """Test the creation of a camera."""
-        time_span = times.TimeSpan(
-            id="time-span-id",
-            begin=times.KmlDateTime(datetime.datetime(2019, 1, 1, tzinfo=tzutc())),
-            end=times.KmlDateTime(datetime.datetime(2019, 1, 2, tzinfo=tzutc())),
-        )
-
         camera = views.Camera(
             id="cam-id",
             target_id="target-cam-id",
@@ -48,7 +38,6 @@ class TestStdLibrary(StdLibrary):
             altitude_mode=AltitudeMode("relativeToGround"),
             latitude=50,
             longitude=60,
-            time_primitive=time_span,
         )
 
         assert camera.heading == 10
@@ -60,12 +49,6 @@ class TestStdLibrary(StdLibrary):
         assert camera.longitude == 60
         assert camera.id == "cam-id"
         assert camera.target_id == "target-cam-id"
-        assert camera.begin == times.KmlDateTime(
-            datetime.datetime(2019, 1, 1, tzinfo=tzutc()),
-        )
-        assert camera.end == times.KmlDateTime(
-            datetime.datetime(2019, 1, 2, tzinfo=tzutc()),
-        )
         assert camera.to_string()
 
     def test_camera_read(self) -> None:
@@ -73,10 +56,6 @@ class TestStdLibrary(StdLibrary):
         camera_xml = (
             '<kml:Camera xmlns:kml="http://www.opengis.net/kml/2.2" '
             'id="cam-id" targetId="target-cam-id">'
-            '<kml:TimeSpan id="time-span-id">'
-            "<kml:begin>2019-01-01T00:00:00</kml:begin>"
-            "<kml:end>2019-01-02T00:00:00</kml:end>"
-            "</kml:TimeSpan>"
             "<kml:longitude>60</kml:longitude>"
             "<kml:latitude>50</kml:latitude>"
             "<kml:altitude>40</kml:altitude>"
@@ -98,18 +77,8 @@ class TestStdLibrary(StdLibrary):
         assert camera.longitude == 60
         assert camera.id == "cam-id"
         assert camera.target_id == "target-cam-id"
-        assert camera.begin == times.KmlDateTime(
-            datetime.datetime(2019, 1, 1, tzinfo=tzutc()),
-        )
-        assert camera.end == times.KmlDateTime(
-            datetime.datetime(2019, 1, 2, tzinfo=tzutc()),
-        )
 
     def test_create_look_at(self) -> None:
-        time_stamp = times.TimeStamp(
-            id="time-span-id",
-            timestamp=times.KmlDateTime(datetime.datetime(2019, 1, 1, tzinfo=tzutc())),
-        )
 
         look_at = views.LookAt(
             id="look-at-id",
@@ -120,7 +89,6 @@ class TestStdLibrary(StdLibrary):
             altitude_mode=AltitudeMode("relativeToGround"),
             latitude=50,
             longitude=60,
-            time_primitive=time_stamp,
         )
 
         assert look_at.heading == 10
@@ -131,14 +99,6 @@ class TestStdLibrary(StdLibrary):
         assert look_at.longitude == 60
         assert look_at.id == "look-at-id"
         assert look_at.target_id == "target-look-at-id"
-        assert look_at.times.timestamp.dt == datetime.datetime(
-            2019,
-            1,
-            1,
-            tzinfo=tzutc(),
-        )
-        assert look_at.begin is None
-        assert look_at.end is None
         assert look_at.to_string()
 
     def test_look_at_read(self) -> None:
@@ -150,9 +110,6 @@ class TestStdLibrary(StdLibrary):
             "<kml:heading>10</kml:heading>"
             "<kml:tilt>20</kml:tilt>"
             "<kml:altitudeMode>relativeToGround</kml:altitudeMode>"
-            '<kml:TimeStamp id="time-span-id">'
-            "<kml:when>2019-01-01T00:00:00</kml:when>"
-            "</kml:TimeStamp>"
             "<kml:range>30</kml:range>"
             "</kml:LookAt>"
         )
@@ -166,14 +123,6 @@ class TestStdLibrary(StdLibrary):
         assert look_at.longitude == 60
         assert look_at.id == "look-at-id"
         assert look_at.target_id == "target-look-at-id"
-        assert look_at.times.timestamp.dt == datetime.datetime(
-            2019,
-            1,
-            1,
-            tzinfo=tzutc(),
-        )
-        assert look_at.begin is None
-        assert look_at.end is None
 
     def test_region_with_all_optional_parameters(self) -> None:
         """Region object can be initialized with all optional parameters."""

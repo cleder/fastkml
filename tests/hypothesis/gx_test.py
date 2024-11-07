@@ -14,12 +14,10 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test gx Track and MultiTrack."""
-import datetime
 import typing
 
 from hypothesis import given
 from hypothesis import strategies as st
-from hypothesis.extra.dateutil import timezones
 from pygeoif.hypothesis.strategies import epsg4326
 from pygeoif.hypothesis.strategies import points
 
@@ -29,12 +27,12 @@ import fastkml.gx
 import fastkml.types
 from fastkml.gx import Angle
 from fastkml.gx import TrackItem
-from fastkml.times import KmlDateTime
 from tests.base import Lxml
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
 from tests.hypothesis.common import assert_str_roundtrip_verbose
+from tests.hypothesis.strategies import kml_datetimes
 from tests.hypothesis.strategies import nc_name
 
 track_items = st.builds(
@@ -51,15 +49,7 @@ track_items = st.builds(
         ),
     ),
     coord=points(srs=epsg4326),
-    when=st.builds(
-        KmlDateTime,
-        dt=st.datetimes(
-            allow_imaginary=False,
-            timezones=timezones(),
-            min_value=datetime.datetime(2000, 1, 1),  # noqa: DTZ001
-            max_value=datetime.datetime(2050, 1, 1),  # noqa: DTZ001
-        ),
-    ),
+    when=kml_datetimes(),
 )
 
 

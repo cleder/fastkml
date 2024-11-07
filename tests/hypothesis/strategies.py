@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Custom hypothesis strategies for testing."""
+import datetime
 import re
 import string
 from functools import partial
@@ -22,6 +23,10 @@ from typing import Final
 from urllib.parse import urlencode
 
 from hypothesis import strategies as st
+from hypothesis.extra.dateutil import timezones
+
+import fastkml.enums
+from fastkml.times import KmlDateTime
 
 ID_TEXT: Final = string.ascii_letters + string.digits + ".-_"
 nc_name = partial(
@@ -46,6 +51,27 @@ media_types = partial(
 xml_text = partial(
     st.text,
     alphabet=st.characters(min_codepoint=1, blacklist_categories=("Cc", "Cs")),
+)
+
+kml_datetimes = partial(
+    st.builds,
+    KmlDateTime,
+    dt=st.one_of(
+        st.dates(
+            min_value=datetime.date(2000, 1, 1),
+            max_value=datetime.date(2050, 1, 1),
+        ),
+        st.datetimes(
+            allow_imaginary=False,
+            timezones=timezones(),
+            min_value=datetime.datetime(2000, 1, 1),  # noqa: DTZ001
+            max_value=datetime.datetime(2050, 1, 1),  # noqa: DTZ001
+        ),
+    ),
+    resolution=st.one_of(
+        st.none(),
+        st.one_of(st.none(), st.sampled_from(fastkml.enums.DateTimeResolution)),
+    ),
 )
 
 

@@ -230,8 +230,8 @@ CascadingStyle element into a supported Style element.
           <kml:altitude>13.96486261382906</kml:altitude>
           <kml:heading>0.0</kml:heading>
           <kml:tilt>0.0</kml:tilt>
-          <kml:altitudeMode>absolute</kml:altitudeMode>
           <kml:range>632.584179697442</kml:range>
+          <kml:altitudeMode>absolute</kml:altitudeMode>
         </kml:LookAt>
         <kml:styleUrl>#__managed_style_0D301BCC0014827EFCCB</kml:styleUrl>
         <kml:Polygon>
