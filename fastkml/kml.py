@@ -26,6 +26,7 @@ http://schemas.opengis.net/kml/.
 
 """
 import logging
+import os
 from pathlib import Path
 import pathlib
 from typing import IO
@@ -39,6 +40,7 @@ from typing import Union
 from typing import cast
 
 from typing_extensions import Self
+import zipfile
 
 from fastkml import config
 from fastkml.base import _XMLObject
@@ -211,11 +213,11 @@ class KML(_XMLObject):
 
     def write(
             self,
-            file_name:pathlib.Path,
+            file_path: pathlib.Path,
             *,
-            prettyprint:bool=True,
-            xml_declaration:bool=True
-        ) -> None:
+            prettyprint: bool = True,
+            xml_declaration: bool = True
+    ) -> None:
         """
         Write KML to a file
         Args:
@@ -226,10 +228,10 @@ class KML(_XMLObject):
                 Whether to pretty print the XML.
             xml_declarationL bool, default=True
                 For True, value is '<?xml version="1.0" encoding="UTF-8"?>' else ''
-        
+
         """
         element = self.etree_element()
-        
+
         tree = config.etree.tostring(
             element,
             encoding="UTF-8",
@@ -238,8 +240,12 @@ class KML(_XMLObject):
             "UTF-8",
         )
 
-        with open(file_name, "wb") as file:
-            tree.write(file, encoding="UTF-8", xml_declaration=xml_declaration)
+        if file_path.suffix == ".kmz":
+            with zipfile.ZipFile(file_path, 'w', zipfile.ZIP_DEFLATED) as kmz:
+                kmz.write(file_path, arcname=os.path.basename(file_path))
+        else:
+            with open(file_path, "wb") as file:
+                tree.write(file, encoding="UTF-8", xml_declaration=xml_declaration)
 
 
 registry.register(
