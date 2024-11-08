@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Custom hypothesis strategies for testing."""
+
 import datetime
 import re
 import string
@@ -52,6 +53,13 @@ xml_text = partial(
     st.text,
     alphabet=st.characters(min_codepoint=1, blacklist_categories=("Cc", "Cs")),
 )
+uri_text = partial(
+    st.from_regex,
+    regex=re.compile(r"^[a-zA-Z][a-zA-Z0-9+\-.]*://.+$"),
+    alphabet=f"{string.ascii_letters}{string.digits}+-.:/",
+    fullmatch=True,
+)
+
 
 kml_datetimes = partial(
     st.builds,
