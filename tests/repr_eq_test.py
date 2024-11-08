@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the __repr__ and __eq__ methods."""
+
 import difflib
 from textwrap import wrap
 from typing import Final
@@ -1621,8 +1622,6 @@ class TestRepr(StdLibrary):
                                 "atom": "{http://www.w3.org/2005/Atom}",
                                 "gx": "{http://www.google.com/kml/ext/2.2}",
                             },
-                            id="ed-001",
-                            target_id="",
                             elements=[
                                 fastkml.data.Data(
                                     ns="{http://www.opengis.net/kml/2.2}",

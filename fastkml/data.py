@@ -508,7 +508,7 @@ class SimpleData(_XMLObject):
 registry.register(
     SimpleData,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="value",
         node_name="value",
         classes=(str,),
@@ -644,17 +644,16 @@ registry.register(
 )
 
 
-class ExtendedData(_BaseObject):
+class ExtendedData(_XMLObject):
     """Represents a list of untyped name/value pairs."""
 
+    _default_nsid = "kml"
     elements: List[Union[Data, SchemaData]]
 
     def __init__(
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
         elements: Optional[Iterable[Union[Data, SchemaData]]] = None,
         **kwargs: Any,
     ) -> None:
@@ -666,8 +665,6 @@ class ExtendedData(_BaseObject):
             ns (Optional[str]): The namespace for the data.
             name_spaces (Optional[Dict[str, str]]):
                 The dictionary of namespace prefixes and URIs.
-            id (Optional[str]): The ID of the data.
-            target_id (Optional[str]): The target ID of the data.
             elements (Optional[Iterable[Union[Data, SchemaData]]]):
                 The iterable of data elements.
             **kwargs (Any): Additional keyword arguments.
@@ -680,11 +677,9 @@ class ExtendedData(_BaseObject):
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
-            id=id,
-            target_id=target_id,
             **kwargs,
         )
-        self.elements = list(elements) if elements else []
+        self.elements = [e for e in elements if e] if elements else []
 
     def __repr__(self) -> str:
         """
@@ -699,8 +694,6 @@ class ExtendedData(_BaseObject):
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
             f"elements={self.elements!r}, "
             f"**{self._get_splat()!r},"
             ")"

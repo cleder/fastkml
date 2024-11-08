@@ -167,3 +167,48 @@ class TestLxml(Lxml):
         assert_repr_roundtrip(schema_data)
         assert_str_roundtrip_terse(schema_data)
         assert_str_roundtrip_verbose(schema_data)
+
+    @given(
+        elements=st.one_of(
+            st.none(),
+            st.lists(
+                st.one_of(
+                    st.builds(
+                        fastkml.data.Data,
+                        name=xml_text().filter(lambda x: x.strip() != ""),
+                        value=xml_text().filter(lambda x: x.strip() != ""),
+                        display_name=st.one_of(st.none(), xml_text()),
+                    ),
+                    st.builds(
+                        fastkml.SchemaData,
+                        id=st.one_of(st.none(), nc_name()),
+                        target_id=st.one_of(st.none(), nc_name()),
+                        schema_url=st.one_of(st.none(), urls()),
+                        data=st.lists(
+                            st.builds(
+                                fastkml.data.SimpleData,
+                                name=xml_text().filter(lambda x: x.strip() != ""),
+                                value=xml_text().filter(lambda x: x.strip() != ""),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+    def test_fuzz_extended_data(
+        self,
+        elements: typing.Optional[
+            typing.Iterable[typing.Union[fastkml.Data, fastkml.SchemaData]]
+        ],
+    ) -> None:
+        extended_data = fastkml.ExtendedData(
+            elements=sorted(elements, key=lambda t: t.__class__.__name__)
+            if elements
+            else None,
+        )
+
+        assert_repr_roundtrip(extended_data)
+        assert_str_roundtrip(extended_data)
+        assert_str_roundtrip_terse(extended_data)
+        assert_str_roundtrip_verbose(extended_data)
