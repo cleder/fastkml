@@ -181,8 +181,6 @@ class TestLxml(Lxml):
                     ),
                     st.builds(
                         fastkml.SchemaData,
-                        id=st.one_of(st.none(), nc_name()),
-                        target_id=st.one_of(st.none(), nc_name()),
                         schema_url=st.one_of(st.none(), urls()),
                         data=st.lists(
                             st.builds(
