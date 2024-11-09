@@ -32,9 +32,12 @@ from pygeoif.geometry import Polygon
 import fastkml
 from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
+from fastkml.enums import ColorMode
 from fastkml.enums import DataType
 from fastkml.enums import DateTimeResolution
+from fastkml.enums import DisplayMode
 from fastkml.enums import RefreshMode
+from fastkml.enums import Units
 from fastkml.enums import Verbosity
 from fastkml.enums import ViewRefreshMode
 from fastkml.gx import Angle
@@ -61,6 +64,9 @@ eval_locals = {
     "datetime": datetime,
     "DateTimeResolution": DateTimeResolution,
     "DataType": DataType,
+    "Units": Units,
+    "ColorMode": ColorMode,
+    "DisplayMode": DisplayMode,
     "tzutc": tzutc,
     "tzfile": tzfile,
 }

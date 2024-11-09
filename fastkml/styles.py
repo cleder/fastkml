@@ -62,7 +62,7 @@ from fastkml.registry import registry
 logger = logging.getLogger(__name__)
 
 
-class StyleUrl(_BaseObject):
+class StyleUrl(_XMLObject):
     """
     URL of a <Style> or <StyleMap> defined in a Document.
 
@@ -73,14 +73,14 @@ class StyleUrl(_BaseObject):
     https://developers.google.com/kml/documentation/kmlreference#styleurl
     """
 
+    _default_nsid = config.KML
+
     url: Optional[str]
 
     def __init__(
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
         url: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
@@ -93,10 +93,6 @@ class StyleUrl(_BaseObject):
             The namespace of the Style object.
         name_spaces : dict, optional
             A dictionary of namespace prefixes and their corresponding URIs.
-        id : str, optional
-            The ID of the Style object.
-        target_id : str, optional
-            The ID of the target object that this Style object applies to.
         url : str, optional
             The URL of the Style object.
         **kwargs : Any
@@ -110,8 +106,6 @@ class StyleUrl(_BaseObject):
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
-            id=id,
-            target_id=target_id,
             **kwargs,
         )
         self.url = url
@@ -122,8 +116,6 @@ class StyleUrl(_BaseObject):
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
             f"url={self.url!r}, "
             f"**{self._get_splat()!r},"
             ")"
@@ -352,10 +344,10 @@ class HotSpot(_XMLObject):
 
         Returns
         -------
-            bool: True if both x and y are not None, False otherwise.
+            bool: True.
 
         """
-        return all((self.x is not None, self.y is not None))
+        return True
 
     @classmethod
     def get_tag_name(cls) -> str:
@@ -982,7 +974,7 @@ class BalloonStyle(_BaseObject):
         )
         self.bg_color = bg_color
         self.text_color = text_color
-        self.text = text
+        self.text = text.strip() or None if text else None
         self.display_mode = display_mode
 
     def __repr__(self) -> str:

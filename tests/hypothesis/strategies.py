@@ -92,3 +92,14 @@ def query_strings(draw: st.DrawFn) -> str:
         ),
     )
     return urlencode(params)
+
+
+@st.composite
+def kml_colors(draw: st.DrawFn) -> str:
+    return draw(
+        st.text(
+            alphabet=string.hexdigits,
+            min_size=8,
+            max_size=8,
+        ),
+    )

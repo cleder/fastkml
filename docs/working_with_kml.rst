@@ -164,6 +164,8 @@ Now we can create a new KML object and confirm that the new element is parsed co
 
 To be able to open the KML file in Google Earth Pro, we need to transform the
 CascadingStyle element into a supported Style element.
+To achieve this we copy the styles into the document styles and adjust their id
+to match the id of the CascadingStyle.
 
 .. code-block:: pycon
 
@@ -173,6 +175,11 @@ CascadingStyle element into a supported Style element.
     ...     kml_style.id = cascading_style.id
     ...     document.styles.append(kml_style)
     ...
+
+Now we can remove the CascadingStyle from the document and have a look at the result.
+
+.. code-block:: pycon
+
     >>> document.gx_cascading_style = []
     >>> print(document.to_string(prettyprint=True))
     <kml:Document xmlns:kml="http://www.opengis.net/kml/2.2">
@@ -222,7 +229,7 @@ CascadingStyle element into a supported Style element.
           <kml:color>80000000</kml:color>
         </kml:PolyStyle>
       </kml:Style>
-      <kml:Placemark id="04AFE6060F147CE66FBD">
+      <kml:Placemark id="04SAFE6060F147CE66FBD">
         <kml:name>Ort1</kml:name>
         <kml:LookAt>
           <kml:longitude>10.06256752902339</kml:longitude>
