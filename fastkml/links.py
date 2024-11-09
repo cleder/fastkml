@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Link and Icon elements."""
+
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -77,7 +78,7 @@ class Link(_BaseObject):
             target_id=target_id,
             **kwargs,
         )
-        self.href = href or ""
+        self.href = href.strip() if href else ""
         self.refresh_mode = refresh_mode
         self.refresh_interval = refresh_interval
         self.view_refresh_mode = view_refresh_mode

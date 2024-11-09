@@ -122,7 +122,7 @@ class TestLxml(Lxml):
         color_mode: typing.Optional[fastkml.enums.ColorMode],
         scale: typing.Optional[float],
         heading: typing.Optional[float],
-        icon: typing.Optional[fastkml.Icon],
+        icon: typing.Optional[fastkml.links.Icon],
         hot_spot: typing.Optional[fastkml.styles.HotSpot],
     ) -> None:
         icon_style = fastkml.IconStyle(

@@ -422,7 +422,7 @@ class IconStyle(_ColorStyle):
     heading: Optional[float]
     # Direction (that is, North, South, East, West), in degrees.
     # Default=0 (North).
-    icon_href: Optional[str]
+    icon: Optional[Icon]
     # An HTTP address or a local file specification used to load an icon.
     hot_spot: Optional[HotSpot]
 
@@ -437,6 +437,7 @@ class IconStyle(_ColorStyle):
         scale: Optional[float] = None,
         heading: Optional[float] = None,
         icon: Optional[Icon] = None,
+        icon_href: Optional[str] = None,
         hot_spot: Optional[HotSpot] = None,
         **kwargs: Any,
     ) -> None:
@@ -455,6 +456,7 @@ class IconStyle(_ColorStyle):
             scale (Optional[float]): The scale of the Style object.
             heading (Optional[float]): The heading of the Style object.
             icon (Optional[Icon]): The icon of the Style object.
+            icon_href (Optional[str]): The href of the icon can be passed as a shortcut.
             hot_spot (Optional[HotSpot]): The hot spot of the Style object.
             **kwargs (Any): Additional keyword arguments.
 
@@ -472,9 +474,16 @@ class IconStyle(_ColorStyle):
             color_mode=color_mode,
             **kwargs,
         )
-
+        icon_href = icon_href.strip() or None if icon_href else None
         self.scale = scale
         self.heading = heading
+        if icon_href and icon:
+            logger.warning(
+                "Both icon_href and icon were provided. "
+                "Ignoring icon_href and using icon.",
+            )
+        if icon_href and not icon:
+            icon = Icon(ns=ns, name_spaces=name_spaces, href=icon_href)
         self.icon = icon
         self.hot_spot = hot_spot
 
@@ -507,6 +516,11 @@ class IconStyle(_ColorStyle):
 
         """
         return bool(self.icon)
+
+    @property
+    def icon_href(self) -> Optional[str]:
+        """Return the icon href."""
+        return self.icon.href if self.icon else None
 
 
 registry.register(
