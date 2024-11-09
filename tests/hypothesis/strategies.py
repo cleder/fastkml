@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Custom hypothesis strategies for testing."""
+
 import datetime
 import re
 import string
@@ -29,6 +30,7 @@ import fastkml.enums
 from fastkml.times import KmlDateTime
 
 ID_TEXT: Final = string.ascii_letters + string.digits + ".-_"
+
 nc_name = partial(
     st.from_regex,
     regex=re.compile(r"^[A-Za-z_][\w.-]*$"),
@@ -42,15 +44,24 @@ href_langs = partial(
     alphabet=f"{string.ascii_letters}-{string.digits}",
     fullmatch=True,
 )
+
 media_types = partial(
     st.from_regex,
     regex=re.compile(r"^[a-zA-Z0-9-]+/[a-zA-Z0-9-]+$"),
     alphabet=f"{string.ascii_letters}/-{string.digits}",
     fullmatch=True,
 )
+
 xml_text = partial(
     st.text,
     alphabet=st.characters(min_codepoint=1, blacklist_categories=("Cc", "Cs")),
+)
+
+uri_text = partial(
+    st.from_regex,
+    regex=re.compile(r"^[a-zA-Z][a-zA-Z0-9+.-]*://([^/?#]*)([^#]*)(#.*)?$"),
+    alphabet=f"{string.ascii_letters}{string.digits}+-._~:/?#[]@!$&'()*+,;=%",
+    fullmatch=True,
 )
 
 kml_datetimes = partial(
@@ -84,3 +95,14 @@ def query_strings(draw: st.DrawFn) -> str:
         ),
     )
     return urlencode(params)
+
+
+@st.composite
+def kml_colors(draw: st.DrawFn) -> str:
+    return draw(
+        st.text(
+            alphabet=string.hexdigits,
+            min_size=8,
+            max_size=8,
+        ),
+    )

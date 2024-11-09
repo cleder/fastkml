@@ -258,9 +258,9 @@ class _Person(_AtomObject):
 
     """
 
-    name: str
-    uri: str
-    email: str
+    name: Optional[str]
+    uri: Optional[str]
+    email: Optional[str]
 
     def __init__(
         self,
@@ -285,9 +285,9 @@ class _Person(_AtomObject):
 
         """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
-        self.name = name.strip() if name else ""
-        self.uri = uri.strip() if uri else ""
-        self.email = email.strip() if email else ""
+        self.name = name.strip() or None if name else None
+        self.uri = uri.strip() or None if uri else None
+        self.email = email.strip() or None if email else None
 
     def __repr__(self) -> str:
         """

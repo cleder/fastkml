@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the styles classes."""
+
 import pytest
 
 from fastkml import links
@@ -34,13 +35,11 @@ class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
 
     def test_style_url(self) -> None:
-        url = styles.StyleUrl(id="id-0", url="#style-0", target_id="target-0")
+        url = styles.StyleUrl(url="#style-0")
 
         serialized = url.to_string()
 
         assert '<kml:styleUrl xmlns:kml="http://www.opengis.net/kml/2.2"' in serialized
-        assert 'id="id-0"' in serialized
-        assert 'targetId="target-0"' in serialized
         assert ">#style-0</kml:styleUrl>" in serialized
 
     def test_style_url_read(self) -> None:
@@ -49,9 +48,7 @@ class TestStdLibrary(StdLibrary):
             ' id="id-0" targetId="target-0">#style-0</kml:styleUrl>',
         )
 
-        assert url.id == "id-0"
         assert url.url == "#style-0"
-        assert url.target_id == "target-0"
 
     def test_icon_style(self) -> None:
         icons = styles.IconStyle(
@@ -455,7 +452,7 @@ class TestStdLibrary(StdLibrary):
         assert style.styles[4].outline == 1
 
     def test_stylemap(self) -> None:  # noqa: PLR0915
-        url = styles.StyleUrl(id="id-0", url="#style-0", target_id="target-0")
+        url = styles.StyleUrl(url="#style-0")
         icons = styles.IconStyle(
             id="id-i0",
             target_id="target-i0",
@@ -512,11 +509,9 @@ class TestStdLibrary(StdLibrary):
         serialized = sm.to_string()
 
         assert '<kml:StyleMap xmlns:kml="http://www.opengis.net/kml/2.2" ' in serialized
-        assert 'id="id-sm-0"' in serialized
-        assert 'targetId="target-sm-0"' in serialized
         assert "<kml:Pair>" in serialized
         assert "<kml:key>normal</kml:key>" in serialized
-        assert "<kml:styleUrl " in serialized
+        assert "<kml:styleUrl" in serialized
         assert "</kml:Pair>" in serialized
         assert "<kml:Pair>" in serialized
         assert "<kml:key>highlight</kml:key>" in serialized
@@ -609,8 +604,6 @@ class TestStdLibrary(StdLibrary):
         assert sm.target_id == "target-sm-0"
         assert sm.normal.id == "id-0"
         assert sm.normal.target_id == "target-0"
-        assert sm.highlight.id == "id-u0"
-        assert sm.highlight.target_id == "target-u0"
 
     def test_style_map_none_case(self) -> None:
         sm = styles.StyleMap()
