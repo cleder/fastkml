@@ -25,9 +25,14 @@ from urllib.parse import urlencode
 
 from hypothesis import strategies as st
 from hypothesis.extra.dateutil import timezones
+from pygeoif.hypothesis import strategies as geo_st
 
 import fastkml.enums
+import fastkml.links
+import fastkml.styles
 from fastkml.times import KmlDateTime
+from fastkml.views import LatLonAltBox
+from fastkml.views import Lod
 
 ID_TEXT: Final = string.ascii_letters + string.digits + ".-_"
 
@@ -85,6 +90,80 @@ kml_datetimes = partial(
     ),
 )
 
+geometries = partial(
+    st.one_of,
+    (
+        geo_st.points(srs=geo_st.epsg4326),
+        geo_st.line_strings(srs=geo_st.epsg4326),
+        geo_st.linear_rings(srs=geo_st.epsg4326),
+        geo_st.polygons(srs=geo_st.epsg4326),
+        geo_st.multi_points(srs=geo_st.epsg4326),
+        geo_st.multi_line_strings(srs=geo_st.epsg4326),
+        geo_st.multi_polygons(srs=geo_st.epsg4326),
+    ),
+)
+lods = partial(
+    st.builds,
+    Lod,
+    min_lod_pixels=st.integers(),
+    max_lod_pixels=st.integers(),
+    min_fade_extent=st.integers(),
+    max_fade_extent=st.integers(),
+)
+
+lat_lon_alt_boxes = partial(
+    st.builds,
+    LatLonAltBox,
+    north=st.floats(allow_nan=False, allow_infinity=False, min_value=0, max_value=90),
+    south=st.floats(allow_nan=False, allow_infinity=False, min_value=0, max_value=90),
+    east=st.floats(allow_nan=False, allow_infinity=False, min_value=0, max_value=180),
+    west=st.floats(allow_nan=False, allow_infinity=False, min_value=0, max_value=180),
+    min_altitude=st.floats(allow_nan=False, allow_infinity=False).filter(
+        lambda x: x != 0,
+    ),
+    max_altitude=st.floats(allow_nan=False, allow_infinity=False).filter(
+        lambda x: x != 0,
+    ),
+    altitude_mode=st.sampled_from(fastkml.enums.AltitudeMode),
+)
+
+kml_colors = partial(
+    st.text,
+    alphabet=string.hexdigits,
+    min_size=8,
+    max_size=8,
+)
+
+styles = partial(
+    st.one_of,
+    st.builds(
+        fastkml.styles.LabelStyle,
+        color=kml_colors(),
+        color_mode=st.sampled_from(fastkml.enums.ColorMode),
+        scale=st.floats(allow_nan=False, allow_infinity=False),
+    ),
+    st.builds(
+        fastkml.styles.LineStyle,
+        color=kml_colors(),
+        color_mode=st.sampled_from(fastkml.enums.ColorMode),
+        width=st.floats(allow_nan=False, allow_infinity=False, min_value=0),
+    ),
+    st.builds(
+        fastkml.styles.PolyStyle,
+        color=kml_colors(),
+        color_mode=st.sampled_from(fastkml.enums.ColorMode),
+        fill=st.booleans(),
+        outline=st.booleans(),
+    ),
+    st.builds(
+        fastkml.styles.BalloonStyle,
+        bg_color=kml_colors(),
+        text_color=kml_colors(),
+        text=xml_text(min_size=1, max_size=256).filter(lambda x: x.strip() != ""),
+        display_mode=st.sampled_from(fastkml.enums.DisplayMode),
+    ),
+)
+
 
 @st.composite
 def query_strings(draw: st.DrawFn) -> str:
@@ -95,14 +174,3 @@ def query_strings(draw: st.DrawFn) -> str:
         ),
     )
     return urlencode(params)
-
-
-@st.composite
-def kml_colors(draw: st.DrawFn) -> str:
-    return draw(
-        st.text(
-            alphabet=string.hexdigits,
-            min_size=8,
-            max_size=8,
-        ),
-    )

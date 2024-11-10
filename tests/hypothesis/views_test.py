@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Property-based tests for the views module."""
+
 import typing
 from functools import partial
 
@@ -23,39 +24,14 @@ from hypothesis import strategies as st
 import fastkml
 import fastkml.enums
 import fastkml.views
-from fastkml.views import LatLonAltBox
-from fastkml.views import Lod
 from tests.base import Lxml
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
 from tests.hypothesis.common import assert_str_roundtrip_verbose
+from tests.hypothesis.strategies import lat_lon_alt_boxes
+from tests.hypothesis.strategies import lods
 from tests.hypothesis.strategies import nc_name
-
-lods = partial(
-    st.builds,
-    Lod,
-    min_lod_pixels=st.integers(),
-    max_lod_pixels=st.integers(),
-    min_fade_extent=st.integers(),
-    max_fade_extent=st.integers(),
-)
-
-lat_lon_alt_boxes = partial(
-    st.builds,
-    LatLonAltBox,
-    north=st.floats(allow_nan=False, allow_infinity=False, min_value=0, max_value=90),
-    south=st.floats(allow_nan=False, allow_infinity=False, min_value=0, max_value=90),
-    east=st.floats(allow_nan=False, allow_infinity=False, min_value=0, max_value=180),
-    west=st.floats(allow_nan=False, allow_infinity=False, min_value=0, max_value=180),
-    min_altitude=st.floats(allow_nan=False, allow_infinity=False).filter(
-        lambda x: x != 0,
-    ),
-    max_altitude=st.floats(allow_nan=False, allow_infinity=False).filter(
-        lambda x: x != 0,
-    ),
-    altitude_mode=st.sampled_from(fastkml.enums.AltitudeMode),
-)
 
 common_view = partial(
     given,
@@ -96,7 +72,6 @@ common_view = partial(
 
 
 class TestLxml(Lxml):
-
     @given(
         min_lod_pixels=st.one_of(st.none(), st.integers()),
         max_lod_pixels=st.one_of(st.none(), st.integers()),

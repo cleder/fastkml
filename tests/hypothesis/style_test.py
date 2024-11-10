@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-"""Property-based tests for the views module."""
+"""Property-based tests for the styles module."""
 
 import typing
 
@@ -32,6 +32,7 @@ from tests.hypothesis.common import assert_str_roundtrip_terse
 from tests.hypothesis.common import assert_str_roundtrip_verbose
 from tests.hypothesis.strategies import kml_colors
 from tests.hypothesis.strategies import nc_name
+from tests.hypothesis.strategies import styles
 from tests.hypothesis.strategies import xml_text
 
 
@@ -265,3 +266,263 @@ class TestLxml(Lxml):
         assert_str_roundtrip(balloon_style)
         assert_str_roundtrip_terse(balloon_style)
         assert_str_roundtrip_verbose(balloon_style)
+
+    @given(
+        id=st.one_of(st.none(), nc_name()),
+        target_id=st.one_of(st.none(), nc_name()),
+        styles=st.one_of(
+            st.none(),
+            st.tuples(
+                st.builds(
+                    fastkml.styles.IconStyle,
+                    color=kml_colors(),
+                    color_mode=st.sampled_from(fastkml.enums.ColorMode),
+                    scale=st.floats(allow_nan=False, allow_infinity=False),
+                    heading=st.floats(
+                        allow_nan=False,
+                        allow_infinity=False,
+                        min_value=0,
+                        max_value=360,
+                    ),
+                    icon=st.builds(fastkml.links.Icon, href=urls()),
+                ),
+                st.builds(
+                    fastkml.styles.LabelStyle,
+                    color=kml_colors(),
+                    color_mode=st.sampled_from(fastkml.enums.ColorMode),
+                    scale=st.floats(allow_nan=False, allow_infinity=False),
+                ),
+                st.builds(
+                    fastkml.styles.LineStyle,
+                    color=kml_colors(),
+                    color_mode=st.sampled_from(fastkml.enums.ColorMode),
+                    width=st.floats(allow_nan=False, allow_infinity=False, min_value=0),
+                ),
+                st.builds(
+                    fastkml.styles.PolyStyle,
+                    color=kml_colors(),
+                    color_mode=st.sampled_from(fastkml.enums.ColorMode),
+                    fill=st.booleans(),
+                    outline=st.booleans(),
+                ),
+                st.builds(
+                    fastkml.styles.BalloonStyle,
+                    bg_color=kml_colors(),
+                    text_color=kml_colors(),
+                    text=xml_text(min_size=1, max_size=256).filter(
+                        lambda x: x.strip() != "",
+                    ),
+                    display_mode=st.sampled_from(fastkml.enums.DisplayMode),
+                ),
+            ),
+        ),
+    )
+    def test_fuzz_style(
+        self,
+        id: typing.Optional[str],
+        target_id: typing.Optional[str],
+        styles: typing.Optional[
+            typing.Iterable[
+                typing.Union[
+                    fastkml.BalloonStyle,
+                    fastkml.IconStyle,
+                    fastkml.LabelStyle,
+                    fastkml.LineStyle,
+                    fastkml.PolyStyle,
+                ]
+            ]
+        ],
+    ) -> None:
+        style = fastkml.Style(id=id, target_id=target_id, styles=styles)
+
+        assert_repr_roundtrip(style)
+        assert_str_roundtrip(style)
+        assert_str_roundtrip_terse(style)
+        # assert_str_roundtrip_verbose disabled because of IconStyle
+
+    @given(
+        id=st.one_of(st.none(), nc_name()),
+        target_id=st.one_of(st.none(), nc_name()),
+        styles=st.one_of(
+            st.none(),
+            st.tuples(
+                st.builds(
+                    fastkml.styles.LabelStyle,
+                    color=kml_colors(),
+                    color_mode=st.sampled_from(fastkml.enums.ColorMode),
+                    scale=st.floats(allow_nan=False, allow_infinity=False),
+                ),
+                st.builds(
+                    fastkml.styles.LineStyle,
+                    color=kml_colors(),
+                    color_mode=st.sampled_from(fastkml.enums.ColorMode),
+                    width=st.floats(allow_nan=False, allow_infinity=False, min_value=0),
+                ),
+                st.builds(
+                    fastkml.styles.PolyStyle,
+                    color=kml_colors(),
+                    color_mode=st.sampled_from(fastkml.enums.ColorMode),
+                    fill=st.booleans(),
+                    outline=st.booleans(),
+                ),
+                st.builds(
+                    fastkml.styles.BalloonStyle,
+                    bg_color=kml_colors(),
+                    text_color=kml_colors(),
+                    text=xml_text(min_size=1, max_size=256).filter(
+                        lambda x: x.strip() != "",
+                    ),
+                    display_mode=st.sampled_from(fastkml.enums.DisplayMode),
+                ),
+            ),
+        ),
+    )
+    def test_fuzz_styles_no_icon_style(
+        self,
+        id: typing.Optional[str],
+        target_id: typing.Optional[str],
+        styles: typing.Optional[
+            typing.Iterable[
+                typing.Union[
+                    fastkml.BalloonStyle,
+                    fastkml.LabelStyle,
+                    fastkml.LineStyle,
+                    fastkml.PolyStyle,
+                ]
+            ]
+        ],
+    ) -> None:
+        style = fastkml.Style(id=id, target_id=target_id, styles=styles)
+
+        assert_repr_roundtrip(style)
+        assert_str_roundtrip(style)
+        assert_str_roundtrip_terse(style)
+        assert_str_roundtrip_verbose(style)
+
+    @given(
+        id=st.one_of(st.none(), nc_name()),
+        target_id=st.one_of(st.none(), nc_name()),
+        key=st.sampled_from(fastkml.enums.PairKey),
+        style=st.one_of(
+            st.builds(
+                fastkml.StyleUrl,
+                url=urls(),
+            ),
+            st.builds(
+                fastkml.Style,
+                styles=st.lists(
+                    styles(),
+                    min_size=1,
+                    max_size=1,
+                ),
+            ),
+        ),
+    )
+    def test_fuzz_pair(
+        self,
+        id: typing.Optional[str],
+        target_id: typing.Optional[str],
+        key: typing.Optional[fastkml.enums.PairKey],
+        style: typing.Union[fastkml.StyleUrl, fastkml.Style, None],
+    ) -> None:
+        pair = fastkml.styles.Pair(id=id, target_id=target_id, key=key, style=style)
+
+        assert_repr_roundtrip(pair)
+        assert_str_roundtrip(pair)
+        assert_str_roundtrip_terse(pair)
+        assert_str_roundtrip_verbose(pair)
+
+    @given(
+        id=st.one_of(st.none(), nc_name()),
+        target_id=st.one_of(st.none(), nc_name()),
+        pairs=st.one_of(
+            st.none(),
+            st.lists(
+                st.builds(
+                    fastkml.styles.Pair,
+                    key=st.sampled_from(fastkml.enums.PairKey),
+                    style=st.one_of(
+                        st.builds(
+                            fastkml.StyleUrl,
+                            url=urls(),
+                        ),
+                        st.builds(
+                            fastkml.Style,
+                            styles=st.lists(
+                                styles(),
+                                min_size=1,
+                                max_size=1,
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+    def test_fuzz_style_map_one_pair(
+        self,
+        id: typing.Optional[str],
+        target_id: typing.Optional[str],
+        pairs: typing.Optional[typing.Tuple[fastkml.styles.Pair]],
+    ) -> None:
+        style_map = fastkml.StyleMap(id=id, target_id=target_id, pairs=pairs)
+
+        assert_repr_roundtrip(style_map)
+        assert_str_roundtrip(style_map)
+        assert_str_roundtrip_terse(style_map)
+        assert_str_roundtrip_verbose(style_map)
+
+    @given(
+        id=st.one_of(st.none(), nc_name()),
+        target_id=st.one_of(st.none(), nc_name()),
+        pairs=st.tuples(
+            st.builds(
+                fastkml.styles.Pair,
+                key=st.just(fastkml.enums.PairKey.normal),
+                style=st.one_of(
+                    st.builds(
+                        fastkml.StyleUrl,
+                        url=urls(),
+                    ),
+                    st.builds(
+                        fastkml.Style,
+                        styles=st.lists(
+                            styles(),
+                            min_size=1,
+                            max_size=1,
+                        ),
+                    ),
+                ),
+            ),
+            st.builds(
+                fastkml.styles.Pair,
+                key=st.just(fastkml.enums.PairKey.highlight),
+                style=st.one_of(
+                    st.builds(
+                        fastkml.StyleUrl,
+                        url=urls(),
+                    ),
+                    st.builds(
+                        fastkml.Style,
+                        styles=st.lists(
+                            styles(),
+                            min_size=1,
+                            max_size=1,
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+    def test_fuzz_style_map_pairs(
+        self,
+        id: typing.Optional[str],
+        target_id: typing.Optional[str],
+        pairs: typing.Optional[typing.Tuple[fastkml.styles.Pair]],
+    ) -> None:
+        style_map = fastkml.StyleMap(id=id, target_id=target_id, pairs=pairs)
+
+        assert_repr_roundtrip(style_map)
+        assert_str_roundtrip(style_map)
+        assert_str_roundtrip_terse(style_map)
+        assert_str_roundtrip_verbose(style_map)

@@ -31,6 +31,7 @@ from pygeoif.types import GeoCollectionType
 from pygeoif.types import GeoType
 
 from fastkml import atom
+from fastkml import config
 from fastkml import gx
 from fastkml.base import _XMLObject
 from fastkml.data import ExtendedData
@@ -97,6 +98,8 @@ class Snippet(_XMLObject):
     maximum number of lines to display.
     """
 
+    _default_nsid = config.KML
+
     text: Optional[str]
     max_lines: Optional[int] = None
 
@@ -109,7 +112,7 @@ class Snippet(_XMLObject):
         **kwargs: Any,
     ) -> None:
         """
-        Initialize a Feature object.
+        Initialize a Snippet object.
 
         Args:
         ----
@@ -130,7 +133,7 @@ class Snippet(_XMLObject):
 
         """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
-        self.text = text
+        self.text = text.strip() or None if text else None
         self.max_lines = max_lines
 
     def __repr__(self) -> str:
@@ -168,9 +171,9 @@ class Snippet(_XMLObject):
 registry.register(
     Snippet,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="text",
-        node_name="",
+        node_name="Snippet",
         classes=(str,),
         get_kwarg=node_text_kwarg,
         set_element=node_text,
@@ -284,7 +287,7 @@ class _Feature(TimeMixin, _BaseObject):
             **kwargs,
         )
         self.name = name
-        self.description = description
+        self.description = description.strip() or None if description else None
         self.style_url = style_url
         self.styles = list(styles) if styles else []
         self.view = view

@@ -201,9 +201,11 @@ class TestLxml(Lxml):
         ],
     ) -> None:
         extended_data = fastkml.ExtendedData(
-            elements=sorted(elements, key=lambda t: t.__class__.__name__)
-            if elements
-            else None,
+            elements=(
+                sorted(elements, key=lambda t: t.__class__.__name__)
+                if elements
+                else None
+            ),
         )
 
         assert_repr_roundtrip(extended_data)

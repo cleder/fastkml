@@ -1165,11 +1165,11 @@ registry.register(
         attr_name="styles",
         node_name="Style",
         classes=(
-            BalloonStyle,
             IconStyle,
             LabelStyle,
             LineStyle,
             PolyStyle,
+            BalloonStyle,
         ),
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
@@ -1284,7 +1284,7 @@ registry.register(
     RegistryItem(
         ns_ids=("kml",),
         attr_name="style",
-        node_name="style",
+        node_name="Style",
         classes=(
             StyleUrl,
             Style,

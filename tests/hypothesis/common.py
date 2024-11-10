@@ -36,6 +36,7 @@ from fastkml.enums import ColorMode
 from fastkml.enums import DataType
 from fastkml.enums import DateTimeResolution
 from fastkml.enums import DisplayMode
+from fastkml.enums import PairKey
 from fastkml.enums import RefreshMode
 from fastkml.enums import Units
 from fastkml.enums import Verbosity
@@ -67,6 +68,7 @@ eval_locals = {
     "Units": Units,
     "ColorMode": ColorMode,
     "DisplayMode": DisplayMode,
+    "PairKey": PairKey,
     "tzutc": tzutc,
     "tzfile": tzfile,
 }

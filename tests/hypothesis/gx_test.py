@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test gx Track and MultiTrack."""
+
 import typing
 
 from hypothesis import given
@@ -37,16 +38,11 @@ from tests.hypothesis.strategies import nc_name
 
 track_items = st.builds(
     TrackItem,
-    angle=st.one_of(
-        st.one_of(
-            st.builds(Angle),
-            st.builds(
-                Angle,
-                heading=st.floats(allow_nan=False, allow_infinity=False),
-                roll=st.floats(allow_nan=False, allow_infinity=False),
-                tilt=st.floats(allow_nan=False, allow_infinity=False),
-            ),
-        ),
+    angle=st.builds(
+        Angle,
+        heading=st.floats(allow_nan=False, allow_infinity=False),
+        roll=st.floats(allow_nan=False, allow_infinity=False),
+        tilt=st.floats(allow_nan=False, allow_infinity=False),
     ),
     coord=points(srs=epsg4326),
     when=kml_datetimes(),
@@ -54,7 +50,6 @@ track_items = st.builds(
 
 
 class TestGx(Lxml):
-
     @given(
         id=st.one_of(st.none(), nc_name()),
         target_id=st.one_of(st.none(), nc_name()),

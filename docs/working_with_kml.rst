@@ -195,9 +195,6 @@ Now we can remove the CascadingStyle from the document and have a look at the re
         </kml:Pair>
       </kml:StyleMap>
       <kml:Style id="__managed_style_25EBAAC82614827EFCCB">
-        <kml:BalloonStyle>
-          <kml:displayMode>hide</kml:displayMode>
-        </kml:BalloonStyle>
         <kml:IconStyle>
           <kml:scale>1.2</kml:scale>
           <kml:Icon>
@@ -211,11 +208,11 @@ Now we can remove the CascadingStyle from the document and have a look at the re
         <kml:PolyStyle>
           <kml:color>80000000</kml:color>
         </kml:PolyStyle>
-      </kml:Style>
-      <kml:Style id="__managed_style_14CDD4276C14827EFCCB">
         <kml:BalloonStyle>
           <kml:displayMode>hide</kml:displayMode>
         </kml:BalloonStyle>
+      </kml:Style>
+      <kml:Style id="__managed_style_14CDD4276C14827EFCCB">
         <kml:IconStyle>
           <kml:Icon>
             <kml:href>https://earth.google.com/earth/rpc/cc/icon?color=1976d2&amp;id=2000&amp;scale=4</kml:href>
@@ -228,6 +225,9 @@ Now we can remove the CascadingStyle from the document and have a look at the re
         <kml:PolyStyle>
           <kml:color>80000000</kml:color>
         </kml:PolyStyle>
+        <kml:BalloonStyle>
+          <kml:displayMode>hide</kml:displayMode>
+        </kml:BalloonStyle>
       </kml:Style>
       <kml:Placemark id="04AFE6060F147CE66FBD">
         <kml:name>Ort1</kml:name>
