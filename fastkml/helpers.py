@@ -41,6 +41,11 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+def clean_string(value: Optional[str]) -> Optional[str]:
+    """Clean and validate a string value, returning None if empty."""
+    return value.strip() or None if value else None
+
+
 def handle_error(
     *,
     error: Exception,
