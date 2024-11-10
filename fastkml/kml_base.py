@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Abstract base classes."""
+
 from typing import Any
 from typing import Dict
 from typing import Optional

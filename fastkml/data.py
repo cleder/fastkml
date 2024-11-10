@@ -32,6 +32,7 @@ from fastkml.enums import DataType
 from fastkml.exceptions import KMLSchemaError
 from fastkml.helpers import attribute_enum_kwarg
 from fastkml.helpers import attribute_text_kwarg
+from fastkml.helpers import clean_string
 from fastkml.helpers import enum_attribute
 from fastkml.helpers import node_text
 from fastkml.helpers import node_text_kwarg
@@ -116,9 +117,9 @@ class SimpleField(_XMLObject):
             name_spaces=name_spaces,
             **kwargs,
         )
-        self.name = name.strip() or None if name else None
+        self.name = clean_string(name)
         self.type_ = type_ or None
-        self.display_name = display_name.strip() or None if display_name else None
+        self.display_name = clean_string(display_name)
 
     def __repr__(self) -> str:
         """
@@ -246,9 +247,9 @@ class Schema(_XMLObject):
             name_spaces=name_spaces,
             **kwargs,
         )
-        self.name = name.strip() or None if name else None
+        self.name = clean_string(name)
         self.fields = list(fields) if fields else []
-        self.id = id.strip() or None if id else None
+        self.id = clean_string(id)
 
     def __repr__(self) -> str:
         """
@@ -364,9 +365,9 @@ class Data(_BaseObject):
             target_id=target_id,
             **kwargs,
         )
-        self.name = name.strip() or None if name else None
-        self.value = value.strip() or None if value else None
-        self.display_name = display_name.strip() or None if display_name else None
+        self.name = clean_string(name)
+        self.value = clean_string(value)
+        self.display_name = clean_string(display_name)
 
     def __repr__(self) -> str:
         """
@@ -471,8 +472,8 @@ class SimpleData(_XMLObject):
             name_spaces=name_spaces,
             **kwargs,
         )
-        self.name = name.strip() or None if name else None
-        self.value = value.strip() or None if value else None
+        self.name = clean_string(name)
+        self.value = clean_string(value)
 
     def __repr__(self) -> str:
         """
@@ -579,7 +580,7 @@ class SchemaData(_BaseObject):
             target_id=target_id,
             **kwargs,
         )
-        self.schema_url = schema_url.strip() or None if schema_url else None
+        self.schema_url = clean_string(schema_url)
         self.data = list(data) if data else []
 
     def __repr__(self) -> str:

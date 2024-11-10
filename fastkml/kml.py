@@ -25,6 +25,7 @@ The complete XML schema for KML is located at
 http://schemas.opengis.net/kml/.
 
 """
+
 import logging
 from pathlib import Path
 from typing import IO

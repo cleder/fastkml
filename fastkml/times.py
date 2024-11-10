@@ -22,6 +22,7 @@ time period or point in time.
 
 https://developers.google.com/kml/documentation/time
 """
+
 import re
 from datetime import date
 from datetime import datetime

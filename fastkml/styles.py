@@ -39,6 +39,7 @@ from fastkml.enums import Units
 from fastkml.helpers import attribute_enum_kwarg
 from fastkml.helpers import attribute_float_kwarg
 from fastkml.helpers import bool_subelement
+from fastkml.helpers import clean_string
 from fastkml.helpers import enum_attribute
 from fastkml.helpers import enum_subelement
 from fastkml.helpers import float_attribute
@@ -108,7 +109,7 @@ class StyleUrl(_XMLObject):
             name_spaces=name_spaces,
             **kwargs,
         )
-        self.url = url
+        self.url = clean_string(url)
 
     def __repr__(self) -> str:
         """Create a string (c)representation for StyleUrl."""
@@ -221,7 +222,7 @@ class _ColorStyle(_BaseObject):
             target_id=target_id,
             **kwargs,
         )
-        self.color = color
+        self.color = clean_string(color)
         self.color_mode = color_mode
 
     def __repr__(self) -> str:
@@ -474,7 +475,7 @@ class IconStyle(_ColorStyle):
             color_mode=color_mode,
             **kwargs,
         )
-        icon_href = icon_href.strip() or None if icon_href else None
+        icon_href = clean_string(icon_href)
         self.scale = scale
         self.heading = heading
         if icon_href and icon:
@@ -986,9 +987,9 @@ class BalloonStyle(_BaseObject):
             target_id=target_id,
             **kwargs,
         )
-        self.bg_color = bg_color
-        self.text_color = text_color
-        self.text = text.strip() or None if text else None
+        self.bg_color = clean_string(bg_color)
+        self.text_color = clean_string(text_color)
+        self.text = clean_string(text)
         self.display_mode = display_mode
 
     def __repr__(self) -> str:

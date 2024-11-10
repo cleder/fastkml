@@ -24,6 +24,7 @@ It provides a subset of KML and is aimed at documents that can be read from
 multiple clients such as openlayers and google maps rather than to give you all
 functionality that KML on google earth provides.
 """
+
 from fastkml.about import __version__  # noqa: F401
 from fastkml.atom import Author as AtomAuthor
 from fastkml.atom import Contributor as AtomContributor

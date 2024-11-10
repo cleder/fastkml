@@ -37,6 +37,7 @@ from fastkml.geometry import LineString
 from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
+from fastkml.helpers import clean_string
 from fastkml.helpers import enum_subelement
 from fastkml.helpers import float_subelement
 from fastkml.helpers import int_subelement
@@ -203,7 +204,7 @@ class _Overlay(_Feature):
             extended_data=extended_data,
         )
         self.icon = icon
-        self.color = color
+        self.color = clean_string(color)
         self.draw_order = draw_order
 
     def __repr__(self) -> str:

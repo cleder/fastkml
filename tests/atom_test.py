@@ -89,7 +89,7 @@ class TestStdLibrary(StdLibrary):
             'rel="alternate" type="text/html" hreflang="en" '
             'title="Title" length="3456" />',
         )
-        assert link.href == ""
+        assert link.href is None
 
     def test_atom_person_ns(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"
