@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the gx classes."""
+
 import datetime
 
 import pygeoif.geometry as geo

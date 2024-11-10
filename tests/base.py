@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Base classes to run the tests both with the std library and lxml."""
+
 import xml.etree.ElementTree as ET
 
 import pytest

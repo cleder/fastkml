@@ -16,7 +16,10 @@
 
 """Test the kml classes."""
 
+import datetime
+
 import pytest
+from dateutil.tz import tzutc
 from pygeoif import geometry as geo
 
 from fastkml import atom
@@ -24,6 +27,7 @@ from fastkml import features
 from fastkml import geometry
 from fastkml import links
 from fastkml import styles
+from fastkml import times
 from fastkml import views
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -45,6 +49,49 @@ class TestStdLibrary(StdLibrary):
         assert f.styles == []
         assert f.times is None
         assert "_Feature>" in str(f.to_string())
+
+    def test_placemark_empty_str_roundtrip(self) -> None:
+        pm = features.Placemark()
+
+        new_pm = features.Placemark.from_string(str(pm.to_string()))
+
+        assert new_pm == pm
+
+    def test_placemark_camera_str_roundtrip(self) -> None:
+        camera = views.Camera(
+            latitude=37.0,
+            longitude=-122.0,
+            altitude=0.0,
+            roll=0.0,
+            tilt=0.0,
+            heading=0.0,
+        )
+        pm = features.Placemark(view=camera)
+
+        new_pm = features.Placemark.from_string(str(pm.to_string()))
+
+        assert new_pm == pm
+
+    def test_placemark_timespan_str_roundtrip(self) -> None:
+        time_span = times.TimeSpan(
+            begin=times.KmlDateTime(
+                dt=datetime.datetime(
+                    2012,
+                    3,
+                    5,
+                    0,
+                    48,
+                    32,
+                    tzinfo=tzutc(),
+                ),
+            ),
+            end=times.KmlDateTime(dt=datetime.date(2012, 4, 5)),
+        )
+        pm = features.Placemark(times=time_span)
+
+        new_pm = features.Placemark.from_string(str(pm.to_string()))
+
+        assert new_pm == pm
 
     def test_placemark_geometry_parameter_set(self) -> None:
         """Placemark object can be created with geometry parameter."""

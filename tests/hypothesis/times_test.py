@@ -19,6 +19,7 @@ Property-based tests for the times module.
 These tests use the hypothesis library to generate random input for the
 functions under test. The tests are run with pytest.
 """
+
 import typing
 
 from hypothesis import given

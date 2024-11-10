@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the geometry classes."""
+
 import pygeoif.geometry as geo
 import pytest
 

@@ -16,7 +16,6 @@
 
 """Test the (Abstract)Views classes."""
 
-
 from fastkml import views
 from fastkml.enums import AltitudeMode
 from tests.base import Lxml
@@ -79,7 +78,6 @@ class TestStdLibrary(StdLibrary):
         assert camera.target_id == "target-cam-id"
 
     def test_create_look_at(self) -> None:
-
         look_at = views.LookAt(
             id="look-at-id",
             target_id="target-look-at-id",

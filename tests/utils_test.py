@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test the utils module."""
+
 from typing import List
 
 from fastkml import Schema
@@ -29,7 +30,6 @@ class TestFindAll(StdLibrary):
     """Test the find_all function."""
 
     def test_find_all(self) -> None:
-
         class A:
             def __init__(self, x: int) -> None:
                 self.x = x

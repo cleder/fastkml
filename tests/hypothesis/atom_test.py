@@ -40,7 +40,6 @@ from tests.hypothesis.strategies import xml_text
 
 
 class TestLxml(Lxml):
-
     @given(
         href=urls(),
         rel=st.one_of(st.none(), xml_text()),

@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Property based tests of the Geometry classes."""
+
 from __future__ import annotations
 
 from functools import partial

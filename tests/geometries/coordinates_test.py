@@ -16,7 +16,6 @@
 
 """Test the coordinates class."""
 
-
 from fastkml.geometry import Coordinates
 from tests.base import Lxml
 from tests.base import StdLibrary
