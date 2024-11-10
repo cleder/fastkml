@@ -645,8 +645,9 @@ def subelement_text_kwarg(
 
     """
     node = element.find(f"{ns}{node_name}")
-    if node is None:
+    if node is None or node.text is None:
         return {}
+    assert isinstance(node.text, str)  # noqa: S101
     return {kwarg: node.text.strip()} if node.text and node.text.strip() else {}
 
 

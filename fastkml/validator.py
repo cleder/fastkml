@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Validate KML files against the XML schema."""
+
 import logging
 import pathlib
 from functools import lru_cache
@@ -97,6 +98,8 @@ def validate(
                     0
                 ].getparent()
             except config.etree.XPathEvalError:
+                parent = element
+            if parent is None:
                 parent = element
             error_in_xml = config.etree.tostring(
                 parent,

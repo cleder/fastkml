@@ -69,11 +69,7 @@ common_geometry = partial(
     altitude_mode=st.one_of(
         st.none(),
         st.sampled_from(
-            (
-                AltitudeMode.absolute,
-                AltitudeMode.clamp_to_ground,
-                AltitudeMode.relative_to_ground,
-            ),
+            AltitudeMode,
         ),
     ),
 )

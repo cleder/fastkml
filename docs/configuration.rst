@@ -11,7 +11,9 @@ as its parser, but you can change this by setting the
 implementation.
 
 E.g. if you have lxml installed, but you want to use the
-standard ``xml.etree.ElementTree``, you can do this::
+standard ``xml.etree.ElementTree``, you can do this:
+
+.. code-block:: pycon
 
     >>> import fastkml.config
     >>> import xml.etree.ElementTree

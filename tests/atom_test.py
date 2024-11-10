@@ -145,14 +145,14 @@ class TestStdLibrary(StdLibrary):
             ns="{http://www.w3.org/2005/Atom}",
         )
 
-        assert a.name == ""
+        assert a.name is None
         assert a.uri == "http://localhost"
         assert a.email == "cl@donotreply.com"
 
     def test_atom_contributor_no_name(self) -> None:
         a = atom.Contributor(uri="http://localhost", email="cl@donotreply.com")
 
-        assert a.name == ""
+        assert a.name is None
         assert "atom:name" not in a.to_string()
 
     def test_atom_contributor_roundtrip(self) -> None:

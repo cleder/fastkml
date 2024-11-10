@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the __repr__ and __eq__ methods."""
+
 import difflib
 from textwrap import wrap
 from typing import Final
@@ -273,8 +274,6 @@ class TestRepr(StdLibrary):
                                         "atom": "{http://www.w3.org/2005/Atom}",
                                         "gx": "{http://www.google.com/kml/ext/2.2}",
                                     },
-                                    id="",
-                                    target_id="",
                                     url="#style-002",
                                 ),
                             ),
@@ -295,8 +294,6 @@ class TestRepr(StdLibrary):
                                         "atom": "{http://www.w3.org/2005/Atom}",
                                         "gx": "{http://www.google.com/kml/ext/2.2}",
                                     },
-                                    id="",
-                                    target_id="",
                                     url="#style-001",
                                 ),
                             ),
@@ -340,7 +337,6 @@ class TestRepr(StdLibrary):
                             tilt=61.61116895973212,
                             range=359.3753895394523,
                             altitude_mode=AltitudeMode.relative_to_ground,
-                            time_primitive=None,
                         ),
                         times=None,
                         style_url=None,
@@ -400,8 +396,6 @@ class TestRepr(StdLibrary):
                                                 "atom": "{http://www.w3.org/2005/Atom}",
                                                 "gx": "{http://www.google.com/kml/ext/2.2}",
                                             },
-                                            id="",
-                                            target_id="",
                                             url="#khStyle712",
                                         ),
                                         styles=[],
@@ -458,8 +452,6 @@ class TestRepr(StdLibrary):
                                                 "atom": "{http://www.w3.org/2005/Atom}",
                                                 "gx": "{http://www.google.com/kml/ext/2.2}",
                                             },
-                                            id="",
-                                            target_id="",
                                             url="#khStyle887",
                                         ),
                                         styles=[],
@@ -556,8 +548,6 @@ class TestRepr(StdLibrary):
                                                 "atom": "{http://www.w3.org/2005/Atom}",
                                                 "gx": "{http://www.google.com/kml/ext/2.2}",
                                             },
-                                            id="",
-                                            target_id="",
                                             url="#khStyle887",
                                         ),
                                         styles=[],
@@ -654,8 +644,6 @@ class TestRepr(StdLibrary):
                                                 "atom": "{http://www.w3.org/2005/Atom}",
                                                 "gx": "{http://www.google.com/kml/ext/2.2}",
                                             },
-                                            id="",
-                                            target_id="",
                                             url="#khStyle887",
                                         ),
                                         styles=[],
@@ -897,8 +885,6 @@ class TestRepr(StdLibrary):
                                                 "atom": "{http://www.w3.org/2005/Atom}",
                                                 "gx": "{http://www.google.com/kml/ext/2.2}",
                                             },
-                                            id="",
-                                            target_id="",
                                             url="#khStyle887",
                                         ),
                                         styles=[],
@@ -1485,7 +1471,6 @@ class TestRepr(StdLibrary):
                             tilt=51.96,
                             range=301.9568,
                             altitude_mode=AltitudeMode.relative_to_ground,
-                            time_primitive=None,
                         ),
                         times=None,
                         style_url=None,
@@ -1623,8 +1608,6 @@ class TestRepr(StdLibrary):
                                 "atom": "{http://www.w3.org/2005/Atom}",
                                 "gx": "{http://www.google.com/kml/ext/2.2}",
                             },
-                            id="ed-001",
-                            target_id="",
                             elements=[
                                 fastkml.data.Data(
                                     ns="{http://www.opengis.net/kml/2.2}",

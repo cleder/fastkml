@@ -62,7 +62,7 @@ from fastkml.registry import registry
 logger = logging.getLogger(__name__)
 
 
-class StyleUrl(_BaseObject):
+class StyleUrl(_XMLObject):
     """
     URL of a <Style> or <StyleMap> defined in a Document.
 
@@ -73,14 +73,14 @@ class StyleUrl(_BaseObject):
     https://developers.google.com/kml/documentation/kmlreference#styleurl
     """
 
+    _default_nsid = config.KML
+
     url: Optional[str]
 
     def __init__(
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
         url: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
@@ -93,10 +93,6 @@ class StyleUrl(_BaseObject):
             The namespace of the Style object.
         name_spaces : dict, optional
             A dictionary of namespace prefixes and their corresponding URIs.
-        id : str, optional
-            The ID of the Style object.
-        target_id : str, optional
-            The ID of the target object that this Style object applies to.
         url : str, optional
             The URL of the Style object.
         **kwargs : Any
@@ -110,8 +106,6 @@ class StyleUrl(_BaseObject):
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
-            id=id,
-            target_id=target_id,
             **kwargs,
         )
         self.url = url
@@ -122,8 +116,6 @@ class StyleUrl(_BaseObject):
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
             f"url={self.url!r}, "
             f"**{self._get_splat()!r},"
             ")"
@@ -352,10 +344,10 @@ class HotSpot(_XMLObject):
 
         Returns
         -------
-            bool: True if both x and y are not None, False otherwise.
+            bool: True.
 
         """
-        return all((self.x is not None, self.y is not None))
+        return True
 
     @classmethod
     def get_tag_name(cls) -> str:
@@ -430,7 +422,7 @@ class IconStyle(_ColorStyle):
     heading: Optional[float]
     # Direction (that is, North, South, East, West), in degrees.
     # Default=0 (North).
-    icon_href: Optional[str]
+    icon: Optional[Icon]
     # An HTTP address or a local file specification used to load an icon.
     hot_spot: Optional[HotSpot]
 
@@ -445,6 +437,7 @@ class IconStyle(_ColorStyle):
         scale: Optional[float] = None,
         heading: Optional[float] = None,
         icon: Optional[Icon] = None,
+        icon_href: Optional[str] = None,
         hot_spot: Optional[HotSpot] = None,
         **kwargs: Any,
     ) -> None:
@@ -463,6 +456,7 @@ class IconStyle(_ColorStyle):
             scale (Optional[float]): The scale of the Style object.
             heading (Optional[float]): The heading of the Style object.
             icon (Optional[Icon]): The icon of the Style object.
+            icon_href (Optional[str]): The href of the icon can be passed as a shortcut.
             hot_spot (Optional[HotSpot]): The hot spot of the Style object.
             **kwargs (Any): Additional keyword arguments.
 
@@ -480,9 +474,16 @@ class IconStyle(_ColorStyle):
             color_mode=color_mode,
             **kwargs,
         )
-
+        icon_href = icon_href.strip() or None if icon_href else None
         self.scale = scale
         self.heading = heading
+        if icon_href and icon:
+            logger.warning(
+                "Both icon_href and icon were provided. "
+                "Ignoring icon_href and using icon.",
+            )
+        if icon_href and not icon:
+            icon = Icon(ns=ns, name_spaces=name_spaces, href=icon_href)
         self.icon = icon
         self.hot_spot = hot_spot
 
@@ -515,6 +516,11 @@ class IconStyle(_ColorStyle):
 
         """
         return bool(self.icon)
+
+    @property
+    def icon_href(self) -> Optional[str]:
+        """Return the icon href."""
+        return self.icon.href if self.icon else None
 
 
 registry.register(
@@ -982,7 +988,7 @@ class BalloonStyle(_BaseObject):
         )
         self.bg_color = bg_color
         self.text_color = text_color
-        self.text = text
+        self.text = text.strip() or None if text else None
         self.display_mode = display_mode
 
     def __repr__(self) -> str:
@@ -1159,11 +1165,11 @@ registry.register(
         attr_name="styles",
         node_name="Style",
         classes=(
-            BalloonStyle,
             IconStyle,
             LabelStyle,
             LineStyle,
             PolyStyle,
+            BalloonStyle,
         ),
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
@@ -1278,7 +1284,7 @@ registry.register(
     RegistryItem(
         ns_ids=("kml",),
         attr_name="style",
-        node_name="style",
+        node_name="Style",
         classes=(
             StyleUrl,
             Style,

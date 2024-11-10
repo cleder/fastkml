@@ -88,15 +88,30 @@ class KmlDateTime:
         resolution: Optional[DateTimeResolution] = None,
     ) -> None:
         """Initialize a KmlDateTime object."""
-        self.dt = dt
-        self.resolution = resolution
         if resolution is None:
             # sourcery skip: swap-if-expression
-            self.resolution = (
+            resolution = (
                 DateTimeResolution.date
                 if not isinstance(dt, datetime)
                 else DateTimeResolution.datetime
             )
+        dt = (
+            dt.date()
+            if isinstance(dt, datetime) and resolution != DateTimeResolution.datetime
+            else dt
+        )
+        if resolution == DateTimeResolution.year:
+            self.dt = date(dt.year, 1, 1)
+        elif resolution == DateTimeResolution.year_month:
+            self.dt = date(dt.year, dt.month, 1)
+        else:
+            self.dt = dt
+        self.resolution = (
+            DateTimeResolution.date
+            if not isinstance(self.dt, datetime)
+            and resolution == DateTimeResolution.datetime
+            else resolution
+        )
 
     def __repr__(self) -> str:
         """Create a string (c)representation for KmlDateTime."""
@@ -142,7 +157,7 @@ class KmlDateTime:
             year = int(year_month_day_match.group("year"))
             month = int(year_month_day_match.group("month") or 1)
             day = int(year_month_day_match.group("day") or 1)
-            dt = arrow.get(year, month, day).datetime
+            dt = date(year, month, day)
             resolution = DateTimeResolution.date
             if year_month_day_match.group("day") is None:
                 resolution = DateTimeResolution.year_month

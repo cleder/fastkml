@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Common functionality for property based tests."""
+
 import datetime
 import logging
 
@@ -31,8 +32,13 @@ from pygeoif.geometry import Polygon
 import fastkml
 from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
+from fastkml.enums import ColorMode
+from fastkml.enums import DataType
 from fastkml.enums import DateTimeResolution
+from fastkml.enums import DisplayMode
+from fastkml.enums import PairKey
 from fastkml.enums import RefreshMode
+from fastkml.enums import Units
 from fastkml.enums import Verbosity
 from fastkml.enums import ViewRefreshMode
 from fastkml.gx import Angle
@@ -58,6 +64,11 @@ eval_locals = {
     "Angle": Angle,
     "datetime": datetime,
     "DateTimeResolution": DateTimeResolution,
+    "DataType": DataType,
+    "Units": Units,
+    "ColorMode": ColorMode,
+    "DisplayMode": DisplayMode,
+    "PairKey": PairKey,
     "tzutc": tzutc,
     "tzfile": tzfile,
 }
