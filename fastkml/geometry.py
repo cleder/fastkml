@@ -425,7 +425,7 @@ class Point(_Geometry):
         """
         if geometry is not None and kml_coordinates is not None:
             raise GeometryError(MsgMutualExclusive)
-        if kml_coordinates is None:
+        if kml_coordinates is None and geometry:
             kml_coordinates = (
                 Coordinates(coords=geometry.coords)  # type: ignore[arg-type]
                 if geometry

@@ -178,7 +178,9 @@ class TestLxml(Lxml):
             st.none(),
             st.builds(
                 fastkml.features.Snippet,
-                text=xml_text(min_size=1, max_size=256),
+                text=xml_text(min_size=1, max_size=256).filter(
+                    lambda x: x.strip() != "",
+                ),
                 max_lines=st.integers(min_value=1, max_value=20),
             ),
         ),

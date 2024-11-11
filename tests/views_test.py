@@ -143,7 +143,9 @@ class TestStdLibrary(StdLibrary):
             ),
         )
 
+        assert region
         assert region.id == "region1"
+        assert region.lat_lon_alt_box
         assert region.lat_lon_alt_box.north == 37.85
         assert region.lat_lon_alt_box.south == 37.80
         assert region.lat_lon_alt_box.east == -122.35
@@ -151,12 +153,11 @@ class TestStdLibrary(StdLibrary):
         assert region.lat_lon_alt_box.min_altitude == 0
         assert region.lat_lon_alt_box.max_altitude == 1000
         assert region.lat_lon_alt_box.altitude_mode == AltitudeMode.clamp_to_ground
+        assert region.lod
         assert region.lod.min_lod_pixels == 256
         assert region.lod.max_lod_pixels == 1024
         assert region.lod.min_fade_extent == 0
         assert region.lod.max_fade_extent == 512
-        assert region
-        assert bool(region)
 
     def test_region_read(self) -> None:
         doc = (
@@ -175,6 +176,7 @@ class TestStdLibrary(StdLibrary):
         region = views.Region.from_string(doc)
 
         assert region.id == "region1"
+        assert region.lat_lon_alt_box
         assert region.lat_lon_alt_box.north == 37.85
         assert region.lat_lon_alt_box.south == 37.80
         assert region.lat_lon_alt_box.east == -122.35
@@ -182,6 +184,7 @@ class TestStdLibrary(StdLibrary):
         assert region.lat_lon_alt_box.min_altitude == 0
         assert region.lat_lon_alt_box.max_altitude == 1000
         assert region.lat_lon_alt_box.altitude_mode == AltitudeMode.clamp_to_ground
+        assert region.lod
         assert region.lod.min_lod_pixels == 256
         assert region.lod.max_lod_pixels == 1024
         assert region.lod.min_fade_extent == 0
