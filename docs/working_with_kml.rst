@@ -45,7 +45,7 @@ We could also search for all Points, which will also return the Points inside th
     POINT Z (-123.3215766 49.2760338 0.0)
     POINT Z (-123.2643704 49.3301853 0.0)
     POINT Z (-123.2477084 49.2890857 0.0)
-
+    POINT Z (8.23 46.707 0.0)
 
 
 ``find_all`` can also search for arbitrary elements by their attributes, by passing the
