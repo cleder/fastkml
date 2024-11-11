@@ -45,6 +45,7 @@ from fastkml.base import _XMLObject
 from fastkml.containers import Document
 from fastkml.containers import Folder
 from fastkml.enums import Verbosity
+from fastkml.features import NetworkLink
 from fastkml.features import Placemark
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
@@ -214,8 +215,8 @@ registry.register(
     KML,
     RegistryItem(
         ns_ids=("kml",),
-        classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay),
-        node_name="Document,Folder,Placemark,GroundOverlay,PhotoOverlay",
+        classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay, NetworkLink),
+        node_name="Document,Folder,Placemark,GroundOverlay,PhotoOverlay,NetworkLink",
         attr_name="features",
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
