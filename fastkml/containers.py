@@ -28,6 +28,7 @@ from fastkml import atom
 from fastkml import gx
 from fastkml.data import ExtendedData
 from fastkml.data import Schema
+from fastkml.features import NetworkLink
 from fastkml.features import Placemark
 from fastkml.features import Snippet
 from fastkml.features import _Feature
@@ -38,6 +39,8 @@ from fastkml.geometry import Point
 from fastkml.geometry import Polygon
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.overlays import GroundOverlay
+from fastkml.overlays import PhotoOverlay
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 from fastkml.styles import Style
@@ -166,6 +169,8 @@ class Folder(_Container):
     A Folder is used to arrange other Features hierarchically.
 
     It may contain Folders, Placemarks, NetworkLinks, or Overlays.
+
+    https://developers.google.com/kml/documentation/kmlreference#folder
     """
 
 
@@ -200,7 +205,7 @@ class Document(_Container):
         styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
-        features: Optional[List[_Feature]] = None,
+        features: Optional[Iterable[_Feature]] = None,
         schemata: Optional[Iterable[Schema]] = None,
         **kwargs: Any,
     ) -> None:
@@ -323,8 +328,8 @@ registry.register(
     RegistryItem(
         ns_ids=("kml",),
         attr_name="features",
-        node_name="Folder,Placemark,Document",
-        classes=(Folder, Placemark, Document),
+        node_name="Folder,Placemark,Document,GroundOverlay,PhotoOverlay,NetworkLink",
+        classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay, NetworkLink),
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
     ),

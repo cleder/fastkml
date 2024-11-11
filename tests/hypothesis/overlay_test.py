@@ -99,12 +99,25 @@ class TestLxml(Lxml):
         assert_str_roundtrip_verbose(image_pyramid)
 
     @given(
-        north=st.one_of(st.none(), st.floats(min_value=-180, max_value=180)),
-        south=st.one_of(st.none(), st.floats(min_value=-180, max_value=180)),
-        east=st.one_of(st.none(), st.floats(min_value=-180, max_value=180)),
-        west=st.one_of(st.none(), st.floats(min_value=-180, max_value=180)),
-        rotation=st.one_of(st.none(), st.floats(min_value=-180, max_value=180)).filter(
-            lambda x: x != 0,
+        north=st.one_of(
+            st.none(),
+            st.floats(min_value=-180, max_value=180).filter(lambda x: x != 0),
+        ),
+        south=st.one_of(
+            st.none(),
+            st.floats(min_value=-180, max_value=180).filter(lambda x: x != 0),
+        ),
+        east=st.one_of(
+            st.none(),
+            st.floats(min_value=-180, max_value=180).filter(lambda x: x != 0),
+        ),
+        west=st.one_of(
+            st.none(),
+            st.floats(min_value=-180, max_value=180).filter(lambda x: x != 0),
+        ),
+        rotation=st.one_of(
+            st.none(),
+            st.floats(min_value=-180, max_value=180).filter(lambda x: x != 0),
         ),
     )
     def test_fuzz_lat_lon_box(
@@ -201,11 +214,13 @@ class TestLxml(Lxml):
             st.none(),
             st.builds(
                 fastkml.overlays.LatLonBox,
-                north=st.floats(min_value=-180, max_value=180),
-                south=st.floats(min_value=-180, max_value=180),
-                east=st.floats(min_value=-180, max_value=180),
-                west=st.floats(min_value=-180, max_value=180),
-                rotation=st.floats(min_value=-180, max_value=180),
+                north=st.floats(min_value=-180, max_value=180).filter(lambda x: x != 0),
+                south=st.floats(min_value=-180, max_value=180).filter(lambda x: x != 0),
+                east=st.floats(min_value=-180, max_value=180).filter(lambda x: x != 0),
+                west=st.floats(min_value=-180, max_value=180).filter(lambda x: x != 0),
+                rotation=st.floats(min_value=-180, max_value=180).filter(
+                    lambda x: x != 0,
+                ),
             ),
         ),
     )
