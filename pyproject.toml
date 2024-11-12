@@ -249,6 +249,11 @@ include-package-data = true
 [tool.setuptools.dynamic.version]
 attr = "fastkml.about.__version__"
 
+[tool.setuptools.package-data]
+fastkml = [
+    "schema/*.xsd",
+]
+
 [tool.setuptools.packages.find]
 exclude = [
     "docs/*",
@@ -256,6 +261,5 @@ exclude = [
 include = [
     "fastkml*",
     "fastkml/py.typed",
-    "fastkml/schema/*.xsd",
 ]
 namespaces = false
