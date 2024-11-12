@@ -24,6 +24,14 @@ from typing import Optional
 from fastkml import config
 from fastkml.types import Element
 
+__all__ = [
+    "MUTUAL_EXCLUSIVE",
+    "REQUIRE_ONE_OF",
+    "get_schema_parser",
+    "handle_validation_error",
+    "validate",
+]
+
 logger = logging.getLogger(__name__)
 
 MUTUAL_EXCLUSIVE: Final = "Only one of element and file_to_validate can be provided."
@@ -51,6 +59,43 @@ def get_schema_parser(
     if schema is None:
         schema = pathlib.Path(__file__).parent / "schema" / "ogckml22.xsd"
     return config.etree.XMLSchema(config.etree.parse(schema))
+
+
+def handle_validation_error(
+    schema_parser: "config.etree.XMLSchema",
+    element: Optional[Element],
+) -> None:
+    """
+    Log the validation error in its XML context.
+
+    Args:
+    ----
+        schema_parser: The parsed XML schema.
+        element: The element to validate.
+
+    """
+    log = schema_parser.error_log
+    for error_entry in log:
+        try:
+            parent = element.xpath(error_entry.path)[  # type: ignore[union-attr]
+                0
+            ].getparent()
+        except config.etree.XPathEvalError:
+            parent = element
+        if parent is None:
+            parent = element
+        error_in_xml = config.etree.tostring(
+            parent,
+            encoding="UTF-8",
+            pretty_print=True,
+        ).decode(
+            "UTF-8",
+        )
+        logger.error(
+            "Error <%s> in XML:\n %s",
+            error_entry.message,
+            error_in_xml,
+        )
 
 
 def validate(
@@ -91,27 +136,6 @@ def validate(
     try:
         schema_parser.assert_(element)  # noqa: PT009
     except AssertionError:
-        log = schema_parser.error_log
-        for e in log:
-            try:
-                parent = element.xpath(e.path)[  # type: ignore[union-attr]
-                    0
-                ].getparent()
-            except config.etree.XPathEvalError:
-                parent = element
-            if parent is None:
-                parent = element
-            error_in_xml = config.etree.tostring(
-                parent,
-                encoding="UTF-8",
-                pretty_print=True,
-            ).decode(
-                "UTF-8",
-            )
-            logger.error(  # noqa: TRY400
-                "Error <%s> in XML:\n %s",
-                e.message,
-                error_in_xml,
-            )
+        handle_validation_error(schema_parser, element)
         raise
     return True

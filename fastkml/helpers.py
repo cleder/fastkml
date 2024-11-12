@@ -20,6 +20,7 @@ from enum import Enum
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Dict
+from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Tuple
@@ -32,6 +33,44 @@ from fastkml import config
 from fastkml.enums import Verbosity
 from fastkml.exceptions import KMLParseError
 from fastkml.types import Element
+
+__all__ = [
+    "attribute_enum_kwarg",
+    "attribute_float_kwarg",
+    "attribute_int_kwarg",
+    "attribute_text_kwarg",
+    "bool_subelement",
+    "clean_string",
+    "coords_subelement_list",
+    "coords_subelement_list_kwarg",
+    "datetime_subelement",
+    "datetime_subelement_kwarg",
+    "datetime_subelement_list",
+    "datetime_subelement_list_kwarg",
+    "enum_attribute",
+    "enum_subelement",
+    "float_attribute",
+    "float_subelement",
+    "get_coord_args",
+    "get_ns",
+    "get_value",
+    "handle_error",
+    "int_attribute",
+    "int_subelement",
+    "node_text",
+    "node_text_kwarg",
+    "subelement_bool_kwarg",
+    "subelement_enum_kwarg",
+    "subelement_float_kwarg",
+    "subelement_int_kwarg",
+    "subelement_text_kwarg",
+    "text_attribute",
+    "text_subelement",
+    "xml_subelement",
+    "xml_subelement_kwarg",
+    "xml_subelement_list",
+    "xml_subelement_list_kwarg",
+]
 
 if TYPE_CHECKING:
     from fastkml.base import _XMLObject
@@ -1104,6 +1143,29 @@ def datetime_subelement_list_kwarg(
     return {kwarg: args_list} if args_list else {}
 
 
+def get_coord_args(
+    element: Element,
+    subelements: Iterable[Element],
+    strict: bool,  # noqa: FBT001
+) -> Iterable[PointType]:
+    """Extract a list of KML coordinate values from subelements of an XML element."""
+    for subelement in subelements:
+        if subelement.text:
+            try:
+                yield cast(
+                    PointType,
+                    tuple(float(coord) for coord in subelement.text.split()),
+                )
+            except ValueError as exc:
+                handle_error(
+                    error=exc,
+                    strict=strict,
+                    element=element,
+                    node=subelement,
+                    expected="Coordinates",
+                )
+
+
 def coords_subelement_list_kwarg(
     *,
     element: Element,
@@ -1117,22 +1179,7 @@ def coords_subelement_list_kwarg(
     """Extract a list of KML coordinate values from subelements of an XML element."""
     args_list: List[PointType] = []
     if subelements := element.findall(f"{ns}{node_name}"):
-        for subelement in subelements:
-            if subelement.text:
-                try:
-                    coords = cast(
-                        PointType,
-                        tuple(float(coord) for coord in subelement.text.split()),
-                    )
-                    args_list.append(coords)
-                except ValueError as exc:
-                    handle_error(
-                        error=exc,
-                        strict=strict,
-                        element=element,
-                        node=subelement,
-                        expected="Coordinates",
-                    )
+        args_list = list(get_coord_args(element, subelements, strict))
     return {kwarg: args_list} if args_list else {}
 
 
