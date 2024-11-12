@@ -28,7 +28,6 @@ http://schemas.opengis.net/kml/.
 import logging
 import os
 from pathlib import Path
-import pathlib
 from typing import IO
 from typing import Any
 from typing import AnyStr
@@ -213,7 +212,7 @@ class KML(_XMLObject):
 
     def write(
             self,
-            file_path: pathlib.Path,
+            file_path: Path,
             *,
             prettyprint: bool = True,
             xml_declaration: bool = True
@@ -232,20 +231,31 @@ class KML(_XMLObject):
         """
         element = self.etree_element()
 
-        tree = config.etree.tostring(
-            element,
-            encoding="UTF-8",
-            pretty_print=prettyprint,
-        ).decode(
-            "UTF-8",
-        )
+        try:
+            
+            tree = config.etree.tostring(
+                    element,
+                    encoding="UTF-8",
+                    pretty_print=prettyprint,
+                    xml_declaration=xml_declaration
+                ).decode(
+                    "UTF-8",
+                )
+        except TypeError:
+            tree = config.etree.tostring(
+                    element,
+                    encoding="UTF-8",
+                    xml_declaration=xml_declaration
+                ).decode(
+                    "UTF-8",
+                )
 
         if file_path.suffix == ".kmz":
             with zipfile.ZipFile(file_path, 'w', zipfile.ZIP_DEFLATED) as kmz:
                 kmz.write(file_path, arcname=os.path.basename(file_path))
         else:
-            with open(file_path, "wb") as file:
-                tree.write(file, encoding="UTF-8", xml_declaration=xml_declaration)
+            with open(file_path, "w") as file:
+                file.write(tree)
 
 
 registry.register(
