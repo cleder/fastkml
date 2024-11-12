@@ -68,7 +68,7 @@ def get_schema_parser(
 
 def handle_validation_error(
     schema_parser: "etree.XMLSchema",
-    element: Optional[Element],
+    element: Element,
 ) -> None:
     """
     Log the validation error in its XML context.
@@ -82,7 +82,7 @@ def handle_validation_error(
     log = schema_parser.error_log
     for error_entry in log:
         try:
-            parent = element.xpath(error_entry.path)[  # type: ignore[union-attr]
+            parent = element.xpath(error_entry.path)[  # type: ignore[attr-defined]
                 0
             ].getparent()
         except config.etree.XPathEvalError:
@@ -137,7 +137,7 @@ def validate(
 
     if file_to_validate is not None:
         element = config.etree.parse(file_to_validate)
-
+    assert element is not None  # noqa: S101
     try:
         schema_parser.assert_(element)  # noqa: PT009
     except AssertionError:
