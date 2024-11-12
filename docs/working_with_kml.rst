@@ -152,11 +152,14 @@ And register the new element with the KML Document object:
 
 The CascadingStyle object is now part of the KML document and can be accessed like any
 other element.
-Now we can create a new KML object and confirm that the new element is parsed correctly:
+When parsing the document we have to skip the validation as the ``gx:CascadingStyle`` is
+not in the XSD Schema.
+
+Create a new KML object and confirm that the new element is parsed correctly:
 
 .. code-block:: pycon
 
-    >>> cs_kml = KML.parse("examples/gx_cascading_style.kml")
+    >>> cs_kml = KML.parse("examples/gx_cascading_style.kml", validate=False)
     >>> cs = find(cs_kml, of_type=CascadingStyle)
     >>> cs.style  # doctest: +ELLIPSIS
     fastkml.styles.Style(...
@@ -181,7 +184,7 @@ Now we can remove the CascadingStyle from the document and have a look at the re
 .. code-block:: pycon
 
     >>> document.gx_cascading_style = []
-    >>> print(document.to_string(prettyprint=True))
+    >>> print(document)
     <kml:Document xmlns:kml="http://www.opengis.net/kml/2.2">
       <kml:name>Test2</kml:name>
       <kml:StyleMap id="__managed_style_0D301BCC0014827EFCCB">
