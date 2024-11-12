@@ -45,7 +45,6 @@ from fastkml.enums import Verbosity
 from fastkml.enums import ViewRefreshMode
 from fastkml.gx import Angle
 from fastkml.gx import TrackItem
-from fastkml.validator import validate
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +96,7 @@ def assert_str_roundtrip(obj: _XMLObject) -> None:
 
     assert obj.to_string() == new_object.to_string()
     assert obj == new_object
-    assert validate(element=new_object.etree_element())
+    assert new_object.validate()
 
 
 def assert_str_roundtrip_terse(obj: _XMLObject) -> None:
@@ -108,7 +107,7 @@ def assert_str_roundtrip_terse(obj: _XMLObject) -> None:
     assert obj.to_string(verbosity=Verbosity.verbose) == new_object.to_string(
         verbosity=Verbosity.verbose,
     )
-    assert validate(element=new_object.etree_element())
+    assert new_object.validate()
 
 
 def assert_str_roundtrip_verbose(obj: _XMLObject) -> None:
@@ -119,4 +118,4 @@ def assert_str_roundtrip_verbose(obj: _XMLObject) -> None:
     assert obj.to_string(verbosity=Verbosity.terse) == new_object.to_string(
         verbosity=Verbosity.terse,
     )
-    assert validate(element=new_object.etree_element())
+    assert new_object.validate()

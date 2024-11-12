@@ -18,19 +18,24 @@
 import logging
 import pathlib
 from functools import lru_cache
+from typing import TYPE_CHECKING
 from typing import Final
 from typing import Optional
 
 from fastkml import config
 from fastkml.types import Element
 
+if TYPE_CHECKING:
+    import contextlib
+
+    with contextlib.suppress(ImportError):
+        from lxml import etree
+
 __all__ = [
-    "MUTUAL_EXCLUSIVE",
-    "REQUIRE_ONE_OF",
     "get_schema_parser",
-    "handle_validation_error",
     "validate",
 ]
+
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +46,7 @@ REQUIRE_ONE_OF: Final = "Either element or file_to_validate must be provided."
 @lru_cache(maxsize=16)
 def get_schema_parser(
     schema: Optional[pathlib.Path] = None,
-) -> "config.etree.XMLSchema":
+) -> "etree.XMLSchema":
     """
     Parse the XML schema.
 
@@ -62,7 +67,7 @@ def get_schema_parser(
 
 
 def handle_validation_error(
-    schema_parser: "config.etree.XMLSchema",
+    schema_parser: "etree.XMLSchema",
     element: Optional[Element],
 ) -> None:
     """
