@@ -27,7 +27,7 @@ from hypothesis import given
 from hypothesis import strategies as st
 from hypothesis.provisional import urls
 
-import fastkml
+import fastkml.atom
 import fastkml.enums
 from tests.base import Lxml
 from tests.hypothesis.common import assert_repr_roundtrip
