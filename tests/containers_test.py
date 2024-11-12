@@ -16,7 +16,6 @@
 
 """Test the kml classes."""
 
-
 import pytest
 
 from fastkml import containers

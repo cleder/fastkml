@@ -42,6 +42,7 @@ from fastkml import config
 from fastkml.base import _XMLObject
 from fastkml.helpers import attribute_int_kwarg
 from fastkml.helpers import attribute_text_kwarg
+from fastkml.helpers import clean_string
 from fastkml.helpers import int_attribute
 from fastkml.helpers import subelement_text_kwarg
 from fastkml.helpers import text_attribute
@@ -82,11 +83,11 @@ class Link(_AtomObject):
     title, and length.
     """
 
-    href: str
-    rel: str
-    type: str
-    hreflang: str
-    title: str
+    href: Optional[str]
+    rel: Optional[str]
+    type: Optional[str]
+    hreflang: Optional[str]
+    title: Optional[str]
     length: Optional[int]
 
     def __init__(
@@ -133,11 +134,11 @@ class Link(_AtomObject):
 
         """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
-        self.href = href or ""
-        self.rel = rel or ""
-        self.type = type or ""
-        self.hreflang = hreflang or ""
-        self.title = title or ""
+        self.href = clean_string(href)
+        self.rel = clean_string(rel)
+        self.type = clean_string(type)
+        self.hreflang = clean_string(hreflang)
+        self.title = clean_string(title)
         self.length = length
 
     def __repr__(self) -> str:
@@ -285,9 +286,9 @@ class _Person(_AtomObject):
 
         """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
-        self.name = name.strip() or None if name else None
-        self.uri = uri.strip() or None if uri else None
-        self.email = email.strip() or None if email else None
+        self.name = clean_string(name)
+        self.uri = clean_string(uri)
+        self.email = clean_string(email)
 
     def __repr__(self) -> str:
         """

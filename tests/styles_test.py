@@ -125,8 +125,10 @@ class TestStdLibrary(StdLibrary):
         assert icons.color == "ff2200ff"
         assert icons.color_mode == ColorMode("random")
         assert icons.scale == 5.0
+        assert icons.icon
         assert icons.icon.href == "http://example.com/icon.png"
         assert icons.heading == 20.0
+        assert icons.hot_spot
         assert icons.hot_spot.x == 0.5
         assert icons.hot_spot.y == 0.7
         assert icons.hot_spot.xunits.value == "fraction"

@@ -37,6 +37,7 @@ from fastkml.geometry import LineString
 from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
+from fastkml.helpers import clean_string
 from fastkml.helpers import enum_subelement
 from fastkml.helpers import float_subelement
 from fastkml.helpers import int_subelement
@@ -203,7 +204,7 @@ class _Overlay(_Feature):
             extended_data=extended_data,
         )
         self.icon = icon
-        self.color = color
+        self.color = clean_string(color)
         self.draw_order = draw_order
 
     def __repr__(self) -> str:
@@ -468,6 +469,8 @@ class ImagePyramid(_XMLObject):
 
     When you specify an image pyramid, you also need to modify the <href> in the <Icon>
     element to include specifications for which tiles to load.
+
+    https://developers.google.com/kml/documentation/kmlreference#imagepyramid
     """
 
     _default_nsid = config.KML
@@ -552,12 +555,7 @@ class ImagePyramid(_XMLObject):
             bool: True if all the required attributes are set, False otherwise.
 
         """
-        return (
-            self.tile_size is not None
-            and self.max_width is not None
-            and self.max_height is not None
-            and self.grid_origin is not None
-        )
+        return self.max_width is not None and self.max_height is not None
 
 
 registry.register(
@@ -1266,7 +1264,7 @@ registry.register(
 registry.register(
     GroundOverlay,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", "gx", ""),
         attr_name="altitude_mode",
         node_name="altitudeMode",
         classes=(AltitudeMode,),

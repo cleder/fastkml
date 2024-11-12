@@ -51,6 +51,12 @@ repos:
     rev: 7.1.1
     hooks:
       - id: flake8
+        additional_dependencies:
+          - flake8-cognitive-complexity
+          - flake8-comments
+          - flake8-dunder-all
+          - flake8-encodings
+          - flake8-expression-complexity
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:

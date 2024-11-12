@@ -21,6 +21,7 @@ This module contains the enums used in the fastkml package.
 https://developers.google.com/kml/documentation/kmlreference#kml-fields
 
 """
+
 import logging
 from enum import Enum
 from enum import unique

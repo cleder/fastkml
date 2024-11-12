@@ -19,34 +19,18 @@ import typing
 
 from hypothesis import given
 from hypothesis import strategies as st
-from pygeoif.hypothesis.strategies import epsg4326
-from pygeoif.hypothesis.strategies import points
 
 import fastkml
 import fastkml.enums
 import fastkml.gx
 import fastkml.types
-from fastkml.gx import Angle
-from fastkml.gx import TrackItem
 from tests.base import Lxml
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
 from tests.hypothesis.common import assert_str_roundtrip_verbose
-from tests.hypothesis.strategies import kml_datetimes
 from tests.hypothesis.strategies import nc_name
-
-track_items = st.builds(
-    TrackItem,
-    angle=st.builds(
-        Angle,
-        heading=st.floats(allow_nan=False, allow_infinity=False),
-        roll=st.floats(allow_nan=False, allow_infinity=False),
-        tilt=st.floats(allow_nan=False, allow_infinity=False),
-    ),
-    coord=points(srs=epsg4326),
-    when=kml_datetimes(),
-)
+from tests.hypothesis.strategies import track_items
 
 
 class TestGx(Lxml):
@@ -57,7 +41,7 @@ class TestGx(Lxml):
         track_items=st.one_of(
             st.none(),
             st.lists(
-                track_items,
+                track_items(),
             ),
         ),
     )
@@ -96,7 +80,7 @@ class TestGx(Lxml):
                     track_items=st.one_of(
                         st.none(),
                         st.lists(
-                            track_items,
+                            track_items(),
                         ),
                     ),
                 ),

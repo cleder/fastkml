@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test Link and Icon."""
+
 import string
 import typing
 from functools import partial
@@ -65,7 +66,6 @@ common_link = partial(
 
 
 class TestLxml(Lxml):
-
     @pytest.mark.parametrize("cls", [fastkml.Link, fastkml.Icon])
     @common_link()
     def test_fuzz_link(
