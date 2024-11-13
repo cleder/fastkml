@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the kml classes."""
+
 from fastkml import links
 from fastkml.enums import RefreshMode
 from fastkml.enums import ViewRefreshMode

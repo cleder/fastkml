@@ -22,6 +22,7 @@ time period or point in time.
 
 https://developers.google.com/kml/documentation/time
 """
+
 import re
 from datetime import date
 from datetime import datetime
@@ -40,12 +41,53 @@ from fastkml.kml_base import _BaseObject
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 
+__all__ = ["KmlDateTime", "TimeSpan", "TimeStamp", "adjust_date_to_resolution"]
+
 # regular expression to parse a gYearMonth string
 # year and month may be separated by an optional dash
 # year is always 4 digits, month is always 2 digits
 year_month_day = re.compile(
     r"^(?P<year>\d{4})(?:-)?(?P<month>\d{2})?(?:-)?(?P<day>\d{2})?$",
 )
+
+
+def adjust_date_to_resolution(
+    dt: Union[date, datetime],
+    resolution: Optional[DateTimeResolution] = None,
+) -> Union[date, datetime]:
+    """
+    Adjust the date or datetime to the specified resolution.
+
+    This function adjusts the date or datetime to the specified resolution.
+    If the resolution is not specified, the function will return the date or
+    datetime as is.
+
+    The function will return the date if the resolution is set to year,
+    year_month, or date. If the resolution is set to datetime, the function
+    will return the datetime as is.
+
+    Args:
+    ----
+        dt : Union[date, datetime]
+            The date or datetime to adjust.
+        resolution : Optional[DateTimeResolution], optional
+            The resolution to adjust the date or datetime to, by default None.
+
+    Returns:
+    -------
+        Union[date, datetime]
+            The adjusted date or datetime.
+
+    """
+    if resolution == DateTimeResolution.year:
+        return date(dt.year, 1, 1)
+    if resolution == DateTimeResolution.year_month:
+        return date(dt.year, dt.month, 1)
+    return (
+        dt.date()
+        if isinstance(dt, datetime) and resolution != DateTimeResolution.datetime
+        else dt
+    )
 
 
 class KmlDateTime:
@@ -87,7 +129,17 @@ class KmlDateTime:
         dt: Union[date, datetime],
         resolution: Optional[DateTimeResolution] = None,
     ) -> None:
-        """Initialize a KmlDateTime object."""
+        """
+        Initialize a KmlDateTime object.
+
+        Args:
+        ----
+            dt : Union[date, datetime]
+                The date or datetime to adjust.
+            resolution : Optional[DateTimeResolution], optional
+                The resolution to adjust the date or datetime to, by default None.
+
+        """
         if resolution is None:
             # sourcery skip: swap-if-expression
             resolution = (
@@ -95,17 +147,7 @@ class KmlDateTime:
                 if not isinstance(dt, datetime)
                 else DateTimeResolution.datetime
             )
-        dt = (
-            dt.date()
-            if isinstance(dt, datetime) and resolution != DateTimeResolution.datetime
-            else dt
-        )
-        if resolution == DateTimeResolution.year:
-            self.dt = date(dt.year, 1, 1)
-        elif resolution == DateTimeResolution.year_month:
-            self.dt = date(dt.year, dt.month, 1)
-        else:
-            self.dt = dt
+        self.dt = adjust_date_to_resolution(dt, resolution)
         self.resolution = (
             DateTimeResolution.date
             if not isinstance(self.dt, datetime)

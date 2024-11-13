@@ -28,6 +28,7 @@ from hypothesis.extra.dateutil import timezones
 from pygeoif.hypothesis import strategies as geo_st
 
 import fastkml.enums
+import fastkml.gx
 import fastkml.links
 import fastkml.styles
 from fastkml.times import KmlDateTime
@@ -162,6 +163,19 @@ styles = partial(
         text=xml_text(min_size=1, max_size=256).filter(lambda x: x.strip() != ""),
         display_mode=st.sampled_from(fastkml.enums.DisplayMode),
     ),
+)
+
+track_items = partial(
+    st.builds,
+    fastkml.gx.TrackItem,
+    angle=st.builds(
+        fastkml.gx.Angle,
+        heading=st.floats(allow_nan=False, allow_infinity=False),
+        roll=st.floats(allow_nan=False, allow_infinity=False),
+        tilt=st.floats(allow_nan=False, allow_infinity=False),
+    ),
+    coord=geo_st.points(srs=geo_st.epsg4326),
+    when=kml_datetimes(),
 )
 
 

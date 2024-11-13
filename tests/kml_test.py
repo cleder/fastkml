@@ -15,10 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the kml class."""
+
 import io
 import pathlib
 
 import pygeoif as geo
+import pytest
 from pygeoif.geometry import Polygon
 
 from fastkml import containers
@@ -191,7 +193,7 @@ class TestLxml(Lxml, TestStdLibrary):
 class TestLxmlParseKML(Lxml, TestParseKML):
     """Test with Lxml."""
 
-    def test_from_string_with_unbound_prefix(self) -> None:
+    def test_from_string_with_unbound_prefix_strict(self) -> None:
         doc = io.StringIO(
             '<kml xmlns="http://www.opengis.net/kml/2.2">'
             "<Placemark><ExtendedData>"
@@ -199,7 +201,34 @@ class TestLxmlParseKML(Lxml, TestParseKML):
             "</ExtendedData>"
             "</Placemark> </kml>",
         )
-        k = kml.KML.parse(doc, ns="{http://www.opengis.net/kml/2.2}")
+
+        with pytest.raises(
+            AssertionError,
+            match="^Element 'lc:attachment': This element is not expected.",
+        ):
+            kml.KML.parse(doc, ns="{http://www.opengis.net/kml/2.2}")
+
+    def test_from_string_with_unbound_prefix_relaxed(self) -> None:
+        doc = io.StringIO(
+            '<kml xmlns="http://www.opengis.net/kml/2.2">'
+            "<Placemark><ExtendedData>"
+            "<lc:attachment>image.png</lc:attachment>"
+            "</ExtendedData>"
+            "</Placemark> </kml>",
+        )
+        k = kml.KML.parse(doc, strict=False)
+        assert len(k.features) == 1
+        assert isinstance(k.features[0], features.Placemark)
+
+    def test_from_string_with_unbound_prefix_strict_no_validate(self) -> None:
+        doc = io.StringIO(
+            '<kml xmlns="http://www.opengis.net/kml/2.2">'
+            "<Placemark><ExtendedData>"
+            "<lc:attachment>image.png</lc:attachment>"
+            "</ExtendedData>"
+            "</Placemark> </kml>",
+        )
+        k = kml.KML.parse(doc, ns="{http://www.opengis.net/kml/2.2}", validate=False)
         assert len(k.features) == 1
         assert isinstance(k.features[0], features.Placemark)
 

@@ -166,53 +166,54 @@ Each placemark will have a time-span that covers the whole year:
 
 .. code-block:: pycon
 
->>> styles = []
->>> folders = []
->>> for feature in shp.__geo_interface__["features"]:
-...     iso3_code = feature["properties"]["ADM0_A3"]
-...     geometry = shape(feature["geometry"])
-...     color = random.randint(0, 0xFFFFFF)
-...     styles.append(
-...         fastkml.styles.Style(
-...             id=iso3_code,
-...             styles=[
-...                 fastkml.styles.LineStyle(color=f"33{color:06X}", width=2),
-...                 fastkml.styles.PolyStyle(
-...                     color=f"88{color:06X}",
-...                     fill=True,
-...                     outline=True,
-...                 ),
-...             ],
-...         ),
-...     )
-...     style_url = fastkml.styles.StyleUrl(url=f"#{iso3_code}")
-...     folder = fastkml.containers.Folder(name=feature["properties"]["NAME"])
-...     co2_growth = 0
-...     for year in range(1995, 2023):
-...         co2_year = co2_pa[str(year)].get(iso3_code, 0)
-...         co2_growth += co2_year
-...         kml_geometry = create_kml_geometry(
-...             force_3d(geometry, co2_growth * 5_000),
-...             extrude=True,
-...             altitude_mode=AltitudeMode.relative_to_ground,
-...         )
-...         timespan = fastkml.times.TimeSpan(
-...             begin=fastkml.times.KmlDateTime(
-...                 datetime.date(year, 1, 1), resolution=DateTimeResolution.year_month
-...             ),
-...             end=fastkml.times.KmlDateTime(
-...                 datetime.date(year, 12, 31), resolution=DateTimeResolution.year_month
-...             ),
-...         )
-...         placemark = fastkml.features.Placemark(
-...             name=f"{feature['properties']['NAME']} - {year}",
-...             description=feature["properties"]["FORMAL_EN"],
-...             kml_geometry=kml_geometry,
-...             style_url=style_url,
-...             times=timespan,
-...         )
-...         folder.features.append(placemark)
-...     folders.append(folder)
+    >>> styles = []
+    >>> folders = []
+    >>> for feature in shp.__geo_interface__["features"]:
+    ...     iso3_code = feature["properties"]["ADM0_A3"]
+    ...     geometry = shape(feature["geometry"])
+    ...     color = random.randint(0, 0xFFFFFF)
+    ...     styles.append(
+    ...         fastkml.styles.Style(
+    ...             id=iso3_code,
+    ...             styles=[
+    ...                 fastkml.styles.LineStyle(color=f"33{color:06X}", width=2),
+    ...                 fastkml.styles.PolyStyle(
+    ...                     color=f"88{color:06X}",
+    ...                     fill=True,
+    ...                     outline=True,
+    ...                 ),
+    ...             ],
+    ...         ),
+    ...     )
+    ...     style_url = fastkml.styles.StyleUrl(url=f"#{iso3_code}")
+    ...     folder = fastkml.containers.Folder(name=feature["properties"]["NAME"])
+    ...     co2_growth = 0
+    ...     for year in range(1995, 2023):
+    ...         co2_year = co2_pa[str(year)].get(iso3_code, 0)
+    ...         co2_growth += co2_year
+    ...         kml_geometry = create_kml_geometry(
+    ...             force_3d(geometry, co2_growth * 5_000),
+    ...             extrude=True,
+    ...             altitude_mode=AltitudeMode.relative_to_ground,
+    ...         )
+    ...         timespan = fastkml.times.TimeSpan(
+    ...             begin=fastkml.times.KmlDateTime(
+    ...                 datetime.date(year, 1, 1), resolution=DateTimeResolution.year_month
+    ...             ),
+    ...             end=fastkml.times.KmlDateTime(
+    ...                 datetime.date(year, 12, 31), resolution=DateTimeResolution.year_month
+    ...             ),
+    ...         )
+    ...         placemark = fastkml.features.Placemark(
+    ...             name=f"{feature['properties']['NAME']} - {year}",
+    ...             description=feature["properties"]["FORMAL_EN"],
+    ...             kml_geometry=kml_geometry,
+    ...             style_url=style_url,
+    ...             times=timespan,
+    ...         )
+    ...         folder.features.append(placemark)
+    ...     folders.append(folder)
+    ...
 
 Finally, we create the KML object and write it to a file:
 

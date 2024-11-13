@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test the helper functions edge cases."""
+
 from enum import Enum
 from typing import Callable
 from unittest.mock import Mock
