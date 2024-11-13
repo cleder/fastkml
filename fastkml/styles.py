@@ -225,20 +225,6 @@ class _ColorStyle(_BaseObject):
         self.color = clean_string(color)
         self.color_mode = color_mode
 
-    def __repr__(self) -> str:
-        """Create a string (c)representation for _ColorStyle."""
-        return (
-            f"{self.__class__.__module__}.{self.__class__.__name__}("
-            f"ns={self.ns!r}, "
-            f"name_spaces={self.name_spaces!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
-            f"color={self.color!r}, "
-            f"color_mode={self.color_mode}, "
-            f"**{self._get_splat()!r},"
-            ")"
-        )
-
 
 registry.register(
     _ColorStyle,
