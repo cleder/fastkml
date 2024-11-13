@@ -209,7 +209,7 @@ class TestWriteKML(StdLibrary):
           )
 
         file_path = KMLFILEDIR / "output.kml"
-        kml.KML.write(doc, file_path=file_path, prettyprint=True, xml_declaration=True)
+        doc.write(file_path=file_path, prettyprint=True, xml_declaration=True)
 
         assert file_path.is_file(), "KML file was not created."
 
@@ -236,7 +236,7 @@ class TestWriteKML(StdLibrary):
 
         file_path = KMLFILEDIR / "output.kmz"
 
-        kml.KML.write(doc, file_path=file_path, prettyprint=True, xml_declaration=True)
+        doc.write(file_path=file_path, prettyprint=True, xml_declaration=True)
 
         assert file_path.is_file(), "KMZ file was not created."
 

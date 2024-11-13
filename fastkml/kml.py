@@ -27,7 +27,6 @@ http://schemas.opengis.net/kml/.
 """
 
 import logging
-import os
 from pathlib import Path
 from typing import IO
 from typing import Any
@@ -257,7 +256,7 @@ class KML(_XMLObject):
         Write KML to a file
         Args:
         ----
-            file_name: The file name where to save the file.
+            file_path: The file name where to save the file.
                 Can be any string value
             prettyprint : bool, default=True
                 Whether to pretty print the XML.
@@ -288,9 +287,9 @@ class KML(_XMLObject):
 
         if file_path.suffix == ".kmz":
             with zipfile.ZipFile(file_path, 'w', zipfile.ZIP_DEFLATED) as kmz:
-                kmz.write(file_path, arcname=os.path.basename(file_path))
+                kmz.writestr('doc.kml', tree)
         else:
-            with open(file_path, "w") as file:
+            with open(file_path, "w",  encoding="UTF-8") as file:
                 file.write(tree)
 
 
