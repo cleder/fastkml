@@ -31,6 +31,22 @@ from tests.base import StdLibrary
 class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
 
+    def test_equal(self) -> None:
+        """Test equality."""
+        poly = geo.Polygon([(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)])
+
+        polygon1 = Polygon(ns="", geometry=poly)
+        polygon2 = Polygon(ns="", geometry=poly)
+
+        assert polygon1 == polygon2
+
+    def test_not_equal(self) -> None:
+        """Test inequality."""
+        polygon = Polygon(ns="")
+        boundary = OuterBoundaryIs(ns="")
+
+        assert polygon != boundary
+
     def test_exterior_only(self) -> None:
         """Test exterior only."""
         poly = geo.Polygon([(0, 0), (0, 1), (1, 1), (1, 0), (0, 0)])

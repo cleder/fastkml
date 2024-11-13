@@ -63,6 +63,17 @@ class TestCoordinates(StdLibrary):
             (-123.940449937288, 49.16927524669021, 17.0),
         ]
 
+    def test_coordinates_from_string_parse_error_relaxed(self) -> None:
+        """Test the from_string method with a parse error."""
+        coordinates = Coordinates.from_string(
+            '<kml:coordinates xmlns:kml="http://www.opengis.net/kml/2.2">'
+            "0.a,b.000000  1.0,1.0"
+            "</kml:coordinates>",
+            strict=False,
+        )
+
+        assert not coordinates.coords
+
 
 class TestCoordinatesLxml(Lxml, TestCoordinates):
     pass

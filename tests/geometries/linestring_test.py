@@ -40,6 +40,12 @@ class TestLineString(StdLibrary):
         assert line_string.altitude_mode is None
         assert line_string.extrude is None
 
+    def test_unequal_coordinates(self) -> None:
+        coords = Coordinates()
+        lines = LineString()
+
+        assert lines != coords
+
     def test_geometry_error(self) -> None:
         """Test GeometryError."""
         p = geo.LineString(((1, 2), (2, 0)))

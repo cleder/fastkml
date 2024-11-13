@@ -166,8 +166,8 @@ def _test_geometry_str_roundtrip_verbose(
     assert geometry.geometry
     assert type(new_g.geometry) is cls
     for new, orig in zip(new_g.kml_geometries, geometry.kml_geometries):
-        if isinstance(new, fastkml.geometry.MultiGeometry):
-            continue
+        if isinstance(new, fastkml.geometry.MultiGeometry):  # pragma: no cover
+            continue  # pragma: no cover
         assert not isinstance(orig, fastkml.geometry.MultiGeometry)
         if extrude:
             assert new.extrude == orig.extrude == extrude

@@ -77,11 +77,8 @@ class TestGx(Lxml):
                         st.none(),
                         st.sampled_from(fastkml.enums.AltitudeMode),
                     ),
-                    track_items=st.one_of(
-                        st.none(),
-                        st.lists(
-                            track_items(),
-                        ),
+                    track_items=st.lists(
+                        track_items(),
                     ),
                 ),
             ),

@@ -60,6 +60,15 @@ from fastkml.views import Camera
 from fastkml.views import LookAt
 from fastkml.views import Region
 
+__all__ = [
+    "GroundOverlay",
+    "ImagePyramid",
+    "KmlGeometry",
+    "LatLonBox",
+    "PhotoOverlay",
+    "ViewVolume",
+]
+
 logger = logging.getLogger(__name__)
 
 KmlGeometry = Union[
@@ -206,35 +215,6 @@ class _Overlay(_Feature):
         self.icon = icon
         self.color = clean_string(color)
         self.draw_order = draw_order
-
-    def __repr__(self) -> str:
-        """Create a string (c)representation for _Overlay."""
-        return (
-            f"{self.__class__.__module__}.{self.__class__.__name__}("
-            f"ns={self.ns!r}, "
-            f"name_spaces={self.name_spaces!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
-            f"name={self.name!r}, "
-            f"visibility={self.visibility!r}, "
-            f"isopen={self.isopen!r}, "
-            f"atom_link={self.atom_link!r}, "
-            f"atom_author={self.atom_author!r}, "
-            f"address={self.address!r}, "
-            f"phone_number={self.phone_number!r}, "
-            f"snippet={self.snippet!r}, "
-            f"description={self.description!r}, "
-            f"view={self.view!r}, "
-            f"times={self.times!r}, "
-            f"style_url={self.style_url!r}, "
-            f"styles={self.styles!r}, "
-            f"region={self.region!r}, "
-            f"extended_data={self.extended_data!r}, "
-            f"color={self.color!r}, "
-            f"draw_order={self.draw_order!r}, "
-            f"icon={self.icon!r}, "
-            ")"
-        )
 
 
 registry.register(
