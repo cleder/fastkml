@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Property based tests of the Geometry classes."""
+
 import typing
 from functools import partial
 
@@ -69,11 +70,7 @@ common_geometry = partial(
     altitude_mode=st.one_of(
         st.none(),
         st.sampled_from(
-            (
-                AltitudeMode.absolute,
-                AltitudeMode.clamp_to_ground,
-                AltitudeMode.relative_to_ground,
-            ),
+            AltitudeMode,
         ),
     ),
 )
@@ -139,7 +136,6 @@ def _test_geometry_str_roundtrip_verbose(geometry: kml_geometry) -> None:
 
 
 class TestLxml(Lxml):
-
     @coordinates()
     @settings(deadline=None)
     def test_coordinates_str_roundtrip(

@@ -69,7 +69,7 @@ registry.register(
     ),
 )
 
-cs_kml = KML.parse(examples_dir / "gx_cascading_style.kml")
+cs_kml = KML.parse(examples_dir / "gx_cascading_style.kml", validate=False)
 document = find(cs_kml, of_type=Document)
 for cascading_style in document.gx_cascading_style:
     kml_style = cascading_style.style

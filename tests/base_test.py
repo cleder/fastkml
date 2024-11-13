@@ -16,7 +16,6 @@
 
 """Test the base classes."""
 
-
 from fastkml import base
 from fastkml import kml_base
 from tests.base import Lxml

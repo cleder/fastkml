@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Test the styles classes."""
+
 import pytest
 
 from fastkml import links
@@ -34,13 +35,11 @@ class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
 
     def test_style_url(self) -> None:
-        url = styles.StyleUrl(id="id-0", url="#style-0", target_id="target-0")
+        url = styles.StyleUrl(url="#style-0")
 
         serialized = url.to_string()
 
         assert '<kml:styleUrl xmlns:kml="http://www.opengis.net/kml/2.2"' in serialized
-        assert 'id="id-0"' in serialized
-        assert 'targetId="target-0"' in serialized
         assert ">#style-0</kml:styleUrl>" in serialized
 
     def test_style_url_read(self) -> None:
@@ -49,9 +48,7 @@ class TestStdLibrary(StdLibrary):
             ' id="id-0" targetId="target-0">#style-0</kml:styleUrl>',
         )
 
-        assert url.id == "id-0"
         assert url.url == "#style-0"
-        assert url.target_id == "target-0"
 
     def test_icon_style(self) -> None:
         icons = styles.IconStyle(
@@ -128,8 +125,10 @@ class TestStdLibrary(StdLibrary):
         assert icons.color == "ff2200ff"
         assert icons.color_mode == ColorMode("random")
         assert icons.scale == 5.0
+        assert icons.icon
         assert icons.icon.href == "http://example.com/icon.png"
         assert icons.heading == 20.0
+        assert icons.hot_spot
         assert icons.hot_spot.x == 0.5
         assert icons.hot_spot.y == 0.7
         assert icons.hot_spot.xunits.value == "fraction"
@@ -415,47 +414,48 @@ class TestStdLibrary(StdLibrary):
 
         assert style.id == "id-0"
         assert style.target_id == "target-0"
-        assert isinstance(style.styles[0], styles.BalloonStyle)
-        assert style.styles[0].id == "id-b0"
-        assert style.styles[0].target_id == "target-b0"
-        assert style.styles[0].bg_color == "7fff0000"
-        assert style.styles[0].text_color == "ff00ff00"
-        assert style.styles[0].text == "<b>Hello</b>"
-        assert style.styles[0].display_mode == DisplayMode.hide
 
-        assert isinstance(style.styles[1], styles.IconStyle)
-        assert style.styles[1].id == "id-i0"
-        assert style.styles[1].target_id == "target-i0"
+        assert isinstance(style.styles[0], styles.IconStyle)
+        assert style.styles[0].id == "id-i0"
+        assert style.styles[0].target_id == "target-i0"
+        assert style.styles[0].color == "ff0000ff"
+        assert style.styles[0].color_mode == ColorMode.random
+        assert style.styles[0].scale == 1.0
+        assert style.styles[0].heading == 0
+        assert style.styles[0].icon.href == "http://example.com/icon.png"
+
+        assert isinstance(style.styles[1], styles.LabelStyle)
+        assert style.styles[1].id == "id-a0"
+        assert style.styles[1].target_id == "target-a0"
         assert style.styles[1].color == "ff0000ff"
         assert style.styles[1].color_mode == ColorMode.random
         assert style.styles[1].scale == 1.0
-        assert style.styles[1].heading == 0
-        assert style.styles[1].icon.href == "http://example.com/icon.png"
 
-        assert isinstance(style.styles[2], styles.LabelStyle)
-        assert style.styles[2].id == "id-a0"
-        assert style.styles[2].target_id == "target-a0"
+        assert isinstance(style.styles[2], styles.LineStyle)
+        assert style.styles[2].id == "id-l0"
+        assert style.styles[2].target_id == "target-l0"
         assert style.styles[2].color == "ff0000ff"
-        assert style.styles[2].color_mode == ColorMode.random
-        assert style.styles[2].scale == 1.0
+        assert style.styles[2].color_mode == ColorMode.normal
+        assert style.styles[2].width == 1.0
 
-        assert isinstance(style.styles[3], styles.LineStyle)
-        assert style.styles[3].id == "id-l0"
-        assert style.styles[3].target_id == "target-l0"
+        assert isinstance(style.styles[3], styles.PolyStyle)
+        assert style.styles[3].id == "id-p0"
+        assert style.styles[3].target_id == "target-p0"
         assert style.styles[3].color == "ff0000ff"
-        assert style.styles[3].color_mode == ColorMode.normal
-        assert style.styles[3].width == 1.0
+        assert style.styles[3].color_mode == ColorMode.random
+        assert style.styles[3].fill == 0
+        assert style.styles[3].outline == 1
 
-        assert isinstance(style.styles[4], styles.PolyStyle)
-        assert style.styles[4].id == "id-p0"
-        assert style.styles[4].target_id == "target-p0"
-        assert style.styles[4].color == "ff0000ff"
-        assert style.styles[4].color_mode == ColorMode.random
-        assert style.styles[4].fill == 0
-        assert style.styles[4].outline == 1
+        assert isinstance(style.styles[4], styles.BalloonStyle)
+        assert style.styles[4].id == "id-b0"
+        assert style.styles[4].target_id == "target-b0"
+        assert style.styles[4].bg_color == "7fff0000"
+        assert style.styles[4].text_color == "ff00ff00"
+        assert style.styles[4].text == "<b>Hello</b>"
+        assert style.styles[4].display_mode == DisplayMode.hide
 
     def test_stylemap(self) -> None:  # noqa: PLR0915
-        url = styles.StyleUrl(id="id-0", url="#style-0", target_id="target-0")
+        url = styles.StyleUrl(url="#style-0")
         icons = styles.IconStyle(
             id="id-i0",
             target_id="target-i0",
@@ -512,11 +512,9 @@ class TestStdLibrary(StdLibrary):
         serialized = sm.to_string()
 
         assert '<kml:StyleMap xmlns:kml="http://www.opengis.net/kml/2.2" ' in serialized
-        assert 'id="id-sm-0"' in serialized
-        assert 'targetId="target-sm-0"' in serialized
         assert "<kml:Pair>" in serialized
         assert "<kml:key>normal</kml:key>" in serialized
-        assert "<kml:styleUrl " in serialized
+        assert "<kml:styleUrl" in serialized
         assert "</kml:Pair>" in serialized
         assert "<kml:Pair>" in serialized
         assert "<kml:key>highlight</kml:key>" in serialized
@@ -609,8 +607,6 @@ class TestStdLibrary(StdLibrary):
         assert sm.target_id == "target-sm-0"
         assert sm.normal.id == "id-0"
         assert sm.normal.target_id == "target-0"
-        assert sm.highlight.id == "id-u0"
-        assert sm.highlight.target_id == "target-u0"
 
     def test_style_map_none_case(self) -> None:
         sm = styles.StyleMap()

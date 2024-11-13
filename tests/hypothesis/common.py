@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Common functionality for property based tests."""
+
 import datetime
 import logging
 
@@ -31,13 +32,19 @@ from pygeoif.geometry import Polygon
 import fastkml
 from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
+from fastkml.enums import ColorMode
+from fastkml.enums import DataType
 from fastkml.enums import DateTimeResolution
+from fastkml.enums import DisplayMode
+from fastkml.enums import GridOrigin
+from fastkml.enums import PairKey
 from fastkml.enums import RefreshMode
+from fastkml.enums import Shape
+from fastkml.enums import Units
 from fastkml.enums import Verbosity
 from fastkml.enums import ViewRefreshMode
 from fastkml.gx import Angle
 from fastkml.gx import TrackItem
-from fastkml.validator import validate
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +65,13 @@ eval_locals = {
     "Angle": Angle,
     "datetime": datetime,
     "DateTimeResolution": DateTimeResolution,
+    "DataType": DataType,
+    "Units": Units,
+    "ColorMode": ColorMode,
+    "DisplayMode": DisplayMode,
+    "PairKey": PairKey,
+    "GridOrigin": GridOrigin,
+    "Shape": Shape,
     "tzutc": tzutc,
     "tzfile": tzfile,
 }
@@ -82,7 +96,7 @@ def assert_str_roundtrip(obj: _XMLObject) -> None:
 
     assert obj.to_string() == new_object.to_string()
     assert obj == new_object
-    assert validate(element=new_object.etree_element())
+    assert new_object.validate()
 
 
 def assert_str_roundtrip_terse(obj: _XMLObject) -> None:
@@ -93,7 +107,7 @@ def assert_str_roundtrip_terse(obj: _XMLObject) -> None:
     assert obj.to_string(verbosity=Verbosity.verbose) == new_object.to_string(
         verbosity=Verbosity.verbose,
     )
-    assert validate(element=new_object.etree_element())
+    assert new_object.validate()
 
 
 def assert_str_roundtrip_verbose(obj: _XMLObject) -> None:
@@ -104,4 +118,4 @@ def assert_str_roundtrip_verbose(obj: _XMLObject) -> None:
     assert obj.to_string(verbosity=Verbosity.terse) == new_object.to_string(
         verbosity=Verbosity.terse,
     )
-    assert validate(element=new_object.etree_element())
+    assert new_object.validate()

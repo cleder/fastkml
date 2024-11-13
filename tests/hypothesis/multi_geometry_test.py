@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Property based tests of the Geometry classes."""
+
 from __future__ import annotations
 
 from functools import partial
@@ -65,13 +66,7 @@ common_geometry = partial(
     tessellate=st.one_of(st.none(), st.booleans()),
     altitude_mode=st.one_of(
         st.none(),
-        st.sampled_from(
-            (
-                AltitudeMode.absolute,
-                AltitudeMode.clamp_to_ground,
-                AltitudeMode.relative_to_ground,
-            ),
-        ),
+        st.sampled_from(AltitudeMode),
     ),
 )
 

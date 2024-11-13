@@ -77,6 +77,7 @@ Elements that currently use the gx prefix are:
 The complete XML schema for elements in this extension namespace is
 located at http://developers.google.com/kml/schema/kml22gx.xsd.
 """
+
 import logging
 from dataclasses import dataclass
 from itertools import zip_longest

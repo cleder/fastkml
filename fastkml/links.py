@@ -14,12 +14,14 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Link and Icon elements."""
+
 from typing import Any
 from typing import Dict
 from typing import Optional
 
 from fastkml.enums import RefreshMode
 from fastkml.enums import ViewRefreshMode
+from fastkml.helpers import clean_string
 from fastkml.helpers import enum_subelement
 from fastkml.helpers import float_subelement
 from fastkml.helpers import subelement_enum_kwarg
@@ -44,14 +46,14 @@ class Link(_BaseObject):
     https://developers.google.com/kml/documentation/kmlreference#link
     """
 
-    href: str
+    href: Optional[str]
     refresh_mode: Optional[RefreshMode]
     refresh_interval: Optional[float]
     view_refresh_mode: Optional[ViewRefreshMode]
     view_refresh_time: Optional[float]
     view_bound_scale: Optional[float]
-    view_format: str
-    http_query: str
+    view_format: Optional[str]
+    http_query: Optional[str]
 
     def __init__(
         self,
@@ -77,14 +79,14 @@ class Link(_BaseObject):
             target_id=target_id,
             **kwargs,
         )
-        self.href = href or ""
+        self.href = clean_string(href)
         self.refresh_mode = refresh_mode
         self.refresh_interval = refresh_interval
         self.view_refresh_mode = view_refresh_mode
         self.view_refresh_time = view_refresh_time
         self.view_bound_scale = view_bound_scale
-        self.view_format = view_format or ""
-        self.http_query = http_query or ""
+        self.view_format = clean_string(view_format)
+        self.http_query = clean_string(http_query)
 
     def __repr__(self) -> str:
         """Create a string (c)representation for Link."""

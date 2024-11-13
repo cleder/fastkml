@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Abstract base classes."""
+
 import logging
 from typing import Any
 from typing import Dict
@@ -28,6 +29,7 @@ from fastkml import config
 from fastkml.enums import Verbosity
 from fastkml.registry import registry
 from fastkml.types import Element
+from fastkml.validator import validate
 
 logger = logging.getLogger(__name__)
 
@@ -203,6 +205,23 @@ class _XMLObject:
                     "UTF-8",
                 ),
             )
+
+    def validate(self) -> Optional[bool]:
+        """
+        Validate the KML object against the XML schema.
+
+        Returns
+        -------
+        Optional[bool]
+            True if the object is valid, None if the XMLSchema is not available.
+
+        Raises
+        ------
+        AssertionError
+            If the object is not valid.
+
+        """
+        return validate(element=self.etree_element())
 
     def _get_splat(self) -> Dict[str, Any]:
         """

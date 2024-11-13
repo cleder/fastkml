@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test the validator module."""
+
 from pathlib import Path
 from typing import Final
 
@@ -29,7 +30,6 @@ TEST_DIR: Final = Path(__file__).parent
 
 
 class TestStdLibrary(StdLibrary):
-
     def setup_method(self) -> None:
         """Invalidate the cache before each test."""
         get_schema_parser.cache_clear()
@@ -66,7 +66,6 @@ class TestStdLibrary(StdLibrary):
 
 
 class TestLxml(Lxml):
-
     def setup_method(self) -> None:
         """Invalidate the cache before each test."""
         get_schema_parser.cache_clear()

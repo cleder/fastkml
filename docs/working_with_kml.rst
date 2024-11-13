@@ -29,6 +29,12 @@ type and returns an iterator of all matching elements found in the document tree
     ...
     POINT Z (-123.93563168 49.16716103 5.0)
     POLYGON Z ((-123.940449937288 49.16927524669021 17.0, ...
+
+We could also search for all Points, which will also return the Points inside the
+``MultiGeometries``.
+
+.. code-block:: pycon
+
     >>> pts = list(find_all(k, of_type=Point))
     >>> for point in pts:
     ...     print(point.geometry)
@@ -39,7 +45,7 @@ type and returns an iterator of all matching elements found in the document tree
     POINT Z (-123.3215766 49.2760338 0.0)
     POINT Z (-123.2643704 49.3301853 0.0)
     POINT Z (-123.2477084 49.2890857 0.0)
-
+    POINT Z (8.23 46.707 0.0)
 
 
 ``find_all`` can also search for arbitrary elements by their attributes, by passing the
@@ -75,6 +81,8 @@ For more targeted searches, we can combine multiple search criteria:
     Point(-123.93563168, 49.16716103, 5.0)
     >>> pm.style_url.url
     '#khStyle712'
+    >>> pm.name
+    'HBC Bastion'
 
 
 Extending FastKML
@@ -144,11 +152,14 @@ And register the new element with the KML Document object:
 
 The CascadingStyle object is now part of the KML document and can be accessed like any
 other element.
-Now we can create a new KML object and confirm that the new element is parsed correctly:
+When parsing the document we have to skip the validation as the ``gx:CascadingStyle`` is
+not in the XSD Schema.
+
+Create a new KML object and confirm that the new element is parsed correctly:
 
 .. code-block:: pycon
 
-    >>> cs_kml = KML.parse("examples/gx_cascading_style.kml")
+    >>> cs_kml = KML.parse("examples/gx_cascading_style.kml", validate=False)
     >>> cs = find(cs_kml, of_type=CascadingStyle)
     >>> cs.style  # doctest: +ELLIPSIS
     fastkml.styles.Style(...
@@ -156,6 +167,8 @@ Now we can create a new KML object and confirm that the new element is parsed co
 
 To be able to open the KML file in Google Earth Pro, we need to transform the
 CascadingStyle element into a supported Style element.
+To achieve this we copy the styles into the document styles and adjust their id
+to match the id of the CascadingStyle.
 
 .. code-block:: pycon
 
@@ -165,8 +178,13 @@ CascadingStyle element into a supported Style element.
     ...     kml_style.id = cascading_style.id
     ...     document.styles.append(kml_style)
     ...
+
+Now we can remove the CascadingStyle from the document and have a look at the result.
+
+.. code-block:: pycon
+
     >>> document.gx_cascading_style = []
-    >>> print(document.to_string(prettyprint=True))
+    >>> print(document)
     <kml:Document xmlns:kml="http://www.opengis.net/kml/2.2">
       <kml:name>Test2</kml:name>
       <kml:StyleMap id="__managed_style_0D301BCC0014827EFCCB">
@@ -180,9 +198,6 @@ CascadingStyle element into a supported Style element.
         </kml:Pair>
       </kml:StyleMap>
       <kml:Style id="__managed_style_25EBAAC82614827EFCCB">
-        <kml:BalloonStyle>
-          <kml:displayMode>hide</kml:displayMode>
-        </kml:BalloonStyle>
         <kml:IconStyle>
           <kml:scale>1.2</kml:scale>
           <kml:Icon>
@@ -196,11 +211,11 @@ CascadingStyle element into a supported Style element.
         <kml:PolyStyle>
           <kml:color>80000000</kml:color>
         </kml:PolyStyle>
-      </kml:Style>
-      <kml:Style id="__managed_style_14CDD4276C14827EFCCB">
         <kml:BalloonStyle>
           <kml:displayMode>hide</kml:displayMode>
         </kml:BalloonStyle>
+      </kml:Style>
+      <kml:Style id="__managed_style_14CDD4276C14827EFCCB">
         <kml:IconStyle>
           <kml:Icon>
             <kml:href>https://earth.google.com/earth/rpc/cc/icon?color=1976d2&amp;id=2000&amp;scale=4</kml:href>
@@ -213,6 +228,9 @@ CascadingStyle element into a supported Style element.
         <kml:PolyStyle>
           <kml:color>80000000</kml:color>
         </kml:PolyStyle>
+        <kml:BalloonStyle>
+          <kml:displayMode>hide</kml:displayMode>
+        </kml:BalloonStyle>
       </kml:Style>
       <kml:Placemark id="04AFE6060F147CE66FBD">
         <kml:name>Ort1</kml:name>
@@ -222,8 +240,8 @@ CascadingStyle element into a supported Style element.
           <kml:altitude>13.96486261382906</kml:altitude>
           <kml:heading>0.0</kml:heading>
           <kml:tilt>0.0</kml:tilt>
-          <kml:altitudeMode>absolute</kml:altitudeMode>
           <kml:range>632.584179697442</kml:range>
+          <kml:altitudeMode>absolute</kml:altitudeMode>
         </kml:LookAt>
         <kml:styleUrl>#__managed_style_0D301BCC0014827EFCCB</kml:styleUrl>
         <kml:Polygon>

@@ -31,6 +31,7 @@ from pygeoif.types import GeoCollectionType
 from pygeoif.types import GeoType
 
 from fastkml import atom
+from fastkml import config
 from fastkml import gx
 from fastkml.base import _XMLObject
 from fastkml.data import ExtendedData
@@ -43,6 +44,7 @@ from fastkml.geometry import Polygon
 from fastkml.geometry import create_kml_geometry
 from fastkml.helpers import attribute_int_kwarg
 from fastkml.helpers import bool_subelement
+from fastkml.helpers import clean_string
 from fastkml.helpers import int_attribute
 from fastkml.helpers import node_text
 from fastkml.helpers import node_text_kwarg
@@ -97,6 +99,8 @@ class Snippet(_XMLObject):
     maximum number of lines to display.
     """
 
+    _default_nsid = config.KML
+
     text: Optional[str]
     max_lines: Optional[int] = None
 
@@ -109,7 +113,7 @@ class Snippet(_XMLObject):
         **kwargs: Any,
     ) -> None:
         """
-        Initialize a Feature object.
+        Initialize a Snippet object.
 
         Args:
         ----
@@ -130,7 +134,7 @@ class Snippet(_XMLObject):
 
         """
         super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
-        self.text = text
+        self.text = clean_string(text)
         self.max_lines = max_lines
 
     def __repr__(self) -> str:
@@ -168,9 +172,9 @@ class Snippet(_XMLObject):
 registry.register(
     Snippet,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="text",
-        node_name="",
+        node_name="Snippet",
         classes=(str,),
         get_kwarg=node_text_kwarg,
         set_element=node_text,
@@ -283,8 +287,8 @@ class _Feature(TimeMixin, _BaseObject):
             target_id=target_id,
             **kwargs,
         )
-        self.name = name
-        self.description = description
+        self.name = clean_string(name)
+        self.description = clean_string(description)
         self.style_url = style_url
         self.styles = list(styles) if styles else []
         self.view = view
@@ -293,8 +297,8 @@ class _Feature(TimeMixin, _BaseObject):
         self.snippet = snippet
         self.atom_author = atom_author
         self.atom_link = atom_link
-        self.address = address
-        self.phone_number = phone_number
+        self.address = clean_string(address)
+        self.phone_number = clean_string(phone_number)
         self.region = region
         self.extended_data = extended_data
         self.times = times
@@ -690,7 +694,7 @@ class Placemark(_Feature):
 registry.register(
     Placemark,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", "gx"),
         attr_name="kml_geometry",
         node_name=(
             "Point,LineString,LinearRing,Polygon,MultiGeometry,"

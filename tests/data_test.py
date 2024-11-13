@@ -14,6 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test the gx classes."""
+
 import pytest
 
 import fastkml as kml
@@ -29,6 +30,18 @@ class TestStdLibrary(StdLibrary):
 
     def test_schema_requires_id(self) -> None:
         pytest.raises(KMLSchemaError, kml.Schema, "")
+
+    def test_simple_field_from_string_0(self) -> None:
+        doc = (
+            '<SimpleField name="0" type="string">'
+            "<displayName>0</displayName></SimpleField>"
+        )
+
+        sf = data.SimpleField.from_string(doc)
+
+        assert sf.name == "0"
+        assert sf.type_ == DataType("string")
+        assert sf.display_name == "0"
 
     def test_schema(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"
@@ -68,9 +81,9 @@ class TestStdLibrary(StdLibrary):
         s = kml.Schema.from_string(doc, ns=None)
 
         assert len(s.fields) == 3
-        assert s.fields[0].type == DataType("string")
-        assert s.fields[1].type == DataType("double")
-        assert s.fields[2].type == DataType("int")
+        assert s.fields[0].type_ == DataType("string")
+        assert s.fields[1].type_ == DataType("double")
+        assert s.fields[2].type_ == DataType("int")
         assert s.fields[0].name == "TrailHeadName"
         assert s.fields[1].name == "TrailLength"
         assert s.fields[2].name == "ElevationGain"
@@ -79,7 +92,7 @@ class TestStdLibrary(StdLibrary):
         assert s.fields[2].display_name == "<i>change in altitude</i>"
         s1 = kml.Schema.from_string(s.to_string(), ns=None)
         assert len(s1.fields) == 3
-        assert s1.fields[0].type == DataType("string")
+        assert s1.fields[0].type_ == DataType("string")
         assert s1.fields[1].name == "TrailLength"
         assert s1.fields[2].display_name == "<i>change in altitude</i>"
         assert s.to_string() == s1.to_string()

@@ -25,6 +25,7 @@ The complete XML schema for KML is located at
 http://schemas.opengis.net/kml/.
 
 """
+
 import logging
 import os
 from pathlib import Path
@@ -42,10 +43,12 @@ from typing_extensions import Self
 import zipfile
 
 from fastkml import config
+from fastkml import validator
 from fastkml.base import _XMLObject
 from fastkml.containers import Document
 from fastkml.containers import Folder
 from fastkml.enums import Verbosity
+from fastkml.features import NetworkLink
 from fastkml.features import Placemark
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
@@ -58,6 +61,44 @@ from fastkml.types import Element
 logger = logging.getLogger(__name__)
 
 kml_children = Union[Folder, Document, Placemark, GroundOverlay, PhotoOverlay]
+
+
+def lxml_parse_and_validate(
+    file: Union[Path, str, IO[AnyStr]],
+    strict: bool,  # noqa: FBT001
+    validate: Optional[bool],
+) -> Element:
+    """
+    Parse and validate a KML file using lxml.
+
+    Args:
+    ----
+        file: The file to parse.
+            Can be a file path (str or Path), or a file-like object.
+        strict (bool): Whether to enforce strict parsing rules.
+        validate (Optional[bool]): Whether to validate the file against the schema.
+
+    Returns:
+    -------
+        Element: The root element of the parsed KML file.
+
+    Raises:
+    ------
+        TypeError: If lxml is not available.
+
+    """
+    if strict and validate is None:
+        validate = True
+    tree = config.etree.parse(
+        file,
+        parser=config.etree.XMLParser(
+            huge_tree=True,
+            recover=True,
+        ),
+    )
+    if validate:
+        validator.validate(element=tree)
+    return cast(Element, tree.getroot())
 
 
 class KML(_XMLObject):
@@ -165,6 +206,7 @@ class KML(_XMLObject):
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
         strict: bool = True,
+        validate: Optional[bool] = None,
     ) -> Self:
         """
         Parse a KML file and return a KML object.
@@ -180,6 +222,7 @@ class KML(_XMLObject):
                 If not provided, it will be inferred from the root element.
             name_spaces (Optional[Dict[str, str]]): Additional namespaces.
             strict (bool): Whether to enforce strict parsing rules. Defaults to True.
+            validate (Optional[bool]): Whether to validate the file against the schema.
 
         Returns:
         -------
@@ -187,18 +230,11 @@ class KML(_XMLObject):
 
         """
         try:
-            tree = config.etree.parse(
-                file,
-                parser=config.etree.XMLParser(
-                    huge_tree=True,
-                    recover=True,
-                ),
-            )
+            root = lxml_parse_and_validate(file, strict, validate)
         except TypeError:
-            tree = config.etree.parse(file)
-        root = tree.getroot()
+            root = config.etree.parse(file).getroot()
         if ns is None:
-            ns = cast(str, root.tag[:-3] if root.tag.endswith("kml") else "")
+            ns = root.tag[:-3] if root.tag.endswith("kml") else ""
         name_spaces = name_spaces or {}
         if ns:
             name_spaces["kml"] = ns
@@ -262,8 +298,8 @@ registry.register(
     KML,
     RegistryItem(
         ns_ids=("kml",),
-        classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay),
-        node_name="Document,Folder,Placemark,GroundOverlay,PhotoOverlay",
+        classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay, NetworkLink),
+        node_name="Document,Folder,Placemark,GroundOverlay,PhotoOverlay,NetworkLink",
         attr_name="features",
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,

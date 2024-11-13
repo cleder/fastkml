@@ -15,6 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
 """Frequently used constants and configuration options."""
+
 import logging
 import warnings
 from types import ModuleType
@@ -36,7 +37,7 @@ try:  # pragma: no cover
 
 except ImportError:  # pragma: no cover
     warnings.warn("Package `lxml` missing. Pretty print will be disabled")  # noqa: B028
-    import xml.etree.ElementTree as etree  # noqa: N813
+    import xml.etree.ElementTree as etree  # noqa: N813, ICN001
 
 
 logger = logging.getLogger(__name__)

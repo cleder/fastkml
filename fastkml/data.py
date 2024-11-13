@@ -18,6 +18,7 @@ Add Custom Data.
 
 https://developers.google.com/kml/documentation/extendeddata
 """
+
 import logging
 from typing import Any
 from typing import Dict
@@ -26,10 +27,12 @@ from typing import List
 from typing import Optional
 from typing import Union
 
+from fastkml.base import _XMLObject
 from fastkml.enums import DataType
 from fastkml.exceptions import KMLSchemaError
 from fastkml.helpers import attribute_enum_kwarg
 from fastkml.helpers import attribute_text_kwarg
+from fastkml.helpers import clean_string
 from fastkml.helpers import enum_attribute
 from fastkml.helpers import node_text
 from fastkml.helpers import node_text_kwarg
@@ -53,7 +56,7 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 
-class SimpleField(_BaseObject):
+class SimpleField(_XMLObject):
     """
     A SimpleField always has both name and type attributes.
 
@@ -76,18 +79,18 @@ class SimpleField(_BaseObject):
     HTML markup.
     """
 
+    _default_nsid = "kml"
+
     name: Optional[str]
-    type: Optional[DataType]
+    type_: Optional[DataType]
     display_name: Optional[str]
 
     def __init__(
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
         name: Optional[str] = None,
-        type: Optional[DataType] = None,
+        type_: Optional[DataType] = None,
         display_name: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
@@ -99,10 +102,8 @@ class SimpleField(_BaseObject):
             ns (Optional[str]): The namespace of the data.
             name_spaces (Optional[Dict[str, str]]):
                 The dictionary of namespace prefixes and URIs.
-            id (Optional[str]): The ID of the data.
-            target_id (Optional[str]): The target ID of the data.
             name (Optional[str]): The name of the data.
-            type (Optional[DataType]): The type of the data.
+            type_ (Optional[DataType]): The type of the data.
             display_name (Optional[str]): The display name of the data.
             **kwargs (Any): Additional keyword arguments.
 
@@ -114,13 +115,11 @@ class SimpleField(_BaseObject):
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
-            id=id,
-            target_id=target_id,
             **kwargs,
         )
-        self.name = name
-        self.type = type
-        self.display_name = display_name
+        self.name = clean_string(name)
+        self.type_ = type_ or None
+        self.display_name = clean_string(display_name)
 
     def __repr__(self) -> str:
         """
@@ -135,10 +134,8 @@ class SimpleField(_BaseObject):
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
             f"name={self.name!r}, "
-            f"type={self.type}, "
+            f"type_={self.type_}, "
             f"display_name={self.display_name!r}, "
             f"**{self._get_splat()!r},"
             ")"
@@ -153,13 +150,13 @@ class SimpleField(_BaseObject):
             bool: True if both the name and type are non-empty, False otherwise.
 
         """
-        return bool(self.name) and bool(self.type)
+        return bool(self.name) and bool(self.type_)
 
 
 registry.register(
     SimpleField,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="display_name",
         node_name="displayName",
         classes=(str,),
@@ -182,7 +179,7 @@ registry.register(
     SimpleField,
     RegistryItem(
         ns_ids=("", "kml"),
-        attr_name="type",
+        attr_name="type_",
         node_name="type",
         classes=(DataType,),
         get_kwarg=attribute_enum_kwarg,
@@ -191,7 +188,7 @@ registry.register(
 )
 
 
-class Schema(_BaseObject):
+class Schema(_XMLObject):
     """
     Specifies a custom KML schema that is used to add custom data to KML Features.
 
@@ -202,6 +199,8 @@ class Schema(_BaseObject):
 
     """
 
+    _default_nsid = "kml"
+
     name: Optional[str]
     fields: List[SimpleField]
 
@@ -210,7 +209,6 @@ class Schema(_BaseObject):
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
-        target_id: Optional[str] = None,
         name: Optional[str] = None,
         fields: Optional[Iterable[SimpleField]] = None,
         **kwargs: Any,
@@ -241,18 +239,17 @@ class Schema(_BaseObject):
             If the id is not provided.
 
         """
-        if id is None:
+        if not id:
             msg = "Id is required for schema"
             raise KMLSchemaError(msg)
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
-            id=id,
-            target_id=target_id,
             **kwargs,
         )
-        self.name = name
+        self.name = clean_string(name)
         self.fields = list(fields) if fields else []
+        self.id = clean_string(id)
 
     def __repr__(self) -> str:
         """
@@ -269,7 +266,6 @@ class Schema(_BaseObject):
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
             f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
             f"name={self.name!r}, "
             f"fields={self.fields!r}, "
             f"**{self._get_splat()!r},"
@@ -289,6 +285,17 @@ class Schema(_BaseObject):
         self.fields.append(field)
 
 
+registry.register(
+    Schema,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="id",
+        node_name="id",
+        classes=(str,),
+        get_kwarg=attribute_text_kwarg,
+        set_element=text_attribute,
+    ),
+)
 registry.register(
     Schema,
     RegistryItem(
@@ -358,9 +365,9 @@ class Data(_BaseObject):
             target_id=target_id,
             **kwargs,
         )
-        self.name = name
-        self.value = value
-        self.display_name = display_name
+        self.name = clean_string(name)
+        self.value = clean_string(value)
+        self.display_name = clean_string(display_name)
 
     def __repr__(self) -> str:
         """
@@ -395,9 +402,31 @@ class Data(_BaseObject):
             True if the Data object has a name and a non-None value, False otherwise.
 
         """
-        return bool(self.name) and self.value is not None
+        return bool(self.name) and bool(self.value)
 
 
+registry.register(
+    Data,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="display_name",
+        node_name="displayName",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    Data,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="value",
+        node_name="value",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
 registry.register(
     Data,
     RegistryItem(
@@ -409,31 +438,11 @@ registry.register(
         set_element=text_attribute,
     ),
 )
-registry.register(
-    Data,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="display_name",
-        node_name="displayName",
-        classes=(str,),
-        get_kwarg=subelement_text_kwarg,
-        set_element=text_subelement,
-    ),
-)
-registry.register(
-    Data,
-    RegistryItem(
-        ns_ids=("", "kml"),
-        attr_name="value",
-        node_name="value",
-        classes=(str,),
-        get_kwarg=subelement_text_kwarg,
-        set_element=text_subelement,
-    ),
-)
 
 
-class SimpleData(_BaseObject):
+class SimpleData(_XMLObject):
+    _default_nsid = "kml"
+
     name: Optional[str]
     value: Optional[str]
 
@@ -441,8 +450,6 @@ class SimpleData(_BaseObject):
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
         name: Optional[str] = None,
         value: Optional[str] = None,
         **kwargs: Any,
@@ -455,8 +462,6 @@ class SimpleData(_BaseObject):
             ns (Optional[str]): The namespace of the object.
             name_spaces (Optional[Dict[str, str]]):
                 The dictionary of namespace prefixes and URIs.
-            id (Optional[str]): The ID of the object.
-            target_id (Optional[str]): The target ID of the object.
             name (Optional[str]): The name of the object.
             value (Optional[str]): The value of the object.
             **kwargs: Additional keyword arguments.
@@ -465,12 +470,10 @@ class SimpleData(_BaseObject):
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
-            id=id,
-            target_id=target_id,
             **kwargs,
         )
-        self.name = name
-        self.value = value
+        self.name = clean_string(name)
+        self.value = clean_string(value)
 
     def __repr__(self) -> str:
         """
@@ -485,8 +488,6 @@ class SimpleData(_BaseObject):
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
             f"name={self.name!r}, "
             f"value={self.value!r}, "
             f"**{self._get_splat()!r},"
@@ -502,13 +503,13 @@ class SimpleData(_BaseObject):
             bool: True if the name and the value attribute are set, False otherwise.
 
         """
-        return bool(self.name) and self.value is not None
+        return bool(self.name) and bool(self.value)
 
 
 registry.register(
     SimpleData,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="value",
         node_name="value",
         classes=(str,),
@@ -579,7 +580,7 @@ class SchemaData(_BaseObject):
             target_id=target_id,
             **kwargs,
         )
-        self.schema_url = schema_url
+        self.schema_url = clean_string(schema_url)
         self.data = list(data) if data else []
 
     def __repr__(self) -> str:
@@ -644,17 +645,16 @@ registry.register(
 )
 
 
-class ExtendedData(_BaseObject):
+class ExtendedData(_XMLObject):
     """Represents a list of untyped name/value pairs."""
 
+    _default_nsid = "kml"
     elements: List[Union[Data, SchemaData]]
 
     def __init__(
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
         elements: Optional[Iterable[Union[Data, SchemaData]]] = None,
         **kwargs: Any,
     ) -> None:
@@ -666,8 +666,6 @@ class ExtendedData(_BaseObject):
             ns (Optional[str]): The namespace for the data.
             name_spaces (Optional[Dict[str, str]]):
                 The dictionary of namespace prefixes and URIs.
-            id (Optional[str]): The ID of the data.
-            target_id (Optional[str]): The target ID of the data.
             elements (Optional[Iterable[Union[Data, SchemaData]]]):
                 The iterable of data elements.
             **kwargs (Any): Additional keyword arguments.
@@ -680,11 +678,9 @@ class ExtendedData(_BaseObject):
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
-            id=id,
-            target_id=target_id,
             **kwargs,
         )
-        self.elements = list(elements) if elements else []
+        self.elements = [e for e in elements if e] if elements else []
 
     def __repr__(self) -> str:
         """
@@ -699,8 +695,6 @@ class ExtendedData(_BaseObject):
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
             f"elements={self.elements!r}, "
             f"**{self._get_splat()!r},"
             ")"

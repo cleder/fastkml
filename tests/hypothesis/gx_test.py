@@ -14,57 +14,26 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test gx Track and MultiTrack."""
-import datetime
+
 import typing
 
 from hypothesis import given
 from hypothesis import strategies as st
-from hypothesis.extra.dateutil import timezones
-from pygeoif.hypothesis.strategies import epsg4326
-from pygeoif.hypothesis.strategies import points
 
 import fastkml
 import fastkml.enums
 import fastkml.gx
 import fastkml.types
-from fastkml.gx import Angle
-from fastkml.gx import TrackItem
-from fastkml.times import KmlDateTime
 from tests.base import Lxml
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
 from tests.hypothesis.common import assert_str_roundtrip_verbose
 from tests.hypothesis.strategies import nc_name
-
-track_items = st.builds(
-    TrackItem,
-    angle=st.one_of(
-        st.one_of(
-            st.builds(Angle),
-            st.builds(
-                Angle,
-                heading=st.floats(allow_nan=False, allow_infinity=False),
-                roll=st.floats(allow_nan=False, allow_infinity=False),
-                tilt=st.floats(allow_nan=False, allow_infinity=False),
-            ),
-        ),
-    ),
-    coord=points(srs=epsg4326),
-    when=st.builds(
-        KmlDateTime,
-        dt=st.datetimes(
-            allow_imaginary=False,
-            timezones=timezones(),
-            min_value=datetime.datetime(2000, 1, 1),  # noqa: DTZ001
-            max_value=datetime.datetime(2050, 1, 1),  # noqa: DTZ001
-        ),
-    ),
-)
+from tests.hypothesis.strategies import track_items
 
 
 class TestGx(Lxml):
-
     @given(
         id=st.one_of(st.none(), nc_name()),
         target_id=st.one_of(st.none(), nc_name()),
@@ -72,7 +41,7 @@ class TestGx(Lxml):
         track_items=st.one_of(
             st.none(),
             st.lists(
-                track_items,
+                track_items(),
             ),
         ),
     )
@@ -111,7 +80,7 @@ class TestGx(Lxml):
                     track_items=st.one_of(
                         st.none(),
                         st.lists(
-                            track_items,
+                            track_items(),
                         ),
                     ),
                 ),
