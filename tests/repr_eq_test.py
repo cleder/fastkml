@@ -16,8 +16,6 @@
 
 """Test the __repr__ and __eq__ methods."""
 
-import difflib
-from textwrap import wrap
 from typing import Final
 
 from pygeoif.geometry import LinearRing
@@ -1903,19 +1901,6 @@ class TestRepr(StdLibrary):
         ],
     )
 
-    def diff_compare(self, a: str, b: str) -> None:
-        """Compare two strings and print the differences."""
-        differ = difflib.Differ()
-        for line, d in enumerate(differ.compare(a.split(), b.split())):
-            if d[0] in ("+", "-"):
-                print(line, d)  # noqa: T201
-
-        for i, chunk in enumerate(zip(wrap(a, 100), wrap(b, 100))):
-            if chunk[0] != chunk[1]:
-                print(i * 100)  # noqa: T201
-                print(chunk[0])  # noqa: T201
-                print(chunk[1])  # noqa: T201
-
     def test_repr(self) -> None:
         """Test the __repr__ method."""
         new_doc = eval(repr(self.clean_doc), {}, eval_locals)  # noqa: S307
@@ -1929,10 +1914,10 @@ class TestRepr(StdLibrary):
 
     def test_eq_str_round_trip(self) -> None:
         """Test the equality of the original and the round-tripped document."""
-        new_doc = fastkml.KML.from_string(self.clean_doc.to_string(precision=15))
+        new_doc = fastkml.KML.from_string(self.clean_doc.to_string())
 
         assert str(self.clean_doc) == str(new_doc)
-        assert repr(new_doc) == repr(self.clean_doc)
+        assert new_doc == self.clean_doc
         # srict equality is not a given new_doc == self.clean_doc
 
 
