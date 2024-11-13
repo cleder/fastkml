@@ -232,7 +232,7 @@ class KML(_XMLObject):
         element = self.etree_element()
 
         try:
-            
+
             tree = config.etree.tostring(
                     element,
                     encoding="UTF-8",

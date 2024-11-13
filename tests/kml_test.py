@@ -185,59 +185,58 @@ class TestParseKMLNone(StdLibrary):
 
 
 class TestWriteKML(StdLibrary):
+    def test_write_kml_file(self) -> None:
 
-  def test_write_kml_file(self) -> None:
+        doc = kml.KML(
+              ns="{http://www.opengis.net/kml/2.2}",
+              name="Vestibulum eleifend lobortis lorem.",
+              features=[
+                  Document(
+                      ns="{http://www.opengis.net/kml/2.2}",
+                      id="doc-001",
+                      target_id="",
+                      name="Vestibulum eleifend lobortis lorem.",
+                      features=[
+                          Placemark(
+                              ns="{http://www.opengis.net/kml/2.2}",
+                          ),
+                      ],
+                      schemata=[],
+                  ),
+              ],
+          )
 
-      doc = kml.KML(
-            ns="{http://www.opengis.net/kml/2.2}",
-            name="Vestibulum eleifend lobortis lorem.",
-            features=[
-                Document(
-                    ns="{http://www.opengis.net/kml/2.2}",
-                    id="doc-001",
-                    target_id="",
-                    name="Vestibulum eleifend lobortis lorem.",
-                    features=[
-                        Placemark(
-                            ns="{http://www.opengis.net/kml/2.2}",
-                        ),
-                    ],
-                    schemata=[],
-                ),
-            ],
-        )
+        file_path = KMLFILEDIR / "output.kml"
+        kml.KML.write(doc, file_path=file_path, prettyprint=True, xml_declaration=True)
 
-      file_path = KMLFILEDIR / "output.kml"
-      kml.KML.write(doc, file_path=file_path, prettyprint=True, xml_declaration=True)
+        assert file_path.is_file(), "KML file was not created."
 
-      assert file_path.is_file(), "KML file was not created."
+    def test_write_kmz_file(self) -> None:
 
-  def test_write_kmz_file(self) -> None:
-        
-    doc = kml.KML(
-          ns="{http://www.opengis.net/kml/2.2}",
-          name="Vestibulum eleifend lobortis lorem.",
-          features=[
-              Document(
-                  ns="{http://www.opengis.net/kml/2.2}",
-                  id="doc-001",
-                  target_id="",
-                  name="Vestibulum eleifend lobortis lorem.",
-                  features=[
-                      Placemark(
-                          ns="{http://www.opengis.net/kml/2.2}",
-                      ),
-                  ],
-                  schemata=[],
-              ),
-          ],
-      )
+        doc = kml.KML(
+              ns="{http://www.opengis.net/kml/2.2}",
+              name="Vestibulum eleifend lobortis lorem.",
+              features=[
+                  Document(
+                      ns="{http://www.opengis.net/kml/2.2}",
+                      id="doc-001",
+                      target_id="",
+                      name="Vestibulum eleifend lobortis lorem.",
+                      features=[
+                          Placemark(
+                              ns="{http://www.opengis.net/kml/2.2}",
+                          ),
+                      ],
+                      schemata=[],
+                  ),
+              ],
+          )
 
-    file_path = KMLFILEDIR / "output.kmz"
+        file_path = KMLFILEDIR / "output.kmz"
 
-    kml.KML.write(doc, file_path=file_path, prettyprint=True, xml_declaration=True)
+        kml.KML.write(doc, file_path=file_path, prettyprint=True, xml_declaration=True)
 
-    assert file_path.is_file(), "KMZ file was not created."
+        assert file_path.is_file(), "KMZ file was not created."
 
 
 class TestLxml(Lxml, TestStdLibrary):
