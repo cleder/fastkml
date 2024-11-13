@@ -1092,7 +1092,7 @@ def datetime_subelement_kwarg(
     kwarg: str,
     classes: Tuple[Type[object], ...],
     strict: bool,
-) -> Dict[str, List["KmlDateTime"]]:
+) -> Dict[str, "KmlDateTime"]:
     """Extract a KML datetime from a subelement of an XML element."""
     cls = classes[0]
     node = element.find(f"{ns}{node_name}")
