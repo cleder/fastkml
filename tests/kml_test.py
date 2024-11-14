@@ -216,7 +216,7 @@ class TestWriteKML(StdLibrary):
 
         parsed_doc = kml.KML.parse(file_path)
 
-        assert parsed_doc.to_string() == doc.to_string(), "Written and original documents don't match"
+        assert parsed_doc.to_string() == doc.to_string()
 
         file_path.unlink()
 
@@ -250,12 +250,12 @@ class TestWriteKML(StdLibrary):
         tree = doc.to_string()
 
         with zipfile.ZipFile(file_path, 'r') as kmz:
-          assert 'doc.kml' in kmz.namelist(), "doc.kml not found in the KMZ file"
-
-          with kmz.open('doc.kml') as doc_kml:
-              kml_content = doc_kml.read().decode("utf-8")
-
-              assert kml_content == tree, "KML content does not match expected content"
+            assert 'doc.kml' in kmz.namelist(), "doc.kml not found in the KMZ file"
+            
+            with kmz.open('doc.kml') as doc_kml:
+                kml_content = doc_kml.read().decode("utf-8")
+                
+                assert kml_content == tree, "KML content does not match expected content"
 
         file_path.unlink()
 
