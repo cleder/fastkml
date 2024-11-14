@@ -46,7 +46,7 @@ jobs:
           pytest tests --cov=fastkml --cov=tests --cov-fail-under=95 --cov-report=xml
       - name: "Upload coverage to Codecov"
         if: ${{ matrix.python-version==3.11 }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: true
           verbose: true
