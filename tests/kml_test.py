@@ -287,6 +287,15 @@ class TestLxmlParseKML(Lxml, TestParseKML):
         assert len(k.features) == 1
         assert isinstance(k.features[0], features.Placemark)
 
+    def test_from_string_no_namespace(self) -> None:
+        doc = io.StringIO(
+            "<kml><Placemark><ExtendedData></ExtendedData></Placemark></kml>",
+        )
+
+        k = kml.KML.parse(doc, ns="", strict=False)
+
+        assert len(k.features) == 0
+
 
 class TestKmlFromString:
     def test_document(self) -> None:

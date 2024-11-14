@@ -337,6 +337,28 @@ class TestStdLibrary(StdLibrary):
         assert ts.timestamp.resolution == DateTimeResolution.date
         assert ts.timestamp.dt == datetime.date(1997, 7, 16)
 
+    def test_read_timestamp_invalid(self) -> None:
+        doc = """
+        <TimeStamp>
+          <when>jan1997</when>
+        </TimeStamp>
+        """
+
+        ts = kml.TimeStamp.from_string(doc, ns="", strict=False)
+
+        assert ts.timestamp is None
+
+    def test_read_timestamp_empty(self) -> None:
+        doc = """
+        <TimeStamp>
+          <when></when>
+        </TimeStamp>
+        """
+
+        ts = kml.TimeStamp.from_string(doc, ns="")
+
+        assert ts.timestamp is None
+
     def test_read_timestamp_utc(self) -> None:
         # dateTime (YYYY-MM-DDThh:mm:ssZ)
         # Here, T is the separator between the calendar and the hourly notation

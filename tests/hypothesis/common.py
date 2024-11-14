@@ -81,9 +81,9 @@ def assert_repr_roundtrip(obj: _XMLObject) -> None:
     """Test that repr(obj) can be eval'd back to obj."""
     try:
         assert obj == eval(repr(obj), {}, eval_locals)  # noqa: S307
-    except FileNotFoundError:
+    except FileNotFoundError:  # pragma: no cover
         # The timezone file may not be available on all systems.
-        logger.exception("Failed to eval repr(obj).")
+        logger.exception("Failed to eval repr(obj).")  # pragma: no cover
 
 
 def assert_str_roundtrip(obj: _XMLObject) -> None:

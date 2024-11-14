@@ -1092,7 +1092,7 @@ def datetime_subelement_kwarg(
     kwarg: str,
     classes: Tuple[Type[object], ...],
     strict: bool,
-) -> Dict[str, List["KmlDateTime"]]:
+) -> Dict[str, "KmlDateTime"]:
     """Extract a KML datetime from a subelement of an XML element."""
     cls = classes[0]
     node = element.find(f"{ns}{node_name}")
@@ -1100,16 +1100,15 @@ def datetime_subelement_kwarg(
         return {}
     node_text = node.text.strip() if node.text else ""
     if node_text:
-        try:
-            return {kwarg: cls.parse(node_text)}  # type: ignore[attr-defined]
-        except ValueError as exc:
-            handle_error(
-                error=exc,
-                strict=strict,
-                element=element,
-                node=node,
-                expected="DateTime",
-            )
+        if kdt := cls.parse(node_text):  # type: ignore[attr-defined]
+            return {kwarg: kdt}
+        handle_error(
+            error=ValueError(f"Invalid DateTime value: {node_text}"),
+            strict=strict,
+            element=element,
+            node=node,
+            expected="DateTime",
+        )
     return {}
 
 

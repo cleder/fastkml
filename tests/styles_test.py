@@ -63,6 +63,7 @@ class TestStdLibrary(StdLibrary):
 
         serialized = icons.to_string()
 
+        assert icons.icon_href == "http://example.com/icon.png"
         assert '<kml:IconStyle xmlns:kml="http://www.opengis.net/kml/2.2"' in serialized
         assert 'id="id-0"' in serialized
         assert 'targetId="target-0"' in serialized
@@ -74,6 +75,23 @@ class TestStdLibrary(StdLibrary):
         assert "<kml:href>http://example.com/icon.png</kml:href>" in serialized
         assert "</kml:Icon>" in serialized
         assert "</kml:IconStyle>" in serialized
+
+    def test_icon_style_icon_href(self) -> None:
+        icons = styles.IconStyle(
+            icon_href="http://example.com/icon.png",
+        )
+
+        assert icons.icon
+        assert icons.icon.href == "http://example.com/icon.png"
+
+    def test_icon_style_icon_and_href(self) -> None:
+        icons = styles.IconStyle(
+            icon=links.Icon(href="http://example1.com/icon.png"),
+            icon_href="http://example2.com/icon.png",
+        )
+
+        assert icons.icon
+        assert icons.icon.href == "http://example1.com/icon.png"
 
     def test_icon_style_with_hot_spot(self) -> None:
         icon_style = styles.IconStyle(
@@ -131,6 +149,8 @@ class TestStdLibrary(StdLibrary):
         assert icons.hot_spot
         assert icons.hot_spot.x == 0.5
         assert icons.hot_spot.y == 0.7
+        assert icons.hot_spot.xunits
+        assert icons.hot_spot.yunits
         assert icons.hot_spot.xunits.value == "fraction"
         assert icons.hot_spot.yunits.value == "insetPixels"
 
@@ -145,6 +165,10 @@ class TestStdLibrary(StdLibrary):
             "</kml:IconStyle>",
             strict=False,
         )
+
+        assert icons.hot_spot
+        assert icons.hot_spot.xunits
+        assert icons.hot_spot.yunits
         assert icons.hot_spot.xunits.value == "fraction"
         assert icons.hot_spot.yunits.value == "insetPixels"
 
@@ -422,6 +446,7 @@ class TestStdLibrary(StdLibrary):
         assert style.styles[0].color_mode == ColorMode.random
         assert style.styles[0].scale == 1.0
         assert style.styles[0].heading == 0
+        assert style.styles[0].icon
         assert style.styles[0].icon.href == "http://example.com/icon.png"
 
         assert isinstance(style.styles[1], styles.LabelStyle)

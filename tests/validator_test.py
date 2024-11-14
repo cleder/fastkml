@@ -21,6 +21,7 @@ from typing import Final
 import pytest
 
 from fastkml import atom
+from fastkml import config
 from fastkml.validator import get_schema_parser
 from fastkml.validator import validate
 from tests.base import Lxml
@@ -105,3 +106,18 @@ class TestLxml(Lxml):
 
         with pytest.raises(AssertionError):
             validate(element=link.etree_element())
+
+    def test_get_schema_parser(self) -> None:
+        path = TEST_DIR / "ogc_conformance" / "data" / "atom-author-link.xsd"
+        assert get_schema_parser(path)
+
+    def test_validate_empty_element(self) -> None:
+        element = config.etree.Element("kml")
+        with pytest.raises(
+            AssertionError,
+            match=(
+                "^Element 'kml': "
+                "No matching global declaration available for the validation root.$"
+            ),
+        ):
+            assert validate(element=element)

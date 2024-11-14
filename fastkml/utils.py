@@ -30,39 +30,6 @@ def has_attribute_values(obj: object, **kwargs: Any) -> bool:
         return False
 
 
-def find_in(
-    obj: object,
-    *,
-    of_type: Optional[Union[Type[object], Tuple[Type[object], ...]]] = None,
-    **kwargs: Any,
-) -> Generator[object, None, None]:
-    """
-    Find all instances of type in the attributes of an object.
-
-    Args:
-    ----
-        obj: The object to search.
-        of_type: The type(s) to search for or None for any type.
-        **kwargs: Attributes of the object to match.
-
-    Returns:
-    -------
-        An iterable of all instances of the given type in the given object.
-
-    """
-    try:
-        attrs = (attr for attr in obj.__dict__ if not attr.startswith("_"))
-    except AttributeError:
-        return
-    for attr_name in attrs:
-        attr = getattr(obj, attr_name)
-        try:
-            for item in attr:
-                yield from find_all(item, of_type=of_type, **kwargs)
-        except TypeError:
-            yield from find_all(attr, of_type=of_type, **kwargs)
-
-
 def find_all(
     obj: object,
     *,
@@ -88,7 +55,17 @@ def find_all(
         **kwargs,
     ):
         yield obj
-    yield from find_in(obj, of_type=of_type, **kwargs)
+    try:
+        attrs = (attr for attr in obj.__dict__ if not attr.startswith("_"))
+    except AttributeError:
+        return
+    for attr_name in attrs:
+        attr = getattr(obj, attr_name)
+        try:
+            for item in attr:
+                yield from find_all(item, of_type=of_type, **kwargs)
+        except TypeError:
+            yield from find_all(attr, of_type=of_type, **kwargs)
 
 
 def find(

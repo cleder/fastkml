@@ -151,6 +151,13 @@ class TestPoint(StdLibrary):
             in point.to_string(precision=10)
         )
 
+    def test_point_unequal(self) -> None:
+        """Test the __eq__ method."""
+        p = geo.Point(1, 2)
+        point = Point(geometry=p)
+
+        assert point != p
+
     def test_to_string_empty_geometry(self) -> None:
         """Test the to_string method."""
         point = Point(geometry=geo.Point(None, None))  # type: ignore[arg-type]

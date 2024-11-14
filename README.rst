@@ -22,11 +22,15 @@ Geometries are handled as pygeoif_ objects.
 
 Fastkml is continually tested
 
-|test| |cov| |black| |mypy| |commit|
+|test| |hypothesis| |cov| |black| |mypy| |commit|
 
 .. |test| image:: https://github.com/cleder/fastkml/actions/workflows/run-all-tests.yml/badge.svg?branch=main
     :target: https://github.com/cleder/fastkml/actions/workflows/run-all-tests.yml
     :alt: Test
+
+.. |hypothesis| image:: https://img.shields.io/badge/hypothesis-tested-brightgreen.svg
+   :alt: Tested with Hypothesis
+   :target: https://hypothesis.readthedocs.io
 
 .. |cov| image:: https://codecov.io/gh/cleder/fastkml/branch/main/graph/badge.svg?token=VIuhPHq0ow
     :target: http://codecov.io/github/cleder/fastkml?branch=main
