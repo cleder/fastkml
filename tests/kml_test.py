@@ -18,6 +18,7 @@
 
 import io
 import pathlib
+import zipfile
 
 import pygeoif as geo
 import pytest
@@ -209,9 +210,15 @@ class TestWriteKML(StdLibrary):
           )
 
         file_path = KMLFILEDIR / "output.kml"
-        doc.write(file_path=file_path, prettyprint=True, xml_declaration=True)
+        doc.write(file_path=file_path, prettyprint=True, xml_declaration=False)
 
         assert file_path.is_file(), "KML file was not created."
+
+        parsed_doc = kml.KML.parse(file_path)
+
+        assert parsed_doc.to_string() == doc.to_string(), "Written and original documents don't match"
+
+        file_path.unlink()
 
     def test_write_kmz_file(self) -> None:
 
@@ -236,9 +243,21 @@ class TestWriteKML(StdLibrary):
 
         file_path = KMLFILEDIR / "output.kmz"
 
-        doc.write(file_path=file_path, prettyprint=True, xml_declaration=True)
+        doc.write(file_path=file_path, prettyprint=True, xml_declaration=False)
 
         assert file_path.is_file(), "KMZ file was not created."
+
+        tree = doc.to_string()
+
+        with zipfile.ZipFile(file_path, 'r') as kmz:
+          assert 'doc.kml' in kmz.namelist(), "doc.kml not found in the KMZ file"
+
+          with kmz.open('doc.kml') as doc_kml:
+              kml_content = doc_kml.read().decode("utf-8")
+
+              assert kml_content == tree, "KML content does not match expected content"
+
+        file_path.unlink()
 
 
 class TestLxml(Lxml, TestStdLibrary):
