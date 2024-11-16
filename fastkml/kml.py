@@ -27,6 +27,7 @@ http://schemas.opengis.net/kml/.
 """
 
 import logging
+import zipfile
 from pathlib import Path
 from typing import IO
 from typing import Any
@@ -39,7 +40,6 @@ from typing import Union
 from typing import cast
 
 from typing_extensions import Self
-import zipfile
 
 from fastkml import config
 from fastkml import validator
@@ -246,51 +246,51 @@ class KML(_XMLObject):
         )
 
     def write(
-            self,
-            file_path: Path,
-            *,
-            prettyprint: bool = True,
-            xml_declaration: bool = True
+        self,
+        file_path: Path,
+        *,
+        prettyprint: bool = True,
+        xml_declaration: bool = True,
     ) -> None:
         """
-        Write KML to a file
+        Write KML to a file.
+
         Args:
         ----
             file_path: The file name where to save the file.
                 Can be any string value
             prettyprint : bool, default=True
                 Whether to pretty print the XML.
-            xml_declarationL bool, default=True
+            xml_declaration: bool, default=True
                 For True, value is '<?xml version="1.0" encoding="UTF-8"?>' else ''
 
         """
         element = self.etree_element()
 
         try:
-
-            tree = config.etree.tostring(
-                    element,
-                    encoding="UTF-8",
-                    pretty_print=prettyprint,
-                    xml_declaration=xml_declaration
-                ).decode(
-                    "UTF-8",
-                )
+            xml_content = config.etree.tostring(
+                element,
+                encoding="UTF-8",
+                pretty_print=prettyprint,
+                xml_declaration=xml_declaration,
+            ).decode(
+                "UTF-8",
+            )
         except TypeError:
-            tree = config.etree.tostring(
-                    element,
-                    encoding="UTF-8",
-                    xml_declaration=xml_declaration
-                ).decode(
-                    "UTF-8",
-                )
+            xml_content = config.etree.tostring(
+                element,
+                encoding="UTF-8",
+                xml_declaration=xml_declaration,
+            ).decode(
+                "UTF-8",
+            )
 
         if file_path.suffix == ".kmz":
-            with zipfile.ZipFile(file_path, 'w', zipfile.ZIP_DEFLATED) as kmz:
-                kmz.writestr('doc.kml', tree)
+            with zipfile.ZipFile(file_path, "w", zipfile.ZIP_DEFLATED) as kmz:
+                kmz.writestr("doc.kml", xml_content)
         else:
-            with open(file_path, "w",  encoding="UTF-8") as file:
-                file.write(tree)
+            with file_path.open("w", encoding="UTF-8") as file:
+                file.write(xml_content)
 
 
 registry.register(
