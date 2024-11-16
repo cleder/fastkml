@@ -30,6 +30,32 @@ def has_attribute_values(obj: object, **kwargs: Any) -> bool:
         return False
 
 
+def get_all_attrs(obj: object) -> Generator[object, None, None]:
+    """
+    Get all attributes of an object.
+
+    Args:
+    ----
+        obj: The object to get attributes from.
+
+    Returns:
+    -------
+        An iterable of all attributes of the object or, if the attribute itself is
+            iterable, iterate over the attribute values.
+
+    """
+    try:
+        attrs = (attr for attr in obj.__dict__ if not attr.startswith("_"))
+    except AttributeError:
+        return
+    for attr_name in attrs:
+        attr = getattr(obj, attr_name)
+        try:
+            yield from attr
+        except TypeError:
+            yield attr
+
+
 def find_all(
     obj: object,
     *,
@@ -55,17 +81,9 @@ def find_all(
         **kwargs,
     ):
         yield obj
-    try:
-        attrs = (attr for attr in obj.__dict__ if not attr.startswith("_"))
-    except AttributeError:
-        return
-    for attr_name in attrs:
-        attr = getattr(obj, attr_name)
-        try:
-            for item in attr:
-                yield from find_all(item, of_type=of_type, **kwargs)
-        except TypeError:
-            yield from find_all(attr, of_type=of_type, **kwargs)
+
+    for attr in get_all_attrs(obj):
+        yield from find_all(attr, of_type=of_type, **kwargs)
 
 
 def find(

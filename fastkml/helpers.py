@@ -1100,15 +1100,16 @@ def datetime_subelement_kwarg(
         return {}
     node_text = node.text.strip() if node.text else ""
     if node_text:
-        if kdt := cls.parse(node_text):  # type: ignore[attr-defined]
-            return {kwarg: kdt}
-        handle_error(
-            error=ValueError(f"Invalid DateTime value: {node_text}"),
-            strict=strict,
-            element=element,
-            node=node,
-            expected="DateTime",
-        )
+        try:
+            return {kwarg: cls.parse(node_text)}  # type: ignore[attr-defined]
+        except ValueError as exc:
+            handle_error(
+                error=exc,
+                strict=strict,
+                element=element,
+                node=node,
+                expected="DateTime",
+            )
     return {}
 
 

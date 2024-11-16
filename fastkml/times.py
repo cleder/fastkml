@@ -45,7 +45,7 @@ __all__ = ["KmlDateTime", "TimeSpan", "TimeStamp", "adjust_date_to_resolution"]
 
 # regular expression to parse a gYearMonth string
 # year and month may be separated by an optional dash
-# year is always 4 digits, month is always 2 digits
+# year is always 4 digits, month, day is always 2 digits
 year_month_day = re.compile(
     r"^(?P<year>\d{4})(?:-)?(?P<month>\d{2})?(?:-)?(?P<day>\d{2})?$",
 )
@@ -205,10 +205,8 @@ class KmlDateTime:
                 resolution = DateTimeResolution.year_month
             if year_month_day_match.group("month") is None:
                 resolution = DateTimeResolution.year
-        elif len(datestr) > 10:  # noqa: PLR2004
-            dt = arrow.get(datestr).datetime
-            resolution = DateTimeResolution.datetime
-        return cls(dt, resolution) if dt else None
+            return cls(dt, resolution)
+        return cls(arrow.get(datestr).datetime, DateTimeResolution.datetime)
 
     @classmethod
     def get_ns_id(cls) -> str:
