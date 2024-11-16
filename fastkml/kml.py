@@ -39,6 +39,7 @@ from typing import Union
 from typing import cast
 
 from typing_extensions import Self
+import zipfile
 
 from fastkml import config
 from fastkml import validator
@@ -163,7 +164,7 @@ class KML(_XMLObject):
         """
         # self.ns may be empty, which leads to unprefixed kml elements.
         # However, in this case the xlmns should still be mentioned on the kml
-        # element, just without prefix.
+        # element, just without prefix."""
         if not self.ns:
             root = config.etree.Element(
                 f"{self.ns}{self.get_tag_name()}",
@@ -243,6 +244,53 @@ class KML(_XMLObject):
             strict=strict,
             element=root,
         )
+
+    def write(
+            self,
+            file_path: Path,
+            *,
+            prettyprint: bool = True,
+            xml_declaration: bool = True
+    ) -> None:
+        """
+        Write KML to a file
+        Args:
+        ----
+            file_path: The file name where to save the file.
+                Can be any string value
+            prettyprint : bool, default=True
+                Whether to pretty print the XML.
+            xml_declarationL bool, default=True
+                For True, value is '<?xml version="1.0" encoding="UTF-8"?>' else ''
+
+        """
+        element = self.etree_element()
+
+        try:
+
+            tree = config.etree.tostring(
+                    element,
+                    encoding="UTF-8",
+                    pretty_print=prettyprint,
+                    xml_declaration=xml_declaration
+                ).decode(
+                    "UTF-8",
+                )
+        except TypeError:
+            tree = config.etree.tostring(
+                    element,
+                    encoding="UTF-8",
+                    xml_declaration=xml_declaration
+                ).decode(
+                    "UTF-8",
+                )
+
+        if file_path.suffix == ".kmz":
+            with zipfile.ZipFile(file_path, 'w', zipfile.ZIP_DEFLATED) as kmz:
+                kmz.writestr('doc.kml', tree)
+        else:
+            with open(file_path, "w",  encoding="UTF-8") as file:
+                file.write(tree)
 
 
 registry.register(
