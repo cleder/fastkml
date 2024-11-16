@@ -211,7 +211,7 @@ class TestWriteKML(StdLibrary):
         with tempfile.TemporaryDirectory() as tmpdir_name:
             file_path = pathlib.Path(tmpdir_name) / "output.kml"
 
-            doc.write(file_path=file_path, prettyprint=True, xml_declaration=False)
+            doc.write(file_path=file_path, prettyprint=True)
 
             assert file_path.is_file(), "KML file was not created."
             parsed_doc = kml.KML.parse(file_path)
@@ -239,7 +239,7 @@ class TestWriteKML(StdLibrary):
         with tempfile.TemporaryDirectory() as tmpdir_name:
             file_path = pathlib.Path(tmpdir_name) / "output.kmz"
 
-            doc.write(file_path=file_path, prettyprint=True, xml_declaration=False)
+            doc.write(file_path=file_path, prettyprint=True)
 
             assert file_path.is_file(), "KMZ file was not created."
             tree = doc.to_string()

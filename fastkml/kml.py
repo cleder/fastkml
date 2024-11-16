@@ -164,7 +164,7 @@ class KML(_XMLObject):
         """
         # self.ns may be empty, which leads to unprefixed kml elements.
         # However, in this case the xlmns should still be mentioned on the kml
-        # element, just without prefix."""
+        # element, just without prefix.
         if not self.ns:
             root = config.etree.Element(
                 f"{self.ns}{self.get_tag_name()}",
@@ -250,7 +250,8 @@ class KML(_XMLObject):
         file_path: Path,
         *,
         prettyprint: bool = True,
-        xml_declaration: bool = True,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
     ) -> None:
         """
         Write KML to a file.
@@ -261,28 +262,22 @@ class KML(_XMLObject):
                 Can be any string value
             prettyprint : bool, default=True
                 Whether to pretty print the XML.
-            xml_declaration: bool, default=True
-                For True, value is '<?xml version="1.0" encoding="UTF-8"?>' else ''
+            precision (Optional[int]): The precision used for floating-point values.
+            verbosity (Verbosity): The verbosity level for generating the KML element.
 
         """
-        element = self.etree_element()
+        element = self.etree_element(precision=precision, verbosity=verbosity)
 
         try:
             xml_content = config.etree.tostring(
                 element,
-                encoding="UTF-8",
+                encoding="unicode",
                 pretty_print=prettyprint,
-                xml_declaration=xml_declaration,
-            ).decode(
-                "UTF-8",
             )
         except TypeError:
             xml_content = config.etree.tostring(
                 element,
-                encoding="UTF-8",
-                xml_declaration=xml_declaration,
-            ).decode(
-                "UTF-8",
+                encoding="unicode",
             )
 
         if file_path.suffix == ".kmz":
