@@ -179,6 +179,7 @@ include = [
 
 [tool.rstcheck]
 ignore_directives = [
+    "autoclass",
     "automodule",
 ]
 report_level = "WARNING"

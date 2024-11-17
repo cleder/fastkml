@@ -16,7 +16,7 @@
 """
 Registry for XML objects.
 
-The Registry class is used to store and retrieve information about XML objects.
+The Registry is used to store and retrieve information about XML objects.
 This approach allows for flexible, declarative mapping between XML and Python objects,
 with the registry acting as a central configuration for these mappings.
 
@@ -75,6 +75,7 @@ class RegistryItem:
 
     The RegistryItem class is a dataclass that represents a single mapping between an
     XML object and a Python object. It contains the following fields:
+
     - ``ns_ids``: A tuple of namespace identifiers that the mapping applies to.
     - ``classes``: A tuple of Python classes that the mapping applies to.
     - ``attr_name``: The name of the attribute on the Python object that corresponds to
@@ -141,13 +142,43 @@ class Registry:
         )
 
     def register(self, cls: Type["_XMLObject"], item: RegistryItem) -> None:
-        """Register a class."""
+        """
+        Register a class.
+
+        Add a new RegistryItem to the registry for a specific class.
+
+        - Appends the item to an existing list if the class is already registered.
+        - Creates a new list with the item if it's the first for that class.
+        - Associates XML parsing/serialization rules with a class attribute.
+        - Defines how a specific attribute should be handled in XML operations.
+        - Allows for multiple registrations per class, supporting complex mappings.
+        - Is called during library initialization to set up KML mappings.
+
+        This is the primary way to configure how different KML elements and their
+        attributes are processed in fastkml.
+
+        """
         existing = self._registry.get(cls, [])
         existing.append(item)
         self._registry[cls] = existing
 
     def get(self, cls: Type["_XMLObject"]) -> List[RegistryItem]:
-        """Get a class by name."""
+        """
+        Get the registry items for a class and its ancestors.
+
+        The get method of the registry, in conjunction with _XMLObject:
+
+        - Retrieves all registered items for a given class and its ancestors.
+        - Supports inheritance in XML mappings.
+        - Allows ``_XMLObject`` to dynamically determine how to parse/serialize
+          attributes.
+        - Enables flexible XML handling without hardcoding in each class.
+        - Facilitates polymorphic behavior in XML parsing and serialization.
+
+        It allows ``_XMLObject`` to handle different KML elements consistently while
+        respecting their inheritance structure.
+
+        """
         parents = reversed(cls.__mro__[:-1])
         items = []
         for parent in parents:

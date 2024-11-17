@@ -23,11 +23,11 @@ Its main functions are:
 - Provide a common interface for XML serialization and deserialization.
 - Handle namespace management for KML elements.
 - Manage attribute storage and retrieval for derived classes.
-- Provide the etree_element() method for converting objects to XML Elements.
+- Provide the ``etree_element()`` method for converting objects to XML Elements.
 - Facilitate integration with the registry system for flexible XML mapping.
 
-By inheriting from _XMLObject, KML classes gain these capabilities, ensuring consistent
-handling of XML operations across the library.
+By inheriting from ``_XMLObject``, KML classes gain these capabilities, ensuring
+consistent handling of XML operations across the library.
 
 """
 
@@ -148,8 +148,8 @@ class _XMLObject:
         - Create an XML Element with the object's tag name and namespace.
         - Iterate through registered attributes for the object's class.
           For each attribute:
-          - Call the corresponding set_element function. This function adds the
-            attribute to the Element as a sub-element or attribute.
+            - Call the corresponding set_element function. This function adds the
+              attribute to the Element as a sub-element or attribute.
         - Handle different data types and nested objects.
         - Apply precision and verbosity settings if specified.
         - Return the complete Element tree representing the object.
