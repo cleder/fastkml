@@ -43,6 +43,14 @@ fastkml.kml\_base
     :undoc-members:
     :show-inheritance:
 
+fastkml.helpers
+----------------------
+
+.. automodule:: fastkml.helpers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 fastkml.about
 --------------------
 
@@ -53,9 +61,6 @@ fastkml.about
 
    .. autodata:: __version__
 
-
-
-
 fastkml.atom
 -------------------
 
@@ -63,7 +68,6 @@ fastkml.atom
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 fastkml.config
 ---------------------
@@ -125,14 +129,6 @@ fastkml.gx
 -----------------
 
 .. automodule:: fastkml.gx
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-fastkml.helpers
-----------------------
-
-.. automodule:: fastkml.helpers
    :members:
    :undoc-members:
    :show-inheritance:

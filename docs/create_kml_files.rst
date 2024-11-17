@@ -233,3 +233,9 @@ see the CO2 emissions per capita grow over time, Google Earth Web does not suppo
 time animations, but
 `Cesium Ion <https://ion.cesium.com/stories/viewer/?id=602c8c64-72aa-4c57-8a01-752b6fbc62d0>`_
 can display the time animation.
+
+.. image:: co2growth.gif
+    :alt: CO2 emissions per capita growth
+    :align: center
+    :width: 800px
+    :target: https://ion.cesium.com/stories/viewer/?id=602c8c64-72aa-4c57-8a01-752b6fbc62d0
