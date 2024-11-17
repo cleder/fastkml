@@ -27,6 +27,7 @@ http://schemas.opengis.net/kml/.
 """
 
 import logging
+import zipfile
 from pathlib import Path
 from typing import IO
 from typing import Any
@@ -243,6 +244,48 @@ class KML(_XMLObject):
             strict=strict,
             element=root,
         )
+
+    def write(
+        self,
+        file_path: Path,
+        *,
+        prettyprint: bool = True,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> None:
+        """
+        Write KML to a file.
+
+        Args:
+        ----
+            file_path: The file name where to save the file.
+                Can be any string value
+            prettyprint : bool, default=True
+                Whether to pretty print the XML.
+            precision (Optional[int]): The precision used for floating-point values.
+            verbosity (Verbosity): The verbosity level for generating the KML element.
+
+        """
+        element = self.etree_element(precision=precision, verbosity=verbosity)
+
+        try:
+            xml_content = config.etree.tostring(
+                element,
+                encoding="unicode",
+                pretty_print=prettyprint,
+            )
+        except TypeError:
+            xml_content = config.etree.tostring(
+                element,
+                encoding="unicode",
+            )
+
+        if file_path.suffix == ".kmz":
+            with zipfile.ZipFile(file_path, "w", zipfile.ZIP_DEFLATED) as kmz:
+                kmz.writestr("doc.kml", xml_content)
+        else:
+            with file_path.open("w", encoding="UTF-8") as file:
+                file.write(xml_content)
 
 
 registry.register(

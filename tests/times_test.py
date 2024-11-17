@@ -200,11 +200,19 @@ class TestDateTime(StdLibrary):
         assert dt.dt == datetime.datetime(1997, 7, 16, 7, 30, 15, tzinfo=tzutc())
 
     def test_parse_datetime_empty(self) -> None:
-        assert KmlDateTime.parse("") is None
+        with pytest.raises(
+            ValueError,
+            match="^Could not match input '' to any of the following formats:",
+        ):
+            KmlDateTime.parse("")
 
     def test_parse_year_month_5(self) -> None:
         """Test that a single digit month is invalid."""
-        assert KmlDateTime.parse("19973") is None
+        with pytest.raises(
+            ValueError,
+            match="^Could not match input '19973' to any of the following formats:",
+        ):
+            KmlDateTime.parse("19973")
 
 
 class TestStdLibrary(StdLibrary):

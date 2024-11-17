@@ -18,6 +18,8 @@
 
 import io
 import pathlib
+import tempfile
+import zipfile
 
 import pygeoif as geo
 import pytest
@@ -186,63 +188,71 @@ class TestParseKMLNone(StdLibrary):
         assert doc.ns == "None"
 
 
-class TestLxml(Lxml, TestStdLibrary):
-    """Test with lxml."""
-
-
-class TestLxmlParseKML(Lxml, TestParseKML):
-    """Test with Lxml."""
-
-    def test_from_string_with_unbound_prefix_strict(self) -> None:
-        doc = io.StringIO(
-            '<kml xmlns="http://www.opengis.net/kml/2.2">'
-            "<Placemark><ExtendedData>"
-            "<lc:attachment>image.png</lc:attachment>"
-            "</ExtendedData>"
-            "</Placemark> </kml>",
+class TestWriteKML(StdLibrary):
+    def test_write_kml_file(self) -> None:
+        doc = kml.KML(
+            ns="{http://www.opengis.net/kml/2.2}",
+            name="Vestibulum eleifend lobortis lorem.",
+            features=[
+                Document(
+                    ns="{http://www.opengis.net/kml/2.2}",
+                    id="doc-001",
+                    target_id="",
+                    name="Vestibulum eleifend lobortis lorem.",
+                    features=[
+                        Placemark(
+                            ns="{http://www.opengis.net/kml/2.2}",
+                        ),
+                    ],
+                    schemata=[],
+                ),
+            ],
         )
+        with tempfile.TemporaryDirectory() as tmpdir_name:
+            file_path = pathlib.Path(tmpdir_name) / "output.kml"
 
-        with pytest.raises(
-            AssertionError,
-            match="^Element 'lc:attachment': This element is not expected.",
-        ):
-            kml.KML.parse(doc, ns="{http://www.opengis.net/kml/2.2}")
+            doc.write(file_path=file_path, prettyprint=True)
 
-    def test_from_string_with_unbound_prefix_relaxed(self) -> None:
-        doc = io.StringIO(
-            '<kml xmlns="http://www.opengis.net/kml/2.2">'
-            "<Placemark><ExtendedData>"
-            "<lc:attachment>image.png</lc:attachment>"
-            "</ExtendedData>"
-            "</Placemark> </kml>",
+            assert file_path.is_file(), "KML file was not created."
+            parsed_doc = kml.KML.parse(file_path)
+            assert parsed_doc.to_string() == doc.to_string()
+
+    def test_write_kmz_file(self) -> None:
+        doc = kml.KML(
+            ns="{http://www.opengis.net/kml/2.2}",
+            name="Vestibulum eleifend lobortis lorem.",
+            features=[
+                Document(
+                    ns="{http://www.opengis.net/kml/2.2}",
+                    id="doc-001",
+                    target_id="",
+                    name="Vestibulum eleifend lobortis lorem.",
+                    features=[
+                        Placemark(
+                            ns="{http://www.opengis.net/kml/2.2}",
+                        ),
+                    ],
+                    schemata=[],
+                ),
+            ],
         )
-        k = kml.KML.parse(doc, strict=False)
-        assert len(k.features) == 1
-        assert isinstance(k.features[0], features.Placemark)
+        with tempfile.TemporaryDirectory() as tmpdir_name:
+            file_path = pathlib.Path(tmpdir_name) / "output.kmz"
 
-    def test_from_string_with_unbound_prefix_strict_no_validate(self) -> None:
-        doc = io.StringIO(
-            '<kml xmlns="http://www.opengis.net/kml/2.2">'
-            "<Placemark><ExtendedData>"
-            "<lc:attachment>image.png</lc:attachment>"
-            "</ExtendedData>"
-            "</Placemark> </kml>",
-        )
-        k = kml.KML.parse(doc, ns="{http://www.opengis.net/kml/2.2}", validate=False)
-        assert len(k.features) == 1
-        assert isinstance(k.features[0], features.Placemark)
+            doc.write(file_path=file_path, prettyprint=True)
 
-    def test_from_string_no_namespace(self) -> None:
-        doc = io.StringIO(
-            "<kml><Placemark><ExtendedData></ExtendedData></Placemark></kml>",
-        )
-
-        k = kml.KML.parse(doc, ns="", strict=False)
-
-        assert len(k.features) == 0
+            assert file_path.is_file(), "KMZ file was not created."
+            tree = doc.to_string()
+            with zipfile.ZipFile(file_path, "r") as kmz:
+                assert "doc.kml" in kmz.namelist(), "doc.kml not found in the KMZ file"
+                with kmz.open("doc.kml") as doc_kml:
+                    kml_content = doc_kml.read().decode("utf-8")
+                    assert (
+                        kml_content == tree
+                    ), "KML content does not match expected content"
 
 
-class TestKmlFromString:
+class TestKmlFromString(StdLibrary):
     def test_document(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
         <Document targetId="someTargetId">
@@ -597,3 +607,67 @@ class TestKmlFromString:
 
         doc2 = kml.KML.from_string(doc.to_string())
         assert doc.to_string() == doc2.to_string()
+
+
+class TestLxml(Lxml, TestStdLibrary):
+    """Test with lxml."""
+
+
+class TestLxmlParseKML(Lxml, TestParseKML):
+    """Test with Lxml."""
+
+    def test_from_string_with_unbound_prefix_strict(self) -> None:
+        doc = io.StringIO(
+            '<kml xmlns="http://www.opengis.net/kml/2.2">'
+            "<Placemark><ExtendedData>"
+            "<lc:attachment>image.png</lc:attachment>"
+            "</ExtendedData>"
+            "</Placemark> </kml>",
+        )
+
+        with pytest.raises(
+            AssertionError,
+            match="^Element 'lc:attachment': This element is not expected.",
+        ):
+            kml.KML.parse(doc, ns="{http://www.opengis.net/kml/2.2}")
+
+    def test_from_string_with_unbound_prefix_relaxed(self) -> None:
+        doc = io.StringIO(
+            '<kml xmlns="http://www.opengis.net/kml/2.2">'
+            "<Placemark><ExtendedData>"
+            "<lc:attachment>image.png</lc:attachment>"
+            "</ExtendedData>"
+            "</Placemark> </kml>",
+        )
+        k = kml.KML.parse(doc, strict=False)
+        assert len(k.features) == 1
+        assert isinstance(k.features[0], features.Placemark)
+
+    def test_from_string_with_unbound_prefix_strict_no_validate(self) -> None:
+        doc = io.StringIO(
+            '<kml xmlns="http://www.opengis.net/kml/2.2">'
+            "<Placemark><ExtendedData>"
+            "<lc:attachment>image.png</lc:attachment>"
+            "</ExtendedData>"
+            "</Placemark> </kml>",
+        )
+        k = kml.KML.parse(doc, ns="{http://www.opengis.net/kml/2.2}", validate=False)
+        assert len(k.features) == 1
+        assert isinstance(k.features[0], features.Placemark)
+
+    def test_from_string_no_namespace(self) -> None:
+        doc = io.StringIO(
+            "<kml><Placemark><ExtendedData></ExtendedData></Placemark></kml>",
+        )
+
+        k = kml.KML.parse(doc, ns="", strict=False)
+
+        assert len(k.features) == 0
+
+
+class TestWriteKMLLxmk(Lxml, TestWriteKML):
+    """Test with lxml."""
+
+
+class TestKmlFromStringLxml(Lxml, TestKmlFromString):
+    """Test with lxml."""

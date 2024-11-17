@@ -25,11 +25,9 @@ class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
 
     def test_atom_link_ns(self) -> None:
-        ns = "{http://www.opengis.net/kml/2.2}"
-        link = atom.Link(ns=ns)
-        assert link.ns == ns
+        link = atom.Link()
         assert link.to_string().startswith(
-            '<kml:link xmlns:kml="http://www.opengis.net/kml/2.2"',
+            '<atom:link xmlns:atom="http://www.w3.org/2005/Atom"',
         )
 
     def test_atom_link(self) -> None:

@@ -189,10 +189,8 @@ class _XMLObject:
                 str,
                 config.etree.tostring(
                     element,
-                    encoding="UTF-8",
+                    encoding="unicode",
                     pretty_print=prettyprint,
-                ).decode(
-                    "UTF-8",
                 ),
             )
         except TypeError:
@@ -200,9 +198,7 @@ class _XMLObject:
                 str,
                 config.etree.tostring(
                     element,
-                    encoding="UTF-8",
-                ).decode(
-                    "UTF-8",
+                    encoding="unicode",
                 ),
             )
 
