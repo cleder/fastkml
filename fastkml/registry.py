@@ -20,6 +20,14 @@ The Registry is used to store and retrieve information about XML objects.
 This approach allows for flexible, declarative mapping between XML and Python objects,
 with the registry acting as a central configuration for these mappings.
 
+Direct ``Registry`` class use is typically only for library internals or advanced
+customization. For normal usage, stick with the ``registry`` instance:
+
+- The library is designed around this global instance.
+- Ensures all parts of the library use the same registry.
+- Pre-populated with standard KML mappings.
+- Singleton pattern: Avoids multiple conflicting registries.
+
 """
 
 from dataclasses import dataclass
@@ -115,14 +123,6 @@ class Registry:
     - Allow easy addition or modification of XML mappings.
     - Enable consistent handling of attributes across different KML classes.
     - Facilitate extensibility and maintainability of the library.
-
-    Direct ``Registry`` class use is typically only for library internals or advanced
-    customization. For normal usage, stick with the ``registry`` instance:
-
-    - The library is designed around this global instance.
-    - Ensures all parts of the library use the same registry.
-    - Pre-populated with standard KML mappings.
-    - Singleton pattern: Avoids multiple conflicting registries.
 
     """
 
