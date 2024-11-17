@@ -6,6 +6,12 @@ Read a shapefile and build a 3D KML visualization.
 
 This example shows how to read a shapefile and build a 3D KML visualization from it.
 
+.. image:: co2-per-capita-2020.jpg
+    :alt: CO2 emissions per capita in 2020
+    :align: center
+    :width: 800px
+    :target: https://ion.cesium.com/stories/viewer/?id=a3cf93bb-bbb8-488b-8643-09c037ec12b8
+
 You will need to install `pyshp <https://pypi.org/project/pyshp/>`_ (``pip install pyshp``).
 
 For this example we will use the
@@ -108,12 +114,6 @@ Finally, we create the KML object and write it to a file:
 
 The resulting KML file can be opened in Google Earth or any other KML viewer.
 
-.. image:: co2-per-capita-2020.jpg
-    :alt: CO2 emissions per capita in 2020
-    :align: center
-    :width: 800px
-    :target: https://ion.cesium.com/stories/viewer/?id=a3cf93bb-bbb8-488b-8643-09c037ec12b8
-
 
 Build an animated over time KML visualization
 ----------------------------------------------
@@ -121,6 +121,12 @@ Build an animated over time KML visualization
 This example shows how to build an animated KML visualization over time.
 We will use the same data as in the previous example, but this time we will
 create a KML file that shows the CO2 emissions accumulating from 1995 to 2022.
+
+.. image:: co2growth.gif
+    :alt: CO2 emissions per capita growth
+    :align: center
+    :width: 800px
+    :target: https://ion.cesium.com/stories/viewer/?id=602c8c64-72aa-4c57-8a01-752b6fbc62d0
 
 First we import the necessary modules:
 
@@ -233,9 +239,3 @@ see the CO2 emissions per capita grow over time, Google Earth Web does not suppo
 time animations, but
 `Cesium Ion <https://ion.cesium.com/stories/viewer/?id=602c8c64-72aa-4c57-8a01-752b6fbc62d0>`_
 can display the time animation.
-
-.. image:: co2growth.gif
-    :alt: CO2 emissions per capita growth
-    :align: center
-    :width: 800px
-    :target: https://ion.cesium.com/stories/viewer/?id=602c8c64-72aa-4c57-8a01-752b6fbc62d0
