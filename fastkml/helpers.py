@@ -13,7 +13,22 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-"""Helper functions for fastkml."""
+"""
+Helper functions for fastkml.
+
+The helpers module acts as a bridge between the abstract registry definitions and the
+concrete XML operations performed by ``_XMLObject``.
+
+- Provides utility functions for XML parsing and serialization referenced in the
+  registry for handling different data types.
+- Implements ``get_kwarg`` and ``set_element`` functions used by ``_XMLObject``.
+- Offers helper functions for common operations like text handling and type conversions.
+
+``_XMLObject`` uses these helpers indirectly through the registry.
+The registry references these helper functions for attribute parsing and serialization.
+They form the implementation layer for the declarative approach defined by the registry.
+
+"""
 
 import logging
 from enum import Enum

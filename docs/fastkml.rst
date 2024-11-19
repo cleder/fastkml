@@ -4,6 +4,61 @@ Reference Guide
 
 .. automodule:: fastkml
 
+fastkml.kml
+------------------
+
+.. automodule:: fastkml.kml
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+fastkml.base
+-------------------
+
+.. automodule:: fastkml.base
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. autoclass:: fastkml.base._XMLObject
+    :members: etree_element, _get_kwargs, to_string, from_string, validate, __init__
+    :undoc-members:
+    :show-inheritance:
+
+fastkml.registry
+-----------------------
+
+.. automodule:: fastkml.registry
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. autoclass:: fastkml.registry::Registry
+    :members: register, get
+    :undoc-members:
+    :show-inheritance:
+
+fastkml.kml\_base
+------------------------
+
+.. automodule:: fastkml.kml_base
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. autoclass:: fastkml.kml_base::_BaseObject
+    :members: __init__
+    :undoc-members:
+    :show-inheritance:
+
+fastkml.helpers
+----------------------
+
+.. automodule:: fastkml.helpers
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 fastkml.about
 --------------------
@@ -13,18 +68,12 @@ fastkml.about
    :undoc-members:
    :show-inheritance:
 
+   .. autodata:: __version__
+
 fastkml.atom
 -------------------
 
 .. automodule:: fastkml.atom
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-fastkml.base
--------------------
-
-.. automodule:: fastkml.base
    :members:
    :undoc-members:
    :show-inheritance:
@@ -93,30 +142,6 @@ fastkml.gx
    :undoc-members:
    :show-inheritance:
 
-fastkml.helpers
-----------------------
-
-.. automodule:: fastkml.helpers
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-fastkml.kml
-------------------
-
-.. automodule:: fastkml.kml
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-fastkml.kml\_base
-------------------------
-
-.. automodule:: fastkml.kml_base
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 fastkml.links
 --------------------
 
@@ -141,13 +166,6 @@ fastkml.overlays
    :undoc-members:
    :show-inheritance:
 
-fastkml.registry
------------------------
-
-.. automodule:: fastkml.registry
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 fastkml.styles
 ---------------------

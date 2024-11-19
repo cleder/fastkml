@@ -1918,7 +1918,6 @@ class TestRepr(StdLibrary):
 
         assert str(self.clean_doc) == str(new_doc)
         assert new_doc == self.clean_doc
-        # srict equality is not a given new_doc == self.clean_doc
 
 
 class TestReprLxml(Lxml, TestRepr):

@@ -14,7 +14,22 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-"""Abstract base classes."""
+"""
+Abstract XML base class.
+
+The purpose of ``_XMLObject`` is to serve as a base class for KML objects in fastkml.
+Its main functions are:
+
+- Provide a common interface for XML serialization and deserialization.
+- Handle namespace management for KML elements.
+- Manage attribute storage and retrieval for derived classes.
+- Provide the ``etree_element()`` method for converting objects to XML Elements.
+- Facilitate integration with the registry system for flexible XML mapping.
+
+By inheriting from ``_XMLObject``, KML classes gain these capabilities, ensuring
+consistent handling of XML operations across the library.
+
+"""
 
 import logging
 from typing import Any
@@ -126,6 +141,18 @@ class _XMLObject:
     ) -> Element:
         """
         Return the KML Object as an Element.
+
+        This method essentially converts the Python object to its XML representation,
+        using the registry to determine how each attribute should be serialized.
+
+        - Create an XML Element with the object's tag name and namespace.
+        - Iterate through registered attributes for the object's class.
+          For each attribute:
+            - Call the corresponding set_element function. This function adds the
+              attribute to the Element as a sub-element or attribute.
+        - Handle different data types and nested objects.
+        - Apply precision and verbosity settings if specified.
+        - Return the complete Element tree representing the object.
 
         Parameters
         ----------
@@ -279,6 +306,31 @@ class _XMLObject:
     ) -> Dict[str, Any]:
         """
         Get the keyword arguments for the class constructor.
+
+        A class method used for XML deserialization. Its main purposes are:
+
+        - Extract attribute values from an XML element.
+        - Convert these values into appropriate Python types.
+        - Prepare a dictionary of keyword arguments for object initialization.
+        - It is called during the parsing process to populate object attributes from XML
+          data. The method uses the registry and helper functions to handle different
+          attribute types and nested objects.
+
+        Subclasses may override this method to add custom deserialization logic for
+        specific KML elements, although this should be rare. Prefer registration over
+        a custom ``_get_kwargs`` implementation to ensure consistent handling of KML:
+
+        - Consistency: Ensures uniform handling across all KML elements.
+        - Maintainability: Centralizes parsing logic, making updates easier.
+        - Declarative approach: Simplifies code by moving logic to configuration.
+        - Reusability: Allows sharing of parsing logic across different classes.
+        - Separation of concerns: Keeps parsing logic separate from class definitions.
+        - Extensibility: Makes it easier to add new attributes or change parsing
+          behavior.
+        - Reduced duplication: Avoids repeating similar parsing code in multiple
+          classes.
+        - Easier testing: Allows testing of parsing logic independently of class
+          implementations.
 
         Parameters
         ----------

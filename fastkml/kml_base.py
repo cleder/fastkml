@@ -14,7 +14,21 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-"""Abstract base classes."""
+"""
+Abstract KML base class.
+
+It adapts the generic XML functionality of ``_XMLObject`` to the specific needs of KML
+elements, providing a foundation for all KML-specific classes in fastkml.
+
+- Serve as the base class for all KML objects
+- Implement common KML attributes like 'id' and 'target_id'
+- Set the default namespace to KML
+- Provide KML-specific initialization logic
+- Act as an intermediary between _XMLObject and concrete KML classes
+- Ensure consistent handling of basic KML properties across all elements
+- Facilitate KML-specific functionality while inheriting generic XML capabilities
+
+"""
 
 from typing import Any
 from typing import Dict
