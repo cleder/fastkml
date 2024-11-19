@@ -191,8 +191,6 @@ target-version = "py38"
 [tool.ruff.lint]
 ignore = [
     "A002",
-    "ANN101",
-    "ANN102",
     "ANN401",
     "D203",
     "D212",
