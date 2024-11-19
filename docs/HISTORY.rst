@@ -1,7 +1,11 @@
 Changelog
 =========
 
-1.0 (unreleased)
+1.0.0dev0 (unreleased)
+----------------------
+
+
+1.0 (2024/11/19)
 -----------------
 
 - Drop Python 2 support
