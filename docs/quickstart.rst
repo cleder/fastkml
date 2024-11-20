@@ -141,6 +141,17 @@ Read in the KML string
 
     >>> k = kml.KML.from_string(doc)
 
+
+.. note::
+
+    To read a KML file directly, you can use the parse method:
+
+    .. code-block:: Python
+
+        k = kml.KML.parse("path/to/file.kml")
+
+
+
 Next we perform some simple sanity checks, such as checking the number of features.
 
 .. code-block:: pycon
@@ -206,3 +217,11 @@ Finally, print out the KML object as a string:
       </Document>
     </kml>
     <BLANKLINE>
+
+.. note::
+
+    To save the KML object to a file, you can use the write method:
+
+    .. code-block:: Python
+
+        k.write("path/to/file.kml")
