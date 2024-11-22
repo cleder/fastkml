@@ -47,9 +47,12 @@ from fastkml.styles import Style
 from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
 from fastkml.times import TimeSpan
+from fastkml.times import KmlDateTime
 from fastkml.times import TimeStamp
+from fastkml.update import Update
 from fastkml.utils import find_all
 from fastkml.views import Camera
+from fastkml.views import _AbstractView
 from fastkml.views import LookAt
 from fastkml.views import Region
 
@@ -323,6 +326,79 @@ class Document(_Container):
         )
 
 
+class NetworkLinkControl(_Container):
+
+    schemata: List[Schema]
+    
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        min_refresh_period: Optional[float] = None,
+        max_session_length: Optional[float] = None,
+        cookie: Optional[str] = None,
+        message: Optional[str] = None,
+        link_name: Optional[str] = None,
+        link_description: Optional[str] = None,
+        link_snippet: Optional[str] = None,
+        expires: Optional[KmlDateTime] = None,
+        update:Optional[Update] = None,
+        view: Optional[Union[Camera, LookAt]] = None,
+        schemata: Optional[Iterable[Schema]] = None,
+        **kwargs: Any
+    ) -> None:
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            min_refresh_period=min_refresh_period,
+            max_session_length=max_session_length,
+            cookie=cookie,
+            message=message,
+            link_name=link_name,
+            link_description=link_description,
+            link_snippet=link_snippet,
+            expires=expires,
+            update=update,
+            view=view,
+            **kwargs
+        )
+        self.schemata = list(schemata) if schemata else []
+    
+    def __repr__(self) -> str:
+        """
+        Return a string representation of the NetworkLinkControl object.
+
+        Returns
+        -------
+            str: A string representation of the NetworkLinkControl object.
+
+        """
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"min_refresh_period={self.min_refresh_period!r}, "
+            f"max_session_length={self.max_session_length!r}, "
+            f"cookie={self.cookie!r}, "
+            f"message={self.message!r}, "
+            f"link_name={self.link_name!r}, "
+            f"link_description={self.link_description!r}, "
+            f"link_snippet={self.link_snippet!r}, "
+            f"expires={self.expires!r}, "
+            f"update={self.update!r}, "
+            f"view={self.view!r}, "
+            f"schemata={self.schemata!r}, "
+            f"**{self._get_splat()!r},"
+            ")"
+        )
+
+
 registry.register(
     _Container,
     RegistryItem(
@@ -330,6 +406,17 @@ registry.register(
         attr_name="features",
         node_name="Folder,Placemark,Document,GroundOverlay,PhotoOverlay,NetworkLink",
         classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay, NetworkLink),
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
+    ),
+)
+registry.register(
+    NetworkLinkControl,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="schemata",
+        node_name="Schema",
+        classes=(Schema,),
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
     ),

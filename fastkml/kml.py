@@ -45,6 +45,7 @@ from fastkml import config
 from fastkml import validator
 from fastkml.base import _XMLObject
 from fastkml.containers import Document
+from fastkml.containers import NetworkLinkControl
 from fastkml.containers import Folder
 from fastkml.enums import Verbosity
 from fastkml.features import NetworkLink
@@ -59,7 +60,7 @@ from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
 
-kml_children = Union[Folder, Document, Placemark, GroundOverlay, PhotoOverlay]
+kml_children = Union[Folder, Document, Placemark, GroundOverlay, PhotoOverlay, NetworkLinkControl]
 
 
 def lxml_parse_and_validate(
@@ -286,8 +287,8 @@ registry.register(
     KML,
     RegistryItem(
         ns_ids=("kml",),
-        classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay, NetworkLink),
-        node_name="Document,Folder,Placemark,GroundOverlay,PhotoOverlay,NetworkLink",
+        classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay, NetworkLink, NetworkLinkControl),
+        node_name="Document,Folder,Placemark,GroundOverlay,PhotoOverlay,NetworkLink,NetworkLinkControl",
         attr_name="features",
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,

@@ -61,6 +61,7 @@ from fastkml.views import LookAt
 
 __all__ = [
     "KML",
+    "NetworkLinkControl"
     "Document",
     "Folder",
     "GroundOverlay",

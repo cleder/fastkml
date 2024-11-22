@@ -43,6 +43,8 @@ from fastkml.geometry import Point
 from fastkml.geometry import Polygon
 from fastkml.geometry import create_kml_geometry
 from fastkml.helpers import attribute_int_kwarg
+from fastkml.helpers import datetime_subelement
+from fastkml.helpers import datetime_subelement_kwarg
 from fastkml.helpers import bool_subelement
 from fastkml.helpers import clean_string
 from fastkml.helpers import int_attribute
@@ -63,8 +65,9 @@ from fastkml.registry import registry
 from fastkml.styles import Style
 from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
-from fastkml.times import TimeSpan
+from fastkml.times import KmlDateTime, TimeSpan
 from fastkml.times import TimeStamp
+from fastkml.update import Update
 from fastkml.views import Camera
 from fastkml.views import LookAt
 from fastkml.views import Region
@@ -222,6 +225,15 @@ class _Feature(TimeMixin, _BaseObject):
     view: Union[Camera, LookAt, None]
     region: Optional[Region]
     extended_data: Optional[ExtendedData]
+    min_refresh_period: Optional[float] = None,
+    max_session_length: Optional[float] = None,
+    cookie: Optional[str] = None,
+    message: Optional[str] = None,
+    link_name: Optional[str] = None,
+    link_description: Optional[str] = None,
+    link_snippet: Optional[str] = None,
+    expires: Optional[KmlDateTime] = None,
+    update:Optional[Update] = None,
 
     def __init__(
         self,
@@ -244,6 +256,15 @@ class _Feature(TimeMixin, _BaseObject):
         styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
         region: Optional[Region] = None,
         extended_data: Optional[ExtendedData] = None,
+        min_refresh_period: Optional[float] = None,
+        max_session_length: Optional[float] = None,
+        cookie: Optional[str] = None,
+        message: Optional[str] = None,
+        link_name: Optional[str] = None,
+        link_description: Optional[str] = None,
+        link_snippet: Optional[str] = None,
+        expires: Optional[KmlDateTime] = None,
+        update:Optional[Update] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -304,6 +325,15 @@ class _Feature(TimeMixin, _BaseObject):
         self.region = region
         self.extended_data = extended_data
         self.times = times
+        self.min_refresh_period = min_refresh_period
+        self.max_session_length = max_session_length
+        self.cookie = cookie
+        self.message = message
+        self.link_name = link_name
+        self.link_description = link_description
+        self.link_snippet = link_snippet
+        self.expires = expires
+        self.update = update
 
 
 registry.register(
@@ -407,6 +437,95 @@ registry.register(
         set_element=text_subelement,
     ),
 )
+registry.register(
+    _Feature,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="min_refresh_period",
+        node_name="minRefreshPeriod",
+        classes=(float,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="max_session_length",
+        node_name="maxSessionLength",
+        classes=(float,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="cookie",
+        node_name="cookie",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="message",
+        node_name="message",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="link_name",
+        node_name="linkName",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="link_description",
+        node_name="linkDescription",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="link_snippet",
+        node_name="linkSnippet",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    _Feature,
+    item=RegistryItem(
+        ns_ids=("kml", ),
+        classes=(KmlDateTime,),
+        attr_name="expires",
+        node_name="expires",
+        get_kwarg=datetime_subelement_kwarg,
+        set_element=datetime_subelement,
+    ),
+)
+
 registry.register(
     _Feature,
     RegistryItem(

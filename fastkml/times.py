@@ -189,6 +189,11 @@ class KmlDateTime:
                 else self.dt.isoformat()
             )
         return self.dt.isoformat()
+    
+    @classmethod
+    def get_tag_name(cls) -> str:
+        """Return the tag name."""
+        return cls.__name__.lower()
 
     @classmethod
     def parse(cls, datestr: str) -> Optional["KmlDateTime"]:
