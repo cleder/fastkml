@@ -30,6 +30,7 @@ from fastkml.data import ExtendedData
 from fastkml.enums import AltitudeMode
 from fastkml.enums import GridOrigin
 from fastkml.enums import Shape
+from fastkml.enums import Units
 from fastkml.features import Snippet
 from fastkml.features import _Feature
 from fastkml.geometry import LinearRing
@@ -37,8 +38,12 @@ from fastkml.geometry import LineString
 from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
+from fastkml.helpers import attribute_enum_kwarg
+from fastkml.helpers import attribute_float_kwarg
 from fastkml.helpers import clean_string
+from fastkml.helpers import enum_attribute
 from fastkml.helpers import enum_subelement
+from fastkml.helpers import float_attribute
 from fastkml.helpers import float_subelement
 from fastkml.helpers import int_subelement
 from fastkml.helpers import subelement_enum_kwarg
@@ -65,7 +70,12 @@ __all__ = [
     "ImagePyramid",
     "KmlGeometry",
     "LatLonBox",
+    "OverlayXY",
     "PhotoOverlay",
+    "RotationXY",
+    "ScreenOverlay",
+    "ScreenXY",
+    "Size",
     "ViewVolume",
 ]
 
@@ -1262,5 +1272,407 @@ registry.register(
         classes=(LatLonBox,),
         get_kwarg=xml_subelement_kwarg,
         set_element=xml_subelement,
+    ),
+)
+
+
+class _XY(_XMLObject):
+    """Specifies a point relative to the screen origin in pixels."""
+
+    _default_nsid = config.KML
+
+    x: Optional[float]
+    y: Optional[float]
+    x_units: Optional[Units]
+
+    y_units: Optional[Units]
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        x: Optional[float] = None,
+        y: Optional[float] = None,
+        x_units: Optional[Units] = None,
+        y_units: Optional[Units] = None,
+        **kwargs: Any,
+    ) -> None:
+        """
+        Initialize a new _XY object.
+
+        Args:
+        ----
+        ns : Optional[str]
+            The namespace for the element.
+        name_spaces : Optional[Dict[str, str]]
+            A dictionary of namespace prefixes and URIs.
+        x : Optional[float]
+            The horizontal position of the point relative to the left edge.
+        y : Optional[float]
+            The vertical position of the point relative to the bottom edge.
+        x_units : Optional[Units]
+            The horizontal units of the point.
+        y_units : Optional[Units]
+            The vertical units of the point
+        kwargs : Any
+            Additional keyword arguments.
+
+        """
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
+        self.x = x
+        self.y = y
+        self.x_units = x_units
+        self.y_units = y_units
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for _XY."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"x={self.x!r}, "
+            f"y={self.y!r}, "
+            f"x_units={self.x_units}, "
+            f"y_units={self.y_units}, "
+            f"**{self._get_splat()!r},"
+            ")"
+        )
+
+    def __bool__(self) -> bool:
+        """
+        Check if all the attributes necessary are not None.
+
+        Returns
+        -------
+            bool: True if all attributes (x, y) are not None.
+
+        """
+        return all([self.x is not None, self.y is not None])
+
+
+registry.register(
+    _XY,
+    RegistryItem(
+        ns_ids=("", "kml"),
+        attr_name="x",
+        node_name="x",
+        classes=(float,),
+        get_kwarg=attribute_float_kwarg,
+        set_element=float_attribute,
+    ),
+)
+registry.register(
+    _XY,
+    RegistryItem(
+        ns_ids=("", "kml"),
+        attr_name="y",
+        node_name="y",
+        classes=(float,),
+        get_kwarg=attribute_float_kwarg,
+        set_element=float_attribute,
+    ),
+)
+registry.register(
+    _XY,
+    RegistryItem(
+        ns_ids=("", "kml"),
+        attr_name="x_units",
+        node_name="xunits",
+        classes=(Units,),
+        get_kwarg=attribute_enum_kwarg,
+        set_element=enum_attribute,
+        default=Units.fraction,
+    ),
+)
+registry.register(
+    _XY,
+    RegistryItem(
+        ns_ids=("", "kml"),
+        attr_name="y_units",
+        node_name="yunits",
+        classes=(Units,),
+        get_kwarg=attribute_enum_kwarg,
+        set_element=enum_attribute,
+        default=Units.fraction,
+    ),
+)
+
+
+class OverlayXY(_XY):
+    """Specifies the placement of the overlay on the screen."""
+
+    @classmethod
+    def get_tag_name(cls) -> str:
+        """Return the tag name."""
+        return "overlayXY"
+
+
+class ScreenXY(_XY):
+    """Specifies the placement of the overlay on the screen."""
+
+    @classmethod
+    def get_tag_name(cls) -> str:
+        """Return the tag name."""
+        return "screenXY"
+
+
+class RotationXY(_XY):
+    """Specifies the rotation of the overlay on the screen."""
+
+    @classmethod
+    def get_tag_name(cls) -> str:
+        """Return the tag name."""
+        return "rotationXY"
+
+
+class Size(_XY):
+    """Specifies the size of the overlay on the screen."""
+
+    @classmethod
+    def get_tag_name(cls) -> str:
+        """Return the tag name."""
+        return "size"
+
+
+class ScreenOverlay(_Overlay):
+    """
+    A ScreenOverlay draws an image overlay fixed to the screen.
+
+    This element draws an image overlay fixed to the screen. Sample uses include
+    watermarking the map with an image, such as a company logo, or adding a
+    heads-up display (HUD) to show real-time information.
+
+    The <href> child of <Icon> specifies the image to be used as the overlay.
+    This file can be either on a local file system or on a web server.
+
+    https://developers.google.com/kml/documentation/kmlreference#screenoverlay
+    """
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[Dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
+        name: Optional[str] = None,
+        visibility: Optional[bool] = None,
+        isopen: Optional[bool] = None,
+        atom_link: Optional[atom.Link] = None,
+        atom_author: Optional[atom.Author] = None,
+        address: Optional[str] = None,
+        phone_number: Optional[str] = None,
+        snippet: Optional[Snippet] = None,
+        description: Optional[str] = None,
+        view: Optional[Union[Camera, LookAt]] = None,
+        times: Optional[Union[TimeSpan, TimeStamp]] = None,
+        style_url: Optional[StyleUrl] = None,
+        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
+        region: Optional[Region] = None,
+        extended_data: Optional[ExtendedData] = None,
+        color: Optional[str] = None,
+        draw_order: Optional[int] = None,
+        icon: Optional[Icon] = None,
+        # Screen Overlay specific
+        overlay_xy: Optional[OverlayXY] = None,
+        screen_xy: Optional[ScreenXY] = None,
+        rotation_xy: Optional[RotationXY] = None,
+        size: Optional[Size] = None,
+        rotation: Optional[float] = None,
+        **kwargs: Any,
+    ) -> None:
+        """
+        Initialize a new ScreenOverlay object.
+
+        Args:
+        ----
+        ns : Optional[str]
+            The namespace of the element.
+        name_spaces : Optional[Dict[str, str]]
+            The dictionary of namespace prefixes and URIs.
+        id : Optional[str]
+            The ID of the element.
+        target_id : Optional[str]
+            The target ID of the element.
+        name : Optional[str]
+            The name of the element.
+        visibility : Optional[bool]
+            The visibility of the element.
+        isopen : Optional[bool]
+            The open state of the element.
+        atom_link : Optional[atom.Link]
+            The Atom link associated with the element.
+        atom_author : Optional[atom.Author]
+            The Atom author associated with the element.
+        address : Optional[str]
+            The address of the element.
+        phone_number : Optional[str]
+            The phone number of the element.
+        snippet : Optional[Snippet]
+            The snippet associated with the element.
+        description : Optional[str]
+            The description of the element.
+        view : Optional[Union[Camera, LookAt]]
+            The view associated with the element.
+        times : Optional[Union[TimeSpan, TimeStamp]]
+            The times associated with the element.
+        style_url : Optional[StyleUrl]
+            The style URL of the element.
+        styles : Optional[Iterable[Union[Style, StyleMap]]]
+            The styles associated with the element.
+        region : Optional[Region]
+            The region associated with the element.
+        extended_data : Optional[ExtendedData]
+            The extended data associated with the element.
+        color : Optional[str]
+            The color of the element.
+        draw_order : Optional[int]
+            The draw order of the element.
+        icon : Optional[Icon]
+            The icon associated with the element.
+        altitude : Optional[float]
+            The altitude of the element.
+        altitude_mode : Optional[AltitudeMode]
+            The altitude mode of the element.
+        lat_lon_box : Optional[LatLonBox]
+            The latitude-longitude box associated with the element.
+        overlay_xy : Optional[OverlayXY]
+            The overlay XY associated with the element.
+        screen_xy : Optional[ScreenXY]
+            The screen XY associated with the element.
+        rotation_xy : Optional[RotationXY]
+            The rotation XY associated with the element.
+        size : Optional[Size]
+            The size associated with the element.
+        rotation : Optional[float]
+            The rotation of the element.
+        kwargs : Any
+            Additional keyword arguments.
+
+        Returns:
+        -------
+        None
+
+        """
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            name=name,
+            visibility=visibility,
+            isopen=isopen,
+            atom_link=atom_link,
+            atom_author=atom_author,
+            address=address,
+            phone_number=phone_number,
+            snippet=snippet,
+            description=description,
+            view=view,
+            times=times,
+            style_url=style_url,
+            styles=styles,
+            region=region,
+            extended_data=extended_data,
+            color=color,
+            draw_order=draw_order,
+            icon=icon,
+            **kwargs,
+        )
+        self.overlay_xy = overlay_xy
+        self.screen_xy = screen_xy
+        self.rotation_xy = rotation_xy
+        self.size = size
+        self.rotation = rotation
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for ScreenOverlay."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
+            f"name={self.name!r}, "
+            f"visibility={self.visibility!r}, "
+            f"isopen={self.isopen!r}, "
+            f"atom_link={self.atom_link!r}, "
+            f"atom_author={self.atom_author!r}, "
+            f"address={self.address!r}, "
+            f"phone_number={self.phone_number!r}, "
+            f"snippet={self.snippet!r}, "
+            f"description={self.description!r}, "
+            f"view={self.view!r}, "
+            f"times={self.times!r}, "
+            f"style_url={self.style_url!r}, "
+            f"styles={self.styles!r}, "
+            f"region={self.region!r}, "
+            f"extended_data={self.extended_data!r}, "
+            f"color={self.color!r}, "
+            f"draw_order={self.draw_order!r}, "
+            f"icon={self.icon!r}, "
+            f"overlay_xy={self.overlay_xy!r}, "
+            f"screen_xy={self.screen_xy!r}, "
+            f"rotation_xy={self.rotation_xy!r}, "
+            f"size={self.size!r}, "
+            f"rotation={self.rotation!r}, "
+            f"**{self._get_splat()!r},"
+            ")"
+        )
+
+
+registry.register(
+    ScreenOverlay,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="overlay_xy",
+        node_name="overlayXY",
+        classes=(OverlayXY,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    ScreenOverlay,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="screen_xy",
+        node_name="screenXY",
+        classes=(ScreenXY,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    ScreenOverlay,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="rotation_xy",
+        node_name="rotationXY",
+        classes=(RotationXY,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    ScreenOverlay,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="size",
+        node_name="size",
+        classes=(Size,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    ScreenOverlay,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="rotation",
+        node_name="rotation",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+        default=0.0,
     ),
 )
