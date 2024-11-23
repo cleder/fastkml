@@ -3,7 +3,8 @@
   xmlns:atom="http://www.w3.org/2005/Atom"
   xmlns:xal="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0"
   hint="A processing hint for a KML consumer">
-    <NetworkLinkControl>
+  <!-- Not implemented: NetworkLinkControl, Update, Delete, Create, Change -->
+    <!--NetworkLinkControl>
       <minRefreshPeriod>43200</minRefreshPeriod>
       <maxSessionLength>-1</maxSessionLength>
       <linkSnippet>
@@ -29,7 +30,7 @@
           </TimeSpan>
         </Change>
       </Update>
-    </NetworkLinkControl>
+    </NetworkLinkControl-->
 	<Document id="doc-001">
 		<name>Vestibulum eleifend lobortis lorem.</name>
 		<Style id="style-001">
@@ -79,11 +80,12 @@
 			<atom:link href="http://en.wikipedia.org/wiki/General_Motors_Place"
               rel="related" type="text/html" hreflang="en"
               title="Wikipedia entry" />
-      <xal:AddressDetails>
+      <!-- Not implemented: xal:AddressDetails -->
+      <!-- xal:AddressDetails>
         <xal:Address Type="Postal">
         800 Griffiths Way, Vancouver, BC, Canada V6B 6G1
         </xal:Address>
-      </xal:AddressDetails>
+      </xal:AddressDetails -->
       <phoneNumber>tel:+1-604-899-7400</phoneNumber>
       <snippet>Nicknamed The Garage and GM Place</snippet>
       <description>General Motors Place (), sponsored by General Motors Canada,
@@ -284,12 +286,13 @@
         </Placemark>
         <Placemark>
           <description>Navigation buoys in Vancouver harbour</description>
-          <ExtendedData xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+          <!-- not yet implemented https://github.com/cleder/fastkml/issues/77 -->
+          <!-- ExtendedData xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
             <rdf:Description xmlns:dct="http://purl.org/dc/terms/">
               <dct:subject rdf:resource="https://www.dgiwg.org/FAD/servlet/View?i=100262"/>
               <dct:valid>2007</dct:valid>
             </rdf:Description>
-          </ExtendedData>
+          </ExtendedData -->
           <MultiGeometry id="geom-001">
             <Point id="b385.5"><coordinates>-123.3215766,49.2760338,0</coordinates></Point>
             <Point id="b386"><coordinates>-123.2643704,49.3301853,0</coordinates></Point>
@@ -349,7 +352,8 @@
             </ResourceMap>
           </Model>
 		</Placemark>
-        <ScreenOverlay>
+        <!-- ScreenOverlay not yet implemented https://github.com/cleder/fastkml/issues/18 -->
+        <!-- ScreenOverlay>
           <name>Nullam eu massa in est semper dictum.</name>
           <open>true</open>
           <snippet>Aliquam faucibus placerat risus. Donec tellus urna, ultrices
@@ -362,7 +366,7 @@
           <screenXY x="0" y="1" xunits="fraction" yunits="fraction" />
           <rotationXY x="0" y="0" xunits="fraction" yunits="fraction" />
           <size x="0" y="0" xunits="fraction" yunits="fraction" />
-        </ScreenOverlay>
+        </ScreenOverlay -->
         <PhotoOverlay>
           <Camera>
             <longitude>8.230</longitude>
