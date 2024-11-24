@@ -4,6 +4,15 @@ Reference Guide
 
 .. automodule:: fastkml
 
+fastkml.kml
+------------------
+
+.. automodule:: fastkml.kml
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 fastkml.base
 -------------------
 
@@ -132,15 +141,6 @@ fastkml.gx
    :members:
    :undoc-members:
    :show-inheritance:
-
-fastkml.kml
-------------------
-
-.. automodule:: fastkml.kml
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 
 fastkml.links
 --------------------

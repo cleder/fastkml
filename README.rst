@@ -50,7 +50,7 @@ Fastkml is continually tested
 
 Is Maintained and documented:
 
-|pypi| |status| |license| |doc| |stats| |pyversion| |pyimpl| |dependencies| |downloads|
+|pypi| |conda-forge| |status| |license| |doc| |stats| |pyversion| |pyimpl| |dependencies| |downloads|
 
 .. |pypi| image:: https://img.shields.io/pypi/v/fastkml.svg
     :target: https://pypi.python.org/pypi/fastkml
@@ -88,6 +88,9 @@ Is Maintained and documented:
     :target: https://pepy.tech/project/fastkml
     :alt: Downloads
 
+.. |conda-forge| image:: https://img.shields.io/conda/vn/conda-forge/fastkml.svg
+    :target: https://anaconda.org/conda-forge/fastkml
+    :alt: Conda-Forge
 
 Documentation
 =============

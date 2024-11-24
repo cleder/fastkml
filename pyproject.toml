@@ -22,7 +22,11 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Text Processing :: Markup :: XML",
     "Typing :: Typed",
 ]
@@ -191,8 +195,6 @@ target-version = "py38"
 [tool.ruff.lint]
 ignore = [
     "A002",
-    "ANN101",
-    "ANN102",
     "ANN401",
     "D203",
     "D212",

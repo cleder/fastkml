@@ -89,6 +89,7 @@ class RegistryItem:
     - ``attr_name``: The name of the attribute on the Python object that corresponds to
       the XML object.
     - ``get_kwarg``: A function that retrieves keyword arguments for the Python object.
+    - ``set_element``: A function that sets the XML element for the Python object.
     - ``type``: The type of the XML object.
     - ``node_name``: The name of the XML node that the mapping applies to.
     - ``default``: An optional default value for the Python object attribute.
