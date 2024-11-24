@@ -352,8 +352,7 @@
             </ResourceMap>
           </Model>
 		</Placemark>
-        <!-- ScreenOverlay not yet implemented https://github.com/cleder/fastkml/issues/18 -->
-        <!-- ScreenOverlay>
+        <ScreenOverlay>
           <name>Nullam eu massa in est semper dictum.</name>
           <open>true</open>
           <snippet>Aliquam faucibus placerat risus. Donec tellus urna, ultrices
@@ -366,7 +365,7 @@
           <screenXY x="0" y="1" xunits="fraction" yunits="fraction" />
           <rotationXY x="0" y="0" xunits="fraction" yunits="fraction" />
           <size x="0" y="0" xunits="fraction" yunits="fraction" />
-        </ScreenOverlay -->
+        </ScreenOverlay>
         <PhotoOverlay>
           <Camera>
             <longitude>8.230</longitude>
