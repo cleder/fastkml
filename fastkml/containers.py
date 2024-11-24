@@ -41,6 +41,7 @@ from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.overlays import GroundOverlay
 from fastkml.overlays import PhotoOverlay
+from fastkml.overlays import ScreenOverlay
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 from fastkml.styles import Style
@@ -54,6 +55,8 @@ from fastkml.views import LookAt
 from fastkml.views import Region
 
 logger = logging.getLogger(__name__)
+
+__all__ = ["Document", "Folder"]
 
 KmlGeometry = Union[
     Point,
@@ -328,8 +331,19 @@ registry.register(
     RegistryItem(
         ns_ids=("kml",),
         attr_name="features",
-        node_name="Folder,Placemark,Document,GroundOverlay,PhotoOverlay,NetworkLink",
-        classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay, NetworkLink),
+        node_name=(
+            "Folder,Placemark,Document,GroundOverlay,PhotoOverlay,ScreenOverlay,"
+            "NetworkLink"
+        ),
+        classes=(
+            Document,
+            Folder,
+            Placemark,
+            GroundOverlay,
+            PhotoOverlay,
+            ScreenOverlay,
+            NetworkLink,
+        ),
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
     ),
