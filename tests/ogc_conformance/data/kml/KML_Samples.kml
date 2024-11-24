@@ -357,7 +357,8 @@ Simple Tables:<br>
       <visibility>0</visibility>
       <description>Screen overlays have to be authored directly in KML. These examples illustrate
         absolute and dynamic positioning in screen space.</description>
-      <ScreenOverlay>
+      <!-- ScreenOverlay not yet implemented https://github.com/cleder/fastkml/issues/18 -->
+      <!--ScreenOverlay>
         <name>Simple crosshairs</name>
         <visibility>0</visibility>
         <description>This screen overlay uses fractional positioning to put the image in the exact
@@ -435,7 +436,7 @@ Simple Tables:<br>
         <screenXY x="1" y="1" xunits="fraction" yunits="fraction"/>
         <rotationXY x="0" y="0" xunits="fraction" yunits="fraction"/>
         <size x="0" y="1" xunits="fraction" yunits="fraction"/>
-      </ScreenOverlay>
+      </ScreenOverlay-->
     </Folder>
     <Folder>
       <name>Paths</name>
