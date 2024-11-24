@@ -39,6 +39,7 @@ from fastkml.geometry import Point
 from fastkml.geometry import Polygon
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.network_control import _NetworkControl
 from fastkml.overlays import GroundOverlay
 from fastkml.overlays import PhotoOverlay
 from fastkml.registry import RegistryItem
@@ -52,7 +53,6 @@ from fastkml.times import TimeStamp
 from fastkml.update import Update
 from fastkml.utils import find_all
 from fastkml.views import Camera
-from fastkml.views import _AbstractView
 from fastkml.views import LookAt
 from fastkml.views import Region
 
@@ -326,7 +326,7 @@ class Document(_Container):
         )
 
 
-class NetworkLinkControl(_Container):
+class NetworkLinkControl(_NetworkControl):
 
     schemata: List[Schema]
     
@@ -334,8 +334,6 @@ class NetworkLinkControl(_Container):
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
         min_refresh_period: Optional[float] = None,
         max_session_length: Optional[float] = None,
         cookie: Optional[str] = None,
@@ -346,14 +344,11 @@ class NetworkLinkControl(_Container):
         expires: Optional[KmlDateTime] = None,
         update:Optional[Update] = None,
         view: Optional[Union[Camera, LookAt]] = None,
-        schemata: Optional[Iterable[Schema]] = None,
         **kwargs: Any
     ) -> None:
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
-            id=id,
-            target_id=target_id,
             min_refresh_period=min_refresh_period,
             max_session_length=max_session_length,
             cookie=cookie,
@@ -366,7 +361,6 @@ class NetworkLinkControl(_Container):
             view=view,
             **kwargs
         )
-        self.schemata = list(schemata) if schemata else []
     
     def __repr__(self) -> str:
         """
@@ -381,8 +375,6 @@ class NetworkLinkControl(_Container):
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
             f"min_refresh_period={self.min_refresh_period!r}, "
             f"max_session_length={self.max_session_length!r}, "
             f"cookie={self.cookie!r}, "
@@ -393,7 +385,6 @@ class NetworkLinkControl(_Container):
             f"expires={self.expires!r}, "
             f"update={self.update!r}, "
             f"view={self.view!r}, "
-            f"schemata={self.schemata!r}, "
             f"**{self._get_splat()!r},"
             ")"
         )
@@ -406,17 +397,6 @@ registry.register(
         attr_name="features",
         node_name="Folder,Placemark,Document,GroundOverlay,PhotoOverlay,NetworkLink",
         classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay, NetworkLink),
-        get_kwarg=xml_subelement_list_kwarg,
-        set_element=xml_subelement_list,
-    ),
-)
-registry.register(
-    NetworkLinkControl,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="schemata",
-        node_name="Schema",
-        classes=(Schema,),
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
     ),
