@@ -46,6 +46,7 @@ from fastkml.links import Icon
 from fastkml.links import Link
 from fastkml.overlays import GroundOverlay
 from fastkml.overlays import PhotoOverlay
+from fastkml.overlays import ScreenOverlay
 from fastkml.styles import BalloonStyle
 from fastkml.styles import IconStyle
 from fastkml.styles import LabelStyle
@@ -72,6 +73,7 @@ __all__ = [
     "PhotoOverlay",
     "Schema",
     "SchemaData",
+    "ScreenOverlay",
     "StyleUrl",
     "Style",
     "StyleMap",
