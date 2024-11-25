@@ -189,4 +189,4 @@ class Registry:
 
 registry = Registry()
 
-__all__ = ["registry", "RegistryItem"]
+__all__ = ["RegistryItem", "registry"]

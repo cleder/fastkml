@@ -83,8 +83,8 @@ class _XMLObject:
         self.ns: str = (
             self.name_spaces.get(self._default_nsid, "") if ns is None else ns
         )
-        for arg in kwargs:
-            setattr(self, arg, kwargs[arg])
+        for arg, val in kwargs.items():
+            setattr(self, arg, val)
         self.__kwarg_keys = tuple(kwargs.keys())
 
     def __repr__(self) -> str:
