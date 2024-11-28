@@ -68,7 +68,6 @@ from fastkml.views import Region
 __all__ = [
     "GroundOverlay",
     "ImagePyramid",
-    "KmlGeometry",
     "LatLonBox",
     "OverlayXY",
     "PhotoOverlay",

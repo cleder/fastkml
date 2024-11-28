@@ -32,6 +32,8 @@ from fastkml.kml_base import _BaseObject
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 
+__all__ = ["Icon", "Link"]
+
 
 class Link(_BaseObject):
     """

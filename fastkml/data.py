@@ -50,6 +50,7 @@ __all__ = [
     "ExtendedData",
     "Schema",
     "SchemaData",
+    "SimpleData",
     "SimpleField",
 ]
 
@@ -441,6 +442,14 @@ registry.register(
 
 
 class SimpleData(_XMLObject):
+    """
+    A SimpleData element is a custom data field.
+
+    This element assigns a value to the custom data field identified by the name
+    attribute. The type and name of this custom data field are declared in the
+    ``<Schema>`` element.
+    """
+
     _default_nsid = "kml"
 
     name: Optional[str]
