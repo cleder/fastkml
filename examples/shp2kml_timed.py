@@ -38,7 +38,7 @@ with co2_csv.open() as csvfile:
 styles = []
 folders = []
 for feature in shp.__geo_interface__["features"]:
-    iso3_code = feature["properties"]["ADM0_A3"]
+    iso3_code = feature["properties"]["ADM0_ISO"]
     geometry = shape(feature["geometry"])
     color = random.randint(0, 0xFFFFFF)
     styles.append(
