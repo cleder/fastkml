@@ -68,5 +68,4 @@ for feature in shp.__geo_interface__["features"]:
 kml = fastkml.KML(features=[document])
 
 outfile = pathlib.Path("co2_per_capita_2020.kml")
-with outfile.open("w") as f:
-    f.write(kml.to_string(prettyprint=True, precision=3))
+kml.write(outfile, prettyprint=True, precision=3)
