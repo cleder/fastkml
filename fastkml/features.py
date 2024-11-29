@@ -305,6 +305,7 @@ class _Feature(TimeMixin, _BaseObject):
         self.extended_data = extended_data
         self.times = times
 
+
 registry.register(
     _Feature,
     RegistryItem(

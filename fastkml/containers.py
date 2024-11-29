@@ -25,7 +25,9 @@ from typing import Optional
 from typing import Union
 
 from fastkml import atom
+from fastkml import config
 from fastkml import gx
+from fastkml.base import _XMLObject
 from fastkml.data import ExtendedData
 from fastkml.data import Schema
 from fastkml.features import NetworkLink
@@ -37,6 +39,12 @@ from fastkml.geometry import LineString
 from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
+from fastkml.helpers import datetime_subelement
+from fastkml.helpers import datetime_subelement_kwarg
+from fastkml.helpers import subelement_text_kwarg
+from fastkml.helpers import text_subelement
+from fastkml.helpers import xml_subelement
+from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.network_control import _NetworkControl
@@ -328,11 +336,55 @@ class Document(_Container):
             None,
         )
 
+registry.register(
+    _Container,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="features",
+        node_name=(
+            "Folder,Placemark,Document,GroundOverlay,PhotoOverlay,ScreenOverlay,"
+            "NetworkLink"
+        ),
+        classes=(
+            Document,
+            Folder,
+            Placemark,
+            GroundOverlay,
+            PhotoOverlay,
+            ScreenOverlay,
+            NetworkLink,
+        ),
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
+    ),
+)
+registry.register(
+    Document,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="schemata",
+        node_name="Schema",
+        classes=(Schema,),
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
+    ),
+)
 
-class NetworkLinkControl(_NetworkControl):
+class NetworkLinkControl(_XMLObject):
 
-    schemata: List[Schema]
-    
+    _default_nsid = config.KML
+
+    min_refresh_period: Optional[float]
+    max_session_length: Optional[float]
+    cookie: Optional[str]
+    message: Optional[str]
+    link_name: Optional[str]
+    link_description: Optional[str]
+    link_snippet: Optional[str]
+    expires: Optional[KmlDateTime]
+    view: Union[Camera, LookAt, None]
+    update:Optional[Update]
+
     def __init__(
         self,
         ns: Optional[str] = None,
@@ -392,37 +444,106 @@ class NetworkLinkControl(_NetworkControl):
             ")"
         )
 
-
 registry.register(
-    _Container,
+    NetworkLinkControl,
     RegistryItem(
         ns_ids=("kml",),
-        attr_name="features",
-        node_name=(
-            "Folder,Placemark,Document,GroundOverlay,PhotoOverlay,ScreenOverlay,"
-            "NetworkLink"
-        ),
-        classes=(
-            Document,
-            Folder,
-            Placemark,
-            GroundOverlay,
-            PhotoOverlay,
-            ScreenOverlay,
-            NetworkLink,
-        ),
-        get_kwarg=xml_subelement_list_kwarg,
-        set_element=xml_subelement_list,
+        attr_name="min_refresh_period",
+        node_name="minRefreshPeriod",
+        classes=(float,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
     ),
 )
 registry.register(
-    Document,
+    NetworkLinkControl,
     RegistryItem(
         ns_ids=("kml",),
-        attr_name="schemata",
-        node_name="Schema",
-        classes=(Schema,),
-        get_kwarg=xml_subelement_list_kwarg,
-        set_element=xml_subelement_list,
+        attr_name="max_session_length",
+        node_name="maxSessionLength",
+        classes=(float,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    NetworkLinkControl,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="cookie",
+        node_name="cookie",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    NetworkLinkControl,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="message",
+        node_name="message",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    NetworkLinkControl,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="link_name",
+        node_name="linkName",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    NetworkLinkControl,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="link_description",
+        node_name="linkDescription",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    NetworkLinkControl,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="link_snippet",
+        node_name="linkSnippet",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    NetworkLinkControl,
+    item=RegistryItem(
+        ns_ids=("kml", ),
+        classes=(KmlDateTime,),
+        attr_name="expires",
+        node_name="expires",
+        get_kwarg=datetime_subelement_kwarg,
+        set_element=datetime_subelement,
+    ),
+)
+
+registry.register(
+    NetworkLinkControl,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="view",
+        node_name="Camera,LookAt",
+        classes=(
+            Camera,
+            LookAt,
+        ),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
     ),
 )
