@@ -62,6 +62,19 @@ from fastkml.registry import registry
 
 logger = logging.getLogger(__name__)
 
+__all__ = [
+    "BalloonStyle",
+    "HotSpot",
+    "IconStyle",
+    "LabelStyle",
+    "LineStyle",
+    "Pair",
+    "PolyStyle",
+    "Style",
+    "StyleMap",
+    "StyleUrl",
+]
+
 
 class StyleUrl(_XMLObject):
     """
@@ -1399,15 +1412,3 @@ registry.register(
         set_element=xml_subelement_list,
     ),
 )
-
-
-__all__ = [
-    "BalloonStyle",
-    "IconStyle",
-    "LabelStyle",
-    "LineStyle",
-    "PolyStyle",
-    "Style",
-    "StyleMap",
-    "StyleUrl",
-]

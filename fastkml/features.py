@@ -69,7 +69,7 @@ from fastkml.views import Camera
 from fastkml.views import LookAt
 from fastkml.views import Region
 
-__all__ = ["KmlGeometry", "NetworkLink", "Placemark", "Snippet"]
+__all__ = ["NetworkLink", "Placemark", "Snippet"]
 
 logger = logging.getLogger(__name__)
 

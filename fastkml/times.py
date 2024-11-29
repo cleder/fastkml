@@ -41,7 +41,11 @@ from fastkml.kml_base import _BaseObject
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 
-__all__ = ["KmlDateTime", "TimeSpan", "TimeStamp", "adjust_date_to_resolution"]
+__all__ = [
+    "KmlDateTime",
+    "TimeSpan",
+    "TimeStamp",
+]
 
 # regular expression to parse a gYearMonth string
 # year and month may be separated by an optional dash

@@ -17,6 +17,7 @@ Changelog
 - refactor
 - Use arrow instead of dateutil
 - Add an informative ``__repr__``
+- Change the ``from_string`` method to a class method which returns a new instance.
 
 0.12 (2020/09/23)
 -----------------
