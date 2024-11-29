@@ -4,6 +4,8 @@ Changelog
 1.0.0dev0 (unreleased)
 ----------------------
 
+- Add support for ScreenOverlay
+
 
 1.0 (2024/11/19)
 -----------------
@@ -15,6 +17,7 @@ Changelog
 - refactor
 - Use arrow instead of dateutil
 - Add an informative ``__repr__``
+- Change the ``from_string`` method to a class method which returns a new instance.
 
 0.12 (2020/09/23)
 -----------------

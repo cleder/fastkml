@@ -109,10 +109,8 @@ Finally, we create the KML object and write it to a file:
     >>> document = fastkml.containers.Document(features=placemarks)
     >>> kml = fastkml.KML(features=[document])
     >>> outfile = pathlib.Path("co2_per_capita_2020.kml")
-    >>> with outfile.open("w") as f:
-    ...     f.write(kml.to_string(prettyprint=True, precision=3))  # doctest: +ELLIPSIS
-    ...
-    4...
+    >>> kml.write(outfile, prettyprint=True, precision=3)  # doctest: +ELLIPSIS
+
 
 The resulting KML file can be opened in Google Earth or any other KML viewer.
 
@@ -232,10 +230,7 @@ Finally, we create the KML object and write it to a file:
     >>> document = fastkml.containers.Document(features=folders, styles=styles)
     >>> kml = fastkml.KML(features=[document])
     >>> outfile = pathlib.Path("co2_growth_1995_2022.kml")
-    >>> with outfile.open("w") as f:
-    ...     f.write(kml.to_string(prettyprint=True, precision=3))  # doctest: +ELLIPSIS
-    ...
-    1...
+    >>> kml.write(outfile, prettyprint=True, precision=3)
 
 
 You can open the resulting KML file in Google Earth Desktop and use the time slider to

@@ -69,17 +69,18 @@ from fastkml.registry import registry
 from fastkml.types import Element
 
 __all__ = [
-    "AnyGeometryType",
     "Coordinates",
-    "GeometryType",
+    "InnerBoundaryIs",
     "LineString",
     "LinearRing",
     "MultiGeometry",
-    "MultiGeometryType",
+    "OuterBoundaryIs",
     "Point",
     "Polygon",
+    "create_kml_geometry",
     "create_multigeometry",
 ]
+
 
 logger = logging.getLogger(__name__)
 
