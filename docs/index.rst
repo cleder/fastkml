@@ -29,5 +29,6 @@ requirements, namely:
    upgrading
    fastkml
    contributing
+   kml
    alternatives
    HISTORY

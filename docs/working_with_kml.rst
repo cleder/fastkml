@@ -50,8 +50,12 @@ We could also search for all Points, which will also return the Points inside th
 
 ``find_all`` can also search for arbitrary elements by their attributes, by passing the
 attribute name and value as keyword arguments.
-``find`` is a shortcut for ``find_all`` that returns the first element found, which is
-useful when we know there is only one element that matches the search criteria.
+
+.. note::
+
+    ``find`` is a shortcut for ``find_all`` that returns the first element found,
+    which is useful when we know there is only one element that matches the search
+    criteria.
 
 .. code-block:: pycon
 
@@ -232,7 +236,7 @@ Now we can remove the CascadingStyle from the document and have a look at the re
           <kml:displayMode>hide</kml:displayMode>
         </kml:BalloonStyle>
       </kml:Style>
-      <kml:Placemark id="04AFE6060F147CE66FBD">
+      <kml:Placemark id="04SAFE6060F147CE66FBD">
         <kml:name>Ort1</kml:name>
         <kml:LookAt>
           <kml:longitude>10.06256752902339</kml:longitude>
