@@ -45,10 +45,26 @@ class Location(_XMLObject):
         latitude: Optional[float] = None,
         longitude: Optional[float] = None,
     ) -> None:
+        """Create a new Location."""
         super().__init__(ns=ns, name_spaces=name_spaces)
         self.altitude = altitude
         self.latitude = latitude
         self.longitude = longitude
+
+    def __bool__(self) -> bool:
+        return all((self.latitude is not None, self.longitude is not None))
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Location."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"altitude={self.altitude!r}, "
+            f"latitude={self.latitude!r}, "
+            f"longitude={self.longitude!r}, "
+            ")"
+        )
 
 
 class Orientation(_XMLObject):
@@ -67,6 +83,23 @@ class Orientation(_XMLObject):
         self.tilt = tilt
         self.roll = roll
 
+    def __bool__(self) -> bool:
+        return any(
+            (self.heading is not None, self.tilt is not None, self.roll is not None)
+        )
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Orientation."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"heading={self.heading!r}, "
+            f"tilt={self.tilt!r}, "
+            f"roll={self.roll!r}, "
+            ")"
+        )
+
 
 class Scale(_XMLObject):
     """Represents a scale in KML."""
@@ -84,6 +117,21 @@ class Scale(_XMLObject):
         self.y = y
         self.z = z
 
+    def __bool__(self) -> bool:
+        return any((self.x is not None, self.y is not None, self.z is not None))
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Scale."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"x={self.x!r}, "
+            f"y={self.y!r}, "
+            f"z={self.z!r}, "
+            ")"
+        )
+
 
 class Alias(_XMLObject):
     """Represents an alias in KML."""
@@ -99,6 +147,20 @@ class Alias(_XMLObject):
         self.target_href = clean_string(target_href)
         self.source_href = clean_string(source_href)
 
+    def __bool__(self) -> bool:
+        return all((self.target_href is not None, self.source_href is not None))
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for Alias."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"target_href={self.target_href!r}, "
+            f"source_href={self.source_href!r}, "
+            ")"
+        )
+
 
 class ResourceMap(_XMLObject):
     """Represents a resource map in KML."""
@@ -111,6 +173,19 @@ class ResourceMap(_XMLObject):
     ) -> None:
         super().__init__(ns=ns, name_spaces=name_spaces)
         self.aliases = list(aliases) if aliases is not None else []
+
+    def __bool__(self) -> bool:
+        return bool(self.aliases)
+
+    def __repr__(self) -> str:
+        """Create a string (c)representation for ResourceMap."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"aliases={self.aliases!r}, "
+            ")"
+        )
 
 
 class Model(_BaseObject):
@@ -136,6 +211,9 @@ class Model(_BaseObject):
         self.scale = scale
         self.link = link
         self.resource_map = resource_map
+
+    def __bool__(self) -> bool:
+        return bool(self.link)
 
     def __repr__(self) -> str:
         return (
