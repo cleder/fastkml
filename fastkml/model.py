@@ -25,17 +25,34 @@ https://developers.google.com/kml/documentation/kmlreference#model
 
 from typing import Dict
 from typing import Iterable
+from typing import List
 from typing import Optional
 
 from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
 from fastkml.helpers import clean_string
+from fastkml.helpers import enum_subelement
+from fastkml.helpers import float_subelement
+from fastkml.helpers import subelement_enum_kwarg
+from fastkml.helpers import subelement_float_kwarg
+from fastkml.helpers import subelement_text_kwarg
+from fastkml.helpers import text_subelement
+from fastkml.helpers import xml_subelement
+from fastkml.helpers import xml_subelement_kwarg
+from fastkml.helpers import xml_subelement_list
+from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.kml_base import _BaseObject
 from fastkml.links import Link
+from fastkml.registry import RegistryItem
+from fastkml.registry import registry
 
 
 class Location(_XMLObject):
     """Represents a location in KML."""
+
+    latitude: Optional[float]
+    longitude: Optional[float]
+    altitude: Optional[float]
 
     def __init__(
         self,
@@ -67,8 +84,47 @@ class Location(_XMLObject):
         )
 
 
+registry.register(
+    Location,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="longitude",
+        node_name="longitude",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    Location,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="latitude",
+        node_name="latitude",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    Location,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="altitude",
+        node_name="altitude",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+
+
 class Orientation(_XMLObject):
     """Represents an orientation in KML."""
+
+    heading: Optional[float]
+    tilt: Optional[float]
+    roll: Optional[float]
 
     def __init__(
         self,
@@ -85,7 +141,7 @@ class Orientation(_XMLObject):
 
     def __bool__(self) -> bool:
         return any(
-            (self.heading is not None, self.tilt is not None, self.roll is not None)
+            (self.heading is not None, self.tilt is not None, self.roll is not None),
         )
 
     def __repr__(self) -> str:
@@ -101,8 +157,47 @@ class Orientation(_XMLObject):
         )
 
 
+registry.register(
+    Orientation,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="heading",
+        node_name="heading",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    Orientation,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="tilt",
+        node_name="tilt",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    Orientation,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="roll",
+        node_name="roll",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+
+
 class Scale(_XMLObject):
     """Represents a scale in KML."""
+
+    x: Optional[float]
+    y: Optional[float]
+    z: Optional[float]
 
     def __init__(
         self,
@@ -133,8 +228,46 @@ class Scale(_XMLObject):
         )
 
 
+registry.register(
+    Scale,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="x",
+        node_name="x",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    Scale,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="y",
+        node_name="y",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+registry.register(
+    Scale,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="z",
+        node_name="z",
+        classes=(float,),
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
+    ),
+)
+
+
 class Alias(_XMLObject):
     """Represents an alias in KML."""
+
+    target_href: Optional[str]
+    source_href: Optional[str]
 
     def __init__(
         self,
@@ -162,8 +295,34 @@ class Alias(_XMLObject):
         )
 
 
+registry.register(
+    Alias,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="target_href",
+        node_name="targetHref",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    Alias,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="source_href",
+        node_name="sourceHref",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+
+
 class ResourceMap(_XMLObject):
     """Represents a resource map in KML."""
+
+    aliases: List[Alias]
 
     def __init__(
         self,
@@ -188,8 +347,28 @@ class ResourceMap(_XMLObject):
         )
 
 
+registry.register(
+    ResourceMap,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="aliases",
+        node_name="Alias",
+        classes=(Alias,),
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
+    ),
+)
+
+
 class Model(_BaseObject):
     """Represents a model in KML."""
+
+    altitude_mode: Optional[AltitudeMode]
+    location: Optional[Location]
+    orientation: Optional[Orientation]
+    scale: Optional[Scale]
+    link: Optional[Link]
+    resource_map: Optional[ResourceMap]
 
     def __init__(
         self,
@@ -229,3 +408,71 @@ class Model(_BaseObject):
             f"**{self._get_splat()!r},"
             ")"
         )
+
+
+registry.register(
+    Model,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="altitude_mode",
+        node_name="altitudeMode",
+        classes=(AltitudeMode,),
+        get_kwarg=subelement_enum_kwarg,
+        set_element=enum_subelement,
+    ),
+)
+registry.register(
+    Model,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="location",
+        node_name="Location",
+        classes=(Location,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    Model,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="orientation",
+        node_name="Orientation",
+        classes=(Orientation,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    Model,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="scale",
+        node_name="Scale",
+        classes=(Scale,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    Model,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="link",
+        node_name="Link",
+        classes=(Link,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+registry.register(
+    Model,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="resource_map",
+        node_name="ResourceMap",
+        classes=(ResourceMap,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
