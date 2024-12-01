@@ -58,6 +58,7 @@ from fastkml.model import Model
 from fastkml.model import Orientation
 from fastkml.model import ResourceMap
 from fastkml.model import Scale
+from fastkml.network_link_control import NetworkLinkControl
 from fastkml.overlays import GroundOverlay
 from fastkml.overlays import ImagePyramid
 from fastkml.overlays import LatLonBox
@@ -119,6 +120,7 @@ __all__ = [
     "Model",
     "MultiGeometry",
     "NetworkLink",
+    "NetworkLinkControl",
     "Orientation",
     "OuterBoundaryIs",
     "OverlayXY",
