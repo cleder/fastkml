@@ -54,8 +54,7 @@ class NetworkLinkControl(_XMLObject):
     link_description: Optional[str]
     link_snippet: Optional[str]
     expires: Optional[KmlDateTime]
-    view: Union[Camera, LookAt, None] # TODO: Add Update field to the parameters
-
+    view: Union[Camera, LookAt, None]  # TODO: Add Update field to the parameters
 
     def __init__(
         self,
