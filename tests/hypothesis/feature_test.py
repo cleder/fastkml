@@ -445,7 +445,7 @@ class TestLxml(Lxml):
             link=st.builds(fastkml.Link, href=urls()),
         ),
     )
-    def fuzz_placemark_model(
+    def test_fuzz_placemark_model(
         self,
         model: fastkml.model.Model,
     ) -> None:

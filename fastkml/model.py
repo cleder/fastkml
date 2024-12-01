@@ -135,6 +135,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 
@@ -192,6 +193,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 registry.register(
@@ -203,6 +205,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 registry.register(
@@ -214,6 +217,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0.0,
     ),
 )
 
@@ -269,6 +273,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=1.0,
     ),
 )
 registry.register(
@@ -280,6 +285,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=1.0,
     ),
 )
 registry.register(
@@ -291,6 +297,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=1.0,
     ),
 )
 
@@ -480,6 +487,7 @@ registry.register(
         classes=(AltitudeMode,),
         get_kwarg=subelement_enum_kwarg,
         set_element=enum_subelement,
+        default=AltitudeMode.clamp_to_ground,
     ),
 )
 registry.register(
