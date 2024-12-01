@@ -157,6 +157,15 @@ fastkml.mixins
    :undoc-members:
    :show-inheritance:
 
+fastkml.model
+--------------------
+
+.. automodule:: fastkml.model
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 fastkml.overlays
 -----------------------
 

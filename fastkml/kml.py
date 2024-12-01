@@ -301,7 +301,7 @@ registry.register(
             GroundOverlay,
             PhotoOverlay,
             NetworkLink,
-            NetworkLinkControl
+            NetworkLinkControl,
         ),
         node_name=(
             "Document,Folder,Placemark,GroundOverlay,PhotoOverlay,NetworkLink,"
