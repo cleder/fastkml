@@ -300,7 +300,7 @@ class Coordinates(_XMLObject):
 registry.register(
     Coordinates,
     item=RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         classes=(LineType,),  # type: ignore[arg-type]
         attr_name="coords",
         node_name="coordinates",
@@ -501,7 +501,7 @@ class Point(_Geometry):
 registry.register(
     Point,
     item=RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         classes=(bool,),
         attr_name="extrude",
         node_name="extrude",
@@ -525,7 +525,7 @@ registry.register(
 registry.register(
     Point,
     item=RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         classes=(Coordinates,),
         attr_name="kml_coordinates",
         node_name="coordinates",
@@ -668,7 +668,7 @@ class LineString(_Geometry):
 registry.register(
     LineString,
     item=RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         classes=(bool,),
         attr_name="extrude",
         node_name="extrude",
@@ -680,7 +680,7 @@ registry.register(
 registry.register(
     LineString,
     item=RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         classes=(bool,),
         attr_name="tessellate",
         node_name="tessellate",
@@ -704,7 +704,7 @@ registry.register(
 registry.register(
     LineString,
     item=RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         classes=(Coordinates,),
         attr_name="kml_coordinates",
         node_name="coordinates",
@@ -936,7 +936,7 @@ class InnerBoundaryIs(BoundaryIs):
 registry.register(
     BoundaryIs,
     item=RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         classes=(LinearRing,),
         attr_name="kml_geometry",
         node_name="LinearRing",
@@ -1134,7 +1134,7 @@ class Polygon(_Geometry):
 registry.register(
     Polygon,
     item=RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         classes=(bool,),
         attr_name="extrude",
         node_name="extrude",
@@ -1146,7 +1146,7 @@ registry.register(
 registry.register(
     Polygon,
     item=RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         classes=(bool,),
         attr_name="tessellate",
         node_name="tessellate",
@@ -1170,7 +1170,7 @@ registry.register(
 registry.register(
     Polygon,
     item=RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         classes=(OuterBoundaryIs,),
         attr_name="outer_boundary",
         node_name="outerBoundaryIs",
@@ -1181,7 +1181,7 @@ registry.register(
 registry.register(
     Polygon,
     item=RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         classes=(InnerBoundaryIs,),
         attr_name="inner_boundaries",
         node_name="innerBoundaryIs",
@@ -1344,7 +1344,7 @@ class MultiGeometry(_BaseObject):
 registry.register(
     MultiGeometry,
     item=RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         classes=(Point, LineString, Polygon, LinearRing, MultiGeometry),
         attr_name="kml_geometries",
         node_name="(Point|LineString|Polygon|LinearRing|MultiGeometry)",

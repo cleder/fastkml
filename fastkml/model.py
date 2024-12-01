@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2023 Christian Ledermann
+# Copyright (C) 2024 Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -45,6 +45,8 @@ from fastkml.kml_base import _BaseObject
 from fastkml.links import Link
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
+
+__all__ = ["Alias", "Location", "Model", "Orientation", "ResourceMap", "Scale"]
 
 
 class Location(_XMLObject):

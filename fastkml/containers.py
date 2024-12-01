@@ -329,7 +329,7 @@ class Document(_Container):
 registry.register(
     _Container,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="features",
         node_name=(
             "Folder,Placemark,Document,GroundOverlay,PhotoOverlay,ScreenOverlay,"
@@ -351,7 +351,7 @@ registry.register(
 registry.register(
     Document,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="schemata",
         node_name="Schema",
         classes=(Schema,),

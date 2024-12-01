@@ -285,7 +285,7 @@ class KML(_XMLObject):
 registry.register(
     KML,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay, NetworkLink),
         node_name="Document,Folder,Placemark,GroundOverlay,PhotoOverlay,NetworkLink",
         attr_name="features",

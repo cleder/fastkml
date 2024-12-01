@@ -1,6 +1,7 @@
 [default.extend-words]
 lod = "lod"
 Lod = "Lod"
+id ="04AFE6060F147CE66FBD"
 
 [files]
 extend-exclude = ["tests/ogc_conformance/data/kml/*.kml"]

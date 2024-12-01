@@ -123,7 +123,7 @@ We need to register the attributes of the KML object to be able to parse it:
     >>> registry.register(
     ...     CascadingStyle,
     ...     RegistryItem(
-    ...         ns_ids=("kml",),
+    ...         ns_ids=("kml", ""),
     ...         attr_name="style",
     ...         node_name="Style",
     ...         classes=(Style,),
