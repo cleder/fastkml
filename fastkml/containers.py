@@ -25,9 +25,7 @@ from typing import Optional
 from typing import Union
 
 from fastkml import atom
-from fastkml import config
 from fastkml import gx
-from fastkml.base import _XMLObject
 from fastkml.data import ExtendedData
 from fastkml.data import Schema
 from fastkml.features import NetworkLink
@@ -39,15 +37,8 @@ from fastkml.geometry import LineString
 from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
-from fastkml.helpers import datetime_subelement
-from fastkml.helpers import datetime_subelement_kwarg
-from fastkml.helpers import subelement_text_kwarg
-from fastkml.helpers import text_subelement
-from fastkml.helpers import xml_subelement
-from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
-from fastkml.network_control import _NetworkControl
 from fastkml.overlays import GroundOverlay
 from fastkml.overlays import PhotoOverlay
 from fastkml.overlays import ScreenOverlay
@@ -57,9 +48,7 @@ from fastkml.styles import Style
 from fastkml.styles import StyleMap
 from fastkml.styles import StyleUrl
 from fastkml.times import TimeSpan
-from fastkml.times import KmlDateTime
 from fastkml.times import TimeStamp
-from fastkml.update import Update
 from fastkml.utils import find_all
 from fastkml.views import Camera
 from fastkml.views import LookAt
@@ -336,6 +325,7 @@ class Document(_Container):
             None,
         )
 
+
 registry.register(
     _Container,
     RegistryItem(
@@ -367,183 +357,5 @@ registry.register(
         classes=(Schema,),
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
-    ),
-)
-
-class NetworkLinkControl(_XMLObject):
-
-    _default_nsid = config.KML
-
-    min_refresh_period: Optional[float]
-    max_session_length: Optional[float]
-    cookie: Optional[str]
-    message: Optional[str]
-    link_name: Optional[str]
-    link_description: Optional[str]
-    link_snippet: Optional[str]
-    expires: Optional[KmlDateTime]
-    view: Union[Camera, LookAt, None]
-    update:Optional[Update]
-
-    def __init__(
-        self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
-        min_refresh_period: Optional[float] = None,
-        max_session_length: Optional[float] = None,
-        cookie: Optional[str] = None,
-        message: Optional[str] = None,
-        link_name: Optional[str] = None,
-        link_description: Optional[str] = None,
-        link_snippet: Optional[str] = None,
-        expires: Optional[KmlDateTime] = None,
-        update:Optional[Update] = None,
-        view: Optional[Union[Camera, LookAt]] = None,
-        **kwargs: Any
-    ) -> None:
-        super().__init__(
-            ns=ns,
-            name_spaces=name_spaces,
-            min_refresh_period=min_refresh_period,
-            max_session_length=max_session_length,
-            cookie=cookie,
-            message=message,
-            link_name=link_name,
-            link_description=link_description,
-            link_snippet=link_snippet,
-            expires=expires,
-            update=update,
-            view=view,
-            **kwargs
-        )
-    
-    def __repr__(self) -> str:
-        """
-        Return a string representation of the NetworkLinkControl object.
-
-        Returns
-        -------
-            str: A string representation of the NetworkLinkControl object.
-
-        """
-        return (
-            f"{self.__class__.__module__}.{self.__class__.__name__}("
-            f"ns={self.ns!r}, "
-            f"name_spaces={self.name_spaces!r}, "
-            f"min_refresh_period={self.min_refresh_period!r}, "
-            f"max_session_length={self.max_session_length!r}, "
-            f"cookie={self.cookie!r}, "
-            f"message={self.message!r}, "
-            f"link_name={self.link_name!r}, "
-            f"link_description={self.link_description!r}, "
-            f"link_snippet={self.link_snippet!r}, "
-            f"expires={self.expires!r}, "
-            f"update={self.update!r}, "
-            f"view={self.view!r}, "
-            f"**{self._get_splat()!r},"
-            ")"
-        )
-
-registry.register(
-    NetworkLinkControl,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="min_refresh_period",
-        node_name="minRefreshPeriod",
-        classes=(float,),
-        get_kwarg=subelement_text_kwarg,
-        set_element=text_subelement,
-    ),
-)
-registry.register(
-    NetworkLinkControl,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="max_session_length",
-        node_name="maxSessionLength",
-        classes=(float,),
-        get_kwarg=subelement_text_kwarg,
-        set_element=text_subelement,
-    ),
-)
-registry.register(
-    NetworkLinkControl,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="cookie",
-        node_name="cookie",
-        classes=(str,),
-        get_kwarg=subelement_text_kwarg,
-        set_element=text_subelement,
-    ),
-)
-registry.register(
-    NetworkLinkControl,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="message",
-        node_name="message",
-        classes=(str,),
-        get_kwarg=subelement_text_kwarg,
-        set_element=text_subelement,
-    ),
-)
-registry.register(
-    NetworkLinkControl,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="link_name",
-        node_name="linkName",
-        classes=(str,),
-        get_kwarg=subelement_text_kwarg,
-        set_element=text_subelement,
-    ),
-)
-registry.register(
-    NetworkLinkControl,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="link_description",
-        node_name="linkDescription",
-        classes=(str,),
-        get_kwarg=subelement_text_kwarg,
-        set_element=text_subelement,
-    ),
-)
-registry.register(
-    NetworkLinkControl,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="link_snippet",
-        node_name="linkSnippet",
-        classes=(str,),
-        get_kwarg=subelement_text_kwarg,
-        set_element=text_subelement,
-    ),
-)
-registry.register(
-    NetworkLinkControl,
-    item=RegistryItem(
-        ns_ids=("kml", ),
-        classes=(KmlDateTime,),
-        attr_name="expires",
-        node_name="expires",
-        get_kwarg=datetime_subelement_kwarg,
-        set_element=datetime_subelement,
-    ),
-)
-
-registry.register(
-    NetworkLinkControl,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="view",
-        node_name="Camera,LookAt",
-        classes=(
-            Camera,
-            LookAt,
-        ),
-        get_kwarg=xml_subelement_kwarg,
-        set_element=xml_subelement,
     ),
 )

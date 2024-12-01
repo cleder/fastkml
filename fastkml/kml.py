@@ -45,7 +45,7 @@ from fastkml import config
 from fastkml import validator
 from fastkml.base import _XMLObject
 from fastkml.containers import Document
-from fastkml.containers import NetworkLinkControl
+from fastkml.network_link_control import NetworkLinkControl
 from fastkml.containers import Folder
 from fastkml.enums import Verbosity
 from fastkml.features import NetworkLink
