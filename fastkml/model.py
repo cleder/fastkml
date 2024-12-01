@@ -23,11 +23,13 @@ https://developers.google.com/kml/documentation/kmlreference#model
 
 """
 
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List
 from typing import Optional
 
+from fastkml import config
 from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
 from fastkml.helpers import clean_string
@@ -52,6 +54,8 @@ __all__ = ["Alias", "Location", "Model", "Orientation", "ResourceMap", "Scale"]
 class Location(_XMLObject):
     """Represents a location in KML."""
 
+    _default_nsid = config.KML
+
     latitude: Optional[float]
     longitude: Optional[float]
     altitude: Optional[float]
@@ -63,14 +67,16 @@ class Location(_XMLObject):
         altitude: Optional[float] = None,
         latitude: Optional[float] = None,
         longitude: Optional[float] = None,
+        **kwargs: Any,
     ) -> None:
         """Create a new Location."""
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.altitude = altitude
         self.latitude = latitude
         self.longitude = longitude
 
     def __bool__(self) -> bool:
+        """Return True if latitude and longitude are set."""
         return all((self.latitude is not None, self.longitude is not None))
 
     def __repr__(self) -> str:
@@ -82,6 +88,7 @@ class Location(_XMLObject):
             f"altitude={self.altitude!r}, "
             f"latitude={self.latitude!r}, "
             f"longitude={self.longitude!r}, "
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -124,6 +131,8 @@ registry.register(
 class Orientation(_XMLObject):
     """Represents an orientation in KML."""
 
+    _default_nsid = config.KML
+
     heading: Optional[float]
     tilt: Optional[float]
     roll: Optional[float]
@@ -135,13 +144,16 @@ class Orientation(_XMLObject):
         heading: Optional[float] = None,
         tilt: Optional[float] = None,
         roll: Optional[float] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        """Create a new Orientation."""
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.heading = heading
         self.tilt = tilt
         self.roll = roll
 
     def __bool__(self) -> bool:
+        """Return True if heading, tilt, and roll are set."""
         return any(
             (self.heading is not None, self.tilt is not None, self.roll is not None),
         )
@@ -155,6 +167,7 @@ class Orientation(_XMLObject):
             f"heading={self.heading!r}, "
             f"tilt={self.tilt!r}, "
             f"roll={self.roll!r}, "
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -197,6 +210,8 @@ registry.register(
 class Scale(_XMLObject):
     """Represents a scale in KML."""
 
+    _default_nsid = config.KML
+
     x: Optional[float]
     y: Optional[float]
     z: Optional[float]
@@ -208,13 +223,16 @@ class Scale(_XMLObject):
         x: Optional[float] = None,
         y: Optional[float] = None,
         z: Optional[float] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        """Create a new Scale."""
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.x = x
         self.y = y
         self.z = z
 
     def __bool__(self) -> bool:
+        """Return True if x, y, or z are set."""
         return any((self.x is not None, self.y is not None, self.z is not None))
 
     def __repr__(self) -> str:
@@ -226,6 +244,7 @@ class Scale(_XMLObject):
             f"x={self.x!r}, "
             f"y={self.y!r}, "
             f"z={self.z!r}, "
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -268,6 +287,8 @@ registry.register(
 class Alias(_XMLObject):
     """Represents an alias in KML."""
 
+    _default_nsid = config.KML
+
     target_href: Optional[str]
     source_href: Optional[str]
 
@@ -277,13 +298,16 @@ class Alias(_XMLObject):
         name_spaces: Optional[Dict[str, str]] = None,
         target_href: Optional[str] = None,
         source_href: Optional[str] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        """Create a new Alias."""
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.target_href = clean_string(target_href)
         self.source_href = clean_string(source_href)
 
     def __bool__(self) -> bool:
-        return all((self.target_href is not None, self.source_href is not None))
+        """Return True if target_href and source_href are set."""
+        return any((self.target_href is not None, self.source_href is not None))
 
     def __repr__(self) -> str:
         """Create a string (c)representation for Alias."""
@@ -293,6 +317,7 @@ class Alias(_XMLObject):
             f"name_spaces={self.name_spaces!r}, "
             f"target_href={self.target_href!r}, "
             f"source_href={self.source_href!r}, "
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -324,6 +349,8 @@ registry.register(
 class ResourceMap(_XMLObject):
     """Represents a resource map in KML."""
 
+    _default_nsid = config.KML
+
     aliases: List[Alias]
 
     def __init__(
@@ -331,11 +358,14 @@ class ResourceMap(_XMLObject):
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
         aliases: Optional[Iterable[Alias]] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        """Create a new ResourceMap."""
+        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
         self.aliases = list(aliases) if aliases is not None else []
 
     def __bool__(self) -> bool:
+        """Return True if aliases are set."""
         return bool(self.aliases)
 
     def __repr__(self) -> str:
@@ -345,6 +375,7 @@ class ResourceMap(_XMLObject):
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
             f"aliases={self.aliases!r}, "
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -384,8 +415,16 @@ class Model(_BaseObject):
         scale: Optional[Scale] = None,
         link: Optional[Link] = None,
         resource_map: Optional[ResourceMap] = None,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(ns=ns, name_spaces=name_spaces, id=id, target_id=target_id)
+        """Create a new Model."""
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.altitude_mode = altitude_mode
         self.location = location
         self.orientation = orientation
@@ -394,13 +433,17 @@ class Model(_BaseObject):
         self.resource_map = resource_map
 
     def __bool__(self) -> bool:
+        """Return True if link is set."""
         return bool(self.link)
 
     def __repr__(self) -> str:
+        """Create a string representation for Model."""
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"location={self.location!r}, "
             f"orientation={self.orientation!r}, "
@@ -415,7 +458,7 @@ class Model(_BaseObject):
 registry.register(
     Model,
     RegistryItem(
-        ns_ids=("kml", ""),
+        ns_ids=("kml", "gx", ""),
         attr_name="altitude_mode",
         node_name="altitudeMode",
         classes=(AltitudeMode,),
