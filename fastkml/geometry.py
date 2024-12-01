@@ -513,7 +513,7 @@ registry.register(
 registry.register(
     Point,
     item=RegistryItem(
-        ns_ids=("kml", "gx"),
+        ns_ids=("kml", "gx", ""),
         classes=(AltitudeMode,),
         attr_name="altitude_mode",
         node_name="altitudeMode",
@@ -692,7 +692,7 @@ registry.register(
 registry.register(
     LineString,
     item=RegistryItem(
-        ns_ids=("kml", "gx"),
+        ns_ids=("kml", "gx", ""),
         classes=(AltitudeMode,),
         attr_name="altitude_mode",
         node_name="altitudeMode",
@@ -1158,7 +1158,7 @@ registry.register(
 registry.register(
     Polygon,
     item=RegistryItem(
-        ns_ids=("kml", "gx"),
+        ns_ids=("kml", "gx", ""),
         classes=(AltitudeMode,),
         attr_name="altitude_mode",
         node_name="altitudeMode",

@@ -664,7 +664,7 @@ class Placemark(_Feature):
 registry.register(
     Placemark,
     RegistryItem(
-        ns_ids=("kml", "gx"),
+        ns_ids=("kml", "gx", ""),
         attr_name="kml_geometry",
         node_name=(
             "Point,LineString,LinearRing,Polygon,MultiGeometry,Model,"
