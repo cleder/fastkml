@@ -58,6 +58,7 @@ from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.kml_base import _BaseObject
 from fastkml.links import Link
 from fastkml.mixins import TimeMixin
+from fastkml.model import Model
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 from fastkml.styles import Style
@@ -78,6 +79,7 @@ KmlGeometry = Union[
     LineString,
     LinearRing,
     Polygon,
+    Model,
     MultiGeometry,
     gx.MultiTrack,
     gx.Track,
@@ -665,7 +667,7 @@ registry.register(
         ns_ids=("kml", "gx"),
         attr_name="kml_geometry",
         node_name=(
-            "Point,LineString,LinearRing,Polygon,MultiGeometry,"
+            "Point,LineString,LinearRing,Polygon,MultiGeometry,Model,"
             "gx:MultiTrack,gx:Track"
         ),
         classes=(
@@ -674,6 +676,7 @@ registry.register(
             LinearRing,
             Polygon,
             MultiGeometry,
+            Model,
             gx.MultiTrack,
             gx.Track,
         ),

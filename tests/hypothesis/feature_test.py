@@ -29,6 +29,7 @@ import fastkml.enums
 import fastkml.features
 import fastkml.gx
 import fastkml.links
+import fastkml.model
 import fastkml.styles
 import fastkml.views
 from tests.base import Lxml
@@ -412,6 +413,44 @@ class TestLxml(Lxml):
         placemark = fastkml.Placemark(
             style_url=style_url,
             styles=styles,
+        )
+
+        assert_repr_roundtrip(placemark)
+        assert_str_roundtrip(placemark)
+        assert_str_roundtrip_terse(placemark)
+        assert_str_roundtrip_verbose(placemark)
+
+    @given(
+        model=st.builds(
+            fastkml.model.Model,
+            altitude_mode=st.sampled_from(fastkml.enums.AltitudeMode),
+            location=st.builds(
+                fastkml.model.Location,
+                latitude=st.floats(
+                    allow_nan=False,
+                    allow_infinity=False,
+                    min_value=-90,
+                    max_value=90,
+                ).filter(lambda x: x != 0),
+                longitude=st.floats(
+                    allow_nan=False,
+                    allow_infinity=False,
+                    min_value=-180,
+                    max_value=180,
+                ).filter(lambda x: x != 0),
+                altitude=st.floats(allow_nan=False, allow_infinity=False).filter(
+                    lambda x: x != 0,
+                ),
+            ),
+            link=st.builds(fastkml.Link, href=urls()),
+        ),
+    )
+    def fuzz_placemark_model(
+        self,
+        model: fastkml.model.Model,
+    ) -> None:
+        placemark = fastkml.Placemark(
+            kml_geometry=model,
         )
 
         assert_repr_roundtrip(placemark)

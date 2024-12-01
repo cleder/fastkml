@@ -29,6 +29,8 @@ from typing import Iterable
 from typing import List
 from typing import Optional
 
+from pygeoif.geometry import Point
+
 from fastkml import config
 from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
@@ -91,6 +93,15 @@ class Location(_XMLObject):
             f"**{self._get_splat()!r},"
             ")"
         )
+
+    @property
+    def geometry(self) -> Optional[Point]:
+        """Return a Point representation of the geometry."""
+        if not self:
+            return None
+        assert self.longitude is not None  # noqa: S101
+        assert self.latitude is not None  # noqa: S101
+        return Point(self.longitude, self.latitude, self.altitude)
 
 
 registry.register(
@@ -434,7 +445,7 @@ class Model(_BaseObject):
 
     def __bool__(self) -> bool:
         """Return True if link is set."""
-        return bool(self.link)
+        return all((self.link, self.location))
 
     def __repr__(self) -> str:
         """Create a string representation for Model."""
@@ -453,6 +464,11 @@ class Model(_BaseObject):
             f"**{self._get_splat()!r},"
             ")"
         )
+
+    @property
+    def geometry(self) -> Optional[Point]:
+        """Return a Point representation of the geometry."""
+        return self.location.geometry if self.location else None
 
 
 registry.register(
