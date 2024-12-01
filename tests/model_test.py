@@ -47,6 +47,7 @@ class TestModel(StdLibrary):
         )
 
         model = fastkml.model.Model.from_string(doc)
+
         assert model.altitude_mode == AltitudeMode.absolute
         assert model.geometry == Point(
             -123.115776547816,
@@ -95,6 +96,7 @@ class TestModel(StdLibrary):
         )
 
         model = fastkml.model.Model.from_string(doc)
+
         assert model.altitude_mode == AltitudeMode.absolute
         assert model.geometry is None
         assert not model
@@ -120,9 +122,26 @@ class TestModel(StdLibrary):
         )
 
         model = fastkml.model.Model.from_string(doc)
+
         assert model.altitude_mode == AltitudeMode.absolute
         assert model.geometry is None
         assert not model
+
+    def test_location_from_string_invalid_location(self) -> None:
+        doc = (
+            '<Location xmlns="http://www.opengis.net/kml/2.2">'
+            "<longitude></longitude>"
+            "<latitude>49.279804095564</latitude>"
+            "<altitude>21.614010375743</altitude>"
+            "</Location>"
+        )
+
+        location = fastkml.model.Location.from_string(doc)
+
+        assert location.altitude == 21.614010375743
+        assert location.latitude == 49.279804095564
+        assert location.geometry is None
+        assert not location
 
 
 class TestModelLxml(TestModel, Lxml):
