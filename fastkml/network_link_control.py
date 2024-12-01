@@ -22,6 +22,8 @@ from typing import Union
 from fastkml import config
 from fastkml.base import _XMLObject
 from fastkml.helpers import datetime_subelement
+from fastkml.helpers import float_subelement
+from fastkml.helpers import subelement_float_kwarg
 from fastkml.helpers import datetime_subelement_kwarg
 from fastkml.helpers import subelement_text_kwarg
 from fastkml.helpers import text_subelement
@@ -41,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 
 class NetworkLinkControl(_XMLObject):
-    
+
     _default_nsid = config.KML
 
     min_refresh_period: Optional[float]
@@ -53,6 +55,7 @@ class NetworkLinkControl(_XMLObject):
     link_snippet: Optional[str]
     expires: Optional[KmlDateTime]
     view: Union[Camera, LookAt, None] # TODO: Add Update field to the parameters
+
 
     def __init__(
         self,
@@ -83,7 +86,7 @@ class NetworkLinkControl(_XMLObject):
             view=view,
             **kwargs
         )
-    
+
     def __repr__(self) -> str:
         """
         Return a string representation of the NetworkLinkControl object.
@@ -110,6 +113,7 @@ class NetworkLinkControl(_XMLObject):
             ")"
         )
 
+
 registry.register(
     NetworkLinkControl,
     RegistryItem(
@@ -117,8 +121,8 @@ registry.register(
         attr_name="min_refresh_period",
         node_name="minRefreshPeriod",
         classes=(float,),
-        get_kwarg=subelement_text_kwarg,
-        set_element=text_subelement,
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
     ),
 )
 registry.register(
@@ -128,8 +132,8 @@ registry.register(
         attr_name="max_session_length",
         node_name="maxSessionLength",
         classes=(float,),
-        get_kwarg=subelement_text_kwarg,
-        set_element=text_subelement,
+        get_kwarg=subelement_float_kwarg,
+        set_element=float_subelement,
     ),
 )
 registry.register(

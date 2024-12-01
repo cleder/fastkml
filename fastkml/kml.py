@@ -60,7 +60,14 @@ from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
 
-kml_children = Union[Folder, Document, Placemark, GroundOverlay, PhotoOverlay, NetworkLinkControl]
+kml_children = Union[
+                Folder,
+                Document,
+                Placemark,
+                GroundOverlay,
+                PhotoOverlay,
+                NetworkLinkControl
+            ]
 
 
 def lxml_parse_and_validate(
@@ -287,8 +294,19 @@ registry.register(
     KML,
     RegistryItem(
         ns_ids=("kml",),
-        classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay, NetworkLink, NetworkLinkControl),
-        node_name="Document,Folder,Placemark,GroundOverlay,PhotoOverlay,NetworkLink,NetworkLinkControl",
+        classes=(
+            Document,
+            Folder,
+            Placemark,
+            GroundOverlay,
+            PhotoOverlay,
+            NetworkLink,
+            NetworkLinkControl
+        ),
+        node_name=(
+            "Document,Folder,Placemark,GroundOverlay,PhotoOverlay,NetworkLink,"
+            "NetworkLinkControl"
+        ),
         attr_name="features",
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,

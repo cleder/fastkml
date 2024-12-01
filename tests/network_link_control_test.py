@@ -18,13 +18,11 @@
 
 import datetime
 
-import pytest
-
-from fastkml.kml import KML
 from fastkml.network_link_control import NetworkLinkControl
 from fastkml.times import KmlDateTime
 from tests.base import StdLibrary
 from fastkml import views
+
 
 class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
@@ -60,26 +58,26 @@ class TestStdLibrary(StdLibrary):
     def test_network_link_control_kml(self) -> None:
         doc = (
             '<kml:NetworkLinkControl xmlns:kml="http://www.opengis.net/kml/2.2">'
-            "<kml:minRefreshPeriod>43200</kml:minRefreshPeriod>"
+            "<kml:minRefreshPeriod>432000</kml:minRefreshPeriod>"
             "<kml:maxSessionLength>-1</kml:maxSessionLength>"
             "<kml:linkSnippet>A Snippet</kml:linkSnippet>"
             "<kml:expires>2008-05-30</kml:expires>"
             "</kml:NetworkLinkControl>"
         )
 
-        network_control = NetworkLinkControl.from_string(doc)
+        nc = NetworkLinkControl.from_string(doc)
 
         dt = datetime.date(2008, 5, 30)
         kml_datetime = KmlDateTime(dt=dt)
 
-        network_control_obj = NetworkLinkControl(
-            min_refresh_period=43200,
+        nc_obj = NetworkLinkControl(
+            min_refresh_period=432000,
             max_session_length=-1,
             link_snippet="A Snippet",
             expires=kml_datetime,
         )
 
-        assert network_control.min_refresh_period == str(network_control_obj.min_refresh_period)
-        assert network_control.max_session_length == str(network_control_obj.max_session_length)
-        assert network_control.link_snippet == network_control_obj.link_snippet
-        assert network_control.expires == network_control_obj.expires
+        assert nc.min_refresh_period == nc_obj.min_refresh_period
+        assert nc.max_session_length == nc_obj.max_session_length
+        assert nc.link_snippet == nc_obj.link_snippet
+        assert nc.expires == nc_obj.expires
