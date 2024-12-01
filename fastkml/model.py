@@ -165,7 +165,7 @@ class Orientation(_XMLObject):
         self.roll = roll
 
     def __bool__(self) -> bool:
-        """Return True if heading, tilt, and roll are set."""
+        """Return True if heading, tilt, or roll are set."""
         return any(
             (self.heading is not None, self.tilt is not None, self.roll is not None),
         )
@@ -324,7 +324,7 @@ class Alias(_XMLObject):
         self.source_href = clean_string(source_href)
 
     def __bool__(self) -> bool:
-        """Return True if target_href and source_href are set."""
+        """Return True if target_href or source_href are set."""
         return any((self.target_href is not None, self.source_href is not None))
 
     def __repr__(self) -> str:
@@ -451,7 +451,7 @@ class Model(_BaseObject):
         self.resource_map = resource_map
 
     def __bool__(self) -> bool:
-        """Return True if link is set."""
+        """Return True if link and location are set."""
         return all((self.link, self.location))
 
     def __repr__(self) -> str:
