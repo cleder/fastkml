@@ -156,8 +156,10 @@ And register the new element with the KML Document object:
 
 The CascadingStyle object is now part of the KML document and can be accessed like any
 other element.
-When parsing the document we have to skip the validation as the ``gx:CascadingStyle`` is
-not in the XSD Schema.
+
+.. note::
+    When parsing the document we have to skip the validation by passing ``validate=False``
+    to ``KML.parse`` as the ``gx:CascadingStyle`` is not in the XSD Schema.
 
 Create a new KML object and confirm that the new element is parsed correctly:
 
