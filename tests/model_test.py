@@ -99,6 +99,31 @@ class TestModel(StdLibrary):
         assert model.geometry is None
         assert not model
 
+    def test_from_string_invalid_location(self) -> None:
+        doc = (
+            '<Model xmlns="http://www.opengis.net/kml/2.2">'
+            "<altitudeMode>absolute</altitudeMode>"
+            "<Location>"
+            "<longitude></longitude>"
+            "<latitude>49.279804095564</latitude>"
+            "<altitude>21.614010375743</altitude>"
+            "</Location>"
+            "<Scale><x>1</x><y>1</y><z>1</z></Scale>"
+            "<Link><href>http://barcelona.galdos.local/files/PublicLibrary.dae</href></Link>"
+            '<ResourceMap id="map01">'
+            "<Alias>"
+            "<targetHref>http://barcelona.galdos.local/images/Concrete2.jpg</targetHref>"
+            "<sourceHref>../images/Concrete.jpg</sourceHref>"
+            "</Alias>"
+            "</ResourceMap>"
+            "</Model>"
+        )
+
+        model = fastkml.model.Model.from_string(doc)
+        assert model.altitude_mode == AltitudeMode.absolute
+        assert model.geometry is None
+        assert not model
+
 
 class TestModelLxml(TestModel, Lxml):
     pass
