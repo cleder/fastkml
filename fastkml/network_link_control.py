@@ -14,26 +14,26 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 import logging
-
 from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Union
+
 from fastkml import config
 from fastkml.base import _XMLObject
 from fastkml.helpers import datetime_subelement
+from fastkml.helpers import datetime_subelement_kwarg
 from fastkml.helpers import float_subelement
 from fastkml.helpers import subelement_float_kwarg
-from fastkml.helpers import datetime_subelement_kwarg
 from fastkml.helpers import subelement_text_kwarg
 from fastkml.helpers import text_subelement
-from fastkml.helpers import xml_subelement_list
-from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.helpers import xml_subelement
+from fastkml.helpers import xml_subelement_kwarg
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 from fastkml.times import KmlDateTime
-from fastkml.views import Camera, LookAt
-
+from fastkml.views import Camera
+from fastkml.views import LookAt
 
 __all__ = [
     "NetworkLinkControl",
@@ -69,7 +69,7 @@ class NetworkLinkControl(_XMLObject):
         link_snippet: Optional[str] = None,
         expires: Optional[KmlDateTime] = None,
         view: Optional[Union[Camera, LookAt]] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         super().__init__(
             ns=ns,
@@ -83,7 +83,7 @@ class NetworkLinkControl(_XMLObject):
             link_snippet=link_snippet,
             expires=expires,
             view=view,
-            **kwargs
+            **kwargs,
         )
 
     def __repr__(self) -> str:
@@ -122,6 +122,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=0,
     ),
 )
 registry.register(
@@ -133,6 +134,7 @@ registry.register(
         classes=(float,),
         get_kwarg=subelement_float_kwarg,
         set_element=float_subelement,
+        default=-1,
     ),
 )
 registry.register(
@@ -211,7 +213,7 @@ registry.register(
             Camera,
             LookAt,
         ),
-        get_kwarg=xml_subelement_list_kwarg,
-        set_element=xml_subelement_list,
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
     ),
 )

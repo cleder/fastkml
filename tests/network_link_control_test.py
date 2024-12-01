@@ -51,9 +51,8 @@ class TestStdLibrary(StdLibrary):
         assert network_control_obj.link_name == "link_name"
         assert network_control_obj.link_description == "link_description"
         assert network_control_obj.link_snippet == "link_snippet"
-        assert network_control_obj.expires == kml_datetime
-
-        assert network_control_obj.view == view
+        assert str(network_control_obj.expires) == str(kml_datetime)
+        assert str(network_control_obj.view) == str(view)
 
     def test_network_link_control_kml(self) -> None:
         doc = (
@@ -77,7 +76,4 @@ class TestStdLibrary(StdLibrary):
             expires=kml_datetime,
         )
 
-        assert nc.min_refresh_period == nc_obj.min_refresh_period
-        assert nc.max_session_length == nc_obj.max_session_length
-        assert nc.link_snippet == nc_obj.link_snippet
-        assert nc.expires == nc_obj.expires
+        assert nc == nc_obj

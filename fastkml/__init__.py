@@ -31,7 +31,6 @@ from fastkml.atom import Contributor as AtomContributor
 from fastkml.atom import Link as AtomLink
 from fastkml.containers import Document
 from fastkml.containers import Folder
-from fastkml.network_link_control import NetworkLinkControl
 from fastkml.data import Data
 from fastkml.data import ExtendedData
 from fastkml.data import Schema
@@ -59,6 +58,7 @@ from fastkml.model import Model
 from fastkml.model import Orientation
 from fastkml.model import ResourceMap
 from fastkml.model import Scale
+from fastkml.network_link_control import NetworkLinkControl
 from fastkml.overlays import GroundOverlay
 from fastkml.overlays import ImagePyramid
 from fastkml.overlays import LatLonBox
@@ -91,7 +91,6 @@ from fastkml.views import LookAt
 
 __all__ = [
     "KML",
-    "NetworkLinkControl",
     "Alias",
     "AtomAuthor",
     "AtomContributor",
@@ -121,6 +120,7 @@ __all__ = [
     "Model",
     "MultiGeometry",
     "NetworkLink",
+    "NetworkLinkControl",
     "Orientation",
     "OuterBoundaryIs",
     "OverlayXY",

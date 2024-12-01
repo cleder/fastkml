@@ -66,7 +66,7 @@ kml_children = Union[
                 Placemark,
                 GroundOverlay,
                 PhotoOverlay,
-                NetworkLinkControl
+                NetworkLinkControl,
             ]
 
 
