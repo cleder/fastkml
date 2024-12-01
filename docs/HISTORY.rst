@@ -1,10 +1,11 @@
 Changelog
 =========
 
-1.0.0dev0 (unreleased)
+1.1.0 (unreleased)
 ----------------------
 
-- Add support for ScreenOverlay
+- Add support for ScreenOverlay and Model.
+- allow parsing kml files without namespace declarations.
 
 
 1.0 (2024/11/19)

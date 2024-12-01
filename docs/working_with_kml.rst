@@ -127,7 +127,7 @@ We need to register the attributes of the KML object to be able to parse it:
     >>> registry.register(
     ...     CascadingStyle,
     ...     RegistryItem(
-    ...         ns_ids=("kml",),
+    ...         ns_ids=("kml", ""),
     ...         attr_name="style",
     ...         node_name="Style",
     ...         classes=(Style,),
@@ -156,8 +156,10 @@ And register the new element with the KML Document object:
 
 The CascadingStyle object is now part of the KML document and can be accessed like any
 other element.
-When parsing the document we have to skip the validation as the ``gx:CascadingStyle`` is
-not in the XSD Schema.
+
+.. note::
+    When parsing the document we have to skip the validation by passing ``validate=False``
+    to ``KML.parse`` as the ``gx:CascadingStyle`` is not in the XSD Schema.
 
 Create a new KML object and confirm that the new element is parsed correctly:
 
@@ -236,7 +238,7 @@ Now we can remove the CascadingStyle from the document and have a look at the re
           <kml:displayMode>hide</kml:displayMode>
         </kml:BalloonStyle>
       </kml:Style>
-      <kml:Placemark id="04SAFE6060F147CE66FBD">
+      <kml:Placemark id="04AFE6060F147CE66FBD">
         <kml:name>Ort1</kml:name>
         <kml:LookAt>
           <kml:longitude>10.06256752902339</kml:longitude>
