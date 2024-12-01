@@ -236,7 +236,7 @@ Now we can remove the CascadingStyle from the document and have a look at the re
           <kml:displayMode>hide</kml:displayMode>
         </kml:BalloonStyle>
       </kml:Style>
-      <kml:Placemark id="04SAFE6060F147CE66FBD">
+      <kml:Placemark id="04AFE6060F147CE66FBD">
         <kml:name>Ort1</kml:name>
         <kml:LookAt>
           <kml:longitude>10.06256752902339</kml:longitude>
