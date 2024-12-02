@@ -18,17 +18,19 @@
 
 import datetime
 
+from dateutil.tz import tzutc
+
+from fastkml import views
 from fastkml.network_link_control import NetworkLinkControl
 from fastkml.times import KmlDateTime
 from tests.base import StdLibrary
-from fastkml import views
 
 
 class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
 
     def test_network_link_control_obj(self) -> None:
-        dt = datetime.datetime.now()
+        dt = datetime.datetime.now(tz=tzutc())
         kml_datetime = KmlDateTime(dt=dt)
         view = views.Camera()
 
@@ -41,7 +43,7 @@ class TestStdLibrary(StdLibrary):
             link_description="link_description",
             link_snippet="link_snippet",
             expires=kml_datetime,
-            view=view
+            view=view,
         )
 
         assert network_control_obj.min_refresh_period == 1.1

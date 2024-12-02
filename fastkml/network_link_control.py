@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2024 Christian Ledermann
+# Copyright (C) 2024 Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -13,6 +13,14 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+"""
+NetworkLinkControl class.
+
+Controls the behavior of files fetched by a <NetworkLink>.
+
+https://developers.google.com/kml/documentation/kmlreference#networklinkcontrol
+"""
+
 import logging
 from typing import Any
 from typing import Dict
@@ -21,6 +29,7 @@ from typing import Union
 
 from fastkml import config
 from fastkml.base import _XMLObject
+from fastkml.helpers import clean_string
 from fastkml.helpers import datetime_subelement
 from fastkml.helpers import datetime_subelement_kwarg
 from fastkml.helpers import float_subelement
@@ -43,6 +52,7 @@ logger = logging.getLogger(__name__)
 
 
 class NetworkLinkControl(_XMLObject):
+    """Controls the behavior of files fetched by a <NetworkLink>."""
 
     _default_nsid = config.KML
 
@@ -54,7 +64,7 @@ class NetworkLinkControl(_XMLObject):
     link_description: Optional[str]
     link_snippet: Optional[str]
     expires: Optional[KmlDateTime]
-    view: Union[Camera, LookAt, None]  # TODO: Add Update field to the parameters
+    view: Union[Camera, LookAt, None]
 
     def __init__(
         self,
@@ -71,20 +81,52 @@ class NetworkLinkControl(_XMLObject):
         view: Optional[Union[Camera, LookAt]] = None,
         **kwargs: Any,
     ) -> None:
+        """
+        Create a NetworkLinkControl object.
+
+        Parameters
+        ----------
+        ns : str, optional
+            The namespace to use for the NetworkLinkControl object.
+        name_spaces : dict, optional
+            A dictionary of namespaces to use for the NetworkLinkControl object.
+        min_refresh_period : float, optional
+            The minimum number of seconds between fetches. A value of -1 indicates that
+            the NetworkLinkControl object should be fetched only once.
+        max_session_length : float, optional
+            The maximum number of seconds that the link should be followed.
+        cookie : str, optional
+            A string value that can be used to identify the client request.
+        message : str, optional
+            A message to be displayed to the user in case of a failure.
+        link_name : str, optional
+            The name of the link.
+        link_description : str, optional
+            A description of the link.
+        link_snippet : str, optional
+            A snippet of text to be displayed in the link.
+        expires : KmlDateTime, optional
+            The time at which the link should expire.
+        view : Camera or LookAt, optional
+            The view to be used when the link is followed.
+        **kwargs : Any, optional
+            Additional keyword arguments.
+
+        """
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
-            min_refresh_period=min_refresh_period,
-            max_session_length=max_session_length,
-            cookie=cookie,
-            message=message,
-            link_name=link_name,
-            link_description=link_description,
-            link_snippet=link_snippet,
-            expires=expires,
-            view=view,
             **kwargs,
         )
+        self.min_refresh_period = min_refresh_period
+        self.max_session_length = max_session_length
+        self.cookie = clean_string(cookie)
+        self.message = clean_string(message)
+        self.link_name = clean_string(link_name)
+        self.link_description = clean_string(link_description)
+        self.link_snippet = clean_string(link_snippet)
+        self.expires = expires
+        self.view = view
 
     def __repr__(self) -> str:
         """
@@ -195,7 +237,7 @@ registry.register(
 registry.register(
     NetworkLinkControl,
     item=RegistryItem(
-        ns_ids=("kml", ),
+        ns_ids=("kml",),
         classes=(KmlDateTime,),
         attr_name="expires",
         node_name="expires",
