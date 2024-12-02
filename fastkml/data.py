@@ -311,7 +311,7 @@ registry.register(
 registry.register(
     Schema,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="fields",
         node_name="SimpleField",
         classes=(SimpleField,),
@@ -644,7 +644,7 @@ registry.register(
 registry.register(
     SchemaData,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="data",
         node_name="SimpleData",
         classes=(SimpleData,),
@@ -725,7 +725,7 @@ class ExtendedData(_XMLObject):
 registry.register(
     ExtendedData,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="elements",
         node_name="Data,SchemaData",
         classes=(

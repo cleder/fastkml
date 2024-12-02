@@ -156,7 +156,7 @@ class StyleUrl(_XMLObject):
 registry.register(
     StyleUrl,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="url",
         node_name="styleUrl",
         classes=(str,),
@@ -242,7 +242,7 @@ class _ColorStyle(_BaseObject):
 registry.register(
     _ColorStyle,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="color",
         node_name="color",
         classes=(str,),
@@ -254,7 +254,7 @@ registry.register(
 registry.register(
     _ColorStyle,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="color_mode",
         node_name="colorMode",
         classes=(ColorMode,),
@@ -526,7 +526,7 @@ class IconStyle(_ColorStyle):
 registry.register(
     IconStyle,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="scale",
         node_name="scale",
         classes=(float,),
@@ -538,7 +538,7 @@ registry.register(
 registry.register(
     IconStyle,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="heading",
         node_name="heading",
         classes=(float,),
@@ -550,7 +550,7 @@ registry.register(
 registry.register(
     IconStyle,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="icon",
         node_name="Icon",
         classes=(Icon,),
@@ -561,7 +561,7 @@ registry.register(
 registry.register(
     IconStyle,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="hot_spot",
         node_name="hotSpot",
         classes=(HotSpot,),
@@ -659,7 +659,7 @@ class LineStyle(_ColorStyle):
 registry.register(
     LineStyle,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="width",
         node_name="width",
         classes=(float,),
@@ -768,7 +768,7 @@ class PolyStyle(_ColorStyle):
 registry.register(
     PolyStyle,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="fill",
         node_name="fill",
         classes=(bool,),
@@ -780,7 +780,7 @@ registry.register(
 registry.register(
     PolyStyle,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="outline",
         node_name="outline",
         classes=(bool,),
@@ -882,7 +882,7 @@ class LabelStyle(_ColorStyle):
 registry.register(
     LabelStyle,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="scale",
         node_name="scale",
         classes=(float,),
@@ -1034,7 +1034,7 @@ class BalloonStyle(_BaseObject):
 registry.register(
     BalloonStyle,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="bg_color",
         node_name="bgColor",
         classes=(str,),
@@ -1046,7 +1046,7 @@ registry.register(
 registry.register(
     BalloonStyle,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="text_color",
         node_name="textColor",
         classes=(str,),
@@ -1058,7 +1058,7 @@ registry.register(
 registry.register(
     BalloonStyle,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="text",
         node_name="text",
         classes=(str,),
@@ -1069,7 +1069,7 @@ registry.register(
 registry.register(
     BalloonStyle,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="display_mode",
         node_name="displayMode",
         classes=(DisplayMode,),
@@ -1161,7 +1161,7 @@ class Style(_StyleSelector):
 registry.register(
     Style,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="styles",
         node_name="Style",
         classes=(
@@ -1271,7 +1271,7 @@ class Pair(_BaseObject):
 registry.register(
     Pair,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="key",
         node_name="key",
         classes=(PairKey,),
@@ -1282,7 +1282,7 @@ registry.register(
 registry.register(
     Pair,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="style",
         node_name="Style",
         classes=(
@@ -1404,7 +1404,7 @@ class StyleMap(_StyleSelector):
 registry.register(
     StyleMap,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="pairs",
         node_name="Pair",
         classes=(Pair,),

@@ -50,8 +50,12 @@ We could also search for all Points, which will also return the Points inside th
 
 ``find_all`` can also search for arbitrary elements by their attributes, by passing the
 attribute name and value as keyword arguments.
-``find`` is a shortcut for ``find_all`` that returns the first element found, which is
-useful when we know there is only one element that matches the search criteria.
+
+.. note::
+
+    ``find`` is a shortcut for ``find_all`` that returns the first element found,
+    which is useful when we know there is only one element that matches the search
+    criteria.
 
 .. code-block:: pycon
 
@@ -123,7 +127,7 @@ We need to register the attributes of the KML object to be able to parse it:
     >>> registry.register(
     ...     CascadingStyle,
     ...     RegistryItem(
-    ...         ns_ids=("kml",),
+    ...         ns_ids=("kml", ""),
     ...         attr_name="style",
     ...         node_name="Style",
     ...         classes=(Style,),
@@ -152,8 +156,10 @@ And register the new element with the KML Document object:
 
 The CascadingStyle object is now part of the KML document and can be accessed like any
 other element.
-When parsing the document we have to skip the validation as the ``gx:CascadingStyle`` is
-not in the XSD Schema.
+
+.. note::
+    When parsing the document we have to skip the validation by passing ``validate=False``
+    to ``KML.parse`` as the ``gx:CascadingStyle`` is not in the XSD Schema.
 
 Create a new KML object and confirm that the new element is parsed correctly:
 

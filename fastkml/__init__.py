@@ -52,6 +52,12 @@ from fastkml.geometry import create_kml_geometry
 from fastkml.kml import KML
 from fastkml.links import Icon
 from fastkml.links import Link
+from fastkml.model import Alias
+from fastkml.model import Location
+from fastkml.model import Model
+from fastkml.model import Orientation
+from fastkml.model import ResourceMap
+from fastkml.model import Scale
 from fastkml.overlays import GroundOverlay
 from fastkml.overlays import ImagePyramid
 from fastkml.overlays import LatLonBox
@@ -84,6 +90,7 @@ from fastkml.views import LookAt
 
 __all__ = [
     "KML",
+    "Alias",
     "AtomAuthor",
     "AtomContributor",
     "AtomLink",
@@ -107,9 +114,12 @@ __all__ = [
     "LineStyle",
     "LinearRing",
     "Link",
+    "Location",
     "LookAt",
+    "Model",
     "MultiGeometry",
     "NetworkLink",
+    "Orientation",
     "OuterBoundaryIs",
     "OverlayXY",
     "Pair",
@@ -120,7 +130,9 @@ __all__ = [
     "PolyStyle",
     "Polygon",
     "Polygon",
+    "ResourceMap",
     "RotationXY",
+    "Scale",
     "Schema",
     "SchemaData",
     "ScreenOverlay",

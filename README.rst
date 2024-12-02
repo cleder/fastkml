@@ -3,13 +3,15 @@ Introduction
 
 .. inclusion-marker-do-not-remove
 
-KML is an XML geospatial data format and an OGC_ standard that deserves a canonical python implementation.
+KML is an XML geospatial data format and an OGC_ standard that deserves a canonical
+python implementation.
 
 Fastkml is a library to read, write and manipulate KML files. It aims to keep
 it simple and fast (using lxml_ if available). Fast refers to the time you
 spend to write and read KML files as well as the time you spend to get
 acquainted to the library or to create KML objects. It aims to provide all of
 the functionality that KML clients such as `Marble <https://marble.kde.org/>`_,
+`NASA WorldWind <https://github.com/NASAWorldWind>`_,
 `Cesium JS <https://cesium.com/>`_, `OpenLayers <https://openlayers.org/>`_,
 `Google Maps <http://maps.google.com/>`_, and
 `Google Earth <http://earth.google.com/>`_ support.
@@ -18,9 +20,12 @@ For more details about the KML Specification, check out the `KML Reference
 <https://developers.google.com/kml/documentation/kmlreference>`_ on the Google
 developers site.
 
-Geometries are handled as pygeoif_ objects.
+Geometries are handled as pygeoif_ objects, which are compatible with any geometry that
+implements the ``__geo_interface__`` protocol, such as shapely_.
 
-Fastkml is continually tested
+Fastkml is tested on `CPython <https://python.org>`_ and
+`PyPy <https://www.pypy.org/>`_, but it should work on alternative
+Python implementations (that implement the language specification *>=3.8*) as well.
 
 |test| |hypothesis| |cov| |black| |mypy| |commit|
 
@@ -48,7 +53,7 @@ Fastkml is continually tested
    :target: https://github.com/pre-commit/pre-commit
    :alt: pre-commit
 
-Is Maintained and documented:
+Is maintained and documented:
 
 |pypi| |conda-forge| |status| |license| |doc| |stats| |pyversion| |pyimpl| |dependencies| |downloads|
 
@@ -133,3 +138,4 @@ Please submit a PR with the features you'd like to see implemented.
 .. _lxml: https://pypi.python.org/pypi/lxml
 .. _arrow: https://pypi.python.org/pypi/arrow
 .. _OGC: https://www.ogc.org/standard/kml/
+.. _shapely: https://shapely.readthedocs.io/
