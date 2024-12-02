@@ -17,25 +17,24 @@ First we import the necessary modules:
     >>> from fastkml import kml
     >>> from pygeoif.geometry import Polygon
 
-Create a KML object and set the namespace:
+Create a KML object:
 
 .. code-block:: pycon
 
     >>> k = kml.KML()
-    >>> ns = "{http://www.opengis.net/kml/2.2}"
 
 Create a KML Document and add it to the KML root object:
 
 .. code-block:: pycon
 
-    >>> d = kml.Document(ns=ns, id="docid", name="doc name", description="doc description")
+    >>> d = kml.Document(id="docid", name="doc name", description="doc description")
     >>> k.append(d)
 
 Create a KML Folder and add it to the Document:
 
 .. code-block:: pycon
 
-    >>> f = kml.Folder(ns=ns, id="fid", name="f name", description="f description")
+    >>> f = kml.Folder(id="fid", name="f name", description="f description")
     >>> d.append(f)
 
 Create a KML Folder and nest it in the first Folder:
@@ -43,7 +42,7 @@ Create a KML Folder and nest it in the first Folder:
 .. code-block:: pycon
 
     >>> nf = kml.Folder(
-    ...     ns=ns, id="nested-fid", name="nested f name", description="nested f description"
+    ...     id="nested-fid", name="nested f name", description="nested f description"
     ... )
     >>> f.append(nf)
 
@@ -51,7 +50,7 @@ Create a second KML Folder within the Document:
 
 .. code-block:: pycon
 
-    >>> f2 = kml.Folder(ns=ns, id="id2", name="name2", description="description2")
+    >>> f2 = kml.Folder(id="id2", name="name2", description="description2")
     >>> d.append(f2)
 
 Create a KML Placemark with a simple polygon geometry and add it to the second Folder:
@@ -59,9 +58,7 @@ Create a KML Placemark with a simple polygon geometry and add it to the second F
 .. code-block:: pycon
 
     >>> polygon = Polygon([(0, 0, 0), (1, 1, 0), (1, 0, 1)])
-    >>> p = kml.Placemark(
-    ...     ns=ns, id="id", name="name", description="description", geometry=polygon
-    ... )
+    >>> p = kml.Placemark(id="id", name="name", description="description", geometry=polygon)
     >>> f2.append(p)
 
 Finally, print out the KML object as a string:
@@ -141,6 +138,17 @@ Read in the KML string
 
     >>> k = kml.KML.from_string(doc)
 
+
+.. note::
+
+    To read a KML file directly, you can use the parse method:
+
+    .. code-block:: Python
+
+        k = kml.KML.parse("path/to/file.kml")
+
+
+
 Next we perform some simple sanity checks, such as checking the number of features.
 
 .. code-block:: pycon
@@ -206,3 +214,11 @@ Finally, print out the KML object as a string:
       </Document>
     </kml>
     <BLANKLINE>
+
+.. note::
+
+    To save the KML object to a file, you can use the write method:
+
+    .. code-block:: Python
+
+        k.write("path/to/file.kml")

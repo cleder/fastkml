@@ -1,7 +1,15 @@
 Changelog
 =========
 
-1.0 (unreleased)
+1.1.0 (unreleased)
+----------------------
+
+- Add support for ScreenOverlay and Model.
+- allow parsing kml files without namespace declarations.
+- Add support for NetworkLinkControl. [Apurva Banka]
+
+
+1.0 (2024/11/19)
 -----------------
 
 - Drop Python 2 support
@@ -11,6 +19,7 @@ Changelog
 - refactor
 - Use arrow instead of dateutil
 - Add an informative ``__repr__``
+- Change the ``from_string`` method to a class method which returns a new instance.
 
 0.12 (2020/09/23)
 -----------------

@@ -51,6 +51,7 @@ from fastkml.features import NetworkLink
 from fastkml.features import Placemark
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.network_link_control import NetworkLinkControl
 from fastkml.overlays import GroundOverlay
 from fastkml.overlays import PhotoOverlay
 from fastkml.registry import RegistryItem
@@ -59,7 +60,14 @@ from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
 
-kml_children = Union[Folder, Document, Placemark, GroundOverlay, PhotoOverlay]
+kml_children = Union[
+    Folder,
+    Document,
+    Placemark,
+    GroundOverlay,
+    PhotoOverlay,
+    NetworkLinkControl,
+]
 
 
 def lxml_parse_and_validate(
@@ -286,8 +294,19 @@ registry.register(
     KML,
     RegistryItem(
         ns_ids=("kml",),
-        classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay, NetworkLink),
-        node_name="Document,Folder,Placemark,GroundOverlay,PhotoOverlay,NetworkLink",
+        classes=(
+            Document,
+            Folder,
+            Placemark,
+            GroundOverlay,
+            PhotoOverlay,
+            NetworkLink,
+            NetworkLinkControl,
+        ),
+        node_name=(
+            "Document,Folder,Placemark,GroundOverlay,PhotoOverlay,NetworkLink,"
+            "NetworkLinkControl"
+        ),
         attr_name="features",
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,

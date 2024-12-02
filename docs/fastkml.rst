@@ -30,14 +30,13 @@ fastkml.registry
 -----------------------
 
 .. automodule:: fastkml.registry
-   :members:
+   :members: RegistryItem,Registry
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: fastkml.registry::Registry
-    :members: register, get
-    :undoc-members:
-    :show-inheritance:
+   .. autodata:: registry
+      :no-value:
+
 
 fastkml.kml\_base
 ------------------------
@@ -157,6 +156,15 @@ fastkml.mixins
    :members:
    :undoc-members:
    :show-inheritance:
+
+fastkml.model
+--------------------
+
+.. automodule:: fastkml.model
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 fastkml.overlays
 -----------------------

@@ -58,6 +58,7 @@ from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.kml_base import _BaseObject
 from fastkml.links import Link
 from fastkml.mixins import TimeMixin
+from fastkml.model import Model
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 from fastkml.styles import Style
@@ -69,7 +70,7 @@ from fastkml.views import Camera
 from fastkml.views import LookAt
 from fastkml.views import Region
 
-__all__ = ["KmlGeometry", "NetworkLink", "Placemark", "Snippet"]
+__all__ = ["NetworkLink", "Placemark", "Snippet"]
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +79,7 @@ KmlGeometry = Union[
     LineString,
     LinearRing,
     Polygon,
+    Model,
     MultiGeometry,
     gx.MultiTrack,
     gx.Track,
@@ -309,7 +311,7 @@ class _Feature(TimeMixin, _BaseObject):
 registry.register(
     _Feature,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="name",
         node_name="name",
         classes=(str,),
@@ -320,7 +322,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="visibility",
         node_name="visibility",
         classes=(bool,),
@@ -332,7 +334,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="isopen",
         node_name="open",
         classes=(bool,),
@@ -366,7 +368,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="address",
         node_name="address",
         classes=(str,),
@@ -377,7 +379,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="phone_number",
         node_name="phoneNumber",
         classes=(str,),
@@ -388,7 +390,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="snippet",
         node_name="Snippet",
         classes=(Snippet,),
@@ -399,7 +401,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="description",
         node_name="description",
         classes=(str,),
@@ -410,7 +412,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="view",
         node_name="Camera,LookAt",
         classes=(
@@ -424,7 +426,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="times",
         node_name="TimeSpan,TimeStamp",
         classes=(
@@ -438,7 +440,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="style_url",
         node_name="styleUrl",
         classes=(StyleUrl,),
@@ -449,7 +451,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="styles",
         node_name="Style,StyleMap",
         classes=(
@@ -463,7 +465,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="region",
         node_name="region",
         classes=(Region,),
@@ -474,7 +476,7 @@ registry.register(
 registry.register(
     _Feature,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="extended_data",
         node_name="ExtendedData",
         classes=(ExtendedData,),
@@ -662,10 +664,10 @@ class Placemark(_Feature):
 registry.register(
     Placemark,
     RegistryItem(
-        ns_ids=("kml", "gx"),
+        ns_ids=("kml", "gx", ""),
         attr_name="kml_geometry",
         node_name=(
-            "Point,LineString,LinearRing,Polygon,MultiGeometry,"
+            "Point,LineString,LinearRing,Polygon,MultiGeometry,Model,"
             "gx:MultiTrack,gx:Track"
         ),
         classes=(
@@ -674,6 +676,7 @@ registry.register(
             LinearRing,
             Polygon,
             MultiGeometry,
+            Model,
             gx.MultiTrack,
             gx.Track,
         ),
@@ -891,7 +894,7 @@ class NetworkLink(_Feature):
 registry.register(
     NetworkLink,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="refresh_visibility",
         node_name="refreshVisibility",
         classes=(bool,),
@@ -903,7 +906,7 @@ registry.register(
 registry.register(
     NetworkLink,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="fly_to_view",
         node_name="flyToView",
         classes=(bool,),
@@ -915,7 +918,7 @@ registry.register(
 registry.register(
     NetworkLink,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="link",
         node_name="Link",
         classes=(Link,),
