@@ -6,6 +6,7 @@ Changelog
 
 - Add support for ScreenOverlay and Model.
 - allow parsing kml files without namespace declarations.
+- Add support for NetworkLinkControl. [Apurva Banka]
 
 
 1.0 (2024/11/19)
