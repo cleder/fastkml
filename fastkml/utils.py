@@ -50,6 +50,8 @@ def get_all_attrs(obj: object) -> Generator[object, None, None]:
         return
     for attr_name in attrs:
         attr = getattr(obj, attr_name)
+        if isinstance(attr, str):
+            continue
         try:
             yield from attr
         except TypeError:
