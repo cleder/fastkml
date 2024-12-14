@@ -1,7 +1,13 @@
 Changelog
 =========
 
-1.1.0 (unreleased)
+1.2.0 (unreleased)
+------------------
+
+- Add extended data support for gx:Track.
+
+
+1.1.0 (2024/12/02)
 ----------------------
 
 - Add support for ScreenOverlay and Model.

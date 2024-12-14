@@ -19,8 +19,10 @@ import typing
 
 from hypothesis import given
 from hypothesis import strategies as st
+from hypothesis.provisional import urls
 
 import fastkml
+import fastkml.data
 import fastkml.enums
 import fastkml.gx
 import fastkml.types
@@ -31,6 +33,7 @@ from tests.hypothesis.common import assert_str_roundtrip_terse
 from tests.hypothesis.common import assert_str_roundtrip_verbose
 from tests.hypothesis.strategies import nc_name
 from tests.hypothesis.strategies import track_items
+from tests.hypothesis.strategies import xml_text
 
 
 class TestGx(Lxml):
@@ -44,6 +47,30 @@ class TestGx(Lxml):
                 track_items(),
             ),
         ),
+        extended_data=st.builds(
+            fastkml.ExtendedData,
+            elements=st.tuples(
+                st.builds(
+                    fastkml.data.Data,
+                    name=xml_text().filter(lambda x: x.strip() != ""),
+                    value=xml_text().filter(lambda x: x.strip() != ""),
+                    display_name=st.one_of(st.none(), xml_text()),
+                ),
+                st.builds(
+                    fastkml.SchemaData,
+                    schema_url=urls(),
+                    data=st.lists(
+                        st.builds(
+                            fastkml.data.SimpleData,
+                            name=xml_text().filter(lambda x: x.strip() != ""),
+                            value=xml_text().filter(lambda x: x.strip() != ""),
+                        ),
+                        min_size=1,
+                        max_size=3,
+                    ),
+                ),
+            ),
+        ),
     )
     def test_fuzz_track_track_items(
         self,
@@ -51,12 +78,14 @@ class TestGx(Lxml):
         target_id: typing.Optional[str],
         altitude_mode: typing.Optional[fastkml.enums.AltitudeMode],
         track_items: typing.Optional[typing.Iterable[fastkml.gx.TrackItem]],
+        extended_data: typing.Optional[fastkml.ExtendedData],
     ) -> None:
         track = fastkml.gx.Track(
             id=id,
             target_id=target_id,
             altitude_mode=altitude_mode,
             track_items=track_items,
+            extended_data=extended_data,
         )
 
         assert_repr_roundtrip(track)

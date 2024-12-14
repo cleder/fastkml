@@ -93,6 +93,7 @@ import pygeoif.geometry as geo
 from pygeoif.types import PointType
 
 from fastkml import config
+from fastkml.data import ExtendedData
 from fastkml.enums import AltitudeMode
 from fastkml.geometry import _Geometry
 from fastkml.helpers import bool_subelement
@@ -103,6 +104,8 @@ from fastkml.helpers import datetime_subelement_list_kwarg
 from fastkml.helpers import enum_subelement
 from fastkml.helpers import subelement_bool_kwarg
 from fastkml.helpers import subelement_enum_kwarg
+from fastkml.helpers import xml_subelement
+from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.registry import RegistryItem
@@ -196,6 +199,7 @@ class Track(_Geometry):
 
     _default_nsid = config.GX
     track_items: List[TrackItem]
+    extended_data: Optional[ExtendedData]
 
     def __init__(
         self,
@@ -209,6 +213,7 @@ class Track(_Geometry):
         whens: Optional[Iterable[KmlDateTime]] = None,
         coords: Optional[Iterable[PointType]] = None,
         angles: Optional[Iterable[PointType]] = None,
+        extended_data: Optional[ExtendedData] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -234,6 +239,8 @@ class Track(_Geometry):
             The coordinates of the track items, by default None
         angles : Optional[Iterable[PointType]], optional
             The angles of the track items, by default None
+        extended_data : Optional[ExtendedData], optional
+            The extended data of the GX object, by default None
         **kwargs : Any, optional
             Additional keyword arguments.
 
@@ -262,6 +269,7 @@ class Track(_Geometry):
                 )
             ]
         self.track_items = list(track_items) if track_items else []
+        self.extended_data = extended_data
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -289,6 +297,7 @@ class Track(_Geometry):
             f"target_id={self.target_id!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"track_items={self.track_items!r}, "
+            f"extended_data={self.extended_data!r}, "
             f"**{self._get_splat()!r},"
             ")"
         )
@@ -406,6 +415,17 @@ registry.register(
         get_kwarg=coords_subelement_list_kwarg,
         set_element=coords_subelement_list,
         default=(0.0, 0.0, 0.0),
+    ),
+)
+registry.register(
+    Track,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="extended_data",
+        node_name="ExtendedData",
+        classes=(ExtendedData,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
     ),
 )
 
