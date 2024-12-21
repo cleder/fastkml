@@ -25,6 +25,7 @@ from hypothesis.provisional import urls
 import fastkml
 import fastkml.data
 import fastkml.enums
+import fastkml.gx_data
 from tests.base import Lxml
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
@@ -147,6 +148,13 @@ class TestLxml(Lxml):
                     value=xml_text().filter(lambda x: x.strip() != ""),
                 ),
             ),
+            st.lists(
+                st.builds(
+                    fastkml.data.SimpleData,
+                    name=xml_text().filter(lambda x: x.strip() != ""),
+                    value=xml_text().filter(lambda x: x.strip() != ""),
+                ),
+            ),
         ),
     )
     def test_fuzz_schema_data(
@@ -182,11 +190,20 @@ class TestLxml(Lxml):
                     st.builds(
                         fastkml.SchemaData,
                         schema_url=st.one_of(st.none(), urls()),
-                        data=st.lists(
-                            st.builds(
-                                fastkml.data.SimpleData,
-                                name=xml_text().filter(lambda x: x.strip() != ""),
-                                value=xml_text().filter(lambda x: x.strip() != ""),
+                        data=st.one_of(
+                            st.lists(
+                                st.builds(
+                                    fastkml.data.SimpleData,
+                                    name=xml_text().filter(lambda x: x.strip() != ""),
+                                    value=xml_text().filter(lambda x: x.strip() != ""),
+                                ),
+                            ),
+                            st.lists(
+                                st.builds(
+                                    fastkml.data.SimpleData,
+                                    name=xml_text().filter(lambda x: x.strip() != ""),
+                                    value=xml_text().filter(lambda x: x.strip() != ""),
+                                ),
                             ),
                         ),
                     ),

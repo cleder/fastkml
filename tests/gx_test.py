@@ -32,10 +32,6 @@ from tests.base import Lxml
 from tests.base import StdLibrary
 
 
-class TestStdLibrary(StdLibrary):
-    """Test with the standard library."""
-
-
 class TestGetGxGeometry(StdLibrary):
     def test_track(self) -> None:
         doc = """<gx:Track xmlns:kml="http://www.opengis.net/kml/2.2"
@@ -393,6 +389,59 @@ class TestTrack(StdLibrary):
 
         assert track.track_items == []
 
+    def test_track_from_str_extended_data(self) -> None:
+        doc = (
+            '<gx:Track xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2">'
+            "<when>2010-05-28T02:02:09Z</when>"
+            "<when>2010-05-28T02:02:35Z</when>"
+            "<when>2010-05-28T02:02:44Z</when>"
+            "<when>2010-05-28T02:02:53Z</when>"
+            "<when>2010-05-28T02:02:54Z</when>"
+            "<when>2010-05-28T02:02:55Z</when>"
+            "<when>2010-05-28T02:02:56Z</when>"
+            "<gx:coord>-122.207881 37.371915 156.000000</gx:coord>"
+            "<gx:coord>-122.205712 37.373288 152.000000</gx:coord>"
+            "<gx:coord>-122.204678 37.373939 147.000000</gx:coord>"
+            "<gx:coord>-122.203572 37.374630 142.199997</gx:coord>"
+            "<gx:coord>-122.203451 37.374706 141.800003</gx:coord>"
+            "<gx:coord>-122.203329 37.374780 141.199997</gx:coord>"
+            "<gx:coord>-122.203207 37.374857 140.199997</gx:coord>"
+            "<kml:ExtendedData>"
+            '<kml:SchemaData schemaUrl="#schema">'
+            '<gx:SimpleArrayData name="cadence">'
+            "<gx:value>86</gx:value>"
+            "<gx:value>103</gx:value>"
+            "<gx:value>108</gx:value>"
+            "<gx:value>113</gx:value>"
+            "<gx:value>113</gx:value>"
+            "<gx:value>113</gx:value>"
+            "<gx:value>113</gx:value>"
+            "</gx:SimpleArrayData>"
+            '<gx:SimpleArrayData name="heartrate">'
+            "<gx:value>181</gx:value>"
+            "<gx:value>177</gx:value>"
+            "<gx:value>175</gx:value>"
+            "<gx:value>173</gx:value>"
+            "<gx:value>173</gx:value>"
+            "<gx:value>173</gx:value>"
+            "<gx:value>173</gx:value>"
+            "</gx:SimpleArrayData>"
+            '<gx:SimpleArrayData name="power">'
+            "<gx:value>327.0</gx:value>"
+            "<gx:value>177.0</gx:value>"
+            "<gx:value>179.0</gx:value>"
+            "<gx:value>162.0</gx:value>"
+            "<gx:value>166.0</gx:value>"
+            "<gx:value>177.0</gx:value>"
+            "<gx:value>183.0</gx:value>"
+            "</gx:SimpleArrayData>"
+            "</kml:SchemaData>"
+            "</kml:ExtendedData>"
+            "</gx:Track>"
+        )
+        track = Track.from_string(doc)
+        assert track.extended_data == ""
+
 
 class TestMultiTrack(StdLibrary):
     """Test gx.MultiTrack."""
@@ -520,10 +569,6 @@ class TestMultiTrack(StdLibrary):
         assert "coord>" in track.to_string()
         assert "angles>" in track.to_string()
         assert "when>" in track.to_string()
-
-
-class TestLxml(Lxml, TestStdLibrary):
-    """Test with lxml."""
 
 
 class TestLxmlGetGxGeometry(Lxml, TestGetGxGeometry):
