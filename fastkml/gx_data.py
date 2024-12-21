@@ -45,7 +45,7 @@ class SimpleArrayData(_XMLObject):
 
     _default_nsid = config.GX
     name: Optional[str]
-    data: List[str]
+    data: List[Optional[str]]
 
     def __init__(
         self,
@@ -65,7 +65,7 @@ class SimpleArrayData(_XMLObject):
 
         """
         super().__init__(ns=ns, name_spaces=name_spaces)
-        self.data = list(data) if data is not None else []
+        self.data = [clean_string(d) for d in data] if data is not None else []
         self.name = clean_string(name)
 
     def __repr__(self) -> str:
@@ -76,6 +76,7 @@ class SimpleArrayData(_XMLObject):
             f"name_spaces={self.name_spaces!r}, "
             f"name={self.name!r}, "
             f"data={self.data!r}, "
+            f"**{self._get_splat()!r},"
             ")"
         )
 
@@ -98,7 +99,7 @@ registry.register(
 registry.register(
     SimpleArrayData,
     RegistryItem(
-        ns_ids=("gx", ""),
+        ns_ids=("", "gx"),
         classes=(str,),
         attr_name="name",
         node_name="name",

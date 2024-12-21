@@ -30,6 +30,7 @@ from typing import Union
 from fastkml.base import _XMLObject
 from fastkml.enums import DataType
 from fastkml.exceptions import KMLSchemaError
+from fastkml.gx_data import SimpleArrayData
 from fastkml.helpers import attribute_enum_kwarg
 from fastkml.helpers import attribute_text_kwarg
 from fastkml.helpers import clean_string
@@ -551,7 +552,7 @@ class SchemaData(_BaseObject):
     """
 
     schema_url: Optional[str]
-    data: List[SimpleData]
+    data: Union[List[SimpleData], List[SimpleArrayData]]
 
     def __init__(
         self,
@@ -560,7 +561,7 @@ class SchemaData(_BaseObject):
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         schema_url: Optional[str] = None,
-        data: Optional[Iterable[SimpleData]] = None,
+        data: Optional[Union[Iterable[SimpleData], Iterable[SimpleArrayData]]] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -618,7 +619,7 @@ class SchemaData(_BaseObject):
         """
         return bool(self.data) and bool(self.schema_url)
 
-    def append_data(self, data: SimpleData) -> None:
+    def append_data(self, data: Union[SimpleData, SimpleArrayData]) -> None:
         """
         Append a SimpleData object to the SchemaData.
 
@@ -644,10 +645,13 @@ registry.register(
 registry.register(
     SchemaData,
     RegistryItem(
-        ns_ids=("kml", ""),
+        ns_ids=("kml", "gx", ""),
         attr_name="data",
-        node_name="SimpleData",
-        classes=(SimpleData,),
+        node_name="SimpleData,gx:SimpleArrayData",
+        classes=(
+            SimpleData,
+            SimpleArrayData,
+        ),
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
     ),

@@ -781,9 +781,17 @@ def subelement_text_list_kwarg(
             with the specified key.
 
     """
-    if nodes := element.findall(f"{ns}{node_name}"):
-        return {kwarg: [node.text.strip() for node in nodes if node.text.strip()]}
-    return {}
+    args_list: List[str] = []
+    if subelements := element.findall(f"{ns}{node_name}"):
+        args_list.extend(
+            (
+                subelement.text.strip()
+                if subelement.text and subelement.text.strip()
+                else ""
+            )
+            for subelement in subelements
+        )
+    return {kwarg: args_list} if args_list else {}
 
 
 def attribute_text_kwarg(
