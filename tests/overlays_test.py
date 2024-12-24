@@ -14,7 +14,9 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-"""Test the kml classes."""
+"""Test the kml overlay classes."""
+
+import contextlib
 
 from pygeoif import geometry as geo
 
@@ -24,15 +26,74 @@ from fastkml import links
 from fastkml import overlays
 from fastkml import views
 from fastkml.enums import AltitudeMode
+from fastkml.enums import Units
 from tests.base import Lxml
 from tests.base import StdLibrary
 
 
+class TestScreenOverlay(StdLibrary):
+    def test_screen_overlay_from_string(self) -> None:
+        """Create a ScreenOverlay object with all optional parameters."""
+        doc = (
+            '<ScreenOverlay xmlns="http://www.opengis.net/kml/2.2">'
+            "<name>Simple crosshairs</name>"
+            "<visibility>0</visibility>"
+            "<description>This screen overlay uses fractional positioning to put the "
+            "image in the exact center of the screen</description>"
+            "<Icon>"
+            "<href>http://developers.google.com/kml/images/crosshairs.png</href>"
+            "</Icon>"
+            '<overlayXY x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>'
+            '<screenXY x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>'
+            '<rotationXY x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>'
+            '<size x="0" y="0" xunits="pixels" yunits="pixels"/>'
+            "<rotation>-45</rotation>"
+            "</ScreenOverlay>"
+        )
+
+        screen_overlay = overlays.ScreenOverlay.from_string(doc)
+
+        assert screen_overlay == overlays.ScreenOverlay(
+            name="Simple crosshairs",
+            visibility=False,
+            description=(
+                "This screen overlay uses fractional positioning to put the image "
+                "in the exact center of the screen"
+            ),
+            icon=links.Icon(
+                href="http://developers.google.com/kml/images/crosshairs.png",
+            ),
+            overlay_xy=overlays.OverlayXY(
+                x=0.5,
+                y=0.5,
+                x_units=Units.fraction,
+                y_units=Units.fraction,
+            ),
+            screen_xy=overlays.ScreenXY(
+                x=0.5,
+                y=0.5,
+                x_units=Units.fraction,
+                y_units=Units.fraction,
+            ),
+            rotation_xy=overlays.RotationXY(
+                x=0.5,
+                y=0.5,
+                x_units=Units.fraction,
+                y_units=Units.fraction,
+            ),
+            size=overlays.Size(
+                x=0.0,
+                y=0.0,
+                x_units=Units.pixels,
+                y_units=Units.pixels,
+            ),
+            rotation=-45,
+        )
+        with contextlib.suppress(TypeError):
+            screen_overlay.validate()
+
+
 class TestGroundOverlay(StdLibrary):
-    pass
-
-
-class TestGroundOverlayString(StdLibrary):
     def test_default_to_string(self) -> None:
         g = overlays.GroundOverlay()
 
@@ -362,11 +423,11 @@ class TestPhotoOverlay(StdLibrary):
         assert po.view.roll == 60
 
 
-class TestGroundOverlayLxml(Lxml, TestGroundOverlay):
+class TestScreenOverlayLxml(Lxml, TestScreenOverlay):
     """Test with lxml."""
 
 
-class TestGroundOverlayStringLxml(Lxml, TestGroundOverlay):
+class TestGroundOverlayLxml(Lxml, TestGroundOverlay):
     """Test with lxml."""
 
 

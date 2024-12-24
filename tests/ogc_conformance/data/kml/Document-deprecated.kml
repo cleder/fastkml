@@ -51,11 +51,11 @@
       <atom:link href="http://en.wikipedia.org/wiki/General_Motors_Place"
               rel="related" type="text/html" hreflang="en"
               title="Wikipedia entry" />
-      <xal:AddressDetails>
+      <!--xal:AddressDetails>
         <xal:Address Type="Postal">
         800 Griffiths Way, Vancouver, BC, Canada V6B 6G1
         </xal:Address>
-      </xal:AddressDetails>
+      </xal:AddressDetails-->
       <phoneNumber>tel:+1-604-899-7400</phoneNumber>
       <Snippet maxLines="1">aka The Garage and GM Place</Snippet>
       <description>General Motors Place (), sponsored by General Motors Canada,

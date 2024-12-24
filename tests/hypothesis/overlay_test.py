@@ -17,6 +17,7 @@
 
 import typing
 
+import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 from pygeoif.hypothesis.strategies import epsg4326
@@ -31,6 +32,7 @@ from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
 from tests.hypothesis.common import assert_str_roundtrip_verbose
+from tests.hypothesis.strategies import xy
 
 
 class TestLxml(Lxml):
@@ -242,3 +244,68 @@ class TestLxml(Lxml):
         assert_str_roundtrip(ground_overlay)
         assert_str_roundtrip_terse(ground_overlay)
         assert_str_roundtrip_verbose(ground_overlay)
+
+    @pytest.mark.parametrize(
+        "cls",
+        [
+            fastkml.overlays.OverlayXY,
+            fastkml.overlays.RotationXY,
+            fastkml.overlays.ScreenXY,
+            fastkml.overlays.Size,
+        ],
+    )
+    @given(
+        x=st.one_of(st.none(), st.floats(allow_nan=False, allow_infinity=False)),
+        y=st.one_of(st.none(), st.floats(allow_nan=False, allow_infinity=False)),
+        x_units=st.one_of(st.none(), st.sampled_from(fastkml.enums.Units)),
+        y_units=st.one_of(st.none(), st.sampled_from(fastkml.enums.Units)),
+    )
+    def test_fuzz_xy(
+        self,
+        cls: typing.Union[
+            typing.Type[fastkml.overlays.OverlayXY],
+            typing.Type[fastkml.overlays.RotationXY],
+            typing.Type[fastkml.overlays.ScreenXY],
+            typing.Type[fastkml.overlays.Size],
+        ],
+        x: typing.Optional[float],
+        y: typing.Optional[float],
+        x_units: typing.Optional[fastkml.enums.Units],
+        y_units: typing.Optional[fastkml.enums.Units],
+    ) -> None:
+        xy = cls(x=x, y=y, x_units=x_units, y_units=y_units)
+
+        assert_repr_roundtrip(xy)
+        assert_str_roundtrip(xy)
+        assert_str_roundtrip_terse(xy)
+        assert_str_roundtrip_verbose(xy)
+
+    @given(
+        overlay_xy=xy(fastkml.overlays.OverlayXY),
+        screen_xy=xy(fastkml.overlays.ScreenXY),
+        rotation_xy=xy(fastkml.overlays.RotationXY),
+        size=xy(fastkml.overlays.Size),
+        rotation=st.floats(min_value=-180, max_value=180).filter(lambda x: x != 0),
+    )
+    def test_screen_overlay(
+        self,
+        overlay_xy: typing.Optional[fastkml.overlays.OverlayXY],
+        screen_xy: typing.Optional[fastkml.overlays.ScreenXY],
+        rotation_xy: typing.Optional[fastkml.overlays.RotationXY],
+        size: typing.Optional[fastkml.overlays.Size],
+        rotation: typing.Optional[float],
+    ) -> None:
+        screen_overlay = fastkml.overlays.ScreenOverlay(
+            id="screen_overlay1",
+            name="screen_overlay",
+            overlay_xy=overlay_xy,
+            screen_xy=screen_xy,
+            rotation_xy=rotation_xy,
+            size=size,
+            rotation=rotation,
+        )
+
+        assert_repr_roundtrip(screen_overlay)
+        assert_str_roundtrip(screen_overlay)
+        assert_str_roundtrip_terse(screen_overlay)
+        assert_str_roundtrip_verbose(screen_overlay)

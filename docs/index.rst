@@ -26,7 +26,9 @@ requirements, namely:
    create_kml_files
    working_with_kml
    configuration
+   upgrading
    fastkml
    contributing
+   kml
    alternatives
    HISTORY

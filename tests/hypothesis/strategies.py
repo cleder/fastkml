@@ -178,6 +178,14 @@ track_items = partial(
     when=kml_datetimes(),
 )
 
+xy = partial(
+    st.builds,
+    x=st.floats(allow_nan=False, allow_infinity=False),
+    y=st.floats(allow_nan=False, allow_infinity=False),
+    x_units=st.sampled_from(fastkml.enums.Units),
+    y_units=st.sampled_from(fastkml.enums.Units),
+)
+
 
 @st.composite
 def query_strings(draw: st.DrawFn) -> str:

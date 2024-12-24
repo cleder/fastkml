@@ -1,3 +1,8 @@
+[default]
+extend-ignore-identifiers-re = [
+    "04AFE6060F147CE66FBD",
+]
+
 [default.extend-words]
 lod = "lod"
 Lod = "Lod"

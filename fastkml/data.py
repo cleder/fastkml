@@ -50,6 +50,7 @@ __all__ = [
     "ExtendedData",
     "Schema",
     "SchemaData",
+    "SimpleData",
     "SimpleField",
 ]
 
@@ -310,7 +311,7 @@ registry.register(
 registry.register(
     Schema,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="fields",
         node_name="SimpleField",
         classes=(SimpleField,),
@@ -441,6 +442,14 @@ registry.register(
 
 
 class SimpleData(_XMLObject):
+    """
+    A SimpleData element is a custom data field.
+
+    This element assigns a value to the custom data field identified by the name
+    attribute. The type and name of this custom data field are declared in the
+    ``<Schema>`` element.
+    """
+
     _default_nsid = "kml"
 
     name: Optional[str]
@@ -635,7 +644,7 @@ registry.register(
 registry.register(
     SchemaData,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="data",
         node_name="SimpleData",
         classes=(SimpleData,),
@@ -716,7 +725,7 @@ class ExtendedData(_XMLObject):
 registry.register(
     ExtendedData,
     RegistryItem(
-        ns_ids=("kml",),
+        ns_ids=("kml", ""),
         attr_name="elements",
         node_name="Data,SchemaData",
         classes=(

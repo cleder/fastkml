@@ -35,7 +35,7 @@ document = fastkml.containers.Document()
 
 for feature in shp.__geo_interface__["features"]:
     geometry = shape(feature["geometry"])
-    co2_emission = co2_data.get(feature["properties"]["ADM0_A3"], 0)
+    co2_emission = co2_data.get(feature["properties"]["ADM0_ISO"], 0)
     geometry = force_3d(geometry, co2_emission * 100_000)
     kml_geometry = create_kml_geometry(
         geometry,
@@ -44,7 +44,7 @@ for feature in shp.__geo_interface__["features"]:
     )
     color = random.randint(0, 0xFFFFFF)
     style = fastkml.styles.Style(
-        id=feature["properties"]["ADM0_A3"],
+        id=feature["properties"]["ADM0_ISO"],
         styles=[
             fastkml.styles.LineStyle(color=f"55{color:06X}", width=2),
             fastkml.styles.PolyStyle(
@@ -56,7 +56,7 @@ for feature in shp.__geo_interface__["features"]:
         ],
     )
 
-    style_url = fastkml.styles.StyleUrl(url=f"#{feature['properties']['ADM0_A3']}")
+    style_url = fastkml.styles.StyleUrl(url=f"#{feature['properties']['ADM0_ISO']}")
     placemark = fastkml.features.Placemark(
         name=feature["properties"]["NAME"],
         description=feature["properties"]["FORMAL_EN"],
@@ -68,5 +68,4 @@ for feature in shp.__geo_interface__["features"]:
 kml = fastkml.KML(features=[document])
 
 outfile = pathlib.Path("co2_per_capita_2020.kml")
-with outfile.open("w") as f:
-    f.write(kml.to_string(prettyprint=True, precision=3))
+kml.write(outfile, prettyprint=True, precision=3)

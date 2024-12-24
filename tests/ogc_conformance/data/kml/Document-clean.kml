@@ -3,8 +3,8 @@
   xmlns:atom="http://www.w3.org/2005/Atom"
   xmlns:xal="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0"
   hint="A processing hint for a KML consumer">
-  <!-- Not implemented: NetworkLinkControl, Update, Delete, Create, Change -->
-    <!--NetworkLinkControl>
+  <!-- Not implemented: NetworkLinkControl: Update, Delete, Create, Change -->
+    <NetworkLinkControl>
       <minRefreshPeriod>43200</minRefreshPeriod>
       <maxSessionLength>-1</maxSessionLength>
       <linkSnippet>
@@ -30,7 +30,7 @@
           </TimeSpan>
         </Change>
       </Update>
-    </NetworkLinkControl-->
+    </NetworkLinkControl>
 	<Document id="doc-001">
 		<name>Vestibulum eleifend lobortis lorem.</name>
 		<Style id="style-001">

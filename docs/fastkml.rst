@@ -4,6 +4,15 @@ Reference Guide
 
 .. automodule:: fastkml
 
+fastkml.kml
+------------------
+
+.. automodule:: fastkml.kml
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 fastkml.base
 -------------------
 
@@ -21,14 +30,13 @@ fastkml.registry
 -----------------------
 
 .. automodule:: fastkml.registry
-   :members:
+   :members: RegistryItem,Registry
    :undoc-members:
    :show-inheritance:
 
-.. autoclass:: fastkml.registry::Registry
-    :members: register, get
-    :undoc-members:
-    :show-inheritance:
+   .. autodata:: registry
+      :no-value:
+
 
 fastkml.kml\_base
 ------------------------
@@ -133,15 +141,6 @@ fastkml.gx
    :undoc-members:
    :show-inheritance:
 
-fastkml.kml
-------------------
-
-.. automodule:: fastkml.kml
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
 fastkml.links
 --------------------
 
@@ -157,6 +156,15 @@ fastkml.mixins
    :members:
    :undoc-members:
    :show-inheritance:
+
+fastkml.model
+--------------------
+
+.. automodule:: fastkml.model
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 fastkml.overlays
 -----------------------

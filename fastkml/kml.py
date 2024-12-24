@@ -51,6 +51,7 @@ from fastkml.features import NetworkLink
 from fastkml.features import Placemark
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.network_link_control import NetworkLinkControl
 from fastkml.overlays import GroundOverlay
 from fastkml.overlays import PhotoOverlay
 from fastkml.registry import RegistryItem
@@ -59,7 +60,14 @@ from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
 
-kml_children = Union[Folder, Document, Placemark, GroundOverlay, PhotoOverlay]
+kml_children = Union[
+    Folder,
+    Document,
+    Placemark,
+    GroundOverlay,
+    PhotoOverlay,
+    NetworkLinkControl,
+]
 
 
 def lxml_parse_and_validate(
@@ -153,12 +161,10 @@ class KML(_XMLObject):
         Return an Element object representing the KML element.
 
         Args:
-        ----
             precision (Optional[int]): The precision used for floating-point values.
             verbosity (Verbosity): The verbosity level for generating the KML element.
 
         Returns:
-        -------
             Element: The etree Element object representing the KML element.
 
         """
@@ -211,14 +217,11 @@ class KML(_XMLObject):
         Parse a KML file and return a KML object.
 
         Args:
-        ----
-            file: The file to parse.
-                Can be a file path (str or Path), or a file-like object.
+            file: The file to parse. Can be a file path or a file-like object.
 
         Keyword Args:
-        ------------
             ns (Optional[str]): The namespace of the KML file.
-                If not provided, it will be inferred from the root element.
+              If not provided, it will be inferred from the root element.
             name_spaces (Optional[Dict[str, str]]): Additional namespaces.
             strict (bool): Whether to enforce strict parsing rules. Defaults to True.
             validate (Optional[bool]): Whether to validate the file against the schema.
@@ -257,10 +260,9 @@ class KML(_XMLObject):
         Write KML to a file.
 
         Args:
-        ----
             file_path: The file name where to save the file.
                 Can be any string value
-            prettyprint : bool, default=True
+            prettyprint (bool): default=True
                 Whether to pretty print the XML.
             precision (Optional[int]): The precision used for floating-point values.
             verbosity (Verbosity): The verbosity level for generating the KML element.
@@ -292,8 +294,19 @@ registry.register(
     KML,
     RegistryItem(
         ns_ids=("kml",),
-        classes=(Document, Folder, Placemark, GroundOverlay, PhotoOverlay, NetworkLink),
-        node_name="Document,Folder,Placemark,GroundOverlay,PhotoOverlay,NetworkLink",
+        classes=(
+            Document,
+            Folder,
+            Placemark,
+            GroundOverlay,
+            PhotoOverlay,
+            NetworkLink,
+            NetworkLinkControl,
+        ),
+        node_name=(
+            "Document,Folder,Placemark,GroundOverlay,PhotoOverlay,NetworkLink,"
+            "NetworkLinkControl"
+        ),
         attr_name="features",
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
