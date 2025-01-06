@@ -153,7 +153,7 @@ Code:Address element codes are used by groups like postal groups like ECCMA, ADI
 						</xs:element>
 						<xs:element name="AddressLongitude" minOccurs="0">
 							<xs:annotation>
-								<xs:documentation>Longtitude of delivery address</xs:documentation>
+								<xs:documentation>Longitude of delivery address</xs:documentation>
 							</xs:annotation>
 							<xs:complexType mixed="true">
 								<xs:attribute name="Type">
@@ -167,7 +167,7 @@ Code:Address element codes are used by groups like postal groups like ECCMA, ADI
 						</xs:element>
 						<xs:element name="AddressLongitudeDirection" minOccurs="0">
 							<xs:annotation>
-								<xs:documentation>Longtitude direction of delivery address;N=North and S=South</xs:documentation>
+								<xs:documentation>Longitude direction of delivery address;N=North and S=South</xs:documentation>
 							</xs:annotation>
 							<xs:complexType mixed="true">
 								<xs:attribute name="Type">
