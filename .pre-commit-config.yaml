@@ -85,6 +85,7 @@ repos:
     rev: dictgen-v0.3.1
     hooks:
       - id: typos
+        exclude_types: ['csv']
   - repo: https://github.com/woodruffw/zizmor-pre-commit
     rev: v1.0.1
     hooks:
