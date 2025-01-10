@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from fastkml import kml
 
 # Setup the string which contains the KML file we want to read
