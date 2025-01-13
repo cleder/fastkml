@@ -247,9 +247,9 @@ class TestWriteKML(StdLibrary):
                 assert "doc.kml" in kmz.namelist(), "doc.kml not found in the KMZ file"
                 with kmz.open("doc.kml") as doc_kml:
                     kml_content = doc_kml.read().decode("utf-8")
-                    assert (
-                        kml_content == tree
-                    ), "KML content does not match expected content"
+                    assert kml_content == tree, (
+                        "KML content does not match expected content"
+                    )
 
 
 class TestKmlFromString(StdLibrary):
