@@ -147,8 +147,7 @@ class TestLxml(Lxml, TestStdLibrary):
         obj = kml_base._BaseObject(id="id-0")
 
         assert obj.to_string() == (
-            '<kml:_BaseObject xmlns:kml="http://www.opengis.net/kml/2.2" '
-            'id="id-0"/>\n'
+            '<kml:_BaseObject xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0"/>\n'
         )
 
     def test_from_string(self) -> None:
