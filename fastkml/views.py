@@ -366,7 +366,7 @@ class LookAt(_AbstractView):
         altitude: Optional[float] = None,
         heading: Optional[float] = None,
         tilt: Optional[float] = None,
-        range: Optional[float] = None,
+        range: Optional[float] = None,  # noqa: A002
         altitude_mode: Optional[AltitudeMode] = None,
         **kwargs: Any,
     ) -> None:

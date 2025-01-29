@@ -194,7 +194,6 @@ target-version = "py38"
 
 [tool.ruff.lint]
 ignore = [
-    "A002",
     "ANN401",
     "D203",
     "D212",
@@ -232,6 +231,14 @@ select = [
 ]
 "tests/repr_eq_test.py" = [
     "E501",
+]
+
+[tool.ruff.lint.flake8-builtins]
+builtins-allowed-modules = [
+    "types",
+]
+builtins-ignorelist = [
+    "id",
 ]
 
 [tool.ruff.lint.isort]

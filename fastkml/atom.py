@@ -96,7 +96,7 @@ class Link(_AtomObject):
         name_spaces: Optional[Dict[str, str]] = None,
         href: Optional[str] = None,
         rel: Optional[str] = None,
-        type: Optional[str] = None,
+        type: Optional[str] = None,  # noqa: A002
         hreflang: Optional[str] = None,
         title: Optional[str] = None,
         length: Optional[int] = None,
