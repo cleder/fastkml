@@ -798,7 +798,7 @@ class LinearRing(LineString):
             return None
         try:
             return cast(
-                geo.LinearRing,
+                "geo.LinearRing",
                 geo.LinearRing.from_coordinates(self.kml_coordinates.coords),
             )
         except DimensionError:
@@ -1080,10 +1080,10 @@ class Polygon(_Geometry):
             return None
         if not self.inner_boundaries:
             return geo.Polygon.from_linear_rings(
-                cast(geo.LinearRing, self.outer_boundary.geometry),
+                cast("geo.LinearRing", self.outer_boundary.geometry),
             )
         return geo.Polygon.from_linear_rings(
-            cast(geo.LinearRing, self.outer_boundary.geometry),
+            cast("geo.LinearRing", self.outer_boundary.geometry),
             *[
                 interior.geometry
                 for interior in self.inner_boundaries

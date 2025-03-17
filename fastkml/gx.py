@@ -257,7 +257,7 @@ class Track(_Geometry):
         if not track_items and whens and coords:
             track_items = [
                 TrackItem(
-                    when=cast(KmlDateTime, when),
+                    when=cast("KmlDateTime", when),
                     coord=geo.Point(*coord),
                     angle=Angle(*angle),
                 )
