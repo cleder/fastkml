@@ -213,7 +213,7 @@ class _XMLObject:
         )
         try:
             return cast(
-                str,
+                "str",
                 config.etree.tostring(
                     element,
                     encoding="unicode",
@@ -222,7 +222,7 @@ class _XMLObject:
             )
         except TypeError:
             return cast(
-                str,
+                "str",
                 config.etree.tostring(
                     element,
                     encoding="unicode",
@@ -446,7 +446,7 @@ class _XMLObject:
             name_spaces=name_spaces,
             strict=strict,
             element=cast(
-                Element,
+                "Element",
                 config.etree.fromstring(string),
             ),
         )

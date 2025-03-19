@@ -105,7 +105,7 @@ def lxml_parse_and_validate(
     )
     if validate:
         validator.validate(element=tree)
-    return cast(Element, tree.getroot())
+    return cast("Element", tree.getroot())
 
 
 class KML(_XMLObject):
@@ -194,7 +194,7 @@ class KML(_XMLObject):
             verbosity=verbosity,
             default=None,
         )
-        return cast(Element, root)
+        return cast("Element", root)
 
     def append(
         self,

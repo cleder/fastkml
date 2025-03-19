@@ -1168,7 +1168,7 @@ def get_coord_args(
         if subelement.text:
             try:
                 yield cast(
-                    PointType,
+                    "PointType",
                     tuple(float(coord) for coord in subelement.text.split()),
                 )
             except ValueError as exc:
