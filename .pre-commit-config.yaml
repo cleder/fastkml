@@ -42,12 +42,12 @@ repos:
     hooks:
       - id: absolufy-imports
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.11.13'
+    rev: 'v0.12.0'
     hooks:
       - id: ruff
       - id: ruff-format
   - repo: https://github.com/PyCQA/flake8
-    rev: 7.2.0
+    rev: 7.3.0
     hooks:
       - id: flake8
         additional_dependencies:
@@ -73,7 +73,7 @@ repos:
     hooks:
       - id: sphinx-lint
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.16.0
+    rev: v1.16.1
     hooks:
       - id: mypy
         additional_dependencies: [pygeoif>=1.4, arrow, pytest, hypothesis]
