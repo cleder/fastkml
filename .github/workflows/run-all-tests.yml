@@ -12,7 +12,7 @@ jobs:
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14-dev']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -32,7 +32,7 @@ jobs:
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -59,7 +59,7 @@ jobs:
         python-version: ['3.12']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -87,7 +87,7 @@ jobs:
         python-version: ['3.12']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -117,7 +117,7 @@ jobs:
       matrix:
         pypy-version: ['pypy-3.8', 'pypy-3.9', 'pypy-3.10']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.pypy-version }}
         uses: actions/setup-python@v5
         with:
@@ -134,7 +134,7 @@ jobs:
     name: Build & inspect our package.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: hynek/build-and-inspect-python-package@v2
       - uses: actions/setup-python@v5
         with:
