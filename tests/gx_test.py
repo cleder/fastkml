@@ -23,10 +23,13 @@ import pytest
 from dateutil.tz import tzoffset
 from dateutil.tz import tzutc
 
+from fastkml.data import ExtendedData
+from fastkml.data import SchemaData
 from fastkml.gx import Angle
 from fastkml.gx import MultiTrack
 from fastkml.gx import Track
 from fastkml.gx import TrackItem
+from fastkml.gx_data import SimpleArrayData
 from fastkml.times import KmlDateTime
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -440,8 +443,37 @@ class TestTrack(StdLibrary):
             "</kml:ExtendedData>"
             "</gx:Track>"
         )
+        expected_data = ExtendedData(
+            elements=[
+                SchemaData(
+                    schema_url="#schema",
+                    data=[
+                        SimpleArrayData(
+                            name="cadence",
+                            data=["86", "103", "108", "113", "113", "113", "113"],
+                        ),
+                        SimpleArrayData(
+                            name="heartrate",
+                            data=["181", "177", "175", "173", "173", "173", "173"],
+                        ),
+                        SimpleArrayData(
+                            name="power",
+                            data=[
+                                "327.0",
+                                "177.0",
+                                "179.0",
+                                "162.0",
+                                "166.0",
+                                "177.0",
+                                "183.0",
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+        )
         track = Track.from_string(doc)
-        assert track.extended_data == ""
+        assert track.extended_data == expected_data
 
 
 class TestMultiTrack(StdLibrary):

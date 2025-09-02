@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-"""Test gx SimpleArrayData."""
+"""Test gx SimpleArrayData and SimpleArrayField."""
 
 import typing
 
@@ -23,22 +23,19 @@ from hypothesis import strategies as st
 import fastkml
 import fastkml.gx_data
 import fastkml.types
+from fastkml.enums import DataType
 from tests.base import Lxml
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
 from tests.hypothesis.common import assert_str_roundtrip_verbose
-from tests.hypothesis.strategies import nc_name
 from tests.hypothesis.strategies import xml_text
 
 
 class TestGx(Lxml):
     @given(
-        name=st.one_of(st.none(), nc_name()),
-        data=st.one_of(
-            st.none(),
-            st.lists(xml_text().filter(lambda x: x.strip() != "")),
-        ),
+        name=xml_text().filter(lambda x: x.strip() != ""),
+        data=st.lists(xml_text().filter(lambda x: x.strip() != ""), min_size=1),
     )
     def test_fuzz_simple_array_data(
         self,
@@ -54,3 +51,25 @@ class TestGx(Lxml):
         assert_str_roundtrip(simple_array_data)
         assert_str_roundtrip_terse(simple_array_data)
         assert_str_roundtrip_verbose(simple_array_data)
+
+    @given(
+        name=st.one_of(st.none(), xml_text()),
+        type_=st.one_of(st.sampled_from(DataType)),
+        display_name=st.one_of(st.none(), xml_text()),
+    )
+    def test_fuzz_simle_array_field(
+        self,
+        name: typing.Optional[str],
+        type_: typing.Optional[DataType],
+        display_name: typing.Optional[str],
+    ) -> None:
+        simple_array_field = fastkml.gx_data.SimpleArrayField(
+            name=name,
+            type_=type_,
+            display_name=display_name,
+        )
+
+        assert_repr_roundtrip(simple_array_field)
+        assert_str_roundtrip(simple_array_field)
+        assert_str_roundtrip_terse(simple_array_field)
+        assert_str_roundtrip_verbose(simple_array_field)

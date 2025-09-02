@@ -41,6 +41,13 @@ simple_fields = partial(
     type_=st.one_of(st.sampled_from(fastkml.enums.DataType)),
     display_name=xml_text().filter(lambda x: x.strip() != ""),
 )
+simple_array_fields = partial(
+    st.builds,
+    fastkml.gx_data.SimpleArrayField,
+    name=xml_text().filter(lambda x: x.strip() != ""),
+    type_=st.one_of(st.sampled_from(fastkml.enums.DataType)),
+    display_name=xml_text().filter(lambda x: x.strip() != ""),
+)
 
 
 class TestLxml(Lxml):
@@ -69,13 +76,22 @@ class TestLxml(Lxml):
     @given(
         id=nc_name(),
         name=st.one_of(st.none(), xml_text()),
-        fields=st.one_of(st.none(), st.lists(simple_fields())),
+        fields=st.one_of(
+            st.none(),
+            st.lists(simple_fields()),
+            st.lists(simple_array_fields()),
+        ),
     )
     def test_fuzz_schema(
         self,
         id: typing.Optional[str],
         name: typing.Optional[str],
-        fields: typing.Optional[typing.Iterable[fastkml.data.SimpleField]],
+        fields: typing.Optional[
+            typing.Union[
+                typing.Iterable[fastkml.data.SimpleField],
+                typing.Iterable[fastkml.gx_data.SimpleArrayField],
+            ]
+        ],
     ) -> None:
         schema = fastkml.Schema(
             id=id,
@@ -150,9 +166,12 @@ class TestLxml(Lxml):
             ),
             st.lists(
                 st.builds(
-                    fastkml.data.SimpleData,
+                    fastkml.gx_data.SimpleArrayData,
                     name=xml_text().filter(lambda x: x.strip() != ""),
-                    value=xml_text().filter(lambda x: x.strip() != ""),
+                    data=st.lists(
+                        xml_text().filter(lambda x: x.strip() != ""),
+                        min_size=1,
+                    ),
                 ),
             ),
         ),
@@ -162,7 +181,12 @@ class TestLxml(Lxml):
         id: typing.Optional[str],
         target_id: typing.Optional[str],
         schema_url: typing.Optional[str],
-        data: typing.Optional[typing.Iterable[fastkml.data.SimpleData]],
+        data: typing.Optional[
+            typing.Union[
+                typing.Iterable[fastkml.data.SimpleData],
+                typing.Iterable[fastkml.gx_data.SimpleArrayData],
+            ]
+        ],
     ) -> None:
         schema_data = fastkml.SchemaData(
             id=id,
@@ -200,9 +224,12 @@ class TestLxml(Lxml):
                             ),
                             st.lists(
                                 st.builds(
-                                    fastkml.data.SimpleData,
+                                    fastkml.gx_data.SimpleArrayData,
                                     name=xml_text().filter(lambda x: x.strip() != ""),
-                                    value=xml_text().filter(lambda x: x.strip() != ""),
+                                    data=st.lists(
+                                        xml_text().filter(lambda x: x.strip() != ""),
+                                        min_size=1,
+                                    ),
                                 ),
                             ),
                         ),
