@@ -29,7 +29,7 @@ from fastkml.gx import Angle
 from fastkml.gx import MultiTrack
 from fastkml.gx import Track
 from fastkml.gx import TrackItem
-from fastkml.gx_data import SimpleArrayData
+from fastkml.gx.data import SimpleArrayData
 from fastkml.times import KmlDateTime
 from tests.base import Lxml
 from tests.base import StdLibrary

@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-"""Test the gx_data classes."""
+"""Test the gx.data classes."""
 
 from typing import cast
 
@@ -21,14 +21,14 @@ import fastkml as kml
 from fastkml.data import Schema
 from fastkml.data import SchemaData
 from fastkml.enums import DataType
-from fastkml.gx_data import SimpleArrayData
-from fastkml.gx_data import SimpleArrayField
+from fastkml.gx.data import SimpleArrayData
+from fastkml.gx.data import SimpleArrayField
 from tests.base import Lxml
 from tests.base import StdLibrary
 
 
 class TestStdLibrary(StdLibrary):
-    """Test gx_data.SimpleArrayField."""
+    """Test gx.data.SimpleArrayField."""
 
     def test_simple_array_field_from_string_0(self) -> None:
         doc = (

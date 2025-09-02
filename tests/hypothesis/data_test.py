@@ -25,7 +25,7 @@ from hypothesis.provisional import urls
 import fastkml
 import fastkml.data
 import fastkml.enums
-import fastkml.gx_data
+import fastkml.gx.data
 from tests.base import Lxml
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
@@ -43,7 +43,7 @@ simple_fields = partial(
 )
 simple_array_fields = partial(
     st.builds,
-    fastkml.gx_data.SimpleArrayField,
+    fastkml.gx.data.SimpleArrayField,
     name=xml_text().filter(lambda x: x.strip() != ""),
     type_=st.one_of(st.sampled_from(fastkml.enums.DataType)),
     display_name=xml_text().filter(lambda x: x.strip() != ""),
@@ -89,7 +89,7 @@ class TestLxml(Lxml):
         fields: typing.Optional[
             typing.Union[
                 typing.Iterable[fastkml.data.SimpleField],
-                typing.Iterable[fastkml.gx_data.SimpleArrayField],
+                typing.Iterable[fastkml.gx.data.SimpleArrayField],
             ]
         ],
     ) -> None:
@@ -166,7 +166,7 @@ class TestLxml(Lxml):
             ),
             st.lists(
                 st.builds(
-                    fastkml.gx_data.SimpleArrayData,
+                    fastkml.gx.data.SimpleArrayData,
                     name=xml_text().filter(lambda x: x.strip() != ""),
                     data=st.lists(
                         xml_text().filter(lambda x: x.strip() != ""),
@@ -184,7 +184,7 @@ class TestLxml(Lxml):
         data: typing.Optional[
             typing.Union[
                 typing.Iterable[fastkml.data.SimpleData],
-                typing.Iterable[fastkml.gx_data.SimpleArrayData],
+                typing.Iterable[fastkml.gx.data.SimpleArrayData],
             ]
         ],
     ) -> None:
@@ -224,7 +224,7 @@ class TestLxml(Lxml):
                             ),
                             st.lists(
                                 st.builds(
-                                    fastkml.gx_data.SimpleArrayData,
+                                    fastkml.gx.data.SimpleArrayData,
                                     name=xml_text().filter(lambda x: x.strip() != ""),
                                     data=st.lists(
                                         xml_text().filter(lambda x: x.strip() != ""),

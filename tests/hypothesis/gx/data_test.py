@@ -21,7 +21,7 @@ from hypothesis import given
 from hypothesis import strategies as st
 
 import fastkml
-import fastkml.gx_data
+import fastkml.gx.data
 import fastkml.types
 from fastkml.enums import DataType
 from tests.base import Lxml
@@ -42,7 +42,7 @@ class TestGx(Lxml):
         name: typing.Optional[str],
         data: typing.Optional[typing.Iterable[str]],
     ) -> None:
-        simple_array_data = fastkml.gx_data.SimpleArrayData(
+        simple_array_data = fastkml.gx.data.SimpleArrayData(
             name=name,
             data=data,
         )
@@ -63,7 +63,7 @@ class TestGx(Lxml):
         type_: typing.Optional[DataType],
         display_name: typing.Optional[str],
     ) -> None:
-        simple_array_field = fastkml.gx_data.SimpleArrayField(
+        simple_array_field = fastkml.gx.data.SimpleArrayField(
             name=name,
             type_=type_,
             display_name=display_name,

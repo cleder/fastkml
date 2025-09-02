@@ -30,8 +30,8 @@ from typing import Union
 from fastkml.base import _XMLObject
 from fastkml.enums import DataType
 from fastkml.exceptions import KMLSchemaError
-from fastkml.gx_data import SimpleArrayData
-from fastkml.gx_data import SimpleArrayField
+from fastkml.gx.data import SimpleArrayData
+from fastkml.gx.data import SimpleArrayField
 from fastkml.helpers import attribute_enum_kwarg
 from fastkml.helpers import attribute_text_kwarg
 from fastkml.helpers import clean_string
