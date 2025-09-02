@@ -31,6 +31,7 @@ from fastkml.base import _XMLObject
 from fastkml.enums import DataType
 from fastkml.exceptions import KMLSchemaError
 from fastkml.gx_data import SimpleArrayData
+from fastkml.gx_data import SimpleArrayField
 from fastkml.helpers import attribute_enum_kwarg
 from fastkml.helpers import attribute_text_kwarg
 from fastkml.helpers import clean_string
@@ -204,7 +205,7 @@ class Schema(_XMLObject):
     _default_nsid = "kml"
 
     name: Optional[str]
-    fields: List[SimpleField]
+    fields: Union[List[SimpleField], List[SimpleArrayField]]
 
     def __init__(
         self,
@@ -212,7 +213,9 @@ class Schema(_XMLObject):
         name_spaces: Optional[Dict[str, str]] = None,
         id: Optional[str] = None,
         name: Optional[str] = None,
-        fields: Optional[Iterable[SimpleField]] = None,
+        fields: Optional[
+            Union[Iterable[SimpleField], Iterable[SimpleArrayField]]
+        ] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -230,7 +233,7 @@ class Schema(_XMLObject):
             The target identifier for the schema.
         name : str, optional
             The name of the schema.
-        fields : Iterable[SimpleField], optional
+        fields : Iterable[SimpleField], Iterable[SimpleArrayField], optional
             The list of fields in the schema.
         **kwargs : Any
             Additional keyword arguments.
@@ -250,7 +253,7 @@ class Schema(_XMLObject):
             **kwargs,
         )
         self.name = clean_string(name)
-        self.fields = list(fields) if fields else []
+        self.fields = list(fields) if fields else []  # type: ignore[assignment]
         self.id = clean_string(id)
 
     def __repr__(self) -> str:
@@ -274,17 +277,17 @@ class Schema(_XMLObject):
             ")"
         )
 
-    def append(self, field: SimpleField) -> None:
+    def append(self, field: Union[SimpleField, SimpleArrayField]) -> None:
         """
         Append a field to the schema.
 
         Parameters
         ----------
-        field : SimpleField
+        field : SimpleField, SimpleArrayField
             The field to be appended.
 
         """
-        self.fields.append(field)
+        self.fields.append(field)  # type: ignore[arg-type]
 
 
 registry.register(
@@ -312,10 +315,13 @@ registry.register(
 registry.register(
     Schema,
     RegistryItem(
-        ns_ids=("kml", ""),
+        ns_ids=("kml", "gx", ""),
         attr_name="fields",
-        node_name="SimpleField",
-        classes=(SimpleField,),
+        node_name="SimpleField,gx:SimpleArrayField",
+        classes=(
+            SimpleField,
+            SimpleArrayField,
+        ),
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
     ),
@@ -591,7 +597,7 @@ class SchemaData(_BaseObject):
             **kwargs,
         )
         self.schema_url = clean_string(schema_url)
-        self.data = list(data) if data else []
+        self.data = list(data) if data else []  # type: ignore[assignment]
 
     def __repr__(self) -> str:
         """Create a string representation for SchemaData."""
@@ -628,7 +634,7 @@ class SchemaData(_BaseObject):
             data (SimpleData): The SimpleData object to be appended.
 
         """
-        self.data.append(data)
+        self.data.append(data)  # type: ignore[arg-type]
 
 
 registry.register(

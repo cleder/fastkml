@@ -269,6 +269,47 @@ def text_subelement(
         subelement.text = value
 
 
+def text_subelement_kml(
+    obj: "_XMLObject",
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Verbosity,
+    default: Optional[str],
+) -> None:
+    """
+    Set the value of an attribute from subelement with a text node in KML namespace.
+
+    Args:
+    ----
+        obj ("_XMLObject"): The object from which to retrieve the attribute value.
+        element (Element): The parent element to add the subelement to.
+        attr_name (str): The name of the attribute to retrieve the value from.
+        node_name (str): The name of the subelement to create.
+        precision (Optional[int]): The precision of the attribute value.
+        verbosity (Optional[Verbosity]): The verbosity level.
+        default (Optional[str]): The default value for the attribute.
+
+    Returns:
+    -------
+        None
+
+    """
+    if value := get_value(
+        obj,
+        attr_name=attr_name,
+        verbosity=verbosity,
+        default=default,
+    ):
+        subelement = config.etree.SubElement(
+            element,
+            f"{config.KMLNS}{node_name}",
+        )
+        subelement.text = value
+
+
 def text_subelement_list(
     obj: "_XMLObject",
     *,
@@ -1374,4 +1415,4 @@ def xml_subelement_list_kwarg(
                     for subelement in subelements
                 ],
             )
-    return {kwarg: args_list}
+    return {kwarg: args_list} if args_list else {}
