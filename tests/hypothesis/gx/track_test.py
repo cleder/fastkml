@@ -36,7 +36,7 @@ from tests.hypothesis.strategies import track_items
 from tests.hypothesis.strategies import xml_text
 
 
-class TestGx(Lxml):
+class TestLxml(Lxml):
     @given(
         id=st.one_of(st.none(), nc_name()),
         target_id=st.one_of(st.none(), nc_name()),

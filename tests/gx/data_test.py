@@ -28,7 +28,7 @@ from tests.base import StdLibrary
 
 
 class TestStdLibrary(StdLibrary):
-    """Test gx.data.SimpleArrayField."""
+    """Test with the standard library."""
 
     def test_simple_array_field_from_string_0(self) -> None:
         doc = (

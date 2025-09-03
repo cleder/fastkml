@@ -32,7 +32,7 @@ from tests.hypothesis.common import assert_str_roundtrip_verbose
 from tests.hypothesis.strategies import xml_text
 
 
-class TestGx(Lxml):
+class TestLxml(Lxml):
     @given(
         name=xml_text().filter(lambda x: x.strip() != ""),
         data=st.lists(xml_text().filter(lambda x: x.strip() != ""), min_size=1),
@@ -57,7 +57,7 @@ class TestGx(Lxml):
         type_=st.one_of(st.sampled_from(DataType)),
         display_name=st.one_of(st.none(), xml_text()),
     )
-    def test_fuzz_simle_array_field(
+    def test_fuzz_simple_array_field(
         self,
         name: typing.Optional[str],
         type_: typing.Optional[DataType],

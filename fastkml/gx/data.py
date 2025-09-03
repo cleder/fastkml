@@ -78,7 +78,7 @@ class SimpleArrayField(_XMLObject):
         **kwargs: Any,
     ) -> None:
         """
-        Initialize a new instance of the Data class.
+        Initialize a new instance of the SimpleArrayField class.
 
         Args:
         ----
@@ -206,7 +206,7 @@ class SimpleArrayData(_XMLObject):
         self.name = clean_string(name)
 
     def __repr__(self) -> str:
-        """Create a string (c)representation for SimpleArrayData."""
+        """Create a string representation for SimpleArrayData."""
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "

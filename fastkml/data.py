@@ -233,7 +233,7 @@ class Schema(_XMLObject):
             The target identifier for the schema.
         name : str, optional
             The name of the schema.
-        fields : Iterable[SimpleField], Iterable[SimpleArrayField], optional
+        fields : Union[Iterable[SimpleField], Iterable[SimpleArrayField]], optional
             The list of fields in the schema.
         **kwargs : Any
             Additional keyword arguments.
