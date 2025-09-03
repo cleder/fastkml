@@ -48,7 +48,7 @@ class TestStdLibrary(StdLibrary):
         assert not list(s.fields)
         field = SimpleArrayField(
             name="Integer",
-            type=DataType.int_,
+            type_=DataType.int_,
             display_name="An Integer",
         )
         s.append(field)
@@ -56,12 +56,12 @@ class TestStdLibrary(StdLibrary):
         s.fields = []
         assert not s.fields
         fields = {
-            "type": DataType.int_,
+            "type_": DataType.int_,
             "name": "Integer",
             "display_name": "An Integer",
         }
-        s.fields = [SimpleArrayField(**fields)]  # type: ignore[arg-type]
-        assert s.fields[0] == SimpleArrayField(**fields)  # type: ignore[arg-type]
+        s.fields = [SimpleArrayField(**fields)]
+        assert s.fields[0] == SimpleArrayField(**fields)
 
     def test_schema_from_string(self) -> None:
         doc = """    <Schema id="schema"

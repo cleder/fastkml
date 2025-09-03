@@ -34,8 +34,8 @@ from tests.hypothesis.strategies import xml_text
 
 class TestLxml(Lxml):
     @given(
-        name=xml_text().filter(lambda x: x.strip() != ""),
-        data=st.lists(xml_text().filter(lambda x: x.strip() != ""), min_size=1),
+        name=st.one_of(st.none(), xml_text()),
+        data=st.one_of(st.none(), st.lists(xml_text())),
     )
     def test_fuzz_simple_array_data(
         self,
@@ -54,7 +54,7 @@ class TestLxml(Lxml):
 
     @given(
         name=st.one_of(st.none(), xml_text()),
-        type_=st.one_of(st.sampled_from(DataType)),
+        type_=st.one_of(st.none(), st.sampled_from(DataType)),
         display_name=st.one_of(st.none(), xml_text()),
     )
     def test_fuzz_simple_array_field(

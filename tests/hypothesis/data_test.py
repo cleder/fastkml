@@ -38,22 +38,34 @@ simple_fields = partial(
     st.builds,
     fastkml.data.SimpleField,
     name=xml_text().filter(lambda x: x.strip() != ""),
-    type_=st.one_of(st.sampled_from(fastkml.enums.DataType)),
+    type_=st.sampled_from(fastkml.enums.DataType),
     display_name=xml_text().filter(lambda x: x.strip() != ""),
 )
 simple_array_fields = partial(
     st.builds,
     fastkml.gx.data.SimpleArrayField,
     name=xml_text().filter(lambda x: x.strip() != ""),
-    type_=st.one_of(st.sampled_from(fastkml.enums.DataType)),
+    type_=st.sampled_from(fastkml.enums.DataType),
     display_name=xml_text().filter(lambda x: x.strip() != ""),
+)
+simple_data = partial(
+    st.builds,
+    fastkml.data.SimpleData,
+    name=xml_text().filter(lambda x: x.strip() != ""),
+    value=xml_text().filter(lambda x: x.strip() != ""),
+)
+simple_array_data = partial(
+    st.builds,
+    fastkml.gx.data.SimpleArrayData,
+    name=xml_text().filter(lambda x: x.strip() != ""),
+    data=st.lists(xml_text().filter(lambda x: x.strip() != ""), min_size=1),
 )
 
 
 class TestLxml(Lxml):
     @given(
         name=st.one_of(st.none(), xml_text()),
-        type_=st.one_of(st.sampled_from(fastkml.enums.DataType)),
+        type_=st.one_of(st.none(), st.sampled_from(fastkml.enums.DataType)),
         display_name=st.one_of(st.none(), xml_text()),
     )
     def test_fuzz_simple_field(
@@ -134,7 +146,7 @@ class TestLxml(Lxml):
 
     @given(
         name=xml_text().filter(lambda x: x.strip() != ""),
-        value=xml_text().filter(lambda x: x.strip() != ""),
+        value=st.one_of(st.none(), xml_text()),
     )
     def test_fuzz_simple_data(
         self,
@@ -157,23 +169,8 @@ class TestLxml(Lxml):
         schema_url=st.one_of(st.none(), urls()),
         data=st.one_of(
             st.none(),
-            st.lists(
-                st.builds(
-                    fastkml.data.SimpleData,
-                    name=xml_text().filter(lambda x: x.strip() != ""),
-                    value=xml_text().filter(lambda x: x.strip() != ""),
-                ),
-            ),
-            st.lists(
-                st.builds(
-                    fastkml.gx.data.SimpleArrayData,
-                    name=xml_text().filter(lambda x: x.strip() != ""),
-                    data=st.lists(
-                        xml_text().filter(lambda x: x.strip() != ""),
-                        min_size=1,
-                    ),
-                ),
-            ),
+            st.lists(simple_data()),
+            st.lists(simple_array_data()),
         ),
     )
     def test_fuzz_schema_data(
@@ -215,23 +212,8 @@ class TestLxml(Lxml):
                         fastkml.SchemaData,
                         schema_url=st.one_of(st.none(), urls()),
                         data=st.one_of(
-                            st.lists(
-                                st.builds(
-                                    fastkml.data.SimpleData,
-                                    name=xml_text().filter(lambda x: x.strip() != ""),
-                                    value=xml_text().filter(lambda x: x.strip() != ""),
-                                ),
-                            ),
-                            st.lists(
-                                st.builds(
-                                    fastkml.gx.data.SimpleArrayData,
-                                    name=xml_text().filter(lambda x: x.strip() != ""),
-                                    data=st.lists(
-                                        xml_text().filter(lambda x: x.strip() != ""),
-                                        min_size=1,
-                                    ),
-                                ),
-                            ),
+                            st.lists(simple_data()),
+                            st.lists(simple_array_data()),
                         ),
                     ),
                 ),
