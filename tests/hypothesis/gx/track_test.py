@@ -59,28 +59,26 @@ class TestLxml(Lxml):
                 st.builds(
                     fastkml.SchemaData,
                     schema_url=urls(),
-                    data=st.one_of(
-                        st.lists(
-                            st.builds(
-                                fastkml.data.SimpleData,
-                                name=xml_text().filter(lambda x: x.strip() != ""),
-                                value=xml_text().filter(lambda x: x.strip() != ""),
-                            ),
-                            min_size=1,
-                            max_size=3,
+                    data=st.lists(
+                        st.builds(
+                            fastkml.data.SimpleData,
+                            name=xml_text().filter(lambda x: x.strip() != ""),
+                            value=xml_text().filter(lambda x: x.strip() != ""),
                         ),
-                        st.lists(
-                            st.builds(
-                                fastkml.data.SimpleArrayData,
-                                name=xml_text().filter(lambda x: x.strip() != ""),
-                                data=st.lists(
-                                    xml_text().filter(lambda x: x.strip() != ""),
-                                    min_size=1,
-                                ),
+                        min_size=1,
+                        max_size=3,
+                    ),
+                    array_data=st.lists(
+                        st.builds(
+                            fastkml.data.SimpleArrayData,
+                            name=xml_text().filter(lambda x: x.strip() != ""),
+                            data=st.lists(
+                                xml_text().filter(lambda x: x.strip() != ""),
+                                min_size=1,
                             ),
-                            min_size=1,
-                            max_size=3,
                         ),
+                        min_size=1,
+                        max_size=3,
                     ),
                 ),
             ),

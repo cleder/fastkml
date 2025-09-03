@@ -88,27 +88,23 @@ class TestLxml(Lxml):
     @given(
         id=nc_name(),
         name=st.one_of(st.none(), xml_text()),
-        fields=st.one_of(
-            st.none(),
-            st.lists(simple_fields()),
-            st.lists(simple_array_fields()),
-        ),
+        fields=st.one_of(st.none(), st.lists(simple_fields())),
+        array_fields=st.one_of(st.none(), st.lists(simple_array_fields())),
     )
     def test_fuzz_schema(
         self,
         id: typing.Optional[str],
         name: typing.Optional[str],
-        fields: typing.Optional[
-            typing.Union[
-                typing.Iterable[fastkml.data.SimpleField],
-                typing.Iterable[fastkml.gx.data.SimpleArrayField],
-            ]
+        fields: typing.Optional[typing.Iterable[fastkml.data.SimpleField]],
+        array_fields: typing.Optional[
+            typing.Iterable[fastkml.gx.data.SimpleArrayField]
         ],
     ) -> None:
         schema = fastkml.Schema(
             id=id,
             name=name,
             fields=fields,
+            array_fields=array_fields,
         )
 
         assert_str_roundtrip(schema)
@@ -167,29 +163,23 @@ class TestLxml(Lxml):
         id=st.one_of(st.none(), nc_name()),
         target_id=st.one_of(st.none(), nc_name()),
         schema_url=st.one_of(st.none(), urls()),
-        data=st.one_of(
-            st.none(),
-            st.lists(simple_data()),
-            st.lists(simple_array_data()),
-        ),
+        data=st.one_of(st.none(), st.lists(simple_data())),
+        array_data=st.one_of(st.none(), st.lists(simple_array_data())),
     )
     def test_fuzz_schema_data(
         self,
         id: typing.Optional[str],
         target_id: typing.Optional[str],
         schema_url: typing.Optional[str],
-        data: typing.Optional[
-            typing.Union[
-                typing.Iterable[fastkml.data.SimpleData],
-                typing.Iterable[fastkml.gx.data.SimpleArrayData],
-            ]
-        ],
+        data: typing.Optional[typing.Iterable[fastkml.data.SimpleData]],
+        array_data: typing.Optional[typing.Iterable[fastkml.gx.data.SimpleArrayData]],
     ) -> None:
         schema_data = fastkml.SchemaData(
             id=id,
             target_id=target_id,
             schema_url=schema_url,
             data=data,
+            array_data=array_data,
         )
 
         assert_str_roundtrip(schema_data)
@@ -211,10 +201,8 @@ class TestLxml(Lxml):
                     st.builds(
                         fastkml.SchemaData,
                         schema_url=st.one_of(st.none(), urls()),
-                        data=st.one_of(
-                            st.lists(simple_data()),
-                            st.lists(simple_array_data()),
-                        ),
+                        data=st.one_of(st.none(), st.lists(simple_data())),
+                        array_data=st.one_of(st.none(), st.lists(simple_array_data())),
                     ),
                 ),
             ),

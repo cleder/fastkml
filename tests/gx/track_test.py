@@ -447,7 +447,7 @@ class TestTrack(StdLibrary):
             elements=[
                 SchemaData(
                     schema_url="#schema",
-                    data=[
+                    array_data=[
                         SimpleArrayData(
                             name="cadence",
                             data=["86", "103", "108", "113", "113", "113", "113"],
