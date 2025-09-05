@@ -269,6 +269,89 @@ def text_subelement(
         subelement.text = value
 
 
+def text_subelement_kml(
+    obj: "_XMLObject",
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Verbosity,
+    default: Optional[str],
+) -> None:
+    """
+    Set the value of an attribute from subelement with a text node in KML namespace.
+
+    Args:
+    ----
+        obj ("_XMLObject"): The object from which to retrieve the attribute value.
+        element (Element): The parent element to add the subelement to.
+        attr_name (str): The name of the attribute to retrieve the value from.
+        node_name (str): The name of the subelement to create.
+        precision (Optional[int]): The precision of the attribute value.
+        verbosity (Optional[Verbosity]): The verbosity level.
+        default (Optional[str]): The default value for the attribute.
+
+    Returns:
+    -------
+        None
+
+    """
+    if value := get_value(
+        obj,
+        attr_name=attr_name,
+        verbosity=verbosity,
+        default=default,
+    ):
+        subelement = config.etree.SubElement(
+            element,
+            f"{config.KMLNS}{node_name}",
+        )
+        subelement.text = value
+
+
+def text_subelement_list(
+    obj: "_XMLObject",
+    *,
+    element: Element,
+    attr_name: str,
+    node_name: str,
+    precision: Optional[int],
+    verbosity: Verbosity,
+    default: Optional[str],
+) -> None:
+    """
+    Set the value of an attribute from subelements with a text node.
+
+    Args:
+    ----
+        obj ("_XMLObject"): The object from which to retrieve the attribute value.
+        element (Element): The parent element to add the subelement to.
+        attr_name (str): The name of the attribute to retrieve the value from.
+        node_name (str): The name of the subelement to create.
+        precision (Optional[int]): The precision of the attribute value.
+        verbosity (Optional[Verbosity]): The verbosity level.
+        default (Optional[str]): The default value for the attribute.
+
+    Returns:
+    -------
+        None
+
+    """
+    if value := get_value(
+        obj,
+        attr_name=attr_name,
+        verbosity=verbosity,
+        default=default,
+    ):
+        for item in value:
+            subelement = config.etree.SubElement(
+                element,
+                f"{obj.ns}{node_name}",
+            )
+            subelement.text = item
+
+
 def text_attribute(
     obj: "_XMLObject",
     *,
@@ -708,6 +791,48 @@ def subelement_text_kwarg(
         return {}
     assert isinstance(node.text, str)  # noqa: S101
     return {kwarg: node.text.strip()} if node.text and node.text.strip() else {}
+
+
+def subelement_text_list_kwarg(
+    *,
+    element: Element,
+    ns: str,
+    name_spaces: Dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: Tuple[Type[object], ...],
+    strict: bool,
+) -> Dict[str, List[str]]:
+    """
+    Extract the text content of subelements and return it as a dictionary.
+
+    Args:
+    ----
+        element (Element): The parent element.
+        ns (str): The namespace of the subelement.
+        name_spaces (Dict[str, str]): A dictionary of namespace prefixes and URIs.
+        node_name (str): The name of the subelement.
+        kwarg (str): The key to use in the returned dictionary.
+        classes (Tuple[Type[object], ...]): A tuple of known types.
+        strict (bool): A flag indicating whether to enforce strict parsing.
+
+    Returns:
+    -------
+        Dict[str, List[str]]: A dictionary containing the extracted text contents,
+            with the specified key.
+
+    """
+    args_list: List[str] = []
+    if subelements := element.findall(f"{ns}{node_name}"):
+        args_list.extend(
+            (
+                subelement.text.strip()
+                if subelement.text and subelement.text.strip()
+                else ""
+            )
+            for subelement in subelements
+        )
+    return {kwarg: args_list} if args_list else {}
 
 
 def attribute_text_kwarg(
@@ -1290,4 +1415,4 @@ def xml_subelement_list_kwarg(
                     for subelement in subelements
                 ],
             )
-    return {kwarg: args_list}
+    return {kwarg: args_list} if args_list else {}

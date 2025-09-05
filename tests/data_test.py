@@ -49,7 +49,7 @@ class TestStdLibrary(StdLibrary):
         assert not list(s.fields)
         field = data.SimpleField(
             name="Integer",
-            type=DataType.int_,
+            type_=DataType.int_,
             display_name="An Integer",
         )
         s.append(field)
@@ -57,12 +57,12 @@ class TestStdLibrary(StdLibrary):
         s.fields = []
         assert not s.fields
         fields = {
-            "type": DataType.int_,
+            "type_": DataType.int_,
             "name": "Integer",
             "display_name": "An Integer",
         }
-        s.fields = [data.SimpleField(**fields)]  # type: ignore[arg-type]
-        assert s.fields[0] == data.SimpleField(**fields)  # type: ignore[arg-type]
+        s.fields = [data.SimpleField(**fields)]
+        assert s.fields[0] == data.SimpleField(**fields)
 
     def test_schema_from_string(self) -> None:
         doc = """<Schema name="TrailHeadType" id="TrailHeadTypeId"
@@ -162,7 +162,7 @@ class TestStdLibrary(StdLibrary):
 
         extended_data = k2.features[0].extended_data
         assert extended_data is not None
-        assert len(extended_data.elements), 2
+        assert len(extended_data.elements) == 2
         assert extended_data.elements[0].name == "info"
         assert extended_data.elements[0].value == "so much to see"
         assert extended_data.elements[0].display_name is None

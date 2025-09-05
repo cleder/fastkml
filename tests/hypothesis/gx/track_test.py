@@ -36,7 +36,7 @@ from tests.hypothesis.strategies import track_items
 from tests.hypothesis.strategies import xml_text
 
 
-class TestGx(Lxml):
+class TestLxml(Lxml):
     @given(
         id=st.one_of(st.none(), nc_name()),
         target_id=st.one_of(st.none(), nc_name()),
@@ -64,6 +64,18 @@ class TestGx(Lxml):
                             fastkml.data.SimpleData,
                             name=xml_text().filter(lambda x: x.strip() != ""),
                             value=xml_text().filter(lambda x: x.strip() != ""),
+                        ),
+                        min_size=1,
+                        max_size=3,
+                    ),
+                    array_data=st.lists(
+                        st.builds(
+                            fastkml.data.SimpleArrayData,
+                            name=xml_text().filter(lambda x: x.strip() != ""),
+                            data=st.lists(
+                                xml_text().filter(lambda x: x.strip() != ""),
+                                min_size=1,
+                            ),
                         ),
                         min_size=1,
                         max_size=3,

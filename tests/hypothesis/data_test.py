@@ -25,6 +25,7 @@ from hypothesis.provisional import urls
 import fastkml
 import fastkml.data
 import fastkml.enums
+import fastkml.gx.data
 from tests.base import Lxml
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
@@ -37,15 +38,34 @@ simple_fields = partial(
     st.builds,
     fastkml.data.SimpleField,
     name=xml_text().filter(lambda x: x.strip() != ""),
-    type_=st.one_of(st.sampled_from(fastkml.enums.DataType)),
+    type_=st.sampled_from(fastkml.enums.DataType),
     display_name=xml_text().filter(lambda x: x.strip() != ""),
+)
+simple_array_fields = partial(
+    st.builds,
+    fastkml.gx.data.SimpleArrayField,
+    name=xml_text().filter(lambda x: x.strip() != ""),
+    type_=st.sampled_from(fastkml.enums.DataType),
+    display_name=xml_text().filter(lambda x: x.strip() != ""),
+)
+simple_data = partial(
+    st.builds,
+    fastkml.data.SimpleData,
+    name=xml_text().filter(lambda x: x.strip() != ""),
+    value=xml_text().filter(lambda x: x.strip() != ""),
+)
+simple_array_data = partial(
+    st.builds,
+    fastkml.gx.data.SimpleArrayData,
+    name=xml_text().filter(lambda x: x.strip() != ""),
+    data=st.lists(xml_text().filter(lambda x: x.strip() != ""), min_size=1),
 )
 
 
 class TestLxml(Lxml):
     @given(
         name=st.one_of(st.none(), xml_text()),
-        type_=st.one_of(st.sampled_from(fastkml.enums.DataType)),
+        type_=st.one_of(st.none(), st.sampled_from(fastkml.enums.DataType)),
         display_name=st.one_of(st.none(), xml_text()),
     )
     def test_fuzz_simple_field(
@@ -69,17 +89,22 @@ class TestLxml(Lxml):
         id=nc_name(),
         name=st.one_of(st.none(), xml_text()),
         fields=st.one_of(st.none(), st.lists(simple_fields())),
+        array_fields=st.one_of(st.none(), st.lists(simple_array_fields())),
     )
     def test_fuzz_schema(
         self,
         id: typing.Optional[str],
         name: typing.Optional[str],
         fields: typing.Optional[typing.Iterable[fastkml.data.SimpleField]],
+        array_fields: typing.Optional[
+            typing.Iterable[fastkml.gx.data.SimpleArrayField]
+        ],
     ) -> None:
         schema = fastkml.Schema(
             id=id,
             name=name,
             fields=fields,
+            array_fields=array_fields,
         )
 
         assert_str_roundtrip(schema)
@@ -117,7 +142,7 @@ class TestLxml(Lxml):
 
     @given(
         name=xml_text().filter(lambda x: x.strip() != ""),
-        value=xml_text().filter(lambda x: x.strip() != ""),
+        value=st.one_of(st.none(), xml_text()),
     )
     def test_fuzz_simple_data(
         self,
@@ -138,16 +163,8 @@ class TestLxml(Lxml):
         id=st.one_of(st.none(), nc_name()),
         target_id=st.one_of(st.none(), nc_name()),
         schema_url=st.one_of(st.none(), urls()),
-        data=st.one_of(
-            st.none(),
-            st.lists(
-                st.builds(
-                    fastkml.data.SimpleData,
-                    name=xml_text().filter(lambda x: x.strip() != ""),
-                    value=xml_text().filter(lambda x: x.strip() != ""),
-                ),
-            ),
-        ),
+        data=st.one_of(st.none(), st.lists(simple_data())),
+        array_data=st.one_of(st.none(), st.lists(simple_array_data())),
     )
     def test_fuzz_schema_data(
         self,
@@ -155,12 +172,14 @@ class TestLxml(Lxml):
         target_id: typing.Optional[str],
         schema_url: typing.Optional[str],
         data: typing.Optional[typing.Iterable[fastkml.data.SimpleData]],
+        array_data: typing.Optional[typing.Iterable[fastkml.gx.data.SimpleArrayData]],
     ) -> None:
         schema_data = fastkml.SchemaData(
             id=id,
             target_id=target_id,
             schema_url=schema_url,
             data=data,
+            array_data=array_data,
         )
 
         assert_str_roundtrip(schema_data)
@@ -182,13 +201,8 @@ class TestLxml(Lxml):
                     st.builds(
                         fastkml.SchemaData,
                         schema_url=st.one_of(st.none(), urls()),
-                        data=st.lists(
-                            st.builds(
-                                fastkml.data.SimpleData,
-                                name=xml_text().filter(lambda x: x.strip() != ""),
-                                value=xml_text().filter(lambda x: x.strip() != ""),
-                            ),
-                        ),
+                        data=st.one_of(st.none(), st.lists(simple_data())),
+                        array_data=st.one_of(st.none(), st.lists(simple_array_data())),
                     ),
                 ),
             ),
