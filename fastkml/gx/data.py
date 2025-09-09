@@ -34,6 +34,7 @@ from fastkml.helpers import subelement_text_list_kwarg
 from fastkml.helpers import text_attribute
 from fastkml.helpers import text_subelement_kml
 from fastkml.helpers import text_subelement_list
+from fastkml.kml_base import _BaseObject
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 
@@ -171,7 +172,7 @@ registry.register(
 )
 
 
-class SimpleArrayData(_XMLObject):
+class SimpleArrayData(_BaseObject):
     """
     A SimpleArrayData element.
 
@@ -188,29 +189,56 @@ class SimpleArrayData(_XMLObject):
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[Dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
         name: Optional[str] = None,
         data: Optional[Iterable[str]] = None,
+        **kwargs: Any,
     ) -> None:
         """
-        Create a SimpleArrayData element.
+        Initialize a new instance of the SimpleArrayData class.
 
         Args:
-            ns: The namespace to use.
-            name_spaces: A dictionary of namespace prefixes to namespace URIs.
-            name: The name of the element.
-            data: A list of string values.
+        ----
+            ns (Optional[str]): The namespace for the data.
+            name_spaces (Optional[Dict[str, str]]):
+                The dictionary of namespace prefixes and URIs.
+            id (Optional[str]): The ID of the data.
+            target_id (Optional[str]): The target ID of the data.
+            name (Optional[str]): The name of the object.
+            data (Optional[Iterable[str]]): The iterable of values.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+        -------
+            None
 
         """
-        super().__init__(ns=ns, name_spaces=name_spaces)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.data = [clean_string(d) for d in data] if data is not None else []
         self.name = clean_string(name)
 
     def __repr__(self) -> str:
-        """Create a string representation for SimpleArrayData."""
+        """
+        Return a string representation of the SimpleArrayData object.
+
+        Returns
+        -------
+            str: The string representation of the SimpleArrayData object.
+
+        """
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
             f"name={self.name!r}, "
             f"data={self.data!r}, "
             f"**{self._get_splat()!r},"
@@ -218,7 +246,14 @@ class SimpleArrayData(_XMLObject):
         )
 
     def __bool__(self) -> bool:
-        """Check if the element is named and has any data."""
+        """
+        Check if the object is considered True or False.
+
+        Returns
+        -------
+            bool: True if both the name and data are non-empty, False otherwise.
+
+        """
         return bool(self.data) and bool(self.name)
 
 
