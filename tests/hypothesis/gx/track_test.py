@@ -24,7 +24,7 @@ from hypothesis.provisional import urls
 import fastkml
 import fastkml.data
 import fastkml.enums
-import fastkml.gx
+import fastkml.gx.data
 import fastkml.types
 from tests.base import Lxml
 from tests.hypothesis.common import assert_repr_roundtrip
@@ -70,7 +70,7 @@ class TestLxml(Lxml):
                     ),
                     array_data=st.lists(
                         st.builds(
-                            fastkml.data.SimpleArrayData,
+                            fastkml.gx.data.SimpleArrayData,
                             name=xml_text().filter(lambda x: x.strip() != ""),
                             data=st.lists(
                                 xml_text().filter(lambda x: x.strip() != ""),

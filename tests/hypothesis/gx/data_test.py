@@ -29,20 +29,27 @@ from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
 from tests.hypothesis.common import assert_str_roundtrip_verbose
+from tests.hypothesis.strategies import nc_name
 from tests.hypothesis.strategies import xml_text
 
 
 class TestLxml(Lxml):
     @given(
+        id=st.one_of(st.none(), nc_name()),
+        target_id=st.one_of(st.none(), nc_name()),
         name=st.one_of(st.none(), xml_text()),
         data=st.one_of(st.none(), st.lists(xml_text())),
     )
     def test_fuzz_simple_array_data(
         self,
+        id: typing.Optional[str],
+        target_id: typing.Optional[str],
         name: typing.Optional[str],
         data: typing.Optional[typing.Iterable[str]],
     ) -> None:
         simple_array_data = fastkml.gx.data.SimpleArrayData(
+            id=id,
+            target_id=target_id,
             name=name,
             data=data,
         )
