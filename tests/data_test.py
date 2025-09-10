@@ -61,8 +61,8 @@ class TestStdLibrary(StdLibrary):
             "name": "Integer",
             "display_name": "An Integer",
         }
-        s.fields = [data.SimpleField(**fields)]
-        assert s.fields[0] == data.SimpleField(**fields)
+        s.fields = [data.SimpleField(**fields)]  # type: ignore[arg-type]
+        assert s.fields[0] == data.SimpleField(**fields)  # type: ignore[arg-type]
 
     def test_schema_from_string(self) -> None:
         doc = """<Schema name="TrailHeadType" id="TrailHeadTypeId"

@@ -61,8 +61,8 @@ class TestStdLibrary(StdLibrary):
             "name": "Integer",
             "display_name": "An Integer",
         }
-        s.array_fields = [SimpleArrayField(**fields)]
-        assert s.array_fields[0] == SimpleArrayField(**fields)
+        s.array_fields = [SimpleArrayField(**fields)]  # type: ignore[arg-type]
+        assert s.array_fields[0] == SimpleArrayField(**fields)  # type: ignore[arg-type]
 
     def test_schema_from_string(self) -> None:
         doc = """    <Schema id="schema"
