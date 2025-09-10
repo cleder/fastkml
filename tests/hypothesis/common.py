@@ -20,6 +20,7 @@ import logging
 
 from dateutil.tz import tzfile
 from dateutil.tz import tzutc
+from dateutil.tz import tzwin
 from pygeoif import GeometryCollection
 from pygeoif import MultiLineString
 from pygeoif import MultiPoint
@@ -74,6 +75,7 @@ eval_locals = {
     "Shape": Shape,
     "tzutc": tzutc,
     "tzfile": tzfile,
+    "tzwin": tzwin,
 }
 
 
