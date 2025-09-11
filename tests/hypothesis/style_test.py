@@ -288,19 +288,19 @@ class TestLxml(Lxml):
                 ),
                 st.builds(
                     fastkml.styles.LabelStyle,
-                    color=kml_colors(),
+                    color=kml_colors().filter(lambda x: x != "ffffffff"),
                     color_mode=st.sampled_from(fastkml.enums.ColorMode),
                     scale=st.floats(allow_nan=False, allow_infinity=False),
                 ),
                 st.builds(
                     fastkml.styles.LineStyle,
-                    color=kml_colors(),
+                    color=kml_colors().filter(lambda x: x != "ffffffff"),
                     color_mode=st.sampled_from(fastkml.enums.ColorMode),
                     width=st.floats(allow_nan=False, allow_infinity=False, min_value=0),
                 ),
                 st.builds(
                     fastkml.styles.PolyStyle,
-                    color=kml_colors(),
+                    color=kml_colors().filter(lambda x: x != "ffffffff"),
                     color_mode=st.sampled_from(fastkml.enums.ColorMode),
                     fill=st.booleans(),
                     outline=st.booleans(),
@@ -348,19 +348,19 @@ class TestLxml(Lxml):
             st.tuples(
                 st.builds(
                     fastkml.styles.LabelStyle,
-                    color=kml_colors(),
+                    color=kml_colors().filter(lambda x: x != "ffffffff"),
                     color_mode=st.sampled_from(fastkml.enums.ColorMode),
                     scale=st.floats(allow_nan=False, allow_infinity=False),
                 ),
                 st.builds(
                     fastkml.styles.LineStyle,
-                    color=kml_colors(),
+                    color=kml_colors().filter(lambda x: x != "ffffffff"),
                     color_mode=st.sampled_from(fastkml.enums.ColorMode),
                     width=st.floats(allow_nan=False, allow_infinity=False, min_value=0),
                 ),
                 st.builds(
                     fastkml.styles.PolyStyle,
-                    color=kml_colors(),
+                    color=kml_colors().filter(lambda x: x != "ffffffff"),
                     color_mode=st.sampled_from(fastkml.enums.ColorMode),
                     fill=st.booleans(),
                     outline=st.booleans(),

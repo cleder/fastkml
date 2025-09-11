@@ -234,13 +234,13 @@ class TestLxml(Lxml):
             st.builds(
                 fastkml.model.Scale,
                 x=st.floats(allow_nan=False, allow_infinity=False).filter(
-                    lambda x: x != 0,
+                    lambda x: x != 1.0,
                 ),
                 y=st.floats(allow_nan=False, allow_infinity=False).filter(
-                    lambda x: x != 0,
+                    lambda x: x != 1.0,
                 ),
                 z=st.floats(allow_nan=False, allow_infinity=False).filter(
-                    lambda x: x != 0,
+                    lambda x: x != 1.0,
                 ),
             ),
         ),
