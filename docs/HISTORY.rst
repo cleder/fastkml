@@ -5,6 +5,12 @@ Changelog
 ------------------
 
 - Add extended data support for gx:Track.
+- Drop support for Python 3.8.
+- Add support for Python 3.14.
+- Add support for PyPy 3.11.
+- Add ruff for linting and code formatting.
+- Add complexipy for complexity analysis.
+- Add SimpleArrayData and SimpleArrayField [hirohira9119]
 
 
 1.1.0 (2024/12/02)

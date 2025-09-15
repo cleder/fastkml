@@ -29,8 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
-
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14-dev']
     steps:
       - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python-version }}
@@ -109,6 +108,7 @@ jobs:
         run: |
           radon cc --min B fastkml
           radon mi --min B fastkml
+          complexipy fastkml
           lizard fastkml
 
   pypy:
