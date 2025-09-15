@@ -17,7 +17,6 @@
 
 import string
 import typing
-from functools import partial
 
 import pytest
 from hypothesis import given
@@ -35,39 +34,38 @@ from tests.hypothesis.common import assert_str_roundtrip_verbose
 from tests.hypothesis.strategies import nc_name
 from tests.hypothesis.strategies import query_strings
 
-common_link = partial(
-    given,
-    id=st.one_of(st.none(), nc_name()),
-    target_id=st.one_of(st.none(), nc_name()),
-    href=st.one_of(st.none(), urls()),
-    refresh_mode=st.one_of(st.none(), st.sampled_from(fastkml.enums.RefreshMode)),
-    refresh_interval=st.one_of(
+common_link = {
+    "id": st.one_of(st.none(), nc_name()),
+    "target_id": st.one_of(st.none(), nc_name()),
+    "href": st.one_of(st.none(), urls()),
+    "refresh_mode": st.one_of(st.none(), st.sampled_from(fastkml.enums.RefreshMode)),
+    "refresh_interval": st.one_of(
         st.none(),
         st.floats(allow_infinity=False, allow_nan=False),
     ),
-    view_refresh_mode=st.one_of(
+    "view_refresh_mode": st.one_of(
         st.none(),
         st.sampled_from(fastkml.enums.ViewRefreshMode),
     ),
-    view_refresh_time=st.one_of(
+    "view_refresh_time": st.one_of(
         st.none(),
         st.floats(allow_infinity=False, allow_nan=False),
     ),
-    view_bound_scale=st.one_of(
+    "view_bound_scale": st.one_of(
         st.none(),
         st.floats(allow_infinity=False, allow_nan=False),
     ),
-    view_format=st.one_of(
+    "view_format": st.one_of(
         st.none(),
         st.text(string.ascii_letters + string.punctuation),
     ),
-    http_query=st.one_of(st.none(), query_strings()),
-)
+    "http_query": st.one_of(st.none(), query_strings()),
+}
 
 
 class TestLxml(Lxml):
     @pytest.mark.parametrize("cls", [fastkml.Link, fastkml.Icon])
-    @common_link()
+    @given(**common_link)
     def test_fuzz_link(
         self,
         cls: typing.Union[typing.Type[fastkml.Link], typing.Type[fastkml.Icon]],

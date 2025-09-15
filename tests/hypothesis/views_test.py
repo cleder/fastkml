@@ -16,7 +16,6 @@
 """Property-based tests for the views module."""
 
 import typing
-from functools import partial
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -33,11 +32,10 @@ from tests.hypothesis.strategies import lat_lon_alt_boxes
 from tests.hypothesis.strategies import lods
 from tests.hypothesis.strategies import nc_name
 
-common_view = partial(
-    given,
-    id=st.one_of(st.none(), nc_name()),
-    target_id=st.one_of(st.none(), nc_name()),
-    longitude=st.one_of(
+common_view = {
+    "id": st.one_of(st.none(), nc_name()),
+    "target_id": st.one_of(st.none(), nc_name()),
+    "longitude": st.one_of(
         st.none(),
         st.floats(
             allow_nan=False,
@@ -46,7 +44,7 @@ common_view = partial(
             max_value=180,
         ).filter(lambda x: x != 0),
     ),
-    latitude=st.one_of(
+    "latitude": st.one_of(
         st.none(),
         st.floats(
             allow_nan=False,
@@ -55,20 +53,20 @@ common_view = partial(
             max_value=90,
         ).filter(lambda x: x != 0),
     ),
-    altitude=st.one_of(
+    "altitude": st.one_of(
         st.none(),
         st.floats(allow_nan=False, allow_infinity=False).filter(lambda x: x != 0),
     ),
-    heading=st.one_of(
+    "heading": st.one_of(
         st.none(),
         st.floats(allow_nan=False, allow_infinity=False, min_value=0, max_value=360),
     ),
-    tilt=st.one_of(
+    "tilt": st.one_of(
         st.none(),
         st.floats(allow_nan=False, allow_infinity=False, min_value=0, max_value=180),
     ),
-    altitude_mode=st.one_of(st.none(), st.sampled_from(fastkml.enums.AltitudeMode)),
-)
+    "altitude_mode": st.one_of(st.none(), st.sampled_from(fastkml.enums.AltitudeMode)),
+}
 
 
 class TestLxml(Lxml):
@@ -184,7 +182,8 @@ class TestLxml(Lxml):
         assert_str_roundtrip_terse(region)
         assert_str_roundtrip_verbose(region)
 
-    @common_view(
+    @given(
+        **common_view,
         roll=st.one_of(
             st.none(),
             st.floats(
@@ -224,7 +223,8 @@ class TestLxml(Lxml):
         assert_str_roundtrip_terse(camera)
         assert_str_roundtrip_verbose(camera)
 
-    @common_view(
+    @given(
+        **common_view,
         range=st.one_of(
             st.none(),
             st.floats(allow_nan=False, allow_infinity=False).filter(lambda x: x != 0),

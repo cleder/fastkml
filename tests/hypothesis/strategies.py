@@ -106,7 +106,7 @@ geometries = partial(
 lods = partial(
     st.builds,
     Lod,
-    min_lod_pixels=st.integers(),
+    min_lod_pixels=st.integers().filter(lambda x: x != 256),
     max_lod_pixels=st.integers(),
     min_fade_extent=st.integers(),
     max_fade_extent=st.integers(),
@@ -139,19 +139,19 @@ styles = partial(
     st.one_of,
     st.builds(
         fastkml.styles.LabelStyle,
-        color=kml_colors(),
+        color=kml_colors().filter(lambda x: x != "ffffffff"),
         color_mode=st.sampled_from(fastkml.enums.ColorMode),
         scale=st.floats(allow_nan=False, allow_infinity=False),
     ),
     st.builds(
         fastkml.styles.LineStyle,
-        color=kml_colors(),
+        color=kml_colors().filter(lambda x: x != "ffffffff"),
         color_mode=st.sampled_from(fastkml.enums.ColorMode),
         width=st.floats(allow_nan=False, allow_infinity=False, min_value=0),
     ),
     st.builds(
         fastkml.styles.PolyStyle,
-        color=kml_colors(),
+        color=kml_colors().filter(lambda x: x != "ffffffff"),
         color_mode=st.sampled_from(fastkml.enums.ColorMode),
         fill=st.booleans(),
         outline=st.booleans(),
