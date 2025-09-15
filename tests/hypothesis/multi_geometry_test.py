@@ -18,8 +18,6 @@
 
 from __future__ import annotations
 
-from functools import partial
-
 from hypothesis import given
 from hypothesis import settings
 from hypothesis import strategies as st
@@ -58,17 +56,16 @@ eval_locals = {
 }
 
 
-common_geometry = partial(
-    given,
-    id=st.one_of(st.none(), nc_name()),
-    target_id=st.one_of(st.none(), nc_name()),
-    extrude=st.one_of(st.none(), st.booleans()),
-    tessellate=st.one_of(st.none(), st.booleans()),
-    altitude_mode=st.one_of(
+common_geometry = {
+    "id": st.one_of(st.none(), nc_name()),
+    "target_id": st.one_of(st.none(), nc_name()),
+    "extrude": st.one_of(st.none(), st.booleans()),
+    "tessellate": st.one_of(st.none(), st.booleans()),
+    "altitude_mode": st.one_of(
         st.none(),
         st.sampled_from(AltitudeMode),
     ),
-)
+}
 
 
 def _test_repr_roundtrip(
@@ -188,7 +185,8 @@ def _test_geometry_str_roundtrip_verbose(
 class TestLxml(Lxml):
     """Validation requires lxml."""
 
-    @common_geometry(
+    @given(
+        **common_geometry,
         geometry=st.one_of(
             st.none(),
             multi_points(srs=epsg4326),
@@ -215,7 +213,8 @@ class TestLxml(Lxml):
 
         _test_repr_roundtrip(multi_geometry, MultiPoint)
 
-    @common_geometry(
+    @given(
+        **common_geometry,
         geometry=st.one_of(
             st.none(),
             multi_points(srs=epsg4326),
@@ -247,7 +246,8 @@ class TestLxml(Lxml):
             altitude_mode=altitude_mode,
         )
 
-    @common_geometry(
+    @given(
+        **common_geometry,
         geometry=st.one_of(
             st.none(),
             multi_points(srs=epsg4326),
@@ -279,7 +279,8 @@ class TestLxml(Lxml):
             altitude_mode=altitude_mode,
         )
 
-    @common_geometry(
+    @given(
+        **common_geometry,
         geometry=st.one_of(
             st.none(),
             multi_points(srs=epsg4326),
@@ -311,7 +312,8 @@ class TestLxml(Lxml):
             altitude_mode=altitude_mode,
         )
 
-    @common_geometry(
+    @given(
+        **common_geometry,
         geometry=st.one_of(
             st.none(),
             multi_line_strings(srs=epsg4326),
@@ -337,7 +339,8 @@ class TestLxml(Lxml):
 
         _test_repr_roundtrip(multi_geometry, MultiLineString)
 
-    @common_geometry(
+    @given(
+        **common_geometry,
         geometry=st.one_of(
             st.none(),
             multi_line_strings(srs=epsg4326),
@@ -369,7 +372,8 @@ class TestLxml(Lxml):
             altitude_mode=altitude_mode,
         )
 
-    @common_geometry(
+    @given(
+        **common_geometry,
         geometry=st.one_of(
             st.none(),
             multi_line_strings(srs=epsg4326),
@@ -401,7 +405,8 @@ class TestLxml(Lxml):
             altitude_mode=altitude_mode,
         )
 
-    @common_geometry(
+    @given(
+        **common_geometry,
         geometry=st.one_of(
             st.none(),
             multi_line_strings(srs=epsg4326),
@@ -433,7 +438,8 @@ class TestLxml(Lxml):
             altitude_mode=altitude_mode,
         )
 
-    @common_geometry(
+    @given(
+        **common_geometry,
         geometry=st.one_of(
             st.none(),
             multi_polygons(srs=epsg4326),
@@ -459,7 +465,8 @@ class TestLxml(Lxml):
 
         _test_repr_roundtrip(multi_geometry, MultiPolygon)
 
-    @common_geometry(
+    @given(
+        **common_geometry,
         geometry=st.one_of(
             st.none(),
             multi_polygons(srs=epsg4326),
@@ -491,7 +498,8 @@ class TestLxml(Lxml):
             altitude_mode=altitude_mode,
         )
 
-    @common_geometry(
+    @given(
+        **common_geometry,
         geometry=st.one_of(
             st.none(),
             multi_polygons(srs=epsg4326),
@@ -523,7 +531,8 @@ class TestLxml(Lxml):
             altitude_mode=altitude_mode,
         )
 
-    @common_geometry(
+    @given(
+        **common_geometry,
         geometry=st.one_of(
             st.none(),
             multi_polygons(srs=epsg4326),
@@ -555,7 +564,8 @@ class TestLxml(Lxml):
             altitude_mode=altitude_mode,
         )
 
-    @common_geometry(
+    @given(
+        **common_geometry,
         geometry=st.one_of(
             st.none(),
             geometry_collections(srs=epsg4326),
@@ -590,7 +600,8 @@ class TestLxml(Lxml):
         else:
             assert not new_mg
 
-    @common_geometry(
+    @given(
+        **common_geometry,
         geometry=st.one_of(
             st.none(),
             geometry_collections(srs=epsg4326),
@@ -626,7 +637,8 @@ class TestLxml(Lxml):
         else:
             assert not new_mg
 
-    @common_geometry(
+    @given(
+        **common_geometry,
         geometry=st.one_of(
             st.none(),
             geometry_collections(srs=epsg4326),
@@ -662,7 +674,8 @@ class TestLxml(Lxml):
         else:
             assert not new_mg
 
-    @common_geometry(
+    @given(
+        **common_geometry,
         geometry=st.one_of(
             st.none(),
             geometry_collections(srs=epsg4326),
