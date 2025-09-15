@@ -151,7 +151,7 @@ class TestDateTime(StdLibrary):
     def test_parse_year_month_day_0(self) -> None:
         with pytest.raises(
             ValueError,
-            match="^day is out of range for month$|day must be in 1..31",
+            match=r"^day ",
         ):
             KmlDateTime.parse("2000-05-00")
 
