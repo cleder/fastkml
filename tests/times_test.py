@@ -94,7 +94,7 @@ class TestDateTime(StdLibrary):
         assert not bool(kdt)
         with pytest.raises(
             AttributeError,
-            match="^'NoneType' object has no attribute 'isoformat'$",
+            match=r"^'NoneType' object has no attribute 'isoformat'$",
         ):
             str(kdt)
 
@@ -108,7 +108,7 @@ class TestDateTime(StdLibrary):
     def test_parse_year_0(self) -> None:
         with pytest.raises(
             ValueError,
-            match="^year 0 is out of range$|year must be in 1..9999",
+            match=r"^year 0 is out of range$|year must be in 1..9999",
         ):
             KmlDateTime.parse("0000")
 
@@ -127,11 +127,11 @@ class TestDateTime(StdLibrary):
         assert dt.dt == datetime.date(2000, 4, 1)
 
     def test_parse_year_month_0(self) -> None:
-        with pytest.raises(ValueError, match="month must be in 1..12"):
+        with pytest.raises(ValueError, match=r"month must be in 1..12"):
             KmlDateTime.parse("2000-00")
 
     def test_parse_year_month_13(self) -> None:
-        with pytest.raises(ValueError, match="month must be in 1..12"):
+        with pytest.raises(ValueError, match=r"month must be in 1..12"):
             KmlDateTime.parse("2000-13")
 
     def test_parse_year_month_day(self) -> None:
@@ -151,7 +151,7 @@ class TestDateTime(StdLibrary):
     def test_parse_year_month_day_0(self) -> None:
         with pytest.raises(
             ValueError,
-            match=r"^day ",
+            match="day ",
         ):
             KmlDateTime.parse("2000-05-00")
 
@@ -202,7 +202,7 @@ class TestDateTime(StdLibrary):
     def test_parse_datetime_empty(self) -> None:
         with pytest.raises(
             ValueError,
-            match="^Could not match input '' to any of the following formats:",
+            match=r"^Could not match input '' to any of the following formats:",
         ):
             KmlDateTime.parse("")
 
@@ -210,7 +210,7 @@ class TestDateTime(StdLibrary):
         """Test that a single digit month is invalid."""
         with pytest.raises(
             ValueError,
-            match="^Could not match input '19973' to any of the following formats:",
+            match=r"^Could not match input '19973' to any of the following formats:",
         ):
             KmlDateTime.parse("19973")
 
