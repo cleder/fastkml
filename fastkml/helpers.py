@@ -31,15 +31,11 @@ They form the implementation layer for the declarative approach defined by the r
 """
 
 import logging
+from collections.abc import Iterable
 from enum import Enum
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Dict
-from typing import Iterable
-from typing import List
 from typing import Optional
-from typing import Tuple
-from typing import Type
 from typing import cast
 
 from pygeoif.types import PointType
@@ -694,7 +690,7 @@ def xml_subelement_list(
     node_name: str,
     precision: Optional[int],
     verbosity: Verbosity,
-    default: Optional[List["_XMLObject"]],
+    default: Optional[list["_XMLObject"]],
 ) -> None:
     """
     Add subelements to an XML element based on a list attribute of an object.
@@ -726,12 +722,12 @@ def node_text_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[Type[object], ...],
+    classes: tuple[type[object], ...],
     strict: bool,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """
     Extract the text content of an XML element and return it as a dictionary.
 
@@ -761,12 +757,12 @@ def subelement_text_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[Type[object], ...],
+    classes: tuple[type[object], ...],
     strict: bool,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """
     Extract the text content of a subelement and return it as a dictionary.
 
@@ -797,12 +793,12 @@ def subelement_text_list_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[Type[object], ...],
+    classes: tuple[type[object], ...],
     strict: bool,
-) -> Dict[str, List[str]]:
+) -> dict[str, list[str]]:
     """
     Extract the text content of subelements and return it as a dictionary.
 
@@ -822,7 +818,7 @@ def subelement_text_list_kwarg(
             with the specified key.
 
     """
-    args_list: List[str] = []
+    args_list: list[str] = []
     if subelements := element.findall(f"{ns}{node_name}"):
         args_list.extend(
             (
@@ -839,12 +835,12 @@ def attribute_text_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[Type[object], ...],
+    classes: tuple[type[object], ...],
     strict: bool,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """
     Return a dictionary representing the attribute as a keyword argument.
 
@@ -884,12 +880,12 @@ def subelement_bool_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[Type[object], ...],
+    classes: tuple[type[object], ...],
     strict: bool,
-) -> Dict[str, bool]:
+) -> dict[str, bool]:
     """
     Extract a boolean value from a subelement of an XML element.
 
@@ -935,12 +931,12 @@ def subelement_int_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[Type[object], ...],
+    classes: tuple[type[object], ...],
     strict: bool,
-) -> Dict[str, int]:
+) -> dict[str, int]:
     """
     Extract an integer value from a subelement of an XML element.
 
@@ -984,12 +980,12 @@ def attribute_int_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[Type[object], ...],
+    classes: tuple[type[object], ...],
     strict: bool,
-) -> Dict[str, int]:
+) -> dict[str, int]:
     """
     Extract an integer attribute from an XML element and return it as a dictionary.
 
@@ -1016,12 +1012,12 @@ def subelement_float_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[Type[object], ...],
+    classes: tuple[type[object], ...],
     strict: bool,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Extract a float value from a subelement of an XML element.
 
@@ -1065,12 +1061,12 @@ def attribute_float_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[Type[object], ...],
+    classes: tuple[type[object], ...],
     strict: bool,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Convert an attribute value to a float and return it as a dictionary.
 
@@ -1107,7 +1103,7 @@ def attribute_float_kwarg(
     return {}
 
 
-def _get_enum_value(*, enum_class: Type[Enum], text: str, strict: bool) -> Enum:
+def _get_enum_value(*, enum_class: type[Enum], text: str, strict: bool) -> Enum:
     value = enum_class(text)
     if strict and value.value != text:
         msg = f"Value {text} is not a valid value for Enum {enum_class.__name__}"
@@ -1119,12 +1115,12 @@ def subelement_enum_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[Type[object], ...],
+    classes: tuple[type[object], ...],
     strict: bool,
-) -> Dict[str, Enum]:
+) -> dict[str, Enum]:
     """
     Extract an enumerated value from a subelement of an XML element.
 
@@ -1177,12 +1173,12 @@ def attribute_enum_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[Type[object], ...],
+    classes: tuple[type[object], ...],
     strict: bool,
-) -> Dict[str, Enum]:
+) -> dict[str, Enum]:
     """
     Return a dictionary with the specified keyword argument and its enum value.
 
@@ -1227,12 +1223,12 @@ def datetime_subelement_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[Type[object], ...],
+    classes: tuple[type[object], ...],
     strict: bool,
-) -> Dict[str, "KmlDateTime"]:
+) -> dict[str, "KmlDateTime"]:
     """Extract a KML datetime from a subelement of an XML element."""
     cls = classes[0]
     node = element.find(f"{ns}{node_name}")
@@ -1257,14 +1253,14 @@ def datetime_subelement_list_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[Type[object], ...],
+    classes: tuple[type[object], ...],
     strict: bool,
-) -> Dict[str, List["KmlDateTime"]]:
+) -> dict[str, list["KmlDateTime"]]:
     """Extract a list of KML datetime values from subelements of an XML element."""
-    args_list: List[KmlDateTime] = []
+    args_list: list[KmlDateTime] = []
     cls = classes[0]
     if subelements := element.findall(f"{ns}{node_name}"):
         for subelement in subelements:
@@ -1286,7 +1282,7 @@ def datetime_subelement_list_kwarg(
 def get_coord_args(
     element: Element,
     subelements: Iterable[Element],
-    strict: bool,  # noqa: FBT001
+    strict: bool,
 ) -> Iterable[PointType]:
     """Extract a list of KML coordinate values from subelements of an XML element."""
     for subelement in subelements:
@@ -1310,14 +1306,14 @@ def coords_subelement_list_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[Type[object], ...],
+    classes: tuple[type[object], ...],
     strict: bool,
-) -> Dict[str, List[PointType]]:
+) -> dict[str, list[PointType]]:
     """Extract a list of KML coordinate values from subelements of an XML element."""
-    args_list: List[PointType] = []
+    args_list: list[PointType] = []
     if subelements := element.findall(f"{ns}{node_name}"):
         args_list = list(get_coord_args(element, subelements, strict))
     return {kwarg: args_list} if args_list else {}
@@ -1327,12 +1323,12 @@ def xml_subelement_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[Type[object], ...],
+    classes: tuple[type[object], ...],
     strict: bool,
-) -> Dict[str, "_XMLObject"]:
+) -> dict[str, "_XMLObject"]:
     """
     Return the subelement of the given XML element based on the provided parameters.
 
@@ -1372,12 +1368,12 @@ def xml_subelement_list_kwarg(
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[Type[object], ...],
+    classes: tuple[type[object], ...],
     strict: bool,
-) -> Dict[str, List["_XMLObject"]]:
+) -> dict[str, list["_XMLObject"]]:
     """
     Return a dictionary with the specified keyword argument and its list of subelements.
 

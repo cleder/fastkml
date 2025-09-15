@@ -20,10 +20,8 @@ https://developers.google.com/kml/documentation/extendeddata
 """
 
 import logging
+from collections.abc import Iterable
 from typing import Any
-from typing import Dict
-from typing import Iterable
-from typing import List
 from typing import Optional
 from typing import Union
 
@@ -91,7 +89,7 @@ class SimpleField(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         name: Optional[str] = None,
         type_: Optional[DataType] = None,
         display_name: Optional[str] = None,
@@ -205,13 +203,13 @@ class Schema(_XMLObject):
     _default_nsid = "kml"
 
     name: Optional[str]
-    fields: List[SimpleField]
-    array_fields: List[SimpleArrayField]
+    fields: list[SimpleField]
+    array_fields: list[SimpleArrayField]
 
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         name: Optional[str] = None,
         fields: Optional[Iterable[SimpleField]] = None,
@@ -353,7 +351,7 @@ class Data(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
@@ -480,7 +478,7 @@ class SimpleData(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         name: Optional[str] = None,
         value: Optional[str] = None,
         **kwargs: Any,
@@ -573,13 +571,13 @@ class SchemaData(_BaseObject):
     """
 
     schema_url: Optional[str]
-    data: List[SimpleData]
-    array_data: List[SimpleArrayData]
+    data: list[SimpleData]
+    array_data: list[SimpleArrayData]
 
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         schema_url: Optional[str] = None,
@@ -702,12 +700,12 @@ class ExtendedData(_XMLObject):
     """Represents a list of untyped name/value pairs."""
 
     _default_nsid = "kml"
-    elements: List[Union[Data, SchemaData]]
+    elements: list[Union[Data, SchemaData]]
 
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         elements: Optional[Iterable[Union[Data, SchemaData]]] = None,
         **kwargs: Any,
     ) -> None:

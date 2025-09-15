@@ -17,14 +17,11 @@
 """GX Track Extension."""
 
 import logging
+from collections.abc import Iterable
 from dataclasses import dataclass
 from itertools import zip_longest
 from typing import Any
-from typing import Dict
-from typing import Iterable
-from typing import List
 from typing import Optional
-from typing import Tuple
 from typing import cast
 
 import pygeoif.geometry as geo
@@ -136,14 +133,14 @@ class Track(_Geometry):
     """
 
     _default_nsid = config.GX
-    track_items: List[TrackItem]
+    track_items: list[TrackItem]
     extended_data: Optional[ExtendedData]
 
     def __init__(
         self,
         *,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         altitude_mode: Optional[AltitudeMode] = None,
@@ -254,7 +251,7 @@ class Track(_Geometry):
         return track_items_to_geometry(self.track_items)
 
     @property
-    def whens(self) -> Tuple[KmlDateTime, ...]:
+    def whens(self) -> tuple[KmlDateTime, ...]:
         """
         Get the timestamps of the track items.
 
@@ -267,7 +264,7 @@ class Track(_Geometry):
         return tuple(item.when for item in self.track_items)
 
     @property
-    def coords(self) -> Tuple[PointType, ...]:
+    def coords(self) -> tuple[PointType, ...]:
         """
         Get the coordinates of the track items.
 
@@ -284,7 +281,7 @@ class Track(_Geometry):
         )
 
     @property
-    def angles(self) -> Tuple[PointType, ...]:
+    def angles(self) -> tuple[PointType, ...]:
         """
         Get the angles of the track items.
 
@@ -407,13 +404,13 @@ class MultiTrack(_Geometry):
     """
 
     _default_nsid = config.GX
-    tracks: List[Track]
+    tracks: list[Track]
 
     def __init__(
         self,
         *,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         altitude_mode: Optional[AltitudeMode] = None,

@@ -33,9 +33,7 @@ consistent handling of XML operations across the library.
 
 import logging
 from typing import Any
-from typing import Dict
 from typing import Optional
-from typing import Tuple
 from typing import cast
 
 from typing_extensions import Self
@@ -56,13 +54,13 @@ class _XMLObject:
 
     _default_nsid: str = ""
     _node_name: str = ""
-    name_spaces: Dict[str, str]
-    __kwarg_keys: Tuple[str, ...]
+    name_spaces: dict[str, str]
+    __kwarg_keys: tuple[str, ...]
 
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -133,6 +131,8 @@ class _XMLObject:
 
         """
         return self.__dict__ == other.__dict__ if type(self) is type(other) else False
+
+    __hash__ = None  # type: ignore[assignment]
 
     def etree_element(
         self,
@@ -246,7 +246,7 @@ class _XMLObject:
         """
         return validate(element=self.etree_element())
 
-    def _get_splat(self) -> Dict[str, Any]:
+    def _get_splat(self) -> dict[str, Any]:
         """
         Get the keyword arguments as a dictionary.
 
@@ -276,7 +276,7 @@ class _XMLObject:
         return cls.__name__
 
     @classmethod
-    def _get_ns(cls, ns: Optional[str], name_spaces: Dict[str, str]) -> str:
+    def _get_ns(cls, ns: Optional[str], name_spaces: dict[str, str]) -> str:
         """
         Get the namespace.
 
@@ -300,10 +300,10 @@ class _XMLObject:
         cls,
         *,
         ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         element: Element,
         strict: bool,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get the keyword arguments for the class constructor.
 
@@ -351,7 +351,7 @@ class _XMLObject:
         """
         name_spaces = name_spaces or {}
         name_spaces = {**config.NAME_SPACES, **name_spaces}
-        kwargs: Dict[str, Any] = {"ns": ns, "name_spaces": name_spaces}
+        kwargs: dict[str, Any] = {"ns": ns, "name_spaces": name_spaces}
         for item in registry.get(cls):
             for name_space in item.ns_ids:
                 kwarg = item.get_kwarg(
@@ -375,7 +375,7 @@ class _XMLObject:
         cls,
         *,
         ns: str,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         element: Element,
         strict: bool,
     ) -> Self:
@@ -415,7 +415,7 @@ class _XMLObject:
         string: str,
         *,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         strict: bool = True,
     ) -> Self:
         """

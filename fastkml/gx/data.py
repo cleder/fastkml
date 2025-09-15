@@ -16,10 +16,8 @@
 
 """GX SimpleArrayData and SimpleArrayField Extension."""
 
+from collections.abc import Iterable
 from typing import Any
-from typing import Dict
-from typing import Iterable
-from typing import List
 from typing import Optional
 
 from fastkml import config
@@ -72,7 +70,7 @@ class SimpleArrayField(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         name: Optional[str] = None,
         type_: Optional[DataType] = None,
         display_name: Optional[str] = None,
@@ -183,12 +181,12 @@ class SimpleArrayData(_BaseObject):
 
     _default_nsid = config.GX
     name: Optional[str]
-    data: List[Optional[str]]
+    data: list[Optional[str]]
 
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,

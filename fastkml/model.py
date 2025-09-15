@@ -23,10 +23,8 @@ https://developers.google.com/kml/documentation/kmlreference#model
 
 """
 
+from collections.abc import Iterable
 from typing import Any
-from typing import Dict
-from typing import Iterable
-from typing import List
 from typing import Optional
 
 from pygeoif.geometry import Point
@@ -65,7 +63,7 @@ class Location(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         altitude: Optional[float] = None,
         latitude: Optional[float] = None,
         longitude: Optional[float] = None,
@@ -152,7 +150,7 @@ class Orientation(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         heading: Optional[float] = None,
         tilt: Optional[float] = None,
         roll: Optional[float] = None,
@@ -234,7 +232,7 @@ class Scale(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         x: Optional[float] = None,
         y: Optional[float] = None,
         z: Optional[float] = None,
@@ -313,7 +311,7 @@ class Alias(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         target_href: Optional[str] = None,
         source_href: Optional[str] = None,
         **kwargs: Any,
@@ -369,12 +367,12 @@ class ResourceMap(_XMLObject):
 
     _default_nsid = config.KML
 
-    aliases: List[Alias]
+    aliases: list[Alias]
 
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         aliases: Optional[Iterable[Alias]] = None,
         **kwargs: Any,
     ) -> None:
@@ -424,7 +422,7 @@ class Model(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         altitude_mode: Optional[AltitudeMode] = None,

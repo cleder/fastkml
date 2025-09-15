@@ -28,7 +28,6 @@ from datetime import date
 from datetime import datetime
 from datetime import timezone
 from typing import Any
-from typing import Dict
 from typing import Optional
 from typing import Union
 
@@ -186,6 +185,8 @@ class KmlDateTime:
             return self.dt.astimezone(timezone.utc) == other.dt.astimezone(timezone.utc)
         return self.dt == other.dt
 
+    __hash__ = None  # type: ignore[assignment]
+
     def __str__(self) -> str:
         """Return the KML DateTime string representation of the object."""
         if self.resolution == DateTimeResolution.year:
@@ -243,7 +244,7 @@ class TimeStamp(_TimePrimitive):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         timestamp: Optional[KmlDateTime] = None,
@@ -322,7 +323,7 @@ class TimeSpan(_TimePrimitive):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         begin: Optional[KmlDateTime] = None,

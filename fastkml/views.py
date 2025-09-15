@@ -17,7 +17,6 @@
 
 import logging
 from typing import Any
-from typing import Dict
 from typing import Optional
 
 from fastkml import config
@@ -91,7 +90,7 @@ class _AbstractView(TimeMixin, _BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         longitude: Optional[float] = None,
@@ -244,7 +243,7 @@ class Camera(_AbstractView):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         longitude: Optional[float] = None,
@@ -358,7 +357,7 @@ class LookAt(_AbstractView):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         longitude: Optional[float] = None,
@@ -474,7 +473,7 @@ class LatLonAltBox(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         north: Optional[float] = None,
         south: Optional[float] = None,
         east: Optional[float] = None,
@@ -655,7 +654,7 @@ class Lod(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         min_lod_pixels: Optional[int] = None,
         max_lod_pixels: Optional[int] = None,
         min_fade_extent: Optional[int] = None,
@@ -781,7 +780,7 @@ class Region(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         lat_lon_alt_box: Optional[LatLonAltBox] = None,

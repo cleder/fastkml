@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14-dev']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14-dev']
 
     steps:
       - uses: actions/checkout@v5
@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
 
     steps:
       - uses: actions/checkout@v5
@@ -101,8 +101,8 @@ jobs:
           mypy fastkml tests
       - name: Linting
         run: |
-          flake8 fastkml examples docs
-          black --check fastkml examples docs
+          ruff check --no-fix fastkml examples docs
+          ruff format --check fastkml examples docs
           yamllint .github/
           yamllint .*.y*ml
       - name: Check complexity
@@ -115,7 +115,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pypy-version: ['pypy-3.8', 'pypy-3.9', 'pypy-3.10']
+        pypy-version: ['pypy-3.9', 'pypy-3.10', 'pypy-3.11']
     steps:
       - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.pypy-version }}

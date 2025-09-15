@@ -44,18 +44,8 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: 'v0.13.0'
     hooks:
-      - id: ruff
+      - id: ruff-check
       - id: ruff-format
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.3.0
-    hooks:
-      - id: flake8
-        additional_dependencies:
-          - flake8-cognitive-complexity
-          - flake8-comments
-          - flake8-dunder-all
-          - flake8-encodings
-          - flake8-expression-complexity
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
@@ -86,6 +76,11 @@ repos:
     hooks:
       - id: typos
         exclude_types: ['csv']
+  - repo: https://github.com/rohaquinlop/complexipy-pre-commit
+    rev: v3.3.0
+    hooks:
+      - id: complexipy
+
   # - repo: https://github.com/woodruffw/zizmor-pre-commit
   #   rev: v1.0.1
   #   hooks:
