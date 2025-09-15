@@ -17,10 +17,7 @@
 
 from enum import Enum
 from typing import Any
-from typing import Dict
 from typing import Optional
-from typing import Tuple
-from typing import Type
 
 from fastkml.base import _XMLObject
 from fastkml.enums import Verbosity
@@ -66,12 +63,12 @@ def get_kwarg(  # type: ignore[empty-body]
     *,
     element: Element,
     ns: str,
-    name_spaces: Dict[str, str],
+    name_spaces: dict[str, str],
     node_name: str,
     kwarg: str,
-    classes: Tuple[Type[object], ...],
+    classes: tuple[type[object], ...],
     strict: bool,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get the kwarg for the constructor from the element."""
 
 

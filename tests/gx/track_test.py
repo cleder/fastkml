@@ -211,7 +211,7 @@ class TestTrack(StdLibrary):
 
         with pytest.raises(
             ValueError,
-            match="^Cannot specify both geometry and track_items$",
+            match=r"^Cannot specify both geometry and track_items$",
         ):
             Track(
                 whens=whens,

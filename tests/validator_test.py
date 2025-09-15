@@ -51,14 +51,14 @@ class TestStdLibrary(StdLibrary):
     def test_validate_require_element_or_path(self) -> None:
         with pytest.raises(
             ValueError,
-            match="^Either element or file_to_validate must be provided.$",
+            match=r"^Either element or file_to_validate must be provided.$",
         ):
             validate()
 
     def test_validate_mutual_exclusive_element_and_path(self) -> None:
         with pytest.raises(
             ValueError,
-            match="^Only one of element and file_to_validate can be provided.$",
+            match=r"^Only one of element and file_to_validate can be provided.$",
         ):
             validate(
                 element=atom.Link().etree_element(),
@@ -116,7 +116,7 @@ class TestLxml(Lxml):
         with pytest.raises(
             AssertionError,
             match=(
-                "^Element 'kml': "
+                r"^Element 'kml': "
                 "No matching global declaration available for the validation root.$"
             ),
         ):

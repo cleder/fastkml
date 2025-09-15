@@ -68,7 +68,7 @@ class TestLxml(Lxml):
     @given(**common_link)
     def test_fuzz_link(
         self,
-        cls: typing.Union[typing.Type[fastkml.Link], typing.Type[fastkml.Icon]],
+        cls: typing.Union[type[fastkml.Link], type[fastkml.Icon]],
         id: typing.Optional[str],
         target_id: typing.Optional[str],
         href: typing.Optional[str],

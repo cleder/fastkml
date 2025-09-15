@@ -463,7 +463,7 @@ class TestLxml(Lxml):
         self,
         id: typing.Optional[str],
         target_id: typing.Optional[str],
-        pairs: typing.Optional[typing.Tuple[fastkml.styles.Pair]],
+        pairs: typing.Optional[tuple[fastkml.styles.Pair]],
     ) -> None:
         style_map = fastkml.StyleMap(id=id, target_id=target_id, pairs=pairs)
 
@@ -518,7 +518,7 @@ class TestLxml(Lxml):
         self,
         id: typing.Optional[str],
         target_id: typing.Optional[str],
-        pairs: typing.Optional[typing.Tuple[fastkml.styles.Pair]],
+        pairs: typing.Optional[tuple[fastkml.styles.Pair]],
     ) -> None:
         style_map = fastkml.StyleMap(id=id, target_id=target_id, pairs=pairs)
 

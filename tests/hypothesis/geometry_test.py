@@ -138,8 +138,8 @@ class TestLxml(Lxml):
     def test_coordinates_str_roundtrip(
         self,
         coords: typing.Union[
-            typing.Sequence[typing.Tuple[float, float]],
-            typing.Sequence[typing.Tuple[float, float, float]],
+            typing.Sequence[tuple[float, float]],
+            typing.Sequence[tuple[float, float, float]],
             None,
         ],
     ) -> None:
@@ -156,8 +156,8 @@ class TestLxml(Lxml):
     def test_coordinates_repr_roundtrip(
         self,
         coords: typing.Union[
-            typing.Sequence[typing.Tuple[float, float]],
-            typing.Sequence[typing.Tuple[float, float, float]],
+            typing.Sequence[tuple[float, float]],
+            typing.Sequence[tuple[float, float, float]],
             None,
         ],
     ) -> None:

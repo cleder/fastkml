@@ -263,10 +263,10 @@ class TestLxml(Lxml):
     def test_fuzz_xy(
         self,
         cls: typing.Union[
-            typing.Type[fastkml.overlays.OverlayXY],
-            typing.Type[fastkml.overlays.RotationXY],
-            typing.Type[fastkml.overlays.ScreenXY],
-            typing.Type[fastkml.overlays.Size],
+            type[fastkml.overlays.OverlayXY],
+            type[fastkml.overlays.RotationXY],
+            type[fastkml.overlays.ScreenXY],
+            type[fastkml.overlays.Size],
         ],
         x: typing.Optional[float],
         y: typing.Optional[float],

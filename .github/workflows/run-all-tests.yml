@@ -100,8 +100,8 @@ jobs:
           mypy fastkml tests
       - name: Linting
         run: |
-          ruff check --no-fix fastkml examples docs
-          ruff format --check fastkml examples docs
+          ruff check --no-fix fastkml tests examples docs
+          ruff format --check fastkml tests examples docs
           yamllint .github/
           yamllint .*.y*ml
       - name: Check complexity

@@ -627,7 +627,7 @@ class TestLxmlParseKML(Lxml, TestParseKML):
 
         with pytest.raises(
             AssertionError,
-            match="^Element 'lc:attachment': This element is not expected.",
+            match=r"^Element 'lc:attachment': This element is not expected.",
         ):
             kml.KML.parse(doc, ns="{http://www.opengis.net/kml/2.2}")
 
