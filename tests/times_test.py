@@ -19,6 +19,7 @@
 import datetime
 
 import pytest
+from dateutil.tz import gettz
 from dateutil.tz import tzoffset
 from dateutil.tz import tzutc
 
@@ -97,6 +98,18 @@ class TestDateTime(StdLibrary):
             match=r"^'NoneType' object has no attribute 'isoformat'$",
         ):
             str(kdt)
+
+    def test_kml_datetime_in_dst_fall_back(self) -> None:
+        dt = datetime.datetime(2016, 10, 30, 3, 30, tzinfo=gettz("Europe/Helsinki"))
+
+        kdt_dst_0 = KmlDateTime(dt)
+        kdt_dst_1 = KmlDateTime(dt.replace(fold=1))
+        kdt_no_dst = KmlDateTime(dt.replace(tzinfo=gettz("Etc/GMT-3")))
+
+        assert kdt_dst_0 != kdt_dst_1
+        assert kdt_dst_0 == kdt_no_dst
+        assert str(kdt_dst_0) != str(kdt_dst_1)
+        assert str(kdt_dst_0) == str(kdt_no_dst)
 
     def test_parse_year(self) -> None:
         dt = KmlDateTime.parse("2000")
