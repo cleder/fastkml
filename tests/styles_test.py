@@ -230,7 +230,7 @@ class TestStdLibrary(StdLibrary):
         serialized = lines.to_string(verbosity=Verbosity.terse)
 
         assert '<kml:LineStyle xmlns:kml="http://www.opengis.net/kml/2.2"' in serialized
-        assert "<kml:color>ff0000ff</kml:color>" not in serialized
+        assert "<kml:color>ffffffff</kml:color>" not in serialized
         assert "<kml:colorMode>normal</kml:colorMode>" not in serialized
         assert "<kml:width>1.0</kml:width>" not in serialized
         assert not styles.LineStyle.from_string(serialized)
