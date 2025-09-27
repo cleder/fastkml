@@ -196,7 +196,7 @@ class TestPoint(StdLibrary):
             KMLParseError,
             match=r"Value RELATIVETOGROUND is not a valid value for Enum AltitudeMode$",
         ):
-            assert Point.from_string(
+            Point.from_string(
                 '<Point xmlns="http://www.opengis.net/kml/2.2">'
                 "<altitudeMode>RELATIVETOGROUND</altitudeMode>"
                 "<coordinates>1.000000,2.000000</coordinates>"
@@ -208,7 +208,7 @@ class TestPoint(StdLibrary):
             KMLParseError,
             match=r"^Error parsing '<",
         ):
-            assert Point.from_string(
+            Point.from_string(
                 '<Point xmlns="http://www.opengis.net/kml/2.2">'
                 "<altitudeMode>INVALID</altitudeMode>"
                 "<coordinates>1.000000,2.000000</coordinates>"
