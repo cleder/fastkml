@@ -175,7 +175,7 @@ jobs:
       github.event_name == 'push' &&
       github.repository == 'cleder/fastkml' &&
       startsWith(github.ref, 'refs/tags')
-    needs: [cpython, static-tests, pypy, cpython-lxml, doctest-lxml, build-package]
+    needs: [cpython, static-tests, pypy, cpython-lxml, doctest-lxml, build-package, graalpy]
     name: Test install on TestPyPI
     runs-on: ubuntu-latest
     environment: test-release
@@ -199,7 +199,7 @@ jobs:
         github.event_name == 'push' &&
         github.repository == 'cleder/fastkml' &&
         github.ref == 'refs/heads/main'
-    needs: [cpython, static-tests, pypy, cpython-lxml, doctest-lxml, build-package]
+    needs: [cpython, static-tests, pypy, cpython-lxml, doctest-lxml, build-package, graalpy]
     name: Publish to PyPI on push to main
     runs-on: ubuntu-latest
     environment: release
