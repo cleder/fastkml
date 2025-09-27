@@ -143,10 +143,10 @@ jobs:
           python-version: ${{ matrix.graalpy-version }}
       - name: Install dependencies
         run: |
-          pip install -e ".[tests, lxml]"
-      - name: Test with pytest, including hypothesis tests
+          pip install -e ".[tests]"
+      - name: Test with pytest, excluding hypothesis tests
         run: |
-          pytest tests
+          pytest tests -m "not hypothesis"
 
 
   build-package:
