@@ -16,7 +16,8 @@
 """Test Link and Icon."""
 
 import string
-import typing
+from typing import Optional
+from typing import Union
 
 import pytest
 from hypothesis import given
@@ -68,17 +69,17 @@ class TestLxml(Lxml):
     @given(**common_link)
     def test_fuzz_link(
         self,
-        cls: typing.Union[type[fastkml.Link], type[fastkml.Icon]],
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        href: typing.Optional[str],
-        refresh_mode: typing.Optional[fastkml.enums.RefreshMode],
-        refresh_interval: typing.Optional[float],
-        view_refresh_mode: typing.Optional[fastkml.enums.ViewRefreshMode],
-        view_refresh_time: typing.Optional[float],
-        view_bound_scale: typing.Optional[float],
-        view_format: typing.Optional[str],
-        http_query: typing.Optional[str],
+        cls: Union[type[fastkml.Link], type[fastkml.Icon]],
+        id: Optional[str],
+        target_id: Optional[str],
+        href: Optional[str],
+        refresh_mode: Optional[fastkml.enums.RefreshMode],
+        refresh_interval: Optional[float],
+        view_refresh_mode: Optional[fastkml.enums.ViewRefreshMode],
+        view_refresh_time: Optional[float],
+        view_bound_scale: Optional[float],
+        view_format: Optional[str],
+        http_query: Optional[str],
     ) -> None:
         link = cls(
             id=id,

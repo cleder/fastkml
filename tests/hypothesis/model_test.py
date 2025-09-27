@@ -15,7 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Hypothesis tests for the fastkml.model module."""
 
-import typing
+from collections.abc import Iterable
+from typing import Optional
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -63,9 +64,9 @@ class TestLxml(Lxml):
     )
     def test_fuzz_location(
         self,
-        altitude: typing.Optional[float],
-        latitude: typing.Optional[float],
-        longitude: typing.Optional[float],
+        altitude: Optional[float],
+        latitude: Optional[float],
+        longitude: Optional[float],
     ) -> None:
         location = fastkml.model.Location(
             altitude=altitude,
@@ -112,9 +113,9 @@ class TestLxml(Lxml):
     )
     def test_fuzz_orientation(
         self,
-        heading: typing.Optional[float],
-        tilt: typing.Optional[float],
-        roll: typing.Optional[float],
+        heading: Optional[float],
+        tilt: Optional[float],
+        roll: Optional[float],
     ) -> None:
         orientation = fastkml.model.Orientation(heading=heading, tilt=tilt, roll=roll)
 
@@ -130,9 +131,9 @@ class TestLxml(Lxml):
     )
     def test_fuzz_scale(
         self,
-        x: typing.Optional[float],
-        y: typing.Optional[float],
-        z: typing.Optional[float],
+        x: Optional[float],
+        y: Optional[float],
+        z: Optional[float],
     ) -> None:
         scale = fastkml.model.Scale(x=x, y=y, z=z)
 
@@ -147,8 +148,8 @@ class TestLxml(Lxml):
     )
     def test_fuzz_alias(
         self,
-        target_href: typing.Optional[str],
-        source_href: typing.Optional[str],
+        target_href: Optional[str],
+        source_href: Optional[str],
     ) -> None:
         alias = fastkml.model.Alias(target_href=target_href, source_href=source_href)
 
@@ -171,7 +172,7 @@ class TestLxml(Lxml):
     )
     def test_fuzz_resource_map(
         self,
-        aliases: typing.Optional[typing.Iterable[fastkml.model.Alias]],
+        aliases: Optional[Iterable[fastkml.model.Alias]],
     ) -> None:
         resource_map = fastkml.model.ResourceMap(aliases=aliases)
 
@@ -262,14 +263,14 @@ class TestLxml(Lxml):
     )
     def test_fuzz_model(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        altitude_mode: typing.Optional[fastkml.enums.AltitudeMode],
-        location: typing.Optional[fastkml.model.Location],
-        orientation: typing.Optional[fastkml.model.Orientation],
-        scale: typing.Optional[fastkml.model.Scale],
-        link: typing.Optional[fastkml.Link],
-        resource_map: typing.Optional[fastkml.model.ResourceMap],
+        id: Optional[str],
+        target_id: Optional[str],
+        altitude_mode: Optional[fastkml.enums.AltitudeMode],
+        location: Optional[fastkml.model.Location],
+        orientation: Optional[fastkml.model.Orientation],
+        scale: Optional[fastkml.model.Scale],
+        link: Optional[fastkml.Link],
+        resource_map: Optional[fastkml.model.ResourceMap],
     ) -> None:
         model = fastkml.model.Model(
             id=id,

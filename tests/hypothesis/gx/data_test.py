@@ -15,7 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test gx SimpleArrayData and SimpleArrayField."""
 
-import typing
+from collections.abc import Iterable
+from typing import Optional
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -42,10 +43,10 @@ class TestLxml(Lxml):
     )
     def test_fuzz_simple_array_data(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        name: typing.Optional[str],
-        data: typing.Optional[typing.Iterable[str]],
+        id: Optional[str],
+        target_id: Optional[str],
+        name: Optional[str],
+        data: Optional[Iterable[str]],
     ) -> None:
         simple_array_data = fastkml.gx.data.SimpleArrayData(
             id=id,
@@ -66,9 +67,9 @@ class TestLxml(Lxml):
     )
     def test_fuzz_simple_array_field(
         self,
-        name: typing.Optional[str],
-        type_: typing.Optional[DataType],
-        display_name: typing.Optional[str],
+        name: Optional[str],
+        type_: Optional[DataType],
+        display_name: Optional[str],
     ) -> None:
         simple_array_field = fastkml.gx.data.SimpleArrayField(
             name=name,

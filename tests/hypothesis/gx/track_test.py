@@ -15,7 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test gx Track and MultiTrack."""
 
-import typing
+from collections.abc import Iterable
+from typing import Optional
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -86,11 +87,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_track_track_items(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        altitude_mode: typing.Optional[fastkml.enums.AltitudeMode],
-        track_items: typing.Optional[typing.Iterable[fastkml.gx.TrackItem]],
-        extended_data: typing.Optional[fastkml.ExtendedData],
+        id: Optional[str],
+        target_id: Optional[str],
+        altitude_mode: Optional[fastkml.enums.AltitudeMode],
+        track_items: Optional[Iterable[fastkml.gx.TrackItem]],
+        extended_data: Optional[fastkml.ExtendedData],
     ) -> None:
         track = fastkml.gx.Track(
             id=id,
@@ -128,11 +129,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_multi_track(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        altitude_mode: typing.Optional[fastkml.enums.AltitudeMode],
-        tracks: typing.Optional[typing.Iterable[fastkml.gx.Track]],
-        interpolate: typing.Optional[bool],
+        id: Optional[str],
+        target_id: Optional[str],
+        altitude_mode: Optional[fastkml.enums.AltitudeMode],
+        tracks: Optional[Iterable[fastkml.gx.Track]],
+        interpolate: Optional[bool],
     ) -> None:
         multi_track = fastkml.gx.MultiTrack(
             id=id,

@@ -15,7 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Property-based tests for the views module."""
 
-import typing
+from typing import Optional
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -78,10 +78,10 @@ class TestLxml(Lxml):
     )
     def test_fuzz_lod(
         self,
-        min_lod_pixels: typing.Optional[int],
-        max_lod_pixels: typing.Optional[int],
-        min_fade_extent: typing.Optional[int],
-        max_fade_extent: typing.Optional[int],
+        min_lod_pixels: Optional[int],
+        max_lod_pixels: Optional[int],
+        min_fade_extent: Optional[int],
+        max_fade_extent: Optional[int],
     ) -> None:
         lod = fastkml.views.Lod(
             min_lod_pixels=min_lod_pixels,
@@ -134,13 +134,13 @@ class TestLxml(Lxml):
     )
     def test_fuzz_lat_lon_alt_box(
         self,
-        north: typing.Optional[float],
-        south: typing.Optional[float],
-        east: typing.Optional[float],
-        west: typing.Optional[float],
-        min_altitude: typing.Optional[float],
-        max_altitude: typing.Optional[float],
-        altitude_mode: typing.Optional[fastkml.enums.AltitudeMode],
+        north: Optional[float],
+        south: Optional[float],
+        east: Optional[float],
+        west: Optional[float],
+        min_altitude: Optional[float],
+        max_altitude: Optional[float],
+        altitude_mode: Optional[fastkml.enums.AltitudeMode],
     ) -> None:
         lat_lon_alt_box = fastkml.views.LatLonAltBox(
             north=north,
@@ -165,10 +165,10 @@ class TestLxml(Lxml):
     )
     def test_fuzz_region(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        lat_lon_alt_box: typing.Optional[fastkml.views.LatLonAltBox],
-        lod: typing.Optional[fastkml.views.Lod],
+        id: Optional[str],
+        target_id: Optional[str],
+        lat_lon_alt_box: Optional[fastkml.views.LatLonAltBox],
+        lod: Optional[fastkml.views.Lod],
     ) -> None:
         region = fastkml.views.Region(
             id=id,
@@ -196,15 +196,15 @@ class TestLxml(Lxml):
     )
     def test_fuzz_camera(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        longitude: typing.Optional[float],
-        latitude: typing.Optional[float],
-        altitude: typing.Optional[float],
-        heading: typing.Optional[float],
-        tilt: typing.Optional[float],
-        altitude_mode: typing.Optional[fastkml.enums.AltitudeMode],
-        roll: typing.Optional[float],
+        id: Optional[str],
+        target_id: Optional[str],
+        longitude: Optional[float],
+        latitude: Optional[float],
+        altitude: Optional[float],
+        heading: Optional[float],
+        tilt: Optional[float],
+        altitude_mode: Optional[fastkml.enums.AltitudeMode],
+        roll: Optional[float],
     ) -> None:
         camera = fastkml.Camera(
             id=id,
@@ -232,15 +232,15 @@ class TestLxml(Lxml):
     )
     def test_fuzz_look_at(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        longitude: typing.Optional[float],
-        latitude: typing.Optional[float],
-        altitude: typing.Optional[float],
-        heading: typing.Optional[float],
-        tilt: typing.Optional[float],
-        altitude_mode: typing.Optional[fastkml.enums.AltitudeMode],
-        range: typing.Optional[float],
+        id: Optional[str],
+        target_id: Optional[str],
+        longitude: Optional[float],
+        latitude: Optional[float],
+        altitude: Optional[float],
+        heading: Optional[float],
+        tilt: Optional[float],
+        altitude_mode: Optional[fastkml.enums.AltitudeMode],
+        range: Optional[float],
     ) -> None:
         look_at = fastkml.LookAt(
             id=id,

@@ -15,7 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test Link and Icon."""
 
-import typing
+from typing import Optional
+from typing import Union
 
 import pytest
 from hypothesis import given
@@ -56,11 +57,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_view_volume(
         self,
-        left_fov: typing.Optional[float],
-        right_fov: typing.Optional[float],
-        bottom_fov: typing.Optional[float],
-        top_fov: typing.Optional[float],
-        near: typing.Optional[float],
+        left_fov: Optional[float],
+        right_fov: Optional[float],
+        bottom_fov: Optional[float],
+        top_fov: Optional[float],
+        near: Optional[float],
     ) -> None:
         view_volume = fastkml.overlays.ViewVolume(
             left_fov=left_fov,
@@ -83,10 +84,10 @@ class TestLxml(Lxml):
     )
     def test_fuzz_image_pyramid(
         self,
-        tile_size: typing.Optional[int],
-        max_width: typing.Optional[int],
-        max_height: typing.Optional[int],
-        grid_origin: typing.Optional[fastkml.enums.GridOrigin],
+        tile_size: Optional[int],
+        max_width: Optional[int],
+        max_height: Optional[int],
+        grid_origin: Optional[fastkml.enums.GridOrigin],
     ) -> None:
         image_pyramid = fastkml.overlays.ImagePyramid(
             tile_size=tile_size,
@@ -124,11 +125,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_lat_lon_box(
         self,
-        north: typing.Optional[float],
-        south: typing.Optional[float],
-        east: typing.Optional[float],
-        west: typing.Optional[float],
-        rotation: typing.Optional[float],
+        north: Optional[float],
+        south: Optional[float],
+        east: Optional[float],
+        west: Optional[float],
+        rotation: Optional[float],
     ) -> None:
         lat_lon_box = fastkml.overlays.LatLonBox(
             north=north,
@@ -185,11 +186,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_photo_overlay(
         self,
-        rotation: typing.Optional[float],
-        view_volume: typing.Optional[fastkml.overlays.ViewVolume],
-        image_pyramid: typing.Optional[fastkml.overlays.ImagePyramid],
-        point: typing.Optional[fastkml.geometry.Point],
-        shape: typing.Optional[fastkml.enums.Shape],
+        rotation: Optional[float],
+        view_volume: Optional[fastkml.overlays.ViewVolume],
+        image_pyramid: Optional[fastkml.overlays.ImagePyramid],
+        point: Optional[fastkml.geometry.Point],
+        shape: Optional[fastkml.enums.Shape],
     ) -> None:
         photo_overlay = fastkml.overlays.PhotoOverlay(
             id="photo_overlay1",
@@ -228,9 +229,9 @@ class TestLxml(Lxml):
     )
     def test_fuzz_ground_overlay(
         self,
-        altitude: typing.Optional[float],
-        altitude_mode: typing.Optional[fastkml.enums.AltitudeMode],
-        lat_lon_box: typing.Optional[fastkml.overlays.LatLonBox],
+        altitude: Optional[float],
+        altitude_mode: Optional[fastkml.enums.AltitudeMode],
+        lat_lon_box: Optional[fastkml.overlays.LatLonBox],
     ) -> None:
         ground_overlay = fastkml.overlays.GroundOverlay(
             id="ground_overlay1",
@@ -262,16 +263,16 @@ class TestLxml(Lxml):
     )
     def test_fuzz_xy(
         self,
-        cls: typing.Union[
+        cls: Union[
             type[fastkml.overlays.OverlayXY],
             type[fastkml.overlays.RotationXY],
             type[fastkml.overlays.ScreenXY],
             type[fastkml.overlays.Size],
         ],
-        x: typing.Optional[float],
-        y: typing.Optional[float],
-        x_units: typing.Optional[fastkml.enums.Units],
-        y_units: typing.Optional[fastkml.enums.Units],
+        x: Optional[float],
+        y: Optional[float],
+        x_units: Optional[fastkml.enums.Units],
+        y_units: Optional[fastkml.enums.Units],
     ) -> None:
         xy = cls(x=x, y=y, x_units=x_units, y_units=y_units)
 
@@ -289,11 +290,11 @@ class TestLxml(Lxml):
     )
     def test_screen_overlay(
         self,
-        overlay_xy: typing.Optional[fastkml.overlays.OverlayXY],
-        screen_xy: typing.Optional[fastkml.overlays.ScreenXY],
-        rotation_xy: typing.Optional[fastkml.overlays.RotationXY],
-        size: typing.Optional[fastkml.overlays.Size],
-        rotation: typing.Optional[float],
+        overlay_xy: Optional[fastkml.overlays.OverlayXY],
+        screen_xy: Optional[fastkml.overlays.ScreenXY],
+        rotation_xy: Optional[fastkml.overlays.RotationXY],
+        size: Optional[fastkml.overlays.Size],
+        rotation: Optional[float],
     ) -> None:
         screen_overlay = fastkml.overlays.ScreenOverlay(
             id="screen_overlay1",

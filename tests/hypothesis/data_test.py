@@ -15,8 +15,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Property-based tests for the views module."""
 
-import typing
+from collections.abc import Iterable
 from functools import partial
+from typing import Optional
+from typing import Union
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -70,9 +72,9 @@ class TestLxml(Lxml):
     )
     def test_fuzz_simple_field(
         self,
-        name: typing.Optional[str],
-        type_: typing.Optional[fastkml.enums.DataType],
-        display_name: typing.Optional[str],
+        name: Optional[str],
+        type_: Optional[fastkml.enums.DataType],
+        display_name: Optional[str],
     ) -> None:
         simple_field = fastkml.data.SimpleField(
             name=name,
@@ -93,12 +95,10 @@ class TestLxml(Lxml):
     )
     def test_fuzz_schema(
         self,
-        id: typing.Optional[str],
-        name: typing.Optional[str],
-        fields: typing.Optional[typing.Iterable[fastkml.data.SimpleField]],
-        array_fields: typing.Optional[
-            typing.Iterable[fastkml.gx.data.SimpleArrayField]
-        ],
+        id: Optional[str],
+        name: Optional[str],
+        fields: Optional[Iterable[fastkml.data.SimpleField]],
+        array_fields: Optional[Iterable[fastkml.gx.data.SimpleArrayField]],
     ) -> None:
         schema = fastkml.Schema(
             id=id,
@@ -121,11 +121,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_data(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        name: typing.Optional[str],
-        value: typing.Optional[str],
-        display_name: typing.Optional[str],
+        id: Optional[str],
+        target_id: Optional[str],
+        name: Optional[str],
+        value: Optional[str],
+        display_name: Optional[str],
     ) -> None:
         data = fastkml.Data(
             id=id,
@@ -146,8 +146,8 @@ class TestLxml(Lxml):
     )
     def test_fuzz_simple_data(
         self,
-        name: typing.Optional[str],
-        value: typing.Optional[str],
+        name: Optional[str],
+        value: Optional[str],
     ) -> None:
         simple_data = fastkml.data.SimpleData(
             name=name,
@@ -168,11 +168,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_schema_data(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        schema_url: typing.Optional[str],
-        data: typing.Optional[typing.Iterable[fastkml.data.SimpleData]],
-        array_data: typing.Optional[typing.Iterable[fastkml.gx.data.SimpleArrayData]],
+        id: Optional[str],
+        target_id: Optional[str],
+        schema_url: Optional[str],
+        data: Optional[Iterable[fastkml.data.SimpleData]],
+        array_data: Optional[Iterable[fastkml.gx.data.SimpleArrayData]],
     ) -> None:
         schema_data = fastkml.SchemaData(
             id=id,
@@ -210,9 +210,7 @@ class TestLxml(Lxml):
     )
     def test_fuzz_extended_data(
         self,
-        elements: typing.Optional[
-            typing.Iterable[typing.Union[fastkml.Data, fastkml.SchemaData]]
-        ],
+        elements: Optional[Iterable[Union[fastkml.Data, fastkml.SchemaData]]],
     ) -> None:
         extended_data = fastkml.ExtendedData(
             elements=(
