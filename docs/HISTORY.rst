@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.2.0 (unreleased)
+1.2.0 (2025/10/01)
 ------------------
 
 - Add extended data support for gx:Track.
