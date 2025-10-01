@@ -28,13 +28,11 @@ http://schemas.opengis.net/kml/.
 
 import logging
 import zipfile
+from collections.abc import Iterable
 from pathlib import Path
 from typing import IO
 from typing import Any
 from typing import AnyStr
-from typing import Dict
-from typing import Iterable
-from typing import List
 from typing import Optional
 from typing import Union
 from typing import cast
@@ -72,7 +70,7 @@ kml_children = Union[
 
 def lxml_parse_and_validate(
     file: Union[Path, str, IO[AnyStr]],
-    strict: bool,  # noqa: FBT001
+    strict: bool,
     validate: Optional[bool],
 ) -> Element:
     """
@@ -105,7 +103,7 @@ def lxml_parse_and_validate(
     )
     if validate:
         validator.validate(element=tree)
-    return cast(Element, tree.getroot())
+    return cast("Element", tree.getroot())
 
 
 class KML(_XMLObject):
@@ -113,13 +111,13 @@ class KML(_XMLObject):
 
     _default_nsid = config.KML
 
-    features: List[kml_children]
+    features: list[kml_children]
     ns: str
 
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         features: Optional[Iterable[kml_children]] = None,
         **kwargs: Any,
     ) -> None:
@@ -194,7 +192,7 @@ class KML(_XMLObject):
             verbosity=verbosity,
             default=None,
         )
-        return cast(Element, root)
+        return cast("Element", root)
 
     def append(
         self,
@@ -209,7 +207,7 @@ class KML(_XMLObject):
         file: Union[Path, str, IO[AnyStr]],
         *,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         strict: bool = True,
         validate: Optional[bool] = None,
     ) -> Self:

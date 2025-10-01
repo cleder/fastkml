@@ -15,6 +15,14 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Exceptions for the fastkml package."""
 
+__all__ = [
+    "FastKMLError",
+    "GeometryError",
+    "KMLParseError",
+    "KMLSchemaError",
+    "KMLWriteError",
+]
+
 
 class FastKMLError(Exception):
     """Base class for all fastkml exceptions."""

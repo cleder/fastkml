@@ -23,7 +23,6 @@ https://developers.google.com/kml/documentation/kmlreference#networklinkcontrol
 
 import logging
 from typing import Any
-from typing import Dict
 from typing import Optional
 from typing import Union
 
@@ -69,7 +68,7 @@ class NetworkLinkControl(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         min_refresh_period: Optional[float] = None,
         max_session_length: Optional[float] = None,
         cookie: Optional[str] = None,

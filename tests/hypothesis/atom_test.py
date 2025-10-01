@@ -21,7 +21,7 @@ roundtrip and string representation of Link and Author classes under various
 input conditions.
 """
 
-import typing
+from typing import Optional
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -50,12 +50,12 @@ class TestLxml(Lxml):
     )
     def test_fuzz_link(
         self,
-        href: typing.Optional[str],
-        rel: typing.Optional[str],
-        type: typing.Optional[str],
-        hreflang: typing.Optional[str],
-        title: typing.Optional[str],
-        length: typing.Optional[int],
+        href: Optional[str],
+        rel: Optional[str],
+        type: Optional[str],
+        hreflang: Optional[str],
+        title: Optional[str],
+        length: Optional[int],
     ) -> None:
         link = fastkml.atom.Link(
             href=href,
@@ -78,9 +78,9 @@ class TestLxml(Lxml):
     )
     def test_fuzz_author(
         self,
-        name: typing.Optional[str],
-        uri: typing.Optional[str],
-        email: typing.Optional[str],
+        name: Optional[str],
+        uri: Optional[str],
+        email: Optional[str],
     ) -> None:
         author = fastkml.atom.Author(name=name, uri=uri, email=email)
 

@@ -16,6 +16,7 @@ First we import the necessary modules:
 
     >>> from fastkml import kml
     >>> from pygeoif.geometry import Polygon
+    >>> from pathlib import Path
 
 Create a KML object:
 
@@ -221,4 +222,5 @@ Finally, print out the KML object as a string:
 
     .. code-block:: Python
 
-        k.write("path/to/file.kml")
+        output_path = Path("path/to/file.kml")
+        k.write(output_path)

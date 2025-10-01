@@ -27,16 +27,12 @@ elements.
 
 import logging
 import re
+from collections.abc import Iterable
+from collections.abc import Sequence
 from typing import Any
-from typing import Dict
 from typing import Final
-from typing import Iterable
-from typing import List
 from typing import NoReturn
 from typing import Optional
-from typing import Sequence
-from typing import Tuple
-from typing import Type
 from typing import Union
 from typing import cast
 
@@ -178,12 +174,12 @@ def subelement_coordinates_kwarg(
     *,
     element: Element,
     ns: str,  # noqa: ARG001
-    name_spaces: Dict[str, str],  # noqa: ARG001
+    name_spaces: dict[str, str],  # noqa: ARG001
     node_name: str,  # noqa: ARG001
     kwarg: str,
-    classes: Tuple[Type[object], ...],  # noqa: ARG001
+    classes: tuple[type[object], ...],  # noqa: ARG001
     strict: bool,
-) -> Dict[str, LineType]:
+) -> dict[str, LineType]:
     """
     Extract coordinates from a subelement and returns them as a dictionary.
 
@@ -246,7 +242,7 @@ class Coordinates(_XMLObject):
         self,
         *,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         coords: Optional[LineType] = None,
         **kwargs: Any,
     ) -> None:
@@ -329,7 +325,7 @@ class _Geometry(_BaseObject):
         self,
         *,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         altitude_mode: Optional[AltitudeMode] = None,
@@ -380,7 +376,7 @@ class Point(_Geometry):
         self,
         *,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         extrude: Optional[bool] = None,
@@ -479,6 +475,8 @@ class Point(_Geometry):
             )
         return super().__eq__(other)
 
+    __hash__ = None  # type: ignore[assignment]
+
     @property
     def geometry(self) -> Optional[geo.Point]:
         """
@@ -557,7 +555,7 @@ class LineString(_Geometry):
         self,
         *,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         extrude: Optional[bool] = None,
@@ -646,6 +644,8 @@ class LineString(_Geometry):
             )
         return super().__eq__(other)
 
+    __hash__ = None  # type: ignore[assignment]
+
     @property
     def geometry(self) -> Optional[geo.LineString]:
         """
@@ -729,7 +729,7 @@ class LinearRing(LineString):
         self,
         *,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         extrude: Optional[bool] = None,
@@ -798,7 +798,7 @@ class LinearRing(LineString):
             return None
         try:
             return cast(
-                geo.LinearRing,
+                "geo.LinearRing",
                 geo.LinearRing.from_coordinates(self.kml_coordinates.coords),
             )
         except DimensionError:
@@ -823,7 +823,7 @@ class BoundaryIs(_XMLObject):
         self,
         *,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         geometry: Optional[geo.LinearRing] = None,
         kml_geometry: Optional[LinearRing] = None,
         **kwargs: Any,
@@ -978,13 +978,13 @@ class Polygon(_Geometry):
     extrude: Optional[bool]
     tessellate: Optional[bool]
     outer_boundary: Optional[OuterBoundaryIs]
-    inner_boundaries: List[InnerBoundaryIs]
+    inner_boundaries: list[InnerBoundaryIs]
 
     def __init__(
         self,
         *,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         extrude: Optional[bool] = None,
@@ -1080,10 +1080,10 @@ class Polygon(_Geometry):
             return None
         if not self.inner_boundaries:
             return geo.Polygon.from_linear_rings(
-                cast(geo.LinearRing, self.outer_boundary.geometry),
+                cast("geo.LinearRing", self.outer_boundary.geometry),
             )
         return geo.Polygon.from_linear_rings(
-            cast(geo.LinearRing, self.outer_boundary.geometry),
+            cast("geo.LinearRing", self.outer_boundary.geometry),
             *[
                 interior.geometry
                 for interior in self.inner_boundaries
@@ -1129,6 +1129,8 @@ class Polygon(_Geometry):
                 )
             )
         return super().__eq__(other)
+
+    __hash__ = None  # type: ignore[assignment]
 
 
 registry.register(
@@ -1228,13 +1230,13 @@ def create_multigeometry(
 class MultiGeometry(_BaseObject):
     """A container for zero or more geometry primitives."""
 
-    kml_geometries: List[Union[Point, LineString, Polygon, LinearRing, Self]]
+    kml_geometries: list[Union[Point, LineString, Polygon, LinearRing, Self]]
 
     def __init__(
         self,
         *,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         extrude: Optional[bool] = None,
@@ -1378,7 +1380,7 @@ def create_kml_geometry(
     geometry: Union[GeoType, GeoCollectionType],
     *,
     ns: Optional[str] = None,
-    name_spaces: Optional[Dict[str, str]] = None,
+    name_spaces: Optional[dict[str, str]] = None,
     id: Optional[str] = None,
     target_id: Optional[str] = None,
     extrude: Optional[bool] = None,
@@ -1405,9 +1407,9 @@ def create_kml_geometry(
         KML geometry object.
 
     """
-    _map_to_kml: Dict[
-        Union[Type[GeoType], Type[GeoCollectionType]],
-        Type[KMLGeometryType],
+    _map_to_kml: dict[
+        type[Union[GeoType, GeoCollectionType]],
+        type[KMLGeometryType],
     ] = {
         geo.Point: Point,
         geo.Polygon: Polygon,

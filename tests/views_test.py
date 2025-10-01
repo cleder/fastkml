@@ -18,6 +18,7 @@
 
 from fastkml import views
 from fastkml.enums import AltitudeMode
+from fastkml.enums import Verbosity
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -200,6 +201,14 @@ class TestStdLibrary(StdLibrary):
         assert not region
         assert region.lat_lon_alt_box == lat_lon_alt_box
         assert region.lod is None
+
+    def test_lod_to_string_terse_default(self) -> None:
+        lod = views.Lod(min_lod_pixels=256, max_lod_pixels=0)
+        xml = lod.to_string(verbosity=Verbosity.terse)
+
+        assert "minLodPixels>256</" not in xml
+        assert "maxLodPixels>0</" in xml
+        assert not views.Lod.from_string(xml)
 
 
 class TestLxml(Lxml, TestStdLibrary):

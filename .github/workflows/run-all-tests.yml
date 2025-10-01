@@ -9,12 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.14-dev']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14-dev']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -29,12 +29,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
-
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14-dev']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -59,19 +58,19 @@ jobs:
         python-version: ['3.12']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip wheel
           pip install -e ".[tests, lxml, docs]"
-      - name: test the pythoncode in the documentation
+      - name: test the python code in the documentation
         run: |
           python -m doctest docs/*.rst
-      - name: Run the pythoncode in the examples
+      - name: Run the python code in the examples
         run: |
           python examples/read_kml.py
           python examples/shp2kml.py
@@ -87,9 +86,9 @@ jobs:
         python-version: ['3.12']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -101,25 +100,26 @@ jobs:
           mypy fastkml tests
       - name: Linting
         run: |
-          flake8 fastkml examples docs
-          black --check fastkml examples docs
+          ruff check --no-fix fastkml tests examples docs
+          ruff format --check fastkml tests examples docs
           yamllint .github/
           yamllint .*.y*ml
       - name: Check complexity
         run: |
           radon cc --min B fastkml
           radon mi --min B fastkml
+          complexipy fastkml
           lizard fastkml
 
   pypy:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pypy-version: ['pypy-3.8', 'pypy-3.9', 'pypy-3.10']
+        pypy-version: ['pypy-3.9', 'pypy-3.10', 'pypy-3.11']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.pypy-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.pypy-version }}
       - name: Install dependencies
@@ -130,13 +130,32 @@ jobs:
         run: |
           pytest tests
 
+  graalpy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        graalpy-version: ['graalpy-24.1']
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up Python ${{ matrix.graalpy-version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.graalpy-version }}
+      - name: Install dependencies
+        run: |
+          pip install -e ".[tests]"
+      - name: Test with pytest, excluding hypothesis tests
+        run: |
+          pytest tests -m "not hypothesis"
+
+
   build-package:
     name: Build & inspect our package.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: hynek/build-and-inspect-python-package@v2
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
       - name: Check with pyroma
@@ -156,7 +175,7 @@ jobs:
       github.event_name == 'push' &&
       github.repository == 'cleder/fastkml' &&
       startsWith(github.ref, 'refs/tags')
-    needs: [cpython, static-tests, pypy, cpython-lxml, doctest-lxml, build-package]
+    needs: [cpython, static-tests, pypy, cpython-lxml, doctest-lxml, build-package, graalpy]
     name: Test install on TestPyPI
     runs-on: ubuntu-latest
     environment: test-release
@@ -164,7 +183,7 @@ jobs:
       id-token: write
     steps:
       - name: Download packages built by build-package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: Packages
           path: dist
@@ -180,7 +199,7 @@ jobs:
         github.event_name == 'push' &&
         github.repository == 'cleder/fastkml' &&
         github.ref == 'refs/heads/main'
-    needs: [cpython, static-tests, pypy, cpython-lxml, doctest-lxml, build-package]
+    needs: [cpython, static-tests, pypy, cpython-lxml, doctest-lxml, build-package, graalpy]
     name: Publish to PyPI on push to main
     runs-on: ubuntu-latest
     environment: release
@@ -188,7 +207,7 @@ jobs:
       id-token: write
     steps:
       - name: Download packages built by build-package
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: Packages
           path: dist

@@ -14,85 +14,21 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-"""
-KML Extension Namespace and the gx prefix.
-
-With the launch of Google Earth 5.0, Google has provided extensions to KML
-to support a number of new features. These extensions use the gx prefix
-and the following namespace URI::
-
-    xmlns:gx="http://www.google.com/kml/ext/2.2"
-
-This namespace URI must be added to the <kml> element in any KML file
-using gx-prefixed elements::
-
-    <kml
-        xmlns="http://www.opengis.net/kml/2.2"
-        xmlns:gx="http://www.google.com/kml/ext/2.2"
-    >
-
-Extensions to KML may not be supported in all geo-browsers. If your
-browser doesn't support particular extensions, the data in those
-extensions should be silently ignored, and the rest of the KML file
-should load without errors.
-
-Elements that currently use the gx prefix are:
-
-* gx:altitudeMode
-* gx:altitudeOffset
-* gx:angles
-* gx:AnimatedUpdate
-* gx:balloonVisibility
-* gx:coord
-* gx:delayedStart
-* gx:drawOrder
-* gx:duration
-* gx:FlyTo
-* gx:flyToMode
-* gx:h
-* gx:horizFov
-* gx:interpolate
-* gx:labelVisibility
-* gx:LatLonQuad
-* gx:MultiTrack
-* gx:vieweroptions
-* gx:outerColor
-* gx:outerWidth
-* gx:physicalWidth
-* gx:Playlist
-* gx:playMode
-* gx:SoundCue
-* gx:TimeSpan
-* gx:TimeStamp
-* gx:Tour
-* gx:TourControl
-* gx:TourPrimitive
-* gx:Track
-* gx:ViewerOptions
-* gx:w
-* gx:Wait
-* gx:x
-* gx:y
-
-The complete XML schema for elements in this extension namespace is
-located at http://developers.google.com/kml/schema/kml22gx.xsd.
-"""
+"""GX Track Extension."""
 
 import logging
+from collections.abc import Iterable
 from dataclasses import dataclass
 from itertools import zip_longest
 from typing import Any
-from typing import Dict
-from typing import Iterable
-from typing import List
 from typing import Optional
-from typing import Tuple
 from typing import cast
 
 import pygeoif.geometry as geo
 from pygeoif.types import PointType
 
 from fastkml import config
+from fastkml.data import ExtendedData
 from fastkml.enums import AltitudeMode
 from fastkml.geometry import _Geometry
 from fastkml.helpers import bool_subelement
@@ -103,6 +39,8 @@ from fastkml.helpers import datetime_subelement_list_kwarg
 from fastkml.helpers import enum_subelement
 from fastkml.helpers import subelement_bool_kwarg
 from fastkml.helpers import subelement_enum_kwarg
+from fastkml.helpers import xml_subelement
+from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.registry import RegistryItem
@@ -195,13 +133,14 @@ class Track(_Geometry):
     """
 
     _default_nsid = config.GX
-    track_items: List[TrackItem]
+    track_items: list[TrackItem]
+    extended_data: Optional[ExtendedData]
 
     def __init__(
         self,
         *,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         altitude_mode: Optional[AltitudeMode] = None,
@@ -209,6 +148,7 @@ class Track(_Geometry):
         whens: Optional[Iterable[KmlDateTime]] = None,
         coords: Optional[Iterable[PointType]] = None,
         angles: Optional[Iterable[PointType]] = None,
+        extended_data: Optional[ExtendedData] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -234,6 +174,8 @@ class Track(_Geometry):
             The coordinates of the track items, by default None
         angles : Optional[Iterable[PointType]], optional
             The angles of the track items, by default None
+        extended_data : Optional[ExtendedData], optional
+            The extended data of the GX object, by default None
         **kwargs : Any, optional
             Additional keyword arguments.
 
@@ -250,7 +192,7 @@ class Track(_Geometry):
         if not track_items and whens and coords:
             track_items = [
                 TrackItem(
-                    when=cast(KmlDateTime, when),
+                    when=cast("KmlDateTime", when),
                     coord=geo.Point(*coord),
                     angle=Angle(*angle),
                 )
@@ -262,6 +204,7 @@ class Track(_Geometry):
                 )
             ]
         self.track_items = list(track_items) if track_items else []
+        self.extended_data = extended_data
         super().__init__(
             ns=ns,
             name_spaces=name_spaces,
@@ -289,6 +232,7 @@ class Track(_Geometry):
             f"target_id={self.target_id!r}, "
             f"altitude_mode={self.altitude_mode}, "
             f"track_items={self.track_items!r}, "
+            f"extended_data={self.extended_data!r}, "
             f"**{self._get_splat()!r},"
             ")"
         )
@@ -307,7 +251,7 @@ class Track(_Geometry):
         return track_items_to_geometry(self.track_items)
 
     @property
-    def whens(self) -> Tuple[KmlDateTime, ...]:
+    def whens(self) -> tuple[KmlDateTime, ...]:
         """
         Get the timestamps of the track items.
 
@@ -320,7 +264,7 @@ class Track(_Geometry):
         return tuple(item.when for item in self.track_items)
 
     @property
-    def coords(self) -> Tuple[PointType, ...]:
+    def coords(self) -> tuple[PointType, ...]:
         """
         Get the coordinates of the track items.
 
@@ -337,7 +281,7 @@ class Track(_Geometry):
         )
 
     @property
-    def angles(self) -> Tuple[PointType, ...]:
+    def angles(self) -> tuple[PointType, ...]:
         """
         Get the angles of the track items.
 
@@ -408,6 +352,17 @@ registry.register(
         default=(0.0, 0.0, 0.0),
     ),
 )
+registry.register(
+    Track,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="extended_data",
+        node_name="ExtendedData",
+        classes=(ExtendedData,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
 
 
 def tracks_to_geometry(tracks: Iterable[Track]) -> geo.MultiLineString:
@@ -449,13 +404,13 @@ class MultiTrack(_Geometry):
     """
 
     _default_nsid = config.GX
-    tracks: List[Track]
+    tracks: list[Track]
 
     def __init__(
         self,
         *,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         altitude_mode: Optional[AltitudeMode] = None,

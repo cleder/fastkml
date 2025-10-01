@@ -16,9 +16,8 @@
 """Overlays."""
 
 import logging
+from collections.abc import Iterable
 from typing import Any
-from typing import Dict
-from typing import Iterable
 from typing import Optional
 from typing import Union
 
@@ -122,7 +121,7 @@ class _Overlay(_Feature):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
@@ -300,7 +299,7 @@ class ViewVolume(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         left_fov: Optional[float] = None,
         right_fov: Optional[float] = None,
         bottom_fov: Optional[float] = None,
@@ -483,7 +482,7 @@ class ImagePyramid(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         tile_size: Optional[int] = None,
         max_width: Optional[int] = None,
         max_height: Optional[int] = None,
@@ -655,7 +654,7 @@ class PhotoOverlay(_Overlay):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
@@ -913,7 +912,7 @@ class LatLonBox(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         north: Optional[float] = None,
         south: Optional[float] = None,
         east: Optional[float] = None,
@@ -1085,7 +1084,7 @@ class GroundOverlay(_Overlay):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
@@ -1289,7 +1288,7 @@ class _XY(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         x: Optional[float] = None,
         y: Optional[float] = None,
         x_units: Optional[Units] = None,
@@ -1450,7 +1449,7 @@ class ScreenOverlay(_Overlay):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,

@@ -20,16 +20,16 @@ https://developers.google.com/kml/documentation/extendeddata
 """
 
 import logging
+from collections.abc import Iterable
 from typing import Any
-from typing import Dict
-from typing import Iterable
-from typing import List
 from typing import Optional
 from typing import Union
 
 from fastkml.base import _XMLObject
 from fastkml.enums import DataType
 from fastkml.exceptions import KMLSchemaError
+from fastkml.gx.data import SimpleArrayData
+from fastkml.gx.data import SimpleArrayField
 from fastkml.helpers import attribute_enum_kwarg
 from fastkml.helpers import attribute_text_kwarg
 from fastkml.helpers import clean_string
@@ -89,7 +89,7 @@ class SimpleField(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         name: Optional[str] = None,
         type_: Optional[DataType] = None,
         display_name: Optional[str] = None,
@@ -203,15 +203,17 @@ class Schema(_XMLObject):
     _default_nsid = "kml"
 
     name: Optional[str]
-    fields: List[SimpleField]
+    fields: list[SimpleField]
+    array_fields: list[SimpleArrayField]
 
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         name: Optional[str] = None,
         fields: Optional[Iterable[SimpleField]] = None,
+        array_fields: Optional[Iterable[SimpleArrayField]] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -230,7 +232,9 @@ class Schema(_XMLObject):
         name : str, optional
             The name of the schema.
         fields : Iterable[SimpleField], optional
-            The list of fields in the schema.
+            The list of SimpleFields in the schema.
+        array_fields : Iterable[SimpleArrayField], optional
+            The list of gx:SimpleArrayFields in the schema.
         **kwargs : Any
             Additional keyword arguments.
 
@@ -250,6 +254,7 @@ class Schema(_XMLObject):
         )
         self.name = clean_string(name)
         self.fields = list(fields) if fields else []
+        self.array_fields = list(array_fields) if array_fields else []
         self.id = clean_string(id)
 
     def __repr__(self) -> str:
@@ -269,21 +274,25 @@ class Schema(_XMLObject):
             f"id={self.id!r}, "
             f"name={self.name!r}, "
             f"fields={self.fields!r}, "
+            f"array_fields={self.array_fields!r}, "
             f"**{self._get_splat()!r},"
             ")"
         )
 
-    def append(self, field: SimpleField) -> None:
+    def append(self, field: Union[SimpleField, SimpleArrayField]) -> None:
         """
         Append a field to the schema.
 
         Parameters
         ----------
-        field : SimpleField
+        field : Union[SimpleField, SimpleArrayField]
             The field to be appended.
 
         """
-        self.fields.append(field)
+        if isinstance(field, SimpleField):
+            self.fields.append(field)
+        else:
+            self.array_fields.append(field)
 
 
 registry.register(
@@ -319,6 +328,17 @@ registry.register(
         set_element=xml_subelement_list,
     ),
 )
+registry.register(
+    Schema,
+    RegistryItem(
+        ns_ids=("gx", ""),
+        attr_name="array_fields",
+        node_name="gx:SimpleArrayField",
+        classes=(SimpleArrayField,),
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
+    ),
+)
 
 
 class Data(_BaseObject):
@@ -331,7 +351,7 @@ class Data(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
@@ -458,7 +478,7 @@ class SimpleData(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         name: Optional[str] = None,
         value: Optional[str] = None,
         **kwargs: Any,
@@ -551,16 +571,18 @@ class SchemaData(_BaseObject):
     """
 
     schema_url: Optional[str]
-    data: List[SimpleData]
+    data: list[SimpleData]
+    array_data: list[SimpleArrayData]
 
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         schema_url: Optional[str] = None,
         data: Optional[Iterable[SimpleData]] = None,
+        array_data: Optional[Iterable[SimpleArrayData]] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -575,6 +597,8 @@ class SchemaData(_BaseObject):
             target_id (Optional[str]): The target ID of the data.
             schema_url (Optional[str]): The URL of the schema for the data.
             data (Optional[Iterable[SimpleData]]): The iterable of SimpleData objects.
+            array_data (Optional[Iterable[SimpleArrayData]]):
+                The iterable of gx:SimpleArrayData objects.
             **kwargs (Any): Additional keyword arguments.
 
         Returns:
@@ -591,6 +615,7 @@ class SchemaData(_BaseObject):
         )
         self.schema_url = clean_string(schema_url)
         self.data = list(data) if data else []
+        self.array_data = list(array_data) if array_data else []
 
     def __repr__(self) -> str:
         """Create a string representation for SchemaData."""
@@ -602,6 +627,7 @@ class SchemaData(_BaseObject):
             f"target_id={self.target_id!r}, "
             f"schema_url={self.schema_url!r}, "
             f"data={self.data!r}, "
+            f"array_data={self.array_data!r}, "
             f"**{self._get_splat()!r},"
             ")"
         )
@@ -616,18 +642,22 @@ class SchemaData(_BaseObject):
                 schema URL, False otherwise.
 
         """
-        return bool(self.data) and bool(self.schema_url)
+        return (bool(self.data) or bool(self.array_data)) and bool(self.schema_url)
 
-    def append_data(self, data: SimpleData) -> None:
+    def append_data(self, data: Union[SimpleData, SimpleArrayData]) -> None:
         """
-        Append a SimpleData object to the SchemaData.
+        Append a data object to the SchemaData.
 
         Args:
         ----
-            data (SimpleData): The SimpleData object to be appended.
+            data (Union[SimpleData, SimpleArrayData]):
+                The data object to be appended.
 
         """
-        self.data.append(data)
+        if isinstance(data, SimpleData):
+            self.data.append(data)
+        else:
+            self.array_data.append(data)
 
 
 registry.register(
@@ -653,17 +683,29 @@ registry.register(
     ),
 )
 
+registry.register(
+    SchemaData,
+    RegistryItem(
+        ns_ids=("gx", ""),
+        attr_name="array_data",
+        node_name="gx:SimpleArrayData",
+        classes=(SimpleArrayData,),
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
+    ),
+)
+
 
 class ExtendedData(_XMLObject):
     """Represents a list of untyped name/value pairs."""
 
     _default_nsid = "kml"
-    elements: List[Union[Data, SchemaData]]
+    elements: list[Union[Data, SchemaData]]
 
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         elements: Optional[Iterable[Union[Data, SchemaData]]] = None,
         **kwargs: Any,
     ) -> None:

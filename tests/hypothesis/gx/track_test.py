@@ -15,14 +15,17 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test gx Track and MultiTrack."""
 
-import typing
+from collections.abc import Iterable
+from typing import Optional
 
 from hypothesis import given
 from hypothesis import strategies as st
+from hypothesis.provisional import urls
 
 import fastkml
+import fastkml.data
 import fastkml.enums
-import fastkml.gx
+import fastkml.gx.data
 import fastkml.types
 from tests.base import Lxml
 from tests.hypothesis.common import assert_repr_roundtrip
@@ -31,9 +34,10 @@ from tests.hypothesis.common import assert_str_roundtrip_terse
 from tests.hypothesis.common import assert_str_roundtrip_verbose
 from tests.hypothesis.strategies import nc_name
 from tests.hypothesis.strategies import track_items
+from tests.hypothesis.strategies import xml_text
 
 
-class TestGx(Lxml):
+class TestLxml(Lxml):
     @given(
         id=st.one_of(st.none(), nc_name()),
         target_id=st.one_of(st.none(), nc_name()),
@@ -44,19 +48,57 @@ class TestGx(Lxml):
                 track_items(),
             ),
         ),
+        extended_data=st.builds(
+            fastkml.ExtendedData,
+            elements=st.tuples(
+                st.builds(
+                    fastkml.data.Data,
+                    name=xml_text().filter(lambda x: x.strip() != ""),
+                    value=xml_text().filter(lambda x: x.strip() != ""),
+                    display_name=st.one_of(st.none(), xml_text()),
+                ),
+                st.builds(
+                    fastkml.SchemaData,
+                    schema_url=urls(),
+                    data=st.lists(
+                        st.builds(
+                            fastkml.data.SimpleData,
+                            name=xml_text().filter(lambda x: x.strip() != ""),
+                            value=xml_text().filter(lambda x: x.strip() != ""),
+                        ),
+                        min_size=1,
+                        max_size=3,
+                    ),
+                    array_data=st.lists(
+                        st.builds(
+                            fastkml.gx.data.SimpleArrayData,
+                            name=xml_text().filter(lambda x: x.strip() != ""),
+                            data=st.lists(
+                                xml_text().filter(lambda x: x.strip() != ""),
+                                min_size=1,
+                            ),
+                        ),
+                        min_size=1,
+                        max_size=3,
+                    ),
+                ),
+            ),
+        ),
     )
     def test_fuzz_track_track_items(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        altitude_mode: typing.Optional[fastkml.enums.AltitudeMode],
-        track_items: typing.Optional[typing.Iterable[fastkml.gx.TrackItem]],
+        id: Optional[str],
+        target_id: Optional[str],
+        altitude_mode: Optional[fastkml.enums.AltitudeMode],
+        track_items: Optional[Iterable[fastkml.gx.TrackItem]],
+        extended_data: Optional[fastkml.ExtendedData],
     ) -> None:
         track = fastkml.gx.Track(
             id=id,
             target_id=target_id,
             altitude_mode=altitude_mode,
             track_items=track_items,
+            extended_data=extended_data,
         )
 
         assert_repr_roundtrip(track)
@@ -87,11 +129,11 @@ class TestGx(Lxml):
     )
     def test_fuzz_multi_track(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        altitude_mode: typing.Optional[fastkml.enums.AltitudeMode],
-        tracks: typing.Optional[typing.Iterable[fastkml.gx.Track]],
-        interpolate: typing.Optional[bool],
+        id: Optional[str],
+        target_id: Optional[str],
+        altitude_mode: Optional[fastkml.enums.AltitudeMode],
+        tracks: Optional[Iterable[fastkml.gx.Track]],
+        interpolate: Optional[bool],
     ) -> None:
         multi_track = fastkml.gx.MultiTrack(
             id=id,

@@ -23,10 +23,8 @@ part of how your data is displayed.
 """
 
 import logging
+from collections.abc import Iterable
 from typing import Any
-from typing import Dict
-from typing import Iterable
-from typing import List
 from typing import Optional
 from typing import Union
 
@@ -94,7 +92,7 @@ class StyleUrl(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         url: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
@@ -203,7 +201,7 @@ class _ColorStyle(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
@@ -292,7 +290,7 @@ class HotSpot(_XMLObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         x: Optional[float] = None,
         y: Optional[float] = None,
         xunits: Optional[Units] = None,
@@ -429,7 +427,7 @@ class IconStyle(_ColorStyle):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
@@ -586,7 +584,7 @@ class LineStyle(_ColorStyle):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
@@ -690,7 +688,7 @@ class PolyStyle(_ColorStyle):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
@@ -806,7 +804,7 @@ class LabelStyle(_ColorStyle):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         color: Optional[str] = None,
@@ -949,7 +947,7 @@ class BalloonStyle(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         bg_color: Optional[str] = None,
@@ -1099,7 +1097,7 @@ class Style(_StyleSelector):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         styles: Optional[Iterable[AnyStyle]] = None,
@@ -1200,7 +1198,7 @@ class Pair(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         key: Optional[PairKey] = None,
@@ -1306,12 +1304,12 @@ class StyleMap(_StyleSelector):
     https://developers.google.com/kml/documentation/kmlreference#stylemap
     """
 
-    pairs: List[Pair]
+    pairs: list[Pair]
 
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         pairs: Optional[Iterable[Pair]] = None,

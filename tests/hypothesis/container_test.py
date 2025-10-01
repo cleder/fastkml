@@ -16,7 +16,7 @@
 """Property-based tests for the views module."""
 
 import itertools
-import typing
+from collections.abc import Iterable
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -77,7 +77,7 @@ class TestLxml(Lxml):
     )
     def test_fuzz_folder(
         self,
-        features_tuple: typing.Tuple[typing.Iterable[fastkml.features._Feature]],
+        features_tuple: tuple[Iterable[fastkml.features._Feature]],
     ) -> None:
         features = itertools.chain(*features_tuple)
         folder = fastkml.containers.Folder(
@@ -136,10 +136,10 @@ class TestLxml(Lxml):
     )
     def test_fuzz_document(
         self,
-        features_tuple: typing.Tuple[typing.Iterable[fastkml.features._Feature]],
-        schemata: typing.Iterable[fastkml.data.Schema],
+        features_tuple: tuple[Iterable[fastkml.features._Feature]],
+        schemata: Iterable[fastkml.data.Schema],
     ) -> None:
-        features: typing.Iterable[fastkml.features._Feature] = itertools.chain(
+        features: Iterable[fastkml.features._Feature] = itertools.chain(
             *features_tuple,
         )
         document = fastkml.containers.Document(

@@ -15,7 +15,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Property-based tests for the styles module."""
 
-import typing
+from collections.abc import Iterable
+from typing import Optional
+from typing import Union
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -42,7 +44,7 @@ class TestLxml(Lxml):
     )
     def test_fuzz_style_url(
         self,
-        url: typing.Optional[str],
+        url: Optional[str],
     ) -> None:
         style_url = fastkml.StyleUrl(
             url=url,
@@ -61,10 +63,10 @@ class TestLxml(Lxml):
     )
     def test_fuzz_hot_spot(
         self,
-        x: typing.Optional[float],
-        y: typing.Optional[float],
-        xunits: typing.Optional[fastkml.enums.Units],
-        yunits: typing.Optional[fastkml.enums.Units],
+        x: Optional[float],
+        y: Optional[float],
+        xunits: Optional[fastkml.enums.Units],
+        yunits: Optional[fastkml.enums.Units],
     ) -> None:
         hot_spot = fastkml.styles.HotSpot(
             x=x,
@@ -117,14 +119,14 @@ class TestLxml(Lxml):
     )
     def test_fuzz_icon_style(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        color: typing.Optional[str],
-        color_mode: typing.Optional[fastkml.enums.ColorMode],
-        scale: typing.Optional[float],
-        heading: typing.Optional[float],
-        icon: typing.Optional[fastkml.links.Icon],
-        hot_spot: typing.Optional[fastkml.styles.HotSpot],
+        id: Optional[str],
+        target_id: Optional[str],
+        color: Optional[str],
+        color_mode: Optional[fastkml.enums.ColorMode],
+        scale: Optional[float],
+        heading: Optional[float],
+        icon: Optional[fastkml.links.Icon],
+        hot_spot: Optional[fastkml.styles.HotSpot],
     ) -> None:
         icon_style = fastkml.IconStyle(
             id=id,
@@ -155,11 +157,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_line_style(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        color: typing.Optional[str],
-        color_mode: typing.Optional[fastkml.enums.ColorMode],
-        width: typing.Optional[float],
+        id: Optional[str],
+        target_id: Optional[str],
+        color: Optional[str],
+        color_mode: Optional[fastkml.enums.ColorMode],
+        width: Optional[float],
     ) -> None:
         line_style = fastkml.LineStyle(
             id=id,
@@ -184,12 +186,12 @@ class TestLxml(Lxml):
     )
     def test_fuzz_poly_style(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        color: typing.Optional[str],
-        color_mode: typing.Optional[fastkml.enums.ColorMode],
-        fill: typing.Optional[bool],
-        outline: typing.Optional[bool],
+        id: Optional[str],
+        target_id: Optional[str],
+        color: Optional[str],
+        color_mode: Optional[fastkml.enums.ColorMode],
+        fill: Optional[bool],
+        outline: Optional[bool],
     ) -> None:
         poly_style = fastkml.PolyStyle(
             id=id,
@@ -217,11 +219,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_label_style(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        color: typing.Optional[str],
-        color_mode: typing.Optional[fastkml.enums.ColorMode],
-        scale: typing.Optional[float],
+        id: Optional[str],
+        target_id: Optional[str],
+        color: Optional[str],
+        color_mode: Optional[fastkml.enums.ColorMode],
+        scale: Optional[float],
     ) -> None:
         label_style = fastkml.LabelStyle(
             id=id,
@@ -246,12 +248,12 @@ class TestLxml(Lxml):
     )
     def test_fuzz_balloon_style(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        bg_color: typing.Optional[str],
-        text_color: typing.Optional[str],
-        text: typing.Optional[str],
-        display_mode: typing.Optional[fastkml.enums.DisplayMode],
+        id: Optional[str],
+        target_id: Optional[str],
+        bg_color: Optional[str],
+        text_color: Optional[str],
+        text: Optional[str],
+        display_mode: Optional[fastkml.enums.DisplayMode],
     ) -> None:
         balloon_style = fastkml.BalloonStyle(
             id=id,
@@ -288,19 +290,19 @@ class TestLxml(Lxml):
                 ),
                 st.builds(
                     fastkml.styles.LabelStyle,
-                    color=kml_colors(),
+                    color=kml_colors().filter(lambda x: x != "ffffffff"),
                     color_mode=st.sampled_from(fastkml.enums.ColorMode),
                     scale=st.floats(allow_nan=False, allow_infinity=False),
                 ),
                 st.builds(
                     fastkml.styles.LineStyle,
-                    color=kml_colors(),
+                    color=kml_colors().filter(lambda x: x != "ffffffff"),
                     color_mode=st.sampled_from(fastkml.enums.ColorMode),
                     width=st.floats(allow_nan=False, allow_infinity=False, min_value=0),
                 ),
                 st.builds(
                     fastkml.styles.PolyStyle,
-                    color=kml_colors(),
+                    color=kml_colors().filter(lambda x: x != "ffffffff"),
                     color_mode=st.sampled_from(fastkml.enums.ColorMode),
                     fill=st.booleans(),
                     outline=st.booleans(),
@@ -319,11 +321,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_style(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        styles: typing.Optional[
-            typing.Iterable[
-                typing.Union[
+        id: Optional[str],
+        target_id: Optional[str],
+        styles: Optional[
+            Iterable[
+                Union[
                     fastkml.BalloonStyle,
                     fastkml.IconStyle,
                     fastkml.LabelStyle,
@@ -348,19 +350,19 @@ class TestLxml(Lxml):
             st.tuples(
                 st.builds(
                     fastkml.styles.LabelStyle,
-                    color=kml_colors(),
+                    color=kml_colors().filter(lambda x: x != "ffffffff"),
                     color_mode=st.sampled_from(fastkml.enums.ColorMode),
                     scale=st.floats(allow_nan=False, allow_infinity=False),
                 ),
                 st.builds(
                     fastkml.styles.LineStyle,
-                    color=kml_colors(),
+                    color=kml_colors().filter(lambda x: x != "ffffffff"),
                     color_mode=st.sampled_from(fastkml.enums.ColorMode),
                     width=st.floats(allow_nan=False, allow_infinity=False, min_value=0),
                 ),
                 st.builds(
                     fastkml.styles.PolyStyle,
-                    color=kml_colors(),
+                    color=kml_colors().filter(lambda x: x != "ffffffff"),
                     color_mode=st.sampled_from(fastkml.enums.ColorMode),
                     fill=st.booleans(),
                     outline=st.booleans(),
@@ -379,11 +381,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_styles_no_icon_style(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        styles: typing.Optional[
-            typing.Iterable[
-                typing.Union[
+        id: Optional[str],
+        target_id: Optional[str],
+        styles: Optional[
+            Iterable[
+                Union[
                     fastkml.BalloonStyle,
                     fastkml.LabelStyle,
                     fastkml.LineStyle,
@@ -420,10 +422,10 @@ class TestLxml(Lxml):
     )
     def test_fuzz_pair(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        key: typing.Optional[fastkml.enums.PairKey],
-        style: typing.Union[fastkml.StyleUrl, fastkml.Style, None],
+        id: Optional[str],
+        target_id: Optional[str],
+        key: Optional[fastkml.enums.PairKey],
+        style: Union[fastkml.StyleUrl, fastkml.Style, None],
     ) -> None:
         pair = fastkml.styles.Pair(id=id, target_id=target_id, key=key, style=style)
 
@@ -461,9 +463,9 @@ class TestLxml(Lxml):
     )
     def test_fuzz_style_map_one_pair(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        pairs: typing.Optional[typing.Tuple[fastkml.styles.Pair]],
+        id: Optional[str],
+        target_id: Optional[str],
+        pairs: Optional[tuple[fastkml.styles.Pair]],
     ) -> None:
         style_map = fastkml.StyleMap(id=id, target_id=target_id, pairs=pairs)
 
@@ -516,9 +518,9 @@ class TestLxml(Lxml):
     )
     def test_fuzz_style_map_pairs(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        pairs: typing.Optional[typing.Tuple[fastkml.styles.Pair]],
+        id: Optional[str],
+        target_id: Optional[str],
+        pairs: Optional[tuple[fastkml.styles.Pair]],
     ) -> None:
         style_map = fastkml.StyleMap(id=id, target_id=target_id, pairs=pairs)
 

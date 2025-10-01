@@ -16,7 +16,6 @@
 """Link and Icon elements."""
 
 from typing import Any
-from typing import Dict
 from typing import Optional
 
 from fastkml.enums import RefreshMode
@@ -60,7 +59,7 @@ class Link(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         href: Optional[str] = None,

@@ -23,6 +23,7 @@ from dateutil.tz import tzutc
 from fastkml import views
 from fastkml.network_link_control import NetworkLinkControl
 from fastkml.times import KmlDateTime
+from tests.base import Lxml
 from tests.base import StdLibrary
 
 
@@ -79,3 +80,7 @@ class TestStdLibrary(StdLibrary):
         )
 
         assert nc == nc_obj
+
+
+class TestLxml(Lxml, TestStdLibrary):
+    """Test with lxml."""

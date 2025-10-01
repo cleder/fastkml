@@ -25,6 +25,7 @@ from fastkml.enums import ColorMode
 from fastkml.enums import DisplayMode
 from fastkml.enums import PairKey
 from fastkml.enums import Units
+from fastkml.enums import Verbosity
 from fastkml.exceptions import KMLParseError
 from fastkml.features import Placemark
 from tests.base import Lxml
@@ -219,6 +220,21 @@ class TestStdLibrary(StdLibrary):
         assert lines.color_mode == ColorMode.normal
         assert lines.width == 3.0
 
+    def test_line_style_to_string_terse_default(self) -> None:
+        lines = styles.LineStyle(
+            color="ffffffff",
+            color_mode=ColorMode.normal,
+            width=1.0,
+        )
+
+        serialized = lines.to_string(verbosity=Verbosity.terse)
+
+        assert '<kml:LineStyle xmlns:kml="http://www.opengis.net/kml/2.2"' in serialized
+        assert "<kml:color>ffffffff</kml:color>" not in serialized
+        assert "<kml:colorMode>normal</kml:colorMode>" not in serialized
+        assert "<kml:width>1.0</kml:width>" not in serialized
+        assert not styles.LineStyle.from_string(serialized)
+
     def test_poly_style(self) -> None:
         ps = styles.PolyStyle(
             id="id-0",
@@ -258,6 +274,23 @@ class TestStdLibrary(StdLibrary):
         assert ps.fill == 1
         assert ps.outline == 0
 
+    def test_poly_style_to_string_terse_default(self) -> None:
+        ps = styles.PolyStyle(
+            color="ffffffff",
+            color_mode=ColorMode.normal,
+            fill=True,
+            outline=True,
+        )
+
+        serialized = ps.to_string(verbosity=Verbosity.terse)
+
+        assert '<kml:PolyStyle xmlns:kml="http://www.opengis.net/kml/2.2"' in serialized
+        assert "<kml:color>ffffffff</kml:color>" not in serialized
+        assert "<kml:colorMode>normal</kml:colorMode>" not in serialized
+        assert "<kml:fill>1</kml:fill>" not in serialized
+        assert "<kml:outline>1</kml:outline>" not in serialized
+        assert not styles.PolyStyle.from_string(serialized)
+
     def test_label_style(self) -> None:
         ls = styles.LabelStyle(
             id="id-0",
@@ -294,6 +327,23 @@ class TestStdLibrary(StdLibrary):
         assert ls.color == "ff001122"
         assert ls.color_mode == ColorMode.normal
         assert ls.scale == 2.2
+
+    def test_label_style_to_string_terse_default(self) -> None:
+        ls = styles.LabelStyle(
+            color="ffffffff",
+            color_mode=ColorMode.normal,
+            scale=1.0,
+        )
+
+        serialized = ls.to_string(verbosity=Verbosity.terse)
+
+        assert (
+            '<kml:LabelStyle xmlns:kml="http://www.opengis.net/kml/2.2"' in serialized
+        )
+        assert "<kml:color>ffffffff</kml:color>" not in serialized
+        assert "<kml:colorMode>normal</kml:colorMode>" not in serialized
+        assert "<kml:scale>1.0</kml:scale>" not in serialized
+        assert not styles.LabelStyle.from_string(serialized)
 
     def test_balloon_style(self) -> None:
         bs = styles.BalloonStyle(

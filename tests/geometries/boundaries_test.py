@@ -16,7 +16,6 @@
 
 """Test the Outer and Inner Boundary classes."""
 
-from typing import Type
 from typing import Union
 
 import pygeoif.geometry as geo
@@ -81,7 +80,7 @@ class TestBoundaries(StdLibrary):
 
     def _test_boundary_geometry_error(
         self,
-        boundary_class: Union[Type[InnerBoundaryIs], Type[OuterBoundaryIs]],
+        boundary_class: Union[type[InnerBoundaryIs], type[OuterBoundaryIs]],
     ) -> None:
         p = geo.LinearRing(((1, 2), (2, 0)))
         coords = ((1, 2), (2, 0), (0, 0), (1, 2))

@@ -120,7 +120,7 @@ class TestStdLibrary(StdLibrary):
 
         with pytest.raises(
             ValueError,
-            match="^You can only specify one of kml_geometry or geometry$",
+            match=r"^You can only specify one of kml_geometry or geometry$",
         ):
             features.Placemark(geometry=pt, kml_geometry=point)
 

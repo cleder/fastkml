@@ -17,10 +17,8 @@
 
 import logging
 import urllib.parse as urlparse
+from collections.abc import Iterable
 from typing import Any
-from typing import Dict
-from typing import Iterable
-from typing import List
 from typing import Optional
 from typing import Union
 
@@ -79,12 +77,12 @@ class _Container(_Feature):
     Folder.
     """
 
-    features: List[_Feature]
+    features: list[_Feature]
 
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
@@ -185,12 +183,12 @@ class Document(_Container):
     extended data.
     """
 
-    schemata: List[Schema]
+    schemata: list[Schema]
 
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         name: Optional[str] = None,
@@ -316,8 +314,8 @@ class Document(_Container):
 
         """
         id_ = urlparse.urlparse(style_url).fragment
-        return next(
-            find_all(  # type: ignore[arg-type]
+        return next(  # type: ignore[return-value]
+            find_all(
                 self,
                 of_type=(Style, StyleMap),
                 id=id_,

@@ -23,9 +23,9 @@ developers site.
 Geometries are handled as pygeoif_ objects, which are compatible with any geometry that
 implements the ``__geo_interface__`` protocol, such as shapely_.
 
-Fastkml is tested on `CPython <https://python.org>`_ and
-`PyPy <https://www.pypy.org/>`_, but it should work on alternative
-Python implementations (that implement the language specification *>=3.8*) as well.
+Fastkml is tested on `CPython <https://python.org>`_, `PyPy <https://www.pypy.org/>`_ and
+`GraalPy <https://www.graalvm.org/python/>`_, but it should work on alternative Python implementations
+(that implement the language specification *>=3.9*) as well.
 
 |test| |hypothesis| |cov| |black| |mypy| |commit|
 

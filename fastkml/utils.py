@@ -1,10 +1,8 @@
 """Fastkml utility functions."""
 
+from collections.abc import Generator
 from typing import Any
-from typing import Generator
 from typing import Optional
-from typing import Tuple
-from typing import Type
 from typing import Union
 
 __all__ = ["find", "find_all", "has_attribute_values"]
@@ -50,6 +48,8 @@ def get_all_attrs(obj: object) -> Generator[object, None, None]:
         return
     for attr_name in attrs:
         attr = getattr(obj, attr_name)
+        if isinstance(attr, str):
+            continue
         try:
             yield from attr
         except TypeError:
@@ -59,7 +59,7 @@ def get_all_attrs(obj: object) -> Generator[object, None, None]:
 def find_all(
     obj: object,
     *,
-    of_type: Optional[Union[Type[object], Tuple[Type[object], ...]]] = None,
+    of_type: Optional[Union[type[object], tuple[type[object], ...]]] = None,
     **kwargs: Any,
 ) -> Generator[object, None, None]:
     """
@@ -89,7 +89,7 @@ def find_all(
 def find(
     obj: object,
     *,
-    of_type: Optional[Union[Type[object], Tuple[Type[object], ...]]] = None,
+    of_type: Optional[Union[type[object], tuple[type[object], ...]]] = None,
     **kwargs: Any,
 ) -> Optional[object]:
     """

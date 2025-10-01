@@ -31,7 +31,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Types for fastkml."""
 
-from typing import Iterable
+from collections.abc import Iterable
 from typing import Optional
 
 from typing_extensions import Protocol

@@ -15,7 +15,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Property-based tests for the views module."""
 
-import typing
+from collections.abc import Iterable
+from typing import Optional
+from typing import Union
 
 import pygeoif.types
 from hypothesis import given
@@ -57,8 +59,8 @@ class TestLxml(Lxml):
     )
     def test_fuzz_snippet(
         self,
-        text: typing.Optional[str],
-        max_lines: typing.Optional[int],
+        text: Optional[str],
+        max_lines: Optional[int],
     ) -> None:
         snippet = fastkml.features.Snippet(text=text, max_lines=max_lines)
 
@@ -75,7 +77,7 @@ class TestLxml(Lxml):
     )
     def test_fuzz_placemark_geometry_only(
         self,
-        geometry: typing.Union[
+        geometry: Union[
             pygeoif.types.GeoType,
             pygeoif.types.GeoCollectionType,
             None,
@@ -151,9 +153,9 @@ class TestLxml(Lxml):
     )
     def test_fuzz_placemark_view_times(
         self,
-        view: typing.Union[fastkml.Camera, fastkml.LookAt, None],
-        times: typing.Union[fastkml.TimeSpan, fastkml.TimeStamp, None],
-        region: typing.Optional[fastkml.views.Region],
+        view: Union[fastkml.Camera, fastkml.LookAt, None],
+        times: Union[fastkml.TimeSpan, fastkml.TimeStamp, None],
+        region: Optional[fastkml.views.Region],
     ) -> None:
         placemark = fastkml.Placemark(
             view=view,
@@ -189,10 +191,10 @@ class TestLxml(Lxml):
     )
     def test_fuzz_placemark_str(
         self,
-        address: typing.Optional[str],
-        phone_number: typing.Optional[str],
-        snippet: typing.Optional[fastkml.features.Snippet],
-        description: typing.Optional[str],
+        address: Optional[str],
+        phone_number: Optional[str],
+        snippet: Optional[fastkml.features.Snippet],
+        description: Optional[str],
     ) -> None:
         placemark = fastkml.Placemark(
             address=address,
@@ -231,13 +233,13 @@ class TestLxml(Lxml):
     )
     def test_fuzz_placemark_atom(
         self,
-        id: typing.Optional[str],
-        target_id: typing.Optional[str],
-        name: typing.Optional[str],
-        visibility: typing.Optional[bool],
-        isopen: typing.Optional[bool],
-        atom_link: typing.Optional[fastkml.atom.Link],
-        atom_author: typing.Optional[fastkml.atom.Author],
+        id: Optional[str],
+        target_id: Optional[str],
+        name: Optional[str],
+        visibility: Optional[bool],
+        isopen: Optional[bool],
+        atom_link: Optional[fastkml.atom.Link],
+        atom_author: Optional[fastkml.atom.Author],
     ) -> None:
         placemark = fastkml.Placemark(
             id=id,
@@ -287,7 +289,7 @@ class TestLxml(Lxml):
     )
     def test_fuzz_placemark_gx_track(
         self,
-        kml_geometry: typing.Union[
+        kml_geometry: Union[
             fastkml.gx.Track,
             fastkml.gx.MultiTrack,
         ],
@@ -329,7 +331,7 @@ class TestLxml(Lxml):
     )
     def test_fuzz_placemark_extended_data(
         self,
-        extended_data: typing.Optional[fastkml.ExtendedData],
+        extended_data: Optional[fastkml.ExtendedData],
     ) -> None:
         placemark = fastkml.Placemark(
             extended_data=extended_data,
@@ -405,10 +407,8 @@ class TestLxml(Lxml):
     )
     def test_fuzz_placemark_styles(
         self,
-        style_url: typing.Optional[fastkml.StyleUrl],
-        styles: typing.Optional[
-            typing.Iterable[typing.Union[fastkml.Style, fastkml.StyleMap]]
-        ],
+        style_url: Optional[fastkml.StyleUrl],
+        styles: Optional[Iterable[Union[fastkml.Style, fastkml.StyleMap]]],
     ) -> None:
         placemark = fastkml.Placemark(
             style_url=style_url,
@@ -471,9 +471,9 @@ class TestLxml(Lxml):
     )
     def test_network_link(
         self,
-        refresh_visibility: typing.Optional[bool],
-        fly_to_view: typing.Optional[bool],
-        link: typing.Optional[fastkml.links.Link],
+        refresh_visibility: Optional[bool],
+        fly_to_view: Optional[bool],
+        link: Optional[fastkml.links.Link],
     ) -> None:
         """Test NetworkLink object with optional parameters."""
         network_link = fastkml.features.NetworkLink(

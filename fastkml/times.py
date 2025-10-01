@@ -26,8 +26,8 @@ https://developers.google.com/kml/documentation/time
 import re
 from datetime import date
 from datetime import datetime
+from datetime import timezone
 from typing import Any
-from typing import Dict
 from typing import Optional
 from typing import Union
 
@@ -174,11 +174,18 @@ class KmlDateTime:
 
     def __eq__(self, other: object) -> bool:
         """Return True if the two objects are equal."""
-        return (
-            self.dt == other.dt and self.resolution == other.resolution
-            if isinstance(other, KmlDateTime)
-            else False
-        )
+        if not isinstance(other, KmlDateTime) or self.resolution != other.resolution:
+            return False
+        if (
+            isinstance(self.dt, datetime)
+            and isinstance(other.dt, datetime)
+            and (self.dt.tzinfo is not None)
+            and (other.dt.tzinfo is not None)
+        ):
+            return self.dt.astimezone(timezone.utc) == other.dt.astimezone(timezone.utc)
+        return self.dt == other.dt
+
+    __hash__ = None  # type: ignore[assignment]
 
     def __str__(self) -> str:
         """Return the KML DateTime string representation of the object."""
@@ -237,7 +244,7 @@ class TimeStamp(_TimePrimitive):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         timestamp: Optional[KmlDateTime] = None,
@@ -316,7 +323,7 @@ class TimeSpan(_TimePrimitive):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
         begin: Optional[KmlDateTime] = None,

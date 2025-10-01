@@ -572,7 +572,7 @@ class TestCreateKmlGeometry(StdLibrary):
         """Test the create_kml_geometry function."""
         with pytest.raises(
             AttributeError,
-            match="^'str' object has no attribute '__geo_interface__'$",
+            match=r"^'str' object has no attribute '__geo_interface__'$",
         ):
             create_kml_geometry("not a geometry")  # type: ignore[arg-type]
 

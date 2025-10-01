@@ -133,10 +133,18 @@ fastkml.geometry
    :undoc-members:
    :show-inheritance:
 
-fastkml.gx
+fastkml.gx.data
 -----------------
 
-.. automodule:: fastkml.gx
+.. automodule:: fastkml.gx.data
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+fastkml.gx.track
+-----------------
+
+.. automodule:: fastkml.gx.track
    :members:
    :undoc-members:
    :show-inheritance:

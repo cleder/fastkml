@@ -21,6 +21,7 @@ from pygeoif.geometry import Point
 import fastkml.links
 import fastkml.model
 from fastkml.enums import AltitudeMode
+from fastkml.enums import Verbosity
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -142,6 +143,15 @@ class TestModel(StdLibrary):
         assert location.latitude == 49.279804095564
         assert location.geometry is None
         assert not location
+
+    def test_scale_to_string_terse_default(self) -> None:
+        scale = fastkml.model.Scale(x=1.0, y=1.0, z=1.0)
+        xml = scale.to_string(verbosity=Verbosity.terse)
+
+        assert "x>1.0</" not in xml
+        assert "y>1.0</" not in xml
+        assert "z>1.0</" not in xml
+        assert not fastkml.model.Scale.from_string(xml)
 
 
 class TestModelLxml(TestModel, Lxml):

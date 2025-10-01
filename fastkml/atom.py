@@ -35,7 +35,6 @@ This library only implements a subset of Atom that is useful with KML
 
 import logging
 from typing import Any
-from typing import Dict
 from typing import Optional
 
 from fastkml import config
@@ -93,10 +92,10 @@ class Link(_AtomObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         href: Optional[str] = None,
         rel: Optional[str] = None,
-        type: Optional[str] = None,
+        type: Optional[str] = None,  # noqa: A002
         hreflang: Optional[str] = None,
         title: Optional[str] = None,
         length: Optional[int] = None,
@@ -266,7 +265,7 @@ class _Person(_AtomObject):
     def __init__(
         self,
         ns: Optional[str] = None,
-        name_spaces: Optional[Dict[str, str]] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         name: Optional[str] = None,
         uri: Optional[str] = None,
         email: Optional[str] = None,

@@ -15,7 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Hypothesis tests for the fastkml.network_link_control module."""
 
-import typing
+from typing import Optional
+from typing import Union
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -94,15 +95,15 @@ class TestLxml(Lxml):
     )
     def test_fuzz_network_link_control(
         self,
-        min_refresh_period: typing.Optional[float],
-        max_session_length: typing.Optional[float],
-        cookie: typing.Optional[str],
-        message: typing.Optional[str],
-        link_name: typing.Optional[str],
-        link_description: typing.Optional[str],
-        link_snippet: typing.Optional[str],
-        expires: typing.Optional[fastkml.KmlDateTime],
-        view: typing.Union[fastkml.Camera, fastkml.LookAt, None],
+        min_refresh_period: Optional[float],
+        max_session_length: Optional[float],
+        cookie: Optional[str],
+        message: Optional[str],
+        link_name: Optional[str],
+        link_description: Optional[str],
+        link_snippet: Optional[str],
+        expires: Optional[fastkml.KmlDateTime],
+        view: Union[fastkml.Camera, fastkml.LookAt, None],
     ) -> None:
         nlc = fastkml.NetworkLinkControl(
             min_refresh_period=min_refresh_period,

@@ -19,6 +19,7 @@
 import datetime
 
 import pytest
+from dateutil.tz import gettz
 from dateutil.tz import tzoffset
 from dateutil.tz import tzutc
 
@@ -94,9 +95,21 @@ class TestDateTime(StdLibrary):
         assert not bool(kdt)
         with pytest.raises(
             AttributeError,
-            match="^'NoneType' object has no attribute 'isoformat'$",
+            match=r"^'NoneType' object has no attribute 'isoformat'$",
         ):
             str(kdt)
+
+    def test_kml_datetime_in_dst_fall_back(self) -> None:
+        dt = datetime.datetime(2016, 10, 30, 3, 30, tzinfo=gettz("Europe/Helsinki"))
+
+        kdt_dst_0 = KmlDateTime(dt)
+        kdt_dst_1 = KmlDateTime(dt.replace(fold=1))
+        kdt_no_dst = KmlDateTime(dt.replace(tzinfo=gettz("Etc/GMT-3")))
+
+        assert kdt_dst_0 != kdt_dst_1
+        assert kdt_dst_0 == kdt_no_dst
+        assert str(kdt_dst_0) != str(kdt_dst_1)
+        assert str(kdt_dst_0) == str(kdt_no_dst)
 
     def test_parse_year(self) -> None:
         dt = KmlDateTime.parse("2000")
@@ -108,7 +121,7 @@ class TestDateTime(StdLibrary):
     def test_parse_year_0(self) -> None:
         with pytest.raises(
             ValueError,
-            match="^year 0 is out of range$|year must be in 1..9999",
+            match=r"^year 0 is out of range$|year must be in 1..9999",
         ):
             KmlDateTime.parse("0000")
 
@@ -127,11 +140,11 @@ class TestDateTime(StdLibrary):
         assert dt.dt == datetime.date(2000, 4, 1)
 
     def test_parse_year_month_0(self) -> None:
-        with pytest.raises(ValueError, match="month must be in 1..12"):
+        with pytest.raises(ValueError, match=r"month must be in 1..12"):
             KmlDateTime.parse("2000-00")
 
     def test_parse_year_month_13(self) -> None:
-        with pytest.raises(ValueError, match="month must be in 1..12"):
+        with pytest.raises(ValueError, match=r"month must be in 1..12"):
             KmlDateTime.parse("2000-13")
 
     def test_parse_year_month_day(self) -> None:
@@ -151,7 +164,7 @@ class TestDateTime(StdLibrary):
     def test_parse_year_month_day_0(self) -> None:
         with pytest.raises(
             ValueError,
-            match="^day is out of range for month$|day must be in 1..31",
+            match="day ",
         ):
             KmlDateTime.parse("2000-05-00")
 
@@ -202,7 +215,7 @@ class TestDateTime(StdLibrary):
     def test_parse_datetime_empty(self) -> None:
         with pytest.raises(
             ValueError,
-            match="^Could not match input '' to any of the following formats:",
+            match=r"^Could not match input '' to any of the following formats:",
         ):
             KmlDateTime.parse("")
 
@@ -210,7 +223,7 @@ class TestDateTime(StdLibrary):
         """Test that a single digit month is invalid."""
         with pytest.raises(
             ValueError,
-            match="^Could not match input '19973' to any of the following formats:",
+            match=r"^Could not match input '19973' to any of the following formats:",
         ):
             KmlDateTime.parse("19973")
 

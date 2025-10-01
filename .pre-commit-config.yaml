@@ -7,10 +7,9 @@ repos:
     hooks:
       - id: check-pre-commit-ci-config
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files
-      - id: check-docstring-first
       - id: check-json
       - id: check-merge-conflict
       - id: check-toml
@@ -31,11 +30,11 @@ repos:
       - id: requirements-txt-fixer
       - id: trailing-whitespace
   - repo: https://github.com/kieran-ryan/pyprojectsort
-    rev: v0.3.0
+    rev: v0.4.0
     hooks:
       - id: pyprojectsort
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.23
+    rev: v0.24.1
     hooks:
       - id: validate-pyproject
   - repo: https://github.com/MarcoGorelli/absolufy-imports
@@ -43,20 +42,10 @@ repos:
     hooks:
       - id: absolufy-imports
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.8.0'
+    rev: 'v0.13.2'
     hooks:
-      - id: ruff
+      - id: ruff-check
       - id: ruff-format
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.1.1
-    hooks:
-      - id: flake8
-        additional_dependencies:
-          - flake8-cognitive-complexity
-          - flake8-comments
-          - flake8-dunder-all
-          - flake8-encodings
-          - flake8-expression-complexity
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
@@ -69,25 +58,31 @@ repos:
       - id: rst-directive-colons
       - id: rst-inline-touching-normal
       - id: text-unicode-replacement-char
-  - repo: https://github.com/rstcheck/rstcheck
-    rev: "v6.2.4"
-    hooks:
-      - id: rstcheck
   - repo: https://github.com/sphinx-contrib/sphinx-lint
     rev: "v1.0.0"
     hooks:
       - id: sphinx-lint
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.13.0
+    rev: v1.18.2
     hooks:
       - id: mypy
         additional_dependencies: [pygeoif>=1.4, arrow, pytest, hypothesis]
   - repo: https://github.com/adamchainz/blacken-docs
-    rev: "1.19.1"
+    rev: "1.20.0"
     hooks:
       - id: blacken-docs
   - repo: https://github.com/crate-ci/typos
-    rev: typos-dict-v0.11.35
+    rev: v1
     hooks:
       - id: typos
+        exclude_types: ['csv']
+  - repo: https://github.com/rohaquinlop/complexipy-pre-commit
+    rev: v3.3.0
+    hooks:
+      - id: complexipy
+
+  # - repo: https://github.com/woodruffw/zizmor-pre-commit
+  #   rev: v1.0.1
+  #   hooks:
+  #     - id: zizmor
 ...

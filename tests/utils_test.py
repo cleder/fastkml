@@ -15,8 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test the utils module."""
 
-from typing import List
-
 from fastkml import Schema
 from fastkml import SchemaData
 from fastkml import kml
@@ -99,7 +97,7 @@ class TestFindAll(StdLibrary):
                 self.y = y
 
         class B:
-            def __init__(self, a: List[A]) -> None:
+            def __init__(self, a: list[A]) -> None:
                 self.a = a
 
         a1 = A(1, 0)
@@ -119,7 +117,7 @@ class TestFindAll(StdLibrary):
                 self.y = y
 
         class B:
-            def __init__(self, a: List[A]) -> None:
+            def __init__(self, a: list[A]) -> None:
                 self.a = a
 
         a1 = A(1, 0)
