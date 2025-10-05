@@ -166,9 +166,9 @@ Documentation
 =============
 
 You can find all of the documentation for FastKML at `fastkml.readthedocs.org
-<https://fastkml.readthedocs.org>`_. 
+<https://fastkml.readthedocs.org>`_.
 
-If you find something that is missing, please submit a pull request on 
+If you find something that is missing, please submit a pull request on
 `GitHub <https://github.com/cleder/fastkml>`_ with the improvement.
 
 Limitations
