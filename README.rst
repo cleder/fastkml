@@ -152,24 +152,20 @@ Requirements
 ============
 
 Required Dependencies
---------------------
+---------------------
 
 * pygeoif_ - For geometry handling
 * arrow_ - For date and time processing
 
 Optional Dependencies
---------------------
+---------------------
 
 * lxml_ - For improved XML parsing performance (recommended)
 
 Documentation
 =============
 
-You can find all of the documentation for FastKML at `fastkml.readthedocs.org
-<https://fastkml.readthedocs.org>`_.
-
-If you find something that is missing, please submit a pull request on
-`GitHub <https://github.com/cleder/fastkml>`_ with the improvement.
+You can find all of the documentation for FastKML at `fastkml.readthedocs.org <https://fastkml.readthedocs.org>`_. If you find something that is missing, please submit a pull request on `GitHub <https://github.com/cleder/fastkml>`_ with the improvement.
 
 Limitations
 ===========
@@ -183,10 +179,7 @@ Please submit a PR with the features you'd like to see implemented.
 Contributing
 ============
 
-We welcome contributions! Please check out our documentation for guidelines on how to contribute.
-
-Links and References
-====================
+We welcome contributions! Please check out our `contributing guide <docs/contributing.rst>`_ for guidelines on how to contribute.
 
 .. _pygeoif: https://pypi.python.org/pypi/pygeoif/
 .. _lxml: https://pypi.python.org/pypi/lxml
