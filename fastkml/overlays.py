@@ -497,9 +497,9 @@ class ImagePyramid(_BaseObject):
     def __init__(
         self,
         ns: Optional[str] = None,
+        name_spaces: Optional[dict[str, str]] = None,
         id: Optional[str] = None,
         target_id: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
         tile_size: Optional[int] = None,
         max_width: Optional[int] = None,
         max_height: Optional[int] = None,
@@ -1001,8 +1001,6 @@ class LatLonBox(_BaseObject):
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
-            f"id={self.id!r}, "
-            f"target_id={self.target_id!r}, "
             f"north={self.north!r}, "
             f"south={self.south!r}, "
             f"east={self.east!r}, "
