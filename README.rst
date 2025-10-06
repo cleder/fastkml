@@ -1,13 +1,13 @@
 FastKML
 =======
 
-.. inclusion-marker-do-not-remove
-
 A Python library for reading, writing and manipulating KML files.
 
 .. contents:: Table of Contents
    :local:
    :depth: 2
+
+.. inclusion-marker-do-not-remove
 
 Introduction
 ============
