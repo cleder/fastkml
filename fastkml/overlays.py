@@ -1001,6 +1001,8 @@ class LatLonBox(_BaseObject):
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
             f"north={self.north!r}, "
             f"south={self.south!r}, "
             f"east={self.east!r}, "
