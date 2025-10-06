@@ -30,7 +30,6 @@ from typing import Optional
 from pygeoif.geometry import Point
 
 from fastkml import config
-from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
 from fastkml.helpers import clean_string
 from fastkml.helpers import enum_subelement
@@ -51,7 +50,7 @@ from fastkml.registry import registry
 __all__ = ["Alias", "Location", "Model", "Orientation", "ResourceMap", "Scale"]
 
 
-class Location(_XMLObject):
+class Location(_BaseObject):
     """Represents a location in KML."""
 
     _default_nsid = config.KML
@@ -64,13 +63,21 @@ class Location(_XMLObject):
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
         altitude: Optional[float] = None,
         latitude: Optional[float] = None,
         longitude: Optional[float] = None,
         **kwargs: Any,
     ) -> None:
         """Create a new Location."""
-        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.altitude = altitude
         self.latitude = latitude
         self.longitude = longitude
@@ -85,6 +92,8 @@ class Location(_XMLObject):
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
             f"altitude={self.altitude!r}, "
             f"latitude={self.latitude!r}, "
             f"longitude={self.longitude!r}, "
@@ -138,7 +147,7 @@ registry.register(
 )
 
 
-class Orientation(_XMLObject):
+class Orientation(_BaseObject):
     """Represents an orientation in KML."""
 
     _default_nsid = config.KML
@@ -151,13 +160,21 @@ class Orientation(_XMLObject):
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
         heading: Optional[float] = None,
         tilt: Optional[float] = None,
         roll: Optional[float] = None,
         **kwargs: Any,
     ) -> None:
         """Create a new Orientation."""
-        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.heading = heading
         self.tilt = tilt
         self.roll = roll
@@ -174,6 +191,8 @@ class Orientation(_XMLObject):
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
             f"heading={self.heading!r}, "
             f"tilt={self.tilt!r}, "
             f"roll={self.roll!r}, "
@@ -220,7 +239,7 @@ registry.register(
 )
 
 
-class Scale(_XMLObject):
+class Scale(_BaseObject):
     """Represents a scale in KML."""
 
     _default_nsid = config.KML
@@ -233,13 +252,21 @@ class Scale(_XMLObject):
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
         x: Optional[float] = None,
         y: Optional[float] = None,
         z: Optional[float] = None,
         **kwargs: Any,
     ) -> None:
         """Create a new Scale."""
-        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.x = x
         self.y = y
         self.z = z
@@ -254,6 +281,8 @@ class Scale(_XMLObject):
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
             f"x={self.x!r}, "
             f"y={self.y!r}, "
             f"z={self.z!r}, "
@@ -300,7 +329,7 @@ registry.register(
 )
 
 
-class Alias(_XMLObject):
+class Alias(_BaseObject):
     """Represents an alias in KML."""
 
     _default_nsid = config.KML
@@ -312,12 +341,20 @@ class Alias(_XMLObject):
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
         target_href: Optional[str] = None,
         source_href: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
         """Create a new Alias."""
-        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.target_href = clean_string(target_href)
         self.source_href = clean_string(source_href)
 
@@ -331,6 +368,8 @@ class Alias(_XMLObject):
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
             f"target_href={self.target_href!r}, "
             f"source_href={self.source_href!r}, "
             f"**{self._get_splat()!r},"
@@ -362,7 +401,7 @@ registry.register(
 )
 
 
-class ResourceMap(_XMLObject):
+class ResourceMap(_BaseObject):
     """Represents a resource map in KML."""
 
     _default_nsid = config.KML
@@ -373,11 +412,19 @@ class ResourceMap(_XMLObject):
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
         aliases: Optional[Iterable[Alias]] = None,
         **kwargs: Any,
     ) -> None:
         """Create a new ResourceMap."""
-        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.aliases = list(aliases) if aliases is not None else []
 
     def __bool__(self) -> bool:
@@ -390,6 +437,8 @@ class ResourceMap(_XMLObject):
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
             f"aliases={self.aliases!r}, "
             f"**{self._get_splat()!r},"
             ")"
