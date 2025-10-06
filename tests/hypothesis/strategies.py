@@ -106,8 +106,6 @@ geometries = partial(
 lods = partial(
     st.builds,
     Lod,
-    id=st.one_of(st.none(), nc_name()),
-    target_id=st.one_of(st.none(), nc_name()),
     min_lod_pixels=st.integers().filter(lambda x: x != 256),
     max_lod_pixels=st.integers(),
     min_fade_extent=st.integers(),
@@ -117,8 +115,6 @@ lods = partial(
 lat_lon_alt_boxes = partial(
     st.builds,
     LatLonAltBox,
-    id=st.one_of(st.none(), nc_name()),
-    target_id=st.one_of(st.none(), nc_name()),
     north=st.floats(allow_nan=False, allow_infinity=False, min_value=0, max_value=90),
     south=st.floats(allow_nan=False, allow_infinity=False, min_value=0, max_value=90),
     east=st.floats(allow_nan=False, allow_infinity=False, min_value=0, max_value=180),
