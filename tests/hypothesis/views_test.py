@@ -71,6 +71,8 @@ common_view = {
 
 class TestLxml(Lxml):
     @given(
+        id=st.one_of(st.none(), nc_name()),
+        target_id=st.one_of(st.none(), nc_name()),
         min_lod_pixels=st.one_of(st.none(), st.integers()),
         max_lod_pixels=st.one_of(st.none(), st.integers()),
         min_fade_extent=st.one_of(st.none(), st.integers()),
@@ -78,12 +80,16 @@ class TestLxml(Lxml):
     )
     def test_fuzz_lod(
         self,
+        id: Optional[str],
+        target_id: Optional[str],
         min_lod_pixels: Optional[int],
         max_lod_pixels: Optional[int],
         min_fade_extent: Optional[int],
         max_fade_extent: Optional[int],
     ) -> None:
         lod = fastkml.views.Lod(
+            id=id,
+            target_id=target_id,
             min_lod_pixels=min_lod_pixels,
             max_lod_pixels=max_lod_pixels,
             min_fade_extent=min_fade_extent,
@@ -96,6 +102,8 @@ class TestLxml(Lxml):
         assert_str_roundtrip_verbose(lod)
 
     @given(
+        id=st.one_of(st.none(), nc_name()),
+        target_id=st.one_of(st.none(), nc_name()),
         north=st.one_of(
             st.none(),
             st.floats(allow_nan=False, allow_infinity=False, min_value=0, max_value=90),
@@ -134,6 +142,8 @@ class TestLxml(Lxml):
     )
     def test_fuzz_lat_lon_alt_box(
         self,
+        id: Optional[str],
+        target_id: Optional[str],
         north: Optional[float],
         south: Optional[float],
         east: Optional[float],
@@ -143,6 +153,8 @@ class TestLxml(Lxml):
         altitude_mode: Optional[fastkml.enums.AltitudeMode],
     ) -> None:
         lat_lon_alt_box = fastkml.views.LatLonAltBox(
+            id=id,
+            target_id=target_id,
             north=north,
             south=south,
             east=east,
