@@ -72,9 +72,24 @@ Some editor extensions can also show the coverage directly in the editor, notabl
 for VSCode, which needs the output to be in the ``xml`` format produced with
 ``--cov-report=xml``.
 
+Building the Documentation
+-------------------------
 
-Tips
-----
+To build and preview the documentation locally:
 
-- Commit often, commit early.
-- Make a draft PR while you are still working on it to give your work some visibility.
+1. **Install documentation dependencies** (if not already installed):
+
+    .. code-block:: bash
+
+        pip install -r docs/requirements.txt
+
+2. **Build the HTML documentation**:
+
+    .. code-block:: bash
+
+        cd docs
+        make html
+
+    The generated HTML files will be in `docs/_build/html`. Open `index.html` in your browser to preview.
+
+If you encounter issues, ensure you have Sphinx and the required extensions installed, and that your virtual environment is activated.
