@@ -36,6 +36,8 @@ from tests.hypothesis.strategies import nc_name
 
 class TestLxml(Lxml):
     @given(
+        id=st.one_of(st.none(), nc_name()),
+        target_id=st.one_of(st.none(), nc_name()),
         altitude=st.one_of(
             st.none(),
             st.just(0.0),
@@ -64,11 +66,15 @@ class TestLxml(Lxml):
     )
     def test_fuzz_location(
         self,
+        id: Optional[str],
+        target_id: Optional[str],
         altitude: Optional[float],
         latitude: Optional[float],
         longitude: Optional[float],
     ) -> None:
         location = fastkml.model.Location(
+            id=id,
+            target_id=target_id,
             altitude=altitude,
             latitude=latitude,
             longitude=longitude,
@@ -80,6 +86,8 @@ class TestLxml(Lxml):
         assert_str_roundtrip_verbose(location)
 
     @given(
+        id=st.one_of(st.none(), nc_name()),
+        target_id=st.one_of(st.none(), nc_name()),
         heading=st.one_of(
             st.none(),
             st.just(0.0),
@@ -113,11 +121,19 @@ class TestLxml(Lxml):
     )
     def test_fuzz_orientation(
         self,
+        id: Optional[str],
+        target_id: Optional[str],
         heading: Optional[float],
         tilt: Optional[float],
         roll: Optional[float],
     ) -> None:
-        orientation = fastkml.model.Orientation(heading=heading, tilt=tilt, roll=roll)
+        orientation = fastkml.model.Orientation(
+            id=id,
+            target_id=target_id,
+            heading=heading,
+            tilt=tilt,
+            roll=roll,
+        )
 
         assert_repr_roundtrip(orientation)
         assert_str_roundtrip(orientation)
@@ -125,17 +141,21 @@ class TestLxml(Lxml):
         assert_str_roundtrip_verbose(orientation)
 
     @given(
+        id=st.one_of(st.none(), nc_name()),
+        target_id=st.one_of(st.none(), nc_name()),
         x=st.one_of(st.none(), st.floats(allow_nan=False, allow_infinity=False)),
         y=st.one_of(st.none(), st.floats(allow_nan=False, allow_infinity=False)),
         z=st.one_of(st.none(), st.floats(allow_nan=False, allow_infinity=False)),
     )
     def test_fuzz_scale(
         self,
+        id: Optional[str],
+        target_id: Optional[str],
         x: Optional[float],
         y: Optional[float],
         z: Optional[float],
     ) -> None:
-        scale = fastkml.model.Scale(x=x, y=y, z=z)
+        scale = fastkml.model.Scale(id=id, target_id=target_id, x=x, y=y, z=z)
 
         assert_repr_roundtrip(scale)
         assert_str_roundtrip(scale)
@@ -143,15 +163,24 @@ class TestLxml(Lxml):
         assert_str_roundtrip_verbose(scale)
 
     @given(
+        id=st.one_of(st.none(), nc_name()),
+        target_id=st.one_of(st.none(), nc_name()),
         target_href=st.one_of(st.none(), urls()),
         source_href=st.one_of(st.none(), urls()),
     )
     def test_fuzz_alias(
         self,
+        id: Optional[str],
+        target_id: Optional[str],
         target_href: Optional[str],
         source_href: Optional[str],
     ) -> None:
-        alias = fastkml.model.Alias(target_href=target_href, source_href=source_href)
+        alias = fastkml.model.Alias(
+            id=id,
+            target_id=target_id,
+            target_href=target_href,
+            source_href=source_href,
+        )
 
         assert_repr_roundtrip(alias)
         assert_str_roundtrip(alias)
@@ -159,6 +188,8 @@ class TestLxml(Lxml):
         assert_str_roundtrip_verbose(alias)
 
     @given(
+        id=st.one_of(st.none(), nc_name()),
+        target_id=st.one_of(st.none(), nc_name()),
         aliases=st.one_of(
             st.none(),
             st.lists(
@@ -172,9 +203,15 @@ class TestLxml(Lxml):
     )
     def test_fuzz_resource_map(
         self,
+        id: Optional[str],
+        target_id: Optional[str],
         aliases: Optional[Iterable[fastkml.model.Alias]],
     ) -> None:
-        resource_map = fastkml.model.ResourceMap(aliases=aliases)
+        resource_map = fastkml.model.ResourceMap(
+            id=id,
+            target_id=target_id,
+            aliases=aliases,
+        )
 
         assert_repr_roundtrip(resource_map)
         assert_str_roundtrip(resource_map)

@@ -72,6 +72,7 @@ class TestModel(StdLibrary):
                 href="http://barcelona.galdos.local/files/PublicLibrary.dae",
             ),
             resource_map=fastkml.model.ResourceMap(
+                id="map01",
                 aliases=[
                     fastkml.model.Alias(
                         target_href="http://barcelona.galdos.local/images/Concrete2.jpg",
