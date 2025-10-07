@@ -1,7 +1,16 @@
-Introduction
-============
+FastKML
+=======
+
+A Python library for reading, writing and manipulating KML files.
+
+.. contents:: Table of Contents
+   :local:
+   :depth: 2
 
 .. inclusion-marker-do-not-remove
+
+Introduction
+============
 
 KML is an XML geospatial data format and an OGC_ standard that deserves a canonical
 python implementation.
@@ -20,22 +29,36 @@ For more details about the KML Specification, check out the `KML Reference
 <https://developers.google.com/kml/documentation/kmlreference>`_ on the Google
 developers site.
 
-Geometries are handled as pygeoif_ objects, which are compatible with any geometry that
-implements the ``__geo_interface__`` protocol, such as shapely_.
+Features
+========
 
-Fastkml is tested on `CPython <https://python.org>`_, `PyPy <https://www.pypy.org/>`_ and
-`GraalPy <https://www.graalvm.org/python/>`_, but it should work on alternative Python implementations
-(that implement the language specification *>=3.9*) as well.
+* **Simple and fast**: Easy-to-use API with fast performance
+* **Geometry support**: Handles geometries as pygeoif_ objects, compatible with any geometry that implements the ``__geo_interface__`` protocol, such as shapely_
+* **Cross-platform compatibility**: Tested on `CPython <https://python.org>`_, `PyPy <https://www.pypy.org/>`_ and `GraalPy <https://www.graalvm.org/python/>`_
+* **Python 3.9+**: Works on alternative Python implementations that support Python *>=3.9*
+
+Status
+======
+
+**Quality Assurance:**
 
 |test| |hypothesis| |cov| |black| |mypy| |commit|
+
+**Package Information:**
+
+|pypi| |conda-forge| |status| |license| |pyversion| |pyimpl| |dependencies| |downloads|
+
+**Documentation & Community:**
+
+|doc| |stats|
 
 .. |test| image:: https://github.com/cleder/fastkml/actions/workflows/run-all-tests.yml/badge.svg?branch=main
     :target: https://github.com/cleder/fastkml/actions/workflows/run-all-tests.yml
     :alt: Test
 
 .. |hypothesis| image:: https://img.shields.io/badge/hypothesis-tested-brightgreen.svg
-   :alt: Tested with Hypothesis
-   :target: https://hypothesis.readthedocs.io
+    :alt: Tested with Hypothesis
+    :target: https://hypothesis.readthedocs.io
 
 .. |cov| image:: https://codecov.io/gh/cleder/fastkml/branch/main/graph/badge.svg?token=VIuhPHq0ow
     :target: http://codecov.io/github/cleder/fastkml?branch=main
@@ -50,12 +73,8 @@ Fastkml is tested on `CPython <https://python.org>`_, `PyPy <https://www.pypy.or
     :alt: Mypy
 
 .. |commit| image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit
-   :target: https://github.com/pre-commit/pre-commit
-   :alt: pre-commit
-
-Is maintained and documented:
-
-|pypi| |conda-forge| |status| |license| |doc| |stats| |pyversion| |pyimpl| |dependencies| |downloads|
+    :target: https://github.com/pre-commit/pre-commit
+    :alt: pre-commit
 
 .. |pypi| image:: https://img.shields.io/pypi/v/fastkml.svg
     :target: https://pypi.python.org/pypi/fastkml
@@ -97,34 +116,56 @@ Is maintained and documented:
     :target: https://anaconda.org/conda-forge/fastkml
     :alt: Conda-Forge
 
-Documentation
-=============
+Installation
+============
 
-You can find all of the documentation for FastKML at `fastkml.readthedocs.org
-<https://fastkml.readthedocs.org>`_. If you find something that is missing,
-please submit a pull request on `GitHub <https://github.com/cleder/fastkml>`_
-with the improvement.
+Basic Installation
+------------------
 
+Install the package using pip:
 
-Install
-========
+.. code-block:: bash
 
-You can install the package with ``pip install fastkml`` which will pull in all requirements.
+    pip install fastkml
 
-Requirements
--------------
+This will install FastKML with all required dependencies.
 
-* pygeoif_
-* arrow_
+With Optional Dependencies
+--------------------------
 
-Optional
----------
-
-* lxml_:
+For enhanced performance, install with lxml:
 
 .. code-block:: bash
 
     pip install "fastkml[lxml]"
+
+Using Conda
+-----------
+
+You can also install FastKML using conda-forge:
+
+.. code-block:: bash
+
+    conda install -c conda-forge fastkml
+
+Requirements
+============
+
+Required Dependencies
+---------------------
+
+* pygeoif_ - For geometry handling
+* arrow_ - For date and time processing
+
+Optional Dependencies
+---------------------
+
+* lxml_ - For improved XML parsing performance (recommended)
+
+Documentation
+=============
+
+You can find all of the documentation for FastKML at `fastkml.readthedocs.org <https://fastkml.readthedocs.org>`_. If you find something that is missing, please submit a pull request on `GitHub <https://github.com/cleder/fastkml>`_ with the improvement.
 
 Limitations
 ===========
@@ -132,7 +173,13 @@ Limitations
 Currently, the only major feature missing for the full Google Earth experience
 is the `gx extension
 <https://developers.google.com/kml/documentation/kmlreference#kmlextensions>`_.
+
 Please submit a PR with the features you'd like to see implemented.
+
+Contributing
+============
+
+We welcome contributions! Please check out our `contributing guide <docs/contributing.rst>`_ for guidelines on how to contribute.
 
 .. _pygeoif: https://pypi.python.org/pypi/pygeoif/
 .. _lxml: https://pypi.python.org/pypi/lxml
