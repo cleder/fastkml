@@ -28,9 +28,9 @@ import pygeoif.geometry as geo
 from pygeoif.types import PointType
 
 from fastkml import config
+from fastkml.abstract_geometry import _Geometry
 from fastkml.data import ExtendedData
 from fastkml.enums import AltitudeMode
-from fastkml.geometry import _Geometry
 from fastkml.helpers import bool_subelement
 from fastkml.helpers import coords_subelement_list
 from fastkml.helpers import coords_subelement_list_kwarg
