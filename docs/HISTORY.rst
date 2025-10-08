@@ -4,6 +4,7 @@ Changelog
 1.3.0 (unreleased)
 ------------------
 
+- Improve README [Harshdev625]
 
 
 1.2.0 (2025/10/01)
