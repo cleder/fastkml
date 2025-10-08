@@ -50,6 +50,20 @@ class GetKWArgs(Protocol):
     ) -> dict[str, Any]: ...
 
 
+class CustomGetKWArgs(Protocol):
+    def __call__(
+        self,
+        *,
+        element: Element,
+        ns_ids: tuple[str, ...],
+        name_spaces: dict[str, str],
+        node_name: str,
+        kwarg: str,
+        classes: tuple[type[object], ...],
+        strict: bool,
+    ) -> dict[str, Any]: ...
+
+
 class SetElement(Protocol):
     def __call__(
         self,
@@ -81,7 +95,8 @@ class RegistryItem:
     - ``type``: The type of the XML object.
     - ``node_name``: The name of the XML node that the mapping applies to.
     - ``default``: An optional default value for the Python object attribute.
-
+    - ``custom_get_kwarg``: An optional custom function that retrieves keyword arguments
+      for the Python object.
     """
 
     ns_ids: tuple[str, ...]
@@ -91,6 +106,7 @@ class RegistryItem:
     set_element: SetElement
     node_name: str
     default: Any = None
+    custom_get_kwarg: Optional[CustomGetKWArgs] = None
 
 
 class Registry:
