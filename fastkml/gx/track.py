@@ -20,6 +20,7 @@ import logging
 from collections.abc import Iterable
 from dataclasses import dataclass
 from itertools import zip_longest
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import Optional
 from typing import cast
@@ -29,7 +30,6 @@ from pygeoif.types import PointType
 
 from fastkml import config
 from fastkml.abstract_geometry import _Geometry
-from fastkml.data import ExtendedData
 from fastkml.enums import AltitudeMode
 from fastkml.helpers import bool_subelement
 from fastkml.helpers import coords_subelement_list
@@ -39,13 +39,15 @@ from fastkml.helpers import datetime_subelement_list_kwarg
 from fastkml.helpers import enum_subelement
 from fastkml.helpers import subelement_bool_kwarg
 from fastkml.helpers import subelement_enum_kwarg
-from fastkml.helpers import xml_subelement
-from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 from fastkml.times import KmlDateTime
+
+if TYPE_CHECKING:
+    from fastkml.data import ExtendedData
+
 
 __all__ = [
     "Angle",
@@ -134,7 +136,7 @@ class Track(_Geometry):
 
     _default_nsid = config.GX
     track_items: list[TrackItem]
-    extended_data: Optional[ExtendedData]
+    extended_data: Optional["ExtendedData"]
 
     def __init__(
         self,
@@ -148,7 +150,7 @@ class Track(_Geometry):
         whens: Optional[Iterable[KmlDateTime]] = None,
         coords: Optional[Iterable[PointType]] = None,
         angles: Optional[Iterable[PointType]] = None,
-        extended_data: Optional[ExtendedData] = None,
+        extended_data: Optional["ExtendedData"] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -352,17 +354,9 @@ registry.register(
         default=(0.0, 0.0, 0.0),
     ),
 )
-registry.register(
-    Track,
-    RegistryItem(
-        ns_ids=("kml", ""),
-        attr_name="extended_data",
-        node_name="ExtendedData",
-        classes=(ExtendedData,),
-        get_kwarg=xml_subelement_kwarg,
-        set_element=xml_subelement,
-    ),
-)
+
+# To avoids circular imports,
+# ExtendedData registration is performed in registry_setup.py.
 
 
 def tracks_to_geometry(tracks: Iterable[Track]) -> geo.MultiLineString:
