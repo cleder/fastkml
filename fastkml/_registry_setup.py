@@ -14,7 +14,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 
-"""To avoid circular imports, some element registration is performed here.."""
+"""To avoid circular imports, some element registration is performed here."""
 
 import logging
 

@@ -1430,7 +1430,7 @@ def xml_subelement_list_multi_ns_kwarg(
     Args:
     ----
         element (Element): The XML element to search within.
-        ns_ids (str): The namespace ID of the XML element.
+        ns_ids (Tuple[str, ...]): The namespace IDs of the XML element.
         name_spaces (Dict[str, str]): A dictionary mapping namespace prefixes to URIs.
         node_name (str): The name of the XML node to search for.
         kwarg (str): The name of the keyword argument to store the found subelements.
