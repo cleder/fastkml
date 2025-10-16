@@ -36,11 +36,7 @@ class _Geometry(_BaseObject):
     """
     Baseclass with common methods for all geometry objects.
 
-    Attributes: extrude: boolean --> Specifies whether to connect the feature to
-                                     the ground with a line.
-                tessellate: boolean -->  Specifies whether to allow the LineString
-                                         to follow the terrain.
-                altitudeMode: --> Specifies how altitude components in the <coordinates>
+    Attributes: altitudeMode: --> Specifies how altitude components in the <coordinates>
                                   element are interpreted.
 
     """
@@ -66,8 +62,6 @@ class _Geometry(_BaseObject):
             name_spaces: Name spaces of the object.
             id: Id of the object.
             target_id: Target id of the object.
-            extrude: Specifies whether to connect the feature to the ground with a line.
-            tessellate: Specifies whether to allow the LineString to follow the terrain.
             altitude_mode: Specifies how altitude components in the <coordinates>
                            element are interpreted.
             **kwargs: Additional keyword arguments.
