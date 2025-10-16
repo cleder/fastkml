@@ -97,7 +97,7 @@ If you encounter issues, ensure you have Sphinx and the required extensions inst
 Submitting Changes
 ------------------
 
-Once you've made your changes and ensured that all tests pass, you can submit a pull request:
+Once you've made your changes and ensured that all tests pass, you can submit a pull request.
 
 Tips:
 
