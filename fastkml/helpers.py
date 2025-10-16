@@ -1412,3 +1412,55 @@ def xml_subelement_list_kwarg(
                 ],
             )
     return {kwarg: args_list} if args_list else {}
+
+
+def xml_subelement_list_multi_ns_kwarg(
+    *,
+    element: Element,
+    ns_ids: tuple[str, ...],
+    name_spaces: dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: tuple[type[object], ...],
+    strict: bool,
+) -> dict[str, list["_XMLObject"]]:
+    """
+    Return a dictionary with the specified keyword argument and its list of subelements.
+
+    Args:
+    ----
+        element (Element): The XML element to search within.
+        ns_ids (Tuple[str, ...]): The namespace IDs of the XML element.
+        name_spaces (Dict[str, str]): A dictionary mapping namespace prefixes to URIs.
+        node_name (str): The name of the XML node to search for.
+        kwarg (str): The name of the keyword argument to store the found subelements.
+        classes (Tuple[Type[object], ...]): A tuple of classes that represent the types.
+        strict (bool): A flag indicating whether to enforce strict parsing rules.
+
+    Returns:
+    -------
+        Dict[str, List["_XMLObject"]]: A dictionary containing the specified keyword
+            argument and its list of subelements.
+
+    """
+    args_list = []
+    assert node_name is not None  # noqa: S101
+    assert name_spaces is not None  # noqa: S101
+    for name_space in ns_ids:
+        ns = name_spaces.get(name_space, "")
+        for obj_class in classes:
+            if subelements := element.findall(
+                f"{ns}{obj_class.get_tag_name()}",  # type: ignore[attr-defined]
+            ):
+                args_list.extend(
+                    [
+                        obj_class.class_from_element(  # type: ignore[attr-defined]
+                            ns=ns,
+                            name_spaces=name_spaces,
+                            element=subelement,
+                            strict=strict,
+                        )
+                        for subelement in subelements
+                    ],
+                )
+    return {kwarg: args_list} if args_list else {}

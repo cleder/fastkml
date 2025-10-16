@@ -153,3 +153,7 @@ __all__ = [
     "get_schema_parser",
     "validate",
 ]
+
+from fastkml import _registry_setup
+
+del _registry_setup

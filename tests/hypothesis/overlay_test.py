@@ -33,11 +33,14 @@ from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
 from tests.hypothesis.common import assert_str_roundtrip_verbose
+from tests.hypothesis.strategies import nc_name
 from tests.hypothesis.strategies import xy
 
 
 class TestLxml(Lxml):
     @given(
+        id=st.one_of(st.none(), nc_name()),
+        target_id=st.one_of(st.none(), nc_name()),
         left_fov=st.one_of(st.none(), st.floats(min_value=-180, max_value=180)).filter(
             lambda x: x != 0,
         ),
@@ -57,6 +60,8 @@ class TestLxml(Lxml):
     )
     def test_fuzz_view_volume(
         self,
+        id: Optional[str],
+        target_id: Optional[str],
         left_fov: Optional[float],
         right_fov: Optional[float],
         bottom_fov: Optional[float],
@@ -64,6 +69,8 @@ class TestLxml(Lxml):
         near: Optional[float],
     ) -> None:
         view_volume = fastkml.overlays.ViewVolume(
+            id=id,
+            target_id=target_id,
             left_fov=left_fov,
             right_fov=right_fov,
             bottom_fov=bottom_fov,
@@ -77,6 +84,8 @@ class TestLxml(Lxml):
         assert_str_roundtrip_verbose(view_volume)
 
     @given(
+        id=st.one_of(st.none(), nc_name()),
+        target_id=st.one_of(st.none(), nc_name()),
         tile_size=st.one_of(st.none(), st.integers(min_value=0, max_value=2**31 - 1)),
         max_width=st.one_of(st.none(), st.integers(min_value=0, max_value=2**31 - 1)),
         max_height=st.one_of(st.none(), st.integers(min_value=0, max_value=2**31 - 1)),
@@ -84,12 +93,16 @@ class TestLxml(Lxml):
     )
     def test_fuzz_image_pyramid(
         self,
+        id: Optional[str],
+        target_id: Optional[str],
         tile_size: Optional[int],
         max_width: Optional[int],
         max_height: Optional[int],
         grid_origin: Optional[fastkml.enums.GridOrigin],
     ) -> None:
         image_pyramid = fastkml.overlays.ImagePyramid(
+            id=id,
+            target_id=target_id,
             tile_size=tile_size,
             max_width=max_width,
             max_height=max_height,
@@ -102,6 +115,8 @@ class TestLxml(Lxml):
         assert_str_roundtrip_verbose(image_pyramid)
 
     @given(
+        id=st.one_of(st.none(), nc_name()),
+        target_id=st.one_of(st.none(), nc_name()),
         north=st.one_of(
             st.none(),
             st.floats(min_value=-180, max_value=180).filter(lambda x: x != 0),
@@ -125,6 +140,8 @@ class TestLxml(Lxml):
     )
     def test_fuzz_lat_lon_box(
         self,
+        id: Optional[str],
+        target_id: Optional[str],
         north: Optional[float],
         south: Optional[float],
         east: Optional[float],
@@ -132,6 +149,8 @@ class TestLxml(Lxml):
         rotation: Optional[float],
     ) -> None:
         lat_lon_box = fastkml.overlays.LatLonBox(
+            id=id,
+            target_id=target_id,
             north=north,
             south=south,
             east=east,

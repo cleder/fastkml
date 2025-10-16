@@ -23,7 +23,6 @@ from typing import Union
 
 from fastkml import atom
 from fastkml import config
-from fastkml import gx
 from fastkml.base import _XMLObject
 from fastkml.data import ExtendedData
 from fastkml.enums import AltitudeMode
@@ -32,11 +31,7 @@ from fastkml.enums import Shape
 from fastkml.enums import Units
 from fastkml.features import Snippet
 from fastkml.features import _Feature
-from fastkml.geometry import LinearRing
-from fastkml.geometry import LineString
-from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
-from fastkml.geometry import Polygon
 from fastkml.helpers import attribute_enum_kwarg
 from fastkml.helpers import attribute_float_kwarg
 from fastkml.helpers import clean_string
@@ -52,6 +47,7 @@ from fastkml.helpers import subelement_text_kwarg
 from fastkml.helpers import text_subelement
 from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
+from fastkml.kml_base import _BaseObject
 from fastkml.links import Icon
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
@@ -78,16 +74,6 @@ __all__ = [
 ]
 
 logger = logging.getLogger(__name__)
-
-KmlGeometry = Union[
-    Point,
-    LineString,
-    LinearRing,
-    Polygon,
-    MultiGeometry,
-    gx.MultiTrack,
-    gx.Track,
-]
 
 
 class _Overlay(_Feature):
@@ -262,7 +248,7 @@ registry.register(
 )
 
 
-class ViewVolume(_XMLObject):
+class ViewVolume(_BaseObject):
     """
     The ViewVolume defines how much of the current scene is visible.
 
@@ -300,6 +286,8 @@ class ViewVolume(_XMLObject):
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
         left_fov: Optional[float] = None,
         right_fov: Optional[float] = None,
         bottom_fov: Optional[float] = None,
@@ -316,6 +304,10 @@ class ViewVolume(_XMLObject):
             The namespace for the Overlay element. Defaults to None.
         name_spaces : Optional[Dict[str, str]]
             A dictionary of namespace prefixes and URIs. Defaults to None.
+        id : Optional[str]
+            The ID of the feature.
+        target_id : Optional[str]
+            The target ID of the feature.
         left_fov : Optional[float]
             The left field of view angle in degrees. Defaults to None.
         right_fov : Optional[float]
@@ -334,7 +326,13 @@ class ViewVolume(_XMLObject):
         None
 
         """
-        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.left_fov = left_fov
         self.right_fov = right_fov
         self.bottom_fov = bottom_fov
@@ -347,6 +345,8 @@ class ViewVolume(_XMLObject):
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
             f"left_fov={self.left_fov!r}, "
             f"right_fov={self.right_fov!r}, "
             f"bottom_fov={self.bottom_fov!r}, "
@@ -438,7 +438,7 @@ registry.register(
 )
 
 
-class ImagePyramid(_XMLObject):
+class ImagePyramid(_BaseObject):
     """
     For very large images, you'll need to construct an image pyramid.
 
@@ -483,6 +483,8 @@ class ImagePyramid(_XMLObject):
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
         tile_size: Optional[int] = None,
         max_width: Optional[int] = None,
         max_height: Optional[int] = None,
@@ -498,6 +500,10 @@ class ImagePyramid(_XMLObject):
             The namespace for the overlay.
         name_spaces : Optional[Dict[str, str]]
             A dictionary of namespace prefixes and URIs.
+        id : Optional[str]
+            The ID of the feature.
+        target_id : Optional[str]
+            The target ID of the feature.
         tile_size : Optional[int]
             The size of each tile in pixels.
         max_width : Optional[int]
@@ -514,7 +520,13 @@ class ImagePyramid(_XMLObject):
         None
 
         """
-        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.tile_size = tile_size
         self.max_width = max_width
         self.max_height = max_height
@@ -526,6 +538,8 @@ class ImagePyramid(_XMLObject):
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
             f"tile_size={self.tile_size!r}, "
             f"max_width={self.max_width!r}, "
             f"max_height={self.max_height!r}, "
@@ -876,7 +890,7 @@ registry.register(
 )
 
 
-class LatLonBox(_XMLObject):
+class LatLonBox(_BaseObject):
     """
     Specifies the top, bottom, right, and left sides of a bounding box for an overlay.
 
@@ -913,6 +927,8 @@ class LatLonBox(_XMLObject):
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[dict[str, str]] = None,
+        id: Optional[str] = None,
+        target_id: Optional[str] = None,
         north: Optional[float] = None,
         south: Optional[float] = None,
         east: Optional[float] = None,
@@ -929,6 +945,10 @@ class LatLonBox(_XMLObject):
                 The namespace for the Overlay element.
             name_spaces : Optional[Dict[str, str]]
                 A dictionary of namespace prefixes and URIs.
+            id : Optional[str]
+                The ID of the feature.
+            target_id : Optional[str]
+                The target ID of the feature.
             north : Optional[float]
                 The northern latitude of the Overlay's bounding box.
             south : Optional[float]
@@ -947,7 +967,13 @@ class LatLonBox(_XMLObject):
          None
 
         """
-        super().__init__(ns=ns, name_spaces=name_spaces, **kwargs)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
         self.north = north
         self.south = south
         self.east = east
@@ -960,6 +986,8 @@ class LatLonBox(_XMLObject):
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
+            f"id={self.id!r}, "
+            f"target_id={self.target_id!r}, "
             f"north={self.north!r}, "
             f"south={self.south!r}, "
             f"east={self.east!r}, "

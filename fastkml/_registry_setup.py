@@ -1,4 +1,4 @@
-# Copyright (C) 2023  Christian Ledermann
+# Copyright (C) 2025 Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -13,13 +13,29 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-"""
-About fastkml.
 
-The only purpose of this module is to provide a version number for the package.
-"""
+"""To avoid circular imports, some element registration is performed here."""
 
-__version__ = "1.3.0"
-"""Fastkml version number."""
+import logging
 
-__all__ = ["__version__"]
+from fastkml.data import ExtendedData
+from fastkml.gx.track import Track
+from fastkml.helpers import xml_subelement
+from fastkml.helpers import xml_subelement_kwarg
+from fastkml.registry import RegistryItem
+from fastkml.registry import registry
+
+logger = logging.getLogger(__name__)
+
+
+registry.register(
+    Track,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="extended_data",
+        node_name="ExtendedData",
+        classes=(ExtendedData,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)

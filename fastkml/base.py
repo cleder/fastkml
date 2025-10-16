@@ -353,10 +353,10 @@ class _XMLObject:
         name_spaces = {**config.NAME_SPACES, **name_spaces}
         kwargs: dict[str, Any] = {"ns": ns, "name_spaces": name_spaces}
         for item in registry.get(cls):
-            for name_space in item.ns_ids:
-                kwarg = item.get_kwarg(
+            if item.custom_get_kwarg is not None:
+                kwarg = item.custom_get_kwarg(
                     element=element,
-                    ns=name_spaces.get(name_space, ""),
+                    ns_ids=item.ns_ids,
                     name_spaces=name_spaces,
                     node_name=item.node_name,
                     kwarg=item.attr_name,
@@ -364,10 +364,23 @@ class _XMLObject:
                     strict=strict,
                 )
                 if kwarg:
-                    kwargs.update(
-                        kwarg,
+                    kwargs.update(kwarg)
+            else:
+                for name_space in item.ns_ids:
+                    kwarg = item.get_kwarg(
+                        element=element,
+                        ns=name_spaces.get(name_space, ""),
+                        name_spaces=name_spaces,
+                        node_name=item.node_name,
+                        kwarg=item.attr_name,
+                        classes=item.classes,
+                        strict=strict,
                     )
-                    break
+                    if kwarg:
+                        kwargs.update(
+                            kwarg,
+                        )
+                        break
         return kwargs
 
     @classmethod

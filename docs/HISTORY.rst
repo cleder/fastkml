@@ -1,5 +1,16 @@
 Changelog
 =========
+1.4.0 (unreleased)
+------------------
+
+
+1.3.0 (2025/10/16)
+------------------
+
+- Improve README [Harshdev625]
+- Fix base class of some classes from _XMLObject to _BaseObject [hirohira9119]
+- Add custom_kwargs_getter support for multi-namespace handling [hirohira9119]
+- Add support for GraalPy
 
 1.2.0 (2025/10/01)
 ------------------

@@ -23,18 +23,12 @@ from typing import Optional
 from typing import Union
 
 from fastkml import atom
-from fastkml import gx
 from fastkml.data import ExtendedData
 from fastkml.data import Schema
 from fastkml.features import NetworkLink
 from fastkml.features import Placemark
 from fastkml.features import Snippet
 from fastkml.features import _Feature
-from fastkml.geometry import LinearRing
-from fastkml.geometry import LineString
-from fastkml.geometry import MultiGeometry
-from fastkml.geometry import Point
-from fastkml.geometry import Polygon
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.overlays import GroundOverlay
@@ -55,16 +49,6 @@ from fastkml.views import Region
 logger = logging.getLogger(__name__)
 
 __all__ = ["Document", "Folder"]
-
-KmlGeometry = Union[
-    Point,
-    LineString,
-    LinearRing,
-    Polygon,
-    MultiGeometry,
-    gx.MultiTrack,
-    gx.Track,
-]
 
 
 class _Container(_Feature):
