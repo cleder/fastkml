@@ -19,13 +19,13 @@
 import pytest
 from pygeoif import geometry as geo
 
+from fastkml.abstract_geometry import _Geometry
 from fastkml.enums import AltitudeMode
 from fastkml.geometry import LinearRing
 from fastkml.geometry import LineString
 from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
-from fastkml.geometry import _Geometry
 from fastkml.geometry import create_kml_geometry
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -231,6 +231,23 @@ class TestGetGeometry(StdLibrary):
 
         assert g.geometry is not None
         assert len(g.geometry) == 2
+
+    def test_multi_ns(self) -> None:
+        doc = """
+        <kml:MultiGeometry xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:Point>
+            <kml:coordinates>0.000000,1.000000</kml:coordinates>
+          </kml:Point>
+          <gx:Track xmlns:gx="http://www.google.com/kml/ext/2.2">
+            <kml:when>2000-01-01</kml:when>
+            <gx:coord>1.0 1.0</gx:coord>
+          </gx:Track>
+        </kml:MultiGeometry>
+        """
+
+        g = MultiGeometry.from_string(doc)
+
+        assert len(g.geometry) == 2  # type: ignore[arg-type]
 
     def test_geometrycollection(self) -> None:
         doc = """

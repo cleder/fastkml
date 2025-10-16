@@ -45,12 +45,15 @@ from pygeoif.types import LineType
 from typing_extensions import Self
 
 from fastkml import config
+from fastkml.abstract_geometry import _Geometry
 from fastkml.base import _XMLObject
 from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
 from fastkml.exceptions import GeometryError
 from fastkml.exceptions import KMLParseError
 from fastkml.exceptions import KMLWriteError
+from fastkml.gx.track import MultiTrack
+from fastkml.gx.track import Track
 from fastkml.helpers import bool_subelement
 from fastkml.helpers import enum_subelement
 from fastkml.helpers import subelement_bool_kwarg
@@ -59,6 +62,7 @@ from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.helpers import xml_subelement_list_multi_ns_kwarg
 from fastkml.kml_base import _BaseObject
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
@@ -304,57 +308,6 @@ registry.register(
         set_element=coordinates_subelement,
     ),
 )
-
-
-class _Geometry(_BaseObject):
-    """
-    Baseclass with common methods for all geometry objects.
-
-    Attributes: extrude: boolean --> Specifies whether to connect the feature to
-                                     the ground with a line.
-                tessellate: boolean -->  Specifies whether to allow the LineString
-                                         to follow the terrain.
-                altitudeMode: --> Specifies how altitude components in the <coordinates>
-                                  element are interpreted.
-
-    """
-
-    altitude_mode: Optional[AltitudeMode]
-
-    def __init__(
-        self,
-        *,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        altitude_mode: Optional[AltitudeMode] = None,
-        **kwargs: Any,
-    ) -> None:
-        """
-        Initialize a _Geometry object.
-
-        Args:
-        ----
-            ns: Namespace of the object.
-            name_spaces: Name spaces of the object.
-            id: Id of the object.
-            target_id: Target id of the object.
-            extrude: Specifies whether to connect the feature to the ground with a line.
-            tessellate: Specifies whether to allow the LineString to follow the terrain.
-            altitude_mode: Specifies how altitude components in the <coordinates>
-                           element are interpreted.
-            **kwargs: Additional keyword arguments.
-
-        """
-        super().__init__(
-            ns=ns,
-            id=id,
-            name_spaces=name_spaces,
-            target_id=target_id,
-            **kwargs,
-        )
-        self.altitude_mode = altitude_mode
 
 
 class Point(_Geometry):
@@ -1230,7 +1183,9 @@ def create_multigeometry(
 class MultiGeometry(_BaseObject):
     """A container for zero or more geometry primitives."""
 
-    kml_geometries: list[Union[Point, LineString, Polygon, LinearRing, Self]]
+    kml_geometries: list[
+        Union[Point, LineString, Polygon, LinearRing, Self, Track, MultiTrack]
+    ]
 
     def __init__(
         self,
@@ -1243,7 +1198,9 @@ class MultiGeometry(_BaseObject):
         tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
         kml_geometries: Optional[
-            Iterable[Union[Point, LineString, Polygon, LinearRing, Self]]
+            Iterable[
+                Union[Point, LineString, Polygon, LinearRing, Self, Track, MultiTrack]
+            ]
         ] = None,
         geometry: Optional[MultiGeometryType] = None,
         **kwargs: Any,
@@ -1346,17 +1303,34 @@ class MultiGeometry(_BaseObject):
 registry.register(
     MultiGeometry,
     item=RegistryItem(
-        ns_ids=("kml", ""),
-        classes=(Point, LineString, Polygon, LinearRing, MultiGeometry),
+        ns_ids=("kml", "", "gx"),
+        classes=(
+            Point,
+            LineString,
+            Polygon,
+            LinearRing,
+            MultiGeometry,
+            Track,
+            MultiTrack,
+        ),
         attr_name="kml_geometries",
-        node_name="(Point|LineString|Polygon|LinearRing|MultiGeometry)",
+        node_name="Point,LineString,Polygon,LinearRing,MultiGeometry,Track,MultiTrack",
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
+        custom_get_kwarg=xml_subelement_list_multi_ns_kwarg,
     ),
 )
 
 
-KMLGeometryType = Union[Point, LineString, Polygon, LinearRing, MultiGeometry]
+KMLGeometryType = Union[
+    Point,
+    LineString,
+    Polygon,
+    LinearRing,
+    MultiGeometry,
+    Track,
+    MultiTrack,
+]
 
 
 def _unknown_geometry_type(geometry: Union[GeoType, GeoCollectionType]) -> NoReturn:
