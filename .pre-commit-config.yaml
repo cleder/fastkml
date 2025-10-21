@@ -66,7 +66,7 @@ repos:
     rev: v1.18.2
     hooks:
       - id: mypy
-        additional_dependencies: [pygeoif>=1.4, arrow, pytest, hypothesis]
+        additional_dependencies: [pygeoif>=1.4, arrow, pytest, hypothesis, types-python-dateutil]
   - repo: https://github.com/adamchainz/blacken-docs
     rev: "1.20.0"
     hooks:
