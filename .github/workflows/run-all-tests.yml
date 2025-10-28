@@ -169,6 +169,28 @@ jobs:
         run: |
           python -m pip install vercheck
           vercheck $GITHUB_REF_NAME fastkml/about.py
+      - name: Compare tag to latest version on main
+        if: >-
+          github.event_name == 'push' &&
+          startsWith(github.ref, 'refs/tags')
+        run: |
+          git fetch origin main
+          MAIN_VERSION=$(git show origin/main:fastkml/about.py | grep -oP '__version__ = "\K[^"]+')
+          TAG_VERSION=$GITHUB_REF_NAME
+          echo "Main branch version: $MAIN_VERSION"
+          echo "Tag version: $TAG_VERSION"
+          python -m pip install packaging
+          python -c "
+          from packaging import version
+          import sys
+          main_ver = version.parse('$MAIN_VERSION')
+          tag_ver = version.parse('$TAG_VERSION')
+          print(f'Comparing versions: main={main_ver} vs tag={tag_ver}')
+          if tag_ver <= main_ver:
+              print(f'ERROR: Tag version {tag_ver} must be greater than main version {main_ver}')
+              sys.exit(1)
+          print(f'✓ Tag version {tag_ver} is greater than main version {main_ver}')
+          "
 
   test-publish:
     if: >-
