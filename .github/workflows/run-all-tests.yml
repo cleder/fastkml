@@ -175,16 +175,36 @@ jobs:
           startsWith(github.ref, 'refs/tags')
         run: |
           git fetch origin main
-          MAIN_VERSION=$(git show origin/main:fastkml/about.py | grep -oP '__version__ = "\K[^"]+')
-          TAG_VERSION=$GITHUB_REF_NAME
+          MAIN_VERSION=$(git show origin/main:fastkml/about.py | \
+            grep '__version__ =' | sed 's/__version__ = "\(.*\)"/\1/')
+          if [ -z "$MAIN_VERSION" ]; then
+            echo "ERROR: Could not extract version from main branch"
+            exit 1
+          fi
+          export MAIN_VERSION
+          export TAG_VERSION="${GITHUB_REF_NAME}"
           echo "Main branch version: $MAIN_VERSION"
           echo "Tag version: $TAG_VERSION"
           python -m pip install packaging
           python -c "
-          from packaging import version
+          import os
           import sys
-          main_ver = version.parse('$MAIN_VERSION')
-          tag_ver = version.parse('$TAG_VERSION')
+          from packaging import version
+
+          main_ver_str = os.environ.get('MAIN_VERSION')
+          tag_ver_str = os.environ.get('TAG_VERSION')
+
+          if not main_ver_str or not tag_ver_str:
+              print('ERROR: Version variables not set')
+              sys.exit(1)
+
+          try:
+              main_ver = version.parse(main_ver_str)
+              tag_ver = version.parse(tag_ver_str)
+          except Exception as e:
+              print(f'ERROR: Failed to parse versions: {e}')
+              sys.exit(1)
+
           print(f'Comparing versions: main={main_ver} vs tag={tag_ver}')
           if tag_ver <= main_ver:
               print(f'ERROR: Tag version {tag_ver} must be greater than main version {main_ver}')
