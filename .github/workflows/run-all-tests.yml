@@ -189,7 +189,7 @@ jobs:
           python -c "
           import os
           import sys
-          from packaging import version
+          from packaging.version import parse, InvalidVersion
 
           main_ver_str = os.environ.get('MAIN_VERSION')
           tag_ver_str = os.environ.get('TAG_VERSION')
@@ -199,9 +199,9 @@ jobs:
               sys.exit(1)
 
           try:
-              main_ver = version.parse(main_ver_str)
-              tag_ver = version.parse(tag_ver_str)
-          except Exception as e:
+              main_ver = parse(main_ver_str)
+              tag_ver = parse(tag_ver_str)
+          except InvalidVersion as e:
               print(f'ERROR: Failed to parse versions: {e}')
               sys.exit(1)
 
