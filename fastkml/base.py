@@ -180,7 +180,6 @@ class _XMLObject:
         verbosity: Verbosity = Verbosity.normal,
     ) -> None:
         """
-
         Populate an existing XML element with attributes and child elements.
 
         This method adds the object's attributes and child elements to an existing
