@@ -3,6 +3,7 @@ Changelog
 1.4.0 (unreleased)
 ------------------
 
+- Optimize xml_subelement to avoid lxml O(n^2) slowdown by using SubElement [hirohira9119]
 
 1.3.0 (2025/10/16)
 ------------------
