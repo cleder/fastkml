@@ -673,12 +673,15 @@ def xml_subelement(
         None
 
     """
-    if getattr(obj, attr_name, None):
-        element.append(
-            getattr(obj, attr_name).etree_element(
-                precision=precision,
-                verbosity=verbosity,
-            ),
+    if child_obj := getattr(obj, attr_name, None):
+        child_element = config.etree.SubElement(
+            element,
+            f"{child_obj.ns}{child_obj.get_tag_name()}",
+        )
+        child_obj.populate_element(
+            child_element,
+            precision=precision,
+            verbosity=verbosity,
         )
 
 
@@ -710,11 +713,17 @@ def xml_subelement_list(
         None
 
     """
-    if getattr(obj, attr_name, None):
-        for item in getattr(obj, attr_name):
+    if items := getattr(obj, attr_name, None):
+        for item in items:
             if item:
-                element.append(
-                    item.etree_element(precision=precision, verbosity=verbosity),
+                child_element = config.etree.SubElement(
+                    element,
+                    f"{item.ns}{item.get_tag_name()}",
+                )
+                item.populate_element(
+                    element=child_element,
+                    precision=precision,
+                    verbosity=verbosity,
                 )
 
 

@@ -170,6 +170,34 @@ class _XMLObject:
         element: Element = config.etree.Element(
             f"{self.ns}{self.get_tag_name()}",
         )
+        self.populate_element(element, precision, verbosity)
+        return element
+
+    def populate_element(
+        self,
+        element: Element,
+        precision: Optional[int] = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> None:
+        """
+
+        Populate an existing XML element with attributes and child elements.
+
+        This method adds the object's attributes and child elements to an existing
+        etree Element, using the registry to determine how each attribute should be
+        serialized. It is used internally by `etree_element` and by helper functions
+        like `xml_subelement` to build XML structures incrementally.
+
+        Parameters
+        ----------
+        element : Element
+            The XML element to populate with this object's data.
+        precision : Optional[int], default=None
+            The precision of the KML object.
+        verbosity : Verbosity, default=Verbosity.normal
+            The verbosity level.
+
+        """
         for item in registry.get(self.__class__):
             item.set_element(
                 obj=self,
@@ -180,7 +208,6 @@ class _XMLObject:
                 verbosity=verbosity,
                 default=item.default,
             )
-        return element
 
     def to_string(
         self,
