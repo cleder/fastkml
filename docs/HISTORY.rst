@@ -1,8 +1,9 @@
 Changelog
 =========
-1.4.0 (unreleased)
+1.4.0 (2025/11/04)
 ------------------
 
+- Optimize xml_subelement to avoid lxml O(n^2) slowdown by using SubElement [hirohira9119]
 
 1.3.0 (2025/10/16)
 ------------------

@@ -84,6 +84,7 @@ tests = [
 ]
 typing = [
     "mypy",
+    "types-python-dateutil",
 ]
 
 [project.readme]

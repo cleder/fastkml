@@ -1,4 +1,4 @@
-# Copyright (C) 2023  Christian Ledermann
+# Copyright (C) 2023 - 2025  Christian Ledermann
 #
 # This library is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -19,7 +19,7 @@ About fastkml.
 The only purpose of this module is to provide a version number for the package.
 """
 
-__version__ = "1.3.0"
+__version__ = "1.4.0"
 """Fastkml version number."""
 
 __all__ = ["__version__"]
