@@ -73,7 +73,7 @@ for VSCode, which needs the output to be in the ``xml`` format produced with
 ``--cov-report=xml``.
 
 Building the Documentation
--------------------------
+--------------------------
 
 To build and preview the documentation locally:
 
@@ -93,6 +93,41 @@ To build and preview the documentation locally:
     The generated HTML files will be in `docs/_build/html`. Open `index.html` in your browser to preview.
 
 If you encounter issues, ensure you have Sphinx and the required extensions installed, and that your virtual environment is activated.
+
+Code Guidelines
+---------------
+
+Implementing ``__bool__`` for XMLObject Classes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When implementing ``__bool__`` for classes that inherit from ``_XMLObject``, follow these
+principles:
+
+* An ``_XMLObject`` should evaluate to ``False`` if it provides no meaningful information
+  beyond default values—meaning a client would not notice if it were absent.
+* If an element has required fields per the KML specification (e.g., ``Update`` requires
+  ``targetHref``), the element should evaluate to ``False`` when those required fields
+  are missing, since the element cannot be applied without them.
+* For elements with optional content, evaluate to ``True`` only if meaningful data is present.
+
+Example:
+
+.. code-block:: python
+
+    def __bool__(self) -> bool:
+        """
+        Check if the element can be meaningfully applied.
+
+        Returns True only if required fields are present.
+        """
+        return bool(self.required_field)  # False if required field is missing
+
+Example Scripts
+^^^^^^^^^^^^^^^
+
+All Python scripts in the ``examples/`` directory must be valid and executable without
+raising exceptions. Each example should be self-contained and demonstrate a working
+use case of the library.
 
 Submitting Changes
 ------------------
