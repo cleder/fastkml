@@ -21,6 +21,7 @@ import datetime
 from dateutil.tz import tzutc
 
 from fastkml import views
+from fastkml.containers import Folder
 from fastkml.features import Placemark
 from fastkml.network_link_control import Change
 from fastkml.network_link_control import Create
@@ -92,30 +93,29 @@ class TestStdLibrary(StdLibrary):
         change = Change(objects=[placemark])
         update = Update(
             target_href="http://example.com/target.kml",
-            change=change,
+            operations=[change],
         )
 
         assert update.target_href == "http://example.com/target.kml"
-        assert update.change is not None
-        assert len(update.change.objects) == 1
-        assert update.change.objects[0].name == "Test Placemark"
-        assert update.create is None
-        assert update.delete is None
+        assert len(update.operations) == 1
+        assert isinstance(update.operations[0], Change)
+        assert len(update.operations[0].objects) == 1
+        assert update.operations[0].objects[0].name == "Test Placemark"
 
     def test_update_with_create(self) -> None:
         """Test Update with Create action."""
-        placemark = Placemark(id="new_pm", name="New Placemark")
-        create = Create(objects=[placemark])
+        # Create can only contain containers (Document, Folder) per the schema
+        folder = Folder(id="new_folder", name="New Folder")
+        create = Create(objects=[folder])
         update = Update(
             target_href="http://example.com/target.kml",
-            create=create,
+            operations=[create],
         )
 
         assert update.target_href == "http://example.com/target.kml"
-        assert update.create is not None
-        assert len(update.create.objects) == 1
-        assert update.change is None
-        assert update.delete is None
+        assert len(update.operations) == 1
+        assert isinstance(update.operations[0], Create)
+        assert len(update.operations[0].objects) == 1
 
     def test_update_with_delete(self) -> None:
         """Test Update with Delete action."""
@@ -123,14 +123,35 @@ class TestStdLibrary(StdLibrary):
         delete = Delete(objects=[placemark])
         update = Update(
             target_href="http://example.com/target.kml",
-            delete=delete,
+            operations=[delete],
         )
 
         assert update.target_href == "http://example.com/target.kml"
-        assert update.delete is not None
-        assert len(update.delete.objects) == 1
-        assert update.create is None
-        assert update.change is None
+        assert len(update.operations) == 1
+        assert isinstance(update.operations[0], Delete)
+        assert len(update.operations[0].objects) == 1
+
+    def test_update_with_multiple_operations(self) -> None:
+        """Test Update with multiple operations in order."""
+        folder = Folder(id="new_folder", name="New Folder")
+        create = Create(objects=[folder])
+
+        placemark = Placemark(target_id="pm1", name="Updated Name")
+        change = Change(objects=[placemark])
+
+        delete_placemark = Placemark(target_id="pm2")
+        delete = Delete(objects=[delete_placemark])
+
+        update = Update(
+            target_href="http://example.com/target.kml",
+            operations=[create, change, delete],
+        )
+
+        assert update.target_href == "http://example.com/target.kml"
+        assert len(update.operations) == 3
+        assert isinstance(update.operations[0], Create)
+        assert isinstance(update.operations[1], Change)
+        assert isinstance(update.operations[2], Delete)
 
     def test_network_link_control_with_update(self) -> None:
         """Test NetworkLinkControl with Update."""
@@ -138,14 +159,14 @@ class TestStdLibrary(StdLibrary):
         change = Change(objects=[placemark])
         update = Update(
             target_href="http://example.com/target.kml",
-            change=change,
+            operations=[change],
         )
         nlc = NetworkLinkControl(update=update)
 
         assert nlc.update is not None
         assert nlc.update.target_href == "http://example.com/target.kml"
-        assert nlc.update.change is not None
-        assert len(nlc.update.change.objects) == 1
+        assert len(nlc.update.operations) == 1
+        assert isinstance(nlc.update.operations[0], Change)
 
     def test_update_kml_roundtrip(self) -> None:
         """Test Update serialization and parsing roundtrip."""
@@ -153,7 +174,7 @@ class TestStdLibrary(StdLibrary):
         change = Change(objects=[placemark])
         update = Update(
             target_href="http://example.com/target.kml",
-            change=change,
+            operations=[change],
         )
         nlc = NetworkLinkControl(update=update)
 
@@ -165,9 +186,9 @@ class TestStdLibrary(StdLibrary):
 
         assert parsed_nlc.update is not None
         assert parsed_nlc.update.target_href == "http://example.com/target.kml"
-        assert parsed_nlc.update.change is not None
-        assert len(parsed_nlc.update.change.objects) == 1
-        assert parsed_nlc.update.change.objects[0].name == "Updated Placemark"
+        assert len(parsed_nlc.update.operations) == 1
+        assert isinstance(parsed_nlc.update.operations[0], Change)
+        assert parsed_nlc.update.operations[0].objects[0].name == "Updated Placemark"
 
     def test_update_kml_parsing(self) -> None:
         """Test parsing Update from KML string."""
@@ -188,10 +209,10 @@ class TestStdLibrary(StdLibrary):
 
         assert nlc.update is not None
         assert nlc.update.target_href == "http://example.com/target.kml"
-        assert nlc.update.change is not None
-        assert len(nlc.update.change.objects) == 1
-        assert nlc.update.change.objects[0].name == "Changed Name"
-        assert nlc.update.change.objects[0].target_id == "pm1"
+        assert len(nlc.update.operations) == 1
+        assert isinstance(nlc.update.operations[0], Change)
+        assert nlc.update.operations[0].objects[0].name == "Changed Name"
+        assert nlc.update.operations[0].objects[0].target_id == "pm1"
 
 
 class TestLxml(Lxml, TestStdLibrary):

@@ -38,6 +38,8 @@ from fastkml.helpers import subelement_text_kwarg
 from fastkml.helpers import text_subelement
 from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
+from fastkml.helpers import xml_subelement_list
+from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 from fastkml.times import KmlDateTime
@@ -166,24 +168,23 @@ class Update(_XMLObject):
     Furthermore, the file containing the NetworkLinkControl must have been loaded
     by a NetworkLink.
 
+    According to the KML schema, Update can contain any number of Create, Delete,
+    and Change elements which are processed in order.
+
     https://developers.google.com/kml/documentation/kmlreference#update
     """
 
     _default_nsid = config.KML
 
     target_href: Optional[str]
-    create: Optional[Create]
-    delete: Optional[Delete]
-    change: Optional[Change]
+    operations: list[Union[Create, Delete, Change]]
 
     def __init__(
         self,
         ns: Optional[str] = None,
         name_spaces: Optional[dict[str, str]] = None,
         target_href: Optional[str] = None,
-        create: Optional[Create] = None,
-        delete: Optional[Delete] = None,
-        change: Optional[Change] = None,
+        operations: Optional[Iterable[Union[Create, Delete, Change]]] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -197,12 +198,9 @@ class Update(_XMLObject):
             A dictionary of namespaces to use for the Update object.
         target_href : str, optional
             A URL that specifies the .kml or .kmz file whose data is to be modified.
-        create : Create, optional
-            Specifies new elements to be added to a loaded KML file.
-        delete : Delete, optional
-            Specifies elements to be deleted from a loaded KML file.
-        change : Change, optional
-            Specifies elements to be changed in a loaded KML file.
+        operations : Iterable[Union[Create, Delete, Change]], optional
+            A sequence of update operations (Create, Delete, Change) to be applied
+            in order.
         **kwargs : Any, optional
             Additional keyword arguments.
 
@@ -213,9 +211,7 @@ class Update(_XMLObject):
             **kwargs,
         )
         self.target_href = clean_string(target_href)
-        self.create = create
-        self.delete = delete
-        self.change = change
+        self.operations = list(operations) if operations else []
 
     def __repr__(self) -> str:
         """
@@ -231,9 +227,7 @@ class Update(_XMLObject):
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
             f"target_href={self.target_href!r}, "
-            f"create={self.create!r}, "
-            f"delete={self.delete!r}, "
-            f"change={self.change!r}, "
+            f"operations={self.operations!r}, "
             f"**{self._get_splat()!r},"
             ")"
         )
@@ -245,10 +239,10 @@ class Update(_XMLObject):
         Returns
         -------
         bool
-            True if the update has a target href or any actions, False otherwise.
+            True if the update has a target href or any operations, False otherwise.
 
         """
-        return bool(self.target_href or self.create or self.delete or self.change)
+        return bool(self.target_href or self.operations)
 
 
 class NetworkLinkControl(_XMLObject):
@@ -492,32 +486,10 @@ registry.register(
     Update,
     RegistryItem(
         ns_ids=("kml",),
-        attr_name="create",
-        node_name="Create",
-        classes=(Create,),
-        get_kwarg=xml_subelement_kwarg,
-        set_element=xml_subelement,
-    ),
-)
-registry.register(
-    Update,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="delete",
-        node_name="Delete",
-        classes=(Delete,),
-        get_kwarg=xml_subelement_kwarg,
-        set_element=xml_subelement,
-    ),
-)
-registry.register(
-    Update,
-    RegistryItem(
-        ns_ids=("kml",),
-        attr_name="change",
-        node_name="Change",
-        classes=(Change,),
-        get_kwarg=xml_subelement_kwarg,
-        set_element=xml_subelement,
+        attr_name="operations",
+        node_name="Create,Delete,Change",
+        classes=(Create, Delete, Change),
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
     ),
 )

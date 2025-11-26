@@ -159,7 +159,7 @@ class TestLxml(Lxml):
         change = fastkml.Change(objects=[placemark])
         update = fastkml.Update(
             target_href=target_href,
-            change=change,
+            operations=[change],
         )
 
         assert_repr_roundtrip(update)
@@ -187,7 +187,7 @@ class TestLxml(Lxml):
         change = fastkml.Change(objects=[placemark])
         update = fastkml.Update(
             target_href=target_href,
-            change=change,
+            operations=[change],
         )
         nlc = fastkml.NetworkLinkControl(update=update)
 
