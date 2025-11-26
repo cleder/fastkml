@@ -21,6 +21,13 @@ This file provides instructions for AI coding assistants (like GitHub Copilot) t
     - **Property Testing**: `hypothesis` is heavily used for generating test data.
     - **Naming**: `*_test.py`.
 
+### Documentation (`docs/**/*.rst`)
+- **Description**: Project documentation.
+- **Conventions**:
+    - **Format**: ReStructuredText (`.rst`).
+    - **Tooling**: `sphinx` with `sphinx-autobuild` for live preview.
+    - **Linking**: Use `sphinx.ext.autodoc` for auto-generated documentation.
+
 ### Examples (`examples/**/*.py`)
 - **Description**: Usage demonstrations.
 - **Conventions**: Simple, runnable scripts.
