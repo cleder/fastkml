@@ -130,48 +130,169 @@ class _UpdateAction(_XMLObject):
 
 class Create(_UpdateAction):
     """
-    Create element for Update.
+    Adds new elements to a Folder or Document already loaded via a NetworkLink.
 
-    Adds new elements to a Folder or Document that has already been loaded via a
-    NetworkLink. The targetHref element in Update specifies the file containing
-    the element(s) to be modified.
+    The ``<targetHref>`` element in ``<Update>`` specifies the URL of the .kml or .kmz
+    file that contained the original Folder or Document. Within that file, the Folder
+    or Document that is to contain the new data must already have an explicit ``id``
+    defined for it. This ``id`` is referenced as the ``targetId`` attribute of the
+    Folder or Document within ``<Create>`` that contains the element to be added.
+
+    Once an object has been created and loaded into Google Earth, it takes on the URL
+    of the original parent Document or Folder. To perform subsequent updates to objects
+    added with this Update/Create mechanism, set ``<targetHref>`` to the URL of the
+    original Document or Folder (not the URL of the file that loaded the intervening
+    updates).
+
+    Example:
+    -------
+    This example creates a new Placemark in a previously created Document that has
+    an ``id`` of "region24". Note that subsequent updates to "placemark891" will still
+    use the original targetHref::
+
+        <Update>
+          <targetHref>http://myserver.com/Point.kml</targetHref>
+          <Create>
+            <Document targetId="region24">
+              <Placemark id="placemark891">
+                <Point>
+                  <coordinates>-95.48,40.43,0</coordinates>
+                </Point>
+              </Placemark>
+            </Document>
+          </Create>
+        </Update>
+
+    https://developers.google.com/kml/documentation/kmlreference#create
+
     """
 
 
 class Delete(_UpdateAction):
     """
-    Delete element for Update.
+    Deletes features from a complex element already loaded via a NetworkLink.
 
-    Deletes features from a complex element that has already been loaded via a
-    NetworkLink. The targetHref element in Update specifies the file containing
-    the element(s) to be deleted.
+    The ``<targetHref>`` element in ``<Update>`` specifies the .kml or .kmz file
+    containing the data to be deleted. Within that file, the element to be deleted
+    must already have an explicit ``id`` defined for it. The ``<Delete>`` element
+    references this ``id`` in the ``targetId`` attribute.
+
+    Child elements for ``<Delete>``, which are the only elements that can be deleted,
+    are ``Document``, ``Folder``, ``GroundOverlay``, ``Placemark``, and
+    ``ScreenOverlay``.
+
+    Example:
+    -------
+    This example deletes a Placemark previously loaded into Google Earth::
+
+        <Update>
+          <targetHref>http://www.foo.com/Point.kml</targetHref>
+          <Delete>
+            <Placemark targetId="pa3556"/>
+          </Delete>
+        </Update>
+
+    https://developers.google.com/kml/documentation/kmlreference#delete
+
     """
 
 
 class Change(_UpdateAction):
     """
-    Change element for Update.
+    Modifies the values in an element already loaded with a NetworkLink.
 
-    Modifies the values in an element that has already been loaded via a NetworkLink.
-    The targetHref element in Update specifies the file containing the element(s)
-    to be modified.
+    Within the ``<Change>`` element, the child to be modified must include a
+    ``targetId`` attribute that references the original element's ``id``.
+
+    This update can be considered a "sparse update": in the modified element, only
+    the values listed in ``<Change>`` are replaced; all other values remain untouched.
+    When ``<Change>`` is applied to a set of coordinates, the new coordinates replace
+    the current coordinates.
+
+    Children of this element are the element(s) to be modified, which are identified
+    by the ``targetId`` attribute.
+
+    Example:
+    -------
+    This example changes the coordinates of a Point with id "point123"::
+
+        <NetworkLinkControl>
+          <Update>
+            <targetHref>http://www/~sam/January14Data/Point.kml</targetHref>
+            <Change>
+              <Point targetId="point123">
+                <coordinates>-95.48,40.43,0</coordinates>
+              </Point>
+            </Change>
+          </Update>
+        </NetworkLinkControl>
+
+    https://developers.google.com/kml/documentation/kmlreference#change
+
     """
 
 
 class Update(_XMLObject):
     """
-    Specifies an addition, change, or deletion to KML data.
+    Specifies an addition, change, or deletion to KML data already loaded.
 
-    The data has already been loaded using the specified URL.
-    The <targetHref> specifies the .kml or .kmz file whose data (within Google Earth)
-    is to be modified. <Update> is always contained in a NetworkLinkControl.
-    Furthermore, the file containing the NetworkLinkControl must have been loaded
-    by a NetworkLink.
+    The ``<targetHref>`` specifies the .kml or .kmz file whose data (within Google
+    Earth) is to be modified. ``<Update>`` is always contained in a
+    ``NetworkLinkControl``. Furthermore, the file containing the ``NetworkLinkControl``
+    must have been loaded by a ``NetworkLink``.
 
-    According to the KML schema, Update can contain any number of Create, Delete,
-    and Change elements which are processed in order.
+    ``Update`` can contain any number of ``<Change>``, ``<Create>``, and ``<Delete>``
+    elements, which will be processed in order.
+
+    How Updates Work
+    ----------------
+    1. A ``NetworkLink`` loads the "original" KML file into Google Earth. An element
+       that will later be updated needs to have an explicit ``id`` defined when it
+       is first specified. The ``id``s must be unique within a given file.
+
+    2. Another ``NetworkLink`` loads a second KML file containing the updates (any
+       combination of Change, Create, and Delete) to the KML object(s) that have
+       already been loaded.
+
+    3. The update file contains two references to identify the original KML data:
+
+       - To locate the objects within Google Earth, the ``Update`` element uses the
+         ``targetHref`` element to identify the original file that defined the
+         object(s) to be modified.
+       - To identify the object(s) to be modified or the container for new objects,
+         the ``Change``, ``Create``, and ``Delete`` elements contain a ``targetId``
+         attribute that references the ``id``s of those objects.
+
+    Syntax
+    ------
+    ::
+
+        <Update>
+          <targetHref>...</targetHref>    <!-- required, URL -->
+          <Change>...</Change>
+          <Create>...</Create>
+          <Delete>...</Delete>
+        </Update>
+
+    Example:
+    -------
+    A complete example showing how to change a Placemark's name::
+
+        <NetworkLinkControl>
+          <Update>
+            <targetHref>http://developers.google.com/kml/documentation/Point.kml
+            </targetHref>
+            <Change>
+              <Placemark targetId="pm123">
+                <name>Name changed by Update Change</name>
+              </Placemark>
+            </Change>
+          </Update>
+        </NetworkLinkControl>
 
     https://developers.google.com/kml/documentation/kmlreference#update
+    https://developers.google.com/kml/documentation/updates
+
     """
 
     _default_nsid = config.KML
