@@ -74,7 +74,7 @@ To implement a new KML feature (e.g., a new KML element):
     def __bool__(self) -> bool:
         """
         Check if the element can be meaningfully applied.
-        
+
         Returns True only if required fields are present.
         """
         return bool(self.required_field)  # False if required field is missing
