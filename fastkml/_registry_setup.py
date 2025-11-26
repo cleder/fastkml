@@ -28,9 +28,6 @@ from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
-from fastkml.network_link_control import Change
-from fastkml.network_link_control import Create
-from fastkml.network_link_control import Delete
 from fastkml.network_link_control import _UpdateAction
 from fastkml.overlays import GroundOverlay
 from fastkml.overlays import PhotoOverlay

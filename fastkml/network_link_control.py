@@ -38,8 +38,6 @@ from fastkml.helpers import subelement_text_kwarg
 from fastkml.helpers import text_subelement
 from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
-from fastkml.helpers import xml_subelement_list
-from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 from fastkml.times import KmlDateTime
