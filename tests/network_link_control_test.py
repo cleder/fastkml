@@ -101,7 +101,9 @@ class TestStdLibrary(StdLibrary):
         assert len(update.operations) == 1
         assert isinstance(update.operations[0], Change)
         assert len(update.operations[0].objects) == 1
-        assert update.operations[0].objects[0].name == "Test Placemark"
+        obj = update.operations[0].objects[0]
+        assert isinstance(obj, Placemark)
+        assert obj.name == "Test Placemark"
 
     def test_update_with_create(self) -> None:
         """Test Update with Create action."""
@@ -189,7 +191,9 @@ class TestStdLibrary(StdLibrary):
         assert parsed_nlc.update.target_href == "http://example.com/target.kml"
         assert len(parsed_nlc.update.operations) == 1
         assert isinstance(parsed_nlc.update.operations[0], Change)
-        assert parsed_nlc.update.operations[0].objects[0].name == "Updated Placemark"
+        obj = parsed_nlc.update.operations[0].objects[0]
+        assert isinstance(obj, Placemark)
+        assert obj.name == "Updated Placemark"
 
     def test_update_kml_parsing(self) -> None:
         """Test parsing Update from KML string."""
@@ -212,8 +216,10 @@ class TestStdLibrary(StdLibrary):
         assert nlc.update.target_href == "http://example.com/target.kml"
         assert len(nlc.update.operations) == 1
         assert isinstance(nlc.update.operations[0], Change)
-        assert nlc.update.operations[0].objects[0].name == "Changed Name"
-        assert nlc.update.operations[0].objects[0].target_id == "pm1"
+        obj = nlc.update.operations[0].objects[0]
+        assert isinstance(obj, Placemark)
+        assert obj.name == "Changed Name"
+        assert obj.target_id == "pm1"
 
 
 class TestLxml(Lxml, TestStdLibrary):
