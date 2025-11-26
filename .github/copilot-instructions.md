@@ -106,3 +106,16 @@ To implement a new KML feature (e.g., a new KML element):
         cam = Camera(longitude=10.0, latitude=20.0)
         assert "<longitude>10.0</longitude>" in cam.to_string()
     ```
+
+## Commands
+
+Run these commands to check the codebase:
+
+- `ruff check fastkml tests examples docs`
+- `ruff format fastkml tests examples docs`
+- `pytest tests`
+- `mypy fastkml tests examples docs`
+- `sphinx-build -b html docs docs/_build/html`
+- `complexipy fastkml`
+- `lizard fastkml`
+- `python -m doctest docs/*.rst`
