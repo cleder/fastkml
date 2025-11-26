@@ -21,7 +21,12 @@ import datetime
 from dateutil.tz import tzutc
 
 from fastkml import views
+from fastkml.features import Placemark
+from fastkml.network_link_control import Change
+from fastkml.network_link_control import Create
+from fastkml.network_link_control import Delete
 from fastkml.network_link_control import NetworkLinkControl
+from fastkml.network_link_control import Update
 from fastkml.times import KmlDateTime
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -80,6 +85,113 @@ class TestStdLibrary(StdLibrary):
         )
 
         assert nc == nc_obj
+
+    def test_update_obj(self) -> None:
+        """Test Update object creation."""
+        placemark = Placemark(id="pm1", target_id="pm1", name="Test Placemark")
+        change = Change(objects=[placemark])
+        update = Update(
+            target_href="http://example.com/target.kml",
+            change=change,
+        )
+
+        assert update.target_href == "http://example.com/target.kml"
+        assert update.change is not None
+        assert len(update.change.objects) == 1
+        assert update.change.objects[0].name == "Test Placemark"
+        assert update.create is None
+        assert update.delete is None
+
+    def test_update_with_create(self) -> None:
+        """Test Update with Create action."""
+        placemark = Placemark(id="new_pm", name="New Placemark")
+        create = Create(objects=[placemark])
+        update = Update(
+            target_href="http://example.com/target.kml",
+            create=create,
+        )
+
+        assert update.target_href == "http://example.com/target.kml"
+        assert update.create is not None
+        assert len(update.create.objects) == 1
+        assert update.change is None
+        assert update.delete is None
+
+    def test_update_with_delete(self) -> None:
+        """Test Update with Delete action."""
+        placemark = Placemark(target_id="delete_pm")
+        delete = Delete(objects=[placemark])
+        update = Update(
+            target_href="http://example.com/target.kml",
+            delete=delete,
+        )
+
+        assert update.target_href == "http://example.com/target.kml"
+        assert update.delete is not None
+        assert len(update.delete.objects) == 1
+        assert update.create is None
+        assert update.change is None
+
+    def test_network_link_control_with_update(self) -> None:
+        """Test NetworkLinkControl with Update."""
+        placemark = Placemark(id="pm1", target_id="pm1", name="Updated Placemark")
+        change = Change(objects=[placemark])
+        update = Update(
+            target_href="http://example.com/target.kml",
+            change=change,
+        )
+        nlc = NetworkLinkControl(update=update)
+
+        assert nlc.update is not None
+        assert nlc.update.target_href == "http://example.com/target.kml"
+        assert nlc.update.change is not None
+        assert len(nlc.update.change.objects) == 1
+
+    def test_update_kml_roundtrip(self) -> None:
+        """Test Update serialization and parsing roundtrip."""
+        placemark = Placemark(id="pm1", target_id="pm1", name="Updated Placemark")
+        change = Change(objects=[placemark])
+        update = Update(
+            target_href="http://example.com/target.kml",
+            change=change,
+        )
+        nlc = NetworkLinkControl(update=update)
+
+        # Serialize
+        kml_string = nlc.to_string()
+
+        # Parse back
+        parsed_nlc = NetworkLinkControl.from_string(kml_string)
+
+        assert parsed_nlc.update is not None
+        assert parsed_nlc.update.target_href == "http://example.com/target.kml"
+        assert parsed_nlc.update.change is not None
+        assert len(parsed_nlc.update.change.objects) == 1
+        assert parsed_nlc.update.change.objects[0].name == "Updated Placemark"
+
+    def test_update_kml_parsing(self) -> None:
+        """Test parsing Update from KML string."""
+        doc = """
+        <kml:NetworkLinkControl xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:Update>
+            <kml:targetHref>http://example.com/target.kml</kml:targetHref>
+            <kml:Change>
+              <kml:Placemark targetId="pm1">
+                <kml:name>Changed Name</kml:name>
+              </kml:Placemark>
+            </kml:Change>
+          </kml:Update>
+        </kml:NetworkLinkControl>
+        """
+
+        nlc = NetworkLinkControl.from_string(doc)
+
+        assert nlc.update is not None
+        assert nlc.update.target_href == "http://example.com/target.kml"
+        assert nlc.update.change is not None
+        assert len(nlc.update.change.objects) == 1
+        assert nlc.update.change.objects[0].name == "Changed Name"
+        assert nlc.update.change.objects[0].target_id == "pm1"
 
 
 class TestLxml(Lxml, TestStdLibrary):

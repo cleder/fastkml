@@ -58,7 +58,11 @@ from fastkml.model import Model
 from fastkml.model import Orientation
 from fastkml.model import ResourceMap
 from fastkml.model import Scale
+from fastkml.network_link_control import Change
+from fastkml.network_link_control import Create
+from fastkml.network_link_control import Delete
 from fastkml.network_link_control import NetworkLinkControl
+from fastkml.network_link_control import Update
 from fastkml.overlays import GroundOverlay
 from fastkml.overlays import ImagePyramid
 from fastkml.overlays import LatLonBox
@@ -97,8 +101,11 @@ __all__ = [
     "AtomLink",
     "BalloonStyle",
     "Camera",
+    "Change",
     "Coordinates",
+    "Create",
     "Data",
+    "Delete",
     "Document",
     "ExtendedData",
     "Folder",
@@ -146,6 +153,7 @@ __all__ = [
     "StyleUrl",
     "TimeSpan",
     "TimeStamp",
+    "Update",
     "ViewVolume",
     "create_kml_geometry",
     "find",
