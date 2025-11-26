@@ -30,6 +30,12 @@ coverage.xml
 .pytest_cache/
 nosetests.xml
 .ruff_cache/
+.rustest_cache/
+.ropeproject
+.results/
+.slyp_cache/
+.tach/
+
 monkeytype.sqlite3
 .hypothesis/
 
