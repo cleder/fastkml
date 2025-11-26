@@ -99,8 +99,9 @@ registry.register(
     ),
 )
 
-# Change can contain any KML object (features, styles, etc.)
-# For now, we support the same feature types as Delete
+# Change can contain any KML object (AbstractObjectGroup).
+# For now, we support the common feature types.
+# In the future, this could be expanded to include Style, StyleMap, etc.
 _change_node_name = (
     "Folder,Placemark,Document,GroundOverlay,PhotoOverlay,ScreenOverlay,NetworkLink"
 )

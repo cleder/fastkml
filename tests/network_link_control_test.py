@@ -21,6 +21,7 @@ import datetime
 from dateutil.tz import tzutc
 
 from fastkml import views
+from fastkml.containers import Document
 from fastkml.containers import Folder
 from fastkml.features import Placemark
 from fastkml.network_link_control import Change
