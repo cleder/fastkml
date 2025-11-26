@@ -355,15 +355,18 @@ class Update(_XMLObject):
 
     def __bool__(self) -> bool:
         """
-        Check if the update has content.
+        Check if the update can be applied.
+
+        An Update requires a target_href to identify the file to be modified.
+        Without a target_href, the update cannot be applied.
 
         Returns
         -------
         bool
-            True if the update has a target href or any operations, False otherwise.
+            True if the update has a target href and can be applied, False otherwise.
 
         """
-        return bool(self.target_href or self.operations)
+        return bool(self.target_href)
 
 
 class NetworkLinkControl(_XMLObject):
