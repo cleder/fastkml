@@ -31,6 +31,7 @@ This file provides instructions for AI coding assistants (like GitHub Copilot) t
 ### Examples (`examples/**/*.py`)
 - **Description**: Usage demonstrations.
 - **Conventions**: Simple, runnable scripts.
+- **Requirement**: All Python scripts in the `examples/` directory must be valid and executable without raising exceptions. Each example should be self-contained and demonstrate a working use case of the library.
 
 ## 3. Feature Scaffold Guide
 
