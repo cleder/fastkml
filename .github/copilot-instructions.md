@@ -37,6 +37,7 @@ This file provides instructions for AI coding assistants (like GitHub Copilot) t
 To implement a new KML feature (e.g., a new KML element):
 
 1.  **Identify the Domain**: Is it a Feature, Container, Geometry, or Extension?
+    - **CRITICAL**: Use `fastkml/schema/ogckml22.xsd` or `fastkml/schema/ogckml23.xsd` to identify the object's domain and attributes.
 2.  **Create/Modify Class**:
     - Place in `fastkml/features.py`, `fastkml/geometry.py`, etc.
     - Inherit from `_XMLObject` (or `_BaseObject`, `_Geometry`).
