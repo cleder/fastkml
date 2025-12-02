@@ -31,12 +31,14 @@ This file provides instructions for AI coding assistants (like GitHub Copilot) t
 ### Examples (`examples/**/*.py`)
 - **Description**: Usage demonstrations.
 - **Conventions**: Simple, runnable scripts.
+- **Requirement**: All Python scripts in the `examples/` directory must be valid and executable without raising exceptions. Each example should be self-contained and demonstrate a working use case of the library.
 
 ## 3. Feature Scaffold Guide
 
 To implement a new KML feature (e.g., a new KML element):
 
 1.  **Identify the Domain**: Is it a Feature, Container, Geometry, or Extension?
+    - **CRITICAL**: Use `fastkml/schema/ogckml22.xsd` or `fastkml/schema/ogckml23.xsd` to identify the object's domain and attributes.
 2.  **Create/Modify Class**:
     - Place in `fastkml/features.py`, `fastkml/geometry.py`, etc.
     - Inherit from `_XMLObject` (or `_BaseObject`, `_Geometry`).
@@ -62,6 +64,21 @@ To implement a new KML feature (e.g., a new KML element):
 ### Geometry
 - **Constraint**: Geometry classes must be mutually exclusive regarding raw geometry vs. KML coordinates in `__init__`.
 - **Requirement**: Implement `__geo_interface__` compatibility where possible.
+
+### Implementing `__bool__` for XMLObject Classes
+- **Principle**: An `_XMLObject` evaluates to `False` if it provides no meaningful information beyond default values—meaning a client would not notice if it were absent.
+- **Required Fields**: If an element has required fields per the KML specification (e.g., `Update` requires `targetHref`), the element should evaluate to `False` when those required fields are missing, since the element cannot be applied without them.
+- **Optional Content**: For elements with optional content, evaluate to `True` only if meaningful data is present.
+- **Example**:
+    ```python
+    def __bool__(self) -> bool:
+        """
+        Check if the element can be meaningfully applied.
+
+        Returns True only if required fields are present.
+        """
+        return bool(self.required_field)  # False if required field is missing
+    ```
 
 ## 5. Example Prompt Usage
 
@@ -105,3 +122,16 @@ To implement a new KML feature (e.g., a new KML element):
         cam = Camera(longitude=10.0, latitude=20.0)
         assert "<longitude>10.0</longitude>" in cam.to_string()
     ```
+
+## Commands
+
+Run these commands to check the codebase:
+
+- `ruff check fastkml tests examples docs`
+- `ruff format fastkml tests examples docs`
+- `pytest tests`
+- `mypy fastkml tests examples docs`
+- `sphinx-build -b html docs docs/_build/html`
+- `complexipy fastkml`
+- `lizard fastkml`
+- `python -m doctest docs/*.rst`

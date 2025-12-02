@@ -22,6 +22,7 @@ https://developers.google.com/kml/documentation/kmlreference#networklinkcontrol
 """
 
 import logging
+from collections.abc import Iterable
 from typing import Any
 from typing import Optional
 from typing import Union
@@ -37,6 +38,8 @@ from fastkml.helpers import subelement_text_kwarg
 from fastkml.helpers import text_subelement
 from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
+from fastkml.helpers import xml_subelement_list
+from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 from fastkml.times import KmlDateTime
@@ -44,10 +47,326 @@ from fastkml.views import Camera
 from fastkml.views import LookAt
 
 __all__ = [
+    "Change",
+    "Create",
+    "Delete",
     "NetworkLinkControl",
+    "Update",
 ]
 
 logger = logging.getLogger(__name__)
+
+
+class _UpdateAction(_XMLObject):
+    """
+    Base class for Update action elements (Create, Delete, Change).
+
+    These elements contain KML objects that are the subject of the update action.
+    """
+
+    _default_nsid = config.KML
+
+    objects: list[_XMLObject]
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[dict[str, str]] = None,
+        objects: Optional[Iterable[_XMLObject]] = None,
+        **kwargs: Any,
+    ) -> None:
+        """
+        Initialize an Update action element.
+
+        Parameters
+        ----------
+        ns : str, optional
+            The namespace to use for the element.
+        name_spaces : dict, optional
+            A dictionary of namespaces to use for the element.
+        objects : Iterable[_XMLObject], optional
+            The KML objects that are subject to this update action.
+        **kwargs : Any, optional
+            Additional keyword arguments.
+
+        """
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            **kwargs,
+        )
+        self.objects = list(objects) if objects else []
+
+    def __repr__(self) -> str:
+        """
+        Return a string representation of the Update action element.
+
+        Returns
+        -------
+            str: A string representation of the Update action element.
+
+        """
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"objects={self.objects!r}, "
+            f"**{self._get_splat()!r},"
+            ")"
+        )
+
+    def __bool__(self) -> bool:
+        """
+        Check if the update action contains objects.
+
+        Returns
+        -------
+        bool
+            True if the update action contains objects, False otherwise.
+
+        """
+        return bool(self.objects)
+
+
+class Create(_UpdateAction):
+    """
+    Adds new elements to a Folder or Document already loaded via a NetworkLink.
+
+    The ``<targetHref>`` element in ``<Update>`` specifies the URL of the .kml or .kmz
+    file that contained the original Folder or Document. Within that file, the Folder
+    or Document that is to contain the new data must already have an explicit ``id``
+    defined for it. This ``id`` is referenced as the ``targetId`` attribute of the
+    Folder or Document within ``<Create>`` that contains the element to be added.
+
+    Once an object has been created and loaded into Google Earth, it takes on the URL
+    of the original parent Document or Folder. To perform subsequent updates to objects
+    added with this Update/Create mechanism, set ``<targetHref>`` to the URL of the
+    original Document or Folder (not the URL of the file that loaded the intervening
+    updates).
+
+    Example:
+    -------
+    This example creates a new Placemark in a previously created Document that has
+    an ``id`` of "region24". Note that subsequent updates to "placemark891" will still
+    use the original targetHref::
+
+        <Update>
+          <targetHref>http://myserver.com/Point.kml</targetHref>
+          <Create>
+            <Document targetId="region24">
+              <Placemark id="placemark891">
+                <Point>
+                  <coordinates>-95.48,40.43,0</coordinates>
+                </Point>
+              </Placemark>
+            </Document>
+          </Create>
+        </Update>
+
+    https://developers.google.com/kml/documentation/kmlreference#create
+
+    """
+
+
+class Delete(_UpdateAction):
+    """
+    Deletes features from a complex element already loaded via a NetworkLink.
+
+    The ``<targetHref>`` element in ``<Update>`` specifies the .kml or .kmz file
+    containing the data to be deleted. Within that file, the element to be deleted
+    must already have an explicit ``id`` defined for it. The ``<Delete>`` element
+    references this ``id`` in the ``targetId`` attribute.
+
+    Child elements for ``<Delete>``, which are the only elements that can be deleted,
+    are ``Document``, ``Folder``, ``GroundOverlay``, ``Placemark``, and
+    ``ScreenOverlay``.
+
+    Example:
+    -------
+    This example deletes a Placemark previously loaded into Google Earth::
+
+        <Update>
+          <targetHref>http://www.foo.com/Point.kml</targetHref>
+          <Delete>
+            <Placemark targetId="pa3556"/>
+          </Delete>
+        </Update>
+
+    https://developers.google.com/kml/documentation/kmlreference#delete
+
+    """
+
+
+class Change(_UpdateAction):
+    """
+    Modifies the values in an element already loaded with a NetworkLink.
+
+    Within the ``<Change>`` element, the child to be modified must include a
+    ``targetId`` attribute that references the original element's ``id``.
+
+    This update can be considered a "sparse update": in the modified element, only
+    the values listed in ``<Change>`` are replaced; all other values remain untouched.
+    When ``<Change>`` is applied to a set of coordinates, the new coordinates replace
+    the current coordinates.
+
+    Children of this element are the element(s) to be modified, which are identified
+    by the ``targetId`` attribute.
+
+    Example:
+    -------
+    This example changes the coordinates of a Point with id "point123"::
+
+        <NetworkLinkControl>
+          <Update>
+            <targetHref>http://www/~sam/January14Data/Point.kml</targetHref>
+            <Change>
+              <Point targetId="point123">
+                <coordinates>-95.48,40.43,0</coordinates>
+              </Point>
+            </Change>
+          </Update>
+        </NetworkLinkControl>
+
+    https://developers.google.com/kml/documentation/kmlreference#change
+
+    """
+
+
+class Update(_XMLObject):
+    """
+    Specifies an addition, change, or deletion to KML data already loaded.
+
+    The ``<targetHref>`` specifies the .kml or .kmz file whose data (within Google
+    Earth) is to be modified. ``<Update>`` is always contained in a
+    ``NetworkLinkControl``. Furthermore, the file containing the ``NetworkLinkControl``
+    must have been loaded by a ``NetworkLink``.
+
+    ``Update`` can contain any number of ``<Change>``, ``<Create>``, and ``<Delete>``
+    elements, which will be processed in order.
+
+    How Updates Work
+    ----------------
+    1. A ``NetworkLink`` loads the "original" KML file into Google Earth. An element
+       that will later be updated needs to have an explicit ``id`` defined when it
+       is first specified. The ``id``s must be unique within a given file.
+
+    2. Another ``NetworkLink`` loads a second KML file containing the updates (any
+       combination of Change, Create, and Delete) to the KML object(s) that have
+       already been loaded.
+
+    3. The update file contains two references to identify the original KML data:
+
+       - To locate the objects within Google Earth, the ``Update`` element uses the
+         ``targetHref`` element to identify the original file that defined the
+         object(s) to be modified.
+       - To identify the object(s) to be modified or the container for new objects,
+         the ``Change``, ``Create``, and ``Delete`` elements contain a ``targetId``
+         attribute that references the ``id``s of those objects.
+
+    Syntax
+    ------
+    ::
+
+        <Update>
+          <targetHref>...</targetHref>    <!-- required, URL -->
+          <Change>...</Change>
+          <Create>...</Create>
+          <Delete>...</Delete>
+        </Update>
+
+    Example:
+    -------
+    A complete example showing how to change a Placemark's name::
+
+        <NetworkLinkControl>
+          <Update>
+            <targetHref>http://developers.google.com/kml/documentation/Point.kml
+            </targetHref>
+            <Change>
+              <Placemark targetId="pm123">
+                <name>Name changed by Update Change</name>
+              </Placemark>
+            </Change>
+          </Update>
+        </NetworkLinkControl>
+
+    https://developers.google.com/kml/documentation/kmlreference#update
+    https://developers.google.com/kml/documentation/updates
+
+    """
+
+    _default_nsid = config.KML
+
+    target_href: Optional[str]
+    operations: list[Union[Create, Delete, Change]]
+
+    def __init__(
+        self,
+        ns: Optional[str] = None,
+        name_spaces: Optional[dict[str, str]] = None,
+        target_href: Optional[str] = None,
+        operations: Optional[Iterable[Union[Create, Delete, Change]]] = None,
+        **kwargs: Any,
+    ) -> None:
+        """
+        Create an Update object.
+
+        Parameters
+        ----------
+        ns : str, optional
+            The namespace to use for the Update object.
+        name_spaces : dict, optional
+            A dictionary of namespaces to use for the Update object.
+        target_href : str, optional
+            A URL that specifies the .kml or .kmz file whose data is to be modified.
+        operations : Iterable[Union[Create, Delete, Change]], optional
+            A sequence of update operations (Create, Delete, Change) to be applied
+            in order.
+        **kwargs : Any, optional
+            Additional keyword arguments.
+
+        """
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            **kwargs,
+        )
+        self.target_href = clean_string(target_href)
+        self.operations = list(operations) if operations else []
+
+    def __repr__(self) -> str:
+        """
+        Return a string representation of the Update object.
+
+        Returns
+        -------
+            str: A string representation of the Update object.
+
+        """
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"target_href={self.target_href!r}, "
+            f"operations={self.operations!r}, "
+            f"**{self._get_splat()!r},"
+            ")"
+        )
+
+    def __bool__(self) -> bool:
+        """
+        Check if the update can be applied.
+
+        An Update requires a target_href to identify the file to be modified.
+        Without a target_href, the update cannot be applied.
+
+        Returns
+        -------
+        bool
+            True if the update has a target href and can be applied, False otherwise.
+
+        """
+        return bool(self.target_href)
 
 
 class NetworkLinkControl(_XMLObject):
@@ -64,6 +383,7 @@ class NetworkLinkControl(_XMLObject):
     link_snippet: Optional[str]
     expires: Optional[KmlDateTime]
     view: Union[Camera, LookAt, None]
+    update: Optional[Update]
 
     def __init__(
         self,
@@ -78,6 +398,7 @@ class NetworkLinkControl(_XMLObject):
         link_snippet: Optional[str] = None,
         expires: Optional[KmlDateTime] = None,
         view: Optional[Union[Camera, LookAt]] = None,
+        update: Optional[Update] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -108,6 +429,8 @@ class NetworkLinkControl(_XMLObject):
             The time at which the link should expire.
         view : Camera or LookAt, optional
             The view to be used when the link is followed.
+        update : Update, optional
+            Specifies an addition, change, or deletion to KML data.
         **kwargs : Any, optional
             Additional keyword arguments.
 
@@ -126,6 +449,7 @@ class NetworkLinkControl(_XMLObject):
         self.link_snippet = clean_string(link_snippet)
         self.expires = expires
         self.view = view
+        self.update = update
 
     def __repr__(self) -> str:
         """
@@ -149,6 +473,7 @@ class NetworkLinkControl(_XMLObject):
             f"link_snippet={self.link_snippet!r}, "
             f"expires={self.expires!r}, "
             f"view={self.view!r}, "
+            f"update={self.update!r}, "
             f"**{self._get_splat()!r},"
             ")"
         )
@@ -256,5 +581,39 @@ registry.register(
         ),
         get_kwarg=xml_subelement_kwarg,
         set_element=xml_subelement,
+    ),
+)
+registry.register(
+    NetworkLinkControl,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="update",
+        node_name="Update",
+        classes=(Update,),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
+    ),
+)
+
+registry.register(
+    Update,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="target_href",
+        node_name="targetHref",
+        classes=(str,),
+        get_kwarg=subelement_text_kwarg,
+        set_element=text_subelement,
+    ),
+)
+registry.register(
+    Update,
+    RegistryItem(
+        ns_ids=("kml",),
+        attr_name="operations",
+        node_name="Create,Delete,Change",
+        classes=(Create, Delete, Change),
+        get_kwarg=xml_subelement_list_kwarg,
+        set_element=xml_subelement_list,
     ),
 )

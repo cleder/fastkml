@@ -80,6 +80,9 @@ repos:
     rev: v4.2.0
     hooks:
       - id: complexipy
+        exclude: (?x)^(
+                tests/hypothesis/multi_geometry_test.py
+                )$
 
   # - repo: https://github.com/woodruffw/zizmor-pre-commit
   #   rev: v1.0.1
