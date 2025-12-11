@@ -3,5 +3,5 @@ pygeoif>=1.1
 # Documentation Requirements
 Sphinx
 sphinx-autodoc-typehints
-sphinx-rtd-theme
+sphinx-rtd-theme==3.1.0rc1
 typing-extensions>4
