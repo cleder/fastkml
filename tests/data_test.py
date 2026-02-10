@@ -29,7 +29,8 @@ class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
 
     def test_schema_requires_id(self) -> None:
-        pytest.raises(KMLSchemaError, kml.Schema, "")
+        with pytest.raises(KMLSchemaError):
+            kml.Schema("")
 
     def test_simple_field_from_string_0(self) -> None:
         doc = (
