@@ -23,12 +23,20 @@ from dateutil.tz import tzutc
 from fastkml import views
 from fastkml.containers import Folder
 from fastkml.features import Placemark
+from fastkml.geometry import Coordinates
+from fastkml.geometry import Point
 from fastkml.network_link_control import Change
 from fastkml.network_link_control import Create
 from fastkml.network_link_control import Delete
 from fastkml.network_link_control import NetworkLinkControl
 from fastkml.network_link_control import Update
+from fastkml.styles import IconStyle
+from fastkml.styles import Pair
+from fastkml.styles import Style
+from fastkml.styles import StyleMap
 from fastkml.times import KmlDateTime
+from fastkml.times import TimeSpan
+from fastkml.times import TimeStamp
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -219,6 +227,176 @@ class TestStdLibrary(StdLibrary):
         assert isinstance(obj, Placemark)
         assert obj.name == "Changed Name"
         assert obj.target_id == "pm1"
+
+    def test_change_with_style_roundtrip(self) -> None:
+        """Test Change with a Style object can round-trip."""
+        icon_style = IconStyle(
+            icon_href="http://example.com/icon.png",
+        )
+        style = Style(target_id="style1", styles=[icon_style])
+        change = Change(objects=[style])
+        update = Update(
+            target_href="http://example.com/target.kml",
+            operations=[change],
+        )
+        nlc = NetworkLinkControl(update=update)
+
+        kml_string = nlc.to_string()
+        parsed_nlc = NetworkLinkControl.from_string(kml_string)
+
+        assert parsed_nlc.update is not None
+        assert len(parsed_nlc.update.operations) == 1
+        obj = parsed_nlc.update.operations[0].objects[0]
+        assert isinstance(obj, Style)
+        assert obj.target_id == "style1"
+
+    def test_change_with_stylemap_roundtrip(self) -> None:
+        """Test Change with a StyleMap object can round-trip."""
+        pair = Pair(key="normal", style_url="#style1")
+        style_map = StyleMap(target_id="sm1", pairs=[pair])
+        change = Change(objects=[style_map])
+        update = Update(
+            target_href="http://example.com/target.kml",
+            operations=[change],
+        )
+        nlc = NetworkLinkControl(update=update)
+
+        kml_string = nlc.to_string()
+        parsed_nlc = NetworkLinkControl.from_string(kml_string)
+
+        assert parsed_nlc.update is not None
+        assert len(parsed_nlc.update.operations) == 1
+        obj = parsed_nlc.update.operations[0].objects[0]
+        assert isinstance(obj, StyleMap)
+        assert obj.target_id == "sm1"
+
+    def test_change_with_point_geometry_roundtrip(self) -> None:
+        """Test Change with a Point geometry object can round-trip."""
+        point = Point(
+            target_id="point1",
+            kml_coordinates=Coordinates(coords=[(10.0, 20.0, 0.0)]),
+        )
+        change = Change(objects=[point])
+        update = Update(
+            target_href="http://example.com/target.kml",
+            operations=[change],
+        )
+        nlc = NetworkLinkControl(update=update)
+
+        kml_string = nlc.to_string()
+        parsed_nlc = NetworkLinkControl.from_string(kml_string)
+
+        assert parsed_nlc.update is not None
+        assert len(parsed_nlc.update.operations) == 1
+        obj = parsed_nlc.update.operations[0].objects[0]
+        assert isinstance(obj, Point)
+        assert obj.target_id == "point1"
+
+    def test_change_with_timestamp_roundtrip(self) -> None:
+        """Test Change with a TimeStamp object can round-trip."""
+        timestamp = TimeStamp(
+            target_id="ts1",
+            timestamp=KmlDateTime(dt=datetime.datetime(2024, 1, 1, tzinfo=tzutc())),
+        )
+        change = Change(objects=[timestamp])
+        update = Update(
+            target_href="http://example.com/target.kml",
+            operations=[change],
+        )
+        nlc = NetworkLinkControl(update=update)
+
+        kml_string = nlc.to_string()
+        parsed_nlc = NetworkLinkControl.from_string(kml_string)
+
+        assert parsed_nlc.update is not None
+        assert len(parsed_nlc.update.operations) == 1
+        obj = parsed_nlc.update.operations[0].objects[0]
+        assert isinstance(obj, TimeStamp)
+        assert obj.target_id == "ts1"
+
+    def test_change_with_timespan_roundtrip(self) -> None:
+        """Test Change with a TimeSpan object can round-trip."""
+        timespan = TimeSpan(
+            target_id="tspan1",
+            begin=KmlDateTime(dt=datetime.datetime(2024, 1, 1, tzinfo=tzutc())),
+        )
+        change = Change(objects=[timespan])
+        update = Update(
+            target_href="http://example.com/target.kml",
+            operations=[change],
+        )
+        nlc = NetworkLinkControl(update=update)
+
+        kml_string = nlc.to_string()
+        parsed_nlc = NetworkLinkControl.from_string(kml_string)
+
+        assert parsed_nlc.update is not None
+        assert len(parsed_nlc.update.operations) == 1
+        obj = parsed_nlc.update.operations[0].objects[0]
+        assert isinstance(obj, TimeSpan)
+        assert obj.target_id == "tspan1"
+
+    def test_change_with_mixed_objects(self) -> None:
+        """Test Change with multiple different KML object types."""
+        style = Style(styles=[IconStyle(icon_href="http://example.com/icon.png")])
+        point = Point(
+            target_id="point1",
+            kml_coordinates=Coordinates(coords=[(10.0, 20.0)]),
+        )
+        change = Change(objects=[style, point])
+
+        assert len(change.objects) == 2
+        assert isinstance(change.objects[0], Style)
+        assert isinstance(change.objects[1], Point)
+
+    def test_change_kml_parsing_with_style(self) -> None:
+        """Test parsing a Change containing a Style element from KML string."""
+        doc = """
+        <kml:NetworkLinkControl xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:Update>
+            <kml:targetHref>http://example.com/target.kml</kml:targetHref>
+            <kml:Change>
+              <kml:Style targetId="mystyle">
+                <kml:IconStyle>
+                  <kml:color>ff0000ff</kml:color>
+                </kml:IconStyle>
+              </kml:Style>
+            </kml:Change>
+          </kml:Update>
+        </kml:NetworkLinkControl>
+        """
+
+        nlc = NetworkLinkControl.from_string(doc)
+
+        assert nlc.update is not None
+        assert len(nlc.update.operations) == 1
+        assert isinstance(nlc.update.operations[0], Change)
+        obj = nlc.update.operations[0].objects[0]
+        assert isinstance(obj, Style)
+        assert obj.target_id == "mystyle"
+
+    def test_change_kml_parsing_with_point(self) -> None:
+        """Test parsing a Change containing a Point element from KML string."""
+        doc = """
+        <kml:NetworkLinkControl xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:Update>
+            <kml:targetHref>http://example.com/target.kml</kml:targetHref>
+            <kml:Change>
+              <kml:Point targetId="point123">
+                <kml:coordinates>-95.48,40.43,0</kml:coordinates>
+              </kml:Point>
+            </kml:Change>
+          </kml:Update>
+        </kml:NetworkLinkControl>
+        """
+
+        nlc = NetworkLinkControl.from_string(doc)
+
+        assert nlc.update is not None
+        assert len(nlc.update.operations) == 1
+        obj = nlc.update.operations[0].objects[0]
+        assert isinstance(obj, Point)
+        assert obj.target_id == "point123"
 
 
 class TestLxml(Lxml, TestStdLibrary):
