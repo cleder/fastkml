@@ -91,6 +91,24 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+def _require_single_subclass(
+    *,
+    classes: tuple[type[object], ...],
+    expected_type: type[object],
+) -> type[object]:
+    if len(classes) != 1:
+        msg = f"Expected exactly one class, got {len(classes)}."
+        raise ValueError(msg)
+    selected_class = classes[0]
+    if not issubclass(selected_class, expected_type):
+        msg = (
+            f"Expected a subclass of {expected_type.__name__}, "
+            f"got {selected_class.__name__}."
+        )
+        raise TypeError(msg)
+    return selected_class
+
+
 def clean_string(value: Optional[str]) -> Optional[str]:
     """Clean and validate a string value, returning None if empty."""
     return value.strip() or None if value else None
@@ -794,7 +812,9 @@ def subelement_text_kwarg(
     node = element.find(f"{ns}{node_name}")
     if node is None or node.text is None:
         return {}
-    assert isinstance(node.text, str)  # noqa: S101
+    if not isinstance(node.text, str):
+        msg = f"Expected text content for {node_name!r} to be a string."
+        raise TypeError(msg)
     return {kwarg: node.text.strip()} if node.text and node.text.strip() else {}
 
 
@@ -917,8 +937,7 @@ def subelement_bool_kwarg(
         ValueError: If the value of the subelement is not a valid boolean.
 
     """
-    assert len(classes) == 1  # noqa: S101
-    assert issubclass(classes[0], bool)  # noqa: S101
+    _require_single_subclass(classes=classes, expected_type=bool)
     node = element.find(f"{ns}{node_name}")
     if node is None:
         return {}
@@ -1152,8 +1171,7 @@ def subelement_enum_kwarg(
         ValueError: If the extracted value is not a valid enumerated value and strict.
 
     """
-    assert len(classes) == 1  # noqa: S101
-    assert issubclass(classes[0], Enum)  # noqa: S101
+    enum_class = _require_single_subclass(classes=classes, expected_type=Enum)
     node = element.find(f"{ns}{node_name}")
     if node is None:
         return {}
@@ -1162,7 +1180,7 @@ def subelement_enum_kwarg(
         try:
             return {
                 kwarg: _get_enum_value(
-                    enum_class=classes[0],
+                    enum_class=enum_class,
                     text=node_text,
                     strict=strict,
                 ),
@@ -1206,13 +1224,12 @@ def attribute_enum_kwarg(
         Dict[str, Enum]: A dictionary with the specified keyword argument and its value.
 
     """
-    assert len(classes) == 1  # noqa: S101
-    assert issubclass(classes[0], Enum)  # noqa: S101
+    enum_class = _require_single_subclass(classes=classes, expected_type=Enum)
     if raw := element.get(f"{ns}{node_name}"):
         try:
             return {
                 kwarg: _get_enum_value(
-                    enum_class=classes[0],
+                    enum_class=enum_class,
                     text=raw,
                     strict=strict,
                 ),
@@ -1403,8 +1420,6 @@ def xml_subelement_list_kwarg(
 
     """
     args_list = []
-    assert node_name is not None  # noqa: S101
-    assert name_spaces is not None  # noqa: S101
     for obj_class in classes:
         if subelements := element.findall(
             f"{ns}{obj_class.get_tag_name()}",  # type: ignore[attr-defined]
@@ -1453,8 +1468,6 @@ def xml_subelement_list_multi_ns_kwarg(
 
     """
     args_list = []
-    assert node_name is not None  # noqa: S101
-    assert name_spaces is not None  # noqa: S101
     for name_space in ns_ids:
         ns = name_spaces.get(name_space, "")
         for obj_class in classes:

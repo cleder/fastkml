@@ -145,7 +145,6 @@ class _Container(_Feature):
         if kmlobj is self:
             msg = "Cannot append self"
             raise ValueError(msg)
-        assert self.features is not None  # noqa: S101
         self.features.append(kmlobj)
 
 

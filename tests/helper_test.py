@@ -20,6 +20,9 @@ from typing import Callable
 from unittest.mock import Mock
 from unittest.mock import patch
 
+import pytest
+
+from fastkml.enums import AltitudeMode
 from fastkml.helpers import attribute_enum_kwarg
 from fastkml.helpers import attribute_float_kwarg
 from fastkml.helpers import subelement_bool_kwarg
@@ -146,3 +149,37 @@ class TestStdLibrary(StdLibrary):
 
         assert res == {}
         element.find.assert_called_once_with("nsnode")
+
+    def test_subelement_bool_kwarg_requires_bool_class(self) -> None:
+        with pytest.raises(
+            TypeError,
+            match=r"^Expected a subclass of bool, got int\.$",
+        ):
+            subelement_bool_kwarg(
+                element=Mock(),
+                ns="ns",
+                name_spaces={"name": "uri"},
+                node_name="node",
+                kwarg="a",
+                classes=(int,),
+                strict=True,
+            )
+
+    def test_subelement_enum_kwarg_requires_single_enum_class(self) -> None:
+        with pytest.raises(
+            ValueError,
+            match=r"^Expected exactly one class, got 2\.$",
+        ):
+            subelement_enum_kwarg(
+                element=Mock(),
+                ns="ns",
+                name_spaces={"name": "uri"},
+                node_name="node",
+                kwarg="a",
+                classes=(Color, Color),
+                strict=True,
+            )
+
+    def test_relaxed_enum_requires_string_value(self) -> None:
+        with pytest.raises(ValueError, match=r"^1 is not a valid AltitudeMode$"):
+            AltitudeMode(1)

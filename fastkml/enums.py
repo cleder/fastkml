@@ -25,6 +25,7 @@ https://developers.google.com/kml/documentation/kmlreference#kml-fields
 import logging
 from enum import Enum
 from enum import unique
+from typing import Optional
 
 __all__ = [
     "AltitudeMode",
@@ -71,11 +72,14 @@ class RelaxedEnum(Enum):
     """
 
     @classmethod
-    def _missing_(cls, value: object) -> "RelaxedEnum":
-        assert isinstance(value, str)  # noqa: S101
+    def _missing_(cls, value: object) -> Optional["RelaxedEnum"]:
+        if not isinstance(value, str):
+            return None
         value = value.lower()
         for member in cls:
-            assert isinstance(member.value, str)  # noqa: S101
+            if not isinstance(member.value, str):
+                msg = f"{cls.__name__} values must be strings."
+                raise TypeError(msg)
             if member.value.lower() == value.lower():
                 logger.warning(
                     "%s: Found case-insensitive match for %s in %r",
