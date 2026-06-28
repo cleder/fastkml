@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import pathlib
 from typing import Any
-from typing import Optional
 
 from fastkml import KML
 from fastkml import Document
@@ -31,11 +30,11 @@ class CascadingStyle(_BaseObject):
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        style: Optional[Style] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        style: Style | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialize the CascadingStyle object."""
