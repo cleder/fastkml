@@ -21,8 +21,6 @@ roundtrip and string representation of Link and Author classes under various
 input conditions.
 """
 
-from typing import Optional
-
 from hypothesis import given
 from hypothesis import strategies as st
 from hypothesis.provisional import urls
@@ -30,6 +28,7 @@ from hypothesis.provisional import urls
 import fastkml.atom
 import fastkml.enums
 from tests.base import Lxml
+from tests.base import PyUppsala
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
@@ -39,7 +38,7 @@ from tests.hypothesis.strategies import media_types
 from tests.hypothesis.strategies import xml_text
 
 
-class TestLxml(Lxml):
+class _Tests:
     @given(
         href=urls(),
         rel=st.one_of(st.none(), xml_text()),
@@ -50,12 +49,12 @@ class TestLxml(Lxml):
     )
     def test_fuzz_link(
         self,
-        href: Optional[str],
-        rel: Optional[str],
-        type: Optional[str],
-        hreflang: Optional[str],
-        title: Optional[str],
-        length: Optional[int],
+        href: str | None,
+        rel: str | None,
+        type: str | None,
+        hreflang: str | None,
+        title: str | None,
+        length: int | None,
     ) -> None:
         link = fastkml.atom.Link(
             href=href,
@@ -78,9 +77,9 @@ class TestLxml(Lxml):
     )
     def test_fuzz_author(
         self,
-        name: Optional[str],
-        uri: Optional[str],
-        email: Optional[str],
+        name: str | None,
+        uri: str | None,
+        email: str | None,
     ) -> None:
         author = fastkml.atom.Author(name=name, uri=uri, email=email)
 
@@ -88,3 +87,11 @@ class TestLxml(Lxml):
         assert_str_roundtrip(author)
         assert_str_roundtrip_terse(author)
         assert_str_roundtrip_verbose(author)
+
+
+class TestLxml(Lxml, _Tests):
+    """Test with lxml."""
+
+
+class TestPyUppsala(PyUppsala, _Tests):
+    """Test with pyuppsala."""

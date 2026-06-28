@@ -16,7 +16,6 @@
 """Test gx SimpleArrayData and SimpleArrayField."""
 
 from collections.abc import Iterable
-from typing import Optional
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -26,6 +25,7 @@ import fastkml.gx.data
 import fastkml.types
 from fastkml.enums import DataType
 from tests.base import Lxml
+from tests.base import PyUppsala
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
@@ -34,7 +34,7 @@ from tests.hypothesis.strategies import nc_name
 from tests.hypothesis.strategies import xml_text
 
 
-class TestLxml(Lxml):
+class _Tests:
     @given(
         id=st.one_of(st.none(), nc_name()),
         target_id=st.one_of(st.none(), nc_name()),
@@ -43,10 +43,10 @@ class TestLxml(Lxml):
     )
     def test_fuzz_simple_array_data(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        name: Optional[str],
-        data: Optional[Iterable[str]],
+        id: str | None,
+        target_id: str | None,
+        name: str | None,
+        data: Iterable[str] | None,
     ) -> None:
         simple_array_data = fastkml.gx.data.SimpleArrayData(
             id=id,
@@ -67,9 +67,9 @@ class TestLxml(Lxml):
     )
     def test_fuzz_simple_array_field(
         self,
-        name: Optional[str],
-        type_: Optional[DataType],
-        display_name: Optional[str],
+        name: str | None,
+        type_: DataType | None,
+        display_name: str | None,
     ) -> None:
         simple_array_field = fastkml.gx.data.SimpleArrayField(
             name=name,
@@ -81,3 +81,11 @@ class TestLxml(Lxml):
         assert_str_roundtrip(simple_array_field)
         assert_str_roundtrip_terse(simple_array_field)
         assert_str_roundtrip_verbose(simple_array_field)
+
+
+class TestLxml(Lxml, _Tests):
+    """Test with lxml."""
+
+
+class TestPyUppsala(PyUppsala, _Tests):
+    """Test with pyuppsala."""

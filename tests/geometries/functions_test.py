@@ -15,7 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test the geometry error handling."""
 
-from typing import Callable
+from collections.abc import Callable
 from unittest.mock import Mock
 from unittest.mock import patch
 

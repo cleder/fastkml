@@ -17,8 +17,6 @@
 
 from collections.abc import Iterable
 from functools import partial
-from typing import Optional
-from typing import Union
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -29,6 +27,7 @@ import fastkml.data
 import fastkml.enums
 import fastkml.gx.data
 from tests.base import Lxml
+from tests.base import PyUppsala
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
@@ -64,7 +63,7 @@ simple_array_data = partial(
 )
 
 
-class TestLxml(Lxml):
+class _Tests:
     @given(
         name=st.one_of(st.none(), xml_text()),
         type_=st.one_of(st.none(), st.sampled_from(fastkml.enums.DataType)),
@@ -72,9 +71,9 @@ class TestLxml(Lxml):
     )
     def test_fuzz_simple_field(
         self,
-        name: Optional[str],
-        type_: Optional[fastkml.enums.DataType],
-        display_name: Optional[str],
+        name: str | None,
+        type_: fastkml.enums.DataType | None,
+        display_name: str | None,
     ) -> None:
         simple_field = fastkml.data.SimpleField(
             name=name,
@@ -95,10 +94,10 @@ class TestLxml(Lxml):
     )
     def test_fuzz_schema(
         self,
-        id: Optional[str],
-        name: Optional[str],
-        fields: Optional[Iterable[fastkml.data.SimpleField]],
-        array_fields: Optional[Iterable[fastkml.gx.data.SimpleArrayField]],
+        id: str | None,
+        name: str | None,
+        fields: Iterable[fastkml.data.SimpleField] | None,
+        array_fields: Iterable[fastkml.gx.data.SimpleArrayField] | None,
     ) -> None:
         schema = fastkml.Schema(
             id=id,
@@ -121,11 +120,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_data(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        name: Optional[str],
-        value: Optional[str],
-        display_name: Optional[str],
+        id: str | None,
+        target_id: str | None,
+        name: str | None,
+        value: str | None,
+        display_name: str | None,
     ) -> None:
         data = fastkml.Data(
             id=id,
@@ -146,8 +145,8 @@ class TestLxml(Lxml):
     )
     def test_fuzz_simple_data(
         self,
-        name: Optional[str],
-        value: Optional[str],
+        name: str | None,
+        value: str | None,
     ) -> None:
         simple_data = fastkml.data.SimpleData(
             name=name,
@@ -168,11 +167,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_schema_data(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        schema_url: Optional[str],
-        data: Optional[Iterable[fastkml.data.SimpleData]],
-        array_data: Optional[Iterable[fastkml.gx.data.SimpleArrayData]],
+        id: str | None,
+        target_id: str | None,
+        schema_url: str | None,
+        data: Iterable[fastkml.data.SimpleData] | None,
+        array_data: Iterable[fastkml.gx.data.SimpleArrayData] | None,
     ) -> None:
         schema_data = fastkml.SchemaData(
             id=id,
@@ -210,7 +209,7 @@ class TestLxml(Lxml):
     )
     def test_fuzz_extended_data(
         self,
-        elements: Optional[Iterable[Union[fastkml.Data, fastkml.SchemaData]]],
+        elements: Iterable[fastkml.Data | fastkml.SchemaData] | None,
     ) -> None:
         extended_data = fastkml.ExtendedData(
             elements=(
@@ -224,3 +223,11 @@ class TestLxml(Lxml):
         assert_str_roundtrip(extended_data)
         assert_str_roundtrip_terse(extended_data)
         assert_str_roundtrip_verbose(extended_data)
+
+
+class TestLxml(Lxml, _Tests):
+    """Test with lxml."""
+
+
+class TestPyUppsala(PyUppsala, _Tests):
+    """Test with pyuppsala."""

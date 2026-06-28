@@ -91,7 +91,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def clean_string(value: Optional[str]) -> Optional[str]:
+def clean_string(value: str | None) -> str | None:
     """Clean and validate a string value, returning None if empty."""
     return value.strip() or None if value else None
 
@@ -155,8 +155,8 @@ def get_value(
     *,
     attr_name: str,
     verbosity: Verbosity,
-    default: Optional[Any],
-) -> Optional[Any]:
+    default: Any | None,
+) -> Any | None:
     """
     Get the value of an attribute from an object.
 
@@ -185,9 +185,9 @@ def node_text(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[str],
+    default: str | None,
 ) -> None:
     """
     Set the text of an XML element based on the attribute value in the given object.
@@ -230,9 +230,9 @@ def text_subelement(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[str],
+    default: str | None,
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -271,9 +271,9 @@ def text_subelement_kml(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[str],
+    default: str | None,
 ) -> None:
     """
     Set the value of an attribute from subelement with a text node in KML namespace.
@@ -312,9 +312,9 @@ def text_subelement_list(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[str],
+    default: str | None,
 ) -> None:
     """
     Set the value of an attribute from subelements with a text node.
@@ -354,9 +354,9 @@ def text_attribute(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[str],
+    default: str | None,
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -391,9 +391,9 @@ def bool_subelement(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[bool],
+    default: bool | None,
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -428,9 +428,9 @@ def int_subelement(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[int],
+    default: int | None,
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -465,9 +465,9 @@ def int_attribute(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[int],
+    default: int | None,
 ) -> None:
     """
     Set the value of an attribute.
@@ -498,9 +498,9 @@ def float_subelement(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[float],
+    default: float | None,
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
     value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
@@ -518,9 +518,9 @@ def float_attribute(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[float],
+    default: float | None,
 ) -> None:
     """Set the value of an attribute."""
     value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
@@ -534,9 +534,9 @@ def enum_subelement(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[Enum],
+    default: Enum | None,
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
     value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
@@ -555,9 +555,9 @@ def enum_attribute(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[Enum],
+    default: Enum | None,
 ) -> None:
     """Set the value of an attribute."""
     value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
@@ -571,9 +571,9 @@ def datetime_subelement(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[str],
+    default: str | None,
 ) -> None:
     """Create the subelement for a KML datetime values."""
     if value := get_value(
@@ -596,9 +596,9 @@ def datetime_subelement_list(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[str],
+    default: str | None,
 ) -> None:
     """Create the subelements for a list of KML datetime values."""
     if value := get_value(
@@ -622,9 +622,9 @@ def coords_subelement_list(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[str],
+    default: str | None,
 ) -> None:
     """Create the subelements for a list of KML coordinate values."""
     if value := get_value(
@@ -651,7 +651,7 @@ def xml_subelement(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
     default: Optional["_XMLObject"],
 ) -> None:
@@ -691,9 +691,9 @@ def xml_subelement_list(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[list["_XMLObject"]],
+    default: list["_XMLObject"] | None,
 ) -> None:
     """
     Add subelements to an XML element based on a list attribute of an object.

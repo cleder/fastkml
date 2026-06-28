@@ -25,13 +25,14 @@ import fastkml.kml
 import fastkml.links
 import fastkml.overlays
 from tests.base import Lxml
+from tests.base import PyUppsala
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
 from tests.hypothesis.common import assert_str_roundtrip_verbose
 
 
-class TestLxml(Lxml):
+class _Tests:
     @given(
         feature=st.one_of(
             st.builds(
@@ -70,3 +71,11 @@ class TestLxml(Lxml):
         assert_str_roundtrip(kml)
         assert_str_roundtrip_terse(kml)
         assert_str_roundtrip_verbose(kml)
+
+
+class TestLxml(Lxml, _Tests):
+    """Test with lxml."""
+
+
+class TestPyUppsala(PyUppsala, _Tests):
+    """Test with pyuppsala."""

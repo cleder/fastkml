@@ -27,6 +27,13 @@ try:
 except ImportError:
     LXML = False
 
+try:
+    import pyuppsala
+
+    PYUPPSALA = hasattr(pyuppsala, "etree")
+except ImportError:
+    PYUPPSALA = False
+
 from fastkml import config
 
 
@@ -41,6 +48,13 @@ def test_set_etree_implementation_lxml() -> None:
     config.set_etree_implementation(lxml.etree)
 
     assert config.etree.__name__ == "lxml.etree"
+
+
+@pytest.mark.skipif(not PYUPPSALA, reason="pyuppsala not installed")
+def test_set_etree_implementation_pyuppsala() -> None:
+    config.set_etree_implementation(pyuppsala.etree)
+
+    assert config.etree.__name__ == "pyuppsala.etree"
 
 
 def test_register_namespaces() -> None:

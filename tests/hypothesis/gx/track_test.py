@@ -16,7 +16,6 @@
 """Test gx Track and MultiTrack."""
 
 from collections.abc import Iterable
-from typing import Optional
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -28,6 +27,7 @@ import fastkml.enums
 import fastkml.gx.data
 import fastkml.types
 from tests.base import Lxml
+from tests.base import PyUppsala
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
@@ -37,7 +37,7 @@ from tests.hypothesis.strategies import track_items
 from tests.hypothesis.strategies import xml_text
 
 
-class TestLxml(Lxml):
+class _Tests:
     @given(
         id=st.one_of(st.none(), nc_name()),
         target_id=st.one_of(st.none(), nc_name()),
@@ -87,11 +87,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_track_track_items(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        altitude_mode: Optional[fastkml.enums.AltitudeMode],
-        track_items: Optional[Iterable[fastkml.gx.TrackItem]],
-        extended_data: Optional[fastkml.ExtendedData],
+        id: str | None,
+        target_id: str | None,
+        altitude_mode: fastkml.enums.AltitudeMode | None,
+        track_items: Iterable[fastkml.gx.TrackItem] | None,
+        extended_data: fastkml.ExtendedData | None,
     ) -> None:
         track = fastkml.gx.Track(
             id=id,
@@ -129,11 +129,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_multi_track(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        altitude_mode: Optional[fastkml.enums.AltitudeMode],
-        tracks: Optional[Iterable[fastkml.gx.Track]],
-        interpolate: Optional[bool],
+        id: str | None,
+        target_id: str | None,
+        altitude_mode: fastkml.enums.AltitudeMode | None,
+        tracks: Iterable[fastkml.gx.Track] | None,
+        interpolate: bool | None,
     ) -> None:
         multi_track = fastkml.gx.MultiTrack(
             id=id,
@@ -147,3 +147,11 @@ class TestLxml(Lxml):
         assert_str_roundtrip(multi_track)
         assert_str_roundtrip_terse(multi_track)
         assert_str_roundtrip_verbose(multi_track)
+
+
+class TestLxml(Lxml, _Tests):
+    """Test with lxml."""
+
+
+class TestPyUppsala(PyUppsala, _Tests):
+    """Test with pyuppsala."""

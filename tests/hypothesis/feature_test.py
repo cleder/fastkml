@@ -16,8 +16,6 @@
 """Property-based tests for the views module."""
 
 from collections.abc import Iterable
-from typing import Optional
-from typing import Union
 
 import pygeoif.types
 from hypothesis import given
@@ -35,6 +33,7 @@ import fastkml.model
 import fastkml.styles
 import fastkml.views
 from tests.base import Lxml
+from tests.base import PyUppsala
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
@@ -49,7 +48,7 @@ from tests.hypothesis.strategies import track_items
 from tests.hypothesis.strategies import xml_text
 
 
-class TestLxml(Lxml):
+class _Tests:
     @given(
         text=st.one_of(st.none(), xml_text(min_size=1)),
         max_lines=st.one_of(
@@ -59,8 +58,8 @@ class TestLxml(Lxml):
     )
     def test_fuzz_snippet(
         self,
-        text: Optional[str],
-        max_lines: Optional[int],
+        text: str | None,
+        max_lines: int | None,
     ) -> None:
         snippet = fastkml.features.Snippet(text=text, max_lines=max_lines)
 
@@ -77,11 +76,7 @@ class TestLxml(Lxml):
     )
     def test_fuzz_placemark_geometry_only(
         self,
-        geometry: Union[
-            pygeoif.types.GeoType,
-            pygeoif.types.GeoCollectionType,
-            None,
-        ],
+        geometry: pygeoif.types.GeoType | pygeoif.types.GeoCollectionType | None,
     ) -> None:
         placemark = fastkml.Placemark(
             geometry=geometry,
@@ -153,9 +148,9 @@ class TestLxml(Lxml):
     )
     def test_fuzz_placemark_view_times(
         self,
-        view: Union[fastkml.Camera, fastkml.LookAt, None],
-        times: Union[fastkml.TimeSpan, fastkml.TimeStamp, None],
-        region: Optional[fastkml.views.Region],
+        view: fastkml.Camera | fastkml.LookAt | None,
+        times: fastkml.TimeSpan | fastkml.TimeStamp | None,
+        region: fastkml.views.Region | None,
     ) -> None:
         placemark = fastkml.Placemark(
             view=view,
@@ -191,10 +186,10 @@ class TestLxml(Lxml):
     )
     def test_fuzz_placemark_str(
         self,
-        address: Optional[str],
-        phone_number: Optional[str],
-        snippet: Optional[fastkml.features.Snippet],
-        description: Optional[str],
+        address: str | None,
+        phone_number: str | None,
+        snippet: fastkml.features.Snippet | None,
+        description: str | None,
     ) -> None:
         placemark = fastkml.Placemark(
             address=address,
@@ -233,13 +228,13 @@ class TestLxml(Lxml):
     )
     def test_fuzz_placemark_atom(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        name: Optional[str],
-        visibility: Optional[bool],
-        isopen: Optional[bool],
-        atom_link: Optional[fastkml.atom.Link],
-        atom_author: Optional[fastkml.atom.Author],
+        id: str | None,
+        target_id: str | None,
+        name: str | None,
+        visibility: bool | None,
+        isopen: bool | None,
+        atom_link: fastkml.atom.Link | None,
+        atom_author: fastkml.atom.Author | None,
     ) -> None:
         placemark = fastkml.Placemark(
             id=id,
@@ -289,10 +284,7 @@ class TestLxml(Lxml):
     )
     def test_fuzz_placemark_gx_track(
         self,
-        kml_geometry: Union[
-            fastkml.gx.Track,
-            fastkml.gx.MultiTrack,
-        ],
+        kml_geometry: fastkml.gx.Track | fastkml.gx.MultiTrack,
     ) -> None:
         placemark = fastkml.Placemark(
             kml_geometry=kml_geometry,
@@ -331,7 +323,7 @@ class TestLxml(Lxml):
     )
     def test_fuzz_placemark_extended_data(
         self,
-        extended_data: Optional[fastkml.ExtendedData],
+        extended_data: fastkml.ExtendedData | None,
     ) -> None:
         placemark = fastkml.Placemark(
             extended_data=extended_data,
@@ -407,8 +399,8 @@ class TestLxml(Lxml):
     )
     def test_fuzz_placemark_styles(
         self,
-        style_url: Optional[fastkml.StyleUrl],
-        styles: Optional[Iterable[Union[fastkml.Style, fastkml.StyleMap]]],
+        style_url: fastkml.StyleUrl | None,
+        styles: Iterable[fastkml.Style | fastkml.StyleMap] | None,
     ) -> None:
         placemark = fastkml.Placemark(
             style_url=style_url,
@@ -471,9 +463,9 @@ class TestLxml(Lxml):
     )
     def test_network_link(
         self,
-        refresh_visibility: Optional[bool],
-        fly_to_view: Optional[bool],
-        link: Optional[fastkml.links.Link],
+        refresh_visibility: bool | None,
+        fly_to_view: bool | None,
+        link: fastkml.links.Link | None,
     ) -> None:
         """Test NetworkLink object with optional parameters."""
         network_link = fastkml.features.NetworkLink(
@@ -490,3 +482,11 @@ class TestLxml(Lxml):
         assert_str_roundtrip(network_link)
         assert_str_roundtrip_terse(network_link)
         assert_str_roundtrip_verbose(network_link)
+
+
+class TestLxml(Lxml, _Tests):
+    """Test with lxml."""
+
+
+class TestPyUppsala(PyUppsala, _Tests):
+    """Test with pyuppsala."""

@@ -17,7 +17,7 @@
 """
 Fastkml is a library to read, write and manipulate kml files.
 
-It aims to keep it simple and fast (using lxml if available).
+It aims to keep it simple and fast (using lxml or pyuppsala if available).
 Fast refers to the time you spend to write and read KML files as well as the time
 you spend to get acquainted to the library or to create KML objects.
 It provides a subset of KML and is aimed at documents that can be read from

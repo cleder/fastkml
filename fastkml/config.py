@@ -26,27 +26,40 @@ __all__ = [
     "DEFAULT_NAME_SPACES",
     "GXNS",
     "KMLNS",
+    "LXML_COMPATIBLE",
     "etree",
     "register_namespaces",
     "set_default_namespaces",
     "set_etree_implementation",
 ]
 
+_lxml_compatible: bool = False
+
 try:  # pragma: no cover
     from lxml import etree
 
+    _lxml_compatible = True
 except ImportError:  # pragma: no cover
-    warnings.warn("Package `lxml` missing. Pretty print will be disabled")  # noqa: B028
-    import xml.etree.ElementTree as etree  # noqa: N813, ICN001
+    try:
+        from pyuppsala import etree  # type: ignore[no-redef, unused-ignore]
 
+        _lxml_compatible = True
+    except ImportError:
+        warnings.warn(  # noqa: B028
+            "Packages `lxml` and `pyuppsala` missing. Pretty print will be disabled",
+        )
+        import xml.etree.ElementTree as etree  # noqa: N813, ICN001
+
+LXML_COMPATIBLE: bool = _lxml_compatible
 
 logger = logging.getLogger(__name__)
 
 
 def set_etree_implementation(implementation: ModuleType) -> None:
     """Set the etree implementation to use."""
-    global etree  # noqa: PLW0603
+    global etree, LXML_COMPATIBLE  # noqa: PLW0603
     etree = implementation
+    LXML_COMPATIBLE = hasattr(implementation, "XMLSchema")
 
 
 KML: Final = "kml"

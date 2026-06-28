@@ -17,8 +17,6 @@
 """Property based tests of the Geometry classes."""
 
 from collections.abc import Sequence
-from typing import Optional
-from typing import Union
 
 from hypothesis import given
 from hypothesis import settings
@@ -36,8 +34,9 @@ from pygeoif.hypothesis.strategies import polygons
 import fastkml.geometry
 from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
-from fastkml.validator import validate
 from tests.base import Lxml
+from tests.base import PyUppsala
+from tests.hypothesis.common import _validate_if_supported
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.strategies import nc_name
@@ -51,11 +50,9 @@ eval_locals = {
     "fastkml": fastkml,
 }
 
-kml_geometry = Union[
-    fastkml.geometry.Point,
-    fastkml.geometry.LineString,
-    fastkml.geometry.Polygon,
-]
+kml_geometry = (
+    fastkml.geometry.Point | fastkml.geometry.LineString | fastkml.geometry.Polygon
+)
 
 coordinates = {
     "coords": st.one_of(st.none(), line_coords(srs=epsg4326, min_points=1)),
@@ -88,7 +85,7 @@ def _test_geometry_str_roundtrip_terse(geometry: kml_geometry) -> None:
         geometry.to_string(verbosity=Verbosity.terse),
     )
 
-    assert validate(element=new_g.etree_element())
+    _validate_if_supported(new_g)
     assert geometry.to_string(verbosity=Verbosity.verbose) == new_g.to_string(
         verbosity=Verbosity.verbose,
     )
@@ -114,7 +111,7 @@ def _test_geometry_str_roundtrip_verbose(geometry: kml_geometry) -> None:
         geometry.to_string(verbosity=Verbosity.verbose),
     )
 
-    assert validate(element=new_g.etree_element())
+    _validate_if_supported(new_g)
     assert geometry.to_string(verbosity=Verbosity.terse) == new_g.to_string(
         verbosity=Verbosity.terse,
     )
@@ -134,16 +131,14 @@ def _test_geometry_str_roundtrip_verbose(geometry: kml_geometry) -> None:
             assert new_g.tessellate == geometry.tessellate
 
 
-class TestLxml(Lxml):
+class _Tests:
     @given(**coordinates)
     @settings(deadline=None)
     def test_coordinates_str_roundtrip(
         self,
-        coords: Union[
-            Sequence[tuple[float, float]],
-            Sequence[tuple[float, float, float]],
-            None,
-        ],
+        coords: Sequence[tuple[float, float]]
+        | Sequence[tuple[float, float, float]]
+        | None,
     ) -> None:
         coordinate = fastkml.geometry.Coordinates(coords=coords)
 
@@ -152,23 +147,21 @@ class TestLxml(Lxml):
         )
 
         assert coordinate.to_string(precision=10) == new_c.to_string(precision=10)
-        assert validate(element=new_c.etree_element())
+        _validate_if_supported(new_c)
 
     @given(**coordinates)
     def test_coordinates_repr_roundtrip(
         self,
-        coords: Union[
-            Sequence[tuple[float, float]],
-            Sequence[tuple[float, float, float]],
-            None,
-        ],
+        coords: Sequence[tuple[float, float]]
+        | Sequence[tuple[float, float, float]]
+        | None,
     ) -> None:
         coordinate = fastkml.geometry.Coordinates(coords=coords)
 
         new_c = eval(repr(coordinate), {}, eval_locals)  # noqa: S307
 
         assert coordinate == new_c
-        assert validate(element=new_c.etree_element())
+        _validate_if_supported(new_c)
 
     @given(
         **common_geometry,
@@ -179,12 +172,12 @@ class TestLxml(Lxml):
     )
     def test_point_repr_roundtrip(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        extrude: Optional[bool],
-        altitude_mode: Optional[AltitudeMode],
-        tessellate: Optional[bool],  # noqa: ARG002
-        geometry: Optional[Point],
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        altitude_mode: AltitudeMode | None,
+        tessellate: bool | None,  # noqa: ARG002
+        geometry: Point | None,
     ) -> None:
         point = fastkml.geometry.Point(
             id=id,
@@ -205,12 +198,12 @@ class TestLxml(Lxml):
     )
     def test_point_str_roundtrip(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        extrude: Optional[bool],
-        tessellate: Optional[bool],  # noqa: ARG002
-        altitude_mode: Optional[AltitudeMode],
-        geometry: Optional[Point],
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,  # noqa: ARG002
+        altitude_mode: AltitudeMode | None,
+        geometry: Point | None,
     ) -> None:
         point = fastkml.geometry.Point(
             id=id,
@@ -231,12 +224,12 @@ class TestLxml(Lxml):
     )
     def test_point_str_roundtrip_terse(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        extrude: Optional[bool],
-        tessellate: Optional[bool],  # noqa: ARG002
-        altitude_mode: Optional[AltitudeMode],
-        geometry: Optional[Point],
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,  # noqa: ARG002
+        altitude_mode: AltitudeMode | None,
+        geometry: Point | None,
     ) -> None:
         point = fastkml.geometry.Point(
             id=id,
@@ -257,12 +250,12 @@ class TestLxml(Lxml):
     )
     def test_point_str_roundtrip_verbose(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        extrude: Optional[bool],
-        tessellate: Optional[bool],  # noqa: ARG002
-        altitude_mode: Optional[AltitudeMode],
-        geometry: Optional[Point],
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,  # noqa: ARG002
+        altitude_mode: AltitudeMode | None,
+        geometry: Point | None,
     ) -> None:
         point = fastkml.geometry.Point(
             id=id,
@@ -283,12 +276,12 @@ class TestLxml(Lxml):
     )
     def test_linestring_repr_roundtrip(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        extrude: Optional[bool],
-        tessellate: Optional[bool],
-        altitude_mode: Optional[AltitudeMode],
-        geometry: Optional[LineString],
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: LineString | None,
     ) -> None:
         line = fastkml.geometry.LineString(
             id=id,
@@ -310,12 +303,12 @@ class TestLxml(Lxml):
     )
     def test_linestring_str_roundtrip(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        extrude: Optional[bool],
-        tessellate: Optional[bool],
-        altitude_mode: Optional[AltitudeMode],
-        geometry: Optional[LineString],
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: LineString | None,
     ) -> None:
         line = fastkml.geometry.LineString(
             id=id,
@@ -337,12 +330,12 @@ class TestLxml(Lxml):
     )
     def test_linestring_str_roundtrip_terse(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        extrude: Optional[bool],
-        tessellate: Optional[bool],
-        altitude_mode: Optional[AltitudeMode],
-        geometry: Optional[LineString],
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: LineString | None,
     ) -> None:
         line = fastkml.geometry.LineString(
             id=id,
@@ -364,12 +357,12 @@ class TestLxml(Lxml):
     )
     def test_linestring_str_roundtrip_verbose(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        extrude: Optional[bool],
-        tessellate: Optional[bool],
-        altitude_mode: Optional[AltitudeMode],
-        geometry: Optional[LineString],
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: LineString | None,
     ) -> None:
         line = fastkml.geometry.LineString(
             id=id,
@@ -391,12 +384,12 @@ class TestLxml(Lxml):
     )
     def test_polygon_repr_roundtrip(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        extrude: Optional[bool],
-        tessellate: Optional[bool],
-        altitude_mode: Optional[AltitudeMode],
-        geometry: Optional[Polygon],
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: Polygon | None,
     ) -> None:
         polygon = fastkml.geometry.Polygon(
             id=id,
@@ -418,12 +411,12 @@ class TestLxml(Lxml):
     )
     def test_polygon_str_roundtrip(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        extrude: Optional[bool],
-        tessellate: Optional[bool],
-        altitude_mode: Optional[AltitudeMode],
-        geometry: Optional[Polygon],
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: Polygon | None,
     ) -> None:
         polygon = fastkml.geometry.Polygon(
             id=id,
@@ -445,12 +438,12 @@ class TestLxml(Lxml):
     )
     def test_polygon_str_roundtrip_terse(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        extrude: Optional[bool],
-        tessellate: Optional[bool],
-        altitude_mode: Optional[AltitudeMode],
-        geometry: Optional[Polygon],
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: Polygon | None,
     ) -> None:
         polygon = fastkml.geometry.Polygon(
             id=id,
@@ -472,12 +465,12 @@ class TestLxml(Lxml):
     )
     def test_polygon_str_roundtrip_verbose(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        extrude: Optional[bool],
-        tessellate: Optional[bool],
-        altitude_mode: Optional[AltitudeMode],
-        geometry: Optional[Polygon],
+        id: str | None,
+        target_id: str | None,
+        extrude: bool | None,
+        tessellate: bool | None,
+        altitude_mode: AltitudeMode | None,
+        geometry: Polygon | None,
     ) -> None:
         polygon = fastkml.geometry.Polygon(
             id=id,
@@ -489,3 +482,11 @@ class TestLxml(Lxml):
         )
 
         _test_geometry_str_roundtrip_verbose(polygon)
+
+
+class TestLxml(Lxml, _Tests):
+    """Test with lxml."""
+
+
+class TestPyUppsala(PyUppsala, _Tests):
+    """Test with pyuppsala."""

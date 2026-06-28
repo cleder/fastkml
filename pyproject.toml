@@ -41,7 +41,7 @@ dynamic = [
     "version",
 ]
 name = "fastkml"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 [project.license]
 text = "LGPL"
@@ -53,7 +53,7 @@ complexity = [
     "radon",
 ]
 dev = [
-    "fastkml[complexity,docs,linting,lxml,tests,typing]",
+    "fastkml[complexity,docs,linting,lxml,tests,typing,pyuppsala]",
     "pre-commit",
     "shapely",
 ]
@@ -74,6 +74,9 @@ linting = [
 ]
 lxml = [
     "lxml",
+]
+pyuppsala = [
+    "pyuppsala>=0.5.0",
 ]
 tests = [
     "hypothesis[dateutil]",
@@ -266,3 +269,6 @@ include = [
     "fastkml/py.typed",
 ]
 namespaces = false
+
+[tool.uv.sources.pyuppsala]
+git = "https://github.com/kushaldas/pyuppsala"

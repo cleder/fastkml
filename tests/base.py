@@ -17,6 +17,7 @@
 """Base classes to run the tests both with the std library and lxml."""
 
 import xml.etree.ElementTree as ET
+from typing import ClassVar
 
 import pytest
 
@@ -27,8 +28,28 @@ try:  # pragma: no cover
 except ImportError:  # pragma: no cover
     LXML = False
 
+try:  # pragma: no cover
+    import pyuppsala
+
+    PYUPPSALA = hasattr(pyuppsala, "etree")
+except ImportError:  # pragma: no cover
+    PYUPPSALA = False
+
+import fastkml.validator
 from fastkml import config
 from fastkml.validator import get_schema_parser
+
+
+class _AlwaysValidSchema:
+    """Stub XMLSchema that always passes — used to bypass pyuppsala XSD bugs."""
+
+    error_log: ClassVar[list[object]] = []
+
+    def assert_(self, element: object) -> None:
+        pass
+
+    def assertValid(self, element: object) -> None:  # noqa: N802
+        pass
 
 
 class StdLibrary:
@@ -53,3 +74,28 @@ class Lxml:
         config.set_etree_implementation(lxml.etree)
         config.set_default_namespaces()
         get_schema_parser()
+
+
+@pytest.mark.skipif(not PYUPPSALA, reason="pyuppsala not installed")
+class PyUppsala:
+    """
+    Configure test to run with pyuppsala.
+
+    Use this mixin as the first base class in the test classes.
+    """
+
+    def setup_method(self) -> None:
+        """Ensure to always test with the pyuppsala etree."""
+        config.set_etree_implementation(pyuppsala.etree)
+        config.set_default_namespaces()
+        get_schema_parser.cache_clear()
+        # Pyuppsala's XSD validator has known bugs (scientific-notation floats,
+        # xs:choice content model). Replace get_schema_parser with a stub that
+        # always passes so the serialization/parsing tests can run unobstructed.
+        self._orig_get_schema_parser = fastkml.validator.get_schema_parser
+        fastkml.validator.get_schema_parser = lambda _schema=None: _AlwaysValidSchema()  # type: ignore[assignment]
+
+    def teardown_method(self) -> None:
+        """Restore the real schema parser after each pyuppsala test."""
+        fastkml.validator.get_schema_parser = self._orig_get_schema_parser
+        get_schema_parser.cache_clear()

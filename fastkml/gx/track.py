@@ -95,7 +95,7 @@ class TrackItem:
 
     when: KmlDateTime
     coord: geo.Point
-    angle: Optional[Angle] = None
+    angle: Angle | None = None
 
 
 def track_items_to_geometry(track_items: Iterable[TrackItem]) -> geo.LineString:
@@ -141,15 +141,15 @@ class Track(_Geometry):
     def __init__(
         self,
         *,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        altitude_mode: Optional[AltitudeMode] = None,
-        track_items: Optional[Iterable[TrackItem]] = None,
-        whens: Optional[Iterable[KmlDateTime]] = None,
-        coords: Optional[Iterable[PointType]] = None,
-        angles: Optional[Iterable[PointType]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        altitude_mode: AltitudeMode | None = None,
+        track_items: Iterable[TrackItem] | None = None,
+        whens: Iterable[KmlDateTime] | None = None,
+        coords: Iterable[PointType] | None = None,
+        angles: Iterable[PointType] | None = None,
         extended_data: Optional["ExtendedData"] = None,
         **kwargs: Any,
     ) -> None:
@@ -240,7 +240,7 @@ class Track(_Geometry):
         )
 
     @property
-    def geometry(self) -> Optional[geo.LineString]:
+    def geometry(self) -> geo.LineString | None:
         """
         Get the geometry of the track.
 
@@ -403,13 +403,13 @@ class MultiTrack(_Geometry):
     def __init__(
         self,
         *,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        altitude_mode: Optional[AltitudeMode] = None,
-        tracks: Optional[Iterable[Track]] = None,
-        interpolate: Optional[bool] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        altitude_mode: AltitudeMode | None = None,
+        tracks: Iterable[Track] | None = None,
+        interpolate: bool | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -460,7 +460,7 @@ class MultiTrack(_Geometry):
         )
 
     @property
-    def geometry(self) -> Optional[geo.MultiLineString]:
+    def geometry(self) -> geo.MultiLineString | None:
         """
         Get the geometry of the gx object.
 

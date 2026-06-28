@@ -22,8 +22,6 @@ These are the objects that can be added to a KML file.
 import logging
 from collections.abc import Iterable
 from typing import Any
-from typing import Optional
-from typing import Union
 
 from pygeoif.types import GeoCollectionType
 from pygeoif.types import GeoType
@@ -73,16 +71,16 @@ __all__ = ["NetworkLink", "Placemark", "Snippet"]
 
 logger = logging.getLogger(__name__)
 
-KmlGeometry = Union[
-    Point,
-    LineString,
-    LinearRing,
-    Polygon,
-    Model,
-    MultiGeometry,
-    MultiTrack,
-    Track,
-]
+KmlGeometry = (
+    Point
+    | LineString
+    | LinearRing
+    | Polygon
+    | Model
+    | MultiGeometry
+    | MultiTrack
+    | Track
+)
 
 
 class Snippet(_XMLObject):
@@ -104,15 +102,15 @@ class Snippet(_XMLObject):
 
     _default_nsid = config.KML
 
-    text: Optional[str]
-    max_lines: Optional[int] = None
+    text: str | None
+    max_lines: int | None = None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        text: Optional[str] = None,
-        max_lines: Optional[int] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        text: str | None = None,
+        max_lines: int | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -209,42 +207,42 @@ class _Feature(TimeMixin, _BaseObject):
         - NetworkLink.
     """
 
-    name: Optional[str]
-    visibility: Optional[bool]
-    isopen: Optional[bool]
-    atom_author: Optional[atom.Author]
-    atom_link: Optional[atom.Link]
-    address: Optional[str]
-    phone_number: Optional[str]
-    snippet: Optional[Snippet]
-    description: Optional[str]
-    style_url: Optional[StyleUrl]
-    styles: list[Union[Style, StyleMap]]
-    view: Union[Camera, LookAt, None]
-    region: Optional[Region]
-    extended_data: Optional[ExtendedData]
+    name: str | None
+    visibility: bool | None
+    isopen: bool | None
+    atom_author: atom.Author | None
+    atom_link: atom.Link | None
+    address: str | None
+    phone_number: str | None
+    snippet: Snippet | None
+    description: str | None
+    style_url: StyleUrl | None
+    styles: list[Style | StyleMap]
+    view: Camera | LookAt | None
+    region: Region | None
+    extended_data: ExtendedData | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        name: Optional[str] = None,
-        visibility: Optional[bool] = None,
-        isopen: Optional[bool] = None,
-        atom_link: Optional[atom.Link] = None,
-        atom_author: Optional[atom.Author] = None,
-        address: Optional[str] = None,
-        phone_number: Optional[str] = None,
-        snippet: Optional[Snippet] = None,
-        description: Optional[str] = None,
-        view: Optional[Union[Camera, LookAt]] = None,
-        times: Optional[Union[TimeSpan, TimeStamp]] = None,
-        style_url: Optional[StyleUrl] = None,
-        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
-        region: Optional[Region] = None,
-        extended_data: Optional[ExtendedData] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        name: str | None = None,
+        visibility: bool | None = None,
+        isopen: bool | None = None,
+        atom_link: atom.Link | None = None,
+        atom_author: atom.Author | None = None,
+        address: str | None = None,
+        phone_number: str | None = None,
+        snippet: Snippet | None = None,
+        description: str | None = None,
+        view: Camera | LookAt | None = None,
+        times: TimeSpan | TimeStamp | None = None,
+        style_url: StyleUrl | None = None,
+        styles: Iterable[Style | StyleMap] | None = None,
+        region: Region | None = None,
+        extended_data: ExtendedData | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -494,32 +492,32 @@ class Placemark(_Feature):
     marks a point on the Earth in the 3D viewer.
     """
 
-    kml_geometry: Optional[KmlGeometry]
+    kml_geometry: KmlGeometry | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        name: Optional[str] = None,
-        visibility: Optional[bool] = None,
-        isopen: Optional[bool] = None,
-        atom_link: Optional[atom.Link] = None,
-        atom_author: Optional[atom.Author] = None,
-        address: Optional[str] = None,
-        phone_number: Optional[str] = None,
-        snippet: Optional[Snippet] = None,
-        description: Optional[str] = None,
-        view: Optional[Union[Camera, LookAt]] = None,
-        times: Optional[Union[TimeSpan, TimeStamp]] = None,
-        style_url: Optional[StyleUrl] = None,
-        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
-        region: Optional[Region] = None,
-        extended_data: Optional[ExtendedData] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        name: str | None = None,
+        visibility: bool | None = None,
+        isopen: bool | None = None,
+        atom_link: atom.Link | None = None,
+        atom_author: atom.Author | None = None,
+        address: str | None = None,
+        phone_number: str | None = None,
+        snippet: Snippet | None = None,
+        description: str | None = None,
+        view: Camera | LookAt | None = None,
+        times: TimeSpan | TimeStamp | None = None,
+        style_url: StyleUrl | None = None,
+        styles: Iterable[Style | StyleMap] | None = None,
+        region: Region | None = None,
+        extended_data: ExtendedData | None = None,
         # Placemark specific
-        kml_geometry: Optional[KmlGeometry] = None,
-        geometry: Optional[Union[GeoType, GeoCollectionType]] = None,
+        kml_geometry: KmlGeometry | None = None,
+        geometry: GeoType | GeoCollectionType | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -647,7 +645,7 @@ class Placemark(_Feature):
         )
 
     @property
-    def geometry(self) -> Optional[AnyGeometryType]:
+    def geometry(self) -> AnyGeometryType | None:
         """
         Returns the geometry associated with this feature.
 
@@ -726,35 +724,35 @@ class NetworkLink(_Feature):
     https://developers.google.com/kml/documentation/kmlreference#networklink
     """
 
-    refresh_visibility: Optional[bool]
-    fly_to_view: Optional[bool]
-    link: Optional[Link]
+    refresh_visibility: bool | None
+    fly_to_view: bool | None
+    link: Link | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        name: Optional[str] = None,
-        visibility: Optional[bool] = None,
-        isopen: Optional[bool] = None,
-        atom_link: Optional[atom.Link] = None,
-        atom_author: Optional[atom.Author] = None,
-        address: Optional[str] = None,
-        phone_number: Optional[str] = None,
-        snippet: Optional[Snippet] = None,
-        description: Optional[str] = None,
-        view: Optional[Union[Camera, LookAt]] = None,
-        times: Optional[Union[TimeSpan, TimeStamp]] = None,
-        style_url: Optional[StyleUrl] = None,
-        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
-        region: Optional[Region] = None,
-        extended_data: Optional[ExtendedData] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        name: str | None = None,
+        visibility: bool | None = None,
+        isopen: bool | None = None,
+        atom_link: atom.Link | None = None,
+        atom_author: atom.Author | None = None,
+        address: str | None = None,
+        phone_number: str | None = None,
+        snippet: Snippet | None = None,
+        description: str | None = None,
+        view: Camera | LookAt | None = None,
+        times: TimeSpan | TimeStamp | None = None,
+        style_url: StyleUrl | None = None,
+        styles: Iterable[Style | StyleMap] | None = None,
+        region: Region | None = None,
+        extended_data: ExtendedData | None = None,
         # NetworkLink specific
-        refresh_visibility: Optional[bool] = None,
-        fly_to_view: Optional[bool] = None,
-        link: Optional[Link] = None,
+        refresh_visibility: bool | None = None,
+        fly_to_view: bool | None = None,
+        link: Link | None = None,
         **kwargs: Any,
     ) -> None:
         """

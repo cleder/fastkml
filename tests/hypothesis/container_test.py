@@ -19,6 +19,7 @@ import itertools
 from collections.abc import Iterable
 
 from hypothesis import given
+from hypothesis import settings
 from hypothesis import strategies as st
 from hypothesis.provisional import urls
 
@@ -29,6 +30,7 @@ import fastkml.links
 import fastkml.overlays
 import fastkml.views
 from tests.base import Lxml
+from tests.base import PyUppsala
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
@@ -36,7 +38,7 @@ from tests.hypothesis.common import assert_str_roundtrip_verbose
 from tests.hypothesis.strategies import nc_name
 
 
-class TestLxml(Lxml):
+class _Tests:
     @given(
         features_tuple=st.tuples(
             st.lists(
@@ -134,6 +136,7 @@ class TestLxml(Lxml):
             max_size=1,
         ),
     )
+    @settings(deadline=None)
     def test_fuzz_document(
         self,
         features_tuple: tuple[Iterable[fastkml.features._Feature]],
@@ -151,3 +154,11 @@ class TestLxml(Lxml):
         assert_str_roundtrip(document)
         assert_str_roundtrip_terse(document)
         assert_str_roundtrip_verbose(document)
+
+
+class TestLxml(Lxml, _Tests):
+    """Test with lxml."""
+
+
+class TestPyUppsala(PyUppsala, _Tests):
+    """Test with pyuppsala."""

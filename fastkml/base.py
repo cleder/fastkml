@@ -33,7 +33,6 @@ consistent handling of XML operations across the library.
 
 import logging
 from typing import Any
-from typing import Optional
 from typing import cast
 
 from typing_extensions import Self
@@ -59,8 +58,8 @@ class _XMLObject:
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -136,7 +135,7 @@ class _XMLObject:
 
     def etree_element(
         self,
-        precision: Optional[int] = None,
+        precision: int | None = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         """
@@ -176,7 +175,7 @@ class _XMLObject:
     def populate_element(
         self,
         element: Element,
-        precision: Optional[int] = None,
+        precision: int | None = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> None:
         """
@@ -212,7 +211,7 @@ class _XMLObject:
         self,
         *,
         prettyprint: bool = True,
-        precision: Optional[int] = None,
+        precision: int | None = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> str:
         """
@@ -255,7 +254,7 @@ class _XMLObject:
                 ),
             )
 
-    def validate(self) -> Optional[bool]:
+    def validate(self) -> bool | None:
         """
         Validate the KML object against the XML schema.
 
@@ -302,7 +301,7 @@ class _XMLObject:
         return cls.__name__
 
     @classmethod
-    def _get_ns(cls, ns: Optional[str], name_spaces: dict[str, str]) -> str:
+    def _get_ns(cls, ns: str | None, name_spaces: dict[str, str]) -> str:
         """
         Get the namespace.
 
@@ -326,7 +325,7 @@ class _XMLObject:
         cls,
         *,
         ns: str,
-        name_spaces: Optional[dict[str, str]] = None,
+        name_spaces: dict[str, str] | None = None,
         element: Element,
         strict: bool,
     ) -> dict[str, Any]:
@@ -414,7 +413,7 @@ class _XMLObject:
         cls,
         *,
         ns: str,
-        name_spaces: Optional[dict[str, str]] = None,
+        name_spaces: dict[str, str] | None = None,
         element: Element,
         strict: bool,
     ) -> Self:
@@ -453,8 +452,8 @@ class _XMLObject:
         cls,
         string: str,
         *,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
         strict: bool = True,
     ) -> Self:
         """

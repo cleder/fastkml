@@ -40,6 +40,7 @@ from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
 from fastkml.validator import validate
 from tests.base import Lxml
+from tests.base import PyUppsala
 from tests.hypothesis.strategies import nc_name
 
 eval_locals = {
@@ -97,7 +98,7 @@ def _test_geometry_str_roundtrip(
     assert new_g.geometry
     assert geometry.geometry
     assert type(new_g.geometry) is cls
-    for g1, g2 in zip(new_g.kml_geometries, geometry.kml_geometries):
+    for g1, g2 in zip(new_g.kml_geometries, geometry.kml_geometries, strict=True):
         assert g1.extrude == g2.extrude == extrude
         assert g1.altitude_mode == g2.altitude_mode == altitude_mode
         if not isinstance(g1, fastkml.geometry.Point):
@@ -125,7 +126,7 @@ def _test_geometry_str_roundtrip_terse(
     assert new_g.geometry
     assert geometry.geometry
     assert type(new_g.geometry) is cls
-    for new, orig in zip(new_g.kml_geometries, geometry.kml_geometries):
+    for new, orig in zip(new_g.kml_geometries, geometry.kml_geometries, strict=True):
         if extrude:
             assert new.extrude == orig.extrude == extrude
         else:
@@ -162,7 +163,7 @@ def _test_geometry_str_roundtrip_verbose(
     assert new_g.geometry
     assert geometry.geometry
     assert type(new_g.geometry) is cls
-    for new, orig in zip(new_g.kml_geometries, geometry.kml_geometries):
+    for new, orig in zip(new_g.kml_geometries, geometry.kml_geometries, strict=True):
         if isinstance(new, fastkml.geometry.MultiGeometry):  # pragma: no cover
             continue  # pragma: no cover
         assert not isinstance(orig, fastkml.geometry.MultiGeometry)
@@ -182,9 +183,7 @@ def _test_geometry_str_roundtrip_verbose(
     validate(element=new_g.etree_element())
 
 
-class TestLxml(Lxml):
-    """Validation requires lxml."""
-
+class _Tests:
     @given(
         **common_geometry,
         geometry=st.one_of(
@@ -710,3 +709,11 @@ class TestLxml(Lxml):
             )
         else:
             assert not new_mg
+
+
+class TestLxml(Lxml, _Tests):
+    """Test with lxml."""
+
+
+class TestPyUppsala(PyUppsala, _Tests):
+    """Test with pyuppsala."""

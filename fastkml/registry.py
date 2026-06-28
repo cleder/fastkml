@@ -25,7 +25,6 @@ with the registry acting as a central configuration for these mappings.
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Optional
 
 from typing_extensions import Protocol
 
@@ -72,7 +71,7 @@ class SetElement(Protocol):
         element: Element,
         attr_name: str,
         node_name: str,
-        precision: Optional[int],
+        precision: int | None,
         verbosity: Verbosity,
         default: Any,
     ) -> None: ...
@@ -106,7 +105,7 @@ class RegistryItem:
     set_element: SetElement
     node_name: str
     default: Any = None
-    custom_get_kwarg: Optional[CustomGetKWArgs] = None
+    custom_get_kwarg: CustomGetKWArgs | None = None
 
 
 class Registry:
@@ -135,7 +134,7 @@ class Registry:
 
     def __init__(
         self,
-        registry: Optional[dict[type["_XMLObject"], list[RegistryItem]]] = None,
+        registry: dict[type["_XMLObject"], list[RegistryItem]] | None = None,
     ) -> None:
         """Initialize the registry."""
         self._registry = registry or {}

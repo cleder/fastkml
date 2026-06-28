@@ -20,7 +20,6 @@ import pathlib
 from functools import lru_cache
 from typing import TYPE_CHECKING
 from typing import Final
-from typing import Optional
 
 from fastkml import config
 from fastkml.types import Element
@@ -45,7 +44,7 @@ REQUIRE_ONE_OF: Final = "Either element or file_to_validate must be provided."
 
 @lru_cache(maxsize=16)
 def get_schema_parser(
-    schema: Optional[pathlib.Path] = None,
+    schema: pathlib.Path | None = None,
 ) -> "etree.XMLSchema":
     """
     Parse the XML schema.
@@ -82,10 +81,13 @@ def handle_validation_error(
     log = schema_parser.error_log
     for error_entry in log:
         try:
-            parent = element.xpath(error_entry.path)[  # type: ignore[attr-defined]
-                0
-            ].getparent()
-        except config.etree.XPathEvalError:
+            path = getattr(error_entry, "path", None)
+            parent = (
+                element.xpath(path)[0].getparent()  # type: ignore[attr-defined]
+                if path
+                else element
+            )
+        except (config.etree.XPathEvalError, IndexError):
             parent = element
         if parent is None:
             parent = element
@@ -105,10 +107,10 @@ def handle_validation_error(
 
 def validate(
     *,
-    schema: Optional[pathlib.Path] = None,
-    element: Optional[Element] = None,
-    file_to_validate: Optional[pathlib.Path] = None,
-) -> Optional[bool]:
+    schema: pathlib.Path | None = None,
+    element: Element | None = None,
+    file_to_validate: pathlib.Path | None = None,
+) -> bool | None:
     """
     Validate a KML file against the XML schema.
 
@@ -139,7 +141,13 @@ def validate(
         element = config.etree.parse(file_to_validate)
     assert element is not None  # noqa: S101
     try:
-        schema_parser.assert_(element)  # noqa: PT009
+        if hasattr(schema_parser, "assert_"):
+            schema_parser.assert_(element)  # noqa: PT009
+        else:
+            try:
+                schema_parser.assertValid(element)
+            except Exception as exc:
+                raise AssertionError(str(exc)) from exc
     except AssertionError:
         handle_validation_error(schema_parser, element)
         raise

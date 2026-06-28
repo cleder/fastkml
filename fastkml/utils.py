@@ -2,8 +2,6 @@
 
 from collections.abc import Generator
 from typing import Any
-from typing import Optional
-from typing import Union
 
 __all__ = ["find", "find_all", "has_attribute_values"]
 
@@ -59,7 +57,7 @@ def get_all_attrs(obj: object) -> Generator[object, None, None]:
 def find_all(
     obj: object,
     *,
-    of_type: Optional[Union[type[object], tuple[type[object], ...]]] = None,
+    of_type: type[object] | tuple[type[object], ...] | None = None,
     **kwargs: Any,
 ) -> Generator[object, None, None]:
     """
@@ -89,9 +87,9 @@ def find_all(
 def find(
     obj: object,
     *,
-    of_type: Optional[Union[type[object], tuple[type[object], ...]]] = None,
+    of_type: type[object] | tuple[type[object], ...] | None = None,
     **kwargs: Any,
-) -> Optional[object]:
+) -> object | None:
     """
     Find the first instance of a given type in a given object.
 

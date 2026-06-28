@@ -15,9 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test Link and Icon."""
 
-from typing import Optional
-from typing import Union
-
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
@@ -29,6 +26,7 @@ import fastkml.enums
 import fastkml.geometry
 import fastkml.overlays
 from tests.base import Lxml
+from tests.base import PyUppsala
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
@@ -37,7 +35,7 @@ from tests.hypothesis.strategies import nc_name
 from tests.hypothesis.strategies import xy
 
 
-class TestLxml(Lxml):
+class _Tests:
     @given(
         id=st.one_of(st.none(), nc_name()),
         target_id=st.one_of(st.none(), nc_name()),
@@ -60,13 +58,13 @@ class TestLxml(Lxml):
     )
     def test_fuzz_view_volume(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        left_fov: Optional[float],
-        right_fov: Optional[float],
-        bottom_fov: Optional[float],
-        top_fov: Optional[float],
-        near: Optional[float],
+        id: str | None,
+        target_id: str | None,
+        left_fov: float | None,
+        right_fov: float | None,
+        bottom_fov: float | None,
+        top_fov: float | None,
+        near: float | None,
     ) -> None:
         view_volume = fastkml.overlays.ViewVolume(
             id=id,
@@ -93,12 +91,12 @@ class TestLxml(Lxml):
     )
     def test_fuzz_image_pyramid(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        tile_size: Optional[int],
-        max_width: Optional[int],
-        max_height: Optional[int],
-        grid_origin: Optional[fastkml.enums.GridOrigin],
+        id: str | None,
+        target_id: str | None,
+        tile_size: int | None,
+        max_width: int | None,
+        max_height: int | None,
+        grid_origin: fastkml.enums.GridOrigin | None,
     ) -> None:
         image_pyramid = fastkml.overlays.ImagePyramid(
             id=id,
@@ -140,13 +138,13 @@ class TestLxml(Lxml):
     )
     def test_fuzz_lat_lon_box(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        north: Optional[float],
-        south: Optional[float],
-        east: Optional[float],
-        west: Optional[float],
-        rotation: Optional[float],
+        id: str | None,
+        target_id: str | None,
+        north: float | None,
+        south: float | None,
+        east: float | None,
+        west: float | None,
+        rotation: float | None,
     ) -> None:
         lat_lon_box = fastkml.overlays.LatLonBox(
             id=id,
@@ -205,11 +203,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_photo_overlay(
         self,
-        rotation: Optional[float],
-        view_volume: Optional[fastkml.overlays.ViewVolume],
-        image_pyramid: Optional[fastkml.overlays.ImagePyramid],
-        point: Optional[fastkml.geometry.Point],
-        shape: Optional[fastkml.enums.Shape],
+        rotation: float | None,
+        view_volume: fastkml.overlays.ViewVolume | None,
+        image_pyramid: fastkml.overlays.ImagePyramid | None,
+        point: fastkml.geometry.Point | None,
+        shape: fastkml.enums.Shape | None,
     ) -> None:
         photo_overlay = fastkml.overlays.PhotoOverlay(
             id="photo_overlay1",
@@ -248,9 +246,9 @@ class TestLxml(Lxml):
     )
     def test_fuzz_ground_overlay(
         self,
-        altitude: Optional[float],
-        altitude_mode: Optional[fastkml.enums.AltitudeMode],
-        lat_lon_box: Optional[fastkml.overlays.LatLonBox],
+        altitude: float | None,
+        altitude_mode: fastkml.enums.AltitudeMode | None,
+        lat_lon_box: fastkml.overlays.LatLonBox | None,
     ) -> None:
         ground_overlay = fastkml.overlays.GroundOverlay(
             id="ground_overlay1",
@@ -282,16 +280,14 @@ class TestLxml(Lxml):
     )
     def test_fuzz_xy(
         self,
-        cls: Union[
-            type[fastkml.overlays.OverlayXY],
-            type[fastkml.overlays.RotationXY],
-            type[fastkml.overlays.ScreenXY],
-            type[fastkml.overlays.Size],
-        ],
-        x: Optional[float],
-        y: Optional[float],
-        x_units: Optional[fastkml.enums.Units],
-        y_units: Optional[fastkml.enums.Units],
+        cls: type[fastkml.overlays.OverlayXY]
+        | type[fastkml.overlays.RotationXY]
+        | type[fastkml.overlays.ScreenXY]
+        | type[fastkml.overlays.Size],
+        x: float | None,
+        y: float | None,
+        x_units: fastkml.enums.Units | None,
+        y_units: fastkml.enums.Units | None,
     ) -> None:
         xy = cls(x=x, y=y, x_units=x_units, y_units=y_units)
 
@@ -309,11 +305,11 @@ class TestLxml(Lxml):
     )
     def test_screen_overlay(
         self,
-        overlay_xy: Optional[fastkml.overlays.OverlayXY],
-        screen_xy: Optional[fastkml.overlays.ScreenXY],
-        rotation_xy: Optional[fastkml.overlays.RotationXY],
-        size: Optional[fastkml.overlays.Size],
-        rotation: Optional[float],
+        overlay_xy: fastkml.overlays.OverlayXY | None,
+        screen_xy: fastkml.overlays.ScreenXY | None,
+        rotation_xy: fastkml.overlays.RotationXY | None,
+        size: fastkml.overlays.Size | None,
+        rotation: float | None,
     ) -> None:
         screen_overlay = fastkml.overlays.ScreenOverlay(
             id="screen_overlay1",
@@ -329,3 +325,11 @@ class TestLxml(Lxml):
         assert_str_roundtrip(screen_overlay)
         assert_str_roundtrip_terse(screen_overlay)
         assert_str_roundtrip_verbose(screen_overlay)
+
+
+class TestLxml(Lxml, _Tests):
+    """Test with lxml."""
+
+
+class TestPyUppsala(PyUppsala, _Tests):
+    """Test with pyuppsala."""

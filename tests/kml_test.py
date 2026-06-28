@@ -31,6 +31,7 @@ from fastkml import kml
 from fastkml.containers import Document
 from fastkml.features import Placemark
 from tests.base import Lxml
+from tests.base import PyUppsala
 from tests.base import StdLibrary
 
 BASEDIR = pathlib.Path(__file__).parent
@@ -671,3 +672,156 @@ class TestWriteKMLLxmk(Lxml, TestWriteKML):
 
 class TestKmlFromStringLxml(Lxml, TestKmlFromString):
     """Test with lxml."""
+
+
+class TestPyUppsala(PyUppsala, TestStdLibrary):
+    """Test with pyuppsala."""
+
+
+class TestPyUppsalaParseKML(PyUppsala, TestParseKML):
+    """
+    Test with pyuppsala.
+
+    pyuppsala does not support recover-mode parsing, so XML with undeclared
+    namespace prefixes is rejected at parse time rather than recovered from.
+    pyuppsala's XSD validator does not yet fully support the KML schema, so
+    tests that rely on strict schema validation use validate=False.
+    """
+
+    def test_parse_kml(self) -> None:
+        empty_placemark = KMLFILEDIR / "emptyPlacemarkWithoutId.xml"
+        doc = kml.KML.parse(empty_placemark, validate=False)
+        assert doc == kml.KML(
+            ns="{http://www.opengis.net/kml/2.2}",
+            features=[
+                Document(
+                    ns="{http://www.opengis.net/kml/2.2}",
+                    id="doc-001",
+                    target_id="",
+                    name="Vestibulum eleifend lobortis lorem.",
+                    features=[Placemark(ns="{http://www.opengis.net/kml/2.2}")],
+                    schemata=[],
+                ),
+            ],
+        )
+
+    def test_parse_kml_filename(self) -> None:
+        empty_placemark = str(KMLFILEDIR / "emptyPlacemarkWithoutId.xml")
+        doc = kml.KML.parse(empty_placemark, validate=False)
+        assert doc == kml.KML(
+            ns="{http://www.opengis.net/kml/2.2}",
+            features=[
+                Document(
+                    ns="{http://www.opengis.net/kml/2.2}",
+                    id="doc-001",
+                    target_id="",
+                    name="Vestibulum eleifend lobortis lorem.",
+                    features=[Placemark(ns="{http://www.opengis.net/kml/2.2}")],
+                    schemata=[],
+                ),
+            ],
+        )
+
+    def test_parse_kml_fileobject(self) -> None:
+        empty_placemark = KMLFILEDIR / "emptyPlacemarkWithoutId.xml"
+        with empty_placemark.open() as f:
+            doc = kml.KML.parse(f, validate=False)
+
+        assert doc == kml.KML(
+            ns="{http://www.opengis.net/kml/2.2}",
+            features=[
+                Document(
+                    ns="{http://www.opengis.net/kml/2.2}",
+                    id="doc-001",
+                    target_id="",
+                    name="Vestibulum eleifend lobortis lorem.",
+                    features=[
+                        Placemark(
+                            ns="{http://www.opengis.net/kml/2.2}",
+                        ),
+                    ],
+                    schemata=[],
+                ),
+            ],
+        )
+
+    def test_from_string_with_unbound_prefix_strict(self) -> None:
+        from pyuppsala.etree import XMLSyntaxError  # noqa: PLC0415
+
+        doc = io.StringIO(
+            '<kml xmlns="http://www.opengis.net/kml/2.2">'
+            "<Placemark><ExtendedData>"
+            "<lc:attachment>image.png</lc:attachment>"
+            "</ExtendedData>"
+            "</Placemark> </kml>",
+        )
+
+        with pytest.raises((AssertionError, XMLSyntaxError)):
+            kml.KML.parse(doc, ns="{http://www.opengis.net/kml/2.2}")
+
+    def test_from_string_with_unbound_prefix_relaxed(self) -> None:
+        from pyuppsala.etree import XMLSyntaxError  # noqa: PLC0415
+
+        doc = io.StringIO(
+            '<kml xmlns="http://www.opengis.net/kml/2.2">'
+            "<Placemark><ExtendedData>"
+            "<lc:attachment>image.png</lc:attachment>"
+            "</ExtendedData>"
+            "</Placemark> </kml>",
+        )
+
+        with pytest.raises(XMLSyntaxError, match="Undeclared namespace prefix"):
+            kml.KML.parse(doc, strict=False)
+
+    def test_from_string_with_unbound_prefix_strict_no_validate(self) -> None:
+        from pyuppsala.etree import XMLSyntaxError  # noqa: PLC0415
+
+        doc = io.StringIO(
+            '<kml xmlns="http://www.opengis.net/kml/2.2">'
+            "<Placemark><ExtendedData>"
+            "<lc:attachment>image.png</lc:attachment>"
+            "</ExtendedData>"
+            "</Placemark> </kml>",
+        )
+
+        with pytest.raises(XMLSyntaxError, match="Undeclared namespace prefix"):
+            kml.KML.parse(doc, ns="{http://www.opengis.net/kml/2.2}", validate=False)
+
+    def test_from_string_no_namespace(self) -> None:
+        doc = io.StringIO(
+            "<kml><Placemark><ExtendedData></ExtendedData></Placemark></kml>",
+        )
+
+        k = kml.KML.parse(doc, ns="", strict=False)
+
+        assert len(k.features) == 0
+
+
+class TestWriteKMLPyUppsala(PyUppsala, TestWriteKML):
+    """Test with pyuppsala."""
+
+    def test_write_kml_file(self) -> None:
+        doc = kml.KML(
+            ns="{http://www.opengis.net/kml/2.2}",
+            name="Vestibulum eleifend lobortis lorem.",
+            features=[
+                Document(
+                    ns="{http://www.opengis.net/kml/2.2}",
+                    id="doc-001",
+                    target_id="",
+                    name="Vestibulum eleifend lobortis lorem.",
+                    features=[Placemark(ns="{http://www.opengis.net/kml/2.2}")],
+                    schemata=[],
+                ),
+            ],
+        )
+        with tempfile.TemporaryDirectory() as tmpdir_name:
+            file_path = pathlib.Path(tmpdir_name) / "output.kml"
+            doc.write(file_path=file_path, prettyprint=True)
+            assert file_path.is_file(), "KML file was not created."
+            parsed_doc = kml.KML.parse(file_path, validate=False)
+            assert parsed_doc.to_string() == doc.to_string()
+
+
+class TestKmlFromStringPyUppsala(PyUppsala, TestKmlFromString):
+    """Test with pyuppsala."""

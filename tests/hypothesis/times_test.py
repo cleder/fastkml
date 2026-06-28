@@ -20,8 +20,6 @@ These tests use the hypothesis library to generate random input for the
 functions under test. The tests are run with pytest.
 """
 
-from typing import Optional
-
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -29,6 +27,7 @@ import fastkml
 import fastkml.enums
 import fastkml.times
 from tests.base import Lxml
+from tests.base import PyUppsala
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
@@ -37,7 +36,7 @@ from tests.hypothesis.strategies import kml_datetimes
 from tests.hypothesis.strategies import nc_name
 
 
-class TestTimes(Lxml):
+class _TimesTests:
     @given(
         id=st.one_of(st.none(), nc_name()),
         target_id=st.one_of(st.none(), nc_name()),
@@ -45,9 +44,9 @@ class TestTimes(Lxml):
     )
     def test_fuzz_time_stamp(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        timestamp: Optional[fastkml.times.KmlDateTime],
+        id: str | None,
+        target_id: str | None,
+        timestamp: fastkml.times.KmlDateTime | None,
     ) -> None:
         time_stamp = fastkml.TimeStamp(id=id, target_id=target_id, timestamp=timestamp)
 
@@ -64,10 +63,10 @@ class TestTimes(Lxml):
     )
     def test_fuzz_time_span(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        begin: Optional[fastkml.times.KmlDateTime],
-        end: Optional[fastkml.times.KmlDateTime],
+        id: str | None,
+        target_id: str | None,
+        begin: fastkml.times.KmlDateTime | None,
+        end: fastkml.times.KmlDateTime | None,
     ) -> None:
         time_span = fastkml.TimeSpan(id=id, target_id=target_id, begin=begin, end=end)
 
@@ -75,3 +74,11 @@ class TestTimes(Lxml):
         assert_str_roundtrip(time_span)
         assert_str_roundtrip_terse(time_span)
         assert_str_roundtrip_verbose(time_span)
+
+
+class TestTimes(Lxml, _TimesTests):
+    """Test with lxml."""
+
+
+class TestTimesPyUppsala(PyUppsala, _TimesTests):
+    """Test with pyuppsala."""

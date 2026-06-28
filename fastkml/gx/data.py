@@ -18,7 +18,6 @@
 
 from collections.abc import Iterable
 from typing import Any
-from typing import Optional
 
 from fastkml import config
 from fastkml.base import _XMLObject
@@ -63,17 +62,17 @@ class SimpleArrayField(_XMLObject):
 
     _default_nsid = config.GX
 
-    name: Optional[str]
-    type_: Optional[DataType]
-    display_name: Optional[str]
+    name: str | None
+    type_: DataType | None
+    display_name: str | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        name: Optional[str] = None,
-        type_: Optional[DataType] = None,
-        display_name: Optional[str] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        name: str | None = None,
+        type_: DataType | None = None,
+        display_name: str | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -180,17 +179,17 @@ class SimpleArrayData(_BaseObject):
     """
 
     _default_nsid = config.GX
-    name: Optional[str]
-    data: list[Optional[str]]
+    name: str | None
+    data: list[str | None]
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        name: Optional[str] = None,
-        data: Optional[Iterable[str]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        name: str | None = None,
+        data: Iterable[str] | None = None,
         **kwargs: Any,
     ) -> None:
         """
