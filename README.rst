@@ -35,7 +35,7 @@ Features
 * **Simple and fast**: Easy-to-use API with fast performance
 * **Geometry support**: Handles geometries as pygeoif_ objects, compatible with any geometry that implements the ``__geo_interface__`` protocol, such as shapely_
 * **Cross-platform compatibility**: Tested on `CPython <https://python.org>`_, `PyPy <https://www.pypy.org/>`_ and `GraalPy <https://www.graalvm.org/python/>`_
-* **Python 3.9+**: Works on alternative Python implementations that support Python *>=3.9*
+* **Python 3.10+**: Works on alternative Python implementations that support Python *>=3.10*
 
 Status
 ======

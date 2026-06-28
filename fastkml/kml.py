@@ -89,7 +89,7 @@ def lxml_parse_and_validate(
         validate = True
     try:
         parser = config.etree.XMLParser(huge_tree=True, recover=True)
-    except NotImplementedError:
+    except (NotImplementedError, TypeError):
         parser = config.etree.XMLParser(huge_tree=True)
     tree = config.etree.parse(file, parser=parser)
     if validate:
@@ -169,7 +169,7 @@ class KML(_XMLObject):
                     nsmap={None: config.KMLNS[1:-1]},
                 )
             else:
-                root = config.etree.Element(f"{self.ns}{self.get_tag_name()}")
+                root = config.etree.Element(f"{self.ns or ''}{self.get_tag_name()}")
                 root.set("xmlns", config.KMLNS[1:-1])
         elif config.LXML_COMPATIBLE:
             root = config.etree.Element(
