@@ -104,10 +104,8 @@ class Location(_BaseObject):
     @property
     def geometry(self) -> Optional[Point]:
         """Return a Point representation of the geometry."""
-        if not self:
+        if self.longitude is None or self.latitude is None:
             return None
-        assert self.longitude is not None  # noqa: S101
-        assert self.latitude is not None  # noqa: S101
         return Point(self.longitude, self.latitude, self.altitude)
 
 

@@ -137,7 +137,8 @@ def validate(
 
     if file_to_validate is not None:
         element = config.etree.parse(file_to_validate)
-    assert element is not None  # noqa: S101
+    if element is None:
+        raise ValueError(REQUIRE_ONE_OF)
     try:
         schema_parser.assert_(element)  # noqa: PT009
     except AssertionError:
