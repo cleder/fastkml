@@ -78,8 +78,8 @@ If the project also defines its own `Protocol` to abstract over both backends (e
 if TYPE_CHECKING:
     from lxml.etree import _Element as Element
 else:
-    class Element(Protocol):
-        ...  # the original structural protocol, unchanged
+
+    class Element(Protocol): ...  # the original structural protocol, unchanged
 ```
 
 This one change collapsed roughly 150 of ~240 diagnostics in the fastkml migration, because it fixed both the "backend-specific kwarg doesn't exist" class of errors *and* the "structural Protocol isn't assignable to a concrete stdlib parameter type" class in one shot (see pitfall below).
