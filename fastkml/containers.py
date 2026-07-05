@@ -298,7 +298,7 @@ class Document(_Container):
 
         """
         id_ = urlparse.urlparse(style_url).fragment
-        return next(  # type: ignore[return-value]
+        return next(
             find_all(
                 self,
                 of_type=(Style, StyleMap),

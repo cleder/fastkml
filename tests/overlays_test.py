@@ -402,8 +402,8 @@ class TestPhotoOverlay(StdLibrary):
 
     def test_camera_altitude_mode_absolute(self) -> None:
         po = overlays.PhotoOverlay(view=views.Camera())
-        po.view.altitude_mode = "absolute"
-        assert po.view.altitude_mode == "absolute"
+        po.view.altitude_mode = AltitudeMode("absolute")
+        assert po.view.altitude_mode == AltitudeMode("absolute")
 
     def test_camera_initialization(self) -> None:
         po = overlays.PhotoOverlay(view=views.Camera())

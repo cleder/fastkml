@@ -145,7 +145,7 @@ def handle_error(
 def get_ns(obj: "_XMLObject", value: object) -> str:
     """Get the namespace of an attribute, fall back on the objects namespace."""
     try:
-        return obj.name_spaces.get(value.get_ns_id(), "")  # type: ignore[attr-defined]
+        return obj.name_spaces.get(value.get_ns_id(), "")  # type: ignore[attr-defined]  # pyrefly: ignore  # ty: ignore[unresolved-attribute]
     except AttributeError:
         return obj.ns
 
@@ -1239,14 +1239,14 @@ def datetime_subelement_kwarg(
     strict: bool,
 ) -> dict[str, "KmlDateTime"]:
     """Extract a KML datetime from a subelement of an XML element."""
-    cls = classes[0]
+    cls = cast("type[KmlDateTime]", classes[0])
     node = element.find(f"{ns}{node_name}")
     if node is None:
         return {}
     node_text = node.text.strip() if node.text else ""
     if node_text:
         try:
-            return {kwarg: cls.parse(node_text)}  # type: ignore[attr-defined]
+            return {kwarg: cls.parse(node_text)}
         except ValueError as exc:
             handle_error(
                 error=exc,
@@ -1270,13 +1270,11 @@ def datetime_subelement_list_kwarg(
 ) -> dict[str, list["KmlDateTime"]]:
     """Extract a list of KML datetime values from subelements of an XML element."""
     args_list: list[KmlDateTime] = []
-    cls = classes[0]
+    cls = cast("type[KmlDateTime]", classes[0])
     if subelements := element.findall(f"{ns}{node_name}"):
         for subelement in subelements:
             try:
-                args_list.append(
-                    cls.parse(subelement.text),  # type: ignore[attr-defined]
-                )
+                args_list.append(cls.parse(subelement.text))
             except ValueError as exc:  # noqa: PERF203
                 handle_error(
                     error=exc,
@@ -1357,13 +1355,13 @@ def xml_subelement_kwarg(
         of the specified keyword argument.
 
     """
-    for cls in classes:
+    for cls in cast("tuple[type[_XMLObject], ...]", classes):
         subelement = element.find(
-            f"{ns}{cls.get_tag_name()}",  # type: ignore[attr-defined]
+            f"{ns}{cls.get_tag_name()}",
         )
         if subelement is not None:
             return {
-                kwarg: cls.class_from_element(  # type: ignore[attr-defined]
+                kwarg: cls.class_from_element(
                     ns=ns,
                     name_spaces=name_spaces,
                     element=subelement,
@@ -1405,13 +1403,13 @@ def xml_subelement_list_kwarg(
     args_list = []
     assert node_name is not None  # noqa: S101
     assert name_spaces is not None  # noqa: S101
-    for obj_class in classes:
+    for obj_class in cast("tuple[type[_XMLObject], ...]", classes):
         if subelements := element.findall(
-            f"{ns}{obj_class.get_tag_name()}",  # type: ignore[attr-defined]
+            f"{ns}{obj_class.get_tag_name()}",
         ):
             args_list.extend(
                 [
-                    obj_class.class_from_element(  # type: ignore[attr-defined]
+                    obj_class.class_from_element(
                         ns=ns,
                         name_spaces=name_spaces,
                         element=subelement,
@@ -1457,13 +1455,13 @@ def xml_subelement_list_multi_ns_kwarg(
     assert name_spaces is not None  # noqa: S101
     for name_space in ns_ids:
         ns = name_spaces.get(name_space, "")
-        for obj_class in classes:
+        for obj_class in cast("tuple[type[_XMLObject], ...]", classes):
             if subelements := element.findall(
-                f"{ns}{obj_class.get_tag_name()}",  # type: ignore[attr-defined]
+                f"{ns}{obj_class.get_tag_name()}",
             ):
                 args_list.extend(
                     [
-                        obj_class.class_from_element(  # type: ignore[attr-defined]
+                        obj_class.class_from_element(
                             ns=ns,
                             name_spaces=name_spaces,
                             element=subelement,

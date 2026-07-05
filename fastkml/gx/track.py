@@ -19,11 +19,9 @@
 import logging
 from collections.abc import Iterable
 from dataclasses import dataclass
-from itertools import zip_longest
 from typing import TYPE_CHECKING
 from typing import Any
 from typing import Optional
-from typing import cast
 
 import pygeoif.geometry as geo
 from pygeoif.types import PointType
@@ -192,18 +190,16 @@ class Track(_Geometry):
             msg = "Cannot specify both geometry and track_items"
             raise ValueError(msg)
         if not track_items and whens and coords:
+            # `whens`/`coords` form mandatory pairs (a track item always
+            # needs a timestamp and a coordinate); `angles` may be shorter
+            # and defaults to Angle()'s all-zero heading/tilt/roll.
             track_items = [
                 TrackItem(
-                    when=cast("KmlDateTime", when),
+                    when=when,
                     coord=geo.Point(*coord),
-                    angle=Angle(*angle),
+                    angle=Angle(*angles[i]) if i < len(angles) else Angle(),
                 )
-                for when, coord, angle in zip_longest(
-                    whens,
-                    coords,
-                    angles,
-                    fillvalue=(),
-                )
+                for i, (when, coord) in enumerate(zip(whens, coords))
             ]
         self.track_items = list(track_items) if track_items else []
         self.extended_data = extended_data
@@ -277,9 +273,9 @@ class Track(_Geometry):
 
         """
         return tuple(
-            item.coord.coords[0]  # type: ignore[misc]
+            item.coord.coords[0]
             for item in self.track_items
-            if item.coord
+            if item.coord and item.coord.coords
         )
 
     @property

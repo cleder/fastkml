@@ -34,7 +34,6 @@ consistent handling of XML operations across the library.
 import logging
 from typing import Any
 from typing import Optional
-from typing import cast
 
 from typing_extensions import Self
 
@@ -238,21 +237,15 @@ class _XMLObject:
             verbosity=verbosity,
         )
         try:
-            return cast(
-                "str",
-                config.etree.tostring(
-                    element,
-                    encoding="unicode",
-                    pretty_print=prettyprint,
-                ),
+            return config.etree.tostring(
+                element,
+                encoding="unicode",
+                pretty_print=prettyprint,
             )
         except TypeError:
-            return cast(
-                "str",
-                config.etree.tostring(
-                    element,
-                    encoding="unicode",
-                ),
+            return config.etree.tostring(
+                element,
+                encoding="unicode",
             )
 
     def validate(self) -> Optional[bool]:
@@ -484,8 +477,5 @@ class _XMLObject:
             ns=ns,
             name_spaces=name_spaces,
             strict=strict,
-            element=cast(
-                "Element",
-                config.etree.fromstring(string),
-            ),
+            element=config.etree.fromstring(string),
         )

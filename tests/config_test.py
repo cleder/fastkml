@@ -21,7 +21,7 @@ from xml.etree import ElementTree as ET
 import pytest
 
 try:
-    import lxml
+    import lxml.etree
 
     LXML = True
 except ImportError:
@@ -68,7 +68,8 @@ def test_default_registered_namespaces() -> None:
 def test_set_default_namespaces() -> None:
     """Set the default namespaces."""
     config.set_etree_implementation(ET)
-    config.etree._namespace_map = {}
+    empty_namespace_map: dict[str, str] = {}
+    config.etree._namespace_map = empty_namespace_map
 
     config.set_default_namespaces()
 

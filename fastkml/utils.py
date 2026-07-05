@@ -3,9 +3,13 @@
 from collections.abc import Generator
 from typing import Any
 from typing import Optional
+from typing import TypeVar
 from typing import Union
+from typing import overload
 
 __all__ = ["find", "find_all", "has_attribute_values"]
+
+_T = TypeVar("_T")
 
 
 def has_attribute_values(obj: object, **kwargs: Any) -> bool:
@@ -56,6 +60,27 @@ def get_all_attrs(obj: object) -> Generator[object, None, None]:
             yield attr
 
 
+@overload
+def find_all(
+    obj: object,
+    *,
+    of_type: type[_T],
+    **kwargs: Any,
+) -> Generator[_T, None, None]: ...
+@overload
+def find_all(
+    obj: object,
+    *,
+    of_type: tuple[type[_T], ...],
+    **kwargs: Any,
+) -> Generator[_T, None, None]: ...
+@overload
+def find_all(
+    obj: object,
+    *,
+    of_type: None = None,
+    **kwargs: Any,
+) -> Generator[object, None, None]: ...
 def find_all(
     obj: object,
     *,
@@ -86,6 +111,27 @@ def find_all(
         yield from find_all(attr, of_type=of_type, **kwargs)
 
 
+@overload
+def find(
+    obj: object,
+    *,
+    of_type: type[_T],
+    **kwargs: Any,
+) -> Optional[_T]: ...
+@overload
+def find(
+    obj: object,
+    *,
+    of_type: tuple[type[_T], ...],
+    **kwargs: Any,
+) -> Optional[_T]: ...
+@overload
+def find(
+    obj: object,
+    *,
+    of_type: None = None,
+    **kwargs: Any,
+) -> Optional[object]: ...
 def find(
     obj: object,
     *,

@@ -202,7 +202,7 @@ class KmlDateTime:
         return self.dt.isoformat()
 
     @classmethod
-    def parse(cls, datestr: str) -> Optional["KmlDateTime"]:
+    def parse(cls, datestr: str) -> "KmlDateTime":
         """Parse a KML DateTime string into a KmlDateTime object."""
         resolution = None
         dt = None

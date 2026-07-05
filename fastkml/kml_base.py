@@ -57,8 +57,8 @@ class _BaseObject(_XMLObject):
 
     _default_nsid = config.KML
 
-    id = None
-    target_id = None
+    id: str
+    target_id: str
 
     def __init__(
         self,

@@ -35,7 +35,7 @@ Features
 * **Simple and fast**: Easy-to-use API with fast performance
 * **Geometry support**: Handles geometries as pygeoif_ objects, compatible with any geometry that implements the ``__geo_interface__`` protocol, such as shapely_
 * **Cross-platform compatibility**: Tested on `CPython <https://python.org>`_, `PyPy <https://www.pypy.org/>`_ and `GraalPy <https://www.graalvm.org/python/>`_
-* **Python 3.9+**: Works on alternative Python implementations that support Python *>=3.9*
+* **Python 3.10+**: Works on alternative Python implementations that support Python *>=3.10*
 
 Status
 ======
@@ -122,11 +122,13 @@ Installation
 Basic Installation
 ------------------
 
-Install the package using pip:
+Add FastKML to your project by installing it from PyPI. 
+You can install it using uv, pip, or conda.
 
 .. code-block:: bash
 
-    pip install fastkml
+    uv add fastkml
+
 
 This will install FastKML with all required dependencies.
 
@@ -137,7 +139,14 @@ For enhanced performance, install with lxml:
 
 .. code-block:: bash
 
-    pip install "fastkml[lxml]"
+    uv add "fastkml[lxml]"
+
+Using pip
+---------
+
+.. code-block:: bash
+
+    pip install fastkml
 
 Using Conda
 -----------

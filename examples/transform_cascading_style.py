@@ -70,6 +70,9 @@ registry.register(
 
 cs_kml = KML.parse(examples_dir / "gx_cascading_style.kml", validate=False)
 document = find(cs_kml, of_type=Document)
+assert document is not None  # noqa: S101
+# gx_cascading_style is a dynamic attribute added to Document by the
+# registry.register() call above; Document's type doesn't declare it.
 for cascading_style in document.gx_cascading_style:
     kml_style = cascading_style.style
     kml_style.id = cascading_style.id

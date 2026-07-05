@@ -42,7 +42,6 @@ from pygeoif.factories import shape
 from pygeoif.types import GeoCollectionType
 from pygeoif.types import GeoType
 from pygeoif.types import LineType
-from typing_extensions import Self
 
 from fastkml import config
 from fastkml.abstract_geometry import _Geometry
@@ -212,9 +211,10 @@ def subelement_coordinates_kwarg(
         return {}
     try:
         return {
-            kwarg: [  # type: ignore[dict-item]
-                tuple(float(c) for c in latlon.split(",")) for latlon in latlons
-            ],
+            kwarg: cast(
+                "LineType",
+                [tuple(float(c) for c in latlon.split(",")) for latlon in latlons],
+            ),
         }
     except ValueError as error:
         handle_invalid_geometry_error(
@@ -301,7 +301,7 @@ registry.register(
     Coordinates,
     item=RegistryItem(
         ns_ids=("kml", ""),
-        classes=(LineType,),  # type: ignore[arg-type]
+        classes=(object,),
         attr_name="coords",
         node_name="coordinates",
         get_kwarg=subelement_coordinates_kwarg,
@@ -363,8 +363,11 @@ class Point(_Geometry):
         if geometry is not None and kml_coordinates is not None:
             raise GeometryError(MsgMutualExclusive)
         if kml_coordinates is None and geometry:
+            # geo.Point.coords is `tuple[PointType] | tuple[()]`, always a
+            # single homogeneous 2- or 3-tuple, but not expressible as such
+            # in pygeoif's types.
             kml_coordinates = (
-                Coordinates(coords=geometry.coords)  # type: ignore[arg-type]
+                Coordinates(coords=cast("LineType", geometry.coords))
                 if geometry
                 else None
             )
@@ -1166,16 +1169,17 @@ def create_multigeometry(
         return None
     if len(geom_types) == 1:
         geom_type = geom_types.pop()
-        map_to_geometries = {
-            geo.Point.__name__: geo.MultiPoint.from_points,
-            geo.LineString.__name__: geo.MultiLineString.from_linestrings,
-            geo.Polygon.__name__: geo.MultiPolygon.from_polygons,
-        }
-        for geometry_name, constructor in map_to_geometries.items():
-            if geom_type == geometry_name:
-                return constructor(  # type: ignore[operator, no-any-return]
-                    *geometries,
-                )
+        if geom_type == geo.Point.__name__:
+            points = [geom for geom in geometries if isinstance(geom, geo.Point)]
+            return geo.MultiPoint.from_points(*points)
+        if geom_type == geo.LineString.__name__:
+            linestrings = [
+                geom for geom in geometries if isinstance(geom, geo.LineString)
+            ]
+            return geo.MultiLineString.from_linestrings(*linestrings)
+        if geom_type == geo.Polygon.__name__:
+            polygons = [geom for geom in geometries if isinstance(geom, geo.Polygon)]
+            return geo.MultiPolygon.from_polygons(*polygons)
 
     return geo.GeometryCollection(geometries)
 
@@ -1183,9 +1187,7 @@ def create_multigeometry(
 class MultiGeometry(_BaseObject):
     """A container for zero or more geometry primitives."""
 
-    kml_geometries: list[
-        Union[Point, LineString, Polygon, LinearRing, Self, Track, MultiTrack]
-    ]
+    kml_geometries: list["KMLGeometryType"]
 
     def __init__(
         self,
@@ -1197,11 +1199,7 @@ class MultiGeometry(_BaseObject):
         extrude: Optional[bool] = None,
         tessellate: Optional[bool] = None,
         altitude_mode: Optional[AltitudeMode] = None,
-        kml_geometries: Optional[
-            Iterable[
-                Union[Point, LineString, Polygon, LinearRing, Self, Track, MultiTrack]
-            ]
-        ] = None,
+        kml_geometries: Optional[Iterable["KMLGeometryType"]] = None,
         geometry: Optional[MultiGeometryType] = None,
         **kwargs: Any,
     ) -> None:
@@ -1256,7 +1254,7 @@ class MultiGeometry(_BaseObject):
             raise GeometryError(MsgMutualExclusive)
         if geometry is not None:
             kml_geometries = [
-                create_kml_geometry(  # type: ignore[misc]
+                create_kml_geometry(
                     geometry=geom,
                     ns=ns,
                     name_spaces=name_spaces,

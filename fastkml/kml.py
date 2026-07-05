@@ -101,9 +101,10 @@ def lxml_parse_and_validate(
             recover=True,
         ),
     )
+    root = tree.getroot()
     if validate:
-        validator.validate(element=tree)
-    return cast("Element", tree.getroot())
+        validator.validate(element=root)
+    return root
 
 
 class KML(_XMLObject):
@@ -175,9 +176,11 @@ class KML(_XMLObject):
             )
             root.set("xmlns", config.KMLNS[1:-1])
         elif hasattr(config.etree, "LXML_VERSION"):
+            # lxml supports a `None` key in `nsmap` to declare a default
+            # namespace; lxml-stubs' `_NSMapArg` doesn't model this.
             root = config.etree.Element(
                 f"{self.ns}{self.get_tag_name()}",
-                nsmap={None: self.ns[1:-1]},
+                nsmap={None: self.ns[1:-1]},  # ty: ignore[invalid-argument-type]
             )
         else:
             root = config.etree.Element(
@@ -192,7 +195,7 @@ class KML(_XMLObject):
             verbosity=verbosity,
             default=None,
         )
-        return cast("Element", root)
+        return root
 
     def append(
         self,
@@ -234,7 +237,10 @@ class KML(_XMLObject):
         except TypeError:
             root = config.etree.parse(file).getroot()
         if ns is None:
-            ns = root.tag[:-3] if root.tag.endswith("kml") else ""
+            # lxml-stubs declares `_Element.tag` with a legacy `# type:`
+            # comment that pyrefly doesn't resolve to `str`.
+            tag = cast("str", root.tag)
+            ns = tag[:-3] if tag.endswith("kml") else ""
         name_spaces = name_spaces or {}
         if ns:
             name_spaces["kml"] = ns
