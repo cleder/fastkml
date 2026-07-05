@@ -2,10 +2,12 @@
 
 from collections.abc import Generator
 from typing import Any
-from typing import Optional
-from typing import Union
+from typing import TypeVar
+from typing import overload
 
 __all__ = ["find", "find_all", "has_attribute_values"]
+
+_T = TypeVar("_T")
 
 
 def has_attribute_values(obj: object, **kwargs: Any) -> bool:
@@ -56,10 +58,31 @@ def get_all_attrs(obj: object) -> Generator[object, None, None]:
             yield attr
 
 
+@overload
 def find_all(
     obj: object,
     *,
-    of_type: Optional[Union[type[object], tuple[type[object], ...]]] = None,
+    of_type: type[_T],
+    **kwargs: Any,
+) -> Generator[_T, None, None]: ...
+@overload
+def find_all(
+    obj: object,
+    *,
+    of_type: tuple[type[_T], ...],
+    **kwargs: Any,
+) -> Generator[_T, None, None]: ...
+@overload
+def find_all(
+    obj: object,
+    *,
+    of_type: None = None,
+    **kwargs: Any,
+) -> Generator[object, None, None]: ...
+def find_all(
+    obj: object,
+    *,
+    of_type: type[object] | tuple[type[object], ...] | None = None,
     **kwargs: Any,
 ) -> Generator[object, None, None]:
     """
@@ -86,12 +109,33 @@ def find_all(
         yield from find_all(attr, of_type=of_type, **kwargs)
 
 
+@overload
 def find(
     obj: object,
     *,
-    of_type: Optional[Union[type[object], tuple[type[object], ...]]] = None,
+    of_type: type[_T],
     **kwargs: Any,
-) -> Optional[object]:
+) -> _T | None: ...
+@overload
+def find(
+    obj: object,
+    *,
+    of_type: tuple[type[_T], ...],
+    **kwargs: Any,
+) -> _T | None: ...
+@overload
+def find(
+    obj: object,
+    *,
+    of_type: None = None,
+    **kwargs: Any,
+) -> object | None: ...
+def find(
+    obj: object,
+    *,
+    of_type: type[object] | tuple[type[object], ...] | None = None,
+    **kwargs: Any,
+) -> object | None:
     """
     Find the first instance of a given type in a given object.
 

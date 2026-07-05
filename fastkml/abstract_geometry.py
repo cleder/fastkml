@@ -26,7 +26,6 @@ elements.
 """
 
 from typing import Any
-from typing import Optional
 
 from fastkml.enums import AltitudeMode
 from fastkml.kml_base import _BaseObject
@@ -41,16 +40,16 @@ class _Geometry(_BaseObject):
 
     """
 
-    altitude_mode: Optional[AltitudeMode]
+    altitude_mode: AltitudeMode | None
 
     def __init__(
         self,
         *,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        altitude_mode: Optional[AltitudeMode] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        altitude_mode: AltitudeMode | None = None,
         **kwargs: Any,
     ) -> None:
         """

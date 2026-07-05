@@ -16,7 +16,6 @@
 """Test gx SimpleArrayData and SimpleArrayField."""
 
 from collections.abc import Iterable
-from typing import Optional
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -43,10 +42,10 @@ class TestLxml(Lxml):
     )
     def test_fuzz_simple_array_data(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        name: Optional[str],
-        data: Optional[Iterable[str]],
+        id: str | None,
+        target_id: str | None,
+        name: str | None,
+        data: Iterable[str] | None,
     ) -> None:
         simple_array_data = fastkml.gx.data.SimpleArrayData(
             id=id,
@@ -67,9 +66,9 @@ class TestLxml(Lxml):
     )
     def test_fuzz_simple_array_field(
         self,
-        name: Optional[str],
-        type_: Optional[DataType],
-        display_name: Optional[str],
+        name: str | None,
+        type_: DataType | None,
+        display_name: str | None,
     ) -> None:
         simple_array_field = fastkml.gx.data.SimpleArrayField(
             name=name,

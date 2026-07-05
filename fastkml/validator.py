@@ -20,16 +20,23 @@ import pathlib
 from functools import lru_cache
 from typing import TYPE_CHECKING
 from typing import Final
-from typing import Optional
+from typing import cast
 
 from fastkml import config
 from fastkml.types import Element
 
 if TYPE_CHECKING:
-    import contextlib
+    from collections.abc import Iterable
 
-    with contextlib.suppress(ImportError):
-        from lxml import etree
+    from lxml import etree
+    from typing_extensions import Protocol
+
+    class _LogEntry(Protocol):
+        """A single entry of an lxml `_ErrorLog`, which lxml-stubs omits."""
+
+        message: str
+        path: str
+
 
 __all__ = [
     "get_schema_parser",
@@ -45,7 +52,7 @@ REQUIRE_ONE_OF: Final = "Either element or file_to_validate must be provided."
 
 @lru_cache(maxsize=16)
 def get_schema_parser(
-    schema: Optional[pathlib.Path] = None,
+    schema: pathlib.Path | None = None,
 ) -> "etree.XMLSchema":
     """
     Parse the XML schema.
@@ -79,13 +86,14 @@ def handle_validation_error(
         element: The element to validate.
 
     """
-    log = schema_parser.error_log
+    # lxml-stubs' `_ErrorLog` is an empty stub with no `__iter__` or entry
+    # attributes, even though the real lxml class supports both.
+    log = cast("Iterable[_LogEntry]", schema_parser.error_log)
     for error_entry in log:
         try:
-            parent = element.xpath(error_entry.path)[  # type: ignore[attr-defined]
-                0
-            ].getparent()
-        except config.etree.XPathEvalError:
+            matches = cast("list[Element]", element.xpath(error_entry.path))
+            parent = matches[0].getparent()
+        except (config.etree.XPathEvalError, IndexError):
             parent = element
         if parent is None:
             parent = element
@@ -105,10 +113,10 @@ def handle_validation_error(
 
 def validate(
     *,
-    schema: Optional[pathlib.Path] = None,
-    element: Optional[Element] = None,
-    file_to_validate: Optional[pathlib.Path] = None,
-) -> Optional[bool]:
+    schema: pathlib.Path | None = None,
+    element: Element | None = None,
+    file_to_validate: pathlib.Path | None = None,
+) -> bool | None:
     """
     Validate a KML file against the XML schema.
 
@@ -136,7 +144,7 @@ def validate(
         return None
 
     if file_to_validate is not None:
-        element = config.etree.parse(file_to_validate)
+        element = config.etree.parse(file_to_validate).getroot()
     assert element is not None  # noqa: S101
     try:
         schema_parser.assert_(element)  # noqa: PT009

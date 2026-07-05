@@ -4,7 +4,7 @@ import pathlib
 from fastkml import kml
 
 
-def print_child_features(element, depth=0):
+def print_child_features(element: object, depth: int = 0) -> None:
     """Prints the name of every child node of the given element, recursively."""
     if not getattr(element, "features", None):
         return

@@ -4,6 +4,8 @@ Changelog
 1.5.0 (unreleased)
 ------------------
 
+- Drop support for Python 3.9.
+
 
 1.4.0 (2025/11/04)
 ------------------

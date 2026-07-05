@@ -25,8 +25,6 @@ part of how your data is displayed.
 import logging
 from collections.abc import Iterable
 from typing import Any
-from typing import Optional
-from typing import Union
 
 from fastkml import config
 from fastkml.base import _XMLObject
@@ -87,13 +85,13 @@ class StyleUrl(_XMLObject):
 
     _default_nsid = config.KML
 
-    url: Optional[str]
+    url: str | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        url: Optional[str] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        url: str | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -187,25 +185,25 @@ class _ColorStyle(_BaseObject):
     https://developers.google.com/kml/documentation/kmlreference#colorstyle
     """
 
-    color: Optional[str] = None
+    color: str | None = None
     # Color and opacity (alpha) values are expressed in hexadecimal notation.
     # The range of values for any one color is 0 to 255 (00 to ff).
     # For alpha, 00 is fully transparent and ff is fully opaque.
     # The order of expression is aabbggrr, where aa=alpha (00 to ff);
     # bb=blue (00 to ff); gg=green (00 to ff); rr=red (00 to ff).
 
-    color_mode: Optional[ColorMode]
+    color_mode: ColorMode | None
     # Values for <colorMode> are normal (no effect) and random.
     # A value of random applies a random linear scale to the base <color>
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        color: Optional[str] = None,
-        color_mode: Optional[ColorMode] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        color: str | None = None,
+        color_mode: ColorMode | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -280,21 +278,21 @@ class HotSpot(_XMLObject):
     https://developers.google.com/kml/documentation/kmlreference#hotspot
     """
 
-    x: Optional[float]
-    y: Optional[float]
-    xunits: Optional[Units]
-    yunits: Optional[Units]
+    x: float | None
+    y: float | None
+    xunits: Units | None
+    yunits: Units | None
 
     _default_nsid = config.KML
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        x: Optional[float] = None,
-        y: Optional[float] = None,
-        xunits: Optional[Units] = None,
-        yunits: Optional[Units] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        x: float | None = None,
+        y: float | None = None,
+        xunits: Units | None = None,
+        yunits: Units | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -415,28 +413,28 @@ class IconStyle(_ColorStyle):
     https://developers.google.com/kml/documentation/kmlreference#iconstyle
     """
 
-    scale: Optional[float]
+    scale: float | None
     # Resizes the icon. (float)
-    heading: Optional[float]
+    heading: float | None
     # Direction (that is, North, South, East, West), in degrees.
     # Default=0 (North).
-    icon: Optional[Icon]
+    icon: Icon | None
     # An HTTP address or a local file specification used to load an icon.
-    hot_spot: Optional[HotSpot]
+    hot_spot: HotSpot | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        color: Optional[str] = None,
-        color_mode: Optional[ColorMode] = None,
-        scale: Optional[float] = None,
-        heading: Optional[float] = None,
-        icon: Optional[Icon] = None,
-        icon_href: Optional[str] = None,
-        hot_spot: Optional[HotSpot] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        color: str | None = None,
+        color_mode: ColorMode | None = None,
+        scale: float | None = None,
+        heading: float | None = None,
+        icon: Icon | None = None,
+        icon_href: str | None = None,
+        hot_spot: HotSpot | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -516,7 +514,7 @@ class IconStyle(_ColorStyle):
         return bool(self.icon)
 
     @property
-    def icon_href(self) -> Optional[str]:
+    def icon_href(self) -> str | None:
         """Return the icon href."""
         return self.icon.href if self.icon else None
 
@@ -578,18 +576,18 @@ class LineStyle(_ColorStyle):
     https://developers.google.com/kml/documentation/kmlreference#linestyle
     """
 
-    width: Optional[float]
+    width: float | None
     # Width of the line, in pixels.
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        color: Optional[str] = None,
-        color_mode: Optional[ColorMode] = None,
-        width: Optional[float] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        color: str | None = None,
+        color_mode: ColorMode | None = None,
+        width: float | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -679,22 +677,22 @@ class PolyStyle(_ColorStyle):
     https://developers.google.com/kml/documentation/kmlreference#polystyle
     """
 
-    fill: Optional[bool]
+    fill: bool | None
     # Boolean value. Specifies whether to fill the polygon.
-    outline: Optional[bool]
+    outline: bool | None
     # Boolean value. Specifies whether to outline the polygon.
     # Polygon outlines use the current LineStyle.
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        color: Optional[str] = None,
-        color_mode: Optional[ColorMode] = None,
-        fill: Optional[bool] = None,
-        outline: Optional[bool] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        color: str | None = None,
+        color_mode: ColorMode | None = None,
+        fill: bool | None = None,
+        outline: bool | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -798,18 +796,18 @@ class LabelStyle(_ColorStyle):
     https://developers.google.com/kml/documentation/kmlreference#labelstyle
     """
 
-    scale: Optional[float]
+    scale: float | None
     # Resizes the label.
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        color: Optional[str] = None,
-        color_mode: Optional[ColorMode] = None,
-        scale: Optional[float] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        color: str | None = None,
+        color_mode: ColorMode | None = None,
+        scale: float | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -900,7 +898,7 @@ class BalloonStyle(_BaseObject):
     https://developers.google.com/kml/documentation/kmlreference#balloonstyle
     """
 
-    bg_color: Optional[str]
+    bg_color: str | None
     # Background color of the balloon (optional). Color and opacity (alpha)
     # values are expressed in hexadecimal notation. The range of values for
     # any one color is 0 to 255 (00 to ff). The order of expression is
@@ -914,10 +912,10 @@ class BalloonStyle(_BaseObject):
     # Note: The use of the <color> element within <BalloonStyle> has been
     # deprecated. Use <bgColor> instead.
 
-    text_color: Optional[str]
+    text_color: str | None
     # Foreground color for text. The default is black (ff000000).
 
-    text: Optional[str]
+    text: str | None
     # Text displayed in the balloon. If no text is specified, Google Earth
     # draws the default balloon (with the Feature <name> in boldface,
     # the Feature <description>, links for driving directions, a white
@@ -937,7 +935,7 @@ class BalloonStyle(_BaseObject):
     # in the Feature elements that use this BalloonStyle:
     # <text>This is $[name], whose description is:<br/>$[description]</text>
 
-    display_mode: Optional[DisplayMode]
+    display_mode: DisplayMode | None
     # If <displayMode> is default, Google Earth uses the information supplied
     # in <text> to create a balloon . If <displayMode> is hide, Google Earth
     # does not display the balloon. In Google Earth, clicking the List View
@@ -946,14 +944,14 @@ class BalloonStyle(_BaseObject):
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        bg_color: Optional[str] = None,
-        text_color: Optional[str] = None,
-        text: Optional[str] = None,
-        display_mode: Optional[DisplayMode] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        bg_color: str | None = None,
+        text_color: str | None = None,
+        text: str | None = None,
+        display_mode: DisplayMode | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -1078,7 +1076,7 @@ registry.register(
 )
 
 
-AnyStyle = Union[BalloonStyle, IconStyle, LabelStyle, LineStyle, PolyStyle]
+AnyStyle = BalloonStyle | IconStyle | LabelStyle | LineStyle | PolyStyle
 
 
 class Style(_StyleSelector):
@@ -1096,11 +1094,11 @@ class Style(_StyleSelector):
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        styles: Optional[Iterable[AnyStyle]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        styles: Iterable[AnyStyle] | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -1192,17 +1190,17 @@ class Pair(_BaseObject):
     https://developers.google.com/kml/documentation/kmlreference#stylemap
     """
 
-    key: Optional[PairKey]
-    style: Optional[Union[StyleUrl, Style]]
+    key: PairKey | None
+    style: StyleUrl | Style | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        key: Optional[PairKey] = None,
-        style: Optional[Union[StyleUrl, Style]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        key: PairKey | None = None,
+        style: StyleUrl | Style | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -1308,11 +1306,11 @@ class StyleMap(_StyleSelector):
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        pairs: Optional[Iterable[Pair]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        pairs: Iterable[Pair] | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -1368,7 +1366,7 @@ class StyleMap(_StyleSelector):
         return bool(self.pairs)
 
     @property
-    def normal(self) -> Optional[Union[StyleUrl, Style]]:
+    def normal(self) -> StyleUrl | Style | None:
         """
         Get the normal style for the feature.
 
@@ -1383,7 +1381,7 @@ class StyleMap(_StyleSelector):
         )
 
     @property
-    def highlight(self) -> Optional[Union[StyleUrl, Style]]:
+    def highlight(self) -> StyleUrl | Style | None:
         """
         Return the highlight style associated with this StyleMap.
 

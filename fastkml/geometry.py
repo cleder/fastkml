@@ -32,8 +32,6 @@ from collections.abc import Sequence
 from typing import Any
 from typing import Final
 from typing import NoReturn
-from typing import Optional
-from typing import Union
 from typing import cast
 
 import pygeoif.geometry as geo
@@ -42,7 +40,6 @@ from pygeoif.factories import shape
 from pygeoif.types import GeoCollectionType
 from pygeoif.types import GeoType
 from pygeoif.types import LineType
-from typing_extensions import Self
 
 from fastkml import config
 from fastkml.abstract_geometry import _Geometry
@@ -84,14 +81,11 @@ __all__ = [
 
 logger = logging.getLogger(__name__)
 
-GeometryType = Union[geo.Polygon, geo.LineString, geo.LinearRing, geo.Point]
-MultiGeometryType = Union[
-    geo.MultiPoint,
-    geo.MultiLineString,
-    geo.MultiPolygon,
-    geo.GeometryCollection,
-]
-AnyGeometryType = Union[GeometryType, MultiGeometryType]
+GeometryType = geo.Polygon | geo.LineString | geo.LinearRing | geo.Point
+MultiGeometryType = (
+    geo.MultiPoint | geo.MultiLineString | geo.MultiPolygon | geo.GeometryCollection
+)
+AnyGeometryType = GeometryType | MultiGeometryType
 
 MsgMutualExclusive: Final = "Geometry and kml coordinates are mutually exclusive"
 
@@ -134,14 +128,42 @@ def handle_invalid_geometry_error(
         raise KMLParseError(msg) from error
 
 
+def _format_coordinates(coords: Any, *, precision: int | None) -> str:
+    """
+    Format coordinates as a KML coordinates string.
+
+    Args:
+    ----
+        coords: The coordinate tuples to format.
+        precision (Optional[int]): The precision of the coordinate values.
+
+    Returns:
+    -------
+        str: The formatted coordinates string.
+
+    Raises:
+    ------
+        KMLWriteError: If the coordinates have invalid dimensions.
+
+    """
+    if not coords or len(coords[0]) not in (2, 3):
+        msg = f"Invalid dimensions in coordinates '{coords}'"
+        raise KMLWriteError(msg)
+    if precision is None:
+        tuples = (",".join(str(c) for c in coord) for coord in coords)
+    else:
+        tuples = (",".join(f"{c:.{precision}f}" for c in coord) for coord in coords)
+    return " ".join(tuples)
+
+
 def coordinates_subelement(
     obj: _XMLObject,
     *,
     element: Element,
     attr_name: str,
     node_name: str,  # noqa: ARG001
-    precision: Optional[int],
-    verbosity: Optional[Verbosity],  # noqa: ARG001
+    precision: int | None,
+    verbosity: Verbosity | None,  # noqa: ARG001
     default: Any,  # noqa: ARG001
 ) -> None:
     """
@@ -164,14 +186,7 @@ def coordinates_subelement(
     """
     if getattr(obj, attr_name, None):
         coords = getattr(obj, attr_name)
-        if not coords or len(coords[0]) not in (2, 3):
-            msg = f"Invalid dimensions in coordinates '{coords}'"
-            raise KMLWriteError(msg)
-        if precision is None:
-            tuples = (",".join(str(c) for c in coord) for coord in coords)
-        else:
-            tuples = (",".join(f"{c:.{precision}f}" for c in coord) for coord in coords)
-        element.text = " ".join(tuples)
+        element.text = _format_coordinates(coords, precision=precision)
 
 
 def subelement_coordinates_kwarg(
@@ -212,9 +227,10 @@ def subelement_coordinates_kwarg(
         return {}
     try:
         return {
-            kwarg: [  # type: ignore[dict-item]
-                tuple(float(c) for c in latlon.split(",")) for latlon in latlons
-            ],
+            kwarg: cast(
+                "LineType",
+                [tuple(float(c) for c in latlon.split(",")) for latlon in latlons],
+            ),
         }
     except ValueError as error:
         handle_invalid_geometry_error(
@@ -245,9 +261,9 @@ class Coordinates(_XMLObject):
     def __init__(
         self,
         *,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        coords: Optional[LineType] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        coords: LineType | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -301,7 +317,7 @@ registry.register(
     Coordinates,
     item=RegistryItem(
         ns_ids=("kml", ""),
-        classes=(LineType,),  # type: ignore[arg-type]
+        classes=(object,),
         attr_name="coords",
         node_name="coordinates",
         get_kwarg=subelement_coordinates_kwarg,
@@ -322,20 +338,20 @@ class Point(_Geometry):
     https://developers.google.com/kml/documentation/kmlreference#point
     """
 
-    extrude: Optional[bool]
-    kml_coordinates: Optional[Coordinates]
+    extrude: bool | None
+    kml_coordinates: Coordinates | None
 
     def __init__(
         self,
         *,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        extrude: Optional[bool] = None,
-        altitude_mode: Optional[AltitudeMode] = None,
-        geometry: Optional[geo.Point] = None,
-        kml_coordinates: Optional[Coordinates] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        extrude: bool | None = None,
+        altitude_mode: AltitudeMode | None = None,
+        geometry: geo.Point | None = None,
+        kml_coordinates: Coordinates | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -363,8 +379,11 @@ class Point(_Geometry):
         if geometry is not None and kml_coordinates is not None:
             raise GeometryError(MsgMutualExclusive)
         if kml_coordinates is None and geometry:
+            # geo.Point.coords is `tuple[PointType] | tuple[()]`, always a
+            # single homogeneous 2- or 3-tuple, but not expressible as such
+            # in pygeoif's types.
             kml_coordinates = (
-                Coordinates(coords=geometry.coords)  # type: ignore[arg-type]
+                Coordinates(coords=cast("LineType", geometry.coords))
                 if geometry
                 else None
             )
@@ -431,7 +450,7 @@ class Point(_Geometry):
     __hash__ = None  # type: ignore[assignment]
 
     @property
-    def geometry(self) -> Optional[geo.Point]:
+    def geometry(self) -> geo.Point | None:
         """
         Get the geometry object of the Point.
 
@@ -500,22 +519,22 @@ class LineString(_Geometry):
     https://developers.google.com/kml/documentation/kmlreference#linestring
     """
 
-    extrude: Optional[bool]
-    tessellate: Optional[bool]
-    kml_coordinates: Optional[Coordinates]
+    extrude: bool | None
+    tessellate: bool | None
+    kml_coordinates: Coordinates | None
 
     def __init__(
         self,
         *,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        extrude: Optional[bool] = None,
-        tessellate: Optional[bool] = None,
-        altitude_mode: Optional[AltitudeMode] = None,
-        geometry: Optional[geo.LineString] = None,
-        kml_coordinates: Optional[Coordinates] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        extrude: bool | None = None,
+        tessellate: bool | None = None,
+        altitude_mode: AltitudeMode | None = None,
+        geometry: geo.LineString | None = None,
+        kml_coordinates: Coordinates | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -600,7 +619,7 @@ class LineString(_Geometry):
     __hash__ = None  # type: ignore[assignment]
 
     @property
-    def geometry(self) -> Optional[geo.LineString]:
+    def geometry(self) -> geo.LineString | None:
         """
         Get the LineString geometry.
 
@@ -681,15 +700,15 @@ class LinearRing(LineString):
     def __init__(
         self,
         *,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        extrude: Optional[bool] = None,
-        tessellate: Optional[bool] = None,
-        altitude_mode: Optional[AltitudeMode] = None,
-        geometry: Optional[geo.LinearRing] = None,
-        kml_coordinates: Optional[Coordinates] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        extrude: bool | None = None,
+        tessellate: bool | None = None,
+        altitude_mode: AltitudeMode | None = None,
+        geometry: geo.LinearRing | None = None,
+        kml_coordinates: Coordinates | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -737,7 +756,7 @@ class LinearRing(LineString):
         )
 
     @property
-    def geometry(self) -> Optional[geo.LinearRing]:
+    def geometry(self) -> geo.LinearRing | None:
         """
         Get the geometry of the LinearRing.
 
@@ -770,15 +789,15 @@ class BoundaryIs(_XMLObject):
     """
 
     _default_nsid = config.KML
-    kml_geometry: Optional[LinearRing]
+    kml_geometry: LinearRing | None
 
     def __init__(
         self,
         *,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        geometry: Optional[geo.LinearRing] = None,
-        kml_geometry: Optional[LinearRing] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        geometry: geo.LinearRing | None = None,
+        kml_geometry: LinearRing | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -847,7 +866,7 @@ class BoundaryIs(_XMLObject):
         )
 
     @property
-    def geometry(self) -> Optional[geo.LinearRing]:
+    def geometry(self) -> geo.LinearRing | None:
         """
         Get the geometry of the OuterBoundaryIs object.
 
@@ -928,24 +947,24 @@ class Polygon(_Geometry):
     https://developers.google.com/kml/documentation/kmlreference#polygon
     """
 
-    extrude: Optional[bool]
-    tessellate: Optional[bool]
-    outer_boundary: Optional[OuterBoundaryIs]
+    extrude: bool | None
+    tessellate: bool | None
+    outer_boundary: OuterBoundaryIs | None
     inner_boundaries: list[InnerBoundaryIs]
 
     def __init__(
         self,
         *,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        extrude: Optional[bool] = None,
-        tessellate: Optional[bool] = None,
-        altitude_mode: Optional[AltitudeMode] = None,
-        outer_boundary: Optional[OuterBoundaryIs] = None,
-        inner_boundaries: Optional[Iterable[InnerBoundaryIs]] = None,
-        geometry: Optional[geo.Polygon] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        extrude: bool | None = None,
+        tessellate: bool | None = None,
+        altitude_mode: AltitudeMode | None = None,
+        outer_boundary: OuterBoundaryIs | None = None,
+        inner_boundaries: Iterable[InnerBoundaryIs] | None = None,
+        geometry: geo.Polygon | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -1019,7 +1038,7 @@ class Polygon(_Geometry):
         return bool(self.outer_boundary)
 
     @property
-    def geometry(self) -> Optional[geo.Polygon]:
+    def geometry(self) -> geo.Polygon | None:
         """
         Get the geometry object representing the geometry of the Polygon.
 
@@ -1146,9 +1165,38 @@ registry.register(
 )
 
 
+def _create_homogeneous_multigeometry(
+    geom_type: str,
+    geometries: Sequence[AnyGeometryType],
+) -> MultiGeometryType | None:
+    """
+    Create a MultiGeometry from a sequence of geometries of a single type.
+
+    Args:
+    ----
+        geom_type: The shared geom_type of the geometries.
+        geometries: Sequence of geometries, all of the given geom_type.
+
+    Returns:
+    -------
+        MultiGeometry if geom_type is recognized, else None.
+
+    """
+    if geom_type == geo.Point.__name__:
+        points = [geom for geom in geometries if isinstance(geom, geo.Point)]
+        return geo.MultiPoint.from_points(*points)
+    if geom_type == geo.LineString.__name__:
+        linestrings = [geom for geom in geometries if isinstance(geom, geo.LineString)]
+        return geo.MultiLineString.from_linestrings(*linestrings)
+    if geom_type == geo.Polygon.__name__:
+        polygons = [geom for geom in geometries if isinstance(geom, geo.Polygon)]
+        return geo.MultiPolygon.from_polygons(*polygons)
+    return None
+
+
 def create_multigeometry(
     geometries: Sequence[AnyGeometryType],
-) -> Optional[MultiGeometryType]:
+) -> MultiGeometryType | None:
     """
     Create a MultiGeometry from a sequence of geometries.
 
@@ -1165,17 +1213,12 @@ def create_multigeometry(
     if not geom_types:
         return None
     if len(geom_types) == 1:
-        geom_type = geom_types.pop()
-        map_to_geometries = {
-            geo.Point.__name__: geo.MultiPoint.from_points,
-            geo.LineString.__name__: geo.MultiLineString.from_linestrings,
-            geo.Polygon.__name__: geo.MultiPolygon.from_polygons,
-        }
-        for geometry_name, constructor in map_to_geometries.items():
-            if geom_type == geometry_name:
-                return constructor(  # type: ignore[operator, no-any-return]
-                    *geometries,
-                )
+        multigeometry = _create_homogeneous_multigeometry(
+            geom_types.pop(),
+            geometries,
+        )
+        if multigeometry is not None:
+            return multigeometry
 
     return geo.GeometryCollection(geometries)
 
@@ -1183,26 +1226,20 @@ def create_multigeometry(
 class MultiGeometry(_BaseObject):
     """A container for zero or more geometry primitives."""
 
-    kml_geometries: list[
-        Union[Point, LineString, Polygon, LinearRing, Self, Track, MultiTrack]
-    ]
+    kml_geometries: list["KMLGeometryType"]
 
     def __init__(
         self,
         *,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        extrude: Optional[bool] = None,
-        tessellate: Optional[bool] = None,
-        altitude_mode: Optional[AltitudeMode] = None,
-        kml_geometries: Optional[
-            Iterable[
-                Union[Point, LineString, Polygon, LinearRing, Self, Track, MultiTrack]
-            ]
-        ] = None,
-        geometry: Optional[MultiGeometryType] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        extrude: bool | None = None,
+        tessellate: bool | None = None,
+        altitude_mode: AltitudeMode | None = None,
+        kml_geometries: Iterable["KMLGeometryType"] | None = None,
+        geometry: MultiGeometryType | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -1256,7 +1293,7 @@ class MultiGeometry(_BaseObject):
             raise GeometryError(MsgMutualExclusive)
         if geometry is not None:
             kml_geometries = [
-                create_kml_geometry(  # type: ignore[misc]
+                create_kml_geometry(
                     geometry=geom,
                     ns=ns,
                     name_spaces=name_spaces,
@@ -1293,7 +1330,7 @@ class MultiGeometry(_BaseObject):
         )
 
     @property
-    def geometry(self) -> Optional[MultiGeometryType]:
+    def geometry(self) -> MultiGeometryType | None:
         """Return the geometry of the MultiGeometry."""
         return create_multigeometry(
             [geom.geometry for geom in self.kml_geometries if geom.geometry],
@@ -1322,18 +1359,12 @@ registry.register(
 )
 
 
-KMLGeometryType = Union[
-    Point,
-    LineString,
-    Polygon,
-    LinearRing,
-    MultiGeometry,
-    Track,
-    MultiTrack,
-]
+KMLGeometryType = (
+    Point | LineString | Polygon | LinearRing | MultiGeometry | Track | MultiTrack
+)
 
 
-def _unknown_geometry_type(geometry: Union[GeoType, GeoCollectionType]) -> NoReturn:
+def _unknown_geometry_type(geometry: GeoType | GeoCollectionType) -> NoReturn:
     """
     Raise an error for an unknown geometry type.
 
@@ -1351,15 +1382,15 @@ def _unknown_geometry_type(geometry: Union[GeoType, GeoCollectionType]) -> NoRet
 
 
 def create_kml_geometry(
-    geometry: Union[GeoType, GeoCollectionType],
+    geometry: GeoType | GeoCollectionType,
     *,
-    ns: Optional[str] = None,
-    name_spaces: Optional[dict[str, str]] = None,
-    id: Optional[str] = None,
-    target_id: Optional[str] = None,
-    extrude: Optional[bool] = None,
-    tessellate: Optional[bool] = None,
-    altitude_mode: Optional[AltitudeMode] = None,
+    ns: str | None = None,
+    name_spaces: dict[str, str] | None = None,
+    id: str | None = None,
+    target_id: str | None = None,
+    extrude: bool | None = None,
+    tessellate: bool | None = None,
+    altitude_mode: AltitudeMode | None = None,
 ) -> KMLGeometryType:
     """
     Create a KML geometry from a geometry object.
@@ -1382,7 +1413,7 @@ def create_kml_geometry(
 
     """
     _map_to_kml: dict[
-        type[Union[GeoType, GeoCollectionType]],
+        type[GeoType | GeoCollectionType],
         type[KMLGeometryType],
     ] = {
         geo.Point: Point,

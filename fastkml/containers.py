@@ -19,8 +19,6 @@ import logging
 import urllib.parse as urlparse
 from collections.abc import Iterable
 from typing import Any
-from typing import Optional
-from typing import Union
 
 from fastkml import atom
 from fastkml.data import ExtendedData
@@ -65,27 +63,27 @@ class _Container(_Feature):
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        name: Optional[str] = None,
-        visibility: Optional[bool] = None,
-        isopen: Optional[bool] = None,
-        atom_link: Optional[atom.Link] = None,
-        atom_author: Optional[atom.Author] = None,
-        address: Optional[str] = None,
-        phone_number: Optional[str] = None,
-        snippet: Optional[Snippet] = None,
-        description: Optional[str] = None,
-        view: Optional[Union[Camera, LookAt]] = None,
-        times: Optional[Union[TimeSpan, TimeStamp]] = None,
-        style_url: Optional[StyleUrl] = None,
-        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
-        region: Optional[Region] = None,
-        extended_data: Optional[ExtendedData] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        name: str | None = None,
+        visibility: bool | None = None,
+        isopen: bool | None = None,
+        atom_link: atom.Link | None = None,
+        atom_author: atom.Author | None = None,
+        address: str | None = None,
+        phone_number: str | None = None,
+        snippet: Snippet | None = None,
+        description: str | None = None,
+        view: Camera | LookAt | None = None,
+        times: TimeSpan | TimeStamp | None = None,
+        style_url: StyleUrl | None = None,
+        styles: Iterable[Style | StyleMap] | None = None,
+        region: Region | None = None,
+        extended_data: ExtendedData | None = None,
         # Container specific
-        features: Optional[Iterable[_Feature]] = None,
+        features: Iterable[_Feature] | None = None,
         **kwargs: Any,
     ) -> None:
         super().__init__(
@@ -171,27 +169,27 @@ class Document(_Container):
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        name: Optional[str] = None,
-        visibility: Optional[bool] = None,
-        isopen: Optional[bool] = None,
-        atom_link: Optional[atom.Link] = None,
-        atom_author: Optional[atom.Author] = None,
-        address: Optional[str] = None,
-        phone_number: Optional[str] = None,
-        snippet: Optional[Snippet] = None,
-        description: Optional[str] = None,
-        view: Optional[Union[Camera, LookAt]] = None,
-        times: Optional[Union[TimeSpan, TimeStamp]] = None,
-        style_url: Optional[StyleUrl] = None,
-        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
-        region: Optional[Region] = None,
-        extended_data: Optional[ExtendedData] = None,
-        features: Optional[Iterable[_Feature]] = None,
-        schemata: Optional[Iterable[Schema]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        name: str | None = None,
+        visibility: bool | None = None,
+        isopen: bool | None = None,
+        atom_link: atom.Link | None = None,
+        atom_author: atom.Author | None = None,
+        address: str | None = None,
+        phone_number: str | None = None,
+        snippet: Snippet | None = None,
+        description: str | None = None,
+        view: Camera | LookAt | None = None,
+        times: TimeSpan | TimeStamp | None = None,
+        style_url: StyleUrl | None = None,
+        styles: Iterable[Style | StyleMap] | None = None,
+        region: Region | None = None,
+        extended_data: ExtendedData | None = None,
+        features: Iterable[_Feature] | None = None,
+        schemata: Iterable[Schema] | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -282,7 +280,7 @@ class Document(_Container):
             ")"
         )
 
-    def get_style_by_url(self, style_url: str) -> Optional[Union[Style, StyleMap]]:
+    def get_style_by_url(self, style_url: str) -> Style | StyleMap | None:
         """
         Get a style by URL.
 
@@ -298,7 +296,7 @@ class Document(_Container):
 
         """
         id_ = urlparse.urlparse(style_url).fragment
-        return next(  # type: ignore[return-value]
+        return next(
             find_all(
                 self,
                 of_type=(Style, StyleMap),

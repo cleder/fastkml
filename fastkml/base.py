@@ -33,8 +33,6 @@ consistent handling of XML operations across the library.
 
 import logging
 from typing import Any
-from typing import Optional
-from typing import cast
 
 from typing_extensions import Self
 
@@ -59,8 +57,8 @@ class _XMLObject:
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -136,7 +134,7 @@ class _XMLObject:
 
     def etree_element(
         self,
-        precision: Optional[int] = None,
+        precision: int | None = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         """
@@ -176,7 +174,7 @@ class _XMLObject:
     def populate_element(
         self,
         element: Element,
-        precision: Optional[int] = None,
+        precision: int | None = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> None:
         """
@@ -212,7 +210,7 @@ class _XMLObject:
         self,
         *,
         prettyprint: bool = True,
-        precision: Optional[int] = None,
+        precision: int | None = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> str:
         """
@@ -238,24 +236,18 @@ class _XMLObject:
             verbosity=verbosity,
         )
         try:
-            return cast(
-                "str",
-                config.etree.tostring(
-                    element,
-                    encoding="unicode",
-                    pretty_print=prettyprint,
-                ),
+            return config.etree.tostring(
+                element,
+                encoding="unicode",
+                pretty_print=prettyprint,
             )
         except TypeError:
-            return cast(
-                "str",
-                config.etree.tostring(
-                    element,
-                    encoding="unicode",
-                ),
+            return config.etree.tostring(
+                element,
+                encoding="unicode",
             )
 
-    def validate(self) -> Optional[bool]:
+    def validate(self) -> bool | None:
         """
         Validate the KML object against the XML schema.
 
@@ -302,7 +294,7 @@ class _XMLObject:
         return cls.__name__
 
     @classmethod
-    def _get_ns(cls, ns: Optional[str], name_spaces: dict[str, str]) -> str:
+    def _get_ns(cls, ns: str | None, name_spaces: dict[str, str]) -> str:
         """
         Get the namespace.
 
@@ -326,7 +318,7 @@ class _XMLObject:
         cls,
         *,
         ns: str,
-        name_spaces: Optional[dict[str, str]] = None,
+        name_spaces: dict[str, str] | None = None,
         element: Element,
         strict: bool,
     ) -> dict[str, Any]:
@@ -414,7 +406,7 @@ class _XMLObject:
         cls,
         *,
         ns: str,
-        name_spaces: Optional[dict[str, str]] = None,
+        name_spaces: dict[str, str] | None = None,
         element: Element,
         strict: bool,
     ) -> Self:
@@ -453,8 +445,8 @@ class _XMLObject:
         cls,
         string: str,
         *,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
         strict: bool = True,
     ) -> Self:
         """
@@ -484,8 +476,8 @@ class _XMLObject:
             ns=ns,
             name_spaces=name_spaces,
             strict=strict,
-            element=cast(
-                "Element",
-                config.etree.fromstring(string),
-            ),
+            # lxml rejects a `str` with an XML encoding declaration
+            # (`<?xml ... encoding="..."?>`); bytes let it honor the
+            # declared encoding itself.
+            element=config.etree.fromstring(string.encode("utf-8")),
         )
