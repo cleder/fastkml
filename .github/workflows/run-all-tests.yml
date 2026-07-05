@@ -97,8 +97,8 @@ jobs:
           pip install -e ".[typing, complexity, linting, tests]"
       - name: Typecheck
         run: |
-          ty fastkml tests
-          pyrefly fastkml tests
+          ty check fastkml tests
+          pyrefly check fastkml tests
       - name: Linting
         run: |
           ruff check --no-fix fastkml tests examples docs
