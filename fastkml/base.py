@@ -476,5 +476,8 @@ class _XMLObject:
             ns=ns,
             name_spaces=name_spaces,
             strict=strict,
-            element=config.etree.fromstring(string),
+            # lxml rejects a `str` with an XML encoding declaration
+            # (`<?xml ... encoding="..."?>`); bytes let it honor the
+            # declared encoding itself.
+            element=config.etree.fromstring(string.encode("utf-8")),
         )
