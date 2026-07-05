@@ -52,7 +52,7 @@ complexity = [
     "radon",
 ]
 dev = [
-    "fastkml[complexity,docs,linting,lxml,tests,typing]",
+    "fastkml[complexity,docs,linting,lxml,pyuppsala,tests,typing]",
     "pre-commit",
     "shapely",
 ]
@@ -73,6 +73,9 @@ linting = [
 ]
 lxml = [
     "lxml",
+]
+pyuppsala = [
+    "pyuppsala>=0.8.0",
 ]
 tests = [
     # 6.156+ has no cp315 wheel yet; unpin once hypothesis publishes one.

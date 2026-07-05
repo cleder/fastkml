@@ -27,6 +27,7 @@ import fastkml as kml
 from fastkml.enums import DateTimeResolution
 from fastkml.times import KmlDateTime
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 
@@ -466,3 +467,7 @@ class TestStdLibrary(StdLibrary):
 
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
+
+
+class TestPyuppsala(Pyuppsala, TestStdLibrary):
+    """Test with pyuppsala."""

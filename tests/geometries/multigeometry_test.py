@@ -23,6 +23,7 @@ from fastkml.enums import Verbosity
 from fastkml.exceptions import GeometryError
 from fastkml.geometry import MultiGeometry
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 
@@ -423,13 +424,29 @@ class TestMultiPointLxml(Lxml, TestMultiPointStdLibrary):
     """Test with lxml."""
 
 
+class TestMultiPointPyuppsala(Pyuppsala, TestMultiPointStdLibrary):
+    """Test with pyuppsala."""
+
+
 class TestMultiLineStringLxml(Lxml, TestMultiLineStringStdLibrary):
     """Test with lxml."""
+
+
+class TestMultiLineStringPyuppsala(Pyuppsala, TestMultiLineStringStdLibrary):
+    """Test with pyuppsala."""
 
 
 class TestMultiPolygonLxml(Lxml, TestMultiPolygonStdLibrary):
     """Test with lxml."""
 
 
+class TestMultiPolygonPyuppsala(Pyuppsala, TestMultiPolygonStdLibrary):
+    """Test with pyuppsala."""
+
+
 class TestGeometryCollectionLxml(Lxml, TestGeometryCollectionStdLibrary):
     """Test with lxml."""
+
+
+class TestGeometryCollectionPyuppsala(Pyuppsala, TestGeometryCollectionStdLibrary):
+    """Test with pyuppsala."""

@@ -51,6 +51,25 @@ jobs:
           verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
 
+  cpython-pyuppsala:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip wheel
+          pip install -e ".[tests, pyuppsala]"
+      - name: Test with pytest
+        run: |
+          pytest tests
+
   doctest-lxml:
     runs-on: ubuntu-latest
     strategy:
@@ -176,7 +195,7 @@ jobs:
       github.event_name == 'push' &&
       github.repository == 'cleder/fastkml' &&
       startsWith(github.ref, 'refs/tags')
-    needs: [cpython, static-tests, pypy, cpython-lxml, doctest-lxml, build-package, graalpy]
+    needs: [cpython, static-tests, pypy, cpython-lxml, cpython-pyuppsala, doctest-lxml, build-package, graalpy]
     name: Test install on TestPyPI
     runs-on: ubuntu-latest
     environment: test-release
@@ -200,7 +219,7 @@ jobs:
         github.event_name == 'push' &&
         github.repository == 'cleder/fastkml' &&
         github.ref == 'refs/heads/main'
-    needs: [cpython, static-tests, pypy, cpython-lxml, doctest-lxml, build-package, graalpy]
+    needs: [cpython, static-tests, pypy, cpython-lxml, cpython-pyuppsala, doctest-lxml, build-package, graalpy]
     name: Publish to PyPI on push to main
     runs-on: ubuntu-latest
     environment: release
