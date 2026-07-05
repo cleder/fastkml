@@ -31,7 +31,6 @@ elements, providing a foundation for all KML-specific classes in fastkml.
 """
 
 from typing import Any
-from typing import Optional
 
 from fastkml import config
 from fastkml.base import _XMLObject
@@ -62,10 +61,10 @@ class _BaseObject(_XMLObject):
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
         **kwargs: Any,
     ) -> None:
         """

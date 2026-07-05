@@ -35,7 +35,6 @@ This library only implements a subset of Atom that is useful with KML
 
 import logging
 from typing import Any
-from typing import Optional
 
 from fastkml import config
 from fastkml.base import _XMLObject
@@ -82,23 +81,23 @@ class Link(_AtomObject):
     title, and length.
     """
 
-    href: Optional[str]
-    rel: Optional[str]
-    type: Optional[str]
-    hreflang: Optional[str]
-    title: Optional[str]
-    length: Optional[int]
+    href: str | None
+    rel: str | None
+    type: str | None
+    hreflang: str | None
+    title: str | None
+    length: int | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        href: Optional[str] = None,
-        rel: Optional[str] = None,
-        type: Optional[str] = None,  # noqa: A002
-        hreflang: Optional[str] = None,
-        title: Optional[str] = None,
-        length: Optional[int] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        href: str | None = None,
+        rel: str | None = None,
+        type: str | None = None,  # noqa: A002
+        hreflang: str | None = None,
+        title: str | None = None,
+        length: int | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -258,17 +257,17 @@ class _Person(_AtomObject):
 
     """
 
-    name: Optional[str]
-    uri: Optional[str]
-    email: Optional[str]
+    name: str | None
+    uri: str | None
+    email: str | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        name: Optional[str] = None,
-        uri: Optional[str] = None,
-        email: Optional[str] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        name: str | None = None,
+        uri: str | None = None,
+        email: str | None = None,
         **kwargs: Any,
     ) -> None:
         """

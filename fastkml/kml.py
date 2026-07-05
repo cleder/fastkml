@@ -33,8 +33,6 @@ from pathlib import Path
 from typing import IO
 from typing import Any
 from typing import AnyStr
-from typing import Optional
-from typing import Union
 from typing import cast
 
 from typing_extensions import Self
@@ -58,20 +56,15 @@ from fastkml.types import Element
 
 logger = logging.getLogger(__name__)
 
-kml_children = Union[
-    Folder,
-    Document,
-    Placemark,
-    GroundOverlay,
-    PhotoOverlay,
-    NetworkLinkControl,
-]
+kml_children = (
+    Folder | Document | Placemark | GroundOverlay | PhotoOverlay | NetworkLinkControl
+)
 
 
 def lxml_parse_and_validate(
-    file: Union[Path, str, IO[AnyStr]],
+    file: Path | str | IO[AnyStr],
     strict: bool,
-    validate: Optional[bool],
+    validate: bool | None,
 ) -> Element:
     """
     Parse and validate a KML file using lxml.
@@ -117,9 +110,9 @@ class KML(_XMLObject):
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        features: Optional[Iterable[kml_children]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        features: Iterable[kml_children] | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -153,7 +146,7 @@ class KML(_XMLObject):
 
     def etree_element(
         self,
-        precision: Optional[int] = None,
+        precision: int | None = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> Element:
         """
@@ -207,12 +200,12 @@ class KML(_XMLObject):
     @classmethod
     def parse(
         cls,
-        file: Union[Path, str, IO[AnyStr]],
+        file: Path | str | IO[AnyStr],
         *,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
         strict: bool = True,
-        validate: Optional[bool] = None,
+        validate: bool | None = None,
     ) -> Self:
         """
         Parse a KML file and return a KML object.
@@ -237,8 +230,8 @@ class KML(_XMLObject):
         except TypeError:
             root = config.etree.parse(file).getroot()
         if ns is None:
-            # lxml-stubs declares `_Element.tag` with a legacy `# type:`
-            # comment that pyrefly doesn't resolve to `str`.
+            # lxml-stubs declares `_Element.tag` with a legacy type comment
+            # that pyrefly doesn't resolve to `str`.
             tag = cast("str", root.tag)
             ns = tag[:-3] if tag.endswith("kml") else ""
         name_spaces = name_spaces or {}
@@ -257,7 +250,7 @@ class KML(_XMLObject):
         file_path: Path,
         *,
         prettyprint: bool = True,
-        precision: Optional[int] = None,
+        precision: int | None = None,
         verbosity: Verbosity = Verbosity.normal,
     ) -> None:
         """

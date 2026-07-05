@@ -24,8 +24,6 @@ https://developers.google.com/kml/documentation/kmlreference#networklinkcontrol
 import logging
 from collections.abc import Iterable
 from typing import Any
-from typing import Optional
-from typing import Union
 
 from fastkml import config
 from fastkml.base import _XMLObject
@@ -70,9 +68,9 @@ class _UpdateAction(_XMLObject):
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        objects: Optional[Iterable[_XMLObject]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        objects: Iterable[_XMLObject] | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -297,15 +295,15 @@ class Update(_XMLObject):
 
     _default_nsid = config.KML
 
-    target_href: Optional[str]
-    operations: list[Union[Create, Delete, Change]]
+    target_href: str | None
+    operations: list[Create | Delete | Change]
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        target_href: Optional[str] = None,
-        operations: Optional[Iterable[Union[Create, Delete, Change]]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        target_href: str | None = None,
+        operations: Iterable[Create | Delete | Change] | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -374,31 +372,31 @@ class NetworkLinkControl(_XMLObject):
 
     _default_nsid = config.KML
 
-    min_refresh_period: Optional[float]
-    max_session_length: Optional[float]
-    cookie: Optional[str]
-    message: Optional[str]
-    link_name: Optional[str]
-    link_description: Optional[str]
-    link_snippet: Optional[str]
-    expires: Optional[KmlDateTime]
-    view: Union[Camera, LookAt, None]
-    update: Optional[Update]
+    min_refresh_period: float | None
+    max_session_length: float | None
+    cookie: str | None
+    message: str | None
+    link_name: str | None
+    link_description: str | None
+    link_snippet: str | None
+    expires: KmlDateTime | None
+    view: Camera | LookAt | None
+    update: Update | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        min_refresh_period: Optional[float] = None,
-        max_session_length: Optional[float] = None,
-        cookie: Optional[str] = None,
-        message: Optional[str] = None,
-        link_name: Optional[str] = None,
-        link_description: Optional[str] = None,
-        link_snippet: Optional[str] = None,
-        expires: Optional[KmlDateTime] = None,
-        view: Optional[Union[Camera, LookAt]] = None,
-        update: Optional[Update] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        min_refresh_period: float | None = None,
+        max_session_length: float | None = None,
+        cookie: str | None = None,
+        message: str | None = None,
+        link_name: str | None = None,
+        link_description: str | None = None,
+        link_snippet: str | None = None,
+        expires: KmlDateTime | None = None,
+        view: Camera | LookAt | None = None,
+        update: Update | None = None,
         **kwargs: Any,
     ) -> None:
         """

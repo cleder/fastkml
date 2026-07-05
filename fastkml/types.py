@@ -37,7 +37,7 @@ __all__ = ["Element"]
 
 if TYPE_CHECKING:
     # fastkml treats lxml as the reference etree implementation for static
-    # type-checking (it is the preferred runtime backend, and its API is a
+    # analysis (it is the preferred runtime backend, and its API is a
     # superset of xml.etree.ElementTree's); see fastkml.config.
     from lxml.etree import _Element as Element
 else:
@@ -50,7 +50,7 @@ else:
         """Protocol for Element."""
 
         tag: str
-        text: Optional[str]
+        text: str | None
 
         def set(self, tag: str, value: str) -> None:
             """Set the value of the tag."""

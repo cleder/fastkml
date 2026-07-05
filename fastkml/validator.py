@@ -20,7 +20,6 @@ import pathlib
 from functools import lru_cache
 from typing import TYPE_CHECKING
 from typing import Final
-from typing import Optional
 from typing import cast
 
 from fastkml import config
@@ -53,7 +52,7 @@ REQUIRE_ONE_OF: Final = "Either element or file_to_validate must be provided."
 
 @lru_cache(maxsize=16)
 def get_schema_parser(
-    schema: Optional[pathlib.Path] = None,
+    schema: pathlib.Path | None = None,
 ) -> "etree.XMLSchema":
     """
     Parse the XML schema.
@@ -114,10 +113,10 @@ def handle_validation_error(
 
 def validate(
     *,
-    schema: Optional[pathlib.Path] = None,
-    element: Optional[Element] = None,
-    file_to_validate: Optional[pathlib.Path] = None,
-) -> Optional[bool]:
+    schema: pathlib.Path | None = None,
+    element: Element | None = None,
+    file_to_validate: pathlib.Path | None = None,
+) -> bool | None:
     """
     Validate a KML file against the XML schema.
 

@@ -18,8 +18,6 @@
 import logging
 from collections.abc import Iterable
 from typing import Any
-from typing import Optional
-from typing import Union
 
 from fastkml import atom
 from fastkml import config
@@ -86,18 +84,18 @@ class _Overlay(_Feature):
     nested hierarchies.
     """
 
-    color: Optional[str]
+    color: str | None
     # Color values expressed in hexadecimal notation, including opacity (alpha)
     # values. The order of expression is alphaOverlay, blue, green, red
     # (AABBGGRR). The range of values for any one color is 0 to 255 (00 to ff).
     # For opacity, 00 is fully transparent and ff is fully opaque.
 
-    draw_order: Optional[int]
+    draw_order: int | None
     # Defines the stacking order for the images in overlapping overlays.
     # Overlays with higher <drawOrder> values are drawn on top of those with
     # lower <drawOrder> values.
 
-    icon: Optional[Icon]
+    icon: Icon | None
     # Defines the image associated with the overlay. Contains an <href> html
     # tag which defines the location of the image to be used as the overlay.
     # The location can be either on a local file system or on a webserver. If
@@ -106,29 +104,29 @@ class _Overlay(_Feature):
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        name: Optional[str] = None,
-        visibility: Optional[bool] = None,
-        isopen: Optional[bool] = None,
-        atom_link: Optional[atom.Link] = None,
-        atom_author: Optional[atom.Author] = None,
-        address: Optional[str] = None,
-        phone_number: Optional[str] = None,
-        snippet: Optional[Snippet] = None,
-        description: Optional[str] = None,
-        view: Optional[Union[Camera, LookAt]] = None,
-        times: Optional[Union[TimeSpan, TimeStamp]] = None,
-        style_url: Optional[StyleUrl] = None,
-        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
-        region: Optional[Region] = None,
-        extended_data: Optional[ExtendedData] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        name: str | None = None,
+        visibility: bool | None = None,
+        isopen: bool | None = None,
+        atom_link: atom.Link | None = None,
+        atom_author: atom.Author | None = None,
+        address: str | None = None,
+        phone_number: str | None = None,
+        snippet: Snippet | None = None,
+        description: str | None = None,
+        view: Camera | LookAt | None = None,
+        times: TimeSpan | TimeStamp | None = None,
+        style_url: StyleUrl | None = None,
+        styles: Iterable[Style | StyleMap] | None = None,
+        region: Region | None = None,
+        extended_data: ExtendedData | None = None,
         # Overlay specific
-        color: Optional[str] = None,
-        draw_order: Optional[int] = None,
-        icon: Optional[Icon] = None,
+        color: str | None = None,
+        draw_order: int | None = None,
+        icon: Icon | None = None,
     ) -> None:
         """
         Initialize an Overlay object.
@@ -262,37 +260,37 @@ class ViewVolume(_BaseObject):
 
     _default_nsid = config.KML
 
-    left_fow: Optional[float]
+    left_fow: float | None
     # Angle, in degrees, between the camera's viewing direction and the left side
     # of the view volume.
 
-    right_fov: Optional[float]
+    right_fov: float | None
     # Angle, in degrees, between the camera's viewing direction and the right side
     # of the view volume.
 
-    bottom_fov: Optional[float]
+    bottom_fov: float | None
     # Angle, in degrees, between the camera's viewing direction and the bottom side
     # of the view volume.
 
-    top_fov: Optional[float]
+    top_fov: float | None
     # Angle, in degrees, between the camera's viewing direction and the top side
     # of the view volume.
 
-    near: Optional[float]
+    near: float | None
     # Measurement in meters along the viewing direction from the camera viewpoint
     # to the PhotoOverlay shape.
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        left_fov: Optional[float] = None,
-        right_fov: Optional[float] = None,
-        bottom_fov: Optional[float] = None,
-        top_fov: Optional[float] = None,
-        near: Optional[float] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        left_fov: float | None = None,
+        right_fov: float | None = None,
+        bottom_fov: float | None = None,
+        top_fov: float | None = None,
+        near: float | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -463,32 +461,32 @@ class ImagePyramid(_BaseObject):
 
     _default_nsid = config.KML
 
-    tile_size: Optional[int]
+    tile_size: int | None
     # Size of the tiles, in pixels. Tiles must be square, and <tileSize> must be a power
     # of 2. A tile size of 256 (the default) or 512 is recommended.
     # The original image is divided into tiles of this size, at varying resolutions.
 
-    max_width: Optional[int]
+    max_width: int | None
     # Width in pixels of the original image.
 
-    max_height: Optional[int]
+    max_height: int | None
     # Height in pixels of the original image.
 
-    grid_origin: Optional[GridOrigin]
+    grid_origin: GridOrigin | None
     # Specifies where to begin numbering the tiles in each layer of the pyramid.
     # A value of lowerLeft specifies that row 1, column 1 of each layer is in
     # the bottom left corner of the grid.
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        tile_size: Optional[int] = None,
-        max_width: Optional[int] = None,
-        max_height: Optional[int] = None,
-        grid_origin: Optional[GridOrigin] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        tile_size: int | None = None,
+        max_width: int | None = None,
+        max_height: int | None = None,
+        grid_origin: GridOrigin | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -636,26 +634,26 @@ class PhotoOverlay(_Overlay):
     https://developers.google.com/kml/documentation/kmlreference#photooverlay
     """
 
-    rotation: Optional[float]
+    rotation: float | None
     # Adjusts how the photo is placed inside the field of view. This element is
     # useful if your photo has been rotated and deviates slightly from a desired
     # horizontal view.
 
-    view_volume: Optional[ViewVolume]
+    view_volume: ViewVolume | None
     # Defines how much of the current scene is visible.
 
-    image_pyramid: Optional[ImagePyramid]
+    image_pyramid: ImagePyramid | None
     # Defines the format, resolution, and refresh rate for images that are
     # displayed in the PhotoOverlay.
 
-    point: Optional[Point]
+    point: Point | None
     # Defines the exact coordinates of the PhotoOverlay's origin, in latitude
     # and longitude, and in meters. Latitude and longitude measurements are
     # standard lat-lon projection with WGS84 datum. Altitude is distance above
     # the earth's surface, in meters, and is interpreted according to
     # altitudeMode.
 
-    shape: Optional[Shape]
+    shape: Shape | None
     # The PhotoOverlay is projected onto the <shape>.
     # The <shape> can be one of the following:
     #   rectangle (default) -
@@ -667,34 +665,34 @@ class PhotoOverlay(_Overlay):
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        name: Optional[str] = None,
-        visibility: Optional[bool] = None,
-        isopen: Optional[bool] = None,
-        atom_link: Optional[atom.Link] = None,
-        atom_author: Optional[atom.Author] = None,
-        address: Optional[str] = None,
-        phone_number: Optional[str] = None,
-        snippet: Optional[Snippet] = None,
-        description: Optional[str] = None,
-        view: Optional[Union[Camera, LookAt]] = None,
-        times: Optional[Union[TimeSpan, TimeStamp]] = None,
-        style_url: Optional[StyleUrl] = None,
-        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
-        region: Optional[Region] = None,
-        extended_data: Optional[ExtendedData] = None,
-        color: Optional[str] = None,
-        draw_order: Optional[int] = None,
-        icon: Optional[Icon] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        name: str | None = None,
+        visibility: bool | None = None,
+        isopen: bool | None = None,
+        atom_link: atom.Link | None = None,
+        atom_author: atom.Author | None = None,
+        address: str | None = None,
+        phone_number: str | None = None,
+        snippet: Snippet | None = None,
+        description: str | None = None,
+        view: Camera | LookAt | None = None,
+        times: TimeSpan | TimeStamp | None = None,
+        style_url: StyleUrl | None = None,
+        styles: Iterable[Style | StyleMap] | None = None,
+        region: Region | None = None,
+        extended_data: ExtendedData | None = None,
+        color: str | None = None,
+        draw_order: int | None = None,
+        icon: Icon | None = None,
         # Photo Overlay specific
-        rotation: Optional[float] = None,
-        view_volume: Optional[ViewVolume] = None,
-        image_pyramid: Optional[ImagePyramid] = None,
-        point: Optional[Point] = None,
-        shape: Optional[Shape] = None,
+        rotation: float | None = None,
+        view_volume: ViewVolume | None = None,
+        image_pyramid: ImagePyramid | None = None,
+        point: Point | None = None,
+        shape: Shape | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -917,23 +915,23 @@ class LatLonBox(_BaseObject):
 
     _default_nsid = config.KML
 
-    north: Optional[float]
-    south: Optional[float]
-    east: Optional[float]
-    west: Optional[float]
-    rotation: Optional[float]
+    north: float | None
+    south: float | None
+    east: float | None
+    west: float | None
+    rotation: float | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        north: Optional[float] = None,
-        south: Optional[float] = None,
-        east: Optional[float] = None,
-        west: Optional[float] = None,
-        rotation: Optional[float] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        north: float | None = None,
+        south: float | None = None,
+        east: float | None = None,
+        west: float | None = None,
+        rotation: float | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -1086,11 +1084,11 @@ class GroundOverlay(_Overlay):
     https://developers.google.com/kml/documentation/kmlreference#groundoverlay
     """
 
-    altitude: Optional[float]
+    altitude: float | None
     # Specifies the distance above the earth's surface, in meters, and is
     # interpreted according to the altitude mode.
 
-    altitude_mode: Optional[AltitudeMode]
+    altitude_mode: AltitudeMode | None
     # Specifies how the <altitude> is interpreted. Possible values are:
     #   clampToGround -
     #       (default) Indicates to ignore the altitude specification and drape
@@ -1104,39 +1102,39 @@ class GroundOverlay(_Overlay):
     #       the terrain is 3 meters above sea level, the overlay will appear
     #       elevated above the terrain by 7 meters.
 
-    lat_lon_box: Optional[LatLonBox]
+    lat_lon_box: LatLonBox | None
     # Specifies where the top, bottom, right, and left sides of a bounding box
     # for the ground overlay are aligned. Also, optionally the rotation of the
     # overlay.
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        name: Optional[str] = None,
-        visibility: Optional[bool] = None,
-        isopen: Optional[bool] = None,
-        atom_link: Optional[atom.Link] = None,
-        atom_author: Optional[atom.Author] = None,
-        address: Optional[str] = None,
-        phone_number: Optional[str] = None,
-        snippet: Optional[Snippet] = None,
-        description: Optional[str] = None,
-        view: Optional[Union[Camera, LookAt]] = None,
-        times: Optional[Union[TimeSpan, TimeStamp]] = None,
-        style_url: Optional[StyleUrl] = None,
-        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
-        region: Optional[Region] = None,
-        extended_data: Optional[ExtendedData] = None,
-        color: Optional[str] = None,
-        draw_order: Optional[int] = None,
-        icon: Optional[Icon] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        name: str | None = None,
+        visibility: bool | None = None,
+        isopen: bool | None = None,
+        atom_link: atom.Link | None = None,
+        atom_author: atom.Author | None = None,
+        address: str | None = None,
+        phone_number: str | None = None,
+        snippet: Snippet | None = None,
+        description: str | None = None,
+        view: Camera | LookAt | None = None,
+        times: TimeSpan | TimeStamp | None = None,
+        style_url: StyleUrl | None = None,
+        styles: Iterable[Style | StyleMap] | None = None,
+        region: Region | None = None,
+        extended_data: ExtendedData | None = None,
+        color: str | None = None,
+        draw_order: int | None = None,
+        icon: Icon | None = None,
         # Ground Overlay specific
-        altitude: Optional[float] = None,
-        altitude_mode: Optional[AltitudeMode] = None,
-        lat_lon_box: Optional[LatLonBox] = None,
+        altitude: float | None = None,
+        altitude_mode: AltitudeMode | None = None,
+        lat_lon_box: LatLonBox | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -1307,20 +1305,20 @@ class _XY(_XMLObject):
 
     _default_nsid = config.KML
 
-    x: Optional[float]
-    y: Optional[float]
-    x_units: Optional[Units]
+    x: float | None
+    y: float | None
+    x_units: Units | None
 
-    y_units: Optional[Units]
+    y_units: Units | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        x: Optional[float] = None,
-        y: Optional[float] = None,
-        x_units: Optional[Units] = None,
-        y_units: Optional[Units] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        x: float | None = None,
+        y: float | None = None,
+        x_units: Units | None = None,
+        y_units: Units | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -1476,34 +1474,34 @@ class ScreenOverlay(_Overlay):
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        name: Optional[str] = None,
-        visibility: Optional[bool] = None,
-        isopen: Optional[bool] = None,
-        atom_link: Optional[atom.Link] = None,
-        atom_author: Optional[atom.Author] = None,
-        address: Optional[str] = None,
-        phone_number: Optional[str] = None,
-        snippet: Optional[Snippet] = None,
-        description: Optional[str] = None,
-        view: Optional[Union[Camera, LookAt]] = None,
-        times: Optional[Union[TimeSpan, TimeStamp]] = None,
-        style_url: Optional[StyleUrl] = None,
-        styles: Optional[Iterable[Union[Style, StyleMap]]] = None,
-        region: Optional[Region] = None,
-        extended_data: Optional[ExtendedData] = None,
-        color: Optional[str] = None,
-        draw_order: Optional[int] = None,
-        icon: Optional[Icon] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        id: str | None = None,
+        target_id: str | None = None,
+        name: str | None = None,
+        visibility: bool | None = None,
+        isopen: bool | None = None,
+        atom_link: atom.Link | None = None,
+        atom_author: atom.Author | None = None,
+        address: str | None = None,
+        phone_number: str | None = None,
+        snippet: Snippet | None = None,
+        description: str | None = None,
+        view: Camera | LookAt | None = None,
+        times: TimeSpan | TimeStamp | None = None,
+        style_url: StyleUrl | None = None,
+        styles: Iterable[Style | StyleMap] | None = None,
+        region: Region | None = None,
+        extended_data: ExtendedData | None = None,
+        color: str | None = None,
+        draw_order: int | None = None,
+        icon: Icon | None = None,
         # Screen Overlay specific
-        overlay_xy: Optional[OverlayXY] = None,
-        screen_xy: Optional[ScreenXY] = None,
-        rotation_xy: Optional[RotationXY] = None,
-        size: Optional[Size] = None,
-        rotation: Optional[float] = None,
+        overlay_xy: OverlayXY | None = None,
+        screen_xy: ScreenXY | None = None,
+        rotation_xy: RotationXY | None = None,
+        size: Size | None = None,
+        rotation: float | None = None,
         **kwargs: Any,
     ) -> None:
         """

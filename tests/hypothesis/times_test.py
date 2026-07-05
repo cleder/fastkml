@@ -20,8 +20,6 @@ These tests use the hypothesis library to generate random input for the
 functions under test. The tests are run with pytest.
 """
 
-from typing import Optional
-
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -45,9 +43,9 @@ class TestTimes(Lxml):
     )
     def test_fuzz_time_stamp(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        timestamp: Optional[fastkml.times.KmlDateTime],
+        id: str | None,
+        target_id: str | None,
+        timestamp: fastkml.times.KmlDateTime | None,
     ) -> None:
         time_stamp = fastkml.TimeStamp(id=id, target_id=target_id, timestamp=timestamp)
 
@@ -64,10 +62,10 @@ class TestTimes(Lxml):
     )
     def test_fuzz_time_span(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        begin: Optional[fastkml.times.KmlDateTime],
-        end: Optional[fastkml.times.KmlDateTime],
+        id: str | None,
+        target_id: str | None,
+        begin: fastkml.times.KmlDateTime | None,
+        end: fastkml.times.KmlDateTime | None,
     ) -> None:
         time_span = fastkml.TimeSpan(id=id, target_id=target_id, begin=begin, end=end)
 

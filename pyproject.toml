@@ -75,7 +75,8 @@ lxml = [
     "lxml",
 ]
 tests = [
-    "hypothesis[dateutil]",
+    # 6.156+ has no cp315 wheel yet; unpin once hypothesis publishes one.
+    "hypothesis[dateutil]<6.156",
     "pytest",
     "pytest-cov",
     "pytz",

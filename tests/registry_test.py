@@ -17,7 +17,6 @@
 
 from enum import Enum
 from typing import Any
-from typing import Optional
 
 from fastkml.base import _XMLObject
 from fastkml.enums import Verbosity
@@ -52,8 +51,8 @@ def set_element(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
-    verbosity: Optional[Verbosity],
+    precision: int | None,
+    verbosity: Verbosity | None,
     default: Any,
 ) -> None:
     """Get an attribute from an XML object."""

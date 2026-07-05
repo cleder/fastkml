@@ -2,9 +2,7 @@
 
 from collections.abc import Generator
 from typing import Any
-from typing import Optional
 from typing import TypeVar
-from typing import Union
 from typing import overload
 
 __all__ = ["find", "find_all", "has_attribute_values"]
@@ -84,7 +82,7 @@ def find_all(
 def find_all(
     obj: object,
     *,
-    of_type: Optional[Union[type[object], tuple[type[object], ...]]] = None,
+    of_type: type[object] | tuple[type[object], ...] | None = None,
     **kwargs: Any,
 ) -> Generator[object, None, None]:
     """
@@ -117,27 +115,27 @@ def find(
     *,
     of_type: type[_T],
     **kwargs: Any,
-) -> Optional[_T]: ...
+) -> _T | None: ...
 @overload
 def find(
     obj: object,
     *,
     of_type: tuple[type[_T], ...],
     **kwargs: Any,
-) -> Optional[_T]: ...
+) -> _T | None: ...
 @overload
 def find(
     obj: object,
     *,
     of_type: None = None,
     **kwargs: Any,
-) -> Optional[object]: ...
+) -> object | None: ...
 def find(
     obj: object,
     *,
-    of_type: Optional[Union[type[object], tuple[type[object], ...]]] = None,
+    of_type: type[object] | tuple[type[object], ...] | None = None,
     **kwargs: Any,
-) -> Optional[object]:
+) -> object | None:
     """
     Find the first instance of a given type in a given object.
 
