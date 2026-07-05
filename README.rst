@@ -122,7 +122,7 @@ Installation
 Basic Installation
 ------------------
 
-Add FastKML to your project by installing it from PyPI. 
+Add FastKML to your project by installing it from PyPI.
 You can install it using uv, pip, or conda.
 
 .. code-block:: bash
