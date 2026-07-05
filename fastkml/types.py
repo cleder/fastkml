@@ -42,7 +42,6 @@ if TYPE_CHECKING:
     from lxml.etree import _Element as Element
 else:
     from collections.abc import Iterable
-    from typing import Optional
 
     from typing_extensions import Protocol
 
@@ -58,7 +57,7 @@ else:
         def get(self, tag: str) -> str:
             """Get the value of the tag."""
 
-        def find(self, tag: str) -> Optional["Element"]:
+        def find(self, tag: str) -> "Element | None":
             """Find the first element with the given tag."""
 
         def findall(self, tag: str) -> Iterable["Element"]:

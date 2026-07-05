@@ -21,7 +21,6 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Optional
 
 import pygeoif.geometry as geo
 from pygeoif.types import PointType
@@ -134,7 +133,7 @@ class Track(_Geometry):
 
     _default_nsid = config.GX
     track_items: list[TrackItem]
-    extended_data: Optional["ExtendedData"]
+    extended_data: "ExtendedData | None"
 
     def __init__(
         self,
@@ -148,7 +147,7 @@ class Track(_Geometry):
         whens: Iterable[KmlDateTime] | None = None,
         coords: Iterable[PointType] | None = None,
         angles: Iterable[PointType] | None = None,
-        extended_data: Optional["ExtendedData"] = None,
+        extended_data: "ExtendedData | None" = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -199,7 +198,7 @@ class Track(_Geometry):
                     coord=geo.Point(*coord),
                     angle=Angle(*angles[i]) if i < len(angles) else Angle(),
                 )
-                for i, (when, coord) in enumerate(zip(whens, coords, strict=False))
+                for i, (when, coord) in enumerate(zip(whens, coords, strict=True))
             ]
         self.track_items = list(track_items) if track_items else []
         self.extended_data = extended_data

@@ -35,7 +35,6 @@ from collections.abc import Iterable
 from enum import Enum
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Optional
 from typing import cast
 
 from pygeoif.types import PointType
@@ -653,7 +652,7 @@ def xml_subelement(
     node_name: str,
     precision: int | None,
     verbosity: Verbosity,
-    default: Optional["_XMLObject"],
+    default: "_XMLObject | None",
 ) -> None:
     """
     Add a subelement to an XML element based on the value of an attribute of an object.

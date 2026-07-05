@@ -75,6 +75,7 @@ lxml = [
     "lxml",
 ]
 tests = [
+    # 6.156+ has no cp315 wheel yet; unpin once hypothesis publishes one.
     "hypothesis[dateutil]<6.156",
     "pytest",
     "pytest-cov",
@@ -137,20 +138,37 @@ force_single_line = true
 line_length = 88
 
 [tool.pyrefly]
-ignore-missing-imports = [
-    "*",
-]
 preset = "strict"
-replace_imports_with_any = [
-    "lxml.*",
-]
-sub-config = [
-    { errors = { missing-attribute = "ignore" }, matches = "examples/**/*" },
-    { errors = { missing-attribute = "ignore" }, matches = "tests/**/*" },
-]
+ignore-missing-imports = ["*"]
+# lxml has no py.typed/inline stubs; lxml-stubs (installed for `ty`'s benefit,
+# which resolves it correctly) uses legacy `# type:` comments that pyrefly
+# misparses as literal `Ellipsis` values (e.g. `_Element.tag`/`.text`), so
+# pyrefly treats lxml as untyped instead.
+replace_imports_with_any = ["lxml.*"]
 
 [tool.pyrefly.errors]
+# Adding @override to ~80 call sites across nearly every module (__repr__,
+# __init__, get_tag_name, parse, ...) is pure ceremony for this codebase's
+# heavy, intentional use of inheritance; ty leaves this rule off by default.
 missing-override-decorator = "ignore"
+
+[[tool.pyrefly.sub-config]]
+matches = "tests/**/*"
+
+[tool.pyrefly.sub-config.errors]
+# Tests routinely construct an object and immediately assert on a field
+# typed `X | None`/`A | B | None` without a narrowing check first; mirrors
+# the old mypy per-module `union-attr` override for tests.*.
+missing-attribute = "ignore"
+
+[[tool.pyrefly.sub-config]]
+matches = "examples/**/*"
+
+[tool.pyrefly.sub-config.errors]
+# Example scripts demonstrate walking a heterogeneous feature tree and the
+# registry's dynamic-attribute-injection extension pattern (see
+# transform_cascading_style.py); neither is expressible in the class stubs.
+missing-attribute = "ignore"
 
 [tool.pyright]
 exclude = [
@@ -265,10 +283,13 @@ include = [
 ]
 
 [tool.ty.overrides.rules]
+# Same rationale as the pyrefly tests/**/* sub-config above.
 invalid-assignment = "ignore"
 unresolved-attribute = "ignore"
 
 [tool.ty.rules]
+# Promote checks ty leaves at "warn"/"ignore" by default, to match the
+# strictness previously provided by mypy's strict flags.
 missing-override-decorator = "ignore"
 missing-type-argument = "error"
 possibly-missing-attribute = "error"

@@ -93,7 +93,7 @@ def handle_validation_error(
         try:
             matches = cast("list[Element]", element.xpath(error_entry.path))
             parent = matches[0].getparent()
-        except config.etree.XPathEvalError:
+        except (config.etree.XPathEvalError, IndexError):
             parent = element
         if parent is None:
             parent = element
