@@ -75,7 +75,11 @@ lxml = [
     "lxml",
 ]
 pyuppsala = [
-    "pyuppsala>=0.8.0",
+    # 0.9.0 regressed circular xsd:import handling (spurious "Duplicate
+    # attributeGroup definition" when base_path is passed), which breaks
+    # loading the real OGC KML schema. Pinned until fixed upstream:
+    # https://github.com/kushaldas/pyuppsala/issues/25
+    "pyuppsala==0.8.0",
 ]
 tests = [
     # 6.156+ has no cp315 wheel yet; unpin once hypothesis publishes one.
