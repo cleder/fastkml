@@ -1180,12 +1180,13 @@ class Pair(_BaseObject):
     Defines a key/value pair that maps a mode (normal or highlight) to the predefined
     <styleUrl>.
     <Pair> contains two elements (both are required):
-        <key>, which identifies the key
-        <styleUrl> or <Style>, which references the style.
-        In <styleUrl>, for referenced style elements that are local to the KML document,
-        a simple # referencing is used.
-        For styles that are contained in external files, use a full URL along with
-        # referencing.
+
+    - <key>, which identifies the key
+    - <styleUrl> or <Style>, which references the style.
+      In <styleUrl>, for referenced style elements that are local to the KML document,
+      a simple # referencing is used.
+      For styles that are contained in external files, use a full URL along with
+      # referencing.
 
     https://developers.google.com/kml/documentation/kmlreference#stylemap
     """
