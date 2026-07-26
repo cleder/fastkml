@@ -93,25 +93,23 @@ registry.register(
 # - Change: Contains AbstractObjectGroup (any KML object)
 
 # Create can only contain containers (Document, Folder)
+_create_classes = (
+    Document,
+    Folder,
+)
 registry.register(
     Create,
     RegistryItem(
         ns_ids=("kml", ""),
         attr_name="objects",
-        node_name="Folder,Document",
-        classes=(
-            Document,
-            Folder,
-        ),
+        node_name=",".join(cls.get_tag_name() for cls in _create_classes),
+        classes=_create_classes,
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
     ),
 )
 
 # Delete can contain any feature type
-_delete_node_name = (
-    "Folder,Placemark,Document,GroundOverlay,PhotoOverlay,ScreenOverlay,NetworkLink"
-)
 _delete_classes = (
     Document,
     Folder,
@@ -121,6 +119,7 @@ _delete_classes = (
     ScreenOverlay,
     NetworkLink,
 )
+_delete_node_name = ",".join(cls.get_tag_name() for cls in _delete_classes)
 registry.register(
     Delete,
     RegistryItem(
@@ -136,62 +135,6 @@ registry.register(
 # Change can contain any KML object (AbstractObjectGroup).
 # This covers the full set of non-abstract classes derived from _BaseObject,
 # matching the KML schema's AbstractObjectGroup.
-_change_node_name = (
-    # Features
-    "Document,"
-    "Folder,"
-    "NetworkLink,"
-    "Placemark,"
-    # Overlays
-    "GroundOverlay,"
-    "PhotoOverlay,"
-    "ScreenOverlay,"
-    # Overlay sub-elements
-    "ImagePyramid,"
-    "LatLonBox,"
-    "ViewVolume,"
-    # Views
-    "Camera,"
-    "LatLonAltBox,"
-    "Lod,"
-    "LookAt,"
-    "Region,"
-    # Styles
-    "BalloonStyle,"
-    "IconStyle,"
-    "LabelStyle,"
-    "LineStyle,"
-    "Pair,"
-    "PolyStyle,"
-    "Style,"
-    "StyleMap,"
-    # Times
-    "TimeSpan,"
-    "TimeStamp,"
-    # Geometry
-    "LinearRing,"
-    "LineString,"
-    "MultiGeometry,"
-    "Point,"
-    "Polygon,"
-    # GX Geometry
-    "MultiTrack,"
-    "Track,"
-    # Model
-    "Alias,"
-    "Location,"
-    "Model,"
-    "Orientation,"
-    "ResourceMap,"
-    "Scale,"
-    # Links
-    "Link,"
-    # Data
-    "Data,"
-    "SchemaData,"
-    # GX Data
-    "SimpleArrayData"
-)
 _change_classes = (
     # Features
     Document,
@@ -248,6 +191,7 @@ _change_classes = (
     # GX Data
     SimpleArrayData,
 )
+_change_node_name = ",".join(cls.get_tag_name() for cls in _change_classes)
 registry.register(
     Change,
     RegistryItem(
