@@ -47,6 +47,11 @@ class TestLxml(Lxml):
         any KML object: this fixture's ``Update > Change`` contains a ``TimeSpan``,
         which previously wasn't in ``Change``'s registered classes and was silently
         dropped on parse (and thus missing entirely from the round-tripped output).
+
+        It dropped again, from 97 to 91, with support for arbitrary XML in
+        ``ExtendedData``: this fixture has two ``ExtendedData`` blocks (one with
+        an ``rdf:`` child), which previously round-tripped with more drift before
+        unrecognized children could be preserved instead of dropped.
         """
         clean_doc = KMLFILEDIR / "Document-clean.kml"
         expected = clean_doc.read_bytes()
@@ -54,7 +59,7 @@ class TestLxml(Lxml):
         doc = fastkml.kml.KML.parse(clean_doc)
         diff = xmldiff(doc.to_string(), expected)
 
-        assert len(diff) == 97, diff
+        assert len(diff) == 91, diff
         assert fastkml.validator.validate(file_to_validate=clean_doc)
         assert fastkml.validator.validate(element=doc.etree_element())
 

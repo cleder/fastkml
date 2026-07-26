@@ -17,11 +17,14 @@
 
 import pytest
 
+import fastkml
 import fastkml as kml
 from fastkml import config
 from fastkml import data
 from fastkml.enums import DataType
 from fastkml.exceptions import KMLSchemaError
+from fastkml.exceptions import KMLWriteError
+from fastkml.registry import registry
 from tests.base import Lxml
 from tests.base import StdLibrary
 
@@ -331,9 +334,7 @@ class TestStdLibrary(StdLibrary):
     def test_extended_data_accepts_raw_etree_elements(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"
         custom_element = config.etree.fromstring(
-            (
-                b'<camp:number xmlns:camp="http://campsites.com">14</camp:number>'
-            ),
+            (b'<camp:number xmlns:camp="http://campsites.com">14</camp:number>'),
         )
         placemark = kml.Placemark(
             ns,
@@ -358,6 +359,96 @@ class TestStdLibrary(StdLibrary):
         assert isinstance(extended_data.elements[1], data.XMLData)
         assert extended_data.elements[1].element.tag == "{http://campsites.com}number"
         assert extended_data.elements[1].element.text == "14"
+
+    def test_extended_data_drops_none_entries(self) -> None:
+        """A None entry in elements is silently dropped, not a crash."""
+        extended_data = kml.ExtendedData(
+            elements=[  # type: ignore[list-item]  # ty: ignore[invalid-argument-type]
+                data.Data(name="x", value="y"),
+                None,
+            ],
+        )
+
+        assert len(extended_data.elements) == 1
+        assert extended_data.elements[0].name == "x"
+
+    def test_extended_data_drops_falsy_data(self) -> None:
+        """An incomplete (falsy) Data placed directly in elements isn't serialized."""
+        extended_data = kml.ExtendedData()
+        extended_data.elements.append(data.Data())
+
+        assert "Data" not in extended_data.to_string(prettyprint=False).replace(
+            "ExtendedData",
+            "",
+        )
+
+    def test_extended_data_recognizes_unqualified_data_child(self) -> None:
+        """A Data child with no namespace prefix is still recognized as Data."""
+        ns = "{http://www.opengis.net/kml/2.2}"
+        doc = (
+            f'<ExtendedData xmlns="{ns[1:-1]}">'
+            '<Data name="holeNumber"><value>1</value></Data></ExtendedData>'
+        )
+        element = config.etree.fromstring(doc.encode("utf-8"))
+
+        extended_data = data.ExtendedData.class_from_element(
+            ns=ns,
+            name_spaces=config.NAME_SPACES,
+            element=element,
+            strict=True,
+        )
+
+        assert isinstance(extended_data.elements[0], data.Data)
+        assert extended_data.elements[0].name == "holeNumber"
+
+    def test_extended_data_no_registry_entry(self) -> None:
+        """ExtendedData fully overrides parsing/serialization; no dead registration."""
+        assert registry.get(data.ExtendedData) == []
+
+
+class TestXMLData(StdLibrary):
+    """Test the XMLData wrapper directly."""
+
+    def _make(self, xml: bytes) -> data.XMLData:
+        element = config.etree.fromstring(xml)
+        return data.XMLData(name_spaces=config.NAME_SPACES, element=element)
+
+    def test_eq_compares_serialized_content(self) -> None:
+        """Two XMLData instances wrapping equal-content distinct elements are equal."""
+        xml = b'<camp:number xmlns:camp="urn:camp">14</camp:number>'
+
+        assert self._make(xml) == self._make(xml)
+
+    def test_eq_false_for_different_content(self) -> None:
+        """Two XMLData instances wrapping different content are not equal."""
+        first = self._make(b'<camp:number xmlns:camp="urn:camp">14</camp:number>')
+        second = self._make(b'<camp:number xmlns:camp="urn:camp">15</camp:number>')
+
+        assert first != second
+
+    def test_repr_roundtrips(self) -> None:
+        """eval(repr(xmldata)) reconstructs an equal object."""
+        xmldata = self._make(b'<camp:number xmlns:camp="urn:camp">14</camp:number>')
+
+        reconstructed = eval(  # noqa: S307
+            repr(xmldata),
+            {},
+            {"fastkml": fastkml},
+        )
+
+        assert reconstructed == xmldata
+
+    def test_populate_element_not_supported(self) -> None:
+        """XMLData.populate_element raises rather than silently doing nothing."""
+        xmldata = self._make(b'<camp:number xmlns:camp="urn:camp">14</camp:number>')
+        target = config.etree.Element("XMLData")
+
+        with pytest.raises(KMLWriteError, match="populate_element"):
+            xmldata.populate_element(target)
+
+
+class TestXMLDataLxml(Lxml, TestXMLData):
+    """Test the XMLData wrapper with lxml."""
 
 
 class TestLxml(Lxml, TestStdLibrary):

@@ -19,6 +19,7 @@ Add Custom Data.
 https://developers.google.com/kml/documentation/extendeddata
 """
 
+import copy
 import logging
 from collections.abc import Iterable
 from typing import Any
@@ -28,6 +29,7 @@ from fastkml.base import _XMLObject
 from fastkml.enums import DataType
 from fastkml.enums import Verbosity
 from fastkml.exceptions import KMLSchemaError
+from fastkml.exceptions import KMLWriteError
 from fastkml.gx.data import SimpleArrayData
 from fastkml.gx.data import SimpleArrayField
 from fastkml.helpers import attribute_enum_kwarg
@@ -60,8 +62,16 @@ logger = logging.getLogger(__name__)
 
 
 def _copy_element(element: Element) -> Element:
-    serialized = config.etree.tostring(element, encoding="utf-8")
-    return config.etree.fromstring(serialized)
+    """
+    Return a detached deep copy of an XML element.
+
+    Uses ``copy.deepcopy`` rather than a serialize/re-parse round trip: the
+    latter re-parses the element in isolation with the default *strict*
+    parser regardless of the caller's ``strict`` setting, which turns
+    otherwise-tolerated malformed content (e.g. an unbound namespace prefix
+    parsed with ``strict=False``) into a hard crash.
+    """
+    return copy.deepcopy(element)
 
 
 class SimpleField(_XMLObject):
@@ -729,14 +739,33 @@ class XMLData(_XMLObject):
 
     def __repr__(self) -> str:
         """Return a string representation of the XMLData object."""
+        xml_bytes = self.to_string(prettyprint=False).encode("utf-8")
         return (
             f"{self.__class__.__module__}.{self.__class__.__name__}("
             f"ns={self.ns!r}, "
             f"name_spaces={self.name_spaces!r}, "
-            f"element={self.to_string(prettyprint=False)!r}, "
+            f"element=fastkml.config.etree.fromstring({xml_bytes!r}), "
             f"**{self._get_splat()!r},"
             ")"
         )
+
+    def __eq__(self, other: object) -> bool:
+        """
+        Compare two XMLData instances by their serialized XML content.
+
+        Element objects use identity equality, so the inherited dict-based
+        ``_XMLObject.__eq__`` would consider two structurally-identical
+        wrapped elements unequal; serialize ``element`` before comparing.
+        """
+        if not isinstance(other, XMLData):
+            return False
+        self_rest = {k: v for k, v in self.__dict__.items() if k != "element"}
+        other_rest = {k: v for k, v in other.__dict__.items() if k != "element"}
+        return self_rest == other_rest and config.etree.tostring(
+            self.element,
+        ) == config.etree.tostring(other.element)
+
+    __hash__ = None  # type: ignore[assignment]
 
     def __bool__(self) -> bool:
         """Return True when the wrapped XML child exists."""
@@ -751,6 +780,25 @@ class XMLData(_XMLObject):
         del precision
         del verbosity
         return _copy_element(self.element)
+
+    def populate_element(
+        self,
+        element: Element,
+        precision: int | None = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> None:
+        """
+        Not supported: XMLData wraps a pre-built element rather than populating one.
+
+        ``etree_element()`` already returns a complete, correctly-tagged copy of
+        the wrapped element; callers (e.g. ``ExtendedData.populate_element``)
+        must use that instead of the generic create-then-populate pattern.
+        """
+        del element
+        del precision
+        del verbosity
+        msg = "XMLData does not support populate_element(); use etree_element()"
+        raise KMLWriteError(msg)
 
     @classmethod
     def class_from_element(
@@ -820,12 +868,21 @@ class ExtendedData(_XMLObject):
         self.elements = []
         if elements:
             for element in elements:
-                normalized = self._normalize_element(
-                    element=element,
-                    name_spaces=name_spaces,
+                if element is None:
+                    continue
+                # Data/SchemaData define a meaningful __bool__ (e.g. an empty
+                # Data() is falsy); a raw XML Element's truthiness reflects its
+                # child count in lxml (a leaf element with only text is falsy),
+                # which is not "emptiness" here -- so only Data/SchemaData get
+                # the truthiness check, never a raw Element.
+                if isinstance(element, (Data, SchemaData, XMLData)) and not element:
+                    continue
+                self.elements.append(
+                    self._normalize_element(
+                        element=element,
+                        name_spaces=name_spaces,
+                    ),
                 )
-                if normalized:
-                    self.elements.append(normalized)
 
     def __repr__(self) -> str:
         """
@@ -865,6 +922,8 @@ class ExtendedData(_XMLObject):
     ) -> None:
         """Populate an ``ExtendedData`` element, preserving child order."""
         for item in self.elements:
+            if not item:
+                continue
             if isinstance(item, XMLData):
                 element.append(item.etree_element())
                 continue
@@ -888,9 +947,13 @@ class ExtendedData(_XMLObject):
         strict: bool,
     ) -> "ExtendedData":
         """Create ``ExtendedData`` while preserving arbitrary child XML."""
-        items = []
+        # Matches ns_ids=("kml", "") from the pre-existing generic registry
+        # path: an unqualified (no-namespace) <Data>/<SchemaData> child is
+        # still recognized, not just one namespaced like its ExtendedData
+        # parent.
+        items: list[Data | SchemaData | XMLData] = []
         for child in element.findall("*"):
-            if child.tag == f"{ns}{Data.get_tag_name()}":
+            if child.tag in (f"{ns}{Data.get_tag_name()}", Data.get_tag_name()):
                 items.append(
                     Data.class_from_element(
                         ns=ns,
@@ -900,7 +963,10 @@ class ExtendedData(_XMLObject):
                     ),
                 )
                 continue
-            if child.tag == f"{ns}{SchemaData.get_tag_name()}":
+            if child.tag in (
+                f"{ns}{SchemaData.get_tag_name()}",
+                SchemaData.get_tag_name(),
+            ):
                 items.append(
                     SchemaData.class_from_element(
                         ns=ns,
@@ -925,18 +991,8 @@ class ExtendedData(_XMLObject):
         )
 
 
-registry.register(
-    ExtendedData,
-    RegistryItem(
-        ns_ids=("kml", ""),
-        attr_name="elements",
-        node_name="Data,SchemaData,XMLData",
-        classes=(
-            Data,
-            SchemaData,
-            XMLData,
-        ),
-        get_kwarg=xml_subelement_list_kwarg,
-        set_element=xml_subelement_list,
-    ),
-)
+# No registry.register(ExtendedData, ...) entry: class_from_element and
+# populate_element above are both fully overridden (neither calls super() or
+# consults the registry) to hand-roll parsing/serialization that preserves
+# arbitrary XML children and their original document order -- a registry
+# entry here would never actually be consulted by either.
