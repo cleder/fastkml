@@ -387,6 +387,7 @@ class NetworkLinkControl(_XMLObject):
         self,
         ns: str | None = None,
         name_spaces: dict[str, str] | None = None,
+        *,
         min_refresh_period: float | None = None,
         max_session_length: float | None = None,
         cookie: str | None = None,
