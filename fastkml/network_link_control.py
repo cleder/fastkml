@@ -41,6 +41,7 @@ from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.helpers import xml_subelement_list_kwarg_ordered
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 from fastkml.times import KmlDateTime
@@ -59,9 +60,9 @@ if TYPE_CHECKING:
     from fastkml.geometry import MultiGeometry
     from fastkml.geometry import Point
     from fastkml.geometry import Polygon
-    from fastkml.gx.data import SimpleArrayData
     from fastkml.gx.track import MultiTrack
     from fastkml.gx.track import Track
+    from fastkml.links import Icon
     from fastkml.links import Link
     from fastkml.model import Alias
     from fastkml.model import Location
@@ -91,6 +92,10 @@ if TYPE_CHECKING:
 
     # Type aliases for the objects allowed in each Update action element.
     # These narrow the generic type parameter T of _UpdateAction for type checkers.
+    # Kept in sync by hand with the runtime _create_classes/_delete_classes/
+    # _change_classes tuples in fastkml/_registry_setup.py -- that module
+    # imports from this one, so the reverse import needed to derive these
+    # aliases from the runtime tuples would be circular.
     _CreateObjects = Document | Folder
     _DeleteObjects = (
         Document
@@ -149,12 +154,11 @@ if TYPE_CHECKING:
         | ResourceMap
         | Scale
         # Links
+        | Icon
         | Link
         # Data
         | Data
         | SchemaData
-        # GX Data
-        | SimpleArrayData
     )
 else:
     _CreateObjects = _XMLObject
@@ -212,10 +216,13 @@ class _UpdateAction(_XMLObject, Generic[T]):
             name_spaces=name_spaces,
             **kwargs,
         )
-        if objects is not None and not isinstance(objects, Iterable):
+        if objects is not None and (
+            isinstance(objects, (str, bytes))  # type: ignore[unreachable]
+            or not isinstance(objects, Iterable)
+        ):
             msg = f"objects must be an iterable, got {type(objects).__name__}"  # type: ignore[unreachable]
             raise TypeError(msg)
-        self.objects = list(objects) if objects else []
+        self.objects = list(objects) if objects is not None else []
 
     def __repr__(self) -> str:
         """
@@ -736,5 +743,6 @@ registry.register(
         classes=(Create, Delete, Change),
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
+        custom_get_kwarg=xml_subelement_list_kwarg_ordered,
     ),
 )
