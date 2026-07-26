@@ -1436,7 +1436,7 @@ def create_kml_geometry(
                 extrude=extrude,
                 tessellate=tessellate,
                 altitude_mode=altitude_mode,
-                geometry=geom,  # type: ignore[arg-type]
+                geometry=geom,  # type: ignore[arg-type]  # ty: ignore[invalid-argument-type]
             )
 
     _unknown_geometry_type(geometry)  # pragma: no cover
