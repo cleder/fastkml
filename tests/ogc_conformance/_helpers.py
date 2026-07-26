@@ -18,7 +18,16 @@
 import pathlib
 from typing import Any
 
-from xmldiff import main
+import pytest
+
+# xmldiff lives in the `lxml` extra (it hard-requires lxml), not `tests` --
+# skip this whole package gracefully, rather than erroring at collection
+# time, on environments that only installed `.[tests]` (PyPy, GraalPy,
+# CPython dev builds without a prebuilt lxml wheel). Every module in this
+# package must import `actions`/`main` from here, never directly from
+# `xmldiff`, so this guard is the single place that decides skip-vs-import.
+actions = pytest.importorskip("xmldiff.actions")
+main = pytest.importorskip("xmldiff.main")
 
 BASEDIR = pathlib.Path(__file__).parent
 KMLFILEDIR = BASEDIR / "data" / "kml"

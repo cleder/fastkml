@@ -73,6 +73,10 @@ linting = [
 ]
 lxml = [
     "lxml",
+    # xmldiff hard-requires lxml, so it lives here rather than in `tests` --
+    # `tests` alone must stay installable on PyPy/GraalPy/CPython-dev
+    # environments that don't have a prebuilt lxml wheel available.
+    "xmldiff",
 ]
 tests = [
     # 6.156+ has no cp315 wheel yet; unpin once hypothesis publishes one.
@@ -81,7 +85,6 @@ tests = [
     "pytest-cov",
     "pytz",
     "tzdata",
-    "xmldiff",
 ]
 typing = [
     "lxml-stubs",

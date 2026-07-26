@@ -24,12 +24,11 @@ test files for why fastkml doesn't (and can't, via XSD alone) always achieve a
 byte-identical round trip.
 """
 
-from xmldiff import actions
-
 import fastkml.kml
 import fastkml.validator
 from tests.base import Lxml
 from tests.ogc_conformance._helpers import KMLFILEDIR
+from tests.ogc_conformance._helpers import actions
 from tests.ogc_conformance._helpers import xmldiff
 
 

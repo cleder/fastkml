@@ -24,13 +24,12 @@ below (on top of any other, genuine differences) and carries no semantic
 meaning.
 """
 
-from xmldiff import actions
-
 import fastkml.kml
 import fastkml.validator
 from fastkml.styles import StyleMap
 from tests.base import Lxml
 from tests.ogc_conformance._helpers import KMLFILEDIR
+from tests.ogc_conformance._helpers import actions
 from tests.ogc_conformance._helpers import xmldiff
 
 STYLESDIR = KMLFILEDIR / "styles"

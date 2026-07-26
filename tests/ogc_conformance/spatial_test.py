@@ -21,8 +21,6 @@ Placemark/LatLonAltBox/LineString/Polygon fragment -- so every test parses via
 the matching element class's own from_string(), not fastkml.kml.KML.parse().
 """
 
-from xmldiff import actions
-
 import fastkml.validator
 from fastkml.features import Placemark
 from fastkml.geometry import LineString
@@ -30,6 +28,7 @@ from fastkml.geometry import Polygon
 from fastkml.views import LatLonAltBox
 from tests.base import Lxml
 from tests.ogc_conformance._helpers import KMLFILEDIR
+from tests.ogc_conformance._helpers import actions
 from tests.ogc_conformance._helpers import xmldiff
 
 SPATIALDIR = KMLFILEDIR / "spatial"

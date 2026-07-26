@@ -16,7 +16,6 @@
 """Round-trip the custom/ Data, SchemaData, and SimpleField fixtures."""
 
 import pytest
-from xmldiff import actions
 
 import fastkml.kml
 import fastkml.validator
@@ -24,6 +23,7 @@ from fastkml.data import Schema
 from fastkml.exceptions import KMLParseError
 from tests.base import Lxml
 from tests.ogc_conformance._helpers import KMLFILEDIR
+from tests.ogc_conformance._helpers import actions
 from tests.ogc_conformance._helpers import xmldiff
 
 CUSTOMDIR = KMLFILEDIR / "custom"

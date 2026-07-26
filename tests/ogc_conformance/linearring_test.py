@@ -23,12 +23,11 @@ exception. The correct entry point for a bare geometry fragment is the
 element class's own from_string() (which takes decoded text, not bytes).
 """
 
-from xmldiff import actions
-
 import fastkml.validator
 from fastkml.geometry import LinearRing
 from tests.base import Lxml
 from tests.ogc_conformance._helpers import KMLFILEDIR
+from tests.ogc_conformance._helpers import actions
 from tests.ogc_conformance._helpers import xmldiff
 
 

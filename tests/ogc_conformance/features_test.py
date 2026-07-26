@@ -15,13 +15,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Round-trip the features/ Folder, Placemark, and PhotoOverlay fixtures."""
 
-from xmldiff import actions
-
 import fastkml.kml
 import fastkml.validator
 from fastkml.overlays import PhotoOverlay
 from tests.base import Lxml
 from tests.ogc_conformance._helpers import KMLFILEDIR
+from tests.ogc_conformance._helpers import actions
 from tests.ogc_conformance._helpers import xmldiff
 
 FEATURESDIR = KMLFILEDIR / "features"

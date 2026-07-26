@@ -26,7 +26,6 @@ the real/remote URLs below.
 """
 
 import pytest
-from xmldiff import actions
 
 import fastkml.kml
 import fastkml.validator
@@ -35,6 +34,7 @@ from fastkml.links import Link
 from fastkml.overlays import GroundOverlay
 from tests.base import Lxml
 from tests.ogc_conformance._helpers import KMLFILEDIR
+from tests.ogc_conformance._helpers import actions
 from tests.ogc_conformance._helpers import xmldiff
 
 LINKSDIR = KMLFILEDIR / "links"
