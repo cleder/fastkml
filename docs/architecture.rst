@@ -72,8 +72,8 @@ Parsing and serialization mirror each other:
 
 * **Parsing**: ``KML.parse()`` in ``fastkml/kml.py`` reads the XML, infers the namespace
   from the root tag, merges user-provided namespaces with ``config.NAME_SPACES``, and
-  delegates to ``_XMLObject.class_from_element()``. That method asks the registry
-  (``registry._get_kwargs()``) for the constructor keyword arguments matching every
+  delegates to ``_XMLObject.class_from_element()``. That method asks
+  ``_XMLObject._get_kwargs()`` for the constructor keyword arguments matching every
   registered field, then instantiates the class tree from the parsed kwargs.
 * **Serialization**: ``to_string()`` (or ``write()``) calls ``etree_element()``, which calls
   ``populate_element()``. That method visits every registry item for the class and calls

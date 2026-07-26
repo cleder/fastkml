@@ -42,6 +42,11 @@ class TestLxml(Lxml):
         fastkml doesn't model xal:AddressDetails or the kml root's arbitrary `hint`
         attribute, and reorders/reformats some content, so the diff is pinned by
         action count rather than asserted empty.
+
+        The count dropped from 102 to 97 once ``Change`` was broadened to accept
+        any KML object: this fixture's ``Update > Change`` contains a ``TimeSpan``,
+        which previously wasn't in ``Change``'s registered classes and was silently
+        dropped on parse (and thus missing entirely from the round-tripped output).
         """
         clean_doc = KMLFILEDIR / "Document-clean.kml"
         expected = clean_doc.read_bytes()
@@ -49,7 +54,7 @@ class TestLxml(Lxml):
         doc = fastkml.kml.KML.parse(clean_doc)
         diff = xmldiff(doc.to_string(), expected)
 
-        assert len(diff) == 102, diff
+        assert len(diff) == 97, diff
         assert fastkml.validator.validate(file_to_validate=clean_doc)
         assert fastkml.validator.validate(element=doc.etree_element())
 
