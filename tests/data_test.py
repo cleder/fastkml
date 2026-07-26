@@ -18,6 +18,7 @@
 import pytest
 
 import fastkml as kml
+from fastkml import config
 from fastkml import data
 from fastkml.enums import DataType
 from fastkml.exceptions import KMLSchemaError
@@ -290,6 +291,73 @@ class TestStdLibrary(StdLibrary):
         d1 = data.Data.from_string(d.to_string())
         assert d1.name == "holeNumber"
         assert d.to_string() == d1.to_string()
+
+    def test_extended_data_accepts_arbitrary_xml_children(self) -> None:
+        doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
+          <Placemark>
+            <ExtendedData>
+              <Data name="holeNumber">
+                <value>1</value>
+              </Data>
+              <camp:number xmlns:camp="http://campsites.com">14</camp:number>
+              <Data name="holePar">
+                <value>4</value>
+              </Data>
+            </ExtendedData>
+          </Placemark>
+        </kml>"""
+
+        k = kml.KML.from_string(doc)
+        extended_data = k.features[0].extended_data
+
+        assert extended_data is not None
+        assert len(extended_data.elements) == 3
+        assert extended_data.elements[0].name == "holeNumber"
+        assert isinstance(extended_data.elements[1], data.XMLData)
+        assert extended_data.elements[1].element.tag == "{http://campsites.com}number"
+        assert extended_data.elements[1].element.text == "14"
+        assert extended_data.elements[2].name == "holePar"
+
+        extended_data_element = k.etree_element().find(
+            ".//{http://www.opengis.net/kml/2.2}ExtendedData",
+        )
+        assert extended_data_element is not None
+        assert [child.tag for child in extended_data_element.findall("*")] == [
+            "{http://www.opengis.net/kml/2.2}Data",
+            "{http://campsites.com}number",
+            "{http://www.opengis.net/kml/2.2}Data",
+        ]
+
+    def test_extended_data_accepts_raw_etree_elements(self) -> None:
+        ns = "{http://www.opengis.net/kml/2.2}"
+        custom_element = config.etree.fromstring(
+            (
+                b'<camp:number xmlns:camp="http://campsites.com">14</camp:number>'
+            ),
+        )
+        placemark = kml.Placemark(
+            ns,
+            id="id",
+            name="name",
+            extended_data=kml.ExtendedData(
+                ns=ns,
+                elements=[
+                    data.Data(ns=ns, name="holeNumber", value="1"),
+                    custom_element,
+                ],
+            ),
+        )
+        k = kml.KML(ns=ns, features=[placemark])
+
+        reparsed = kml.KML.from_string(k.to_string())
+        extended_data = reparsed.features[0].extended_data
+
+        assert extended_data is not None
+        assert len(extended_data.elements) == 2
+        assert extended_data.elements[0].name == "holeNumber"
+        assert isinstance(extended_data.elements[1], data.XMLData)
+        assert extended_data.elements[1].element.tag == "{http://campsites.com}number"
+        assert extended_data.elements[1].element.text == "14"
 
 
 class TestLxml(Lxml, TestStdLibrary):

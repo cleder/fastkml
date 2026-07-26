@@ -23,8 +23,10 @@ import logging
 from collections.abc import Iterable
 from typing import Any
 
+from fastkml import config
 from fastkml.base import _XMLObject
 from fastkml.enums import DataType
+from fastkml.enums import Verbosity
 from fastkml.exceptions import KMLSchemaError
 from fastkml.gx.data import SimpleArrayData
 from fastkml.gx.data import SimpleArrayField
@@ -42,6 +44,7 @@ from fastkml.helpers import xml_subelement_list_kwarg
 from fastkml.kml_base import _BaseObject
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
+from fastkml.types import Element
 
 __all__ = [
     "Data",
@@ -50,9 +53,15 @@ __all__ = [
     "SchemaData",
     "SimpleData",
     "SimpleField",
+    "XMLData",
 ]
 
 logger = logging.getLogger(__name__)
+
+
+def _copy_element(element: Element) -> Element:
+    serialized = config.etree.tostring(element, encoding="utf-8")
+    return config.etree.fromstring(serialized)
 
 
 class SimpleField(_XMLObject):
@@ -697,17 +706,93 @@ registry.register(
 )
 
 
-class ExtendedData(_XMLObject):
-    """Represents a list of untyped name/value pairs."""
+class XMLData(_XMLObject):
+    """Represents an arbitrary XML child inside ``ExtendedData``."""
 
-    _default_nsid = "kml"
-    elements: list[Data | SchemaData]
+    element: Element
 
     def __init__(
         self,
         ns: str | None = None,
         name_spaces: dict[str, str] | None = None,
-        elements: Iterable[Data | SchemaData] | None = None,
+        *,
+        element: Element,
+        **kwargs: Any,
+    ) -> None:
+        """Initialize an arbitrary XML wrapper for ``ExtendedData`` children."""
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            **kwargs,
+        )
+        self.element = _copy_element(element)
+
+    def __repr__(self) -> str:
+        """Return a string representation of the XMLData object."""
+        return (
+            f"{self.__class__.__module__}.{self.__class__.__name__}("
+            f"ns={self.ns!r}, "
+            f"name_spaces={self.name_spaces!r}, "
+            f"element={self.to_string(prettyprint=False)!r}, "
+            f"**{self._get_splat()!r},"
+            ")"
+        )
+
+    def __bool__(self) -> bool:
+        """Return True when the wrapped XML child exists."""
+        return True
+
+    def etree_element(
+        self,
+        precision: int | None = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> Element:
+        """Return a detached copy of the wrapped XML element."""
+        del precision
+        del verbosity
+        return _copy_element(self.element)
+
+    @classmethod
+    def class_from_element(
+        cls,
+        *,
+        ns: str,
+        name_spaces: dict[str, str] | None = None,
+        element: Element,
+        strict: bool,
+    ) -> "XMLData":
+        """Wrap an arbitrary XML child from parsed ``ExtendedData``."""
+        del ns
+        del strict
+        return cls(
+            name_spaces=name_spaces,
+            element=element,
+        )
+
+
+class ExtendedData(_XMLObject):
+    """Represents untyped, typed, and arbitrary XML ExtendedData children."""
+
+    _default_nsid = "kml"
+    elements: list[Data | SchemaData | XMLData]
+
+    @staticmethod
+    def _normalize_element(
+        element: Data | SchemaData | XMLData | Element,
+        name_spaces: dict[str, str] | None = None,
+    ) -> Data | SchemaData | XMLData:
+        if isinstance(element, (Data, SchemaData, XMLData)):
+            return element
+        return XMLData(
+            name_spaces=name_spaces,
+            element=element,
+        )
+
+    def __init__(
+        self,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        elements: Iterable[Data | SchemaData | XMLData | Element] | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -732,7 +817,15 @@ class ExtendedData(_XMLObject):
             name_spaces=name_spaces,
             **kwargs,
         )
-        self.elements = [e for e in elements if e] if elements else []
+        self.elements = []
+        if elements:
+            for element in elements:
+                normalized = self._normalize_element(
+                    element=element,
+                    name_spaces=name_spaces,
+                )
+                if normalized:
+                    self.elements.append(normalized)
 
     def __repr__(self) -> str:
         """
@@ -764,16 +857,84 @@ class ExtendedData(_XMLObject):
         """
         return bool(self.elements)
 
+    def populate_element(
+        self,
+        element: Element,
+        precision: int | None = None,
+        verbosity: Verbosity = Verbosity.normal,
+    ) -> None:
+        """Populate an ``ExtendedData`` element, preserving child order."""
+        for item in self.elements:
+            if isinstance(item, XMLData):
+                element.append(item.etree_element())
+                continue
+            child_element = config.etree.SubElement(
+                element,
+                f"{item.ns}{item.get_tag_name()}",
+            )
+            item.populate_element(
+                element=child_element,
+                precision=precision,
+                verbosity=verbosity,
+            )
+
+    @classmethod
+    def class_from_element(
+        cls,
+        *,
+        ns: str,
+        name_spaces: dict[str, str] | None = None,
+        element: Element,
+        strict: bool,
+    ) -> "ExtendedData":
+        """Create ``ExtendedData`` while preserving arbitrary child XML."""
+        items = []
+        for child in element.findall("*"):
+            if child.tag == f"{ns}{Data.get_tag_name()}":
+                items.append(
+                    Data.class_from_element(
+                        ns=ns,
+                        name_spaces=name_spaces,
+                        element=child,
+                        strict=strict,
+                    ),
+                )
+                continue
+            if child.tag == f"{ns}{SchemaData.get_tag_name()}":
+                items.append(
+                    SchemaData.class_from_element(
+                        ns=ns,
+                        name_spaces=name_spaces,
+                        element=child,
+                        strict=strict,
+                    ),
+                )
+                continue
+            items.append(
+                XMLData.class_from_element(
+                    ns=ns,
+                    name_spaces=name_spaces,
+                    element=child,
+                    strict=strict,
+                ),
+            )
+        return cls(
+            ns=ns,
+            name_spaces=name_spaces,
+            elements=items,
+        )
+
 
 registry.register(
     ExtendedData,
     RegistryItem(
         ns_ids=("kml", ""),
         attr_name="elements",
-        node_name="Data,SchemaData",
+        node_name="Data,SchemaData,XMLData",
         classes=(
             Data,
             SchemaData,
+            XMLData,
         ),
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
