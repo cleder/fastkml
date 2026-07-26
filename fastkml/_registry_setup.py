@@ -30,13 +30,14 @@ from fastkml.geometry import LineString
 from fastkml.geometry import MultiGeometry
 from fastkml.geometry import Point
 from fastkml.geometry import Polygon
-from fastkml.gx.data import SimpleArrayData
 from fastkml.gx.track import MultiTrack
 from fastkml.gx.track import Track
 from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.helpers import xml_subelement_list_kwarg_ordered
+from fastkml.links import Icon
 from fastkml.links import Link
 from fastkml.model import Alias
 from fastkml.model import Location
@@ -106,6 +107,7 @@ registry.register(
         classes=_create_classes,
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
+        custom_get_kwarg=xml_subelement_list_kwarg_ordered,
     ),
 )
 
@@ -129,6 +131,7 @@ registry.register(
         classes=_delete_classes,
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
+        custom_get_kwarg=xml_subelement_list_kwarg_ordered,
     ),
 )
 
@@ -184,22 +187,22 @@ _change_classes = (
     ResourceMap,
     Scale,
     # Links
+    Icon,
     Link,
     # Data
     Data,
     SchemaData,
-    # GX Data
-    SimpleArrayData,
 )
 _change_node_name = ",".join(cls.get_tag_name() for cls in _change_classes)
 registry.register(
     Change,
     RegistryItem(
-        ns_ids=("kml", ""),
+        ns_ids=("kml", "", "gx"),
         attr_name="objects",
         node_name=_change_node_name,
         classes=_change_classes,
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
+        custom_get_kwarg=xml_subelement_list_kwarg_ordered,
     ),
 )

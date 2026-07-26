@@ -1478,3 +1478,65 @@ def xml_subelement_list_multi_ns_kwarg(
                     ],
                 )
     return {kwarg: args_list} if args_list else {}
+
+
+def xml_subelement_list_kwarg_ordered(
+    *,
+    element: Element,
+    ns_ids: tuple[str, ...],
+    name_spaces: dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: tuple[type[object], ...],
+    strict: bool,
+) -> dict[str, list["_XMLObject"]]:
+    """
+    Return subelements in document order, matched across namespaces.
+
+    Unlike ``xml_subelement_list_kwarg``/``xml_subelement_list_multi_ns_kwarg``,
+    which group results by class (i.e. by ``classes`` registration order), this
+    walks the element's direct children once and matches each against every
+    registered class/namespace combination -- preserving the original document
+    order and correctly finding classes registered outside the primary
+    namespace (e.g. ``gx:*``). Use as a ``custom_get_kwarg`` wherever sibling
+    order among differently-typed children is semantically significant (KML's
+    ``Update``/``Create``/``Delete``/``Change`` all require this).
+
+    Args:
+    ----
+        element (Element): The XML element to search within.
+        ns_ids (Tuple[str, ...]): The namespace IDs of the XML element.
+        name_spaces (Dict[str, str]): A dictionary mapping namespace prefixes to URIs.
+        node_name (str): The name of the XML node to search for.
+        kwarg (str): The name of the keyword argument to store the found subelements.
+        classes (Tuple[Type[object], ...]): A tuple of classes that represent the types.
+        strict (bool): A flag indicating whether to enforce strict parsing rules.
+
+    Returns:
+    -------
+        Dict[str, List["_XMLObject"]]: A dictionary containing the specified keyword
+            argument and its list of subelements.
+
+    """
+    assert node_name is not None  # noqa: S101
+    assert name_spaces is not None  # noqa: S101
+    tag_to_ns_class: dict[str, tuple[str, type[_XMLObject]]] = {}
+    for name_space in ns_ids:
+        ns = name_spaces.get(name_space, "")
+        for obj_class in cast("tuple[type[_XMLObject], ...]", classes):
+            tag_to_ns_class[f"{ns}{obj_class.get_tag_name()}"] = (ns, obj_class)
+    args_list = []
+    for child in element:
+        match = tag_to_ns_class.get(child.tag)
+        if match is None:
+            continue
+        ns, obj_class = match
+        args_list.append(
+            obj_class.class_from_element(
+                ns=ns,
+                name_spaces=name_spaces,
+                element=child,
+                strict=strict,
+            ),
+        )
+    return {kwarg: args_list} if args_list else {}

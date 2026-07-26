@@ -47,6 +47,11 @@ class TestLxml(Lxml):
         any KML object: this fixture's ``Update > Change`` contains a ``TimeSpan``,
         which previously wasn't in ``Change``'s registered classes and was silently
         dropped on parse (and thus missing entirely from the round-tripped output).
+
+        It dropped again, from 97 to 96, once ``Update.operations`` started
+        parsing ``Delete``/``Create``/``Change`` in document order instead of
+        registration order: this fixture's ``Update`` lists ``Delete`` before
+        ``Create``, which the old code silently swapped on every round-trip.
         """
         clean_doc = KMLFILEDIR / "Document-clean.kml"
         expected = clean_doc.read_bytes()
@@ -54,7 +59,7 @@ class TestLxml(Lxml):
         doc = fastkml.kml.KML.parse(clean_doc)
         diff = xmldiff(doc.to_string(), expected)
 
-        assert len(diff) == 97, diff
+        assert len(diff) == 96, diff
         assert fastkml.validator.validate(file_to_validate=clean_doc)
         assert fastkml.validator.validate(element=doc.etree_element())
 
