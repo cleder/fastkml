@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.opengis.net/kml/2.2 http://schemas.opengis.net/kml/2.2.0/ogckml22.xsd">
+<?xml version='1.0' encoding='UTF-8'?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/kml/2.2 http://schemas.opengis.net/kml/2.2.0/ogckml22.xsd">
   <Document>
     <name>KML Samples</name>
     <open>1</open>
@@ -144,7 +143,7 @@
       <Placemark>
         <name>Extruded placemark</name>
         <visibility>0</visibility>
-        <description>Tethered to the ground by a customizable &quot;tail&quot;</description>
+        <description>Tethered to the ground by a customizable "tail"</description>
         <LookAt>
           <longitude>-122.0845787421525</longitude>
           <latitude>37.42215078737763</latitude>

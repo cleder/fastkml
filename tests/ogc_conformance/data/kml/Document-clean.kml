@@ -1,8 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2"
-  xmlns:atom="http://www.w3.org/2005/Atom"
-  xmlns:xal="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0"
-  hint="A processing hint for a KML consumer">
+<?xml version='1.0' encoding='UTF-8'?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:xal="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0" hint="A processing hint for a KML consumer">
     <NetworkLinkControl>
       <minRefreshPeriod>43200</minRefreshPeriod>
       <maxSessionLength>-1</maxSessionLength>
@@ -15,7 +12,7 @@
       <Update>
         <targetHref>http://barcelona.galdos.local/svn1/sqa/ets-kml/main/test/data/ogc-kml/files/ge_.kmz</targetHref>
         <Delete>
-          <PhotoOverlay targetId="id_550e8400-e29b-41d4-a716-446655440000" />
+          <PhotoOverlay targetId="id_550e8400-e29b-41d4-a716-446655440000"/>
         </Delete>
         <Create>
           <Folder targetId="Folder-001">
@@ -76,9 +73,7 @@
 			<atom:author>
 				<atom:name>Phineas Fogg</atom:name>
 			</atom:author>
-			<atom:link href="http://en.wikipedia.org/wiki/General_Motors_Place"
-              rel="related" type="text/html" hreflang="en"
-              title="Wikipedia entry" />
+			<atom:link href="http://en.wikipedia.org/wiki/General_Motors_Place" rel="related" type="text/html" hreflang="en" title="Wikipedia entry"/>
       <xal:AddressDetails>
         <xal:Address Type="Postal">
         800 Griffiths Way, Vancouver, BC, Canada V6B 6G1
@@ -214,9 +209,7 @@
 		</Folder>
         <Placemark id="VFS">
           <name>Vancouver Film Studios</name>
-          <atom:link href="http://www.vancouverfilmstudios.com/"
-              rel="related" type="text/html" hreflang="en"
-              title="Welcome to Vancouver Film Studios" />
+          <atom:link href="http://www.vancouverfilmstudios.com/" rel="related" type="text/html" hreflang="en" title="Welcome to Vancouver Film Studios"/>
           <address>3500 Cornett Rd, Vancouver, BC, Canada</address>
           <description>
           Situated on nearly two city blocks of land just fifteen minutes from
@@ -322,9 +315,7 @@
         </Placemark>
         <Placemark id="VPL">
           <name>Vancouver Public Library</name>
-          <atom:link href="http://www.vpl.ca/"
-              rel="related" type="text/html" hreflang="en"
-              title="Vancouver Public Library - Home" />
+          <atom:link href="http://www.vpl.ca/" rel="related" type="text/html" hreflang="en" title="Vancouver Public Library - Home"/>
           <description>
           Funded by the City of Vancouver, Vancouver Public Library is the third
           largest public library system in Canada, with over 373,000 cardholders
@@ -358,10 +349,10 @@
           <Icon>
             <href>http://barcelona.galdos.local/svn1/sqa/ets-kml/main/test/data/ogc-kml/images/red-stars.png</href>
           </Icon>
-          <overlayXY x="0" y="1" xunits="fraction" yunits="fraction" />
-          <screenXY x="0" y="1" xunits="fraction" yunits="fraction" />
-          <rotationXY x="0" y="0" xunits="fraction" yunits="fraction" />
-          <size x="0" y="0" xunits="fraction" yunits="fraction" />
+          <overlayXY x="0" y="1" xunits="fraction" yunits="fraction"/>
+          <screenXY x="0" y="1" xunits="fraction" yunits="fraction"/>
+          <rotationXY x="0" y="0" xunits="fraction" yunits="fraction"/>
+          <size x="0" y="0" xunits="fraction" yunits="fraction"/>
         </ScreenOverlay>
         <PhotoOverlay>
           <Camera>
