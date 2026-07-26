@@ -212,6 +212,9 @@ class _UpdateAction(_XMLObject, Generic[T]):
             name_spaces=name_spaces,
             **kwargs,
         )
+        if objects is not None and not isinstance(objects, Iterable):
+            msg = f"objects must be an iterable, got {type(objects).__name__}"
+            raise TypeError(msg)
         self.objects = list(objects) if objects else []
 
     def __repr__(self) -> str:
