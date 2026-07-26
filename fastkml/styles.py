@@ -200,6 +200,7 @@ class _ColorStyle(_BaseObject):
         self,
         ns: str | None = None,
         name_spaces: dict[str, str] | None = None,
+        *,
         id: str | None = None,
         target_id: str | None = None,
         color: str | None = None,
@@ -289,6 +290,7 @@ class HotSpot(_XMLObject):
         self,
         ns: str | None = None,
         name_spaces: dict[str, str] | None = None,
+        *,
         x: float | None = None,
         y: float | None = None,
         xunits: Units | None = None,
@@ -426,6 +428,7 @@ class IconStyle(_ColorStyle):
         self,
         ns: str | None = None,
         name_spaces: dict[str, str] | None = None,
+        *,
         id: str | None = None,
         target_id: str | None = None,
         color: str | None = None,
@@ -583,6 +586,7 @@ class LineStyle(_ColorStyle):
         self,
         ns: str | None = None,
         name_spaces: dict[str, str] | None = None,
+        *,
         id: str | None = None,
         target_id: str | None = None,
         color: str | None = None,
@@ -687,6 +691,7 @@ class PolyStyle(_ColorStyle):
         self,
         ns: str | None = None,
         name_spaces: dict[str, str] | None = None,
+        *,
         id: str | None = None,
         target_id: str | None = None,
         color: str | None = None,
@@ -803,6 +808,7 @@ class LabelStyle(_ColorStyle):
         self,
         ns: str | None = None,
         name_spaces: dict[str, str] | None = None,
+        *,
         id: str | None = None,
         target_id: str | None = None,
         color: str | None = None,
@@ -946,6 +952,7 @@ class BalloonStyle(_BaseObject):
         self,
         ns: str | None = None,
         name_spaces: dict[str, str] | None = None,
+        *,
         id: str | None = None,
         target_id: str | None = None,
         bg_color: str | None = None,
@@ -1096,6 +1103,7 @@ class Style(_StyleSelector):
         self,
         ns: str | None = None,
         name_spaces: dict[str, str] | None = None,
+        *,
         id: str | None = None,
         target_id: str | None = None,
         styles: Iterable[AnyStyle] | None = None,
@@ -1180,12 +1188,13 @@ class Pair(_BaseObject):
     Defines a key/value pair that maps a mode (normal or highlight) to the predefined
     <styleUrl>.
     <Pair> contains two elements (both are required):
-        <key>, which identifies the key
-        <styleUrl> or <Style>, which references the style.
-        In <styleUrl>, for referenced style elements that are local to the KML document,
-        a simple # referencing is used.
-        For styles that are contained in external files, use a full URL along with
-        # referencing.
+
+    - <key>, which identifies the key
+    - <styleUrl> or <Style>, which references the style.
+      In <styleUrl>, for referenced style elements that are local to the KML document,
+      a simple # referencing is used.
+      For styles that are contained in external files, use a full URL along with
+      # referencing.
 
     https://developers.google.com/kml/documentation/kmlreference#stylemap
     """
@@ -1197,6 +1206,7 @@ class Pair(_BaseObject):
         self,
         ns: str | None = None,
         name_spaces: dict[str, str] | None = None,
+        *,
         id: str | None = None,
         target_id: str | None = None,
         key: PairKey | None = None,
@@ -1308,6 +1318,7 @@ class StyleMap(_StyleSelector):
         self,
         ns: str | None = None,
         name_spaces: dict[str, str] | None = None,
+        *,
         id: str | None = None,
         target_id: str | None = None,
         pairs: Iterable[Pair] | None = None,

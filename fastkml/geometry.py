@@ -1405,7 +1405,7 @@ def create_kml_geometry(
         extrude: Specifies whether to connect the feature to the ground with a line.
         tessellate: Specifies whether to allow the LineString to follow the terrain.
         altitude_mode: Specifies how altitude components in the <coordinates>
-                       element are interpreted.
+        element are interpreted.
 
     Returns:
     -------
@@ -1436,7 +1436,7 @@ def create_kml_geometry(
                 extrude=extrude,
                 tessellate=tessellate,
                 altitude_mode=altitude_mode,
-                geometry=geom,  # type: ignore[arg-type]
+                geometry=geom,  # type: ignore[arg-type]  # ty: ignore[invalid-argument-type]
             )
 
     _unknown_geometry_type(geometry)  # pragma: no cover

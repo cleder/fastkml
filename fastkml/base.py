@@ -145,9 +145,8 @@ class _XMLObject:
 
         - Create an XML Element with the object's tag name and namespace.
         - Iterate through registered attributes for the object's class.
-          For each attribute:
-            - Call the corresponding set_element function. This function adds the
-              attribute to the Element as a sub-element or attribute.
+          For each attribute, call the corresponding set_element function, which
+          adds the attribute to the Element as a sub-element or attribute.
         - Handle different data types and nested objects.
         - Apply precision and verbosity settings if specified.
         - Return the complete Element tree representing the object.

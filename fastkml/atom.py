@@ -92,6 +92,7 @@ class Link(_AtomObject):
         self,
         ns: str | None = None,
         name_spaces: dict[str, str] | None = None,
+        *,
         href: str | None = None,
         rel: str | None = None,
         type: str | None = None,  # noqa: A002
