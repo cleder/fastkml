@@ -1190,7 +1190,7 @@ class Pair(_BaseObject):
     <Pair> contains two elements (both are required):
 
     - <key>, which identifies the key
-    - <styleUrl> or <Style>, which references the style.
+    - <styleUrl>, <Style>, or a nested <StyleMap>, which references the style.
       In <styleUrl>, for referenced style elements that are local to the KML document,
       a simple # referencing is used.
       For styles that are contained in external files, use a full URL along with
@@ -1384,8 +1384,8 @@ class StyleMap(_StyleSelector):
 
         Returns
         -------
-            The highlight style, which can be either a StyleUrl or a Style object.
-            If no highlight style is found, None is returned.
+            The highlight style, which can be a StyleUrl, a Style, or a nested
+            StyleMap. If no highlight style is found, None is returned.
 
         """
         return next(

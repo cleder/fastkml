@@ -67,11 +67,13 @@ class TestLxml(Lxml):
 
     def test_document_places(self) -> None:
         """
-        Two simple Placemarks with a 0.00 altitude.
+        Two simple Placemarks with a bare "0" altitude (no decimal point).
 
-        fastkml's coordinate serializer always strips trailing zeros ("0.00" ->
-        "0"), so this can never be a byte-identical round trip regardless of the
-        `precision` passed to to_string() -- pinned as the (small) expected diff.
+        fastkml's coordinate serializer always emits at least one decimal digit
+        ("0" -> "0.0" by default, "0.00" here since this test passes
+        `precision=2`), so this can never be a byte-identical round trip
+        regardless of the `precision` passed to to_string() -- pinned as the
+        (small) expected diff.
         """
         places_doc = KMLFILEDIR / "Document-places.kml"
         expected = places_doc.read_bytes()

@@ -77,7 +77,24 @@ class TestLxml(Lxml):
         doc = fastkml.kml.KML.parse(fixture)
         diff = xmldiff(doc.to_string(), expected)
 
-        assert len(diff) == 5, diff
+        assert diff == [
+            *_NAMESPACE_ONLY_DIFF,
+            actions.InsertNode(
+                target="/*/*/*/*[2]/*[2]",
+                tag="{http://www.opengis.net/kml/2.2}Pair",
+                position=1,
+            ),
+            actions.InsertNode(
+                target="/*/*/*/*[2]/*[2]/*[2]",
+                tag="{http://www.opengis.net/kml/2.2}key",
+                position=0,
+            ),
+            actions.UpdateTextIn(
+                node="/*/*/*/*[2]/*[2]/*[2]/*[1]",
+                text="highlight",
+                oldtext=None,
+            ),
+        ]
         style_map = doc.features[0].styles[0]
         assert len(style_map.pairs) == 2
         assert style_map.pairs[1].key.value == "highlight"
