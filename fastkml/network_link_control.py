@@ -213,7 +213,7 @@ class _UpdateAction(_XMLObject, Generic[T]):
             **kwargs,
         )
         if objects is not None and not isinstance(objects, Iterable):
-            msg = f"objects must be an iterable, got {type(objects).__name__}"
+            msg = f"objects must be an iterable, got {type(objects).__name__}"  # type: ignore[unreachable]
             raise TypeError(msg)
         self.objects = list(objects) if objects else []
 
