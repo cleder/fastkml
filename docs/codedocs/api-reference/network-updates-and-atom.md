@@ -17,7 +17,7 @@ Source files:
 
 ## Update action classes
 
-```python
+```text
 Create(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, objects: Optional[Iterable[_XMLObject]] = None, **kwargs: Any) -> None
 Delete(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, objects: Optional[Iterable[_XMLObject]] = None, **kwargs: Any) -> None
 Change(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, objects: Optional[Iterable[_XMLObject]] = None, **kwargs: Any) -> None
@@ -29,7 +29,7 @@ Use these classes when you are producing KML meant to update data already loaded
 
 ## Atom metadata classes
 
-```python
+```text
 AtomLink(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, href: Optional[str] = None, rel: Optional[str] = None, type: Optional[str] = None, hreflang: Optional[str] = None, title: Optional[str] = None, length: Optional[int] = None, **kwargs: Any) -> None
 AtomAuthor(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, name: Optional[str] = None, uri: Optional[str] = None, email: Optional[str] = None, **kwargs: Any) -> None
 AtomContributor(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, name: Optional[str] = None, uri: Optional[str] = None, email: Optional[str] = None, **kwargs: Any) -> None
@@ -42,9 +42,9 @@ Example:
 ```python
 from fastkml import Change, NetworkLinkControl, Placemark, Update
 
-change = Change(objects=[Placemark(target_id="pm-123" name="Updated name")])
-update = Update(target_href="https://example.com/original.kml" operations=[change])
-control = NetworkLinkControl(message="Applying remote update" update=update)
+change = Change(objects=[Placemark(target_id="pm-123", name="Updated name")])
+update = Update(target_href="https://example.com/original.kml", operations=[change])
+control = NetworkLinkControl(message="Applying remote update", update=update)
 
 print(bool(control.update))
 ```

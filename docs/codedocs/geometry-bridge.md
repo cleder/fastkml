@@ -41,7 +41,7 @@ from fastkml import Placemark
 from pygeoif import LineString
 
 route = LineString([(13.4, 52.5, 0), (13.45, 52.51, 0), (13.5, 52.52, 0)])
-placemark = Placemark(name="Route" geometry=route)
+placemark = Placemark(name="Route", geometry=route)
 
 print(type(placemark.kml_geometry).__name__)
 print(placemark.geometry.wkt)

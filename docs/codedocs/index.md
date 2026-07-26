@@ -21,16 +21,16 @@ from fastkml import Document, KML, Placemark
 from pygeoif import Point
 
 k = KML()
-doc = Document(id="places" name="Example document")
-doc.append(Placemark(name="Warehouse" geometry=Point(-122.4, 37.78, 0)))
+doc = Document(id="places", name="Example document")
+doc.append(Placemark(name="Warehouse", geometry=Point(-122.4, 37.78, 0)))
 k.append(doc)
 
-print(k.to_string(prettyprint=True precision=3))
+print(k.to_string(prettyprint=True, precision=3))
 ```
 
 ## Installation
 
-" "conda"]}>
+<Tabs items={["pip", "uv", "poetry", "conda"]}>
 <Tab value="pip">
 
 ```bash
@@ -70,10 +70,10 @@ from fastkml import Document, Folder, KML, Placemark
 from pygeoif.geometry import Polygon
 
 k = KML()
-doc = Document(id="docid" name="doc name" description="doc description")
+doc = Document(id="docid", name="doc name", description="doc description")
 k.append(doc)
 
-folder = Folder(id="sites" name="Sites")
+folder = Folder(id="sites", name="Sites")
 doc.append(folder)
 
 polygon = Polygon([(0, 0, 0), (1, 1, 0), (1, 0, 1)])
@@ -86,7 +86,7 @@ folder.append(
     )
 )
 
-print(k.to_string(prettyprint=True precision=3))
+print(k.to_string(prettyprint=True, precision=3))
 ```
 
 Expected output:

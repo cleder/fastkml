@@ -14,7 +14,7 @@ from fastkml.features import Placemark
 from pygeoif.geometry import Polygon
 
 polygon = Polygon([(0, 0, 0), (1, 1, 0), (1, 0, 1)])
-placemark = Placemark(name="Protected area" geometry=polygon)
+placemark = Placemark(name="Protected area", geometry=polygon)
 ```
 
 </Step>
@@ -28,8 +28,10 @@ from fastkml.enums import ColorMode
 style = Style(
     id="zone-style",
     styles=[
-        LineStyle(color="55FF0000" width=2),
-        PolyStyle(color="8800FF00", color_mode=ColorMode.normal fill=True outline=True),
+        LineStyle(color="55FF0000", width=2),
+        PolyStyle(
+            color="8800FF00", color_mode=ColorMode.normal, fill=True, outline=True
+        ),
     ],
 )
 placemark.style_url = StyleUrl(url="#zone-style")
@@ -42,9 +44,9 @@ placemark.style_url = StyleUrl(url="#zone-style")
 ```python
 from fastkml import Document, KML
 
-doc = Document(id="zones" styles=[style] features=[placemark])
+doc = Document(id="zones", styles=[style], features=[placemark])
 k = KML(features=[doc])
-print(k.to_string(prettyprint=True precision=3))
+print(k.to_string(prettyprint=True, precision=3))
 ```
 
 </Step>
@@ -69,14 +71,20 @@ kml_geometry = create_kml_geometry(
 style = Style(
     id="footprint-style",
     styles=[
-        LineStyle(color="55FF8800" width=3),
-        PolyStyle(color="6600AAFF", color_mode=ColorMode.normal fill=True outline=True),
+        LineStyle(color="55FF8800", width=3),
+        PolyStyle(
+            color="6600AAFF", color_mode=ColorMode.normal, fill=True, outline=True
+        ),
     ],
 )
 
-placemark = Placemark(name="Facility footprint", kml_geometry=kml_geometry, style_url=StyleUrl(url="#footprint-style"))
-doc = Document(id="facilities" styles=[style] features=[placemark])
-print(KML(features=[doc]).to_string(prettyprint=True precision=3))
+placemark = Placemark(
+    name="Facility footprint",
+    kml_geometry=kml_geometry,
+    style_url=StyleUrl(url="#footprint-style"),
+)
+doc = Document(id="facilities", styles=[style], features=[placemark])
+print(KML(features=[doc]).to_string(prettyprint=True, precision=3))
 ```
 
 This pattern mirrors the `examples/shp2kml.py` example from the source repository, where application geometry is converted once and then styled centrally. Prefer document-level shared styles over large numbers of inline styles when many features share the same visual treatment.

@@ -49,14 +49,25 @@ print(k.to_string(prettyprint=True))
 
 ```python
 from fastkml import Document, KML
-from fastkml.helpers import text_subelement, subelement_text_kwarg, xml_subelement_list, xml_subelement_list_kwarg
+from fastkml.helpers import (
+    text_subelement,
+    subelement_text_kwarg,
+    xml_subelement_list,
+    xml_subelement_list_kwarg,
+)
 from fastkml.kml_base import _BaseObject
 from fastkml.registry import RegistryItem, registry
 
+
 class AuditTag(_BaseObject):
-    def __init__(self ns=None, name_spaces=None id=None, target_id=None label=None, **kwargs):
-        super().__init__(ns=ns, name_spaces=name_spaces id=id, target_id=target_id, **kwargs)
+    def __init__(
+        self, ns=None, name_spaces=None, id=None, target_id=None, label=None, **kwargs
+    ):
+        super().__init__(
+            ns=ns, name_spaces=name_spaces, id=id, target_id=target_id, **kwargs
+        )
         self.label = label
+
 
 registry.register(
     AuditTag,
@@ -81,7 +92,9 @@ registry.register(
     ),
 )
 
-k = KML.from_string('<kml xmlns="http://www.opengis.net/kml/2.2"><Document><AuditTag><name>verified</name></AuditTag></Document></kml>')
+k = KML.from_string(
+    '<kml xmlns="http://www.opengis.net/kml/2.2"><Document><AuditTag><name>verified</name></AuditTag></Document></kml>'
+)
 print(k.features[0].audit_tags[0].label)
 ```
 

@@ -6,7 +6,16 @@ description: "Reference for Google extension namespace classes including gx trac
 Import paths:
 
 ```python
-from fastkml.gx import Angle, MultiTrack, SimpleArrayData, SimpleArrayField, Track, TrackItem, track_items_to_geometry, tracks_to_geometry
+from fastkml.gx import (
+    Angle,
+    MultiTrack,
+    SimpleArrayData,
+    SimpleArrayField,
+    Track,
+    TrackItem,
+    track_items_to_geometry,
+    tracks_to_geometry,
+)
 ```
 
 Source files:
@@ -17,14 +26,14 @@ Source files:
 
 ## Array metadata
 
-```python
+```text
 SimpleArrayField(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, name: Optional[str] = None, type_: Optional[DataType] = None, display_name: Optional[str] = None, **kwargs: Any) -> None
 SimpleArrayData(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, id: Optional[str] = None, target_id: Optional[str] = None, name: Optional[str] = None, data: Optional[Iterable[str]] = None, **kwargs: Any) -> None
 ```
 
 ## Track classes
 
-```python
+```text
 class Angle:
     @property
     def coords(self) -> PointType
@@ -64,7 +73,7 @@ MultiTrack(
 
 Public properties and functions:
 
-```python
+```text
 Track.geometry -> Optional[geo.LineString]
 Track.whens -> tuple[KmlDateTime, ...]
 Track.coords -> tuple[PointType, ...]
@@ -83,8 +92,8 @@ from fastkml.gx import Track
 
 track = Track(
     whens=[
-        KmlDateTime(datetime(2025, 5, 7, 10, 0 tzinfo=timezone.utc)),
-        KmlDateTime(datetime(2025, 5, 7, 10, 5 tzinfo=timezone.utc)),
+        KmlDateTime(datetime(2025, 5, 7, 10, 0, tzinfo=timezone.utc)),
+        KmlDateTime(datetime(2025, 5, 7, 10, 5, tzinfo=timezone.utc)),
     ],
     coords=[(13.4, 52.5, 0), (13.41, 52.51, 0)],
     angles=[(0.0, 0.0, 0.0), (5.0, 0.0, 0.0)],

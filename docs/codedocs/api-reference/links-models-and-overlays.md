@@ -6,7 +6,22 @@ description: "Reference for linked resources, 3D model helpers, and the overlay 
 Import paths:
 
 ```python
-from fastkml import GroundOverlay, Icon, ImagePyramid, LatLonBox, Link, Model, OverlayXY, PhotoOverlay, RotationXY, Scale, ScreenOverlay, ScreenXY, Size, ViewVolume
+from fastkml import (
+    GroundOverlay,
+    Icon,
+    ImagePyramid,
+    LatLonBox,
+    Link,
+    Model,
+    OverlayXY,
+    PhotoOverlay,
+    RotationXY,
+    Scale,
+    ScreenOverlay,
+    ScreenXY,
+    Size,
+    ViewVolume,
+)
 from fastkml.model import Alias, Location, Orientation, ResourceMap
 ```
 
@@ -18,7 +33,7 @@ Source files:
 
 ## Resource links
 
-```python
+```text
 Link(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, id: Optional[str] = None, target_id: Optional[str] = None, href: Optional[str] = None, refresh_mode: Optional[RefreshMode] = None, refresh_interval: Optional[float] = None, view_refresh_mode: Optional[ViewRefreshMode] = None, view_refresh_time: Optional[float] = None, view_bound_scale: Optional[float] = None, view_format: Optional[str] = None, http_query: Optional[str] = None, **kwargs: Any) -> None
 Icon(...) -> None
 ```
@@ -27,7 +42,7 @@ Icon(...) -> None
 
 ## Model helpers
 
-```python
+```text
 Location(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, id: Optional[str] = None, target_id: Optional[str] = None, altitude: Optional[float] = None, latitude: Optional[float] = None, longitude: Optional[float] = None, **kwargs: Any) -> None
 Orientation(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, id: Optional[str] = None, target_id: Optional[str] = None, heading: Optional[float] = None, tilt: Optional[float] = None, roll: Optional[float] = None, **kwargs: Any) -> None
 Scale(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, id: Optional[str] = None, target_id: Optional[str] = None, x: Optional[float] = None, y: Optional[float] = None, z: Optional[float] = None, **kwargs: Any) -> None
@@ -38,14 +53,14 @@ Model(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, id
 
 Public property:
 
-```python
+```text
 Location.geometry -> Optional[Point]
 Model.geometry -> Optional[Point]
 ```
 
 ## Overlay family
 
-```python
+```text
 ViewVolume(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, id: Optional[str] = None, target_id: Optional[str] = None, left_fov: Optional[float] = None, right_fov: Optional[float] = None, bottom_fov: Optional[float] = None, top_fov: Optional[float] = None, near: Optional[float] = None, **kwargs: Any) -> None
 ImagePyramid(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, id: Optional[str] = None, target_id: Optional[str] = None, tile_size: Optional[int] = None, max_width: Optional[int] = None, max_height: Optional[int] = None, grid_origin: Optional[GridOrigin] = None, **kwargs: Any) -> None
 LatLonBox(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, id: Optional[str] = None, target_id: Optional[str] = None, north: Optional[float] = None, south: Optional[float] = None, east: Optional[float] = None, west: Optional[float] = None, rotation: Optional[float] = None, **kwargs: Any) -> None
@@ -67,10 +82,10 @@ from fastkml.model import Location
 overlay = GroundOverlay(
     name="Weather radar",
     icon=Icon(href="https://example.com/radar.png"),
-    lat_lon_box=LatLonBox(north=51.0 south=49.0 east=9.0 west=7.0),
+    lat_lon_box=LatLonBox(north=51.0, south=49.0, east=9.0, west=7.0),
 )
 model = Model(
-    location=Location(latitude=47.37 longitude=8.54 altitude=500),
+    location=Location(latitude=47.37, longitude=8.54, altitude=500),
     link=Link(href="https://example.com/asset.dae"),
 )
 

@@ -28,8 +28,8 @@ placemark = Placemark(
     geometry=Point(7.1, 50.7, 0),
     extended_data=ExtendedData(
         elements=[
-            Data(name="asset_id" value="SS-14"),
-            Data(name="owner" value="Grid Ops"),
+            Data(name="asset_id", value="SS-14"),
+            Data(name="owner", value="Grid Ops"),
         ]
     ),
 )
@@ -40,7 +40,15 @@ print(placemark.extended_data.elements[0].name)
 ## Advanced Usage
 
 ```python
-from fastkml import Document, ExtendedData, Placemark, Schema, SchemaData, SimpleData, SimpleField
+from fastkml import (
+    Document,
+    ExtendedData,
+    Placemark,
+    Schema,
+    SchemaData,
+    SimpleData,
+    SimpleField,
+)
 from fastkml.enums import DataType
 from fastkml.gx import SimpleArrayData, SimpleArrayField
 from pygeoif import Point
@@ -65,18 +73,18 @@ placemark = Placemark(
             SchemaData(
                 schema_url="#asset-schema",
                 data=[
-                    SimpleData(name="voltage" value="110"),
-                    SimpleData(name="status" value="active"),
+                    SimpleData(name="voltage", value="110"),
+                    SimpleData(name="status", value="active"),
                 ],
                 array_data=[
-                    SimpleArrayData(name="reading" data=["10.3", "10.7", "10.5"]),
+                    SimpleArrayData(name="reading", data=["10.3", "10.7", "10.5"]),
                 ],
             )
         ]
     ),
 )
 
-doc = Document(id="assets" schemata=[schema] features=[placemark])
+doc = Document(id="assets", schemata=[schema], features=[placemark])
 print(doc.schemata[0].id)
 ```
 

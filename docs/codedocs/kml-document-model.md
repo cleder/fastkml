@@ -39,9 +39,9 @@ from fastkml import Document, Folder, KML, Placemark
 from pygeoif import Point
 
 k = KML()
-doc = Document(id="ops" name="Operations")
+doc = Document(id="ops", name="Operations")
 folder = Folder(name="Depots")
-folder.append(Placemark(name="North depot" geometry=Point(-0.12, 51.5, 0)))
+folder.append(Placemark(name="North depot", geometry=Point(-0.12, 51.5, 0)))
 doc.append(folder)
 k.append(doc)
 
@@ -57,18 +57,28 @@ from fastkml.styles import IconStyle, Pair
 from fastkml.enums import PairKey
 from pygeoif import Point
 
-normal = Style(id="normal-style" styles=[IconStyle(icon_href="https://example.com/a.png")])
-highlight = Style(id="highlight-style" styles=[IconStyle(icon_href="https://example.com/b.png")])
+normal = Style(
+    id="normal-style", styles=[IconStyle(icon_href="https://example.com/a.png")]
+)
+highlight = Style(
+    id="highlight-style", styles=[IconStyle(icon_href="https://example.com/b.png")]
+)
 style_map = StyleMap(
     id="depot-style",
     pairs=[
-        Pair(key=PairKey.normal style=StyleUrl(url="#normal-style")),
-        Pair(key=PairKey.highlight style=StyleUrl(url="#highlight-style")),
+        Pair(key=PairKey.normal, style=StyleUrl(url="#normal-style")),
+        Pair(key=PairKey.highlight, style=StyleUrl(url="#highlight-style")),
     ],
 )
 
-doc = Document(id="styled-doc" styles=[normal, highlight, style_map])
-doc.append(Placemark(name="Styled depot" geometry=Point(-3.19, 55.95, 0), style_url=StyleUrl(url="#depot-style")))
+doc = Document(id="styled-doc", styles=[normal, highlight, style_map])
+doc.append(
+    Placemark(
+        name="Styled depot",
+        geometry=Point(-3.19, 55.95, 0),
+        style_url=StyleUrl(url="#depot-style"),
+    )
+)
 
 resolved = doc.get_style_by_url("#depot-style")
 print(type(resolved).__name__)

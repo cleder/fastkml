@@ -6,14 +6,24 @@ description: "Reference for coordinate wrappers, geometry classes, and geometry 
 Import paths:
 
 ```python
-from fastkml import Coordinates, InnerBoundaryIs, LinearRing, LineString, MultiGeometry, OuterBoundaryIs, Point, Polygon, create_kml_geometry
+from fastkml import (
+    Coordinates,
+    InnerBoundaryIs,
+    LinearRing,
+    LineString,
+    MultiGeometry,
+    OuterBoundaryIs,
+    Point,
+    Polygon,
+    create_kml_geometry,
+)
 ```
 
 Source file: `fastkml/geometry.py`
 
 ## Exported classes
 
-```python
+```text
 class Coordinates(_XMLObject)
 class Point(_Geometry)
 class LineString(_Geometry)
@@ -26,7 +36,7 @@ class MultiGeometry(_BaseObject)
 
 Exact constructor signatures:
 
-```python
+```text
 Coordinates(*, ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, coords: Optional[LineType] = None, **kwargs: Any) -> None
 Point(*, ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, id: Optional[str] = None, target_id: Optional[str] = None, extrude: Optional[bool] = None, altitude_mode: Optional[AltitudeMode] = None, geometry: Optional[geo.Point] = None, kml_coordinates: Optional[Coordinates] = None, **kwargs: Any) -> None
 LineString(*, ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, id: Optional[str] = None, target_id: Optional[str] = None, extrude: Optional[bool] = None, tessellate: Optional[bool] = None, altitude_mode: Optional[AltitudeMode] = None, geometry: Optional[geo.LineString] = None, kml_coordinates: Optional[Coordinates] = None, **kwargs: Any) -> None
@@ -39,7 +49,7 @@ MultiGeometry(*, ns: Optional[str] = None, name_spaces: Optional[dict[str, str]]
 
 Common public properties:
 
-```python
+```text
 Point.geometry -> Optional[geo.Point]
 LineString.geometry -> Optional[geo.LineString]
 LinearRing.geometry -> Optional[geo.LinearRing]
@@ -51,7 +61,7 @@ MultiGeometry.geometry -> Optional[MultiGeometryType]
 
 Helper functions:
 
-```python
+```text
 def create_kml_geometry(
     geometry: Union[GeoType, GeoCollectionType],
     *,
@@ -71,7 +81,9 @@ Example:
 from fastkml.geometry import MultiGeometry, create_kml_geometry
 from pygeoif import GeometryCollection, Point, Polygon
 
-collection = GeometryCollection([Point(8.5, 47.3, 0), Polygon([(8.5, 47.3, 0), (8.6, 47.4, 0), (8.7, 47.3, 0)])])
+collection = GeometryCollection(
+    [Point(8.5, 47.3, 0), Polygon([(8.5, 47.3, 0), (8.6, 47.4, 0), (8.7, 47.3, 0)])]
+)
 kml_geometry = create_kml_geometry(collection)
 
 assert isinstance(kml_geometry, MultiGeometry)

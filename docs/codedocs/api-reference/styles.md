@@ -6,14 +6,25 @@ description: "Reference for URLs, style selectors, color styles, and style maps.
 Import paths:
 
 ```python
-from fastkml import BalloonStyle, HotSpot, IconStyle, LabelStyle, LineStyle, Pair, PolyStyle, Style, StyleMap, StyleUrl
+from fastkml import (
+    BalloonStyle,
+    HotSpot,
+    IconStyle,
+    LabelStyle,
+    LineStyle,
+    Pair,
+    PolyStyle,
+    Style,
+    StyleMap,
+    StyleUrl,
+)
 ```
 
 Source file: `fastkml/styles.py`
 
 ## Exported classes and signatures
 
-```python
+```text
 StyleUrl(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, url: Optional[str] = None, **kwargs: Any) -> None
 HotSpot(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, x: Optional[float] = None, y: Optional[float] = None, xunits: Optional[Units] = None, yunits: Optional[Units] = None, **kwargs: Any) -> None
 IconStyle(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, id: Optional[str] = None, target_id: Optional[str] = None, color: Optional[str] = None, color_mode: Optional[ColorMode] = None, scale: Optional[float] = None, heading: Optional[float] = None, icon: Optional[Icon] = None, icon_href: Optional[str] = None, hot_spot: Optional[HotSpot] = None, **kwargs: Any) -> None
@@ -28,7 +39,7 @@ StyleMap(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None,
 
 Public convenience properties:
 
-```python
+```text
 IconStyle.icon_href -> Optional[str]
 StyleMap.normal -> Optional[Union[StyleUrl, Style]]
 StyleMap.highlight -> Optional[Union[StyleUrl, Style]]
@@ -53,17 +64,23 @@ from fastkml.styles import IconStyle, Pair, Style, StyleMap, StyleUrl
 from fastkml.enums import PairKey
 from pygeoif import Point
 
-normal = Style(id="normal" styles=[IconStyle(icon_href="https://example.com/normal.png")])
-highlight = Style(id="highlight" styles=[IconStyle(icon_href="https://example.com/highlight.png")])
+normal = Style(
+    id="normal", styles=[IconStyle(icon_href="https://example.com/normal.png")]
+)
+highlight = Style(
+    id="highlight", styles=[IconStyle(icon_href="https://example.com/highlight.png")]
+)
 style_map = StyleMap(
     id="place-style",
     pairs=[
-        Pair(key=PairKey.normal style=StyleUrl(url="#normal")),
-        Pair(key=PairKey.highlight style=StyleUrl(url="#highlight")),
+        Pair(key=PairKey.normal, style=StyleUrl(url="#normal")),
+        Pair(key=PairKey.highlight, style=StyleUrl(url="#highlight")),
     ],
 )
-placemark = Placemark(name="Depot" geometry=Point(1, 2, 0), style_url=StyleUrl(url="#place-style"))
-doc = Document(styles=[normal, highlight, style_map] features=[placemark])
+placemark = Placemark(
+    name="Depot", geometry=Point(1, 2, 0), style_url=StyleUrl(url="#place-style")
+)
+doc = Document(styles=[normal, highlight, style_map], features=[placemark])
 print(doc.get_style_by_url("#place-style").normal.url)
 ```
 

@@ -17,7 +17,7 @@ Source files:
 
 ## Exported classes and signatures
 
-```python
+```text
 SimpleField(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, name: Optional[str] = None, type_: Optional[DataType] = None, display_name: Optional[str] = None, **kwargs: Any) -> None
 Schema(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, id: Optional[str] = None, name: Optional[str] = None, fields: Optional[Iterable[SimpleField]] = None, array_fields: Optional[Iterable[SimpleArrayField]] = None, **kwargs: Any) -> None
 Data(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, id: Optional[str] = None, target_id: Optional[str] = None, name: Optional[str] = None, value: Optional[str] = None, display_name: Optional[str] = None, **kwargs: Any) -> None
@@ -30,7 +30,7 @@ SimpleArrayData(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] 
 
 Public methods:
 
-```python
+```text
 Schema.append(self, field: Union[SimpleField, SimpleArrayField]) -> None
 SchemaData.append_data(self, data: Union[SimpleData, SimpleArrayData]) -> None
 ```
@@ -49,8 +49,8 @@ from fastkml.gx import SimpleArrayData
 
 schema_data = SchemaData(
     schema_url="#asset-schema",
-    data=[SimpleData(name="status" value="active")],
-    array_data=[SimpleArrayData(name="reading" data=["10.2", "10.8"])],
+    data=[SimpleData(name="status", value="active")],
+    array_data=[SimpleArrayData(name="reading", data=["10.2", "10.8"])],
 )
 extended = ExtendedData(elements=[schema_data])
 print(extended.elements[0].schema_url)

@@ -13,11 +13,16 @@ description: "Register custom XML elements and parse nonstandard KML structures 
 from fastkml import config
 from fastkml.kml_base import _BaseObject
 
+
 class CascadingStyle(_BaseObject):
     _default_nsid = config.GX
 
-    def __init__(self ns=None, name_spaces=None id=None, target_id=None style=None, **kwargs):
-        super().__init__(ns=ns, name_spaces=name_spaces id=id, target_id=target_id, **kwargs)
+    def __init__(
+        self, ns=None, name_spaces=None, id=None, target_id=None, style=None, **kwargs
+    ):
+        super().__init__(
+            ns=ns, name_spaces=name_spaces, id=id, target_id=target_id, **kwargs
+        )
         self.style = style
 ```
 
@@ -76,7 +81,7 @@ from fastkml.utils import find
 
 # Registrations from the steps above must run first.
 
-k = KML.parse("examples/gx_cascading_style.kml" validate=False)
+k = KML.parse("examples/gx_cascading_style.kml", validate=False)
 document = find(k, of_type=Document)
 
 for cascading_style in document.gx_cascading_style:

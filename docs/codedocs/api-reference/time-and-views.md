@@ -17,7 +17,7 @@ Source files:
 
 ## Signatures
 
-```python
+```text
 adjust_date_to_resolution(dt: Union[date, datetime], resolution: Optional[DateTimeResolution] = None) -> Union[date, datetime]
 KmlDateTime(dt: Union[date, datetime], resolution: Optional[DateTimeResolution] = None) -> None
 TimeStamp(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, id: Optional[str] = None, target_id: Optional[str] = None, timestamp: Optional[KmlDateTime] = None, **kwargs: Any) -> None
@@ -31,7 +31,7 @@ Region(ns: Optional[str] = None, name_spaces: Optional[dict[str, str]] = None, i
 
 Public methods and properties:
 
-```python
+```text
 KmlDateTime.parse(cls, datestr: str) -> Optional[KmlDateTime]
 KmlDateTime.get_ns_id(cls) -> str
 str(KmlDateTime) -> KML datetime string
@@ -44,10 +44,14 @@ from datetime import datetime, timezone
 from fastkml import Camera, KmlDateTime, TimeStamp
 from fastkml.views import LatLonAltBox, Lod, Region
 
-stamp = TimeStamp(timestamp=KmlDateTime(datetime(2025, 5, 7, 10, 0 tzinfo=timezone.utc)))
-camera = Camera(longitude=13.4 latitude=52.5 altitude=500 heading=15 tilt=45 roll=0)
+stamp = TimeStamp(
+    timestamp=KmlDateTime(datetime(2025, 5, 7, 10, 0, tzinfo=timezone.utc))
+)
+camera = Camera(
+    longitude=13.4, latitude=52.5, altitude=500, heading=15, tilt=45, roll=0
+)
 region = Region(
-    lat_lon_alt_box=LatLonAltBox(north=52.6 south=52.4 east=13.5 west=13.2),
+    lat_lon_alt_box=LatLonAltBox(north=52.6, south=52.4, east=13.5, west=13.2),
     lod=Lod(min_lod_pixels=256, max_lod_pixels=-1),
 )
 

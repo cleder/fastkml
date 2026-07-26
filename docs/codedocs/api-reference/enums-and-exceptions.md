@@ -6,8 +6,28 @@ description: "Reference for the public enumerations and exception types used acr
 Import paths:
 
 ```python
-from fastkml.enums import AltitudeMode, ColorMode, DataType, DateTimeResolution, DisplayMode, GridOrigin, PairKey, RefreshMode, RelaxedEnum, Shape, Units, Verbosity, ViewRefreshMode
-from fastkml.exceptions import FastKMLError, GeometryError, KMLParseError, KMLSchemaError, KMLWriteError
+from fastkml.enums import (
+    AltitudeMode,
+    ColorMode,
+    DataType,
+    DateTimeResolution,
+    DisplayMode,
+    GridOrigin,
+    PairKey,
+    RefreshMode,
+    RelaxedEnum,
+    Shape,
+    Units,
+    Verbosity,
+    ViewRefreshMode,
+)
+from fastkml.exceptions import (
+    FastKMLError,
+    GeometryError,
+    KMLParseError,
+    KMLSchemaError,
+    KMLWriteError,
+)
 ```
 
 Source files:
@@ -17,7 +37,7 @@ Source files:
 
 ## Enums
 
-```python
+```text
 Verbosity: terse, normal, verbose
 DateTimeResolution: datetime, date, year_month, year
 AltitudeMode: clamp_to_ground, relative_to_ground, absolute, clamp_to_sea_floor, relative_to_sea_floor
@@ -46,7 +66,7 @@ print(PairKey.highlight.value)
 
 ## Exceptions
 
-```python
+```text
 class FastKMLError(Exception)
 class KMLParseError(FastKMLError)
 class KMLWriteError(FastKMLError)

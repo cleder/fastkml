@@ -19,7 +19,7 @@ Source files:
 
 ## Utility functions
 
-```python
+```text
 has_attribute_values(obj: object, **kwargs: Any) -> bool
 find_all(
     obj: object,
@@ -39,7 +39,7 @@ find(
 
 ## Validation functions
 
-```python
+```text
 get_schema_parser(schema: Optional[pathlib.Path] = None) -> etree.XMLSchema
 validate(
     *,
@@ -53,7 +53,7 @@ validate(
 
 ## Configuration helpers
 
-```python
+```text
 set_etree_implementation(implementation: ModuleType) -> None
 register_namespaces(**namespaces: str) -> None
 set_default_namespaces() -> None
@@ -75,7 +75,9 @@ from fastkml import KML, Placemark
 from fastkml.utils import find_all
 from fastkml.validator import validate
 
-k = KML.from_string('<kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>A</name></Placemark></Document></kml>')
+k = KML.from_string(
+    '<kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>A</name></Placemark></Document></kml>'
+)
 placemarks = list(find_all(k, of_type=Placemark))
 print(len(placemarks))
 print(validate(element=k.etree_element()))

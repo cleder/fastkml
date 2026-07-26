@@ -16,7 +16,7 @@ Source files:
 
 ## `Snippet`
 
-```python
+```text
 class Snippet(_XMLObject):
     def __init__(
         self,
@@ -32,13 +32,13 @@ Use `Snippet` when you want the short label shown in viewers separate from the f
 
 ## `Folder`
 
-```python
+```text
 class Folder(_Container)
 ```
 
 `Folder` inherits the `_Container` constructor:
 
-```python
+```text
 def __init__(
     self,
     ns: Optional[str] = None,
@@ -67,13 +67,13 @@ def __init__(
 
 Public method:
 
-```python
+```text
 def append(self, kmlobj: _Feature) -> None
 ```
 
 ## `Document`
 
-```python
+```text
 class Document(_Container):
     def __init__(
         self,
@@ -104,13 +104,13 @@ class Document(_Container):
 
 Additional public method:
 
-```python
+```text
 def get_style_by_url(self, style_url: str) -> Optional[Union[Style, StyleMap]]
 ```
 
 ## `Placemark`
 
-```python
+```text
 class Placemark(_Feature):
     def __init__(
         self,
@@ -141,7 +141,7 @@ class Placemark(_Feature):
 
 Additional public property:
 
-```python
+```text
 @property
 def geometry(self) -> Optional[AnyGeometryType]
 ```
@@ -150,7 +150,7 @@ def geometry(self) -> Optional[AnyGeometryType]
 
 ## `NetworkLink`
 
-```python
+```text
 class NetworkLink(_Feature):
     def __init__(
         self,
@@ -190,9 +190,17 @@ from fastkml.links import Link
 from pygeoif import Point
 
 folder = Folder(name="Operational")
-folder.append(Placemark(name="HQ" geometry=Point(-122.4, 37.78, 0) snippet=Snippet(text="Primary site", max_lines=1)))
-folder.append(NetworkLink(name="Remote feed" link=Link(href="https://example.com/feed.kml")))
+folder.append(
+    Placemark(
+        name="HQ",
+        geometry=Point(-122.4, 37.78, 0),
+        snippet=Snippet(text="Primary site", max_lines=1),
+    )
+)
+folder.append(
+    NetworkLink(name="Remote feed", link=Link(href="https://example.com/feed.kml"))
+)
 
-doc = Document(id="doc" features=[folder])
+doc = Document(id="doc", features=[folder])
 print(doc.features[0].features[0].name)
 ```

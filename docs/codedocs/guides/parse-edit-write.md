@@ -14,7 +14,7 @@ from pathlib import Path
 from fastkml import KML
 
 source = Path("input.kml")
-k = KML.parse(source strict=True validate=False)
+k = KML.parse(source, strict=True, validate=False)
 
 print(type(k.features[0]).__name__)
 ```
@@ -27,7 +27,7 @@ print(type(k.features[0]).__name__)
 from fastkml import Placemark, StyleUrl
 from fastkml.utils import find
 
-placemark = find(k, of_type=Placemark name="Document Feature 2")
+placemark = find(k, of_type=Placemark, name="Document Feature 2")
 placemark.name = "Updated Feature"
 placemark.style_url = StyleUrl(url="#updated-style")
 ```
@@ -39,8 +39,8 @@ placemark.style_url = StyleUrl(url="#updated-style")
 ```python
 from pathlib import Path
 
-k.write(Path("output.kml") prettyprint=True precision=6)
-k.write(Path("output.kmz") prettyprint=True precision=6)
+k.write(Path("output.kml"), prettyprint=True, precision=6)
+k.write(Path("output.kmz"), prettyprint=True, precision=6)
 ```
 
 </Step>
@@ -54,9 +54,9 @@ from fastkml import KML, Placemark, StyleUrl
 from fastkml.utils import find
 
 source = Path("input.kml")
-k = KML.parse(source strict=True validate=False)
+k = KML.parse(source, strict=True, validate=False)
 
-target = find(k, of_type=Placemark name="Document Feature 2")
+target = find(k, of_type=Placemark, name="Document Feature 2")
 if target is None:
     raise RuntimeError("Placemark not found")
 
@@ -64,7 +64,7 @@ target.name = "Updated Feature"
 target.description = "Edited by maintenance job"
 target.style_url = StyleUrl(url="#updated-style")
 
-k.write(Path("output.kml") prettyprint=True precision=6)
+k.write(Path("output.kml"), prettyprint=True, precision=6)
 ```
 
 This flow is backed by `KML.parse()` and `KML.write()` in `fastkml/kml.py`. `parse()` handles namespace inference, optional schema validation, and object construction through `_XMLObject.class_from_element()`. `write()` serializes the same object graph and switches to ZIP output automatically when the target path ends in `.kmz`.

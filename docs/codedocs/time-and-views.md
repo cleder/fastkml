@@ -35,8 +35,10 @@ from datetime import datetime, timezone
 from fastkml import KmlDateTime, Placemark, TimeStamp
 from pygeoif import Point
 
-stamp = TimeStamp(timestamp=KmlDateTime(datetime(2025, 5, 1, 9, 30 tzinfo=timezone.utc)))
-placemark = Placemark(name="Inspection" geometry=Point(8.68, 50.11, 0) times=stamp)
+stamp = TimeStamp(
+    timestamp=KmlDateTime(datetime(2025, 5, 1, 9, 30, tzinfo=timezone.utc))
+)
+placemark = Placemark(name="Inspection", geometry=Point(8.68, 50.11, 0), times=stamp)
 
 print(str(placemark.times.timestamp))
 ```
@@ -49,18 +51,24 @@ from fastkml.views import LatLonAltBox, Lod
 from datetime import date
 
 region = Region(
-    lat_lon_alt_box=LatLonAltBox(north=52.6 south=52.4 east=13.5 west=13.2),
+    lat_lon_alt_box=LatLonAltBox(north=52.6, south=52.4, east=13.5, west=13.2),
     lod=Lod(min_lod_pixels=256, max_lod_pixels=-1),
 )
 
 doc = Document(
     name="Mission plan",
-    view=Camera(longitude=13.4 latitude=52.5 altitude=850 heading=25 tilt=60 roll=0),
-    times=TimeSpan(begin=KmlDateTime(date(2025, 5, 1)) end=KmlDateTime(date(2025, 5, 7))),
+    view=Camera(
+        longitude=13.4, latitude=52.5, altitude=850, heading=25, tilt=60, roll=0
+    ),
+    times=TimeSpan(
+        begin=KmlDateTime(date(2025, 5, 1)), end=KmlDateTime(date(2025, 5, 7))
+    ),
     region=region,
 )
 
-alternate = LookAt(longitude=13.4 latitude=52.5 altitude=0 heading=0 tilt=45 range=1200)
+alternate = LookAt(
+    longitude=13.4, latitude=52.5, altitude=0, heading=0, tilt=45, range=1200
+)
 print(type(doc.view).__name__)
 print(alternate.range)
 ```

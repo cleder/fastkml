@@ -18,8 +18,10 @@ schema = Schema(
     id="asset-schema",
     fields=[SimpleField(name="asset_id", type_=DataType.string)],
 )
-style = Style(id="asset-style" styles=[IconStyle(icon_href="https://example.com/icon.png")])
-doc = Document(id="assets" name="Asset inventory" schemata=[schema] styles=[style])
+style = Style(
+    id="asset-style", styles=[IconStyle(icon_href="https://example.com/icon.png")]
+)
+doc = Document(id="assets", name="Asset inventory", schemata=[schema], styles=[style])
 ```
 
 </Step>
@@ -43,7 +45,7 @@ doc.append(inspectors)
 from fastkml import KML
 
 k = KML(features=[doc])
-print(k.to_string(prettyprint=True precision=3))
+print(k.to_string(prettyprint=True, precision=3))
 ```
 
 </Step>
@@ -52,13 +54,30 @@ print(k.to_string(prettyprint=True precision=3))
 Complete example:
 
 ```python
-from fastkml import Data, Document, ExtendedData, Folder, KML, Placemark, Schema, SchemaData, SimpleData, SimpleField, Style, StyleUrl
+from fastkml import (
+    Data,
+    Document,
+    ExtendedData,
+    Folder,
+    KML,
+    Placemark,
+    Schema,
+    SchemaData,
+    SimpleData,
+    SimpleField,
+    Style,
+    StyleUrl,
+)
 from fastkml.enums import DataType
 from fastkml.styles import IconStyle
 from pygeoif import Point
 
-schema = Schema(id="asset-schema" fields=[SimpleField(name="asset_id", type_=DataType.string)])
-style = Style(id="asset-style" styles=[IconStyle(icon_href="https://example.com/icon.png")])
+schema = Schema(
+    id="asset-schema", fields=[SimpleField(name="asset_id", type_=DataType.string)]
+)
+style = Style(
+    id="asset-style", styles=[IconStyle(icon_href="https://example.com/icon.png")]
+)
 
 placemark = Placemark(
     name="North substation",
@@ -66,16 +85,25 @@ placemark = Placemark(
     style_url=StyleUrl(url="#asset-style"),
     extended_data=ExtendedData(
         elements=[
-            Data(name="owner" value="Grid Ops"),
-            SchemaData(schema_url="#asset-schema" data=[SimpleData(name="asset_id" value="SS-14")]),
+            Data(name="owner", value="Grid Ops"),
+            SchemaData(
+                schema_url="#asset-schema",
+                data=[SimpleData(name="asset_id", value="SS-14")],
+            ),
         ]
     ),
 )
 
-folder = Folder(name="Substations" features=[placemark])
-doc = Document(id="assets" name="Asset inventory" schemata=[schema] styles=[style] features=[folder])
+folder = Folder(name="Substations", features=[placemark])
+doc = Document(
+    id="assets",
+    name="Asset inventory",
+    schemata=[schema],
+    styles=[style],
+    features=[folder],
+)
 k = KML(features=[doc])
-print(k.to_string(prettyprint=True precision=3))
+print(k.to_string(prettyprint=True, precision=3))
 ```
 
 This pattern lines up with the KML structure in `fastkml/containers.py`, `fastkml/features.py`, `fastkml/styles.py`, and `fastkml/data.py`. It is also the safest way to use shared styles because `Document.get_style_by_url()` expects those styles to be document-local.

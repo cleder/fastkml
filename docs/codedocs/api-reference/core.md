@@ -20,7 +20,7 @@ Source files:
 
 Signature:
 
-```python
+```text
 class KML(_XMLObject):
     def __init__(
         self,
@@ -41,7 +41,7 @@ Constructor options:
 
 Public methods:
 
-```python
+```text
 def append(self, kmlobj: kml_children) -> None
 def etree_element(self, precision: Optional[int] = None, verbosity: Verbosity = Verbosity.normal) -> Element
 @classmethod
@@ -77,10 +77,10 @@ Example:
 from pathlib import Path
 from fastkml import Document, KML
 
-k = KML(features=[Document(id="doc" name="Demo")])
-k.write(Path("demo.kml") prettyprint=True)
+k = KML(features=[Document(id="doc", name="Demo")])
+k.write(Path("demo.kml"), prettyprint=True)
 
-parsed = KML.parse(Path("demo.kml") validate=False)
+parsed = KML.parse(Path("demo.kml"), validate=False)
 print(parsed.features[0].name)
 ```
 
@@ -88,7 +88,7 @@ print(parsed.features[0].name)
 
 Most exported classes in the library inherit these methods:
 
-```python
+```text
 def etree_element(self, precision: Optional[int] = None, verbosity: Verbosity = Verbosity.normal) -> Element
 def populate_element(self, element: Element, precision: Optional[int] = None, verbosity: Verbosity = Verbosity.normal) -> None
 def to_string(
@@ -124,7 +124,9 @@ Usage pattern:
 ```python
 from fastkml import KML
 
-k = KML.from_string('<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Demo</name></Document></kml>')
+k = KML.from_string(
+    '<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Demo</name></Document></kml>'
+)
 print(k.to_string(prettyprint=True))
 print(k.validate())
 ```
