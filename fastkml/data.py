@@ -21,6 +21,7 @@ https://developers.google.com/kml/documentation/extendeddata
 
 import copy
 import logging
+import sys
 from collections.abc import Iterable
 from typing import Any
 
@@ -63,15 +64,27 @@ logger = logging.getLogger(__name__)
 
 def _copy_element(element: Element) -> Element:
     """
-    Return a detached deep copy of an XML element.
+    Return a detached deep copy of an XML element, normalized to the active backend.
 
-    Uses ``copy.deepcopy`` rather than a serialize/re-parse round trip: the
-    latter re-parses the element in isolation with the default *strict*
-    parser regardless of the caller's ``strict`` setting, which turns
-    otherwise-tolerated malformed content (e.g. an unbound namespace prefix
-    parsed with ``strict=False``) into a hard crash.
+    Uses ``copy.deepcopy`` rather than a serialize/re-parse round trip for the
+    common case: the latter re-parses the element in isolation with the
+    default *strict* parser regardless of the caller's ``strict`` setting,
+    which turns otherwise-tolerated malformed content (e.g. an unbound
+    namespace prefix parsed with ``strict=False``) into a hard crash.
+
+    ``deepcopy`` can't convert between backends, though: if ``element`` was
+    built with a different etree implementation than the currently configured
+    ``config.etree`` (e.g. stdlib ``ElementTree`` while lxml is active), a
+    deep copy would still be of the foreign type and later fail to serialize
+    or attach to a same-backend parent. That combination requires an actual
+    conversion, so fall back to serialize (with the element's own backend,
+    since the active one can't serialize a foreign type either) and re-parse
+    (with the active backend) only then.
     """
-    return copy.deepcopy(element)
+    if isinstance(element, type(config.etree.Element("_"))):
+        return copy.deepcopy(element)
+    source_etree = sys.modules[type(element).__module__]  # type: ignore[unreachable]
+    return config.etree.fromstring(source_etree.tostring(element, encoding="utf-8"))
 
 
 class SimpleField(_XMLObject):

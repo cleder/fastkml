@@ -15,6 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test the gx classes."""
 
+import xml.etree.ElementTree as ET
+
 import pytest
 
 import fastkml
@@ -25,8 +27,12 @@ from fastkml.enums import DataType
 from fastkml.exceptions import KMLSchemaError
 from fastkml.exceptions import KMLWriteError
 from fastkml.registry import registry
+from tests.base import LXML
 from tests.base import Lxml
 from tests.base import StdLibrary
+
+if LXML:
+    import lxml.etree
 
 
 class TestStdLibrary(StdLibrary):
@@ -359,6 +365,27 @@ class TestStdLibrary(StdLibrary):
         assert isinstance(extended_data.elements[1], data.XMLData)
         assert extended_data.elements[1].element.tag == "{http://campsites.com}number"
         assert extended_data.elements[1].element.text == "14"
+
+    def test_extended_data_normalizes_cross_backend_element(self) -> None:
+        """A raw element built with a different backend than the active one works."""
+        if not LXML:
+            pytest.skip("lxml not installed")
+
+        foreign_module = lxml.etree if config.etree is ET else ET
+        foreign_element = foreign_module.fromstring(
+            '<camp:number xmlns:camp="urn:camp">14</camp:number>',
+        )
+
+        extended_data = kml.ExtendedData(
+            elements=[foreign_element],  # type: ignore[list-item]  # ty: ignore[invalid-argument-type]
+        )
+
+        assert isinstance(extended_data.elements[0], data.XMLData)
+        assert isinstance(
+            extended_data.elements[0].element,
+            type(config.etree.Element("x")),
+        )
+        assert "<" in extended_data.to_string()
 
     def test_extended_data_drops_none_entries(self) -> None:
         """A None entry in elements is silently dropped, not a crash."""
