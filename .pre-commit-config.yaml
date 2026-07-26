@@ -1,6 +1,6 @@
 ---
 ci:
-  skip: [pyprojectsort]
+  skip: [pyprojectsort, ty, pyrefly, pretty-format-json]
 default_language_version:
   python: python3.12
 repos:
@@ -25,7 +25,8 @@ repos:
         exclude: (?x)^(
                 tests/base.py|
                 tests/hypothesis/common.py|
-                tests/hypothesis/strategies.py
+                tests/hypothesis/strategies.py|
+                tests/ogc_conformance/_helpers.py
             )$
       - id: no-commit-to-branch
       - id: pretty-format-json

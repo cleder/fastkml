@@ -291,18 +291,23 @@ registry.register(
     KML,
     RegistryItem(
         ns_ids=("kml",),
+        # NetworkLinkControl must come first: xml_subelement_list_kwarg groups
+        # parsed children by class in this tuple's order rather than preserving
+        # document order, and the XSD's KmlType requires NetworkLinkControl
+        # (at most one) before the root feature (at most one) regardless of
+        # how they were ordered in the source document.
         classes=(
+            NetworkLinkControl,
             Document,
             Folder,
             Placemark,
             GroundOverlay,
             PhotoOverlay,
             NetworkLink,
-            NetworkLinkControl,
         ),
         node_name=(
-            "Document,Folder,Placemark,GroundOverlay,PhotoOverlay,NetworkLink,"
-            "NetworkLinkControl"
+            "NetworkLinkControl,Document,Folder,Placemark,GroundOverlay,"
+            "PhotoOverlay,NetworkLink"
         ),
         attr_name="features",
         get_kwarg=xml_subelement_list_kwarg,

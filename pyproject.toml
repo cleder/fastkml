@@ -73,6 +73,10 @@ linting = [
 ]
 lxml = [
     "lxml",
+    # xmldiff hard-requires lxml, so it lives here rather than in `tests` --
+    # `tests` alone must stay installable on PyPy/GraalPy/CPython-dev
+    # environments that don't have a prebuilt lxml wheel available.
+    "xmldiff",
 ]
 tests = [
     # 6.156+ has no cp315 wheel yet; unpin once hypothesis publishes one.
@@ -86,6 +90,7 @@ typing = [
     "lxml-stubs",
     "pyrefly",
     "ty",
+    "zuban",
 ]
 
 [project.readme]
@@ -144,7 +149,12 @@ ignore-missing-imports = ["*"]
 # which resolves it correctly) uses legacy `# type:` comments that pyrefly
 # misparses as literal `Ellipsis` values (e.g. `_Element.tag`/`.text`), so
 # pyrefly treats lxml as untyped instead.
-replace_imports_with_any = ["lxml.*"]
+# xmldiff's action types are plain collections.namedtuple(..., defaults=[...])
+# calls with no py.typed marker; pyrefly misreads their fields (e.g. flags a
+# real "oldtext" field on UpdateTextIn as unexpected, and types "prefix" on
+# InsertNamespace/DeleteNamespace as `str` instead of `str | None`). `ty`
+# handles the same calls correctly.
+replace_imports_with_any = ["lxml.*", "xmldiff.*"]
 
 [tool.pyrefly.errors]
 # Adding @override to ~80 call sites across nearly every module (__repr__,

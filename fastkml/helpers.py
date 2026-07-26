@@ -1112,8 +1112,14 @@ def attribute_float_kwarg(
 
 
 def _get_enum_value(*, enum_class: type[Enum], text: str, strict: bool) -> Enum:
-    value = enum_class(text)  # type: ignore[misc]
-    if strict and value.value != text:
+    # Some enum-typed attributes (e.g. SimpleField/@type) are XSD QNames and may
+    # arrive prefixed (e.g. "xsd:string"); the prefix carries no meaning fastkml
+    # needs, so strip it before the lookup. No registered enum's real values
+    # contain a colon, so this is safe for every other enum too.
+    _, _, local_name = text.rpartition(":")
+    local_name = local_name or text
+    value = enum_class(local_name)  # type: ignore[misc]
+    if strict and value.value != local_name:
         msg = f"Value {text} is not a valid value for Enum {enum_class.__name__}"
         raise ValueError(msg)
     return value

@@ -19,14 +19,47 @@ requirements, namely:
 * Minimal dependencies, pure Python.
 * If available, ``lxml`` will be used to increase its speed.
 
+Key Features
+------------
+
+* Full KML object tree with ``KML``, ``Document``, ``Folder``, ``Placemark``, overlays,
+  views, and styles.
+* Geometry adapters for ``Point``, ``LineString``, ``Polygon``, ``MultiGeometry``,
+  ``gx:Track``, and ``gx:MultiTrack``.
+* Typed extended data with ``Schema``, ``SchemaData``, ``Data``, and ``gx:SimpleArrayData``.
+* Namespace-aware parsing and serialization backed by a central registry.
+* XML schema validation helpers and recursive search helpers like ``find()`` and
+  ``find_all()``.
+* Support for Google extension elements through ``fastkml.gx``.
+
 .. toctree::
    :maxdepth: 2
+   :caption: User Guide
 
    quickstart
    create_kml_files
    working_with_kml
+   parse_edit_write
+   geometries_and_styles
+   build_rich_documents
    configuration
    upgrading
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Concepts & Architecture
+
+   architecture
+   kml_document_model
+   geometry_bridge
+   extended_data
+   registry_and_serialization
+   time_and_views
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Reference & Project Info
+
    fastkml
    contributing
    kml
