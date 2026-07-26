@@ -121,7 +121,7 @@ def find_all(
         yield obj
 
     for attr in get_all_attrs(obj):
-        yield from find_all(attr, of_type=of_type, **kwargs)
+        yield from find_all(attr, of_type=of_type, **kwargs)  # type: ignore[call-overload]
 
 
 @overload
@@ -165,4 +165,4 @@ def find(
         The first instance of the given type in the given object or None if not found.
 
     """
-    return next(find_all(obj, of_type=of_type, **kwargs), None)
+    return next(find_all(obj, of_type=of_type, **kwargs), None)  # type: ignore[call-overload]

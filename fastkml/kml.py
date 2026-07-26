@@ -173,7 +173,7 @@ class KML(_XMLObject):
             # namespace; lxml-stubs' `_NSMapArg` doesn't model this.
             root = config.etree.Element(
                 f"{self.ns}{self.get_tag_name()}",
-                nsmap={None: self.ns[1:-1]},  # ty: ignore[invalid-argument-type]
+                nsmap={None: self.ns[1:-1]},  # type: ignore[dict-item]  # ty: ignore[invalid-argument-type]
             )
         else:
             root = config.etree.Element(

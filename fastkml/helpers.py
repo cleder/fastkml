@@ -1112,7 +1112,7 @@ def attribute_float_kwarg(
 
 
 def _get_enum_value(*, enum_class: type[Enum], text: str, strict: bool) -> Enum:
-    value = enum_class(text)
+    value = enum_class(text)  # type: ignore[misc]
     if strict and value.value != text:
         msg = f"Value {text} is not a valid value for Enum {enum_class.__name__}"
         raise ValueError(msg)
@@ -1272,9 +1272,11 @@ def datetime_subelement_list_kwarg(
     cls = cast("type[KmlDateTime]", classes[0])
     if subelements := element.findall(f"{ns}{node_name}"):
         for subelement in subelements:
+            if not subelement.text:
+                continue
             try:
                 args_list.append(cls.parse(subelement.text))
-            except ValueError as exc:  # noqa: PERF203
+            except ValueError as exc:
                 handle_error(
                     error=exc,
                     strict=strict,
