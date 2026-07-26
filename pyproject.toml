@@ -215,6 +215,7 @@ select = [
     "INP001",
     "S311",
     "T201",
+    "CPY001",
 ]
 "fastkml/helpers.py" = [
     "ARG001",
