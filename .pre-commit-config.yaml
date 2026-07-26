@@ -1,6 +1,6 @@
 ---
 ci:
-  skip: [pyprojectsort]
+  skip: [pyprojectsort, ty, pyrefly, pretty-format-json]
 default_language_version:
   python: python3.12
 repos:
