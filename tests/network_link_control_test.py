@@ -22,6 +22,7 @@ from dateutil.tz import tzutc
 
 from fastkml import views
 from fastkml.containers import Folder
+from fastkml.enums import PairKey
 from fastkml.features import Placemark
 from fastkml.geometry import Coordinates
 from fastkml.geometry import Point
@@ -252,7 +253,7 @@ class TestStdLibrary(StdLibrary):
 
     def test_change_with_stylemap_roundtrip(self) -> None:
         """Test Change with a StyleMap object can round-trip."""
-        pair = Pair(key="normal", style_url="#style1")
+        pair = Pair(key=PairKey.normal, style_url="#style1")
         style_map = StyleMap(target_id="sm1", pairs=[pair])
         change = Change(objects=[style_map])
         update = Update(

@@ -16,7 +16,6 @@
 """Test gx Track and MultiTrack."""
 
 from collections.abc import Iterable
-from typing import Optional
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -87,11 +86,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_track_track_items(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        altitude_mode: Optional[fastkml.enums.AltitudeMode],
-        track_items: Optional[Iterable[fastkml.gx.TrackItem]],
-        extended_data: Optional[fastkml.ExtendedData],
+        id: str | None,
+        target_id: str | None,
+        altitude_mode: fastkml.enums.AltitudeMode | None,
+        track_items: Iterable[fastkml.gx.TrackItem] | None,
+        extended_data: fastkml.ExtendedData | None,
     ) -> None:
         track = fastkml.gx.Track(
             id=id,
@@ -129,11 +128,11 @@ class TestLxml(Lxml):
     )
     def test_fuzz_multi_track(
         self,
-        id: Optional[str],
-        target_id: Optional[str],
-        altitude_mode: Optional[fastkml.enums.AltitudeMode],
-        tracks: Optional[Iterable[fastkml.gx.Track]],
-        interpolate: Optional[bool],
+        id: str | None,
+        target_id: str | None,
+        altitude_mode: fastkml.enums.AltitudeMode | None,
+        tracks: Iterable[fastkml.gx.Track] | None,
+        interpolate: bool | None,
     ) -> None:
         multi_track = fastkml.gx.MultiTrack(
             id=id,

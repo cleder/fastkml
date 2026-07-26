@@ -16,7 +16,6 @@
 """Link and Icon elements."""
 
 from typing import Any
-from typing import Optional
 
 from fastkml.enums import RefreshMode
 from fastkml.enums import ViewRefreshMode
@@ -47,29 +46,30 @@ class Link(_BaseObject):
     https://developers.google.com/kml/documentation/kmlreference#link
     """
 
-    href: Optional[str]
-    refresh_mode: Optional[RefreshMode]
-    refresh_interval: Optional[float]
-    view_refresh_mode: Optional[ViewRefreshMode]
-    view_refresh_time: Optional[float]
-    view_bound_scale: Optional[float]
-    view_format: Optional[str]
-    http_query: Optional[str]
+    href: str | None
+    refresh_mode: RefreshMode | None
+    refresh_interval: float | None
+    view_refresh_mode: ViewRefreshMode | None
+    view_refresh_time: float | None
+    view_bound_scale: float | None
+    view_format: str | None
+    http_query: str | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        href: Optional[str] = None,
-        refresh_mode: Optional[RefreshMode] = None,
-        refresh_interval: Optional[float] = None,
-        view_refresh_mode: Optional[ViewRefreshMode] = None,
-        view_refresh_time: Optional[float] = None,
-        view_bound_scale: Optional[float] = None,
-        view_format: Optional[str] = None,
-        http_query: Optional[str] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        href: str | None = None,
+        refresh_mode: RefreshMode | None = None,
+        refresh_interval: float | None = None,
+        view_refresh_mode: ViewRefreshMode | None = None,
+        view_refresh_time: float | None = None,
+        view_bound_scale: float | None = None,
+        view_format: str | None = None,
+        http_query: str | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialize the KML Icon Object."""

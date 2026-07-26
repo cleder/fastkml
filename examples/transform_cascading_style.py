@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import pathlib
 from typing import Any
-from typing import Optional
 
 from fastkml import KML
 from fastkml import Document
@@ -31,16 +30,23 @@ class CascadingStyle(_BaseObject):
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        style: Optional[Style] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        style: Style | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialize the CascadingStyle object."""
         self.style = style
-        super().__init__(ns, name_spaces, id, target_id, **kwargs)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
 
 
 registry.register(
@@ -70,6 +76,9 @@ registry.register(
 
 cs_kml = KML.parse(examples_dir / "gx_cascading_style.kml", validate=False)
 document = find(cs_kml, of_type=Document)
+assert document is not None  # noqa: S101
+# gx_cascading_style is a dynamic attribute added to Document by the
+# registry.register() call above; Document's type doesn't declare it.
 for cascading_style in document.gx_cascading_style:
     kml_style = cascading_style.style
     kml_style.id = cascading_style.id

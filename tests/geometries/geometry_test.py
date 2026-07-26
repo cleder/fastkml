@@ -181,7 +181,8 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.from_string(doc)
 
-        assert len(g.geometry) == 2  # type: ignore[arg-type]
+        assert g.geometry is not None
+        assert len(g.geometry) == 2
 
     def test_multilinestring(self) -> None:
         doc = """
@@ -197,7 +198,8 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.from_string(doc)
 
-        assert len(g.geometry) == 2  # type: ignore[arg-type]
+        assert g.geometry is not None
+        assert len(g.geometry) == 2
 
     def test_multipolygon(self) -> None:
         doc = """
@@ -247,7 +249,8 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.from_string(doc)
 
-        assert len(g.geometry) == 2  # type: ignore[arg-type]
+        assert g.geometry is not None
+        assert len(g.geometry) == 2
 
     def test_geometrycollection(self) -> None:
         doc = """
@@ -273,7 +276,8 @@ class TestGetGeometry(StdLibrary):
 
         g = MultiGeometry.from_string(doc)
 
-        assert len(g.geometry) == 4  # type: ignore[arg-type]
+        assert g.geometry is not None
+        assert len(g.geometry) == 4
 
     def test_geometrycollection_with_linearring(self) -> None:
         doc = """
@@ -591,7 +595,7 @@ class TestCreateKmlGeometry(StdLibrary):
             AttributeError,
             match=r"^'str' object has no attribute '__geo_interface__'$",
         ):
-            create_kml_geometry("not a geometry")  # type: ignore[arg-type]
+            create_kml_geometry("not a geometry")  # type: ignore[arg-type]  # ty: ignore[invalid-argument-type]
 
 
 class TestGetGeometryLxml(Lxml, TestGetGeometry):

@@ -35,7 +35,6 @@ from collections.abc import Iterable
 from enum import Enum
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Optional
 from typing import cast
 
 from pygeoif.types import PointType
@@ -91,7 +90,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def clean_string(value: Optional[str]) -> Optional[str]:
+def clean_string(value: str | None) -> str | None:
     """Clean and validate a string value, returning None if empty."""
     return value.strip() or None if value else None
 
@@ -145,7 +144,7 @@ def handle_error(
 def get_ns(obj: "_XMLObject", value: object) -> str:
     """Get the namespace of an attribute, fall back on the objects namespace."""
     try:
-        return obj.name_spaces.get(value.get_ns_id(), "")  # type: ignore[attr-defined]
+        return obj.name_spaces.get(value.get_ns_id(), "")  # type: ignore[attr-defined]  # pyrefly: ignore  # ty: ignore[unresolved-attribute]
     except AttributeError:
         return obj.ns
 
@@ -155,8 +154,8 @@ def get_value(
     *,
     attr_name: str,
     verbosity: Verbosity,
-    default: Optional[Any],
-) -> Optional[Any]:
+    default: Any | None,
+) -> Any | None:
     """
     Get the value of an attribute from an object.
 
@@ -185,9 +184,9 @@ def node_text(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[str],
+    default: str | None,
 ) -> None:
     """
     Set the text of an XML element based on the attribute value in the given object.
@@ -230,9 +229,9 @@ def text_subelement(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[str],
+    default: str | None,
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -271,9 +270,9 @@ def text_subelement_kml(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[str],
+    default: str | None,
 ) -> None:
     """
     Set the value of an attribute from subelement with a text node in KML namespace.
@@ -312,9 +311,9 @@ def text_subelement_list(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[str],
+    default: str | None,
 ) -> None:
     """
     Set the value of an attribute from subelements with a text node.
@@ -354,9 +353,9 @@ def text_attribute(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[str],
+    default: str | None,
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -391,9 +390,9 @@ def bool_subelement(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[bool],
+    default: bool | None,
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -428,9 +427,9 @@ def int_subelement(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[int],
+    default: int | None,
 ) -> None:
     """
     Set the value of an attribute from a subelement with a text node.
@@ -465,9 +464,9 @@ def int_attribute(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[int],
+    default: int | None,
 ) -> None:
     """
     Set the value of an attribute.
@@ -498,9 +497,9 @@ def float_subelement(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[float],
+    default: float | None,
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
     value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
@@ -518,9 +517,9 @@ def float_attribute(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[float],
+    default: float | None,
 ) -> None:
     """Set the value of an attribute."""
     value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
@@ -534,9 +533,9 @@ def enum_subelement(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[Enum],
+    default: Enum | None,
 ) -> None:
     """Set the value of an attribute from a subelement with a text node."""
     value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
@@ -555,9 +554,9 @@ def enum_attribute(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[Enum],
+    default: Enum | None,
 ) -> None:
     """Set the value of an attribute."""
     value = get_value(obj, attr_name=attr_name, verbosity=verbosity, default=default)
@@ -571,9 +570,9 @@ def datetime_subelement(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[str],
+    default: str | None,
 ) -> None:
     """Create the subelement for a KML datetime values."""
     if value := get_value(
@@ -596,9 +595,9 @@ def datetime_subelement_list(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[str],
+    default: str | None,
 ) -> None:
     """Create the subelements for a list of KML datetime values."""
     if value := get_value(
@@ -622,9 +621,9 @@ def coords_subelement_list(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[str],
+    default: str | None,
 ) -> None:
     """Create the subelements for a list of KML coordinate values."""
     if value := get_value(
@@ -651,9 +650,9 @@ def xml_subelement(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional["_XMLObject"],
+    default: "_XMLObject | None",
 ) -> None:
     """
     Add a subelement to an XML element based on the value of an attribute of an object.
@@ -691,9 +690,9 @@ def xml_subelement_list(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
+    precision: int | None,
     verbosity: Verbosity,
-    default: Optional[list["_XMLObject"]],
+    default: list["_XMLObject"] | None,
 ) -> None:
     """
     Add subelements to an XML element based on a list attribute of an object.
@@ -1113,8 +1112,14 @@ def attribute_float_kwarg(
 
 
 def _get_enum_value(*, enum_class: type[Enum], text: str, strict: bool) -> Enum:
-    value = enum_class(text)
-    if strict and value.value != text:
+    # Some enum-typed attributes (e.g. SimpleField/@type) are XSD QNames and may
+    # arrive prefixed (e.g. "xsd:string"); the prefix carries no meaning fastkml
+    # needs, so strip it before the lookup. No registered enum's real values
+    # contain a colon, so this is safe for every other enum too.
+    _, _, local_name = text.rpartition(":")
+    local_name = local_name or text
+    value = enum_class(local_name)  # type: ignore[misc]
+    if strict and value.value != local_name:
         msg = f"Value {text} is not a valid value for Enum {enum_class.__name__}"
         raise ValueError(msg)
     return value
@@ -1239,14 +1244,14 @@ def datetime_subelement_kwarg(
     strict: bool,
 ) -> dict[str, "KmlDateTime"]:
     """Extract a KML datetime from a subelement of an XML element."""
-    cls = classes[0]
+    cls = cast("type[KmlDateTime]", classes[0])
     node = element.find(f"{ns}{node_name}")
     if node is None:
         return {}
     node_text = node.text.strip() if node.text else ""
     if node_text:
         try:
-            return {kwarg: cls.parse(node_text)}  # type: ignore[attr-defined]
+            return {kwarg: cls.parse(node_text)}
         except ValueError as exc:
             handle_error(
                 error=exc,
@@ -1270,14 +1275,14 @@ def datetime_subelement_list_kwarg(
 ) -> dict[str, list["KmlDateTime"]]:
     """Extract a list of KML datetime values from subelements of an XML element."""
     args_list: list[KmlDateTime] = []
-    cls = classes[0]
+    cls = cast("type[KmlDateTime]", classes[0])
     if subelements := element.findall(f"{ns}{node_name}"):
         for subelement in subelements:
+            if not subelement.text:
+                continue
             try:
-                args_list.append(
-                    cls.parse(subelement.text),  # type: ignore[attr-defined]
-                )
-            except ValueError as exc:  # noqa: PERF203
+                args_list.append(cls.parse(subelement.text))
+            except ValueError as exc:
                 handle_error(
                     error=exc,
                     strict=strict,
@@ -1357,13 +1362,13 @@ def xml_subelement_kwarg(
         of the specified keyword argument.
 
     """
-    for cls in classes:
+    for cls in cast("tuple[type[_XMLObject], ...]", classes):
         subelement = element.find(
-            f"{ns}{cls.get_tag_name()}",  # type: ignore[attr-defined]
+            f"{ns}{cls.get_tag_name()}",
         )
         if subelement is not None:
             return {
-                kwarg: cls.class_from_element(  # type: ignore[attr-defined]
+                kwarg: cls.class_from_element(
                     ns=ns,
                     name_spaces=name_spaces,
                     element=subelement,
@@ -1405,13 +1410,13 @@ def xml_subelement_list_kwarg(
     args_list = []
     assert node_name is not None  # noqa: S101
     assert name_spaces is not None  # noqa: S101
-    for obj_class in classes:
+    for obj_class in cast("tuple[type[_XMLObject], ...]", classes):
         if subelements := element.findall(
-            f"{ns}{obj_class.get_tag_name()}",  # type: ignore[attr-defined]
+            f"{ns}{obj_class.get_tag_name()}",
         ):
             args_list.extend(
                 [
-                    obj_class.class_from_element(  # type: ignore[attr-defined]
+                    obj_class.class_from_element(
                         ns=ns,
                         name_spaces=name_spaces,
                         element=subelement,
@@ -1457,13 +1462,13 @@ def xml_subelement_list_multi_ns_kwarg(
     assert name_spaces is not None  # noqa: S101
     for name_space in ns_ids:
         ns = name_spaces.get(name_space, "")
-        for obj_class in classes:
+        for obj_class in cast("tuple[type[_XMLObject], ...]", classes):
             if subelements := element.findall(
-                f"{ns}{obj_class.get_tag_name()}",  # type: ignore[attr-defined]
+                f"{ns}{obj_class.get_tag_name()}",
             ):
                 args_list.extend(
                     [
-                        obj_class.class_from_element(  # type: ignore[attr-defined]
+                        obj_class.class_from_element(
                             ns=ns,
                             name_spaces=name_spaces,
                             element=subelement,

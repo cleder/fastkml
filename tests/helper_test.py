@@ -15,8 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Test the helper functions edge cases."""
 
+from collections.abc import Callable
 from enum import Enum
-from typing import Callable
 from unittest.mock import Mock
 from unittest.mock import patch
 

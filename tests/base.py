@@ -21,7 +21,7 @@ import xml.etree.ElementTree as ET
 import pytest
 
 try:  # pragma: no cover
-    import lxml
+    import lxml.etree
 
     LXML = True
 except ImportError:  # pragma: no cover

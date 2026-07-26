@@ -1,7 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2"
-  xmlns:atom="http://www.w3.org/2005/Atom"
-  xmlns:xal="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0">
+<?xml version='1.0' encoding='UTF-8'?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:xal="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0">
   <Document id="doc-002">
     <name>Vestibulum eleifend lobortis lorem.</name>
     <Style id="style-001">
@@ -48,9 +46,7 @@
       <atom:author>
         <atom:name>Phineas Fogg</atom:name>
       </atom:author>
-      <atom:link href="http://en.wikipedia.org/wiki/General_Motors_Place"
-              rel="related" type="text/html" hreflang="en"
-              title="Wikipedia entry" />
+      <atom:link href="http://en.wikipedia.org/wiki/General_Motors_Place" rel="related" type="text/html" hreflang="en" title="Wikipedia entry"/>
       <xal:AddressDetails>
         <xal:Address Type="Postal">
         800 Griffiths Way, Vancouver, BC, Canada V6B 6G1

@@ -16,8 +16,6 @@
 """Mixins for the KML classes."""
 
 import logging
-from typing import Optional
-from typing import Union
 
 from fastkml.times import KmlDateTime
 from fastkml.times import TimeSpan
@@ -31,19 +29,19 @@ logger = logging.getLogger(__name__)
 class TimeMixin:
     """Mixin for classes that have a time element."""
 
-    times: Optional[Union[TimeSpan, TimeStamp]] = None
+    times: TimeSpan | TimeStamp | None = None
 
     @property
-    def time_stamp(self) -> Optional[KmlDateTime]:
+    def time_stamp(self) -> KmlDateTime | None:
         """Return the timestamp."""
         return self.times.timestamp if isinstance(self.times, TimeStamp) else None
 
     @property
-    def begin(self) -> Optional[KmlDateTime]:
+    def begin(self) -> KmlDateTime | None:
         """Return the start time of a time span."""
         return self.times.begin if isinstance(self.times, TimeSpan) else None
 
     @property
-    def end(self) -> Optional[KmlDateTime]:
+    def end(self) -> KmlDateTime | None:
         """Return the end time of a time span."""
         return self.times.end if isinstance(self.times, TimeSpan) else None

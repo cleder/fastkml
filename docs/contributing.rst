@@ -94,6 +94,42 @@ To build and preview the documentation locally:
 
 If you encounter issues, ensure you have Sphinx and the required extensions installed, and that your virtual environment is activated.
 
+Type Checking
+-------------
+
+fastkml is type-checked with `ty <https://github.com/astral-sh/ty>`_ and
+`pyrefly <https://pyrefly.org/>`_, not ``mypy``. Both are run in CI because they disagree
+with each other often enough that relying on just one gives a false sense of completeness;
+expect them to catch different subsets of the same bugs.
+
+A few gotchas worth knowing before you touch type annotations or the ``pyproject.toml``
+type-checker config:
+
+* ``# type: ignore[code]`` (mypy's bracketed suppression syntax) is not portable. ``ty``
+  only honors a bare ``# type: ignore`` and treats the bracketed form as inert noise;
+  ``pyrefly`` does honor it. Each tool also has its own dedicated syntax
+  (``# ty: ignore[rule-name]`` and ``# pyrefly: ignore[error-kind]``). Where a suppression
+  needs to satisfy both tools, keep the original mypy-style comment and append the
+  ``ty``-specific one on the same line rather than replacing it.
+* ``pyrefly``'s TOML configuration keys are ``snake_case`` (``replace_imports_with_any``)
+  even though its CLI flags are kebab-case (``--replace-imports-with-any``) and its
+  error-kind names (used as dict keys, e.g. under ``[tool.pyrefly.errors]``) are hyphenated
+  to match the CLI's rule-name spelling. There is no single consistent casing convention
+  across the config surface — after any config edit, run both ``pyrefly dump-config``
+  (catches structural/parse mistakes) and ``pyrefly check`` (catches behavioral ones), since
+  either can look clean while the other flags a problem.
+* A duck-typing ``Protocol`` used to abstract over an optional backend (e.g. ``lxml`` vs.
+  the stdlib ``xml.etree.ElementTree`` fallback) is not assignable to a concrete class
+  parameter, even when it is structurally compatible at every call site. Where internal code
+  needs the richer backend's real type, alias the ``Protocol`` to it under
+  ``TYPE_CHECKING`` and keep the structural ``Protocol`` only for the genuinely
+  backend-agnostic public API.
+
+Run ``ty check`` and ``pyrefly check`` locally the same way CI does before opening a pull
+request that touches type annotations, and re-run ``python -m pytest`` both with and without
+optional runtime dependencies (like ``lxml``) installed if you changed anything import- or
+typing-related in a module with a runtime fallback path.
+
 Code Guidelines
 ---------------
 

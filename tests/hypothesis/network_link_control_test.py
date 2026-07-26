@@ -15,9 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Hypothesis tests for the fastkml.network_link_control module."""
 
-from typing import Optional
-from typing import Union
-
 from hypothesis import given
 from hypothesis import strategies as st
 
@@ -95,15 +92,15 @@ class TestLxml(Lxml):
     )
     def test_fuzz_network_link_control(
         self,
-        min_refresh_period: Optional[float],
-        max_session_length: Optional[float],
-        cookie: Optional[str],
-        message: Optional[str],
-        link_name: Optional[str],
-        link_description: Optional[str],
-        link_snippet: Optional[str],
-        expires: Optional[fastkml.KmlDateTime],
-        view: Union[fastkml.Camera, fastkml.LookAt, None],
+        min_refresh_period: float | None,
+        max_session_length: float | None,
+        cookie: str | None,
+        message: str | None,
+        link_name: str | None,
+        link_description: str | None,
+        link_snippet: str | None,
+        expires: fastkml.KmlDateTime | None,
+        view: fastkml.Camera | fastkml.LookAt | None,
     ) -> None:
         nlc = fastkml.NetworkLinkControl(
             min_refresh_period=min_refresh_period,
@@ -149,7 +146,7 @@ class TestLxml(Lxml):
     def test_fuzz_update_with_change(
         self,
         target_href: str,
-        placemark_name: Optional[str],
+        placemark_name: str | None,
     ) -> None:
         placemark = fastkml.Placemark(
             id="pm1",
@@ -177,7 +174,7 @@ class TestLxml(Lxml):
     def test_fuzz_network_link_control_with_update(
         self,
         target_href: str,
-        placemark_name: Optional[str],
+        placemark_name: str | None,
     ) -> None:
         placemark = fastkml.Placemark(
             id="pm1",

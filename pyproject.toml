@@ -15,7 +15,6 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -41,7 +40,7 @@ dynamic = [
     "version",
 ]
 name = "fastkml"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 [project.license]
 text = "LGPL"
@@ -74,17 +73,24 @@ linting = [
 ]
 lxml = [
     "lxml",
+    # xmldiff hard-requires lxml, so it lives here rather than in `tests` --
+    # `tests` alone must stay installable on PyPy/GraalPy/CPython-dev
+    # environments that don't have a prebuilt lxml wheel available.
+    "xmldiff",
 ]
 tests = [
-    "hypothesis[dateutil]",
+    # 6.156+ has no cp315 wheel yet; unpin once hypothesis publishes one.
+    "hypothesis[dateutil]<6.156",
     "pytest",
     "pytest-cov",
     "pytz",
     "tzdata",
 ]
 typing = [
-    "mypy",
-    "types-python-dateutil",
+    "lxml-stubs",
+    "pyrefly",
+    "ty",
+    "zuban",
 ]
 
 [project.readme]
@@ -136,40 +142,43 @@ max_line_length = 89
 force_single_line = true
 line_length = 88
 
-[tool.mypy]
-disallow_any_generics = true
-disallow_incomplete_defs = true
-disallow_untyped_calls = true
-disallow_untyped_decorators = true
-disallow_untyped_defs = true
-enable_error_code = [
-    "ignore-without-code",
-]
-ignore_errors = false
-ignore_missing_imports = true
-implicit_reexport = false
-no_implicit_optional = true
-show_error_codes = true
-strict_equality = true
-strict_optional = true
-warn_no_return = true
-warn_redundant_casts = true
-warn_return_any = true
-warn_unreachable = true
-warn_unused_configs = true
-warn_unused_ignores = true
+[tool.pyrefly]
+preset = "strict"
+ignore-missing-imports = ["*"]
+# lxml has no py.typed/inline stubs; lxml-stubs (installed for `ty`'s benefit,
+# which resolves it correctly) uses legacy `# type:` comments that pyrefly
+# misparses as literal `Ellipsis` values (e.g. `_Element.tag`/`.text`), so
+# pyrefly treats lxml as untyped instead.
+# xmldiff's action types are plain collections.namedtuple(..., defaults=[...])
+# calls with no py.typed marker; pyrefly misreads their fields (e.g. flags a
+# real "oldtext" field on UpdateTextIn as unexpected, and types "prefix" on
+# InsertNamespace/DeleteNamespace as `str` instead of `str | None`). `ty`
+# handles the same calls correctly.
+replace_imports_with_any = ["lxml.*", "xmldiff.*"]
 
-[[tool.mypy.overrides]]
-disable_error_code = "attr-defined, union-attr"
-module = "tests.oldunit_test"
+[tool.pyrefly.errors]
+# Adding @override to ~80 call sites across nearly every module (__repr__,
+# __init__, get_tag_name, parse, ...) is pure ceremony for this codebase's
+# heavy, intentional use of inheritance; ty leaves this rule off by default.
+missing-override-decorator = "ignore"
 
-[[tool.mypy.overrides]]
-disable_error_code = "attr-defined, union-attr, no-untyped-def, no-untyped-call, arg-type"
-module = "examples.*"
+[[tool.pyrefly.sub-config]]
+matches = "tests/**/*"
 
-[[tool.mypy.overrides]]
-disable_error_code = "union-attr"
-module = "tests.*"
+[tool.pyrefly.sub-config.errors]
+# Tests routinely construct an object and immediately assert on a field
+# typed `X | None`/`A | B | None` without a narrowing check first; mirrors
+# the old mypy per-module `union-attr` override for tests.*.
+missing-attribute = "ignore"
+
+[[tool.pyrefly.sub-config]]
+matches = "examples/**/*"
+
+[tool.pyrefly.sub-config.errors]
+# Example scripts demonstrate walking a heterogeneous feature tree and the
+# registry's dynamic-attribute-injection extension pattern (see
+# transform_cascading_style.py); neither is expressible in the class stubs.
+missing-attribute = "ignore"
 
 [tool.pyright]
 exclude = [
@@ -216,6 +225,7 @@ select = [
     "INP001",
     "S311",
     "T201",
+    "CPY001",
 ]
 "fastkml/helpers.py" = [
     "ARG001",
@@ -227,9 +237,13 @@ select = [
     "D102",
     "D103",
     "D104",
+    "PLR0917",
     "PLR2004",
     "S101",
     "SLF001",
+]
+"tests/registry_test.py" = [
+    "ARG001",
 ]
 "tests/repr_eq_test.py" = [
     "E501",
@@ -266,3 +280,33 @@ include = [
     "fastkml/py.typed",
 ]
 namespaces = false
+
+[[tool.ty.overrides]]
+include = [
+    "examples/**",
+]
+
+[tool.ty.overrides.rules]
+unresolved-attribute = "ignore"
+
+[[tool.ty.overrides]]
+include = [
+    "tests/**",
+]
+
+[tool.ty.overrides.rules]
+# Same rationale as the pyrefly tests/**/* sub-config above.
+invalid-assignment = "ignore"
+unresolved-attribute = "ignore"
+
+[tool.ty.rules]
+# Promote checks ty leaves at "warn"/"ignore" by default, to match the
+# strictness previously provided by mypy's strict flags.
+missing-override-decorator = "ignore"
+missing-type-argument = "error"
+possibly-missing-attribute = "error"
+possibly-missing-import = "error"
+possibly-unresolved-reference = "error"
+redundant-cast = "error"
+unused-ignore-comment = "error"
+unused-type-ignore-comment = "error"

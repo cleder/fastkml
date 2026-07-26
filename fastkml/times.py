@@ -28,8 +28,6 @@ from datetime import date
 from datetime import datetime
 from datetime import timezone
 from typing import Any
-from typing import Optional
-from typing import Union
 
 import arrow
 
@@ -56,9 +54,9 @@ year_month_day = re.compile(
 
 
 def adjust_date_to_resolution(
-    dt: Union[date, datetime],
-    resolution: Optional[DateTimeResolution] = None,
-) -> Union[date, datetime]:
+    dt: date | datetime,
+    resolution: DateTimeResolution | None = None,
+) -> date | datetime:
     """
     Adjust the date or datetime to the specified resolution.
 
@@ -130,8 +128,8 @@ class KmlDateTime:
 
     def __init__(
         self,
-        dt: Union[date, datetime],
-        resolution: Optional[DateTimeResolution] = None,
+        dt: date | datetime,
+        resolution: DateTimeResolution | None = None,
     ) -> None:
         """
         Initialize a KmlDateTime object.
@@ -202,7 +200,7 @@ class KmlDateTime:
         return self.dt.isoformat()
 
     @classmethod
-    def parse(cls, datestr: str) -> Optional["KmlDateTime"]:
+    def parse(cls, datestr: str) -> "KmlDateTime":
         """Parse a KML DateTime string into a KmlDateTime object."""
         resolution = None
         dt = None
@@ -243,11 +241,12 @@ class TimeStamp(_TimePrimitive):
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        timestamp: Optional[KmlDateTime] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        timestamp: KmlDateTime | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -322,12 +321,13 @@ class TimeSpan(_TimePrimitive):
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        begin: Optional[KmlDateTime] = None,
-        end: Optional[KmlDateTime] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        begin: KmlDateTime | None = None,
+        end: KmlDateTime | None = None,
         **kwargs: Any,
     ) -> None:
         """

@@ -17,7 +17,6 @@
 
 import logging
 from typing import Any
-from typing import Optional
 
 from fastkml import config
 from fastkml.enums import AltitudeMode
@@ -46,24 +45,24 @@ class _AbstractView(TimeMixin, _BaseObject):
     This element is extended by the <Camera> and <LookAt> elements.
     """
 
-    longitude: Optional[float]
+    longitude: float | None
     # Longitude of the virtual camera (eye point). Angular distance in degrees,
     # relative to the Prime Meridian. Values west of the Meridian range from
     # -180 to 0 degrees. Values east of the Meridian range from 0 to 180 degrees.
 
-    latitude: Optional[float]
+    latitude: float | None
     # Latitude of the virtual camera. Degrees north or south of the Equator
     # (0 degrees). Values range from -90 degrees to 90 degrees.
 
-    altitude: Optional[float]
+    altitude: float | None
     # Distance of the camera from the earth's surface, in meters. Interpreted
     # according to the Camera's <altitudeMode> or <gx:altitudeMode>.
 
-    heading: Optional[float]
+    heading: float | None
     # Direction (azimuth) of the camera, in degrees. Default=0 (true North).
     # (See diagram.) Values range from 0 to 360 degrees.
 
-    tilt: Optional[float]
+    tilt: float | None
     # Rotation, in degrees, of the camera around the X axis. A value of 0
     # indicates that the view is aimed straight down toward the earth (the
     # most common case). A value for 90 for <tilt> indicates that the view
@@ -71,7 +70,7 @@ class _AbstractView(TimeMixin, _BaseObject):
     # view is pointed up into the sky. Values for <tilt> are clamped at +180
     # degrees.
 
-    altitude_mode: Optional[AltitudeMode]
+    altitude_mode: AltitudeMode | None
     # Specifies how the <altitude> specified for the Camera is interpreted.
     # Possible values are as follows:
     #   relativeToGround -
@@ -88,16 +87,17 @@ class _AbstractView(TimeMixin, _BaseObject):
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        longitude: Optional[float] = None,
-        latitude: Optional[float] = None,
-        altitude: Optional[float] = None,
-        heading: Optional[float] = None,
-        tilt: Optional[float] = None,
-        altitude_mode: Optional[AltitudeMode] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        longitude: float | None = None,
+        latitude: float | None = None,
+        altitude: float | None = None,
+        heading: float | None = None,
+        tilt: float | None = None,
+        altitude_mode: AltitudeMode | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -235,23 +235,24 @@ class Camera(_AbstractView):
     https://developers.google.com/kml/documentation/kmlreference#camera
     """
 
-    roll: Optional[float]
+    roll: float | None
     # Rotation, in degrees, of the camera around the Z axis. Values range from
     # -180 to +180 degrees.
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        longitude: Optional[float] = None,
-        latitude: Optional[float] = None,
-        altitude: Optional[float] = None,
-        heading: Optional[float] = None,
-        tilt: Optional[float] = None,
-        roll: Optional[float] = None,
-        altitude_mode: Optional[AltitudeMode] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        longitude: float | None = None,
+        latitude: float | None = None,
+        altitude: float | None = None,
+        heading: float | None = None,
+        tilt: float | None = None,
+        roll: float | None = None,
+        altitude_mode: AltitudeMode | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -349,23 +350,24 @@ class LookAt(_AbstractView):
     https://developers.google.com/kml/documentation/kmlreference#lookat
     """
 
-    range: Optional[float]
+    range: float | None
     # Distance in meters from the point specified by <longitude>, <latitude>,
     # and <altitude> to the LookAt position.
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        longitude: Optional[float] = None,
-        latitude: Optional[float] = None,
-        altitude: Optional[float] = None,
-        heading: Optional[float] = None,
-        tilt: Optional[float] = None,
-        range: Optional[float] = None,  # noqa: A002
-        altitude_mode: Optional[AltitudeMode] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        longitude: float | None = None,
+        latitude: float | None = None,
+        altitude: float | None = None,
+        heading: float | None = None,
+        tilt: float | None = None,
+        range: float | None = None,  # noqa: A002
+        altitude_mode: AltitudeMode | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -461,27 +463,28 @@ class LatLonAltBox(_BaseObject):
 
     _default_nsid = config.KML
 
-    north: Optional[float]
-    south: Optional[float]
-    east: Optional[float]
-    west: Optional[float]
-    min_altitude: Optional[float]
-    max_altitude: Optional[float]
-    altitude_mode: Optional[AltitudeMode]
+    north: float | None
+    south: float | None
+    east: float | None
+    west: float | None
+    min_altitude: float | None
+    max_altitude: float | None
+    altitude_mode: AltitudeMode | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        north: Optional[float] = None,
-        south: Optional[float] = None,
-        east: Optional[float] = None,
-        west: Optional[float] = None,
-        min_altitude: Optional[float] = None,
-        max_altitude: Optional[float] = None,
-        altitude_mode: Optional[AltitudeMode] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        north: float | None = None,
+        south: float | None = None,
+        east: float | None = None,
+        west: float | None = None,
+        min_altitude: float | None = None,
+        max_altitude: float | None = None,
+        altitude_mode: AltitudeMode | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -657,21 +660,22 @@ class Lod(_BaseObject):
 
     _default_nsid = config.KML
 
-    min_lod_pixels: Optional[int]
-    max_lod_pixels: Optional[int]
-    min_fade_extent: Optional[int]
-    max_fade_extent: Optional[int]
+    min_lod_pixels: int | None
+    max_lod_pixels: int | None
+    min_fade_extent: int | None
+    max_fade_extent: int | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        min_lod_pixels: Optional[int] = None,
-        max_lod_pixels: Optional[int] = None,
-        min_fade_extent: Optional[int] = None,
-        max_fade_extent: Optional[int] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        min_lod_pixels: int | None = None,
+        max_lod_pixels: int | None = None,
+        min_fade_extent: int | None = None,
+        max_fade_extent: int | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -797,17 +801,18 @@ class Region(_BaseObject):
     https://developers.google.com/kml/documentation/kmlreference#region
     """
 
-    lat_lon_alt_box: Optional[LatLonAltBox]
-    lod: Optional[Lod]
+    lat_lon_alt_box: LatLonAltBox | None
+    lod: Lod | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        lat_lon_alt_box: Optional[LatLonAltBox] = None,
-        lod: Optional[Lod] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        lat_lon_alt_box: LatLonAltBox | None = None,
+        lod: Lod | None = None,
         **kwargs: Any,
     ) -> None:
         """

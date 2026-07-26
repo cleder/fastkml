@@ -1,4 +1,6 @@
 ---
+ci:
+  skip: [pyprojectsort, ty, pyrefly, pretty-format-json]
 default_language_version:
   python: python3.12
 repos:
@@ -23,7 +25,8 @@ repos:
         exclude: (?x)^(
                 tests/base.py|
                 tests/hypothesis/common.py|
-                tests/hypothesis/strategies.py
+                tests/hypothesis/strategies.py|
+                tests/ogc_conformance/_helpers.py
             )$
       - id: no-commit-to-branch
       - id: pretty-format-json
@@ -42,7 +45,7 @@ repos:
     hooks:
       - id: absolufy-imports
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.15.12'
+    rev: 'v0.15.22'
     hooks:
       - id: ruff-check
       - id: ruff-format
@@ -62,11 +65,20 @@ repos:
     rev: "v1.0.2"
     hooks:
       - id: sphinx-lint
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.20.2
+  - repo: local
     hooks:
-      - id: mypy
-        additional_dependencies: [pygeoif>=1.4, arrow, pytest, hypothesis, types-python-dateutil]
+      - id: ty
+        name: ty
+        entry: ty check fastkml tests
+        language: system
+        types: [python]
+        pass_filenames: false
+      - id: pyrefly
+        name: pyrefly
+        entry: pyrefly check fastkml tests
+        language: system
+        types: [python]
+        pass_filenames: false
   - repo: https://github.com/adamchainz/blacken-docs
     rev: "1.20.0"
     hooks:

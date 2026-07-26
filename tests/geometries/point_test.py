@@ -160,7 +160,7 @@ class TestPoint(StdLibrary):
 
     def test_to_string_empty_geometry(self) -> None:
         """Test the to_string method."""
-        point = Point(geometry=geo.Point(None, None))  # type: ignore[arg-type]
+        point = Point(geometry=geo.Point(None, None))  # type: ignore[arg-type]  # ty: ignore[invalid-argument-type]
 
         assert not point
 

@@ -97,7 +97,7 @@ def _test_geometry_str_roundtrip(
     assert new_g.geometry
     assert geometry.geometry
     assert type(new_g.geometry) is cls
-    for g1, g2 in zip(new_g.kml_geometries, geometry.kml_geometries):
+    for g1, g2 in zip(new_g.kml_geometries, geometry.kml_geometries, strict=False):
         assert g1.extrude == g2.extrude == extrude
         assert g1.altitude_mode == g2.altitude_mode == altitude_mode
         if not isinstance(g1, fastkml.geometry.Point):
@@ -125,7 +125,7 @@ def _test_geometry_str_roundtrip_terse(
     assert new_g.geometry
     assert geometry.geometry
     assert type(new_g.geometry) is cls
-    for new, orig in zip(new_g.kml_geometries, geometry.kml_geometries):
+    for new, orig in zip(new_g.kml_geometries, geometry.kml_geometries, strict=False):
         if extrude:
             assert new.extrude == orig.extrude == extrude
         else:
@@ -162,7 +162,7 @@ def _test_geometry_str_roundtrip_verbose(
     assert new_g.geometry
     assert geometry.geometry
     assert type(new_g.geometry) is cls
-    for new, orig in zip(new_g.kml_geometries, geometry.kml_geometries):
+    for new, orig in zip(new_g.kml_geometries, geometry.kml_geometries, strict=False):
         if isinstance(new, fastkml.geometry.MultiGeometry):  # pragma: no cover
             continue  # pragma: no cover
         assert not isinstance(orig, fastkml.geometry.MultiGeometry)

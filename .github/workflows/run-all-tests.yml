@@ -9,12 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14', '3.15-dev']
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14', '3.15-dev']
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -29,11 +29,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -45,7 +45,7 @@ jobs:
           pytest tests --cov=fastkml --cov=tests --cov-fail-under=95 --cov-report=xml
       - name: "Upload coverage to Codecov"
         if: ${{ matrix.python-version==3.11 }}
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           fail_ci_if_error: true
           verbose: true
@@ -58,9 +58,9 @@ jobs:
         python-version: ['3.12']
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -86,9 +86,9 @@ jobs:
         python-version: ['3.12']
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -97,7 +97,9 @@ jobs:
           pip install -e ".[typing, complexity, linting, tests]"
       - name: Typecheck
         run: |
-          mypy fastkml tests
+          ty check fastkml tests
+          pyrefly check fastkml tests
+          zuban check fastkml
       - name: Linting
         run: |
           ruff check --no-fix fastkml tests examples docs
@@ -115,11 +117,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pypy-version: ['pypy-3.9', 'pypy-3.10', 'pypy-3.11']
+        pypy-version: ['pypy-3.10', 'pypy-3.11']
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Set up Python ${{ matrix.pypy-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.pypy-version }}
       - name: Install dependencies
@@ -136,9 +138,9 @@ jobs:
       matrix:
         graalpy-version: ['graalpy-24.1', 'graalpy-25.0']
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Set up Python ${{ matrix.graalpy-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.graalpy-version }}
       - name: Install dependencies
@@ -153,9 +155,9 @@ jobs:
     name: Build & inspect our package.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: hynek/build-and-inspect-python-package@v2
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - name: Check with pyroma

@@ -25,7 +25,6 @@ https://developers.google.com/kml/documentation/kmlreference#model
 
 from collections.abc import Iterable
 from typing import Any
-from typing import Optional
 
 from pygeoif.geometry import Point
 
@@ -55,19 +54,20 @@ class Location(_BaseObject):
 
     _default_nsid = config.KML
 
-    latitude: Optional[float]
-    longitude: Optional[float]
-    altitude: Optional[float]
+    latitude: float | None
+    longitude: float | None
+    altitude: float | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        altitude: Optional[float] = None,
-        latitude: Optional[float] = None,
-        longitude: Optional[float] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        altitude: float | None = None,
+        latitude: float | None = None,
+        longitude: float | None = None,
         **kwargs: Any,
     ) -> None:
         """Create a new Location."""
@@ -102,7 +102,7 @@ class Location(_BaseObject):
         )
 
     @property
-    def geometry(self) -> Optional[Point]:
+    def geometry(self) -> Point | None:
         """Return a Point representation of the geometry."""
         if not self:
             return None
@@ -152,19 +152,20 @@ class Orientation(_BaseObject):
 
     _default_nsid = config.KML
 
-    heading: Optional[float]
-    tilt: Optional[float]
-    roll: Optional[float]
+    heading: float | None
+    tilt: float | None
+    roll: float | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        heading: Optional[float] = None,
-        tilt: Optional[float] = None,
-        roll: Optional[float] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        heading: float | None = None,
+        tilt: float | None = None,
+        roll: float | None = None,
         **kwargs: Any,
     ) -> None:
         """Create a new Orientation."""
@@ -244,19 +245,20 @@ class Scale(_BaseObject):
 
     _default_nsid = config.KML
 
-    x: Optional[float]
-    y: Optional[float]
-    z: Optional[float]
+    x: float | None
+    y: float | None
+    z: float | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        x: Optional[float] = None,
-        y: Optional[float] = None,
-        z: Optional[float] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        x: float | None = None,
+        y: float | None = None,
+        z: float | None = None,
         **kwargs: Any,
     ) -> None:
         """Create a new Scale."""
@@ -334,17 +336,18 @@ class Alias(_BaseObject):
 
     _default_nsid = config.KML
 
-    target_href: Optional[str]
-    source_href: Optional[str]
+    target_href: str | None
+    source_href: str | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        target_href: Optional[str] = None,
-        source_href: Optional[str] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        target_href: str | None = None,
+        source_href: str | None = None,
         **kwargs: Any,
     ) -> None:
         """Create a new Alias."""
@@ -410,11 +413,12 @@ class ResourceMap(_BaseObject):
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        aliases: Optional[Iterable[Alias]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        aliases: Iterable[Alias] | None = None,
         **kwargs: Any,
     ) -> None:
         """Create a new ResourceMap."""
@@ -461,25 +465,26 @@ registry.register(
 class Model(_BaseObject):
     """Represents a model in KML."""
 
-    altitude_mode: Optional[AltitudeMode]
-    location: Optional[Location]
-    orientation: Optional[Orientation]
-    scale: Optional[Scale]
-    link: Optional[Link]
-    resource_map: Optional[ResourceMap]
+    altitude_mode: AltitudeMode | None
+    location: Location | None
+    orientation: Orientation | None
+    scale: Scale | None
+    link: Link | None
+    resource_map: ResourceMap | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        altitude_mode: Optional[AltitudeMode] = None,
-        location: Optional[Location] = None,
-        orientation: Optional[Orientation] = None,
-        scale: Optional[Scale] = None,
-        link: Optional[Link] = None,
-        resource_map: Optional[ResourceMap] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        altitude_mode: AltitudeMode | None = None,
+        location: Location | None = None,
+        orientation: Orientation | None = None,
+        scale: Scale | None = None,
+        link: Link | None = None,
+        resource_map: ResourceMap | None = None,
         **kwargs: Any,
     ) -> None:
         """Create a new Model."""
@@ -520,7 +525,7 @@ class Model(_BaseObject):
         )
 
     @property
-    def geometry(self) -> Optional[Point]:
+    def geometry(self) -> Point | None:
         """Return a Point representation of the geometry."""
         return self.location.geometry if self.location else None
 

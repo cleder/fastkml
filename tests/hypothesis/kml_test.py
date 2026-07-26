@@ -63,7 +63,7 @@ class TestLxml(Lxml):
         feature: fastkml.features._Feature,
     ) -> None:
         kml = fastkml.kml.KML(
-            features=[feature],  # type: ignore[list-item]
+            features=[feature],  # type: ignore[list-item]  # ty: ignore[invalid-argument-type]
         )
 
         assert_repr_roundtrip(kml)

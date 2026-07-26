@@ -19,6 +19,7 @@
 import logging
 import warnings
 from types import ModuleType
+from typing import TYPE_CHECKING
 from typing import Final
 
 __all__ = [
@@ -32,12 +33,17 @@ __all__ = [
     "set_etree_implementation",
 ]
 
-try:  # pragma: no cover
+if TYPE_CHECKING:
+    # Type checkers see lxml's own (permissive) stubs, since lxml is the
+    # preferred backend and its API is a superset of xml.etree.ElementTree's.
     from lxml import etree
+else:
+    try:  # pragma: no cover
+        from lxml import etree
 
-except ImportError:  # pragma: no cover
-    warnings.warn("Package `lxml` missing. Pretty print will be disabled")  # noqa: B028
-    import xml.etree.ElementTree as etree  # noqa: N813, ICN001
+    except ImportError:  # pragma: no cover
+        warnings.warn("Package `lxml` missing. Pretty print will be disabled")  # noqa: B028
+        import xml.etree.ElementTree as etree  # noqa: N813, ICN001
 
 
 logger = logging.getLogger(__name__)
@@ -46,7 +52,7 @@ logger = logging.getLogger(__name__)
 def set_etree_implementation(implementation: ModuleType) -> None:
     """Set the etree implementation to use."""
     global etree  # noqa: PLW0603
-    etree = implementation
+    etree = implementation  # type: ignore[assignment]  # ty: ignore[invalid-assignment]
 
 
 KML: Final = "kml"

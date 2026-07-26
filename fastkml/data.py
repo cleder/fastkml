@@ -22,8 +22,6 @@ https://developers.google.com/kml/documentation/extendeddata
 import logging
 from collections.abc import Iterable
 from typing import Any
-from typing import Optional
-from typing import Union
 
 from fastkml.base import _XMLObject
 from fastkml.enums import DataType
@@ -82,17 +80,17 @@ class SimpleField(_XMLObject):
 
     _default_nsid = "kml"
 
-    name: Optional[str]
-    type_: Optional[DataType]
-    display_name: Optional[str]
+    name: str | None
+    type_: DataType | None
+    display_name: str | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        name: Optional[str] = None,
-        type_: Optional[DataType] = None,
-        display_name: Optional[str] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        name: str | None = None,
+        type_: DataType | None = None,
+        display_name: str | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -202,18 +200,19 @@ class Schema(_XMLObject):
 
     _default_nsid = "kml"
 
-    name: Optional[str]
+    name: str | None
     fields: list[SimpleField]
     array_fields: list[SimpleArrayField]
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        name: Optional[str] = None,
-        fields: Optional[Iterable[SimpleField]] = None,
-        array_fields: Optional[Iterable[SimpleArrayField]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        name: str | None = None,
+        fields: Iterable[SimpleField] | None = None,
+        array_fields: Iterable[SimpleArrayField] | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -279,7 +278,7 @@ class Schema(_XMLObject):
             ")"
         )
 
-    def append(self, field: Union[SimpleField, SimpleArrayField]) -> None:
+    def append(self, field: SimpleField | SimpleArrayField) -> None:
         """
         Append a field to the schema.
 
@@ -344,19 +343,20 @@ registry.register(
 class Data(_BaseObject):
     """Represents an untyped name/value pair with optional display name."""
 
-    name: Optional[str]
-    value: Optional[str]
-    display_name: Optional[str]
+    name: str | None
+    value: str | None
+    display_name: str | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        name: Optional[str] = None,
-        value: Optional[str] = None,
-        display_name: Optional[str] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        name: str | None = None,
+        value: str | None = None,
+        display_name: str | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -472,15 +472,15 @@ class SimpleData(_XMLObject):
 
     _default_nsid = "kml"
 
-    name: Optional[str]
-    value: Optional[str]
+    name: str | None
+    value: str | None
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        name: Optional[str] = None,
-        value: Optional[str] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        name: str | None = None,
+        value: str | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -570,19 +570,20 @@ class SchemaData(_BaseObject):
     SchemaData element.
     """
 
-    schema_url: Optional[str]
+    schema_url: str | None
     data: list[SimpleData]
     array_data: list[SimpleArrayData]
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        id: Optional[str] = None,
-        target_id: Optional[str] = None,
-        schema_url: Optional[str] = None,
-        data: Optional[Iterable[SimpleData]] = None,
-        array_data: Optional[Iterable[SimpleArrayData]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        *,
+        id: str | None = None,
+        target_id: str | None = None,
+        schema_url: str | None = None,
+        data: Iterable[SimpleData] | None = None,
+        array_data: Iterable[SimpleArrayData] | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -644,7 +645,7 @@ class SchemaData(_BaseObject):
         """
         return (bool(self.data) or bool(self.array_data)) and bool(self.schema_url)
 
-    def append_data(self, data: Union[SimpleData, SimpleArrayData]) -> None:
+    def append_data(self, data: SimpleData | SimpleArrayData) -> None:
         """
         Append a data object to the SchemaData.
 
@@ -700,13 +701,13 @@ class ExtendedData(_XMLObject):
     """Represents a list of untyped name/value pairs."""
 
     _default_nsid = "kml"
-    elements: list[Union[Data, SchemaData]]
+    elements: list[Data | SchemaData]
 
     def __init__(
         self,
-        ns: Optional[str] = None,
-        name_spaces: Optional[dict[str, str]] = None,
-        elements: Optional[Iterable[Union[Data, SchemaData]]] = None,
+        ns: str | None = None,
+        name_spaces: dict[str, str] | None = None,
+        elements: Iterable[Data | SchemaData] | None = None,
         **kwargs: Any,
     ) -> None:
         """

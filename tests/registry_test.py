@@ -17,7 +17,6 @@
 
 from enum import Enum
 from typing import Any
-from typing import Optional
 
 from fastkml.base import _XMLObject
 from fastkml.enums import Verbosity
@@ -52,14 +51,14 @@ def set_element(
     element: Element,
     attr_name: str,
     node_name: str,
-    precision: Optional[int],
-    verbosity: Optional[Verbosity],
+    precision: int | None,
+    verbosity: Verbosity | None,
     default: Any,
 ) -> None:
     """Get an attribute from an XML object."""
 
 
-def get_kwarg(  # type: ignore[empty-body]
+def get_kwarg(
     *,
     element: Element,
     ns: str,
@@ -70,6 +69,7 @@ def get_kwarg(  # type: ignore[empty-body]
     strict: bool,
 ) -> dict[str, Any]:
     """Get the kwarg for the constructor from the element."""
+    return {}
 
 
 def test_registry_get_root() -> None:

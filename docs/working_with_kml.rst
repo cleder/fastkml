@@ -115,7 +115,13 @@ a supported element.
     ...         **kwargs: Any,
     ...     ) -> None:
     ...         self.style = style
-    ...         super().__init__(ns, name_spaces, id, target_id, **kwargs)
+    ...         super().__init__(
+    ...             ns=ns,
+    ...             name_spaces=name_spaces,
+    ...             id=id,
+    ...             target_id=target_id,
+    ...             **kwargs,
+    ...         )
     ...
 
 We need to register the attributes of the KML object to be able to parse it:

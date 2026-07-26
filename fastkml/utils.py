@@ -1,11 +1,28 @@
+# Copyright (C) 2012 - 2022  Christian Ledermann
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Fastkml utility functions."""
 
 from collections.abc import Generator
 from typing import Any
-from typing import Optional
-from typing import Union
+from typing import TypeVar
+from typing import overload
 
 __all__ = ["find", "find_all", "has_attribute_values"]
+
+_T = TypeVar("_T")
 
 
 def has_attribute_values(obj: object, **kwargs: Any) -> bool:
@@ -56,10 +73,31 @@ def get_all_attrs(obj: object) -> Generator[object, None, None]:
             yield attr
 
 
+@overload
 def find_all(
     obj: object,
     *,
-    of_type: Optional[Union[type[object], tuple[type[object], ...]]] = None,
+    of_type: type[_T],
+    **kwargs: Any,
+) -> Generator[_T, None, None]: ...
+@overload
+def find_all(
+    obj: object,
+    *,
+    of_type: tuple[type[_T], ...],
+    **kwargs: Any,
+) -> Generator[_T, None, None]: ...
+@overload
+def find_all(
+    obj: object,
+    *,
+    of_type: None = None,
+    **kwargs: Any,
+) -> Generator[object, None, None]: ...
+def find_all(
+    obj: object,
+    *,
+    of_type: type[object] | tuple[type[object], ...] | None = None,
     **kwargs: Any,
 ) -> Generator[object, None, None]:
     """
@@ -83,15 +121,36 @@ def find_all(
         yield obj
 
     for attr in get_all_attrs(obj):
-        yield from find_all(attr, of_type=of_type, **kwargs)
+        yield from find_all(attr, of_type=of_type, **kwargs)  # type: ignore[call-overload]
 
 
+@overload
 def find(
     obj: object,
     *,
-    of_type: Optional[Union[type[object], tuple[type[object], ...]]] = None,
+    of_type: type[_T],
     **kwargs: Any,
-) -> Optional[object]:
+) -> _T | None: ...
+@overload
+def find(
+    obj: object,
+    *,
+    of_type: tuple[type[_T], ...],
+    **kwargs: Any,
+) -> _T | None: ...
+@overload
+def find(
+    obj: object,
+    *,
+    of_type: None = None,
+    **kwargs: Any,
+) -> object | None: ...
+def find(
+    obj: object,
+    *,
+    of_type: type[object] | tuple[type[object], ...] | None = None,
+    **kwargs: Any,
+) -> object | None:
     """
     Find the first instance of a given type in a given object.
 
@@ -106,4 +165,4 @@ def find(
         The first instance of the given type in the given object or None if not found.
 
     """
-    return next(find_all(obj, of_type=of_type, **kwargs), None)
+    return next(find_all(obj, of_type=of_type, **kwargs), None)  # type: ignore[call-overload]
