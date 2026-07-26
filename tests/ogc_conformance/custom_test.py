@@ -28,6 +28,16 @@ from tests.ogc_conformance._helpers import xmldiff
 
 CUSTOMDIR = KMLFILEDIR / "custom"
 
+# Both SchemaData-Ok.xml and SchemaData-InvalidDatum.xml declare their
+# SimpleFields with a namespace-prefixed type ("xsd:string"/"xsd:int"); fastkml
+# parses that fine but always re-serializes the bare, unprefixed type name.
+_SCHEMA_DATA_TYPE_PREFIX_DIFF = [
+    actions.InsertNamespace(prefix="kml", uri="http://www.opengis.net/kml/2.2"),
+    actions.DeleteNamespace(prefix=None),
+    actions.UpdateAttrib(node="/*/*/*[2]/*[1]", name="type", value="xsd:string"),
+    actions.UpdateAttrib(node="/*/*/*[2]/*[2]", name="type", value="xsd:int"),
+]
+
 
 class TestLxml(Lxml):
     """Test with lxml."""
@@ -65,31 +75,39 @@ class TestLxml(Lxml):
         """
         Intends to test a SimpleData value ("1.234") invalid for its xsd:int field.
 
-        Never gets that far: the referenced Schema declares
-        `SimpleField type="xsd:string"` (namespace-prefixed), and fastkml's
-        DataType enum only recognizes unprefixed values -- it raises on the
-        field declaration itself, for a reason unrelated to the fixture's intent.
+        fastkml never checks a SimpleData value against its field's declared
+        DataType, so this parses and round-trips identically to
+        SchemaData-Ok.xml -- the fixture's intended semantic check isn't (and
+        structurally can't easily be) performed here.
         """
         fixture = CUSTOMDIR / "SchemaData-InvalidDatum.xml"
+        expected = fixture.read_bytes()
 
-        with pytest.raises(KMLParseError, match="xsd:string"):
-            fastkml.kml.KML.parse(fixture)
+        doc = fastkml.kml.KML.parse(fixture)
+        diff = xmldiff(doc.to_string(), expected)
+
+        assert diff == _SCHEMA_DATA_TYPE_PREFIX_DIFF
         assert fastkml.validator.validate(file_to_validate=fixture)
+        assert fastkml.validator.validate(element=doc.etree_element())
 
     def test_schema_data_ok(self) -> None:
         """
         Marked [PASS] -- SchemaData conforms to its referenced Schema.
 
-        This fixture *should* be parseable. It fails for the same reason as
-        SchemaData-InvalidDatum.xml: `SimpleField type="xsd:string"` uses a
-        namespace-prefixed type value, which fastkml's DataType enum doesn't
-        recognize. A real fastkml limitation, not the fixture's own intent.
+        `SimpleField type="xsd:string"` is a namespace-prefixed DataType value;
+        fastkml strips the prefix before the enum lookup, so this parses fine.
+        The prefix isn't preserved on round trip (fastkml always serializes the
+        bare type name), hence the UpdateAttrib diffs below.
         """
         fixture = CUSTOMDIR / "SchemaData-Ok.xml"
+        expected = fixture.read_bytes()
 
-        with pytest.raises(KMLParseError, match="xsd:string"):
-            fastkml.kml.KML.parse(fixture)
+        doc = fastkml.kml.KML.parse(fixture)
+        diff = xmldiff(doc.to_string(), expected)
+
+        assert diff == _SCHEMA_DATA_TYPE_PREFIX_DIFF
         assert fastkml.validator.validate(file_to_validate=fixture)
+        assert fastkml.validator.validate(element=doc.etree_element())
 
     def test_schema_data_no_schema(self) -> None:
         """

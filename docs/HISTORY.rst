@@ -11,6 +11,12 @@ Changelog
   are now keyword-only across the base and mixin classes; update any
   ``super().__init__()`` calls that passed them positionally.
 - Fix a crash parsing ``gx:Track`` timestamps when a ``<when>`` element is empty.
+- Fix ``KML`` serializing a parsed ``NetworkLinkControl`` after the document's root
+  feature instead of before it, which produced XML that failed its own bundled schema.
+- Fix ``StyleMap``/``Pair`` silently discarding a nested ``StyleMap`` value instead of
+  parsing it.
+- Fix ``SimpleField``/``SchemaData`` type values rejecting a namespace-prefixed XSD
+  type (e.g. ``xsd:string``); the prefix is now stripped before matching.
 - Replace mypy with ``ty`` and ``pyrefly`` for type checking, with expanded type-hint
   coverage across the codebase.
 - Consolidate the architecture and usage guides into the Sphinx user documentation.

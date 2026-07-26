@@ -1200,7 +1200,7 @@ class Pair(_BaseObject):
     """
 
     key: PairKey | None
-    style: StyleUrl | Style | None
+    style: "StyleUrl | Style | StyleMap | None"
 
     def __init__(
         self,
@@ -1210,7 +1210,7 @@ class Pair(_BaseObject):
         id: str | None = None,
         target_id: str | None = None,
         key: PairKey | None = None,
-        style: StyleUrl | Style | None = None,
+        style: "StyleUrl | Style | StyleMap | None" = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -1228,8 +1228,8 @@ class Pair(_BaseObject):
                 The target ID of the element.
             key : Optional[PairKey]
                 The key of the element.
-            style : Optional[Union[StyleUrl, Style]]
-                The style or style URL of the element.
+            style : Optional[Union[StyleUrl, Style, StyleMap]]
+                The style, style URL, or nested style map of the element.
             kwargs : Any
                 Additional keyword arguments.
 
@@ -1283,20 +1283,6 @@ registry.register(
         classes=(PairKey,),
         get_kwarg=subelement_enum_kwarg,
         set_element=enum_subelement,
-    ),
-)
-registry.register(
-    Pair,
-    RegistryItem(
-        ns_ids=("kml", ""),
-        attr_name="style",
-        node_name="Style",
-        classes=(
-            StyleUrl,
-            Style,
-        ),
-        get_kwarg=xml_subelement_kwarg,
-        set_element=xml_subelement,
     ),
 )
 
@@ -1377,7 +1363,7 @@ class StyleMap(_StyleSelector):
         return bool(self.pairs)
 
     @property
-    def normal(self) -> StyleUrl | Style | None:
+    def normal(self) -> "StyleUrl | Style | StyleMap | None":
         """
         Get the normal style for the feature.
 
@@ -1392,7 +1378,7 @@ class StyleMap(_StyleSelector):
         )
 
     @property
-    def highlight(self) -> StyleUrl | Style | None:
+    def highlight(self) -> "StyleUrl | Style | StyleMap | None":
         """
         Return the highlight style associated with this StyleMap.
 
@@ -1417,5 +1403,22 @@ registry.register(
         classes=(Pair,),
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
+    ),
+)
+# Registered here, after StyleMap is defined, because Pair.style can itself be
+# a nested StyleMap (per the KML schema's AbstractStyleSelectorGroup).
+registry.register(
+    Pair,
+    RegistryItem(
+        ns_ids=("kml", ""),
+        attr_name="style",
+        node_name="Style,StyleMap",
+        classes=(
+            StyleUrl,
+            Style,
+            StyleMap,
+        ),
+        get_kwarg=xml_subelement_kwarg,
+        set_element=xml_subelement,
     ),
 )

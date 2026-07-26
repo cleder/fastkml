@@ -24,7 +24,6 @@ test files for why fastkml doesn't (and can't, via XSD alone) always achieve a
 byte-identical round trip.
 """
 
-import pytest
 from xmldiff import actions
 
 import fastkml.kml
@@ -51,13 +50,9 @@ class TestLxml(Lxml):
         doc = fastkml.kml.KML.parse(clean_doc)
         diff = xmldiff(doc.to_string(), expected)
 
-        assert len(diff) == 103, diff
+        assert len(diff) == 102, diff
         assert fastkml.validator.validate(file_to_validate=clean_doc)
-        # fastkml serializes NetworkLinkControl after the root feature, but the
-        # XSD's KmlType requires it first -- fastkml's own round-trip output for
-        # this file is not itself schema-valid. Known limitation, pinned here.
-        with pytest.raises(AssertionError, match="NetworkLinkControl"):
-            fastkml.validator.validate(element=doc.etree_element())
+        assert fastkml.validator.validate(element=doc.etree_element())
 
     def test_document_deprecated(self) -> None:
         """Same content as Document-clean.kml, using KML 2.0-era deprecated tags."""

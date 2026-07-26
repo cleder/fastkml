@@ -20,13 +20,15 @@ All five are real <kml> documents, so KML.parse() is the right entry point.
 Every one of them uses an explicit `kml:` namespace prefix in the fixture,
 which fastkml always re-serializes as the default (unprefixed) namespace --
 that cosmetic InsertNamespace/DeleteNamespace pair shows up in every diff
-below and carries no semantic meaning.
+below (on top of any other, genuine differences) and carries no semantic
+meaning.
 """
 
 from xmldiff import actions
 
 import fastkml.kml
 import fastkml.validator
+from fastkml.styles import StyleMap
 from tests.base import Lxml
 from tests.ogc_conformance._helpers import KMLFILEDIR
 from tests.ogc_conformance._helpers import xmldiff
@@ -62,15 +64,13 @@ class TestLxml(Lxml):
 
     def test_style_map_error(self) -> None:
         """
-        A genuine fastkml data-loss bug, not just an unenforced OGC rule.
+        The fixture's actual [ERROR] point: the last Pair has no terminating value.
 
-        The fixture's "highlight" Pair contains a nested StyleMap (itself
-        containing a Pair with no styleUrl/Style at all -- the fixture's actual
-        [ERROR] point). fastkml.styles.Pair.style is typed
-        `StyleUrl | Style | None`, with no support for a nested StyleMap, so
-        fastkml keeps the "highlight" Pair but silently drops its entire style
-        value -- no exception, no warning. Pinned here as a known bug, worth a
-        follow-up fix.
+        The "highlight" Pair contains a nested StyleMap, whose own "highlight"
+        Pair has no styleUrl/Style/StyleMap at all. fastkml.styles.Pair.style
+        supports a nested StyleMap, so the outer structure round-trips; the
+        genuinely-empty inner Pair is dropped from serialized output because
+        `Pair.__bool__()` is False when `style` is None -- documented, not a bug.
         """
         fixture = STYLESDIR / "StyleMap-Error.xml"
         expected = fixture.read_bytes()
@@ -78,12 +78,16 @@ class TestLxml(Lxml):
         doc = fastkml.kml.KML.parse(fixture)
         diff = xmldiff(doc.to_string(), expected)
 
-        assert len(diff) == 15, diff
+        assert len(diff) == 5, diff
         style_map = doc.features[0].styles[0]
         assert len(style_map.pairs) == 2
         assert style_map.pairs[1].key.value == "highlight"
-        assert style_map.pairs[1].style is None, (
-            "the nested StyleMap under the 'highlight' Pair was silently dropped"
+        nested = style_map.pairs[1].style
+        assert isinstance(nested, StyleMap)
+        assert len(nested.pairs) == 2
+        assert nested.pairs[1].style is None, (
+            "the innermost 'highlight' Pair genuinely has no style -- that's the "
+            "fixture's actual [ERROR] point"
         )
         assert fastkml.validator.validate(file_to_validate=fixture)
         assert fastkml.validator.validate(element=doc.etree_element())
