@@ -87,6 +87,7 @@ typing = [
     "lxml-stubs",
     "pyrefly",
     "ty",
+    "zuban",
 ]
 
 [project.readme]
