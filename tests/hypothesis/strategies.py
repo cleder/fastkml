@@ -60,7 +60,10 @@ media_types = partial(
 
 xml_text = partial(
     st.text,
-    alphabet=st.characters(min_codepoint=1, blacklist_categories=("Cc", "Cs")),
+    alphabet=st.characters(
+        min_codepoint=1,
+        blacklist_categories=("Cc", "Cs"),  # type: ignore[arg-type]
+    ),
 )
 
 uri_text = partial(

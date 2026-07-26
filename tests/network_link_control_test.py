@@ -17,21 +17,73 @@
 """Test the Network Link Control classes."""
 
 import datetime
+from collections.abc import Callable
 
+import pygeoif.geometry as geo
+import pytest
 from dateutil.tz import tzutc
 
 from fastkml import views
 from fastkml.containers import Folder
+from fastkml.enums import PairKey
+from fastkml.exceptions import KMLParseError
 from fastkml.features import Placemark
+from fastkml.geometry import Coordinates
+from fastkml.geometry import Point
+from fastkml.gx.track import Track
+from fastkml.gx.track import TrackItem
+from fastkml.links import Icon
 from fastkml.network_link_control import Change
 from fastkml.network_link_control import Create
 from fastkml.network_link_control import Delete
 from fastkml.network_link_control import NetworkLinkControl
 from fastkml.network_link_control import Update
+from fastkml.styles import IconStyle
+from fastkml.styles import Pair
+from fastkml.styles import Style
+from fastkml.styles import StyleMap
 from fastkml.times import KmlDateTime
+from fastkml.times import TimeSpan
+from fastkml.times import TimeStamp
 from tests.base import Lxml
 from tests.base import Pyuppsala
 from tests.base import StdLibrary
+
+
+def _change_kml(inner: str) -> str:
+    """Wrap a raw KML element in a NetworkLinkControl/Update/Change document."""
+    return f"""
+<kml:NetworkLinkControl xmlns:kml="http://www.opengis.net/kml/2.2">
+  <kml:Update>
+    <kml:targetHref>http://example.com/target.kml</kml:targetHref>
+    <kml:Change>
+      {inner}
+    </kml:Change>
+  </kml:Update>
+</kml:NetworkLinkControl>
+"""
+
+
+_STYLE_CHANGE_KML = _change_kml(
+    """<kml:Style targetId="mystyle">
+        <kml:IconStyle>
+          <kml:color>ff0000ff</kml:color>
+        </kml:IconStyle>
+      </kml:Style>""",
+)
+
+_POINT_CHANGE_KML = _change_kml(
+    """<kml:Point targetId="point123">
+        <kml:coordinates>-95.48,40.43,0</kml:coordinates>
+      </kml:Point>""",
+)
+
+_INVALID_ALTITUDE_MODE_CHANGE_KML = _change_kml(
+    """<kml:Point targetId="point123">
+        <kml:altitudeMode>INVALID</kml:altitudeMode>
+        <kml:coordinates>-95.48,40.43,0</kml:coordinates>
+      </kml:Point>""",
+)
 
 
 class TestStdLibrary(StdLibrary):
@@ -220,6 +272,228 @@ class TestStdLibrary(StdLibrary):
         assert isinstance(obj, Placemark)
         assert obj.name == "Changed Name"
         assert obj.target_id == "pm1"
+
+    @pytest.mark.parametrize(
+        ("make_obj", "expected_type", "target_id"),
+        [
+            pytest.param(
+                lambda: Style(
+                    target_id="style1",
+                    styles=[IconStyle(icon_href="http://example.com/icon.png")],
+                ),
+                Style,
+                "style1",
+                id="style",
+            ),
+            pytest.param(
+                lambda: StyleMap(
+                    target_id="sm1",
+                    pairs=[Pair(key=PairKey.normal, style_url="#style1")],
+                ),
+                StyleMap,
+                "sm1",
+                id="stylemap",
+            ),
+            pytest.param(
+                lambda: Point(
+                    target_id="point1",
+                    kml_coordinates=Coordinates(coords=[(10.0, 20.0, 0.0)]),
+                ),
+                Point,
+                "point1",
+                id="point",
+            ),
+            pytest.param(
+                lambda: TimeStamp(
+                    target_id="ts1",
+                    timestamp=KmlDateTime(
+                        dt=datetime.datetime(2024, 1, 1, tzinfo=tzutc()),
+                    ),
+                ),
+                TimeStamp,
+                "ts1",
+                id="timestamp",
+            ),
+            pytest.param(
+                lambda: TimeSpan(
+                    target_id="tspan1",
+                    begin=KmlDateTime(dt=datetime.datetime(2024, 1, 1, tzinfo=tzutc())),
+                ),
+                TimeSpan,
+                "tspan1",
+                id="timespan",
+            ),
+        ],
+    )
+    def test_change_roundtrip(
+        self,
+        make_obj: Callable[[], Style | StyleMap | Point | TimeStamp | TimeSpan],
+        expected_type: type,
+        target_id: str,
+    ) -> None:
+        """Test Change with various object types can round-trip."""
+        change = Change(objects=[make_obj()])
+        update = Update(
+            target_href="http://example.com/target.kml",
+            operations=[change],
+        )
+        nlc = NetworkLinkControl(update=update)
+
+        kml_string = nlc.to_string()
+        parsed_nlc = NetworkLinkControl.from_string(kml_string)
+
+        assert parsed_nlc.update is not None
+        assert len(parsed_nlc.update.operations) == 1
+        obj = parsed_nlc.update.operations[0].objects[0]
+        assert isinstance(obj, expected_type)
+        assert obj.target_id == target_id
+
+    def test_change_with_mixed_objects(self) -> None:
+        """Test Change with multiple different KML object types."""
+        style = Style(styles=[IconStyle(icon_href="http://example.com/icon.png")])
+        point = Point(
+            target_id="point1",
+            kml_coordinates=Coordinates(coords=[(10.0, 20.0)]),
+        )
+        change = Change(objects=[style, point])
+
+        assert len(change.objects) == 2
+        assert isinstance(change.objects[0], Style)
+        assert isinstance(change.objects[1], Point)
+
+    @pytest.mark.parametrize(
+        ("doc", "expected_type", "target_id"),
+        [
+            pytest.param(_STYLE_CHANGE_KML, Style, "mystyle", id="style"),
+            pytest.param(_POINT_CHANGE_KML, Point, "point123", id="point"),
+        ],
+    )
+    def test_change_kml_parsing(
+        self,
+        doc: str,
+        expected_type: type,
+        target_id: str,
+    ) -> None:
+        """Test parsing a Change containing an element from a raw KML string."""
+        nlc = NetworkLinkControl.from_string(doc)
+
+        assert nlc.update is not None
+        assert len(nlc.update.operations) == 1
+        assert isinstance(nlc.update.operations[0], Change)
+        obj = nlc.update.operations[0].objects[0]
+        assert isinstance(obj, expected_type)
+        assert obj.target_id == target_id
+
+    def test_change_objects_rejects_non_iterable(self) -> None:
+        """Test that a non-iterable objects argument raises TypeError."""
+        with pytest.raises(TypeError, match="objects must be an iterable"):
+            Change(objects=123)  # type: ignore[arg-type]  # ty: ignore[invalid-argument-type]
+
+    def test_change_objects_rejects_str(self) -> None:
+        """Test that a str objects argument raises TypeError instead of exploding."""
+        with pytest.raises(TypeError, match="objects must be an iterable"):
+            Change(objects="abc")  # type: ignore[arg-type]  # ty: ignore[invalid-argument-type]
+
+    def test_change_objects_rejects_bytes(self) -> None:
+        """Test that a bytes objects argument raises TypeError instead of exploding."""
+        with pytest.raises(TypeError, match="objects must be an iterable"):
+            Change(objects=b"abc")  # type: ignore[arg-type]  # ty: ignore[invalid-argument-type]
+
+    def test_change_with_gx_track_roundtrip(self) -> None:
+        """Test Change with a gx:Track object can round-trip."""
+        track = Track(
+            target_id="track1",
+            track_items=[
+                TrackItem(
+                    when=KmlDateTime(dt=datetime.datetime(2024, 1, 1, tzinfo=tzutc())),
+                    coord=geo.Point(10.0, 20.0, 0.0),
+                ),
+            ],
+        )
+        change = Change(objects=[track])
+        update = Update(
+            target_href="http://example.com/target.kml",
+            operations=[change],
+        )
+        nlc = NetworkLinkControl(update=update)
+
+        parsed_nlc = NetworkLinkControl.from_string(nlc.to_string())
+
+        assert parsed_nlc.update is not None
+        assert len(parsed_nlc.update.operations) == 1
+        obj = parsed_nlc.update.operations[0].objects[0]
+        assert isinstance(obj, Track)
+        assert obj.target_id == "track1"
+
+    def test_change_with_icon_roundtrip(self) -> None:
+        """Test Change with an Icon object can round-trip."""
+        icon = Icon(target_id="icon1", href="http://example.com/new.png")
+        change = Change(objects=[icon])
+        update = Update(
+            target_href="http://example.com/target.kml",
+            operations=[change],
+        )
+        nlc = NetworkLinkControl(update=update)
+
+        parsed_nlc = NetworkLinkControl.from_string(nlc.to_string())
+
+        assert parsed_nlc.update is not None
+        assert len(parsed_nlc.update.operations) == 1
+        obj = parsed_nlc.update.operations[0].objects[0]
+        assert isinstance(obj, Icon)
+        assert obj.target_id == "icon1"
+
+    def test_change_with_mixed_objects_preserves_document_order(self) -> None:
+        """Test that parsing a Change with mixed types preserves document order."""
+        doc = _change_kml(
+            """<kml:Point targetId="p1">
+        <kml:coordinates>1,2,3</kml:coordinates>
+      </kml:Point>
+      <kml:Style targetId="s1">
+        <kml:IconStyle><kml:color>ff0000ff</kml:color></kml:IconStyle>
+      </kml:Style>""",
+        )
+
+        nlc = NetworkLinkControl.from_string(doc)
+
+        objects = nlc.update.operations[0].objects
+        assert [type(obj) for obj in objects] == [Point, Style]
+
+    def test_update_operations_preserve_document_order(self) -> None:
+        """Test that Update.operations preserve document order on parsing."""
+        doc = """
+        <kml:NetworkLinkControl xmlns:kml="http://www.opengis.net/kml/2.2">
+          <kml:Update>
+            <kml:targetHref>http://example.com/target.kml</kml:targetHref>
+            <kml:Delete><kml:Placemark targetId="p1"/></kml:Delete>
+            <kml:Create><kml:Folder targetId="f1"/></kml:Create>
+            <kml:Change>
+              <kml:Placemark targetId="p2"><kml:name>x</kml:name></kml:Placemark>
+            </kml:Change>
+          </kml:Update>
+        </kml:NetworkLinkControl>
+        """
+
+        nlc = NetworkLinkControl.from_string(doc)
+
+        assert [type(op) for op in nlc.update.operations] == [Delete, Create, Change]
+
+    def test_change_kml_parsing_invalid_altitude_mode_strict(self) -> None:
+        """Test that an invalid nested enum value raises KMLParseError by default."""
+        with pytest.raises(KMLParseError):
+            NetworkLinkControl.from_string(_INVALID_ALTITUDE_MODE_CHANGE_KML)
+
+    def test_change_kml_parsing_invalid_altitude_mode_relaxed(self) -> None:
+        """Test that an invalid nested enum value is tolerated with strict=False."""
+        nlc = NetworkLinkControl.from_string(
+            _INVALID_ALTITUDE_MODE_CHANGE_KML,
+            strict=False,
+        )
+
+        assert nlc.update is not None
+        obj = nlc.update.operations[0].objects[0]
+        assert isinstance(obj, Point)
+        assert obj.target_id == "point123"
 
 
 class TestLxml(Lxml, TestStdLibrary):

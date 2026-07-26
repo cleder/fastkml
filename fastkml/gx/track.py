@@ -272,7 +272,7 @@ class Track(_Geometry):
 
         """
         return tuple(
-            item.coord.coords[0]
+            item.coord.coords[0]  # type: ignore[misc]
             for item in self.track_items
             if item.coord and item.coord.coords
         )

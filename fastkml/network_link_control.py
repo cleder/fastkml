@@ -23,7 +23,10 @@ https://developers.google.com/kml/documentation/kmlreference#networklinkcontrol
 
 import logging
 from collections.abc import Iterable
+from typing import TYPE_CHECKING
 from typing import Any
+from typing import Generic
+from typing import TypeVar
 
 from fastkml import config
 from fastkml.base import _XMLObject
@@ -38,11 +41,129 @@ from fastkml.helpers import xml_subelement
 from fastkml.helpers import xml_subelement_kwarg
 from fastkml.helpers import xml_subelement_list
 from fastkml.helpers import xml_subelement_list_kwarg
+from fastkml.helpers import xml_subelement_list_kwarg_ordered
 from fastkml.registry import RegistryItem
 from fastkml.registry import registry
 from fastkml.times import KmlDateTime
 from fastkml.views import Camera
 from fastkml.views import LookAt
+
+if TYPE_CHECKING:
+    from fastkml.containers import Document
+    from fastkml.containers import Folder
+    from fastkml.data import Data
+    from fastkml.data import SchemaData
+    from fastkml.features import NetworkLink
+    from fastkml.features import Placemark
+    from fastkml.geometry import LinearRing
+    from fastkml.geometry import LineString
+    from fastkml.geometry import MultiGeometry
+    from fastkml.geometry import Point
+    from fastkml.geometry import Polygon
+    from fastkml.gx.track import MultiTrack
+    from fastkml.gx.track import Track
+    from fastkml.links import Icon
+    from fastkml.links import Link
+    from fastkml.model import Alias
+    from fastkml.model import Location
+    from fastkml.model import Model
+    from fastkml.model import Orientation
+    from fastkml.model import ResourceMap
+    from fastkml.model import Scale
+    from fastkml.overlays import GroundOverlay
+    from fastkml.overlays import ImagePyramid
+    from fastkml.overlays import LatLonBox
+    from fastkml.overlays import PhotoOverlay
+    from fastkml.overlays import ScreenOverlay
+    from fastkml.overlays import ViewVolume
+    from fastkml.styles import BalloonStyle
+    from fastkml.styles import IconStyle
+    from fastkml.styles import LabelStyle
+    from fastkml.styles import LineStyle
+    from fastkml.styles import Pair
+    from fastkml.styles import PolyStyle
+    from fastkml.styles import Style
+    from fastkml.styles import StyleMap
+    from fastkml.times import TimeSpan
+    from fastkml.times import TimeStamp
+    from fastkml.views import LatLonAltBox
+    from fastkml.views import Lod
+    from fastkml.views import Region
+
+    # Type aliases for the objects allowed in each Update action element.
+    # These narrow the generic type parameter T of _UpdateAction for type checkers.
+    # Kept in sync by hand with the runtime _create_classes/_delete_classes/
+    # _change_classes tuples in fastkml/_registry_setup.py -- that module
+    # imports from this one, so the reverse import needed to derive these
+    # aliases from the runtime tuples would be circular.
+    _CreateObjects = Document | Folder
+    _DeleteObjects = (
+        Document
+        | Folder
+        | GroundOverlay
+        | NetworkLink
+        | PhotoOverlay
+        | Placemark
+        | ScreenOverlay
+    )
+    _ChangeObjects = (
+        # Features
+        Document
+        | Folder
+        | GroundOverlay
+        | NetworkLink
+        | PhotoOverlay
+        | Placemark
+        | ScreenOverlay
+        # Overlay sub-elements
+        | ImagePyramid
+        | LatLonBox
+        | ViewVolume
+        # Views
+        | Camera
+        | LatLonAltBox
+        | Lod
+        | LookAt
+        | Region
+        # Styles
+        | BalloonStyle
+        | IconStyle
+        | LabelStyle
+        | LineStyle
+        | Pair
+        | PolyStyle
+        | Style
+        | StyleMap
+        # Times
+        | TimeSpan
+        | TimeStamp
+        # Geometry
+        | LinearRing
+        | LineString
+        | MultiGeometry
+        | Point
+        | Polygon
+        # GX Geometry
+        | MultiTrack
+        | Track
+        # Model
+        | Alias
+        | Location
+        | Model
+        | Orientation
+        | ResourceMap
+        | Scale
+        # Links
+        | Icon
+        | Link
+        # Data
+        | Data
+        | SchemaData
+    )
+else:
+    _CreateObjects = _XMLObject
+    _DeleteObjects = _XMLObject
+    _ChangeObjects = _XMLObject
 
 __all__ = [
     "Change",
@@ -54,8 +175,10 @@ __all__ = [
 
 logger = logging.getLogger(__name__)
 
+T = TypeVar("T", bound=_XMLObject)
 
-class _UpdateAction(_XMLObject):
+
+class _UpdateAction(_XMLObject, Generic[T]):
     """
     Base class for Update action elements (Create, Delete, Change).
 
@@ -64,13 +187,13 @@ class _UpdateAction(_XMLObject):
 
     _default_nsid = config.KML
 
-    objects: list[_XMLObject]
+    objects: list[T]
 
     def __init__(
         self,
         ns: str | None = None,
         name_spaces: dict[str, str] | None = None,
-        objects: Iterable[_XMLObject] | None = None,
+        objects: Iterable[T] | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -82,7 +205,7 @@ class _UpdateAction(_XMLObject):
             The namespace to use for the element.
         name_spaces : dict, optional
             A dictionary of namespaces to use for the element.
-        objects : Iterable[_XMLObject], optional
+        objects : Iterable[T], optional
             The KML objects that are subject to this update action.
         **kwargs : Any, optional
             Additional keyword arguments.
@@ -93,7 +216,13 @@ class _UpdateAction(_XMLObject):
             name_spaces=name_spaces,
             **kwargs,
         )
-        self.objects = list(objects) if objects else []
+        if objects is not None and (
+            isinstance(objects, (str, bytes))  # type: ignore[unreachable]
+            or not isinstance(objects, Iterable)
+        ):
+            msg = f"objects must be an iterable, got {type(objects).__name__}"  # type: ignore[unreachable]
+            raise TypeError(msg)
+        self.objects = list(objects) if objects is not None else []
 
     def __repr__(self) -> str:
         """
@@ -126,7 +255,7 @@ class _UpdateAction(_XMLObject):
         return bool(self.objects)
 
 
-class Create(_UpdateAction):
+class Create(_UpdateAction[_CreateObjects]):
     """
     Adds new elements to a Folder or Document already loaded via a NetworkLink.
 
@@ -166,7 +295,7 @@ class Create(_UpdateAction):
     """
 
 
-class Delete(_UpdateAction):
+class Delete(_UpdateAction[_DeleteObjects]):
     """
     Deletes features from a complex element already loaded via a NetworkLink.
 
@@ -195,7 +324,7 @@ class Delete(_UpdateAction):
     """
 
 
-class Change(_UpdateAction):
+class Change(_UpdateAction[_ChangeObjects]):
     """
     Modifies the values in an element already loaded with a NetworkLink.
 
@@ -614,5 +743,6 @@ registry.register(
         classes=(Create, Delete, Change),
         get_kwarg=xml_subelement_list_kwarg,
         set_element=xml_subelement_list,
+        custom_get_kwarg=xml_subelement_list_kwarg_ordered,
     ),
 )

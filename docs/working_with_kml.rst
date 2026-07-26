@@ -93,7 +93,7 @@ Extending FastKML
 -----------------
 
 FastKML is designed to be easily extended. For example, we can add a new object to KML
-by subclassing ``fastkml.base.__XMLObject`` or  ``fastkml.kml_base._BaseObject`` and
+by subclassing ``fastkml.base._XMLObject`` or ``fastkml.kml_base._BaseObject`` and
 defining the new element's tag name and attributes.
 The ``<gx:CascadingStyle>`` is an undocumented element that is created in
 Google Earth Web that is unsupported by Google Earth Pro, we want to transform it into
@@ -115,7 +115,13 @@ a supported element.
     ...         **kwargs: Any,
     ...     ) -> None:
     ...         self.style = style
-    ...         super().__init__(ns, name_spaces, id, target_id, **kwargs)
+    ...         super().__init__(
+    ...             ns=ns,
+    ...             name_spaces=name_spaces,
+    ...             id=id,
+    ...             target_id=target_id,
+    ...             **kwargs,
+    ...         )
     ...
 
 We need to register the attributes of the KML object to be able to parse it:

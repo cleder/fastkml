@@ -40,7 +40,13 @@ class CascadingStyle(_BaseObject):
     ) -> None:
         """Initialize the CascadingStyle object."""
         self.style = style
-        super().__init__(ns, name_spaces, id, target_id, **kwargs)
+        super().__init__(
+            ns=ns,
+            name_spaces=name_spaces,
+            id=id,
+            target_id=target_id,
+            **kwargs,
+        )
 
 
 registry.register(

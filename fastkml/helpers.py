@@ -1112,8 +1112,14 @@ def attribute_float_kwarg(
 
 
 def _get_enum_value(*, enum_class: type[Enum], text: str, strict: bool) -> Enum:
-    value = enum_class(text)
-    if strict and value.value != text:
+    # Some enum-typed attributes (e.g. SimpleField/@type) are XSD QNames and may
+    # arrive prefixed (e.g. "xsd:string"); the prefix carries no meaning fastkml
+    # needs, so strip it before the lookup. No registered enum's real values
+    # contain a colon, so this is safe for every other enum too.
+    _, _, local_name = text.rpartition(":")
+    local_name = local_name or text
+    value = enum_class(local_name)  # type: ignore[misc]
+    if strict and value.value != local_name:
         msg = f"Value {text} is not a valid value for Enum {enum_class.__name__}"
         raise ValueError(msg)
     return value
@@ -1272,9 +1278,11 @@ def datetime_subelement_list_kwarg(
     cls = cast("type[KmlDateTime]", classes[0])
     if subelements := element.findall(f"{ns}{node_name}"):
         for subelement in subelements:
+            if not subelement.text:
+                continue
             try:
                 args_list.append(cls.parse(subelement.text))
-            except ValueError as exc:  # noqa: PERF203
+            except ValueError as exc:
                 handle_error(
                     error=exc,
                     strict=strict,
@@ -1469,4 +1477,66 @@ def xml_subelement_list_multi_ns_kwarg(
                         for subelement in subelements
                     ],
                 )
+    return {kwarg: args_list} if args_list else {}
+
+
+def xml_subelement_list_kwarg_ordered(
+    *,
+    element: Element,
+    ns_ids: tuple[str, ...],
+    name_spaces: dict[str, str],
+    node_name: str,
+    kwarg: str,
+    classes: tuple[type[object], ...],
+    strict: bool,
+) -> dict[str, list["_XMLObject"]]:
+    """
+    Return subelements in document order, matched across namespaces.
+
+    Unlike ``xml_subelement_list_kwarg``/``xml_subelement_list_multi_ns_kwarg``,
+    which group results by class (i.e. by ``classes`` registration order), this
+    walks the element's direct children once and matches each against every
+    registered class/namespace combination -- preserving the original document
+    order and correctly finding classes registered outside the primary
+    namespace (e.g. ``gx:*``). Use as a ``custom_get_kwarg`` wherever sibling
+    order among differently-typed children is semantically significant (KML's
+    ``Update``/``Create``/``Delete``/``Change`` all require this).
+
+    Args:
+    ----
+        element (Element): The XML element to search within.
+        ns_ids (Tuple[str, ...]): The namespace IDs of the XML element.
+        name_spaces (Dict[str, str]): A dictionary mapping namespace prefixes to URIs.
+        node_name (str): The name of the XML node to search for.
+        kwarg (str): The name of the keyword argument to store the found subelements.
+        classes (Tuple[Type[object], ...]): A tuple of classes that represent the types.
+        strict (bool): A flag indicating whether to enforce strict parsing rules.
+
+    Returns:
+    -------
+        Dict[str, List["_XMLObject"]]: A dictionary containing the specified keyword
+            argument and its list of subelements.
+
+    """
+    assert node_name is not None  # noqa: S101
+    assert name_spaces is not None  # noqa: S101
+    tag_to_ns_class: dict[str, tuple[str, type[_XMLObject]]] = {}
+    for name_space in ns_ids:
+        ns = name_spaces.get(name_space, "")
+        for obj_class in cast("tuple[type[_XMLObject], ...]", classes):
+            tag_to_ns_class[f"{ns}{obj_class.get_tag_name()}"] = (ns, obj_class)
+    args_list = []
+    for child in element:
+        match = tag_to_ns_class.get(child.tag)
+        if match is None:
+            continue
+        ns, obj_class = match
+        args_list.append(
+            obj_class.class_from_element(
+                ns=ns,
+                name_spaces=name_spaces,
+                element=child,
+                strict=strict,
+            ),
+        )
     return {kwarg: args_list} if args_list else {}

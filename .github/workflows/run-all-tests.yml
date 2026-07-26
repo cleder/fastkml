@@ -118,6 +118,7 @@ jobs:
         run: |
           ty check fastkml tests
           pyrefly check fastkml tests
+          zuban check fastkml
       - name: Linting
         run: |
           ruff check --no-fix fastkml tests examples docs

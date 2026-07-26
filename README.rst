@@ -187,9 +187,9 @@ You can find all of the documentation for FastKML at `fastkml.readthedocs.org <h
 Limitations
 ===========
 
-Currently, the only major feature missing for the full Google Earth experience
-is the `gx extension
-<https://developers.google.com/kml/documentation/kmlreference#kmlextensions>`_.
+FastKML does not model every element of the KML specification -- for example
+``xal:AddressDetails`` and the ``<kml>`` root's arbitrary ``hint`` attribute
+are not currently supported.
 
 Please submit a PR with the features you'd like to see implemented.
 

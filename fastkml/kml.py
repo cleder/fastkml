@@ -174,7 +174,7 @@ class KML(_XMLObject):
             # `_NSMapArg` doesn't model this.
             root = config.etree.Element(
                 f"{self.ns}{self.get_tag_name()}",
-                nsmap={None: self.ns[1:-1]},  # ty: ignore[invalid-argument-type]
+                nsmap={None: self.ns[1:-1]},  # type: ignore[dict-item]  # ty: ignore[invalid-argument-type]
             )
         else:
             root = config.etree.Element(
@@ -292,18 +292,23 @@ registry.register(
     KML,
     RegistryItem(
         ns_ids=("kml",),
+        # NetworkLinkControl must come first: xml_subelement_list_kwarg groups
+        # parsed children by class in this tuple's order rather than preserving
+        # document order, and the XSD's KmlType requires NetworkLinkControl
+        # (at most one) before the root feature (at most one) regardless of
+        # how they were ordered in the source document.
         classes=(
+            NetworkLinkControl,
             Document,
             Folder,
             Placemark,
             GroundOverlay,
             PhotoOverlay,
             NetworkLink,
-            NetworkLinkControl,
         ),
         node_name=(
-            "Document,Folder,Placemark,GroundOverlay,PhotoOverlay,NetworkLink,"
-            "NetworkLinkControl"
+            "NetworkLinkControl,Document,Folder,Placemark,GroundOverlay,"
+            "PhotoOverlay,NetworkLink"
         ),
         attr_name="features",
         get_kwarg=xml_subelement_list_kwarg,
