@@ -17,8 +17,8 @@ schema-compatible.
     >>> source = Path("docs/Document-clean.kml")
     >>> k = KML.parse(source, strict=True, validate=False)
 
-    >>> print(type(k.features[0]).__name__)
-    Document
+    >>> print([type(f).__name__ for f in k.features])
+    ['NetworkLinkControl', 'Document']
 
 2. Find the feature you want to change
 
