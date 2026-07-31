@@ -20,12 +20,17 @@ from enum import Enum
 from unittest.mock import Mock
 from unittest.mock import patch
 
+import lxml.etree
+
+from fastkml.features import Placemark
 from fastkml.helpers import attribute_enum_kwarg
 from fastkml.helpers import attribute_float_kwarg
+from fastkml.helpers import clean_string
 from fastkml.helpers import subelement_bool_kwarg
 from fastkml.helpers import subelement_enum_kwarg
 from fastkml.helpers import subelement_float_kwarg
 from fastkml.helpers import subelement_int_kwarg
+from tests.base import Lxml
 from tests.base import StdLibrary
 
 
@@ -146,3 +151,28 @@ class TestStdLibrary(StdLibrary):
 
         assert res == {}
         element.find.assert_called_once_with("nsnode")
+
+    def test_clean_string(self) -> None:
+        assert clean_string("  text  ") == "text"
+        assert clean_string("   ") is None
+        assert clean_string("") is None
+        assert clean_string(None) is None
+
+
+class TestLxml(Lxml):
+    """Test with lxml."""
+
+    def test_clean_string_passes_cdata_through(self) -> None:
+        """CDATA has no ``strip`` and must be returned unchanged (#418)."""
+        cdata = lxml.etree.CDATA("<b>bold</b>")
+
+        assert clean_string(cdata) is cdata
+
+    def test_placemark_description_cdata_is_not_escaped(self) -> None:
+        """A CDATA description round-trips unescaped (#418)."""
+        placemark = Placemark(
+            ns="{http://www.opengis.net/kml/2.2}",
+            description=lxml.etree.CDATA("<b>bold</b>"),
+        )
+
+        assert "<![CDATA[<b>bold</b>]]>" in placemark.to_string()
