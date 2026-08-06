@@ -20,7 +20,12 @@ from enum import Enum
 from unittest.mock import Mock
 from unittest.mock import patch
 
-import lxml.etree
+try:
+    import lxml.etree
+
+    LXML = True
+except ImportError:
+    LXML = False
 
 from fastkml.features import Placemark
 from fastkml.helpers import attribute_enum_kwarg
