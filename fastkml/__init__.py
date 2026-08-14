@@ -37,6 +37,7 @@ from fastkml.data import Schema
 from fastkml.data import SchemaData
 from fastkml.data import SimpleData
 from fastkml.data import SimpleField
+from fastkml.data import XMLData
 from fastkml.features import NetworkLink
 from fastkml.features import Placemark
 from fastkml.features import Snippet
@@ -155,6 +156,7 @@ __all__ = [
     "TimeStamp",
     "Update",
     "ViewVolume",
+    "XMLData",
     "create_kml_geometry",
     "find",
     "find_all",
