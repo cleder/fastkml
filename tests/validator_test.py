@@ -25,6 +25,7 @@ from fastkml import config
 from fastkml.validator import get_schema_parser
 from fastkml.validator import validate
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 TEST_DIR: Final = Path(__file__).parent
@@ -119,5 +120,65 @@ class TestLxml(Lxml):
                 r"^Element 'kml': "
                 "No matching global declaration available for the validation root.$"
             ),
+        ):
+            assert validate(element=element)
+
+
+class TestPyuppsala(Pyuppsala):
+    def setup_method(self) -> None:
+        """Invalidate the cache before each test."""
+        get_schema_parser.cache_clear()
+        super().setup_method()
+
+    def test_validate(self) -> None:
+        assert validate(
+            file_to_validate=TEST_DIR
+            / "ogc_conformance"
+            / "data"
+            / "kml"
+            / "Document-clean.kml",
+        )
+
+    def test_validate_element(self) -> None:
+        link = atom.Link(
+            ns="{http://www.w3.org/2005/Atom}",
+            href="#here",
+            rel="alternate",
+            type="text/html",
+            hreflang="en",
+            title="Title",
+            length=3456,
+        )
+        assert validate(element=link.etree_element())
+
+    def test_validate_invalid_element(self) -> None:
+        link = atom.Link(
+            ns="{http://www.w3.org/2005/Atom}",
+            href="",
+            rel="alternate",
+            type="text/html",
+            hreflang="en",
+            title="Title",
+            length=3456,
+        )
+
+        with pytest.raises(AssertionError):
+            validate(element=link.etree_element())
+
+    def test_get_schema_parser(self) -> None:
+        path = TEST_DIR / "ogc_conformance" / "data" / "atom-author-link.xsd"
+        assert get_schema_parser(path)
+
+    def test_validate_empty_element(self) -> None:
+        """
+        Pyuppsala's XSD validator reports a different message than lxml's.
+
+        Same "root element has no matching global declaration" case, just a
+        different wording.
+        """
+        element = config.etree.Element("kml")
+        with pytest.raises(
+            AssertionError,
+            match=r"^No element declaration found for 'kml'$",
         ):
             assert validate(element=element)

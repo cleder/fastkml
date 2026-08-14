@@ -5,6 +5,8 @@ import csv
 import datetime
 import pathlib
 import random
+from typing import TYPE_CHECKING
+from typing import cast
 
 import shapefile
 from pygeoif.factories import force_3d
@@ -18,6 +20,10 @@ import fastkml.times
 from fastkml.enums import AltitudeMode
 from fastkml.enums import DateTimeResolution
 from fastkml.geometry import create_kml_geometry
+
+if TYPE_CHECKING:
+    from pygeoif.types import GeoCollectionInterface
+    from pygeoif.types import GeoInterface
 
 examples_dir = pathlib.Path(__file__).parent
 
@@ -38,8 +44,12 @@ with co2_csv.open() as csvfile:
 styles = []
 folders = []
 for feature in shp.__geo_interface__["features"]:
-    iso3_code = feature["properties"]["ADM0_ISO"]
-    geometry = shape(feature["geometry"])
+    properties = feature["properties"]
+    assert properties is not None  # noqa: S101
+    raw_geometry = feature["geometry"]
+    assert raw_geometry is not None  # noqa: S101
+    iso3_code = properties["ADM0_ISO"]
+    geometry = shape(cast("GeoInterface | GeoCollectionInterface", raw_geometry))
     color = random.randint(0, 0xFFFFFF)
     styles.append(
         fastkml.styles.Style(
@@ -55,7 +65,7 @@ for feature in shp.__geo_interface__["features"]:
         ),
     )
     style_url = fastkml.styles.StyleUrl(url=f"#{iso3_code}")
-    folder = fastkml.containers.Folder(name=feature["properties"]["NAME"])
+    folder = fastkml.containers.Folder(name=properties["NAME"])
     co2_growth = 0.0
     for year in range(1995, 2023):
         co2_year = co2_pa[str(year)].get(iso3_code, 0.0)
@@ -77,8 +87,8 @@ for feature in shp.__geo_interface__["features"]:
             ),
         )
         placemark = fastkml.features.Placemark(
-            name=f"{feature['properties']['NAME']} - {year}",
-            description=feature["properties"]["FORMAL_EN"],
+            name=f"{properties['NAME']} - {year}",
+            description=properties["FORMAL_EN"],
             kml_geometry=kml_geometry,
             style_url=style_url,
             times=timespan,

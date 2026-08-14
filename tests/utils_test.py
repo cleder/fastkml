@@ -21,6 +21,7 @@ from fastkml import kml
 from fastkml.utils import find
 from fastkml.utils import find_all
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 
@@ -211,3 +212,7 @@ class TestFindAll(StdLibrary):
 
 class TestFindAllLxml(Lxml):
     """Run the tests using lxml."""
+
+
+class TestFindAllPyuppsala(Pyuppsala):
+    """Run the tests using pyuppsala."""

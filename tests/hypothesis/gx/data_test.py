@@ -17,7 +17,9 @@
 
 from collections.abc import Iterable
 
+from hypothesis import HealthCheck
 from hypothesis import given
+from hypothesis import settings
 from hypothesis import strategies as st
 
 import fastkml
@@ -25,6 +27,7 @@ import fastkml.gx.data
 import fastkml.types
 from fastkml.enums import DataType
 from tests.base import Lxml
+from tests.base import PyuppsalaNoSchemaValidation
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
@@ -80,3 +83,17 @@ class TestLxml(Lxml):
         assert_str_roundtrip(simple_array_field)
         assert_str_roundtrip_terse(simple_array_field)
         assert_str_roundtrip_verbose(simple_array_field)
+
+
+class TestPyuppsala(PyuppsalaNoSchemaValidation, TestLxml):
+    # Reusing `TestLxml`'s hypothesis-wrapped test methods (rather than
+    # duplicating their `@given` strategies and bodies) makes hypothesis flag
+    # `HealthCheck.differing_executors`, since the same underlying test
+    # function is now invoked from two classes. That's exactly what's
+    # happening here, deliberately, so it's suppressed rather than avoided.
+    test_fuzz_simple_array_data = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_fuzz_simple_array_data)
+    test_fuzz_simple_array_field = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_fuzz_simple_array_field)

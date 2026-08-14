@@ -46,6 +46,7 @@ from fastkml.times import KmlDateTime
 from fastkml.times import TimeSpan
 from fastkml.times import TimeStamp
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 
@@ -497,3 +498,7 @@ class TestStdLibrary(StdLibrary):
 
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
+
+
+class TestPyuppsala(Pyuppsala, TestStdLibrary):
+    """Test with pyuppsala."""

@@ -28,6 +28,7 @@ from fastkml import views
 from fastkml.enums import AltitudeMode
 from fastkml.enums import Units
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 
@@ -427,9 +428,21 @@ class TestScreenOverlayLxml(Lxml, TestScreenOverlay):
     """Test with lxml."""
 
 
+class TestScreenOverlayPyuppsala(Pyuppsala, TestScreenOverlay):
+    """Test with pyuppsala."""
+
+
 class TestGroundOverlayLxml(Lxml, TestGroundOverlay):
     """Test with lxml."""
 
 
+class TestGroundOverlayPyuppsala(Pyuppsala, TestGroundOverlay):
+    """Test with pyuppsala."""
+
+
 class TestPhotoOverlayLxml(Lxml, TestPhotoOverlay):
     """Test with lxml."""
+
+
+class TestPhotoOverlayPyuppsala(Pyuppsala, TestPhotoOverlay):
+    """Test with pyuppsala."""

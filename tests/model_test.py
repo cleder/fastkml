@@ -23,6 +23,7 @@ import fastkml.model
 from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 
@@ -156,4 +157,8 @@ class TestModel(StdLibrary):
 
 
 class TestModelLxml(TestModel, Lxml):
+    pass
+
+
+class TestModelPyuppsala(TestModel, Pyuppsala):
     pass

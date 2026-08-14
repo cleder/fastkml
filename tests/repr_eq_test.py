@@ -27,6 +27,7 @@ import fastkml
 from fastkml.enums import AltitudeMode
 from fastkml.enums import PairKey
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 eval_locals = {
@@ -1922,3 +1923,7 @@ class TestRepr(StdLibrary):
 
 class TestReprLxml(Lxml, TestRepr):
     """Test the __repr__ and __str__ methods of the KML document with lxml."""
+
+
+class TestReprPyuppsala(Pyuppsala, TestRepr):
+    """Test the __repr__ and __str__ methods of the KML document with pyuppsala."""

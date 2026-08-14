@@ -20,6 +20,7 @@ from fastkml import links
 from fastkml.enums import RefreshMode
 from fastkml.enums import ViewRefreshMode
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 
@@ -86,3 +87,7 @@ class TestStdLibrary(StdLibrary):
 
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
+
+
+class TestPyuppsala(Pyuppsala, TestStdLibrary):
+    """Test with pyuppsala."""

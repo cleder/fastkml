@@ -18,7 +18,9 @@
 from collections.abc import Iterable
 
 import pygeoif.types
+from hypothesis import HealthCheck
 from hypothesis import given
+from hypothesis import settings
 from hypothesis import strategies as st
 from hypothesis.provisional import urls
 
@@ -33,6 +35,7 @@ import fastkml.model
 import fastkml.styles
 import fastkml.views
 from tests.base import Lxml
+from tests.base import PyuppsalaNoSchemaValidation
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
@@ -481,3 +484,41 @@ class TestLxml(Lxml):
         assert_str_roundtrip(network_link)
         assert_str_roundtrip_terse(network_link)
         assert_str_roundtrip_verbose(network_link)
+
+
+class TestPyuppsala(PyuppsalaNoSchemaValidation, TestLxml):
+    # Reusing `TestLxml`'s hypothesis-wrapped test method (rather than
+    # duplicating its `@given` strategy and body) makes hypothesis flag
+    # `HealthCheck.differing_executors`, since the same underlying test
+    # function is now invoked from two classes. That's exactly what's
+    # happening here, deliberately, so it's suppressed rather than avoided.
+    test_fuzz_snippet = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_fuzz_snippet)
+    test_fuzz_placemark_geometry_only = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_fuzz_placemark_geometry_only)
+    test_fuzz_placemark_view_times = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_fuzz_placemark_view_times)
+    test_fuzz_placemark_str = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_fuzz_placemark_str)
+    test_fuzz_placemark_atom = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_fuzz_placemark_atom)
+    test_fuzz_placemark_gx_track = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_fuzz_placemark_gx_track)
+    test_fuzz_placemark_extended_data = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_fuzz_placemark_extended_data)
+    test_fuzz_placemark_styles = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_fuzz_placemark_styles)
+    test_fuzz_placemark_model = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_fuzz_placemark_model)
+    test_network_link = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_network_link)

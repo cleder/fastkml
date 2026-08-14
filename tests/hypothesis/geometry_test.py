@@ -18,6 +18,7 @@
 
 from collections.abc import Sequence
 
+from hypothesis import HealthCheck
 from hypothesis import given
 from hypothesis import settings
 from hypothesis import strategies as st
@@ -36,6 +37,7 @@ from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
 from fastkml.validator import validate
 from tests.base import Lxml
+from tests.base import PyuppsalaNoSchemaValidation
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.strategies import nc_name
@@ -481,3 +483,62 @@ class TestLxml(Lxml):
         )
 
         _test_geometry_str_roundtrip_verbose(polygon)
+
+
+class TestPyuppsala(PyuppsalaNoSchemaValidation, TestLxml):
+    # Reusing `TestLxml`'s hypothesis-wrapped test methods (rather than
+    # duplicating their `@given` strategy and body) makes hypothesis flag
+    # `HealthCheck.differing_executors`, since the same underlying test
+    # function is now invoked from two classes. That's exactly what's
+    # happening here, deliberately, so it's suppressed rather than avoided.
+    #
+    # `test_coordinates_str_roundtrip` already carries an explicit
+    # `@settings(deadline=None)`. `settings.__call__` refuses to decorate a
+    # test that has already been settings-decorated, so instead of
+    # rewrapping it with `settings(...)(...)` like the others below, merge
+    # the extra `suppress_health_check` into its existing settings object
+    # in place.
+    test_coordinates_str_roundtrip = TestLxml.test_coordinates_str_roundtrip
+    test_coordinates_str_roundtrip._hypothesis_internal_use_settings = settings(
+        parent=test_coordinates_str_roundtrip._hypothesis_internal_use_settings,
+        suppress_health_check=[HealthCheck.differing_executors],
+    )
+    test_coordinates_repr_roundtrip = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_coordinates_repr_roundtrip)
+    test_point_repr_roundtrip = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_point_repr_roundtrip)
+    test_point_str_roundtrip = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_point_str_roundtrip)
+    test_point_str_roundtrip_terse = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_point_str_roundtrip_terse)
+    test_point_str_roundtrip_verbose = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_point_str_roundtrip_verbose)
+    test_linestring_repr_roundtrip = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_linestring_repr_roundtrip)
+    test_linestring_str_roundtrip = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_linestring_str_roundtrip)
+    test_linestring_str_roundtrip_terse = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_linestring_str_roundtrip_terse)
+    test_linestring_str_roundtrip_verbose = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_linestring_str_roundtrip_verbose)
+    test_polygon_repr_roundtrip = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_polygon_repr_roundtrip)
+    test_polygon_str_roundtrip = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_polygon_str_roundtrip)
+    test_polygon_str_roundtrip_terse = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_polygon_str_roundtrip_terse)
+    test_polygon_str_roundtrip_verbose = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_polygon_str_roundtrip_verbose)

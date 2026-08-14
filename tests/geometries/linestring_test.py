@@ -26,6 +26,7 @@ from fastkml.exceptions import KMLParseError
 from fastkml.geometry import Coordinates
 from fastkml.geometry import LineString
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 
@@ -238,3 +239,7 @@ class TestLineString(StdLibrary):
 
 class TestLineStringLxml(Lxml, TestLineString):
     """Test with lxml."""
+
+
+class TestLineStringPyuppsala(Pyuppsala, TestLineString):
+    """Test with pyuppsala."""
