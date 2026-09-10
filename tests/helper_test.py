@@ -162,6 +162,9 @@ class TestStdLibrary(StdLibrary):
         assert clean_string("   ") is None
         assert clean_string("") is None
         assert clean_string(None) is None
+        # Falsy non-string values pass through unchanged, like any other
+        # non-string input.
+        assert clean_string(0) == 0
 
 
 class TestLxml(Lxml):
@@ -180,4 +183,7 @@ class TestLxml(Lxml):
             description=lxml.etree.CDATA("<b>bold</b>"),
         )
 
-        assert "<![CDATA[<b>bold</b>]]>" in placemark.to_string()
+        serialized = placemark.to_string()
+        assert "<![CDATA[<b>bold</b>]]>" in serialized
+        # The description must not be both wrapped in CDATA *and* escaped.
+        assert "&lt;b&gt;bold&lt;/b&gt;" not in serialized
