@@ -90,9 +90,20 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def clean_string(value: str | None) -> str | None:
-    """Clean and validate a string value, returning None if empty."""
-    return value.strip() or None if value else None
+def clean_string(value: Any) -> Any:
+    """
+    Clean and validate a string value, returning None if empty.
+
+    For string inputs, returns the stripped string, or ``None`` if the
+    result is empty. Non-string values (e.g. ``lxml.etree.CDATA`` or other
+    objects) are returned unchanged.
+    """
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        # Pass non-string values (e.g. ``lxml.etree.CDATA``) through unchanged.
+        return value
+    return value.strip() or None
 
 
 def handle_error(
