@@ -266,3 +266,35 @@ Now we can remove the CascadingStyle from the document and have a look at the re
       </kml:Placemark>
     </kml:Document>
     <BLANKLINE>
+
+
+Arbitrary XML in ``ExtendedData``
+---------------------------------
+
+KML also allows application-specific XML directly inside ``ExtendedData``. Google
+Earth preserves these elements but does not interpret them. In ``fastkml`` you can
+pass pre-built etree elements into ``ExtendedData.elements`` and they will round-trip
+as ``XMLData`` instances when the KML is parsed again.
+
+.. code-block:: pycon
+
+    >>> from fastkml import ExtendedData, Placemark, XMLData, config
+    >>> campsite_number = config.etree.fromstring(
+    ...     b'<camp:number xmlns:camp="http://campsites.com">14</camp:number>'
+    ... )
+    >>> campsite_spaces = config.etree.fromstring(
+    ...     b'<camp:parkingSpaces xmlns:camp="http://campsites.com">2</camp:parkingSpaces>'
+    ... )
+    >>> placemark = Placemark(
+    ...     extended_data=ExtendedData(elements=[campsite_number, campsite_spaces]),
+    ... )
+    >>> reparsed = KML.from_string(KML(features=[placemark]).to_string())
+    >>> custom_value = reparsed.features[0].extended_data.elements[0]
+    >>> isinstance(custom_value, XMLData)
+    True
+    >>> custom_value.element.tag
+    '{http://campsites.com}number'
+
+Keep the namespace declaration on the custom element itself, or declare it higher up on
+the surrounding KML document. See ``examples/extended_data_arbitrary_xml.py`` for a
+complete runnable example.

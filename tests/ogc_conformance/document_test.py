@@ -52,6 +52,11 @@ class TestLxml(Lxml):
         parsing ``Delete``/``Create``/``Change`` in document order instead of
         registration order: this fixture's ``Update`` lists ``Delete`` before
         ``Create``, which the old code silently swapped on every round-trip.
+
+        And again, from 96 to 90, once support for arbitrary XML in
+        ``ExtendedData`` merged in: this fixture has two ``ExtendedData`` blocks
+        (one with an ``rdf:`` child), which previously round-tripped with more
+        drift before unrecognized children could be preserved instead of dropped.
         """
         clean_doc = KMLFILEDIR / "Document-clean.kml"
         expected = clean_doc.read_bytes()
@@ -59,7 +64,7 @@ class TestLxml(Lxml):
         doc = fastkml.kml.KML.parse(clean_doc)
         diff = xmldiff(doc.to_string(), expected)
 
-        assert len(diff) == 96, diff
+        assert len(diff) == 90, diff
         assert fastkml.validator.validate(file_to_validate=clean_doc)
         assert fastkml.validator.validate(element=doc.etree_element())
 
