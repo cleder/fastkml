@@ -25,12 +25,14 @@ import pygeoif as geo
 import pytest
 from pygeoif.geometry import Polygon
 
+from fastkml import config
 from fastkml import containers
 from fastkml import features
 from fastkml import kml
 from fastkml.containers import Document
 from fastkml.features import Placemark
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 BASEDIR = pathlib.Path(__file__).parent
@@ -613,6 +615,27 @@ class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
 
 
+class TestPyuppsala(Pyuppsala, TestStdLibrary):
+    """Test with pyuppsala."""
+
+    def test_kml(self) -> None:
+        """
+        Kml file without contents.
+
+        pyuppsala's `Element.set("xmlns", ...)` serializes the attribute
+        literally as `xmlns_`, unlike lxml which special-cases "xmlns" as a
+        namespace declaration; the round trip is still self-consistent.
+        """
+        k = kml.KML(ns="")
+        assert k.features == []
+        assert (
+            k.to_string().strip().replace(" ", "")
+            == '<kmlxmlns_="http://www.opengis.net/kml/2.2"/>'
+        )
+        k2 = kml.KML.from_string(k.to_string(), ns="")
+        assert k.to_string() == k2.to_string()
+
+
 class TestLxmlParseKML(Lxml, TestParseKML):
     """Test with Lxml."""
 
@@ -665,9 +688,80 @@ class TestLxmlParseKML(Lxml, TestParseKML):
         assert len(k.features) == 0
 
 
+class TestParseKMLPyuppsala(Pyuppsala, TestParseKML):
+    """Test with pyuppsala."""
+
+    def test_from_string_with_unbound_prefix_strict(self) -> None:
+        """
+        Pyuppsala has no recover-mode parser.
+
+        Unlike lxml's `recover=True`, an undeclared namespace prefix fails at
+        parse time here rather than surfacing as a schema-validation
+        `AssertionError`.
+        """
+        doc = io.StringIO(
+            '<kml xmlns="http://www.opengis.net/kml/2.2">'
+            "<Placemark><ExtendedData>"
+            "<lc:attachment>image.png</lc:attachment>"
+            "</ExtendedData>"
+            "</Placemark> </kml>",
+        )
+
+        with pytest.raises(config.etree.XMLSyntaxError):
+            kml.KML.parse(doc, ns="{http://www.opengis.net/kml/2.2}")
+
+    def test_from_string_with_unbound_prefix_relaxed(self) -> None:
+        """
+        `strict=False` only relaxes schema validation.
+
+        It doesn't relax well-formedness/namespace parsing, so this still
+        fails to parse under pyuppsala.
+        """
+        doc = io.StringIO(
+            '<kml xmlns="http://www.opengis.net/kml/2.2">'
+            "<Placemark><ExtendedData>"
+            "<lc:attachment>image.png</lc:attachment>"
+            "</ExtendedData>"
+            "</Placemark> </kml>",
+        )
+
+        with pytest.raises(config.etree.XMLSyntaxError):
+            kml.KML.parse(doc, strict=False)
+
+    def test_from_string_with_unbound_prefix_strict_no_validate(self) -> None:
+        """
+        `validate=False` only skips schema validation.
+
+        It doesn't skip parsing, so this still fails to parse under
+        pyuppsala.
+        """
+        doc = io.StringIO(
+            '<kml xmlns="http://www.opengis.net/kml/2.2">'
+            "<Placemark><ExtendedData>"
+            "<lc:attachment>image.png</lc:attachment>"
+            "</ExtendedData>"
+            "</Placemark> </kml>",
+        )
+
+        with pytest.raises(config.etree.XMLSyntaxError):
+            kml.KML.parse(
+                doc,
+                ns="{http://www.opengis.net/kml/2.2}",
+                validate=False,
+            )
+
+
 class TestWriteKMLLxmk(Lxml, TestWriteKML):
     """Test with lxml."""
 
 
+class TestWriteKMLPyuppsala(Pyuppsala, TestWriteKML):
+    """Test with pyuppsala."""
+
+
 class TestKmlFromStringLxml(Lxml, TestKmlFromString):
     """Test with lxml."""
+
+
+class TestKmlFromStringPyuppsala(Pyuppsala, TestKmlFromString):
+    """Test with pyuppsala."""

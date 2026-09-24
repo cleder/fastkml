@@ -18,6 +18,7 @@
 
 from fastkml.geometry import Coordinates
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 
@@ -76,4 +77,8 @@ class TestCoordinates(StdLibrary):
 
 
 class TestCoordinatesLxml(Lxml, TestCoordinates):
+    pass
+
+
+class TestCoordinatesPyuppsala(Pyuppsala, TestCoordinates):
     pass

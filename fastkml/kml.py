@@ -61,13 +61,13 @@ kml_children = (
 )
 
 
-def lxml_parse_and_validate(
+def parse_and_validate(
     file: Path | str | IO[AnyStr],
     strict: bool,
     validate: bool | None,
 ) -> Element:
     """
-    Parse and validate a KML file using lxml.
+    Parse and validate a KML file using a rich etree backend (lxml or pyuppsala).
 
     Args:
     ----
@@ -82,18 +82,17 @@ def lxml_parse_and_validate(
 
     Raises:
     ------
-        TypeError: If lxml is not available.
+        TypeError: If neither lxml nor another compatible backend is available.
 
     """
     if strict and validate is None:
         validate = True
-    tree = config.etree.parse(
-        file,
-        parser=config.etree.XMLParser(
-            huge_tree=True,
-            recover=True,
-        ),
-    )
+    try:
+        parser = config.etree.XMLParser(huge_tree=True, recover=True)
+    except NotImplementedError:
+        # Some backends (e.g. pyuppsala) don't support recover-mode parsing.
+        parser = config.etree.XMLParser(huge_tree=True)
+    tree = config.etree.parse(file, parser=parser)
     root = tree.getroot()
     if validate:
         validator.validate(element=root)
@@ -168,9 +167,11 @@ class KML(_XMLObject):
                 f"{self.ns}{self.get_tag_name()}",
             )
             root.set("xmlns", config.KMLNS[1:-1])
-        elif hasattr(config.etree, "LXML_VERSION"):
-            # lxml supports a `None` key in `nsmap` to declare a default
-            # namespace; lxml-stubs' `_NSMapArg` doesn't model this.
+        elif config.etree.__name__ != "xml.etree.ElementTree":
+            # lxml and lxml-compatible backends (e.g. pyuppsala) support a
+            # `None` key in `nsmap` to declare a default namespace; the
+            # stdlib's `Element` doesn't accept `nsmap` at all. lxml-stubs'
+            # `_NSMapArg` doesn't model this.
             root = config.etree.Element(
                 f"{self.ns}{self.get_tag_name()}",
                 nsmap={None: self.ns[1:-1]},  # type: ignore[dict-item]  # ty: ignore[invalid-argument-type]
@@ -226,7 +227,7 @@ class KML(_XMLObject):
 
         """
         try:
-            root = lxml_parse_and_validate(file, strict, validate)
+            root = parse_and_validate(file, strict, validate)
         except TypeError:
             root = config.etree.parse(file).getroot()
         if ns is None:

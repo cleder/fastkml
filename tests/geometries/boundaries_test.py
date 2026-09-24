@@ -26,6 +26,7 @@ from fastkml.geometry import InnerBoundaryIs
 from fastkml.geometry import LinearRing
 from fastkml.geometry import OuterBoundaryIs
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 
@@ -138,4 +139,8 @@ class TestBoundaries(StdLibrary):
 
 
 class TestBoundariesLxml(Lxml, TestBoundaries):
+    pass
+
+
+class TestBoundariesPyuppsala(Pyuppsala, TestBoundaries):
     pass

@@ -52,7 +52,7 @@ complexity = [
     "radon",
 ]
 dev = [
-    "fastkml[complexity,docs,linting,lxml,tests,typing]",
+    "fastkml[complexity,docs,linting,lxml,pyuppsala,tests,typing]",
     "pre-commit",
     "shapely",
 ]
@@ -77,6 +77,13 @@ lxml = [
     # `tests` alone must stay installable on PyPy/GraalPy/CPython-dev
     # environments that don't have a prebuilt lxml wheel available.
     "xmldiff",
+]
+pyuppsala = [
+    # 0.9.0 regressed circular xsd:import handling (spurious "Duplicate
+    # attributeGroup definition" when base_path is passed), which broke
+    # loading the real OGC KML schema. Fixed in 0.9.1:
+    # https://github.com/kushaldas/pyuppsala/issues/25
+    "pyuppsala==0.9.1",
 ]
 tests = [
     # 6.156+ has no cp315 wheel yet; unpin once hypothesis publishes one.

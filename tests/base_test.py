@@ -19,6 +19,7 @@
 from fastkml import base
 from fastkml import kml_base
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 
@@ -142,6 +143,28 @@ class TestStdLibrary(StdLibrary):
 
 class TestLxml(Lxml, TestStdLibrary):
     """Test the base object with lxml."""
+
+    def test_to_string(self) -> None:
+        obj = kml_base._BaseObject(id="id-0")
+
+        assert obj.to_string() == (
+            '<kml:_BaseObject xmlns:kml="http://www.opengis.net/kml/2.2" id="id-0"/>\n'
+        )
+
+    def test_from_string(self) -> None:
+        be = kml_base._BaseObject.from_string(
+            string=(
+                '<kml:test xmlns:kml="http://www.opengis.net/kml/2.2" '
+                'id="id-0" targetId="target-id-0"/>\n'
+            ),
+        )
+
+        assert be.id == "id-0"
+        assert be.target_id == "target-id-0"
+
+
+class TestPyuppsala(Pyuppsala, TestStdLibrary):
+    """Test the base object with pyuppsala."""
 
     def test_to_string(self) -> None:
         obj = kml_base._BaseObject(id="id-0")

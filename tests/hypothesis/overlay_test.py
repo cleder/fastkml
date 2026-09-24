@@ -16,7 +16,9 @@
 """Test Link and Icon."""
 
 import pytest
+from hypothesis import HealthCheck
 from hypothesis import given
+from hypothesis import settings
 from hypothesis import strategies as st
 from pygeoif.hypothesis.strategies import epsg4326
 from pygeoif.hypothesis.strategies import points
@@ -26,6 +28,7 @@ import fastkml.enums
 import fastkml.geometry
 import fastkml.overlays
 from tests.base import Lxml
+from tests.base import PyuppsalaNoSchemaValidation
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
@@ -324,3 +327,32 @@ class TestLxml(Lxml):
         assert_str_roundtrip(screen_overlay)
         assert_str_roundtrip_terse(screen_overlay)
         assert_str_roundtrip_verbose(screen_overlay)
+
+
+class TestPyuppsala(PyuppsalaNoSchemaValidation, TestLxml):
+    # Reusing `TestLxml`'s hypothesis-wrapped test methods (rather than
+    # duplicating their `@given` strategies and bodies) makes hypothesis flag
+    # `HealthCheck.differing_executors`, since the same underlying test
+    # function is now invoked from two classes. That's exactly what's
+    # happening here, deliberately, so it's suppressed rather than avoided.
+    test_fuzz_view_volume = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_fuzz_view_volume)
+    test_fuzz_image_pyramid = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_fuzz_image_pyramid)
+    test_fuzz_lat_lon_box = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_fuzz_lat_lon_box)
+    test_fuzz_photo_overlay = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_fuzz_photo_overlay)
+    test_fuzz_ground_overlay = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_fuzz_ground_overlay)
+    test_fuzz_xy = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_fuzz_xy)
+    test_screen_overlay = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_screen_overlay)

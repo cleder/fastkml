@@ -141,6 +141,13 @@ For enhanced performance, install with lxml:
 
     uv add "fastkml[lxml]"
 
+Alternatively, pyuppsala_ (a pure-Rust, memory-safe XML library) can be used
+in place of lxml:
+
+.. code-block:: bash
+
+    uv add "fastkml[pyuppsala]"
+
 Using pip
 ---------
 
@@ -170,6 +177,7 @@ Optional Dependencies
 ---------------------
 
 * lxml_ - For improved XML parsing performance (recommended)
+* pyuppsala_ - A pure-Rust, memory-safe alternative to lxml
 
 Documentation
 =============
@@ -192,6 +200,7 @@ We welcome contributions! Please check out our `contributing guide <docs/contrib
 
 .. _pygeoif: https://pypi.python.org/pypi/pygeoif/
 .. _lxml: https://pypi.python.org/pypi/lxml
+.. _pyuppsala: https://pypi.python.org/pypi/pyuppsala
 .. _arrow: https://pypi.python.org/pypi/arrow
 .. _OGC: https://www.ogc.org/standard/kml/
 .. _shapely: https://shapely.readthedocs.io/

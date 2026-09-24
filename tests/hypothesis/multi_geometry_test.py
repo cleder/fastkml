@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+from hypothesis import HealthCheck
 from hypothesis import given
 from hypothesis import settings
 from hypothesis import strategies as st
@@ -40,6 +41,7 @@ from fastkml.enums import AltitudeMode
 from fastkml.enums import Verbosity
 from fastkml.validator import validate
 from tests.base import Lxml
+from tests.base import PyuppsalaNoSchemaValidation
 from tests.hypothesis.strategies import nc_name
 
 eval_locals = {
@@ -710,3 +712,72 @@ class TestLxml(Lxml):
             )
         else:
             assert not new_mg
+
+
+class TestPyuppsala(PyuppsalaNoSchemaValidation, TestLxml):
+    # Reusing `TestLxml`'s hypothesis-wrapped test methods (rather than
+    # duplicating their `@given` strategies and bodies) makes hypothesis flag
+    # `HealthCheck.differing_executors`, since the same underlying test
+    # function is now invoked from two classes. That's exactly what's
+    # happening here, deliberately, so it's suppressed rather than avoided.
+    #
+    # `test_multipoint_repr_roundtrip` additionally already carries an
+    # explicit `@settings(deadline=1_000)`, and hypothesis refuses to apply
+    # `@settings` twice to the same function object (it raises
+    # `InvalidArgument`). The function object is shared between `TestLxml`
+    # and `TestPyuppsala` regardless (that's the whole reason
+    # `differing_executors` needs suppressing), so its settings are merged
+    # in place - preserving `deadline=1_000` - rather than via the
+    # `@settings` decorator.
+    _multipoint_repr_roundtrip = TestLxml.test_multipoint_repr_roundtrip
+    _multipoint_repr_roundtrip._hypothesis_internal_use_settings = settings(
+        _multipoint_repr_roundtrip._hypothesis_internal_use_settings,
+        suppress_health_check=[HealthCheck.differing_executors],
+    )
+    test_multipoint_repr_roundtrip = _multipoint_repr_roundtrip
+    del _multipoint_repr_roundtrip
+    test_multipoint_str_roundtrip = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_multipoint_str_roundtrip)
+    test_multipoint_str_roundtrip_terse = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_multipoint_str_roundtrip_terse)
+    test_multipoint_str_roundtrip_verbose = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_multipoint_str_roundtrip_verbose)
+    test_multilinestring_repr_roundtrip = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_multilinestring_repr_roundtrip)
+    test_multilinestring_str_roundtrip = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_multilinestring_str_roundtrip)
+    test_multilinestring_str_roundtrip_terse = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_multilinestring_str_roundtrip_terse)
+    test_multilinestring_str_roundtrip_verbose = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_multilinestring_str_roundtrip_verbose)
+    test_multipolygon_repr_roundtrip = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_multipolygon_repr_roundtrip)
+    test_multipolygon_str_roundtrip = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_multipolygon_str_roundtrip)
+    test_multipolygon_str_roundtrip_terse = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_multipolygon_str_roundtrip_terse)
+    test_multipolygon_str_roundtrip_verbose = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_multipolygon_str_roundtrip_verbose)
+    test_geometrycollection_repr_roundtrip = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_geometrycollection_repr_roundtrip)
+    test_geometrycollection_str_roundtrip = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_geometrycollection_str_roundtrip)
+    test_geometrycollection_str_roundtrip_terse = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_geometrycollection_str_roundtrip_terse)
+    test_geometrycollection_str_roundtrip_verbose = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestLxml.test_geometrycollection_str_roundtrip_verbose)

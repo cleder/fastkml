@@ -10,6 +10,17 @@ as its parser, but you can change this by setting the
 ``fastkml.config.etree`` module variable to a different
 implementation.
 
+``pyuppsala.etree`` (a pure-Rust, memory-safe implementation of the
+``lxml.etree`` API, installable via the ``pyuppsala`` extra) can be used the
+same way, as an alternative to ``lxml.etree``:
+
+.. code-block:: pycon
+
+    >>> import fastkml.config
+    >>> import pyuppsala.etree  # doctest: +SKIP
+    >>> fastkml.config.set_etree_implementation(pyuppsala.etree)  # doctest: +SKIP
+    >>> fastkml.config.set_default_namespaces()  # doctest: +SKIP
+
 E.g. if you have lxml installed, but you want to use the
 standard ``xml.etree.ElementTree``, you can do this:
 

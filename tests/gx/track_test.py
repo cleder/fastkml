@@ -32,6 +32,7 @@ from fastkml.gx import TrackItem
 from fastkml.gx.data import SimpleArrayData
 from fastkml.times import KmlDateTime
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 
@@ -608,9 +609,21 @@ class TestLxmlGetGxGeometry(Lxml, TestGetGxGeometry):
     """Test with lxml."""
 
 
+class TestPyuppsalaGetGxGeometry(Pyuppsala, TestGetGxGeometry):
+    """Test with pyuppsala."""
+
+
 class TestLxmlTrack(Lxml, TestTrack):
     """Test with lxml."""
 
 
+class TestPyuppsalaTrack(Pyuppsala, TestTrack):
+    """Test with pyuppsala."""
+
+
 class TestLxmlMultiTrack(Lxml, TestMultiTrack):
     """Test with lxml."""
+
+
+class TestPyuppsalaMultiTrack(Pyuppsala, TestMultiTrack):
+    """Test with pyuppsala."""
