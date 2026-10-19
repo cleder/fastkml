@@ -45,7 +45,7 @@ repos:
     hooks:
       - id: absolufy-imports
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.16.7'
+    rev: 'v0.17.1'
     hooks:
       - id: ruff-check
       - id: ruff-format
@@ -84,12 +84,12 @@ repos:
     hooks:
       - id: blacken-docs
   - repo: https://github.com/crate-ci/typos
-    rev: v1
+    rev: v1.51.1
     hooks:
       - id: typos
         exclude_types: ['csv']
   - repo: https://github.com/rohaquinlop/complexipy-pre-commit
-    rev: v8.0.1
+    rev: v8.1.0
     hooks:
       - id: complexipy
         exclude: (?x)^(
