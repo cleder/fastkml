@@ -103,6 +103,7 @@ class TestStdLibrary(StdLibrary):
         )
         k = kml.KML.from_string(doc1, ns=None)
         d = k.features[0]
+        assert isinstance(d, kml.Document)
         s2 = d.schemata[0]
         assert s.to_string() == s2.to_string()
         k1 = kml.KML.from_string(k.to_string())
@@ -161,15 +162,20 @@ class TestStdLibrary(StdLibrary):
 
         k2 = kml.KML.from_string(k.to_string())
 
-        extended_data = k2.features[0].extended_data
+        placemark = k2.features[0]
+        assert isinstance(placemark, kml.Placemark)
+        extended_data = placemark.extended_data
         assert extended_data is not None
         assert len(extended_data.elements) == 2
-        assert extended_data.elements[0].name == "info"
-        assert extended_data.elements[0].value == "so much to see"
-        assert extended_data.elements[0].display_name is None
-        assert extended_data.elements[1].name == "weather"
-        assert extended_data.elements[1].value == "blue skies"
-        assert extended_data.elements[1].display_name == "Weather"
+        info, weather = extended_data.elements
+        assert isinstance(info, data.Data)
+        assert isinstance(weather, data.Data)
+        assert info.name == "info"
+        assert info.value == "so much to see"
+        assert info.display_name is None
+        assert weather.name == "weather"
+        assert weather.value == "blue skies"
+        assert weather.display_name == "Weather"
 
     def test_untyped_extended_data_nested(self) -> None:
         ns = "{http://www.opengis.net/kml/2.2}"
@@ -192,14 +198,24 @@ class TestStdLibrary(StdLibrary):
 
         k2 = kml.KML.from_string(k.to_string())
 
-        document_data = k2.features[0].extended_data
-        folder_data = k2.features[0].features[0].extended_data
+        document = k2.features[0]
+        assert isinstance(document, kml.Document)
+        folder = document.features[0]
+        assert isinstance(folder, kml.Folder)
+        document_data = document.extended_data
+        folder_data = folder.extended_data
 
-        assert document_data.elements[0].name == "type"
-        assert document_data.elements[0].value == "Document"
+        assert document_data is not None
+        doc_element = document_data.elements[0]
+        assert isinstance(doc_element, data.Data)
+        assert doc_element.name == "type"
+        assert doc_element.value == "Document"
 
-        assert folder_data.elements[0].name == "type"
-        assert folder_data.elements[0].value == "Folder"
+        assert folder_data is not None
+        folder_element = folder_data.elements[0]
+        assert isinstance(folder_element, data.Data)
+        assert folder_element.name == "type"
+        assert folder_element.value == "Folder"
 
     def test_extended_data(self) -> None:
         doc = """<kml xmlns="http://www.opengis.net/kml/2.2">
@@ -233,20 +249,24 @@ class TestStdLibrary(StdLibrary):
 
         k = kml.KML.from_string(doc)
 
-        extended_data = k.features[0].extended_data
+        placemark = k.features[0]
+        assert isinstance(placemark, kml.Placemark)
+        extended_data = placemark.extended_data
 
-        assert extended_data.elements[0].name == "holeNumber"
-        assert extended_data.elements[0].value == "1"
-        assert isinstance(extended_data.elements[0].display_name, str)
-        assert "<b>This is hole </b>" in extended_data.elements[0].display_name
+        assert extended_data is not None
+        hole_number, hole_par, sd = extended_data.elements
+        assert isinstance(hole_number, data.Data)
+        assert hole_number.name == "holeNumber"
+        assert hole_number.value == "1"
+        assert isinstance(hole_number.display_name, str)
+        assert "<b>This is hole </b>" in hole_number.display_name
 
-        assert extended_data.elements[1].name == "holePar"
-        assert extended_data.elements[1].value == "4"
-        assert isinstance(extended_data.elements[1].display_name, str)
-        assert (
-            "<i>The par for this hole is </i>" in extended_data.elements[1].display_name
-        )
-        sd = extended_data.elements[2]
+        assert isinstance(hole_par, data.Data)
+        assert hole_par.name == "holePar"
+        assert hole_par.value == "4"
+        assert isinstance(hole_par.display_name, str)
+        assert "<i>The par for this hole is </i>" in hole_par.display_name
+        assert isinstance(sd, data.SchemaData)
         assert sd.data[0].name == "TrailHeadName"
         assert sd.data[0].value == "Mount Everest"
         assert sd.data[1].name == "TrailLength"

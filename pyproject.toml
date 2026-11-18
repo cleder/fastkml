@@ -286,7 +286,7 @@ include = [
 ]
 
 [tool.ty.overrides.rules]
-unresolved-attribute = "ignore"
+missing-attribute = "ignore"
 
 [[tool.ty.overrides]]
 include = [
@@ -296,7 +296,7 @@ include = [
 [tool.ty.overrides.rules]
 # Same rationale as the pyrefly tests/**/* sub-config above.
 invalid-assignment = "ignore"
-unresolved-attribute = "ignore"
+missing-attribute = "ignore"
 
 [tool.ty.rules]
 # Promote checks ty leaves at "warn"/"ignore" by default, to match the

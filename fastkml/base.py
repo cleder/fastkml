@@ -33,8 +33,7 @@ consistent handling of XML operations across the library.
 
 import logging
 from typing import Any
-
-from typing_extensions import Self
+from typing import Self
 
 from fastkml import config
 from fastkml.enums import Verbosity

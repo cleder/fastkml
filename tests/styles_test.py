@@ -680,6 +680,7 @@ class TestStdLibrary(StdLibrary):
 
         assert sm.id == "id-sm-0"
         assert sm.target_id == "target-sm-0"
+        assert isinstance(sm.normal, styles.Style)
         assert sm.normal.id == "id-0"
         assert sm.normal.target_id == "target-0"
 

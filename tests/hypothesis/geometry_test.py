@@ -99,6 +99,7 @@ def _test_geometry_str_roundtrip_terse(geometry: kml_geometry) -> None:
         assert new_g.extrude is None
     if hasattr(geometry, "tessellate"):
         assert not isinstance(geometry, fastkml.geometry.Point)
+        assert not isinstance(new_g, fastkml.geometry.Point)
         if geometry.tessellate:
             assert new_g.tessellate is True
         else:
@@ -124,6 +125,7 @@ def _test_geometry_str_roundtrip_verbose(geometry: kml_geometry) -> None:
         assert new_g.extrude == geometry.extrude
     if hasattr(geometry, "tessellate"):
         assert not isinstance(geometry, fastkml.geometry.Point)
+        assert not isinstance(new_g, fastkml.geometry.Point)
         if geometry.tessellate is None:
             assert new_g.tessellate is False
         else:

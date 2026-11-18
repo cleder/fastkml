@@ -26,6 +26,7 @@ meaning.
 
 import fastkml.kml
 import fastkml.validator
+from fastkml.containers import Document
 from fastkml.styles import StyleMap
 from tests.base import Lxml
 from tests.ogc_conformance._helpers import KMLFILEDIR
@@ -95,8 +96,12 @@ class TestLxml(Lxml):
                 oldtext=None,
             ),
         ]
-        style_map = doc.features[0].styles[0]
+        container = doc.features[0]
+        assert isinstance(container, Document)
+        style_map = container.styles[0]
+        assert isinstance(style_map, StyleMap)
         assert len(style_map.pairs) == 2
+        assert style_map.pairs[1].key is not None
         assert style_map.pairs[1].key.value == "highlight"
         nested = style_map.pairs[1].style
         assert isinstance(nested, StyleMap)

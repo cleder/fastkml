@@ -16,7 +16,7 @@
 
 """Test the Network Link Control classes."""
 
-import datetime
+import datetime as dt
 from collections.abc import Callable
 
 import pygeoif.geometry as geo
@@ -89,8 +89,8 @@ class TestStdLibrary(StdLibrary):
     """Test with the standard library."""
 
     def test_network_link_control_obj(self) -> None:
-        dt = datetime.datetime.now(tz=tzutc())
-        kml_datetime = KmlDateTime(dt=dt)
+        now = dt.datetime.now(tz=tzutc())
+        kml_datetime = KmlDateTime(dt=now)
         view = views.Camera()
 
         network_control_obj = NetworkLinkControl(
@@ -127,8 +127,8 @@ class TestStdLibrary(StdLibrary):
 
         nc = NetworkLinkControl.from_string(doc)
 
-        dt = datetime.date(2008, 5, 30)
-        kml_datetime = KmlDateTime(dt=dt)
+        day = dt.date(2008, 5, 30)
+        kml_datetime = KmlDateTime(dt=day)
 
         nc_obj = NetworkLinkControl(
             min_refresh_period=432000,
@@ -306,7 +306,7 @@ class TestStdLibrary(StdLibrary):
                 lambda: TimeStamp(
                     target_id="ts1",
                     timestamp=KmlDateTime(
-                        dt=datetime.datetime(2024, 1, 1, tzinfo=tzutc()),
+                        dt=dt.datetime(2024, 1, 1, tzinfo=tzutc()),
                     ),
                 ),
                 TimeStamp,
@@ -316,7 +316,7 @@ class TestStdLibrary(StdLibrary):
             pytest.param(
                 lambda: TimeSpan(
                     target_id="tspan1",
-                    begin=KmlDateTime(dt=datetime.datetime(2024, 1, 1, tzinfo=tzutc())),
+                    begin=KmlDateTime(dt=dt.datetime(2024, 1, 1, tzinfo=tzutc())),
                 ),
                 TimeSpan,
                 "tspan1",
@@ -404,7 +404,7 @@ class TestStdLibrary(StdLibrary):
             target_id="track1",
             track_items=[
                 TrackItem(
-                    when=KmlDateTime(dt=datetime.datetime(2024, 1, 1, tzinfo=tzutc())),
+                    when=KmlDateTime(dt=dt.datetime(2024, 1, 1, tzinfo=tzutc())),
                     coord=geo.Point(10.0, 20.0, 0.0),
                 ),
             ],
@@ -455,6 +455,7 @@ class TestStdLibrary(StdLibrary):
 
         nlc = NetworkLinkControl.from_string(doc)
 
+        assert nlc.update is not None
         objects = nlc.update.operations[0].objects
         assert [type(obj) for obj in objects] == [Point, Style]
 
@@ -475,6 +476,7 @@ class TestStdLibrary(StdLibrary):
 
         nlc = NetworkLinkControl.from_string(doc)
 
+        assert nlc.update is not None
         assert [type(op) for op in nlc.update.operations] == [Delete, Create, Change]
 
     def test_change_kml_parsing_invalid_altitude_mode_strict(self) -> None:
