@@ -29,6 +29,7 @@ from fastkml import containers
 from fastkml import features
 from fastkml import kml
 from fastkml.containers import Document
+from fastkml.containers import Folder
 from fastkml.features import Placemark
 from tests.base import Lxml
 from tests.base import StdLibrary
@@ -50,6 +51,7 @@ class TestStdLibrary(StdLibrary):
         </Placemark> </kml>""",
         )
         doc2 = kml.KML.from_string(doc.to_string())
+        assert isinstance(doc.features[0], Placemark)
         assert isinstance(doc.features[0].geometry, geo.LinearRing)
         assert doc.to_string() == doc2.to_string()
 
@@ -282,6 +284,7 @@ class TestKmlFromString(StdLibrary):
 
         k = kml.KML.from_string(doc)
         assert len(k.features) == 1
+        assert isinstance(k.features[0], Document)
         assert len(k.features[0].features) == 2
         k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
@@ -329,6 +332,7 @@ class TestKmlFromString(StdLibrary):
 
         k = kml.KML.from_string(doc)
         assert len(k.features) == 1
+        assert isinstance(k.features[0], Folder)
         assert len(k.features[0].features) == 3
         k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
@@ -347,6 +351,7 @@ class TestKmlFromString(StdLibrary):
 
         k = kml.KML.from_string(doc)
         assert len(k.features) == 1
+        assert isinstance(k.features[0], Placemark)
         assert k.features[0].name == "Simple placemark"
         k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
@@ -469,6 +474,7 @@ class TestKmlFromString(StdLibrary):
 
         k = kml.KML.from_string(doc)
         assert len(k.features) == 1
+        assert isinstance(k.features[0], Placemark)
         assert isinstance(k.features[0].geometry, Polygon)
         k2 = kml.KML.from_string(k.to_string())
         assert k.to_string() == k2.to_string()
@@ -520,6 +526,7 @@ class TestKmlFromString(StdLibrary):
 
         k = kml.KML.from_string(doc)
         assert len(k.features) == 1
+        assert isinstance(k.features[0], Placemark)
         assert isinstance(k.features[0].geometry, geo.MultiPoint)
         assert len(list(k.features[0].geometry.geoms)) == 12
         k2 = kml.KML.from_string(k.to_string())
@@ -532,6 +539,8 @@ class TestKmlFromString(StdLibrary):
         </Placemark> </kml>"""
 
         k = kml.KML.from_string(doc)
+        assert isinstance(k.features[0], Placemark)
+        assert k.features[0].snippet is not None
         assert k.features[0].snippet.text == "Short Desc"
         assert k.features[0].snippet.max_lines == 2
         k.features[0].snippet = features.Snippet(

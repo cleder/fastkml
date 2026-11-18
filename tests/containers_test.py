@@ -39,6 +39,7 @@ class TestStdLibrary(StdLibrary):
         </kml>"""
 
         k = kml.KML.from_string(doc, strict=False)
+        assert isinstance(k.features[0], containers.Document)
         assert k.features[0].visibility
         assert k.features[0].isopen
 
@@ -52,6 +53,7 @@ class TestStdLibrary(StdLibrary):
         </kml>"""
 
         k = kml.KML.from_string(doc, strict=False)
+        assert isinstance(k.features[0], containers.Document)
         assert k.features[0].visibility == 0
         assert k.features[0].isopen is False
 
@@ -66,6 +68,7 @@ class TestStdLibrary(StdLibrary):
 
         d = kml.KML.from_string(doc, strict=False)
 
+        assert isinstance(d.features[0], containers.Document)
         assert d.features[0].visibility is None
         assert d.features[0].isopen
 
@@ -140,6 +143,7 @@ class TestStdLibrary(StdLibrary):
         k = kml.KML.from_string(doc)
         assert len(k.features) == 1
         document = k.features[0]
+        assert isinstance(document, containers.Document)
 
         style0 = document.get_style_by_url(
             "http://localhost:8080/somepath#exampleStyleDocument",
@@ -147,8 +151,10 @@ class TestStdLibrary(StdLibrary):
         style1 = document.get_style_by_url("somepath#linestyleExample")
         style2 = document.get_style_by_url("#styleMapExample")
 
+        assert isinstance(style0, styles.Style)
         assert isinstance(style0.styles[0], styles.LabelStyle)
         assert style0.id == "exampleStyleDocument"
+        assert isinstance(style1, styles.Style)
         assert isinstance(style1.styles[0], styles.LineStyle)
         assert style1.id == "linestyleExample"
         assert isinstance(style2, styles.StyleMap)

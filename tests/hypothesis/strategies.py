@@ -16,7 +16,7 @@
 
 """Custom hypothesis strategies for testing."""
 
-import datetime
+import datetime as dt
 import re
 import string
 from functools import partial
@@ -78,14 +78,14 @@ kml_datetimes = partial(
     KmlDateTime,
     dt=st.one_of(
         st.dates(
-            min_value=datetime.date(2000, 1, 1),
-            max_value=datetime.date(2050, 1, 1),
+            min_value=dt.date(2000, 1, 1),
+            max_value=dt.date(2050, 1, 1),
         ),
         st.datetimes(
             allow_imaginary=False,
             timezones=timezones(),
-            min_value=datetime.datetime(2000, 1, 1),  # noqa: DTZ001
-            max_value=datetime.datetime(2050, 1, 1),  # noqa: DTZ001
+            min_value=dt.datetime(2000, 1, 1),  # noqa: DTZ001
+            max_value=dt.datetime(2050, 1, 1),  # noqa: DTZ001
         ),
     ),
     resolution=st.one_of(

@@ -144,7 +144,7 @@ def handle_error(
 def get_ns(obj: "_XMLObject", value: object) -> str:
     """Get the namespace of an attribute, fall back on the objects namespace."""
     try:
-        return obj.name_spaces.get(value.get_ns_id(), "")  # type: ignore[attr-defined]  # pyrefly: ignore  # ty: ignore[unresolved-attribute]
+        return obj.name_spaces.get(value.get_ns_id(), "")  # type: ignore[attr-defined]  # pyrefly: ignore  # ty: ignore[missing-attribute]
     except AttributeError:
         return obj.ns
 

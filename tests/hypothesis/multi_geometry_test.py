@@ -68,6 +68,13 @@ common_geometry = {
 }
 
 
+_SIMPLE_GEOMETRIES = (
+    fastkml.geometry.Point,
+    fastkml.geometry.LineString,
+    fastkml.geometry.Polygon,
+)
+
+
 def _test_repr_roundtrip(
     geometry: fastkml.geometry.MultiGeometry,
     cls: type[MultiPoint | MultiLineString | MultiPolygon | GeometryCollection],
@@ -98,9 +105,12 @@ def _test_geometry_str_roundtrip(
     assert geometry.geometry
     assert type(new_g.geometry) is cls
     for g1, g2 in zip(new_g.kml_geometries, geometry.kml_geometries, strict=False):
+        assert isinstance(g1, _SIMPLE_GEOMETRIES)
+        assert isinstance(g2, _SIMPLE_GEOMETRIES)
         assert g1.extrude == g2.extrude == extrude
         assert g1.altitude_mode == g2.altitude_mode == altitude_mode
         if not isinstance(g1, fastkml.geometry.Point):
+            assert not isinstance(g2, fastkml.geometry.Point)
             assert g1.tessellate == g2.tessellate == tessellate
     assert validate(element=new_g.etree_element())
 
@@ -126,6 +136,8 @@ def _test_geometry_str_roundtrip_terse(
     assert geometry.geometry
     assert type(new_g.geometry) is cls
     for new, orig in zip(new_g.kml_geometries, geometry.kml_geometries, strict=False):
+        assert isinstance(new, _SIMPLE_GEOMETRIES)
+        assert isinstance(orig, _SIMPLE_GEOMETRIES)
         if extrude:
             assert new.extrude == orig.extrude == extrude
         else:
@@ -135,6 +147,7 @@ def _test_geometry_str_roundtrip_terse(
         else:
             assert new.altitude_mode == orig.altitude_mode == altitude_mode
         if not isinstance(new, fastkml.geometry.Point):
+            assert not isinstance(orig, fastkml.geometry.Point)
             if tessellate:
                 assert new.tessellate == orig.tessellate == tessellate
             else:
@@ -165,7 +178,8 @@ def _test_geometry_str_roundtrip_verbose(
     for new, orig in zip(new_g.kml_geometries, geometry.kml_geometries, strict=False):
         if isinstance(new, fastkml.geometry.MultiGeometry):  # pragma: no cover
             continue  # pragma: no cover
-        assert not isinstance(orig, fastkml.geometry.MultiGeometry)
+        assert isinstance(new, _SIMPLE_GEOMETRIES)
+        assert isinstance(orig, _SIMPLE_GEOMETRIES)
         if extrude:
             assert new.extrude == orig.extrude == extrude
         else:
@@ -175,6 +189,7 @@ def _test_geometry_str_roundtrip_verbose(
         else:
             assert new.altitude_mode == orig.altitude_mode == altitude_mode
         if not isinstance(new, fastkml.geometry.Point):
+            assert not isinstance(orig, fastkml.geometry.Point)
             if tessellate:
                 assert new.tessellate == orig.tessellate == tessellate
             else:

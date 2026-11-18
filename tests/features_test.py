@@ -16,7 +16,7 @@
 
 """Test the kml classes."""
 
-import datetime
+import datetime as dt
 
 import pytest
 from dateutil.tz import tzutc
@@ -75,7 +75,7 @@ class TestStdLibrary(StdLibrary):
     def test_placemark_timespan_str_roundtrip(self) -> None:
         time_span = times.TimeSpan(
             begin=times.KmlDateTime(
-                dt=datetime.datetime(
+                dt=dt.datetime(
                     2012,
                     3,
                     5,
@@ -85,7 +85,7 @@ class TestStdLibrary(StdLibrary):
                     tzinfo=tzutc(),
                 ),
             ),
-            end=times.KmlDateTime(dt=datetime.date(2012, 4, 5)),
+            end=times.KmlDateTime(dt=dt.date(2012, 4, 5)),
         )
         pm = features.Placemark(times=time_span)
 
@@ -130,6 +130,7 @@ class TestStdLibrary(StdLibrary):
             link=links.Link(href="http://example.com/kml_file.kml"),
         )
 
+        assert network_link.link is not None
         assert network_link.link.href == "http://example.com/kml_file.kml"
         assert bool(network_link)
 
@@ -164,20 +165,26 @@ class TestStdLibrary(StdLibrary):
         assert network_link.name == "My NetworkLink"
         assert network_link.visibility
         assert not network_link.isopen
+        assert network_link.atom_link is not None
         assert network_link.atom_link.href == "http://example.com/kml_file.kml"
         assert network_link.refresh_visibility
         assert network_link.fly_to_view
+        assert network_link.link is not None
         assert network_link.link.href == "http://example.com/kml_file.kml"
         assert network_link.id == "networklink1"
         assert network_link.target_id == "target1"
+        assert network_link.atom_author is not None
         assert network_link.atom_author.name == "John Doe"
         assert network_link.address == "123 Main St"
         assert network_link.phone_number == "555-1234"
+        assert network_link.snippet is not None
         assert network_link.snippet.text == "This is a snippet"
         assert network_link.description == "This is a description"
+        assert network_link.view is not None
         assert network_link.view.latitude == 37.0
         assert network_link.view.longitude == -122.0
         assert network_link.view.altitude == 0.0
+        assert network_link.style_url is not None
         assert network_link.style_url.url == "#style1"
         assert len(network_link.styles) == 1
         assert network_link.styles[0].id == "style1"
@@ -210,21 +217,27 @@ class TestStdLibrary(StdLibrary):
         assert network_link.name == "My NetworkLink"
         assert network_link.visibility
         assert not network_link.isopen
+        assert network_link.atom_link is not None
         assert network_link.atom_link.href == "http://example.com/kml_file.kml"
         assert network_link.refresh_visibility
         assert network_link.fly_to_view
+        assert network_link.link is not None
         assert network_link.link.href == "http://example.com/kml_file.kml"
         assert network_link.id == "networklink1"
         assert network_link.target_id == "target1"
+        assert network_link.atom_author is not None
         assert network_link.atom_author.name == "John Doe"
         assert network_link.address == "123 Main St"
         assert network_link.phone_number == "555-1234"
+        assert network_link.snippet is not None
         assert network_link.snippet.text == "This is a snippet"
         assert bool(network_link.snippet)
         assert network_link.description == "This is a description"
+        assert network_link.view is not None
         assert network_link.view.latitude == 37.0
         assert network_link.view.longitude == -122.0
         assert network_link.view.altitude == 0.0
+        assert network_link.style_url is not None
         assert network_link.style_url.url == "#style1"
         assert len(network_link.styles) == 1
         assert network_link.styles[0].id == "style1"

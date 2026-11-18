@@ -347,6 +347,7 @@ class TestPhotoOverlay(StdLibrary):
         assert p_overlay.description == "This is a photo overlay"
         assert p_overlay.shape == enums.Shape.rectangle
         assert p_overlay.rotation == 0
+        assert isinstance(p_overlay.view, views.LookAt)
         assert p_overlay.view.longitude == -122.0822035425683
         assert p_overlay.view.latitude == 37.42228990140251
         assert p_overlay.view.altitude == 0
@@ -354,17 +355,22 @@ class TestPhotoOverlay(StdLibrary):
         assert p_overlay.view.tilt == 0
         assert p_overlay.view.range == 1000
         assert p_overlay.view.altitude_mode == AltitudeMode.clamp_to_ground
+        assert p_overlay.icon is not None
         assert p_overlay.icon.href == "https://example.com/photo.jpg"
+        assert p_overlay.view_volume is not None
         assert p_overlay.view_volume.left_fov == -60
         assert p_overlay.view_volume.right_fov == 60
         assert p_overlay.view_volume.bottom_fov == -45
         assert p_overlay.view_volume.top_fov == 45
         assert p_overlay.view_volume.near == 1
+        assert p_overlay.image_pyramid is not None
         assert p_overlay.image_pyramid.tile_size == 256
         assert p_overlay.image_pyramid.max_width == 2048
         assert p_overlay.image_pyramid.max_height == 2048
         assert p_overlay.image_pyramid.grid_origin == enums.GridOrigin.lower_left
+        assert p_overlay.point is not None
         assert p_overlay.point.id == "point_1"
+        assert p_overlay.point.geometry is not None
         assert p_overlay.point.geometry.x == -122.082204
         assert p_overlay.point.geometry.y == 37.422290
         assert p_overlay.point.geometry.z == 0
@@ -372,37 +378,45 @@ class TestPhotoOverlay(StdLibrary):
     def test_camera_altitude_int(self) -> None:
         po = overlays.PhotoOverlay(view=views.Camera())
         po.view.altitude = 123
+        assert po.view is not None
         assert po.view.altitude == 123
 
     def test_camera_altitude_float(self) -> None:
         po = overlays.PhotoOverlay(view=views.Camera())
         po.view.altitude = 123.4
+        assert po.view is not None
         assert po.view.altitude == 123.4
 
     def test_camera_altitude_string(self) -> None:
         po = overlays.PhotoOverlay(view=views.Camera())
         po.view.altitude = 123
+        assert po.view is not None
         assert po.view.altitude == 123
 
     def test_camera_altitude_none(self) -> None:
         po = overlays.PhotoOverlay(view=views.Camera())
         po.view.altitude = 123
+        assert po.view is not None
         assert po.view.altitude == 123
         po.view.altitude = None
+        assert po.view is not None
         assert po.view.altitude is None
 
     def test_camera_altitude_mode_default(self) -> None:
         po = overlays.PhotoOverlay(view=views.Camera())
+        assert po.view is not None
         assert po.view.altitude_mode is None
 
     def test_camera_altitude_mode_clamp(self) -> None:
         po = overlays.PhotoOverlay(view=views.Camera())
         po.view.altitude_mode = AltitudeMode("clampToGround")
+        assert po.view is not None
         assert po.view.altitude_mode == AltitudeMode("clampToGround")
 
     def test_camera_altitude_mode_absolute(self) -> None:
         po = overlays.PhotoOverlay(view=views.Camera())
         po.view.altitude_mode = AltitudeMode("absolute")
+        assert po.view is not None
         assert po.view.altitude_mode == AltitudeMode("absolute")
 
     def test_camera_initialization(self) -> None:

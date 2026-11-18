@@ -16,7 +16,7 @@
 
 """Test the gx classes."""
 
-import datetime
+import datetime as dt
 
 import pygeoif.geometry as geo
 import pytest
@@ -91,7 +91,7 @@ class TestGetGxGeometry(StdLibrary):
                     track_items=[
                         TrackItem(
                             when=KmlDateTime(
-                                dt=datetime.datetime(
+                                dt=dt.datetime(
                                     2020,
                                     1,
                                     1,
@@ -105,7 +105,7 @@ class TestGetGxGeometry(StdLibrary):
                         ),
                         TrackItem(
                             when=KmlDateTime(
-                                dt=datetime.datetime(
+                                dt=dt.datetime(
                                     2020,
                                     1,
                                     1,
@@ -123,7 +123,7 @@ class TestGetGxGeometry(StdLibrary):
                     track_items=[
                         TrackItem(
                             when=KmlDateTime(
-                                dt=datetime.datetime(
+                                dt=dt.datetime(
                                     2020,
                                     1,
                                     1,
@@ -137,7 +137,7 @@ class TestGetGxGeometry(StdLibrary):
                         ),
                         TrackItem(
                             when=KmlDateTime(
-                                dt=datetime.datetime(
+                                dt=dt.datetime(
                                     2020,
                                     1,
                                     1,
@@ -160,7 +160,7 @@ class TestTrack(StdLibrary):
 
     def test_track_from_track_items(self) -> None:
         time1 = KmlDateTime(
-            datetime.datetime(2023, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+            dt.datetime(2023, 1, 1, 0, 0, 0, tzinfo=dt.UTC),
         )
         angle = Angle()
         track_items = [TrackItem(when=time1, coord=geo.Point(1, 2), angle=angle)]
@@ -180,7 +180,7 @@ class TestTrack(StdLibrary):
     def test_track_from_whens_and_coords(self) -> None:
         whens = [
             KmlDateTime(
-                datetime.datetime(2023, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+                dt.datetime(2023, 1, 1, 0, 0, 0, tzinfo=dt.UTC),
             ),
         ]
         coords = [(1, 2)]
@@ -199,12 +199,12 @@ class TestTrack(StdLibrary):
     def test_track_from_whens_and_coords_and_track_items(self) -> None:
         whens = [
             KmlDateTime(
-                datetime.datetime(2023, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+                dt.datetime(2023, 1, 1, 0, 0, 0, tzinfo=dt.UTC),
             ),
         ]
         coords = [(1, 2)]
         time1 = KmlDateTime(
-            datetime.datetime(2023, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+            dt.datetime(2023, 1, 1, 0, 0, 0, tzinfo=dt.UTC),
         )
         angle = Angle()
         track_items = [TrackItem(when=time1, coord=geo.Point(1, 2), angle=angle)]
@@ -227,14 +227,14 @@ class TestTrack(StdLibrary):
             track_items=[
                 TrackItem(
                     when=KmlDateTime(
-                        dt=datetime.datetime(2010, 5, 28, 2, 2, 9, tzinfo=tzutc()),
+                        dt=dt.datetime(2010, 5, 28, 2, 2, 9, tzinfo=tzutc()),
                     ),
                     coord=geo.Point(-122.207881, 37.371915, 156.0),
                     angle=Angle(heading=45.54676, tilt=66.2342, roll=77.0),
                 ),
                 TrackItem(
                     when=KmlDateTime(
-                        dt=datetime.datetime(2010, 5, 28, 2, 2, 35, tzinfo=tzutc()),
+                        dt=dt.datetime(2010, 5, 28, 2, 2, 35, tzinfo=tzutc()),
                     ),
                     coord=geo.Point(-122.205712, 37.373288, 152.0),
                     angle=Angle(heading=1.0, tilt=2.0, roll=3.0),
@@ -291,56 +291,56 @@ class TestTrack(StdLibrary):
             track_items=[
                 TrackItem(
                     when=KmlDateTime(
-                        dt=datetime.datetime(2010, 5, 28, 2, 2, 9, tzinfo=tzutc()),
+                        dt=dt.datetime(2010, 5, 28, 2, 2, 9, tzinfo=tzutc()),
                     ),
                     coord=geo.Point(-122.207881, 37.371915, 156.0),
                     angle=Angle(heading=45.54676, tilt=66.2342, roll=77.0),
                 ),
                 TrackItem(
                     when=KmlDateTime(
-                        dt=datetime.datetime(2010, 5, 28, 2, 2, 35, tzinfo=tzutc()),
+                        dt=dt.datetime(2010, 5, 28, 2, 2, 35, tzinfo=tzutc()),
                     ),
                     coord=geo.Point(-122.205712, 37.373288, 152.0),
                     angle=Angle(heading=1.0, tilt=2.0, roll=3.0),
                 ),
                 TrackItem(
                     when=KmlDateTime(
-                        dt=datetime.datetime(2010, 5, 28, 2, 2, 44, tzinfo=tzutc()),
+                        dt=dt.datetime(2010, 5, 28, 2, 2, 44, tzinfo=tzutc()),
                     ),
                     coord=geo.Point(-122.204678, 37.373939, 147.0),
                     angle=Angle(heading=1.0, tilt=2.0, roll=3.0),
                 ),
                 TrackItem(
                     when=KmlDateTime(
-                        dt=datetime.datetime(2010, 5, 28, 2, 2, 53, tzinfo=tzutc()),
+                        dt=dt.datetime(2010, 5, 28, 2, 2, 53, tzinfo=tzutc()),
                     ),
                     coord=geo.Point(-122.203572, 37.37463, 142.199997),
                     angle=Angle(heading=1.0, tilt=2.0, roll=3.0),
                 ),
                 TrackItem(
                     when=KmlDateTime(
-                        dt=datetime.datetime(2010, 5, 28, 2, 2, 54, tzinfo=tzutc()),
+                        dt=dt.datetime(2010, 5, 28, 2, 2, 54, tzinfo=tzutc()),
                     ),
                     coord=geo.Point(-112.203451, 37.37469, 141.8),
                     angle=Angle(heading=1.0, tilt=2.0, roll=3.0),
                 ),
                 TrackItem(
                     when=KmlDateTime(
-                        dt=datetime.datetime(2010, 5, 28, 2, 2, 55, tzinfo=tzutc()),
+                        dt=dt.datetime(2010, 5, 28, 2, 2, 55, tzinfo=tzutc()),
                     ),
                     coord=geo.Point(-122.203451, 37.374706, 141.800003),
                     angle=Angle(heading=1.0, tilt=2.0, roll=3.0),
                 ),
                 TrackItem(
                     when=KmlDateTime(
-                        dt=datetime.datetime(2010, 5, 28, 2, 2, 56, tzinfo=tzutc()),
+                        dt=dt.datetime(2010, 5, 28, 2, 2, 56, tzinfo=tzutc()),
                     ),
                     coord=geo.Point(-122.203329, 37.37478, 141.199997),
                     angle=Angle(heading=1.0, tilt=2.0, roll=3.0),
                 ),
                 TrackItem(
                     when=KmlDateTime(
-                        dt=datetime.datetime(2010, 5, 28, 2, 2, 57, tzinfo=tzutc()),
+                        dt=dt.datetime(2010, 5, 28, 2, 2, 57, tzinfo=tzutc()),
                     ),
                     coord=geo.Point(-122.203207, 37.374857, 140.199997),
                     angle=Angle(heading=0.0, tilt=0.0, roll=0.0),
@@ -489,7 +489,7 @@ class TestMultiTrack(StdLibrary):
                     track_items=[
                         TrackItem(
                             when=KmlDateTime(
-                                datetime.datetime(
+                                dt.datetime(
                                     2010,
                                     5,
                                     28,
@@ -504,7 +504,7 @@ class TestMultiTrack(StdLibrary):
                         ),
                         TrackItem(
                             when=KmlDateTime(
-                                datetime.datetime(
+                                dt.datetime(
                                     2010,
                                     5,
                                     28,
@@ -519,7 +519,7 @@ class TestMultiTrack(StdLibrary):
                         ),
                         TrackItem(
                             when=KmlDateTime(
-                                datetime.datetime(
+                                dt.datetime(
                                     2010,
                                     5,
                                     28,
@@ -534,7 +534,7 @@ class TestMultiTrack(StdLibrary):
                         ),
                         TrackItem(
                             when=KmlDateTime(
-                                datetime.datetime(
+                                dt.datetime(
                                     2010,
                                     5,
                                     28,
@@ -554,7 +554,7 @@ class TestMultiTrack(StdLibrary):
                     track_items=[
                         TrackItem(
                             when=KmlDateTime(
-                                datetime.datetime(
+                                dt.datetime(
                                     2010,
                                     5,
                                     28,
@@ -569,7 +569,7 @@ class TestMultiTrack(StdLibrary):
                         ),
                         TrackItem(
                             when=KmlDateTime(
-                                datetime.datetime(
+                                dt.datetime(
                                     2010,
                                     5,
                                     28,

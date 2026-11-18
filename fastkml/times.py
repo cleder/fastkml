@@ -24,9 +24,9 @@ https://developers.google.com/kml/documentation/time
 """
 
 import re
+from datetime import UTC
 from datetime import date
 from datetime import datetime
-from datetime import timezone
 from typing import Any
 
 import arrow
@@ -180,7 +180,7 @@ class KmlDateTime:
             and (self.dt.tzinfo is not None)
             and (other.dt.tzinfo is not None)
         ):
-            return self.dt.astimezone(timezone.utc) == other.dt.astimezone(timezone.utc)
+            return self.dt.astimezone(UTC) == other.dt.astimezone(UTC)
         return self.dt == other.dt
 
     __hash__ = None  # type: ignore[assignment]

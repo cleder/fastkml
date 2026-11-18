@@ -15,7 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
 """Common functionality for property based tests."""
 
-import datetime
+import datetime as dt
 import logging
 
 from dateutil.tz import tzfile
@@ -64,7 +64,7 @@ eval_locals = {
     "RefreshMode": RefreshMode,
     "TrackItem": TrackItem,
     "Angle": Angle,
-    "datetime": datetime,
+    "datetime": dt,
     "DateTimeResolution": DateTimeResolution,
     "DataType": DataType,
     "Units": Units,

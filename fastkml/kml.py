@@ -33,9 +33,8 @@ from pathlib import Path
 from typing import IO
 from typing import Any
 from typing import AnyStr
+from typing import Self
 from typing import cast
-
-from typing_extensions import Self
 
 from fastkml import config
 from fastkml import validator
@@ -173,7 +172,7 @@ class KML(_XMLObject):
             # namespace; lxml-stubs' `_NSMapArg` doesn't model this.
             root = config.etree.Element(
                 f"{self.ns}{self.get_tag_name()}",
-                nsmap={None: self.ns[1:-1]},  # type: ignore[dict-item]  # ty: ignore[invalid-argument-type]
+                nsmap={None: self.ns[1:-1]},  # type: ignore[dict-item]
             )
         else:
             root = config.etree.Element(

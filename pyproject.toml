@@ -15,7 +15,6 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -40,7 +39,7 @@ dynamic = [
     "version",
 ]
 name = "fastkml"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 
 [project.license]
 text = "LGPL"
@@ -287,7 +286,7 @@ include = [
 ]
 
 [tool.ty.overrides.rules]
-unresolved-attribute = "ignore"
+missing-attribute = "ignore"
 
 [[tool.ty.overrides]]
 include = [
@@ -297,7 +296,7 @@ include = [
 [tool.ty.overrides.rules]
 # Same rationale as the pyrefly tests/**/* sub-config above.
 invalid-assignment = "ignore"
-unresolved-attribute = "ignore"
+missing-attribute = "ignore"
 
 [tool.ty.rules]
 # Promote checks ty leaves at "warn"/"ignore" by default, to match the

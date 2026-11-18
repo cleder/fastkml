@@ -52,7 +52,7 @@ logger = logging.getLogger(__name__)
 def set_etree_implementation(implementation: ModuleType) -> None:
     """Set the etree implementation to use."""
     global etree  # noqa: PLW0603
-    etree = implementation  # type: ignore[assignment]  # ty: ignore[invalid-assignment]
+    etree = implementation  # type: ignore[assignment]
 
 
 KML: Final = "kml"
