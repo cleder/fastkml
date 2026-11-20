@@ -20,13 +20,16 @@ These tests use the hypothesis library to generate random input for the
 functions under test. The tests are run with pytest.
 """
 
+from hypothesis import HealthCheck
 from hypothesis import given
+from hypothesis import settings
 from hypothesis import strategies as st
 
 import fastkml
 import fastkml.enums
 import fastkml.times
 from tests.base import Lxml
+from tests.base import PyuppsalaNoSchemaValidation
 from tests.hypothesis.common import assert_repr_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip
 from tests.hypothesis.common import assert_str_roundtrip_terse
@@ -73,3 +76,17 @@ class TestTimes(Lxml):
         assert_str_roundtrip(time_span)
         assert_str_roundtrip_terse(time_span)
         assert_str_roundtrip_verbose(time_span)
+
+
+class TestPyuppsala(PyuppsalaNoSchemaValidation, TestTimes):
+    # Reusing `TestTimes`'s hypothesis-wrapped test method (rather than
+    # duplicating its `@given` strategy and body) makes hypothesis flag
+    # `HealthCheck.differing_executors`, since the same underlying test
+    # function is now invoked from two classes. That's exactly what's
+    # happening here, deliberately, so it's suppressed rather than avoided.
+    test_fuzz_time_stamp = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestTimes.test_fuzz_time_stamp)
+    test_fuzz_time_span = settings(
+        suppress_health_check=[HealthCheck.differing_executors],
+    )(TestTimes.test_fuzz_time_span)

@@ -28,6 +28,7 @@ from fastkml.geometry import Point
 from fastkml.geometry import Polygon
 from fastkml.geometry import create_kml_geometry
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 
@@ -602,9 +603,21 @@ class TestGetGeometryLxml(Lxml, TestGetGeometry):
     """Test with lxml."""
 
 
+class TestGetGeometryPyuppsala(Pyuppsala, TestGetGeometry):
+    """Test with pyuppsala."""
+
+
 class TestGeometryLxml(Lxml, TestGeometry):
     """Test with lxml."""
 
 
+class TestGeometryPyuppsala(Pyuppsala, TestGeometry):
+    """Test with pyuppsala."""
+
+
 class TestCreateKmlGeometryLxml(Lxml, TestCreateKmlGeometry):
     """Test with lxml."""
+
+
+class TestCreateKmlGeometryPyuppsala(Pyuppsala, TestCreateKmlGeometry):
+    """Test with pyuppsala."""

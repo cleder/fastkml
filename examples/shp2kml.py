@@ -2,6 +2,8 @@
 import csv
 import pathlib
 import random
+from typing import TYPE_CHECKING
+from typing import cast
 
 import shapefile
 from pygeoif.factories import force_3d
@@ -14,6 +16,10 @@ import fastkml.styles
 from fastkml.enums import AltitudeMode
 from fastkml.enums import ColorMode
 from fastkml.geometry import create_kml_geometry
+
+if TYPE_CHECKING:
+    from pygeoif.types import GeoCollectionInterface
+    from pygeoif.types import GeoInterface
 
 examples_dir = pathlib.Path(__file__).parent
 
@@ -34,8 +40,12 @@ with co2_csv.open() as csvfile:
 document = fastkml.containers.Document()
 
 for feature in shp.__geo_interface__["features"]:
-    geometry = shape(feature["geometry"])
-    co2_emission = co2_data.get(feature["properties"]["ADM0_ISO"], 0)
+    properties = feature["properties"]
+    assert properties is not None  # noqa: S101
+    raw_geometry = feature["geometry"]
+    assert raw_geometry is not None  # noqa: S101
+    geometry = shape(cast("GeoInterface | GeoCollectionInterface", raw_geometry))
+    co2_emission = co2_data.get(properties["ADM0_ISO"], 0)
     geometry = force_3d(geometry, co2_emission * 100_000)
     kml_geometry = create_kml_geometry(
         geometry,
@@ -44,7 +54,7 @@ for feature in shp.__geo_interface__["features"]:
     )
     color = random.randint(0, 0xFFFFFF)
     style = fastkml.styles.Style(
-        id=feature["properties"]["ADM0_ISO"],
+        id=properties["ADM0_ISO"],
         styles=[
             fastkml.styles.LineStyle(color=f"55{color:06X}", width=2),
             fastkml.styles.PolyStyle(
@@ -56,10 +66,10 @@ for feature in shp.__geo_interface__["features"]:
         ],
     )
 
-    style_url = fastkml.styles.StyleUrl(url=f"#{feature['properties']['ADM0_ISO']}")
+    style_url = fastkml.styles.StyleUrl(url=f"#{properties['ADM0_ISO']}")
     placemark = fastkml.features.Placemark(
-        name=feature["properties"]["NAME"],
-        description=feature["properties"]["FORMAL_EN"],
+        name=properties["NAME"],
+        description=properties["FORMAL_EN"],
         kml_geometry=kml_geometry,
         styles=[style],
     )

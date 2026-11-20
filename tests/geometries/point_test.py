@@ -25,6 +25,7 @@ from fastkml.exceptions import KMLParseError
 from fastkml.geometry import Coordinates
 from fastkml.geometry import Point
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 
@@ -298,3 +299,7 @@ class TestPoint(StdLibrary):
 
 class TestPointLxml(Lxml, TestPoint):
     """Test with lxml."""
+
+
+class TestPointPyuppsala(Pyuppsala, TestPoint):
+    """Test with pyuppsala."""

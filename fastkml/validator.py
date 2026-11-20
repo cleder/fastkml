@@ -18,6 +18,7 @@
 import logging
 import pathlib
 from functools import lru_cache
+from types import ModuleType
 from typing import TYPE_CHECKING
 from typing import Final
 from typing import cast
@@ -32,10 +33,15 @@ if TYPE_CHECKING:
     from typing_extensions import Protocol
 
     class _LogEntry(Protocol):
-        """A single entry of an lxml `_ErrorLog`, which lxml-stubs omits."""
+        """
+        A single entry of an lxml `_ErrorLog`, which lxml-stubs omits.
+
+        Other etree-compatible backends (e.g. pyuppsala) provide `message`
+        but not `path`.
+        """
 
         message: str
-        path: str
+        path: str | None
 
 
 __all__ = [
@@ -51,6 +57,17 @@ REQUIRE_ONE_OF: Final = "Either element or file_to_validate must be provided."
 
 
 @lru_cache(maxsize=16)
+def _build_schema_parser(
+    etree_module: ModuleType,
+    schema: pathlib.Path,
+) -> "etree.XMLSchema":
+    # Build from the file path (not a parsed tree) so relative
+    # xsd:import/xsd:include schemaLocations resolve against the schema's own
+    # directory; some backends (e.g. pyuppsala) lose that location when given
+    # an already-parsed tree instead of a file.
+    return etree_module.XMLSchema(file=schema)
+
+
 def get_schema_parser(
     schema: pathlib.Path | None = None,
 ) -> "etree.XMLSchema":
@@ -70,7 +87,17 @@ def get_schema_parser(
     """
     if schema is None:
         schema = pathlib.Path(__file__).parent / "schema" / "ogckml22.xsd"
-    return config.etree.XMLSchema(config.etree.parse(schema))
+    # Keyed on the currently active etree module too, not just `schema`: a
+    # process that calls `config.set_etree_implementation()` to switch
+    # backends (e.g. between test runs, or a real caller alternating
+    # implementations) must not be handed back a schema object built for the
+    # previously active backend.
+    return _build_schema_parser(config.etree, schema)
+
+
+get_schema_parser.cache_clear = (  # type: ignore[attr-defined]  # ty: ignore[unresolved-attribute]
+    _build_schema_parser.cache_clear
+)
 
 
 def handle_validation_error(
@@ -90,8 +117,9 @@ def handle_validation_error(
     # attributes, even though the real lxml class supports both.
     log = cast("Iterable[_LogEntry]", schema_parser.error_log)
     for error_entry in log:
+        path = getattr(error_entry, "path", None)
         try:
-            matches = cast("list[Element]", element.xpath(error_entry.path))
+            matches = cast("list[Element]", element.xpath(path) if path else [])
             parent = matches[0].getparent()
         except (config.etree.XPathEvalError, IndexError):
             parent = element
@@ -109,6 +137,24 @@ def handle_validation_error(
             error_entry.message,
             error_in_xml,
         )
+
+
+def assert_valid(schema_parser: "etree.XMLSchema", element: Element) -> None:
+    """
+    Raise `AssertionError` if `element` does not validate against `schema_parser`.
+
+    lxml's `XMLSchema.assert_()` already raises `AssertionError`; other
+    etree-compatible backends (e.g. pyuppsala) only provide `assertValid()`,
+    which raises its own exception type, so it is re-raised as
+    `AssertionError` here to give callers a backend-independent contract.
+    """
+    if hasattr(schema_parser, "assert_"):
+        schema_parser.assert_(element)  # noqa: PT009
+        return
+    try:
+        schema_parser.assertValid(element)
+    except Exception as error:
+        raise AssertionError(str(error)) from error
 
 
 def validate(
@@ -147,7 +193,7 @@ def validate(
         element = config.etree.parse(file_to_validate).getroot()
     assert element is not None  # noqa: S101
     try:
-        schema_parser.assert_(element)  # noqa: PT009
+        assert_valid(schema_parser, element)
     except AssertionError:
         handle_validation_error(schema_parser, element)
         raise

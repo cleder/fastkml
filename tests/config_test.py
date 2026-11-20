@@ -27,6 +27,13 @@ try:
 except ImportError:
     LXML = False
 
+try:
+    import pyuppsala.etree
+
+    PYUPPSALA = True
+except ImportError:
+    PYUPPSALA = False
+
 from fastkml import config
 
 
@@ -43,9 +50,31 @@ def test_set_etree_implementation_lxml() -> None:
     assert config.etree.__name__ == "lxml.etree"
 
 
+@pytest.mark.skipif(not PYUPPSALA, reason="pyuppsala not installed")
+def test_set_etree_implementation_pyuppsala() -> None:
+    config.set_etree_implementation(pyuppsala.etree)
+
+    assert config.etree.__name__ == "pyuppsala.etree"
+
+
 def test_register_namespaces() -> None:
     """Register namespaces for use in etree."""
     config.set_etree_implementation(ET)
+    ns = {
+        "real_person": "http://people.example.com",
+        "role": "http://characters.example.com",
+    }
+
+    config.register_namespaces(**ns)
+
+    for k, v in ns.items():
+        assert config.etree._namespace_map[v] == k
+
+
+@pytest.mark.skipif(not PYUPPSALA, reason="pyuppsala not installed")
+def test_register_namespaces_pyuppsala() -> None:
+    """Register namespaces for use in etree."""
+    config.set_etree_implementation(pyuppsala.etree)
     ns = {
         "real_person": "http://people.example.com",
         "role": "http://characters.example.com",
@@ -68,6 +97,19 @@ def test_default_registered_namespaces() -> None:
 def test_set_default_namespaces() -> None:
     """Set the default namespaces."""
     config.set_etree_implementation(ET)
+    empty_namespace_map: dict[str, str] = {}
+    config.etree._namespace_map = empty_namespace_map
+
+    config.set_default_namespaces()
+
+    for k, v in config.DEFAULT_NAME_SPACES.items():
+        assert config.etree._namespace_map[v] == k
+
+
+@pytest.mark.skipif(not PYUPPSALA, reason="pyuppsala not installed")
+def test_set_default_namespaces_pyuppsala() -> None:
+    """Set the default namespaces."""
+    config.set_etree_implementation(pyuppsala.etree)
     empty_namespace_map: dict[str, str] = {}
     config.etree._namespace_map = empty_namespace_map
 

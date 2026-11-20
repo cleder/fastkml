@@ -29,6 +29,7 @@ from fastkml.enums import Verbosity
 from fastkml.exceptions import KMLParseError
 from fastkml.features import Placemark
 from tests.base import Lxml
+from tests.base import Pyuppsala
 from tests.base import StdLibrary
 
 
@@ -763,3 +764,7 @@ class TestStyleUsage:
 
 class TestLxml(Lxml, TestStdLibrary):
     """Test with lxml."""
+
+
+class TestPyuppsala(Pyuppsala, TestStdLibrary):
+    """Test with pyuppsala."""
